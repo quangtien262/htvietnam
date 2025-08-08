@@ -41,11 +41,11 @@ import "../../../../css/hoa_don.css";
 
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 
-import { contentThuNganConfig, contentDoiCa } from "../../../Components/comp_hoa_don";
+import { contentThuNganConfig, contentDoiCa } from "../../../components/comp_hoa_don";
 
 import { callApi } from "../../../Function/api";
 
-import { khachHangInfo } from "../../../Components/khach_hang_info";
+import { khachHangInfo } from "../../../components/khach_hang_info";
 
 const { TextArea } = Input;
 

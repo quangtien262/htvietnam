@@ -39,7 +39,7 @@ import {callApi} from "../../../Function/api";
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 import dayjs from "dayjs";
 
-import { nhaCungCapInfo } from "../../../Components/comp_nha_cung_cap";
+import { nhaCungCapInfo } from "../../../components/comp_nha_cung_cap";
 
 import { DATE_FORMAT, DATE_TIME_FORMAT} from '../../../Function/constant';
 import { cloneDeep } from "lodash";

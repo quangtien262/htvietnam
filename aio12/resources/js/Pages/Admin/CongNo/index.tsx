@@ -48,9 +48,9 @@ import {callApi} from "../../../Function/api";
 
 
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../../Function/common";
-import { nhaCungCapInfo } from "../../../Components/comp_nha_cung_cap";
-import { khachHangInfo } from "../../../Components/khach_hang_info";
-import { khachTraHang, nhapHang, traHangNCC } from "../../../Components/comp_hoa_don";
+import { nhaCungCapInfo } from "../../../components/comp_nha_cung_cap";
+import { khachHangInfo } from "../../../components/khach_hang_info";
+import { khachTraHang, nhapHang, traHangNCC } from "../../../components/comp_hoa_don";
 
 import dayjs from "dayjs";
 

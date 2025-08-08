@@ -47,7 +47,7 @@ import "../../../../css/form.css";
 import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../../Function/common";
 import { callApi } from "../../../Function/api";
 import { DATE_TIME_FORMAT } from "../../../Function/constant";
-import { icon } from "../../../Components/comp_icon";
+import { icon } from "../../../components/comp_icon";
 
 import {
   getTasks,

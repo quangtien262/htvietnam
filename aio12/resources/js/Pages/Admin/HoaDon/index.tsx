@@ -53,9 +53,9 @@ import "../../../../css/form.css";
 
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 
-import { khachHangInfo } from "../../../Components/khach_hang_info";
+import { khachHangInfo } from "../../../components/khach_hang_info";
 
-import { checkBtnActive } from "../../../Components/hoa_don_info";
+import { checkBtnActive } from "../../../components/hoa_don_info";
 
 import { cloneDeep } from "lodash";
 import dayjs from "dayjs";
