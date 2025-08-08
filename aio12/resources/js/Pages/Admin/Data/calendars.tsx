@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/inertia-react";
-import { Badge, Calendar, Select, Typography, Row, Col, Radio, Spin, Modal, Form, Button, message, List } from "antd";
+import AdminLayout from "@/layouts/AdminLayout";
+import { Badge, Calendar, Select,  Row, Col, Radio, Spin, Modal, Form, message, List } from "antd";
 import { Link, router } from "@inertiajs/react";
 import axios from 'axios';
 

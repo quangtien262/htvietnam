@@ -1,15 +1,12 @@
 import React from 'react';
 import AdminLayout from '@/layouts/AdminLayout';
-import { Head } from '@inertiajs/inertia-react';
-import { Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form,Statistic,
-    Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, List, Popconfirm,
-    Divider, Table, Spin, Badge } from 'antd';
+import { Select, Col, Row,  Card, Statistic, List} from 'antd';
 import { router } from '@inertiajs/react';
 
 import {
     UsergroupAddOutlined,
     UserSwitchOutlined,
-    UserOutlined,ArrowUpOutlined ,
+    ArrowUpOutlined ,
     PlusOutlined,ArrowDownOutlined,
     MinusOutlined,
     SoundOutlined,MonitorOutlined,

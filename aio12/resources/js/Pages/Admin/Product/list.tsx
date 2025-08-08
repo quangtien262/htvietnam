@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/inertia-react";
+import AdminLayout from "@/layouts/AdminLayout";
 import {
     Button,
     Table,
@@ -15,7 +14,7 @@ import {
     Tabs,
     Col, Image, Radio, List
 } from "antd";
-import { Link, router } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import axios from "axios";
 import {
     DeleteOutlined,

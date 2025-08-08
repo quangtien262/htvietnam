@@ -1,26 +1,16 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/Layouts/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import {
     Button,
-    Table,
-    message,
-    Modal,
     Form,
     Input,
     InputNumber,
     Popconfirm,
-    Typography,
     Select,
     Row,Col,
     Space,
-    Tag,
-    Card,
-    Descriptions,
-    notification,
     Divider,
-    Image,
     Upload,
-    Tooltip ,
     Switch, Radio, DatePicker
 } from "antd";
 

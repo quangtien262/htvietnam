@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/inertia-react";
+import { useState } from "react";
+import AdminLayout from "@/layouts/AdminLayout";
 import {
     Select,
     Descriptions,

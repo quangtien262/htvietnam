@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, router } from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 
 import {
     Button,

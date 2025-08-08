@@ -1,5 +1,5 @@
 import  { useState } from "react";
-import AdminLayout from "@/Layouts/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import {
     Button,
     Table,
