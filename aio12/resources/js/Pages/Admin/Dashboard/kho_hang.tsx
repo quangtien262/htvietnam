@@ -1,6 +1,5 @@
 import { useState } from "react";
 import AdminLayout from '@/Layouts/AdminLayout';
-import { router } from "@inertiajs/react";
 
 import {
     Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Statistic,

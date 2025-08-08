@@ -1,7 +1,5 @@
-import React from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head } from '@inertiajs/inertia-react';
-import { Link, router } from "@inertiajs/react";
+import {  router } from "@inertiajs/react";
 
 import {
     Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Statistic,
