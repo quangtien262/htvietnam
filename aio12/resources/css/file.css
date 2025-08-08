@@ -1,0 +1,25 @@
+.file-item .anticon {
+    font-size: 100px;
+}
+.file-name{
+    /* max-width: 150px; */
+    overflow: hidden;
+    height: 50px;
+    word-break: break-all;
+}
+.row-file {
+    text-align: center;
+    padding-top: 5px;
+}
+.row-file:hover {
+    background-color: #e9e6e6;
+}
+ul.popup li {
+    list-style: none;
+    margin-left: -40px;
+    line-height: 30px;
+}
+.ant-image {
+    max-width: 100%;
+}
+.ant-image-mask-info {display: none;}

@@ -1,0 +1,76 @@
+.item-task {
+    border-bottom: 1px #ccc dashed;
+    min-height: 70px;
+    background-color: #fff;
+    padding: 1px 10px;
+}
+.main-task {
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.item-form-textarea  textarea {
+    height: auto;
+}
+.title-task {
+    padding-left: 10px;
+    background-color: #e9f0ff;
+    margin-top: 0px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+.main-task-detail {
+    width: 100%;
+}
+.ant-drawer-content-wrapper {
+    max-width: 1000px !important;
+}
+.tasks-container {
+    width: 100%;
+    overflow: auto;
+}
+
+#formSearch label{
+    font-weight: normal;
+    padding-left: 7px;
+}
+
+.description01 {
+    color: #4b5563;
+    margin-top: 5px;
+    margin-bottom: 7px;
+}
+.title04 {
+    margin-top: 7px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+.edit-description {
+    width: 400px;
+    max-width: 100%;
+}
+.title-desc {
+    color: #000;
+}
+.desc {
+    font-weight: normal;
+    color: #4b5563;
+}
+.description01 .ant-empty-image {
+    display: none;
+}
+.description01 .ant-empty-description {
+    color: #4b5563;
+}
+.edit-description .ant-form-item-control-input-content textarea {
+    height: 100px;
+}
+.date01 {
+    color: #4b5563;
+    font-size: 12px;
+}
+.value-list {
+    color:#6b7280
+}
+.cursor:hover {
+    color: darkslategray;
+}

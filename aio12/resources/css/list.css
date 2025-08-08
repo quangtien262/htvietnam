@@ -1,0 +1,8 @@
+th.ant-table-cell {
+    font-weight: bold !important;
+    background: #e7f1fb !important;
+}
+td.ant-table-cell {
+    padding: 0px 7px !important;
+    min-height: 30px  !important;
+}

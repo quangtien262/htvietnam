@@ -1,0 +1,18 @@
+
+
+.main-search-left .item-search{
+    padding-left: 0px !important;
+}
+.main-search-left .item-search .ant-form-item{
+    background-color: #fff;
+    padding: 10px 5px;
+}
+
+.main-search-left .item-search .ant-form-item .ant-form-item-label{
+    border-bottom: 1px #ccc dashed;
+    padding: 0px;
+    margin-bottom: 10px;
+}
+.dv_trong_goi {
+    width: 100%;
+}

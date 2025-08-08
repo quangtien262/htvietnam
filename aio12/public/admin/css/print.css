@@ -1,0 +1,55 @@
+body {
+    font-family: 'Times New Roman', serif;
+    font-size: 14px;
+    margin: 40px;
+}
+
+.invoice {
+    width: 700px;
+    margin: 0 auto;
+}
+
+.center {
+    text-align: center;
+}
+
+.header,
+.footer {
+    border-top: 1px dotted #000;
+    border-bottom: 1px #000 dashed;
+    margin: 10px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th,
+table td {
+    padding: 6px 4px;
+    text-align: left;
+    border-bottom: 1px dotted #000;
+}
+
+.right {
+    text-align: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.total {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.info {
+    margin-top: 20px;
+}
+.text-right td {
+    font-weight: bold;
+    text-align: right;
+}
