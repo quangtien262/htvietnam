@@ -1,5 +1,5 @@
 import { useState} from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Col, Row, Card, Button, Form, Space, Upload, message } from 'antd';
 import { FormOutlined, UploadOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';

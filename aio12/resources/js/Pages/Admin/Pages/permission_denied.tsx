@@ -1,6 +1,5 @@
 import React from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Head } from '@inertiajs/inertia-react';
+import AdminLayout from '@/layouts/AdminLayout';
 
 export default function Dashboard(props) {
 

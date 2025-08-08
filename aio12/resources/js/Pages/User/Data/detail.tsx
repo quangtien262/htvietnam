@@ -1,8 +1,7 @@
 import { useState  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Select, Col, Row, Descriptions, Card, Button, Popconfirm, message, Carousel, Image, Calendar, Space, } from 'antd';
 import { Link } from '@inertiajs/react';
-import parse from 'html-react-parser';
 import axios from 'axios';
 import { router } from '@inertiajs/react';
 

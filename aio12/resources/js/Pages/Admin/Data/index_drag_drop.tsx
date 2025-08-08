@@ -1,6 +1,5 @@
 import React, { useState, useEffect  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Head } from '@inertiajs/inertia-react';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Button, Table, message, Modal, Form, Input,InputNumber, Popconfirm, Typography, Select, Radio, Card, Tree, Space  } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { routeQLKho } from "../../../Function/config_route";

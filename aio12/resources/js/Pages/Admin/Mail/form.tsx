@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Button, message, Form, Input, Select, Col, Row } from 'antd';
 import axios from 'axios';
 import '../../../../css/form.css';

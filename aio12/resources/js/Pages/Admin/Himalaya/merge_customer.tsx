@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Head } from '@inertiajs/inertia-react';
 import { Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, 
     Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, Radio, Popconfirm, 

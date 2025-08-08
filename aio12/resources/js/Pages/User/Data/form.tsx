@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, Radio, Popconfirm } from 'antd';
 import { FormOutlined, CopyOutlined, UploadOutlined } from '@ant-design/icons';
 import { router, Link } from '@inertiajs/react';

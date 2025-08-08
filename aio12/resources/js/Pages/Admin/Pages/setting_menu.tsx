@@ -1,6 +1,6 @@
 import  { useState  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
-import {message,  Form, Select, Card, Tree } from 'antd';
+import AdminLayout from '@/layouts/AdminLayout';
+import {message, Card, Tree } from 'antd';
 
 import axios from 'axios';
 import { router } from '@inertiajs/react';

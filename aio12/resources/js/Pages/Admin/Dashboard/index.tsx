@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Select, Col, Row, Card,Modal, Button  } from 'antd';
 import { Link, router } from "@inertiajs/react";
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Button, Table, message, Modal, Form, Input,InputNumber, Popconfirm, Descriptions, Select, Card, Checkbox, Col, Row, Tree, Space } from 'antd';
 import { Link } from '@inertiajs/react';
 import axios from 'axios';

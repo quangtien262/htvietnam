@@ -1,5 +1,5 @@
 import { useState  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Button, Table, message, Form, Select, Card, Tree  } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import { Button, Table, message, Modal, Form, Input, InputNumber, Popconfirm, Typography, Select, Row, Space, Tag, Card, Descriptions  } from 'antd';
 import { ExclamationCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
