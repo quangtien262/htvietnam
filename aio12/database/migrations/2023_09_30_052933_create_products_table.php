@@ -15,7 +15,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('product', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
@@ -103,7 +103,7 @@ return new class extends Migration
         });
 
         Table::create([
-            'name' => 'product',
+            'name' => 'products',
             'display_name' => 'Hàng hóa',
             'sort_order' => 0,
             'type_show' => config('constant.type_show.basic'),
@@ -120,7 +120,7 @@ return new class extends Migration
             'is_label' => 0,
             'search_position' => 1
         ]);
-        $tbl = Table::where('name', 'product')->first();
+        $tbl = Table::where('name', 'products')->first();
         $tableId = $tbl->id;
         $order_col = 1;
 
@@ -272,6 +272,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product');
+        Schema::dropIfExists('products');
     }
 };

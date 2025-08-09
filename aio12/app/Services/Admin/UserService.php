@@ -107,11 +107,11 @@ class UserService
         $congNo = CongNo::select(
                 'cong_no.*',
                 'cong_no.*',
-                'product.name as product_name',
+                'products.name as product_name',
                 'cong_no_status.name as cong_no_status_name'
             )
             ->where('cong_no.users_id', $khachHangId)
-            ->leftJoin('product', 'product.id', 'cong_no.product_id')
+            ->leftJoin('products', 'products.id', 'cong_no.product_id')
             ->leftJoin('hoa_don', 'hoa_don.id', 'cong_no.product_id')
             ->leftJoin('cong_no_status', 'cong_no_status.id', 'cong_no.cong_no_status_id')
             ->orderBy('cong_no.cong_no_status_id', 'desc')

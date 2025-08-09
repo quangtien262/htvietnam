@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class Product extends Model
 {
     // save product -> check ton_kho để update lại tên sp nếu đổi tên
-    protected $table = 'product';
+    protected $table = 'products';
 
     protected $casts = [
         'images' => Json::class,
@@ -35,19 +35,19 @@ class Product extends Model
     static function baseQuery()
     {
         $products = self::select(
-            'product.id as key',
-            'product.name as name',
-            'product.*',
+            'products.id as key',
+            'products.name as name',
+            'products.*',
             'product_group.name as product_group_name',
             'thuong_hieu.name as thuong_hieu_name',
             'product_type.name as product_type_name',
             'product_vi_tri.name as vi_tri_name',
         )
-            ->leftJoin('thuong_hieu', 'product.thuong_hieu_id', 'thuong_hieu.id')
-            ->leftJoin('product_group', 'product.product_group_id', 'product_group.id')
-            ->leftJoin('product_type', 'product.product_type_id', 'product_type.id')
-            ->leftJoin('product_vi_tri', 'product.vi_tri_id', 'product_vi_tri.id')
-            ->where('product.is_parent', 0);
+            ->leftJoin('thuong_hieu', 'products.thuong_hieu_id', 'thuong_hieu.id')
+            ->leftJoin('product_group', 'products.product_group_id', 'product_group.id')
+            ->leftJoin('product_type', 'products.product_type_id', 'product_type.id')
+            ->leftJoin('product_vi_tri', 'products.vi_tri_id', 'product_vi_tri.id')
+            ->where('products.is_parent', 0);
         return $products;
     }
 
@@ -56,31 +56,31 @@ class Product extends Model
         $products = self::baseQuery();
 
         if (!empty($request->keyword)) {
-            $products = $products->where('product.name', 'like', '%' . $request->keyword . '%');
+            $products = $products->where('products.name', 'like', '%' . $request->keyword . '%');
         }
         if (!empty($request->product_type_id)) {
-            $products = $products->whereIn('product.product_type_id', $request->product_type_id);
+            $products = $products->whereIn('products.product_type_id', $request->product_type_id);
         }
         if (!empty($request->product_group_id)) {
-            $products = $products->whereIn('product.product_group_id', $request->product_group_id);
+            $products = $products->whereIn('products.product_group_id', $request->product_group_id);
         }
         if (!empty($request->thuong_hieu_id)) {
-            $products = $products->whereIn('product.thuong_hieu_id', $request->thuong_hieu_id);
+            $products = $products->whereIn('products.thuong_hieu_id', $request->thuong_hieu_id);
         }
         if (!empty($request->vi_tri_id)) {
-            $products = $products->whereIn('product.vi_tri_id', $request->vi_tri_id);
+            $products = $products->whereIn('products.vi_tri_id', $request->vi_tri_id);
         }
 
         if (!empty($request->ngung_kinh_doanh)) {
             if ($request->ngung_kinh_doanh == 2) {
-                $products = $products->where('product.is_draft', 1);
+                $products = $products->where('products.is_draft', 1);
             } else {
-                $products = $products->where('product.ngung_kinh_doanh', $request->ngung_kinh_doanh);
-                $products = $products->where('product.is_draft', '!=', 1);
+                $products = $products->where('products.ngung_kinh_doanh', $request->ngung_kinh_doanh);
+                $products = $products->where('products.is_draft', '!=', 1);
             }
         } else {
-            $products = $products->where('product.ngung_kinh_doanh', '!=', 1);
-            $products = $products->where('product.is_draft', '!=', 1);
+            $products = $products->where('products.ngung_kinh_doanh', '!=', 1);
+            $products = $products->where('products.is_draft', '!=', 1);
         }
 
         $products = $products->orderBy('id', 'desc');

@@ -105,7 +105,7 @@ return new class extends Migration
             'placeholder' => 'Tự động tạo nếu bỏ trống',
             'auto_generate_code' => '{"edit":0, "prefix":"NH", "length":5}'
         ]);
-        $prod = Table::where('name', 'product')->first();
+        $prod = Table::where('name', 'products')->first();
 
         MigrateService::createColumn02($tableId, 'ton_kho', 'Tồn kho', 'INT', 'number', $order_col++, 
         ['show_in_list' => 0, 'require' => 1, 'edit' => 0, 'show_in_detail' => 1]);

@@ -340,7 +340,7 @@ class CrawlService
             // dd($vc->ID_DonViTinh);
             $hh = DB::table('product_group')->where('lucky_id', $vc->ID_NhomHang)->first();
 
-            $count = DB::table('product')->where('lucky_id', $vc->ID)->count();
+            $count = DB::table('products')->where('lucky_id', $vc->ID)->count();
             if ($count > 0) {
                 continue;
             }
@@ -369,13 +369,13 @@ class CrawlService
                 // 'gia_ban' => $vc->GiaBanLe,
             ];
             if ($idx == 100) {
-                DB::table('product')->insert($data);
+                DB::table('products')->insert($data);
                 $data = [];
                 $idx = 0;
             }
         }
         if (!empty($data)) {
-            DB::table('product')->insert($data);
+            DB::table('products')->insert($data);
         }
     }
     static function kho()
@@ -654,15 +654,9 @@ class CrawlService
         ->take(200000) // limit
         ->orderBy('NgayVaoSo', 'asc')
         ->get();
-        // $banLe = DB::connection('sqlsrv')->table('HoaDonBanLe')
-        // ->offset($start)
-        // ->get();
-        // dd($banLe);
 
         $nhanvien = self::getAllData('admin_users');
         $chiNhanh = self::getAllData('chi_nhanh');
-        $product_unit = self::getAllData('product_unit');
-        $product = self::getAllData('product');
 
         $card = DB::table('card')->get();
         $cardData = [];
@@ -671,7 +665,6 @@ class CrawlService
         }
 
         $data = [];
-        // $idx_total = 0;
         $idx_check = 0;
         foreach ($banLe as $vc) {
             $idx_check++;
@@ -769,9 +762,8 @@ class CrawlService
         $idx = 0;
         $idx_check = 0;
 
-        $nhanvien = self::getAllData('admin_users');
         $product_unit = self::getAllData('product_unit');
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
 
         $count_new = DB::table('hoa_don_chi_tiet')->count();
         $count_lucky = DB::connection('sqlsrv')->table('HoaDonBanLechiTiet')->count();
@@ -796,9 +788,6 @@ class CrawlService
                     $idx_check = 0;
                     $com->info('Checked' . $idx_total);
                 }
-
-                // $dv = DB::table('product_unit')->where('lucky_id', $ct->ID_DonViTinh)->first();
-                // $hh = DB::table('product')->where('lucky_id', $ct->ID_HangHoa)->first();
 
                 $count = DB::table('hoa_don_chi_tiet')->where('lucky_id', $ct->ID)->count();
                 if ($count > 0) {
@@ -1330,7 +1319,7 @@ class CrawlService
         $chiNhanh = self::getAllData('chi_nhanh');
         $user = self::getAllData('users');
         $card_group = self::getAllData('card_group');
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
 
         $TheKhachHang = DB::connection('sqlsrv')->table('TheKhachHang')->get();
         $data = [];
@@ -1350,7 +1339,6 @@ class CrawlService
 
             $service_id = [];
             foreach($TheKhachHangChiTiet as $detail) {
-                // $hh = DB::table('product')->where('lucky_id', $detail->ID_HangHoa)->first();
                 $serviceData =  [
                     // 'data_id' => $detail->ID_TheKhachHang, // lưu ở bảng thẻ kh
                     'product_id' => !empty($product[$detail->ID_HangHoa]) ? $product[$detail->ID_HangHoa] : 0,
@@ -1431,7 +1419,7 @@ class CrawlService
         $chiNhanh = self::getAllData('chi_nhanh');
         $user = self::getAllData('users');
         $card_group = self::getAllData('card_group');
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
 
         $TheKhachHang = DB::connection('sqlsrv')->table('TheKhachHang')->whereIn('ID', $ids)->get();
         $data = [];
@@ -1451,7 +1439,6 @@ class CrawlService
 
             $service_id = [];
             foreach($TheKhachHangChiTiet as $detail) {
-                // $hh = DB::table('product')->where('lucky_id', $detail->ID_HangHoa)->first();
                 $serviceData =  [
                     // 'data_id' => $detail->ID_TheKhachHang, // lưu ở bảng thẻ kh
                     'product_id' => !empty($product[$detail->ID_HangHoa]) ? $product[$detail->ID_HangHoa] : 0,
@@ -1527,7 +1514,7 @@ class CrawlService
         $chiNhanh = self::getAllData('chi_nhanh');
         $user = self::getAllData('users');
         $card_group = self::getAllData('card_group');
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
         $vc = DB::connection('sqlsrv')->table('TheKhachHang')->where('ID',$ID)->first();
 
         if(empty($vc)) {
@@ -1741,7 +1728,7 @@ class CrawlService
             }
 
 
-            $hh = DB::table('product')->where('lucky_id', $vc->ID_HangHoa)->first();
+            $hh = DB::table('products')->where('lucky_id', $vc->ID_HangHoa)->first();
             $dvt = DB::table('product_unit')->where('lucky_id', $vc->ID_DonViTinh)->first();
 
             $data[] = [
@@ -1979,7 +1966,7 @@ class CrawlService
 
     static function insert_hoaDonChiTiet_By_LuckyIDS($com, $hoaDonChiTietIds){
         $product_unit = self::getAllData('product_unit');
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
 
         $count_new = DB::table('hoa_don_chi_tiet')->count();
         $count_lucky = DB::connection('sqlsrv')->table('HoaDonBanLechiTiet')->count();
@@ -2142,7 +2129,7 @@ class CrawlService
         $data = [];
         $idx = 0;
         $idx_total = 0;
-        $product = self::getAllData('product');
+        $product = self::getAllData('products');
         $nhanvien = self::getAllData('admin_users');
         $idx_check = 0;
         foreach ($history as $vc) {

@@ -32,7 +32,7 @@ return new class extends Migration
             $table->integer('require')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
             $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('select_table_id')->nullable();
+            $table->integer('select_table_id')->default(0)->nullable();
             $table->text('conditions')->nullable();
             $table->text('data_select')->nullable();
             $table->integer('fast_edit')->nullable();

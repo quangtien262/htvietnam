@@ -203,45 +203,6 @@ class CustomerController extends Controller
         $users = $users->paginate(20);
         return $this->sendSuccessResponse($users);
     }
-
-    // public function goiDV(Request $rq) {
-    //     if(empty($rq->khach_hang_id)) {
-    //         return [];
-    //     }
-
-    //     $user = User::find($rq->khach_hang_id);
-    //     if(empty($user)) {
-    //         return [];
-    //     }
-
-    //     $cards= Card::select(
-    //         'card.id as card_id',
-    //             'card.product_id as product_id',
-    //             'product.name as product_name',
-    //         )
-    //         ->leftJoin('product', 'product.id', 'card.product_id')
-    //         ->where('users_id', $rq->khach_hang_id)
-    //         ->where('card_group_id', 2)
-    //         ->get();
-    //     $service = [];
-    //     foreach ($cards as $card) {
-    //         $cardService = CardService::select(
-    //             'card_service.so_luong as so_luong',
-    //                 'card_service.product_id as product_id',
-    //                 'product.name as product_name',
-    //                 'product.name as product_name',
-    //             )
-    //             ->where('card_id', $card->id)
-    //             ->leftJoin('product', 'product.id', 'card_service.product_id')
-    //             ->get();
-    //         $service[] = [
-    //             'card' => $card,
-    //             'cardService' => $cardService
-    //         ];
-
-    //     }
-    //     return $this->sendSuccessResponse($service);
-    // }
   
 
 }

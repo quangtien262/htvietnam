@@ -28,7 +28,7 @@ use App\Services\Admin\TblModel;
 class DataController extends Controller
 {
     const CHECK_REDIRECT_TABLE = [
-        'product' => 'product.list',
+        'products' => 'product.list',
         'users' => 'customer.index',
         'admin_users' => 'nhanVien.index',
         'hoa_don' => 'hoaDon.index',
@@ -470,7 +470,7 @@ class DataController extends Controller
         $per = TblService::getPermission();
         $table = Table::find($tableId);
 
-        if ($table->name == 'product') {
+        if ($table->name == 'products') {
             return to_route('product.add');
         }
 

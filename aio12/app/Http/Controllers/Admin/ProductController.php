@@ -106,7 +106,7 @@ class ProductController extends Controller
         $thuongHieu = DB::table(table: 'thuong_hieu')->get();
         $viTri = DB::table('product_vi_tri')->get();
         $thuocTinh = DB::table('product_thuoc_tinh')->get();
-        $products = DB::table('product')
+        $products = DB::table('products')
             ->whereIn('product_type_id', [1, 2])
             ->where('is_parent', 0)
             ->where('is_recycle_bin', 0)
@@ -114,7 +114,7 @@ class ProductController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        $services = DB::table('product')
+        $services = DB::table('products')
             ->where('product_type_id', 2)
             ->where('is_parent', 0)
             ->where('is_recycle_bin', 0)
@@ -281,7 +281,7 @@ class ProductController extends Controller
     {
 
         $tables = TblService::getAdminMenu(0);
-        $tbl = DB::table('tables')->where('name', 'product')->first();
+        $tbl = DB::table('tables')->where('name', 'products')->first();
         $table = Table::find($tbl->id);
 
         $product = Product::savePro($rq);
@@ -296,12 +296,12 @@ class ProductController extends Controller
             ->select(
                 'product_kiem_kho.so_luong as so_luong',
                 'product_kiem_kho.id as id',
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_von as gia_von',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_von as gia_von',
+                'products.gia_ban as gia_ban',
             )
-            ->leftJoin('product', 'product.id', 'product_kiem_kho.product_id')
+            ->leftJoin('products', 'products.id', 'product_kiem_kho.product_id')
             ->where('product_kiem_kho.product_id', $pid)
             ->get();
         $result = [];
@@ -328,13 +328,13 @@ class ProductController extends Controller
             ->select(
                 'product_nguyen_lieu_tieu_hao.so_luong as so_luong',
                 'product_nguyen_lieu_tieu_hao.id as id',
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_von as gia_von',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_von as gia_von',
+                'products.gia_ban as gia_ban',
             )
             ->where('product_nguyen_lieu_tieu_hao.product_id', $pid)
-            ->leftJoin('product', 'product.id', 'product_nguyen_lieu_tieu_hao.nguyen_lieu_id')
+            ->leftJoin('products', 'products.id', 'product_nguyen_lieu_tieu_hao.nguyen_lieu_id')
             ->get();
         $result = [];
         foreach ($nguyenLieu as $key => $nl) {
@@ -1497,11 +1497,11 @@ class ProductController extends Controller
             'product_kiem_kho_detail.so_luong_lech',
             'product_kiem_kho_detail.gia_tri_lech',
             'product_kiem_kho_detail.gia_von',
-            'product.name as product_name',
-            'product.code as product_code',
+            'products.name as product_name',
+            'products.code as product_code',
         )
             ->where('data_id', $data->id)
-            ->leftJoin('product', 'product.id', 'product_kiem_kho_detail.product_id')
+            ->leftJoin('products', 'products.id', 'product_kiem_kho_detail.product_id')
             ->get();
         return view('admin.print.kiem_kho', [
             'data' => $data,
@@ -1535,11 +1535,11 @@ class ProductController extends Controller
             'product_khach_tra_hang_detail.is_percen',
             'product_khach_tra_hang_detail.is_draft',
 
-            'product.name as product_name',
-            'product.code as product_code',
+            'products.name as product_name',
+            'products.code as product_code',
         )
             ->where('data_id', $data->id)
-            ->leftJoin('product', 'product.id', 'product_khach_tra_hang_detail.product_id')
+            ->leftJoin('products', 'products.id', 'product_khach_tra_hang_detail.product_id')
             ->get();
         return view('admin.print.khach_tra_hang', [
             'data' => $data,
@@ -1591,11 +1591,11 @@ class ProductController extends Controller
             'product_tra_hang_ncc_detail.thanh_tien',
             'product_tra_hang_ncc_detail.so_luong',
 
-            'product.name as product_name',
-            'product.code as product_code',
+            'products.name as product_name',
+            'products.code as product_code',
         )
             ->where('product_tra_hang_ncc_detail.data_id', $data->id)
-            ->leftJoin('product', 'product.id', 'product_tra_hang_ncc_detail.product_id')
+            ->leftJoin('products', 'products.id', 'product_tra_hang_ncc_detail.product_id')
             ->get();
         return view('admin.print.tra_hang_ncc', [
             'data' => $data,
@@ -1641,11 +1641,11 @@ class ProductController extends Controller
             'product_nhap_hang_detail.so_luong',
             'product_nhap_hang_detail.thanh_tien',
 
-            'product.name as product_name',
-            'product.code as product_code',
+            'products.name as product_name',
+            'products.code as product_code',
         )
             ->where('product_nhap_hang_detail.data_id', $data->id)
-            ->leftJoin('product', 'product.id', 'product_nhap_hang_detail.product_id')
+            ->leftJoin('products', 'products.id', 'product_nhap_hang_detail.product_id')
             ->get();
         return view('admin.print.nhap_hang', [
             'data' => $data,
@@ -1693,11 +1693,11 @@ class ProductController extends Controller
             'product_xuat_huy_detail.ton_kho_truoc_khi_huy',
             'product_xuat_huy_detail.ton_kho_sau_khi_huy',
 
-            'product.name as product_name',
-            'product.code as product_code',
+            'products.name as product_name',
+            'products.code as product_code',
         )
             ->where('product_xuat_huy_detail.data_id', $data->id)
-            ->leftJoin('product', 'product.id', 'product_xuat_huy_detail.product_id')
+            ->leftJoin('products', 'products.id', 'product_xuat_huy_detail.product_id')
             ->get();
         return view('admin.print.xuat_huy', [
             'data' => $data,

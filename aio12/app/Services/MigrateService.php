@@ -114,7 +114,7 @@ class MigrateService
             'require' => 0, // Có require khi nhập liệu ko: 0/1
             'sort_order' => $order, // thứ tự sắp xếp
             'parent_id' => 0, // id cha
-            'select_table_id' => 0, // id của table cần select, áp dụng cho kiểu nhập liệu là select, selects
+            'select_table_id' => '', // id của table cần select, áp dụng cho kiểu nhập liệu là select, selects
             'data_select' => '', // cài đặt data cần select: {"value":"id", "name":{"0":"code", "1":"name"}}
             'is_view_detail' => 0, // có truyền link chi tiết khi click vào từ trang danh sách không 0/1
             'conditions' => $conditions, // điều kiện select bổ xung nếu có
@@ -1028,7 +1028,7 @@ class MigrateService
         $add2search = 0,
         $is_view_detail = 0,
         $isEdit = 1,
-        $select_table_id = 0,
+        $select_table_id = '',
         $data_select = '',
         $require = 0,
         $addExpress = 0,

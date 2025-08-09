@@ -20,28 +20,28 @@ class HoaDonChiTiet extends Model
     static function getByHoaDonId($hoaDonId){
         return HoaDonChiTiet::select(
             'hoa_don_chi_tiet.*',
-            'product.name as product_name',
-            'product.code as product_code',
-            'product.id as product_id',
-            'product.gia_ban as product_price',
-            'product.product_type_id as product_type_id',
-            'product.ton_kho as ton_kho',
-            'product.don_vi_id as don_vi_tinh',
+            'products.name as product_name',
+            'products.code as product_code',
+            'products.id as product_id',
+            'products.gia_ban as product_price',
+            'products.product_type_id as product_type_id',
+            'products.ton_kho as ton_kho',
+            'products.don_vi_id as don_vi_tinh',
 
-            'product.lich_trinh_sd as lich_trinh_sd',
-            'product.lich_trinh_sd__khoang_cach_moi_buoi as lich_trinh_sd__khoang_cach_moi_buoi',
+            'products.lich_trinh_sd as lich_trinh_sd',
+            'products.lich_trinh_sd__khoang_cach_moi_buoi as lich_trinh_sd__khoang_cach_moi_buoi',
 
-            'product.han_su_dung as han_su_dung',
-            'product.hsd_ngay_cu_the as hsd_ngay_cu_the',
-            'product.hsd_khoang_thoi_gian as hsd_khoang_thoi_gian',
-            'product.hsd_khoang_thoi_gian_don_vi as hsd_khoang_thoi_gian_don_vi',
+            'products.han_su_dung as han_su_dung',
+            'products.hsd_ngay_cu_the as hsd_ngay_cu_the',
+            'products.hsd_khoang_thoi_gian as hsd_khoang_thoi_gian',
+            'products.hsd_khoang_thoi_gian_don_vi as hsd_khoang_thoi_gian_don_vi',
             // goi dv
-            'product.product_apply as product_apply',
+            'products.product_apply as product_apply',
             // the
-            'product.loai_hang_hoa as loai_hang_hoa',
-            'product.hang_hoa_ap_dung as hang_hoa_ap_dung',
+            'products.loai_hang_hoa as loai_hang_hoa',
+            'products.hang_hoa_ap_dung as hang_hoa_ap_dung',
         )
-        ->leftJoin('product', 'product.id', 'hoa_don_chi_tiet.product_id')
+        ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id')
         ->orderBy('id', 'asc')
         ->where('hoa_don_chi_tiet.data_id', $hoaDonId)
         ->where('hoa_don_chi_tiet.is_recycle_bin', 0)

@@ -104,7 +104,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'note', 'Ghi chú', 'TEXT', 'textarea', $order_col++, 
         ['show_in_list' => 1, 'edit' => 1, ]);
 
-        $product = Table::where('name', 'product')->first();
+        $product = Table::where('name', 'products')->first();
         MigrateService::createColumn02($tableId, 'product_id', 'Hàng hóa', 'INT', 'number', $order_col++, 
         ['select_table_id' => $product->id, 'show_in_list' => 1, 'edit' => 0, ]);
         

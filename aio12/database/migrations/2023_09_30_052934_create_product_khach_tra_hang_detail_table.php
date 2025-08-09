@@ -77,7 +77,7 @@ return new class extends Migration
 
         MigrateService::createColumn02($tableId, 'code', 'Mã trả hàng', 'VARCHAR', 'text', $order_col++,
             ['is_view_detail' => 1, 'show_in_list' => 0, 'edit' => 0,'auto_generate_code' => '{"edit":0, "prefix":"KTH", "length":5}']);
-        $prod = Table::where('name', 'product')->first();
+        $prod = Table::where('name', 'products')->first();
 
         // nv nhap
         $chinhanh = Table::where('name', 'chi_nhanh')->first();

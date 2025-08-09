@@ -35,9 +35,9 @@ class CastsHoaDonChiTiet implements CastsAttributes
 
                 'hoa_don_chi_tiet.product_id as product_id', 
                 'hoa_don_chi_tiet.don_vi_id as don_vi_id', 
-                'product.name as ten_san_pham', 
+                'products.name as ten_san_pham', 
             )
-            ->leftJoin('product', 'product.id', 'hoa_don_chi_tiet.product_id')
+            ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id')
             ->where('data_id', $value)
             ->get();
 

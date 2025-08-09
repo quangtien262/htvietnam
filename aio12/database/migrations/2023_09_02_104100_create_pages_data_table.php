@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('pages_data', function (Blueprint $table) {
+            $table->id();
+            $table->string('name_data')->nullable();
+            $table->integer('languages_id')->nullable();
+            $table->integer('data_id')->nullable();
+            $table->text('description')->nullable();
+            $table->longtext('content')->nullable();
+            $table->text('meta_title')->nullable();
+            $table->text('meta_keyword')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->integer('is_recycle_bin')->default(0)->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pages_data');
+    }
+};

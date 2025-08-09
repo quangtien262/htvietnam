@@ -84,7 +84,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'nhan_vien_id', 'Sale', 'INT', 'select', $order_col++, 
         ['select_table_id' => $nv->id, 'show_in_list' => 1, 'data_select' => '{"value":"id", "name":{"0":"code", "1":"name"}}']);
         
-        $product = Table::where('name', 'product')->first();
+        $product = Table::where('name', 'products')->first();
         MigrateService::createColumn02($tableId, 'product_id', 'Sản phẩm', 'INT', 'select', $order_col++, 
         ['select_table_id' => $product->id, 'show_in_list' => 1]);
 

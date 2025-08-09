@@ -27,10 +27,10 @@ class HimalayaService
         $cards= Card::select(
                 'card.*',
                 'card.product_id as product_id',
-                'product.name as product_name',
-                'product.gia_ban as product_gia_ban',
+                'products.name as product_name',
+                'products.gia_ban as product_gia_ban',
             )
-            ->leftJoin('product', 'product.id', 'card.product_id')
+            ->leftJoin('products', 'products.id', 'card.product_id')
             ->where('users_id', $userId)
             ->where('card_group_id', config('constant.card_group.the_gia_tri'))
             ->get();
@@ -118,21 +118,21 @@ class HimalayaService
                     'card_service.so_luong_tang as so_luong_tang',
                     'card_service.tang_kem as tang_kem',
                     'card_service.created_at as created_at',
-                    'product.name as ten_sp',
-                    'product.product_group_id as product_group_id',
-                    'product.gia_von as gia_von',
-                    'product.thoi_gian_khau_hao as thoi_gian_khau_hao',
-                    'product.ton_kho_toi_thieu as ton_kho_toi_thieu',
-                    'product.ton_kho_toi_da as ton_kho_toi_da',
-                    'product.description as product_description',
-                    'product.created_at as product_created_at',
-                    'product.updated_at as product_updated_at',
-                    'product.price as product_price',
-                    'product.don_vi_id as don_vi_id'
+                    'products.name as ten_sp',
+                    'products.product_group_id as product_group_id',
+                    'products.gia_von as gia_von',
+                    'products.thoi_gian_khau_hao as thoi_gian_khau_hao',
+                    'products.ton_kho_toi_thieu as ton_kho_toi_thieu',
+                    'products.ton_kho_toi_da as ton_kho_toi_da',
+                    'products.description as product_description',
+                    'products.created_at as product_created_at',
+                    'products.updated_at as product_updated_at',
+                    'products.price as product_price',
+                    'products.don_vi_id as don_vi_id'
                 )
                 ->where('card_service.data_id', $c->id)
                 ->where('card_service.is_recycle_bin', 0)
-                ->leftJoin('product', 'product.id', 'card_service.product_id')
+                ->leftJoin('products', 'products.id', 'card_service.product_id')
                 ->get();
 
             // lấy ra số buổi của thẻ lần
@@ -142,7 +142,7 @@ class HimalayaService
             foreach ($cardServices as $ser) {
                 $soLuong_service = $ser->so_luong + $ser->so_luong_tang;
                 $tongSoLuong_service += $soLuong_service;
-                $product = DB::table('product')->find(intval($ser->product_id));
+                $product = DB::table('products')->find(intval($ser->product_id));
                 if (empty($product)) {
                     continue;
                 }
@@ -157,21 +157,21 @@ class HimalayaService
                     'card_history.created_at as created_at',
                     'card_history.product_id as product_id',
 
-                    'product.name as product_name',
-                    'product.product_group_id as product_group_id',
-                    'product.gia_von as product_gia_von',
-                    'product.thoi_gian_khau_hao as product_thoi_gian_khau_hao',
-                    'product.ton_kho_toi_thieu as product_ton_kho_toi_thieu',
-                    'product.ton_kho_toi_da as product_ton_kho_toi_da',
-                    'product.description as product_description',
-                    'product.created_at as product_created_at',
-                    'product.updated_at as product_updated_at',
-                    'product.price as product_price',
-                    'product.don_vi_id as don_vi_id'
+                    'products.name as product_name',
+                    'products.product_group_id as product_group_id',
+                    'products.gia_von as product_gia_von',
+                    'products.thoi_gian_khau_hao as product_thoi_gian_khau_hao',
+                    'products.ton_kho_toi_thieu as product_ton_kho_toi_thieu',
+                    'products.ton_kho_toi_da as product_ton_kho_toi_da',
+                    'products.description as product_description',
+                    'products.created_at as product_created_at',
+                    'products.updated_at as product_updated_at',
+                    'products.price as product_price',
+                    'products.don_vi_id as don_vi_id'
 
 
                 )
-                ->leftJoin('product', 'product.id', 'card_history.product_id')
+                ->leftJoin('products', 'products.id', 'card_history.product_id')
                 ->where('card_history.card_id', $c->id)
                 ->get();
             $soLuong_history = 0;
@@ -273,7 +273,7 @@ class HimalayaService
 
                     // cập nhật lại label, có kèm tên sp(số lượng) cho dễ hiểu
 
-                    $product = DB::table('product')->find(intval($ser->product_id));
+                    $product = DB::table('products')->find(intval($ser->product_id));
                     if (empty($product)) {
                         continue;
                     }
@@ -535,9 +535,9 @@ class HimalayaService
 
                 'hoa_don_chi_tiet.product_id as product_id', 
                 'hoa_don_chi_tiet.don_vi_id as don_vi_id', 
-                'product.name as ten_san_pham', 
+                'products.name as ten_san_pham', 
             )
-            ->leftJoin('product', 'product.id', 'hoa_don_chi_tiet.product_id')
+            ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id')
             ->where('data_id', $hoaDonId)
             ->get();
 

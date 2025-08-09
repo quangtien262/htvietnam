@@ -94,7 +94,7 @@ export default function Dashboard(props: any) {
     function getTheKho(pid: string | number) {
         setLoadingSubData(true);
         axios.post(route('product.getSubData'), {
-            table_base: 'product',
+            table_base: 'products',
             table_map: 'product_kiem_kho',
             column_map: 'product_id',
             id: pid
@@ -120,7 +120,7 @@ export default function Dashboard(props: any) {
     function getNhapHang(pid: string | number) {
         setLoadingNguyenLieu(true);
         axios.post(route('product.getSubData'), {
-            table_base: 'product',
+            table_base: 'products',
             table_map: 'product_nhap_hang',
             column_map: 'product_id',
             id: pid
@@ -145,7 +145,7 @@ export default function Dashboard(props: any) {
     function getBanHang(pid: string | number) {
         setLoadingNguyenLieu(true);
         axios.post(route('product.getSubData'), {
-            table_base: 'product',
+            table_base: 'products',
             table_map: 'hoa_don_chi_tiet',
             column_map: 'product_id',
             id: pid,

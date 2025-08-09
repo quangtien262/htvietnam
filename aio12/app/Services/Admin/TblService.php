@@ -523,7 +523,6 @@ class TblService extends Service
 
     protected function getDataSelect($col, $data = [])
     {
-        $tableId = $col->select_table_id;
         $conditionJson = $col->conditions;
         $table = Table::find($col->select_table_id);
         $table_parent = Table::find($col->table_id);

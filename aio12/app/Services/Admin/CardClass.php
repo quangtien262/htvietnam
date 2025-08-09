@@ -27,10 +27,10 @@ class CardClass
         $cards= Card::select(
                 'card.*',
                 'card.product_id as product_id',
-                'product.name as product_name',
-                'product.gia_ban as product_gia_ban',
+                'products.name as product_name',
+                'products.gia_ban as product_gia_ban',
             )
-            ->leftJoin('product', 'product.id', 'card.product_id')
+            ->leftJoin('products', 'products.id', 'card.product_id')
             ->where('users_id', $userId)
             ->where('card_group_id', config('constant.card_group.the_gia_tri'))
             ->get();
@@ -118,21 +118,21 @@ class CardClass
                     'card_service.so_luong_tang as so_luong_tang',
                     'card_service.tang_kem as tang_kem',
                     'card_service.created_at as created_at',
-                    'product.name as ten_sp',
-                    'product.product_group_id as product_group_id',
-                    'product.gia_von as gia_von',
-                    'product.thoi_gian_khau_hao as thoi_gian_khau_hao',
-                    'product.ton_kho_toi_thieu as ton_kho_toi_thieu',
-                    'product.ton_kho_toi_da as ton_kho_toi_da',
-                    'product.description as product_description',
-                    'product.created_at as product_created_at',
-                    'product.updated_at as product_updated_at',
-                    'product.price as product_price',
-                    'product.don_vi_id as don_vi_id'
+                    'products.name as ten_sp',
+                    'products.product_group_id as product_group_id',
+                    'products.gia_von as gia_von',
+                    'products.thoi_gian_khau_hao as thoi_gian_khau_hao',
+                    'products.ton_kho_toi_thieu as ton_kho_toi_thieu',
+                    'products.ton_kho_toi_da as ton_kho_toi_da',
+                    'products.description as product_description',
+                    'products.created_at as product_created_at',
+                    'products.updated_at as product_updated_at',
+                    'products.price as product_price',
+                    'products.don_vi_id as don_vi_id'
                 )
                 ->where('card_service.data_id', $c->id)
                 ->where('card_service.is_recycle_bin', 0)
-                ->leftJoin('product', 'product.id', 'card_service.product_id')
+                ->leftJoin('products', 'products.id', 'card_service.product_id')
                 ->get();
 
             // lấy ra số buổi của thẻ lần
@@ -142,7 +142,7 @@ class CardClass
             foreach ($cardServices as $ser) {
                 $soLuong_service = $ser->so_luong + $ser->so_luong_tang;
                 $tongSoLuong_service += $soLuong_service;
-                $product = DB::table('product')->find(intval($ser->product_id));
+                $product = DB::table('products')->find(intval($ser->product_id));
                 if (empty($product)) {
                     continue;
                 }
@@ -157,21 +157,21 @@ class CardClass
                     'card_history.created_at as created_at',
                     'card_history.product_id as product_id',
 
-                    'product.name as product_name',
-                    'product.product_group_id as product_group_id',
-                    'product.gia_von as product_gia_von',
-                    'product.thoi_gian_khau_hao as product_thoi_gian_khau_hao',
-                    'product.ton_kho_toi_thieu as product_ton_kho_toi_thieu',
-                    'product.ton_kho_toi_da as product_ton_kho_toi_da',
-                    'product.description as product_description',
-                    'product.created_at as product_created_at',
-                    'product.updated_at as product_updated_at',
-                    'product.price as product_price',
-                    'product.don_vi_id as don_vi_id'
+                    'products.name as product_name',
+                    'products.product_group_id as product_group_id',
+                    'products.gia_von as product_gia_von',
+                    'products.thoi_gian_khau_hao as product_thoi_gian_khau_hao',
+                    'products.ton_kho_toi_thieu as product_ton_kho_toi_thieu',
+                    'products.ton_kho_toi_da as product_ton_kho_toi_da',
+                    'products.description as product_description',
+                    'products.created_at as product_created_at',
+                    'products.updated_at as product_updated_at',
+                    'products.price as product_price',
+                    'products.don_vi_id as don_vi_id'
 
 
                 )
-                ->leftJoin('product', 'product.id', 'card_history.product_id')
+                ->leftJoin('products', 'products.id', 'card_history.product_id')
                 ->where('card_history.card_id', $c->id)
                 ->get();
             $soLuong_history = 0;
@@ -273,7 +273,7 @@ class CardClass
 
                     // cập nhật lại label, có kèm tên sp(số lượng) cho dễ hiểu
 
-                    $product = DB::table('product')->find(intval($ser->product_id));
+                    $product = DB::table('products')->find(intval($ser->product_id));
                     if (empty($product)) {
                         continue;
                     }
@@ -308,7 +308,7 @@ class CardClass
                 'label' => $label,
                 'so_luong_da_su_dung' => $countHistoryLT,
                 'so_luong' => $soLuong,
-                'product' => $productLT,
+                'products' => $productLT,
             ];
         }
         return [
@@ -547,13 +547,13 @@ class CardClass
             ->select(
                 'product_dich_vu_trong_goi.so_luong as so_luong',
                 'product_dich_vu_trong_goi.id as id',
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_von as gia_von',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_von as gia_von',
+                'products.gia_ban as gia_ban',
             )
             ->where('product_dich_vu_trong_goi.product_id', $pid)
-            ->leftJoin('product', 'product.id', 'product_dich_vu_trong_goi.id_dich_vu_ap_dung')
+            ->leftJoin('products', 'products.id', 'product_dich_vu_trong_goi.id_dich_vu_ap_dung')
             ->get();
         $result = [];
         foreach($nguyenLieu as $key => $nl) {
@@ -584,11 +584,11 @@ class CardClass
                 'card.so_luong_con_lai as so_luong_con_lai',
                 'card.created_at as created_at',
 
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_ban as gia_ban',
             )
-            ->leftJoin('product', 'product.id', 'card.product_id')
+            ->leftJoin('products', 'products.id', 'card.product_id')
             ->leftJoin('hoa_don_chi_tiet', 'hoa_don_chi_tiet.id', 'card.hoa_don_chi_tiet_id')
             ->where('card.users_id', $userId)
             ->where('card.card_group_id', config('constant.card_group.the_lieu_trinh')) // the vip:1 ; thẻ dv: 2
@@ -601,12 +601,12 @@ class CardClass
                     'card_service.id as card_service_id',
                     'card_service.product_id as product_id',
                     'card_service.so_luong_da_su_dung as so_luong_da_su_dung',
-                    'product.gia_ban as product_gia_ban',
-                    'product.name as product_name',
-                    'product.gia_ban as product_gia_ban',
+                    'products.gia_ban as product_gia_ban',
+                    'products.name as product_name',
+                    'products.gia_ban as product_gia_ban',
                 )
                 ->where('card_service.data_id', $card->card_id)
-                ->leftJoin('product', 'product.id', 'card_service.product_id')
+                ->leftJoin('products', 'products.id', 'card_service.product_id')
                 ->get();
             $service[] = [
                 'card' => $card,
@@ -628,11 +628,11 @@ class CardClass
                 'card.created_at as created_at',
                 'card.thanh_tien as thanh_tien',
 
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_ban as gia_ban',
             )
-            ->leftJoin('product', 'product.id', 'card.product_id')
+            ->leftJoin('products', 'products.id', 'card.product_id')
             ->leftJoin('hoa_don_chi_tiet', 'hoa_don_chi_tiet.id', 'card.hoa_don_chi_tiet_id')
             ->where('card.users_id', $userId)
             ->where('card.card_group_id', config('constant.card_group.the_gia_tri')) // the vip:1 ; thẻ dv: 2

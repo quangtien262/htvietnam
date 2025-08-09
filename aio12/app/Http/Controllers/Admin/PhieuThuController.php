@@ -81,7 +81,7 @@ class PhieuThuController extends Controller
     {
         
         $tables = TblService::getAdminMenu(0);
-        $tbl = DB::table('tables')->where('name', 'product')->first();
+        $tbl = DB::table('tables')->where('name', 'products')->first();
         $table = Table::find($tbl->id);
 
         $product = Product::savePro($rq);
@@ -116,13 +116,13 @@ class PhieuThuController extends Controller
             ->select(
                 'product_dich_vu_trong_goi.so_luong as so_luong',
                 'product_dich_vu_trong_goi.id as id',
-                'product.name as product_name',
-                'product.code as product_code',
-                'product.gia_von as gia_von',
-                'product.gia_ban as gia_ban',
+                'products.name as product_name',
+                'products.code as product_code',
+                'products.gia_von as gia_von',
+                'products.gia_ban as gia_ban',
             )
             ->where('product_dich_vu_trong_goi.product_id', $pid)
-            ->leftJoin('product', 'product.id', 'product_dich_vu_trong_goi.id_dich_vu_ap_dung')
+            ->leftJoin('products', 'products.id', 'product_dich_vu_trong_goi.id_dich_vu_ap_dung')
             ->get();
         $result = [];
         foreach($nguyenLieu as $key => $nl) {

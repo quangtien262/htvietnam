@@ -64,7 +64,7 @@ class HimalayaSeeder extends Seeder
         $label_hang_hoa->save();
 
         // product
-        MigrateService::setParent($label_hang_hoa->id, 'product', $sortOrder++);
+        MigrateService::setParent($label_hang_hoa->id, 'products', $sortOrder++);
         MigrateService::setParent($label_hang_hoa->id, 'product_kiem_kho', $sortOrder++);
 
         ////////////////// Đối tác
@@ -690,7 +690,7 @@ class HimalayaSeeder extends Seeder
         ]);
 
         // product
-        DB::table('product')->truncate();
+        DB::table('products')->truncate();
         for ($i = 0; $i < 20; $i++) {
             $product = new Product();
             $product->name = 'Sản phẩm ' . $i;

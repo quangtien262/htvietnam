@@ -89,7 +89,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'nhan_vien_id', 'NV trả', 'INT', 'select', $order_col++, 
         ['show_in_list' => 0, 'require' => 0,'select_table_id' => $admin->id]);
         
-        $prod = Table::where('name', 'product')->first();
+        $prod = Table::where('name', 'products')->first();
         MigrateService::createColumn02($tableId, 'product_id', 'Hàng hóa', 'INT', 'select', $order_col++, 
         [ 'show_in_list' => 1,'select_table_id' => $prod->id, 'require' => 1, 'col'=>12]);
 

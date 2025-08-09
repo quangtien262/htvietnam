@@ -82,7 +82,7 @@ return [
     'your_cart' => 'Your cart',
     'nullCart' => 'There are no products in the cart. Come back',
     'continue_shopping' => 'Continue shopping',
-    'product' => 'Product',
+    'products' => 'Product',
     'quantity' => 'Quantity',
     'into_money' => 'Into money',
     'update_cart' => 'Update Cart',

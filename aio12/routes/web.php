@@ -20,13 +20,13 @@ Route::get('/get-token/{type}', [PagesController::class, 'getToken'])->name('get
 Route::get('lang/change', [LangController::class, 'change'])->name('changeLang');
 
 Route::middleware('auth:admin_users')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('home');
+    // Route::get('/', [AdminController::class, 'index'])->name('home');
     Route::group(['prefix' => 'adm'], function () {
             require __DIR__ . '/admin_route.php';
     });
-
     require __DIR__ . '/himalaya_route.php';
 });
 
-
+// user_route
+require __DIR__ . '/user_route.php';
 

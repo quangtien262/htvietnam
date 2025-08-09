@@ -242,9 +242,9 @@ class HoaDonService
 
                 'hoa_don_chi_tiet.product_id as product_id', 
                 'hoa_don_chi_tiet.don_vi_id as don_vi_id', 
-                'product.name as ten_san_pham', 
+                'products.name as ten_san_pham', 
             )
-            ->leftJoin('product', 'product.id', 'hoa_don_chi_tiet.product_id')
+            ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id')
             ->where('data_id', $hoaDonId)
             ->get();
 
@@ -649,12 +649,12 @@ class HoaDonService
             'card.id as card_id',
                 'card.code as card_code',
                 'card.product_id as product_id',
-                'product.name as product_name',
+                'products.name as product_name',
                 'card.so_luong as so_luong',
                 'card.so_luong_da_su_dung as so_luong_da_su_dung',
                 'card.so_luong_con_lai as so_luong_con_lai',
             )
-            ->leftJoin('product', 'product.id', 'card.product_id')
+            ->leftJoin('products', 'products.id', 'card.product_id')
             ->where('users_id', $userId)
             ->where('card_group_id', 2)
             ->get();
@@ -665,12 +665,12 @@ class HoaDonService
                     'card_service.id as card_service_id',
                     'card_service.product_id as product_id',
                     'card_service.so_luong_da_su_dung as so_luong_da_su_dung',
-                    'product.gia_ban as product_gia_ban',
-                    'product.name as product_name',
-                    'product.gia_ban as product_gia_ban',
+                    'products.gia_ban as product_gia_ban',
+                    'products.name as product_name',
+                    'products.gia_ban as product_gia_ban',
                 )
                 ->where('card_service.data_id', $card->card_id)
-                ->leftJoin('product', 'product.id', 'card_service.product_id')
+                ->leftJoin('products', 'products.id', 'card_service.product_id')
                 ->get();
             $service[] = [
                 'card' => $card,
