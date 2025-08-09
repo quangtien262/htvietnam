@@ -82,3 +82,37 @@ ul.dashboard-list-item li{
 .table-row-dark {
   background-color: #ffffff;
 }
+
+/* menu repoort */
+ul.menu-report {
+    width: 100% !important;
+}
+ul.menu-report li {
+    border-bottom: 1px #ccc dashed;
+}
+.ant-menu-submenu-selected li {
+    /* margin-top: 0 !important;
+    height: 40px !important; */
+}
+.ant-menu-submenu-open .ant-menu-inline .ant-menu-item-selected {
+    /* background: #4b80f780 !important; */
+}
+.menu-report .menu-item-active {
+    color: #1c6cb6 !important;
+}
+
+.menu-report .ant-menu-title-content:hover {
+    color: #1c6cb6 !important;
+}
+
+.menu-report .ant-menu-title-content:hover {
+    /* font-weight: 900; */
+}
+.menu-report .ant-menu-title-content {
+    font-weight: normal;
+    font-size: 16px;
+}
+.menu-report .ant-menu-submenu-selected .ant-menu-submenu-title {
+    color: #000 !important;
+    font-weight: bold;
+}

@@ -77,12 +77,12 @@ export default function Dashboard(props) {
 
                                 <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                                     <div className="ant-statistic-title">
-                                        <span onClick={()=>setIsOpenModalConfirm(true)}>
+                                        {/* <span onClick={()=>setIsOpenModalConfirm(true)}>
                                             <a><ShopFilled /> QUẢN LÝ BÁN HÀNG</a>
-                                        </span>
-                                        {/* <Link href={route('sale.dashboard')}>
+                                        </span> */}
+                                        <Link href={route('sale.dashboard')}>
                                             <ShopFilled /> QUẢN LÝ BÁN HÀNG
-                                        </Link> */}
+                                        </Link>
                                     </div>
                                     <div className="ant-statistic-content" >
                                         <div className="ant-statistic-content-prefix">

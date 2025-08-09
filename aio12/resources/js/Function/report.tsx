@@ -15,6 +15,57 @@ import {
 } from 'recharts';
 import { numberFormat } from "./common";
 
+export function history() {
+    return <div className='sub-item-home'>
+        <h3>
+            <SoundOutlined />
+            LỊCH SỬ CẬP NHẬT KHO
+        </h3>
+        <List
+            dataSource={[
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0232</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa thêm mới sản phẩm <a>SP000123</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0232</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0233</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa thêm mới sản phẩm <a>SP000125</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0234</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0235</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0236</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0237</a></div>,
+                },
+                {
+                    title: <div><a>An</a> Vừa tạo hóa đơn<a>HD0238</a></div>,
+                }
+            ]}
+            renderItem={(item, index) => (
+                <List.Item>
+                    <List.Item.Meta
+                        avatar={<a><MessageOutlined /></a>}
+                        title={<span className='text-normal'>{item.title}</span>}
+                    />
+                </List.Item>
+            )}
+        />
+    </div>
+}
+
 export function report_kho_nhapHang() {
     const data = [
         { key: 1, date: "2025-08-01", product: "Gạo ST25", quantity: 200, price: 15000 },

@@ -574,12 +574,6 @@ img {
     font-size: 15px;
 }
 
-.ant-menu-submenu-selected li {
-    background: rgba(75, 128, 247, 0.15) !important;
-    margin-top: 0 !important;
-    height: 40px !important;
-}
-
 .ant-menu-submenu-title,
 .ant-menu-item {
     height: 45px !important;
@@ -589,32 +583,7 @@ img {
 
     margin-top: 10px;
 } */
-.ant-menu-submenu-title {
-    /* color: white; */
-}
 
-/* .ant-menu-submenu-inline{
-    margin-top: 10px;
-
-} */
-.ant-menu-submenu-open .ant-menu-inline li {
-    margin-top: 0;
-    height: 50px;
-    background: #4b80f726;
-
-}
-
-.ant-menu-item-active {
-    /* background: #4176f1 !important; */
-}
-
-.ant-menu-submenu-active .ant-menu-submenu-title {
-    /* background: #4176f1 !important; */
-}
-
-.ant-menu-submenu-open .ant-menu-inline .ant-menu-item-selected {
-    background: #4b80f780 !important;
-}
 
 div.ant-menu-submenu-popup ul.ant-menu-sub {
     margin-top: -7px;
