@@ -56,7 +56,8 @@ return new class extends Migration
         MigrateService::createColumn02($cart->id, 'user_id', 'Khách hàng', 'INT', 'select', $order_col++,['select_table_id' => $user->id]);
 
         $bds = Table::where('name', 'bds')->first();
-        MigrateService::createColumn02($cart->id, 'bds_id', 'BĐS', 'INT', 'select', $order_col++,['select_table_id' => $bds->id]);
+        MigrateService::createColumn02($cart->id, 'bds_id', 'BĐS', 'INT', 'select', $order_col++,
+        ['select_table_id' => $bds->id]);
 
         MigrateService::createColumn02($cart->id, 'price', 'Giá bán', 'INT', 'number', $order_col++);
         MigrateService::createColumn02($cart->id, 'promo_price', 'Số lượng', 'INT', 'number', $order_col++);

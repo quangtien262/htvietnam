@@ -32,8 +32,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('Helper', function () { return new Helper;});
         $this->app->singleton('DataService', function () { return new DataService;});
         $this->app->singleton('AdminHelper', function () { return new AdminHelper;});
-        Paginator::useBootstrapFive();
-        Paginator::useBootstrapFour();
 	    $this->app->singleton('CommonService', function () { return new CommonService;});
+        Paginator::useBootstrapFive();
+        // Paginator::useBootstrapFour();
     }
 }

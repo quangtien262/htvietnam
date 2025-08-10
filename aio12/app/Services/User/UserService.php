@@ -15,20 +15,12 @@ use Illuminate\Support\Facades\App;
 class UserService extends Service
 {
     static function getLang() {
-        if(empty(session()->get('locale'))) {
-            App::setLocale(config('app.locale'));
-            session()->put('locale', config('app.locale'));
-        }
-        $lang = Language::where('code', session()->get('locale'))->first();
-        if(empty($lang)) {
-            $langId = 1;
-        } else {
-            $langId = $lang->id;
-        }
-        return $langId;
+        $currentLocale = app()->getLocale();
+        $lang = Language::where('code', $currentLocale)->first();
+        return $lang;
     }
     static function getMenuDetail($menuId) {
-        $langId = self::getLang();
+        $lang = self::getLang();
         $menu = Menu::select(
             'menus.id as id',
             'menus_data.name_data as name',
@@ -51,7 +43,7 @@ class UserService extends Service
         )
         ->leftJoin('menus_data', 'menus.id', '=', 'menus_data.data_id')
         ->where('menus.parent_id', $menuId)
-        ->where('menus_data.languages_id', $langId)
+        ->where('menus_data.languages_id', $lang->id)
         ->get();
 
         $subMenuId = [$menu->id];

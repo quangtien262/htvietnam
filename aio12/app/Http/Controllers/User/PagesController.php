@@ -33,21 +33,20 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-        die();
+        $news = app('DataService')->getNewsByConditions([],[],4);
+        dd($news);
+        
         $config = WebConfig::query()->find(1);
-        $langId = UserService::getLang();
-        $images = Image::query()->orderBy('images.sort_order', 'asc')->get();
-        $news = News::query()->orderBy('news.id', 'desc')->paginate(config('constant.item_of_pages'));
-        $products = Product::query()->orderBy('products.id', 'desc')->paginate(config('constant.item_of_pages'));
-        $bds = Bds::orderBy('id', 'desc')->paginate(9);
-        $menu = Menu::query()->where('is_front', 1)->orderBy('menus.sort_order', 'asc')->get();
-        $doiTac = DoiTac::orderBy('sort_order', 'asc')->get();
-        $landingPage = Landingpage::query()->where('menu_id', 0)->orderBy('sort_order', 'asc')->get();
-        $menuId = 0;
-        return View(
-            'layouts.layout' . $config->layout . '.pages.index',
-            compact('config', 'images', 'news', 'products', 'menu', 'doiTac', 'landingPage', 'menuId')
-        );
+        $param = [
+            'config' => $config,
+            'langId' => UserService::getLang(),
+            'seo' => [
+                'title' => $config->title,
+                'keywords' => $config->meta_keyword,
+                'description' => $config->meta_description,
+            ],
+        ];
+        return View('layouts.layout' . $config->layout . '.pages.index', $param);
     }
 
     public function singlePage(Request $request, $sluggable, $menuId)

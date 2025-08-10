@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
 
-class TablesLayout04Seeder extends Seeder
+class TablesLayout01Seeder extends Seeder
 {
 
     /**
@@ -30,26 +30,11 @@ class TablesLayout04Seeder extends Seeder
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
-        // label
-        $labelAbout = MigrateService::createLabel('label_block', 'Block Giới thiệu', 10);
-        MigrateService::setParentId2Tbl(['block_info', 'block'], $labelAbout->id);
-
-        // setting block
-        MigrateService::configTable('block_info', ['display_name' => 'Sửa tiêu đề']);
-        MigrateService::configTable('block', ['display_name' => 'Nội dung']);
-
-        // setting column
-        // MigrateService::configColumn('block_info', 'name', ['edit' => 1]);
-
-        // language
-        $this->command->info('Migrate language');
-        DB::table('languages')->insert(
-            [
-                ['name' => 'Việt Nam', 'code' => 'vi', 'icon' => 'https://img.htvietnam.vn/layouts/layout89/vn.png', 'is_key' => 0, 'parent_id' => 0, 'sort_order' => 2]
-            ]
-        );
-
         MigrateService::webconfig();
+
+        // create languages
+        MigrateService::createLanguage('Tiếng Việt','vi',1,'/imgs/flags/vn.png');
+        MigrateService::createLanguage('English','vi',1,'/imgs/flags/vn.png');
         //menu
         $this->createDataMenu();
 
@@ -63,47 +48,47 @@ class TablesLayout04Seeder extends Seeder
         $this->createNews();
 
         //doi_tac
-        $this->createDoiTac($this);
+        // $this->createDoiTac($this);
 
 
-        $this->command->info('migrate About');
-        MigrateService::createAbout(
-            ['Giới thiệu'],
-            '/layouts/layout04/images/news/03.jpg',
-            ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>'],
-            ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>']
-        );
+        // $this->command->info('migrate About');
+        // MigrateService::createAbout(
+        //     ['Giới thiệu'],
+        //     '/layouts/layout04/images/news/03.jpg',
+        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>'],
+        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>']
+        // );
 
         // block info
-        $this->command->info('Migrate block info');
-        MigrateService::createBlockInfo(['Giới thiệu'], '', [], ['description' => ['HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch, keo chà ron, phụ gia và hóa chất xây dựng']]);
+        // $this->command->info('Migrate block info');
+        // MigrateService::createBlockInfo(['Giới thiệu'], '', [], ['description' => ['HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch, keo chà ron, phụ gia và hóa chất xây dựng']]);
 
         // block
-        $this->createBlock();
+        // $this->createBlock();
 
         // product info
-        $this->command->info('Migrate product info');
-        MigrateService::createProductInfo(['Giao hàng toàn quốc'], '/layouts/layout04/images/policy-product-1.png');
-        MigrateService::createProductInfo(['Tích điểm tất cả sản phẩm'], '/layouts/layout04/images/policy-product-2.png');
-        MigrateService::createProductInfo(['Thời gian chuẩn bị hàng nhanh'], '/layouts/layout04/images/policy-product-3.png');
-        MigrateService::createProductInfo(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
+        // $this->command->info('Migrate product info');
+        // MigrateService::createProductInfo(['Giao hàng toàn quốc'], '/layouts/layout04/images/policy-product-1.png');
+        // MigrateService::createProductInfo(['Tích điểm tất cả sản phẩm'], '/layouts/layout04/images/policy-product-2.png');
+        // MigrateService::createProductInfo(['Thời gian chuẩn bị hàng nhanh'], '/layouts/layout04/images/policy-product-3.png');
+        // MigrateService::createProductInfo(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
 
-        $this->command->info('Migrate link_footer');
-        MigrateService::createLinkFooter(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
+        // $this->command->info('Migrate link_footer');
+        // MigrateService::createLinkFooter(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
 
-        MigrateService::createData('colors',  [],['name_data' => ['Đỏ','red']]);
-        MigrateService::createData('colors',  [],['name_data' => ['Xanh','Blue']]);
+        // MigrateService::createData('colors',  [],['name_data' => ['Đỏ','red']]);
+        // MigrateService::createData('colors',  [],['name_data' => ['Xanh','Blue']]);
 
-        MigrateService::createData('size',  [],['name_data' => ['XL','XL']]);
-        MigrateService::createData('size',  [],['name_data' => ['XXL','XXL']]);
+        // MigrateService::createData('size',  [],['name_data' => ['XL','XL']]);
+        // MigrateService::createData('size',  [],['name_data' => ['XXL','XXL']]);
 
-        DB::table('product_colors')->insert(['name' => 1, 'price_up' => 0]);
-        DB::table('product_colors')->insert(['name' => 2, 'price_up' => 0]);
+        // DB::table('product_colors')->insert(['name' => 1, 'price_up' => 0]);
+        // DB::table('product_colors')->insert(['name' => 2, 'price_up' => 0]);
 
-        DB::table('product_size')->insert(['name' => 1, 'price_up' => 0]);
-        DB::table('product_size')->insert(['name' => 2, 'price_up' => 0]);
+        // DB::table('product_size')->insert(['name' => 1, 'price_up' => 0]);
+        // DB::table('product_size')->insert(['name' => 2, 'price_up' => 0]);
 
-        MigrateService::createData('categorys',  [],['name_data' => ['XXL','XXL']]);
+        // MigrateService::createData('categorys',  [],['name_data' => ['XXL','XXL']]);
     }
 
     private function createDataProduct()
@@ -131,7 +116,7 @@ class TablesLayout04Seeder extends Seeder
             12000,
             ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2], 'category_id' => 1,'category_ids' => [1,2]]
+            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2], 'category_id' => 1]
         );
         MigrateService::createProduct(
             ['Sơn ngoại thất'],
@@ -236,10 +221,9 @@ class TablesLayout04Seeder extends Seeder
     {
         $this->command->info('migrate slide');
         // slide
-        MigrateService::createImages(['slide', 'slide'], '/layouts/layout04/images/slide/slider-1.png', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/layout04/images/slide/slider-1.png', 1);
-        MigrateService::createImages(['slide', 'slide'], 'https://img.htvietnam.vn/layouts/layout08/na6x_1705973942.png', 1);
-        MigrateService::createImages(['slide', 'slide'], 'https://img.htvietnam.vn/layouts/layout08/At9o_1705543800.png', 1);
+        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide01.jpg', 1);
+        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide02.jpg', 1);
+        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide03.jpg', 1);
     }
 
     private function createNews()
@@ -286,7 +270,7 @@ class TablesLayout04Seeder extends Seeder
                 ';
         MigrateService::createNews(
             ['Cách chà ron gạch lát nền và ốp tường nhà hiệu quả'],
-            '/layouts/layout04/images/news/01.jpg',
+            '/layouts/01/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 4],
             ['description' => ['Chà ron gạch lát nền là công đoạn cuối cùng khá quan trọng trong lát nền', 'description en']]
@@ -294,15 +278,23 @@ class TablesLayout04Seeder extends Seeder
 
         MigrateService::createNews(
             ['Vì sao nên sử dụng keo chà ron khi lát gạc', 'description en'],
-            '/layouts/layout04/images/news/02.jpg',
+            '/layouts/01/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 4],
             ['description' => ['Keo chà ron hiện nay được xem là sản phẩm được khá nhiều người ưa', 'description en']]
         );
 
         MigrateService::createNews(
-            ['Keo chà ron cho nhà tắm, hồ bơi – bí quyết chống thấm hoàn hảo', 'description en'],
-            '/layouts/layout04/images/news/03.jpg',
+            ['Keo chà ron cho nhà tắm, hồ bơi', 'description en'],
+            '/layouts/01/images/new-1.jpg',
+            [$content, $content],
+            ['menu_id' => 4],
+            ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
+        );
+
+        MigrateService::createNews(
+            ['bí quyết chống thấm hoàn hảo', 'description en'],
+            '/layouts/01/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 4],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]

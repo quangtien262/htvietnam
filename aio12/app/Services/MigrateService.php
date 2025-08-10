@@ -114,7 +114,7 @@ class MigrateService
             'require' => 0, // Có require khi nhập liệu ko: 0/1
             'sort_order' => $order, // thứ tự sắp xếp
             'parent_id' => 0, // id cha
-            'select_table_id' => '', // id của table cần select, áp dụng cho kiểu nhập liệu là select, selects
+            'select_table_id' => 0, // id của table cần select, áp dụng cho kiểu nhập liệu là select, selects
             'data_select' => '', // cài đặt data cần select: {"value":"id", "name":{"0":"code", "1":"name"}}
             'is_view_detail' => 0, // có truyền link chi tiết khi click vào từ trang danh sách không 0/1
             'conditions' => $conditions, // điều kiện select bổ xung nếu có
@@ -299,7 +299,7 @@ class MigrateService
     {
         $default = [
             'name' => $name[0],
-            'price' => $price, // bài viết đơn theo menu
+            'gia_ban' => $price, // bài viết đơn theo menu
             'images' => $images,
             'is_front' => 1,
             'views' =>10
@@ -497,7 +497,7 @@ class MigrateService
 
             // set other
             foreach ($datasLang as $k => $v) {
-                $dataLanguage[$k] = !empty($v[$key]) ? $v[$key] : '';;
+                $dataLanguage[$k] = !empty($v[$key]) ? $v[$key] : '';
             }
             DB::table('images_data')->insert($dataLanguage);
         }
@@ -1028,7 +1028,7 @@ class MigrateService
         $add2search = 0,
         $is_view_detail = 0,
         $isEdit = 1,
-        $select_table_id = '',
+        $select_table_id = 0,
         $data_select = '',
         $require = 0,
         $addExpress = 0,
@@ -1114,5 +1114,16 @@ class MigrateService
         $data->parent_id = $parentId;
         $data->sort_order = $sortOrder;
         $data->save();
+    }
+
+    static function createLanguage($langName, $langCode, $isDefault = 0, $icon= '')
+    {
+        $language = new Language();
+        $language->name = $langName;
+        $language->code = $langCode;
+        $language->is_default = $isDefault;
+        $language->icon = $icon;
+        $language->save();
+        return $language;
     }
 }

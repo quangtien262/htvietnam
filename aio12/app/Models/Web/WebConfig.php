@@ -11,9 +11,9 @@ class WebConfig extends Model {
     protected $table = 'web_config';
     
     static function query($langId = 0) {
-        if(empty($langId)) {
-            $langId = UserService::getLang();
-        }
+        // if(empty($langId)) {
+        //     $langId = UserService::getLang();
+        // }
         return self::select(
             'web_config.id as id',
             'web_config.logo as logo',
@@ -45,7 +45,7 @@ class WebConfig extends Model {
             'web_config_data.meta_keyword as meta_keyword',
             'web_config_data.address as address',
         )
-        ->leftJoin('web_config_data', 'web_config.id', '=', 'web_config_data.data_id')
-        ->where('web_config_data.languages_id', $langId);
+        ->leftJoin('web_config_data', 'web_config.id', '=', 'web_config_data.data_id');
+        // ->where('web_config_data.languages_id', $langId);
     }
 }

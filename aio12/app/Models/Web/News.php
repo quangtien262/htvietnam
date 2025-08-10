@@ -11,10 +11,7 @@ class News extends Model {
     protected $table = 'news';
 
     static function query($checkActive = true, $langId = null) {
-        if(empty($langId)) {
-            $langId = UserService::getLang();
-        }
-        
+        $lang = UserService::getLang();        
         $query = self::select(
             'news.id as id',
             'news.menu_id as menu_id',
@@ -38,7 +35,7 @@ class News extends Model {
             // 'news_data.meta_title as meta_title',
         )
         ->leftJoin('news_data', 'news_data.data_id', '=', 'news.id')
-        ->where('news_data.languages_id', $langId);
+        ->where('news_data.languages_id', app()->getLocale());
         if($checkActive == true) {
             $query = $query->where('news.is_active', 1);
         }

@@ -1,82 +1,158 @@
-<div class="row">
-    <div class="theme-slider-20 col-md-12 col-xl-8">
-        <div class="row">
-            {{-- slideLatest --}}
-            <div id="slideLatest" class="col-lg-7">
-                <div class="image_carousel nav_style4 owl-carousel">
-                    @foreach ($newsLatest01 as $n)
-                        @include('layouts.layout01.elements.home.item_slide')
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- slideTopViews --}}
-            <div id="slideTopViews" class="col-lg-7" style="display: none">
-                <div class="image_carousel nav_style4 owl-carousel">
-                    @foreach ($topViews as $n)
-                        @include('layouts.layout01.elements.home.item_slide')
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="col-lg-5 lastestnews">
-                <div class="border-radious5 tab4">
-                    <ul class="nav nav-tabs">
-                        <li id="tabLatest" class="active">
-                            <a lastestNewsId="1" class="active fontbold" data-toggle="tab"
-                                href="javascript:void(0)">{{ __('user.news') }}</a>
-                        </li>
-                        <li id="tabViews">
-                            <a lastestNewsId="2" class="read fontbold" data-toggle="tab"
-                                href="javascript:void(0)">{{ __('user.view_more') }}</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content">
-                        <div id="tabLastestNews" class="tab-pane tab-news-content show fade in active scroll_bar">
-                            @foreach ($newsLatest01 as $item)
-                                @include('layouts.layout01.elements.home.newLatest')
-                            @endforeach
+<section class="section section2 dark" id="section_1639615905">
+                  <div class="bg section-bg fill bg-fill  bg-loaded" >
+                  </div>
+                  <div class="section-content relative">
+                     <div class="row row-large"  id="row-2145480695">
+                        <div id="col-1403247314" class="col medium-6 small-12 large-6"  >
+                           <div class="col-inner"  >
+                              <div class="tieu-de">
+                                 <h2>CHÚNG TÔI LÀM NHỮNG CÔNG TRÌNH TUYỆT VỜI, MỘT SỐ DỰ ÁN CỦA CHÚNG TÔI Ở ĐÂY.</h2>
+                              </div>
+                              <p><span style="color: #999999; font-size: 90%;">Nulla sed ligula ut ipsum elementum gravida. Pellentesque nec imperdiet felis. Fusce sodales quam eget lorem volutpat, ornare luctus est dictum. Nam varius pretium condimentum. Duis consequat, lectus ac aliquam elementum, purus odio.</span></p>
+                              <a href="#" target="_self" class="button primary lowercase nut-xem-them"  >
+                              <span>Xem tất cả dự án</span>
+                              </a>
+                           </div>
                         </div>
-
-                        <div id="tabTopViews" class="tab-pane tab-news-content show fade in active scroll_bar _hidden">
-                            @foreach ($topViews as $item)
-                                @include('layouts.layout01.elements.home.newLatest')
-                            @endforeach
+                        <div id="col-812780374" class="col medium-6 small-12 large-6"  >
+                           <div class="col-inner"  >
+                              <div class="slider-wrapper relative" id="slider-676913251" >
+                                 <div class="slider slider-nav-simple slider-nav-normal slider-nav-dark slider-style-normal slider-676913251"
+                                    data-flickity-options='{
+                                    "cellAlign": "center",
+                                    "imagesLoaded": true,
+                                    "lazyLoad": 1,
+                                    "freeScroll": false,
+                                    "wrapAround": false,
+                                    "autoPlay": 6000,
+                                    "pauseAutoPlayOnHover" : true,
+                                    "prevNextButtons": false,
+                                    "contain" : true,
+                                    "adaptiveHeight" : true,
+                                    "dragThreshold" : 10,
+                                    "percentPosition": true,
+                                    "pageDots": false,
+                                    "rightToLeft": false,
+                                    "draggable": true,
+                                    "selectedAttraction": 0.1,
+                                    "parallax" : 0,
+                                    "friction": 0.6        }'
+                                    >
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_1781374536">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_1781374536 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_167719211">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_167719211 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_887392697">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_887392697 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                 </div>
+                                 <div class="slider-custom slider slider-nav-simple slider-nav-normal slider-nav-dark slider-style-normal "
+                                    data-flickity-options='{
+                                    "asNavFor": ".slider-676913251",
+                                    "cellAlign": "center",
+                                    "imagesLoaded": true,
+                                    "lazyLoad": 1,
+                                    "freeScroll": false,
+                                    "wrapAround": false,
+                                    "autoPlay": 6000,
+                                    "pauseAutoPlayOnHover" : true,
+                                    "prevNextButtons": false,
+                                    "contain" : true,
+                                    "adaptiveHeight" : true,
+                                    "dragThreshold" : 10,
+                                    "percentPosition": true,
+                                    "pageDots": false,
+                                    "rightToLeft": false,
+                                    "draggable": true,
+                                    "selectedAttraction": 0.1,
+                                    "parallax" : 0,
+                                    "friction": 0.6        }'
+                                    >
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_2092732888">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_2092732888 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_2063696572">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_2063696572 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                    <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_1477543153">
+                                       <div class="img-inner image-cover dark" style="padding-top:100%;">
+                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                       </div>
+                                       <style>
+                                          #image_1477543153 {
+                                          width: 100%;
+                                          }
+                                       </style>
+                                    </div>
+                                 </div>
+                                 <div class="loading-spin dark large centered"></div>
+                                 <style scope="scope">
+                                    .slider-custom{
+                                    padding: 0 50px;
+                                    bottom: 120px;
+                                    }
+                                    .slider-custom .flickity-slider .img{
+                                    max-width: 20%!important;
+                                    margin: 5px;
+                                    border: 2px solid #fff;
+                                    }
+                                 </style>
+                              </div>
+                              <!-- .ux-slider-wrapper -->
+                           </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-lg-12  d-xl-block fix-ma-nhung">
-        <div class="row fix-ma-nhung-02">
-            <div class="col-lg-6 col-lg-6 col-lg-12 trading-view">
-                <script src="https://widgets.coingecko.com/coingecko-coin-heatmap-widget.js"></script>
-                <coingecko-coin-heatmap-widget class="coingecko-01" height="300" locale="en"></coingecko-coin-heatmap-widget>
-            </div>
-            <div class="col-lg-6 col-lg-12 trading-view-02">
-                <script src="https://widgets.coingecko.com/coingecko-coin-list-widget.js"></script>
-                <coingecko-coin-list-widget class="coingecko-02" coin-ids="bitcoin,ethereum,pepe" currency="usd" locale="en"></coingecko-coin-list-widget>
-            </div>
-        </div>
-
-       {{--
-        <div class="row">
-            <script src="https://widgets.coingecko.com/coingecko-coin-list-widget.js"></script>
-            <coingecko-coin-list-widget  coin-ids="bitcoin,ethereum,pepe" currency="usd" locale="en"></coingecko-coin-list-widget>
-        </div>
-        --}}
-
-        {{--
-        <div class="row trading-view">
-            $config->trading_view
-        </div>
-        --}}
-
-        {{-- <div id="trending-index03" class="row"> --}}
-            {{-- load trending01 --}}
-        {{-- </div> --}}
-
-    </div>
-</div>
+                     </div>
+                  </div>
+                  <style>
+                     #section_1639615905 {
+                     padding-top: 100px;
+                     padding-bottom: 100px;
+                     background-color: rgb(51, 51, 51);
+                     }
+                     #section_1639615905 .ux-shape-divider--top svg {
+                     height: 150px;
+                     --divider-top-width: 100%;
+                     }
+                     #section_1639615905 .ux-shape-divider--bottom svg {
+                     height: 150px;
+                     --divider-width: 100%;
+                     }
+                  </style>
+               </section>

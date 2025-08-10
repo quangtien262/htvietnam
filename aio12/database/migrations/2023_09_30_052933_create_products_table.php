@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('vi_tri_id')->default(0)->nullable(); // HH
             $table->integer('gia_von')->default(0)->nullable();  // HH
             $table->integer('gia_ban')->default(0)->nullable(); // HH, dich vu, gói, thẻ
+            $table->integer('gia_khuyen_mai')->default(0)->nullable();
             $table->integer('menh_gia')->default(0)->nullable(); // thẻ: nhập số tiền mệnh giá
             $table->integer('trong_luong')->default(0)->nullable(); // HH,
             $table->integer('ban_truc_tiep')->default(0)->default(0)->nullable(); // HH, dich vu
@@ -96,6 +97,14 @@ return new class extends Migration
             // đơn vị tính mặc định, hiện tại đang ko hiển thị trên data vì đang có nhiều đơn vị quy đổi
 
             $table->integer('ngung_kinh_doanh')->default(0)->nullable();
+
+            $table->integer('views')->default(99)->nullable();
+            $table->integer('is_front')->default(0)->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('category_id')->default(0)->nullable();
+            $table->text('product_color_ids')->nullable();
+            $table->text('product_size_ids')->nullable();
+            
 
             $table->integer('is_parent')->default(0)->nullable(); // 
 

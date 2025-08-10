@@ -37,6 +37,7 @@ return new class extends Migration
 
         $order_col = 1;
         $user = Table::where('name', 'admin_users')->first();
+        
         $news = MigrateService::createTable02('news', 'Tin tức', ['is_multiple_language' => 1, 'table_data' => 'news_data', 'parent_id' => 0]);
         MigrateService::createColumn02($news->id, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
         MigrateService::createColumn02($news->id, 'image', 'Ảnh đại diện', 'TEXT', 'image_crop', $order_col++, ['conditions' => 1]);
@@ -45,6 +46,7 @@ return new class extends Migration
         $menus = Table::where('name', 'menus')->first();
         MigrateService::createColumn02($news->id, 'menu_id', 'Menu', 'TEXT', 'select', $order_col++, 
         ['select_table_id' => $menus->id, 'show_in_list' => 1]);
+        
         MigrateService::createColumn02($news->id, 'tags_id', 'Tags', 'TEXT', 'tags', $order_col++, ['edit' => 0]);
         MigrateService::createColumn02($news->id, 'is_active', 'Active', 'INT', 'select', $order_col++, ['edit' => 0]);
         MigrateService::createColumn02($news->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order_col++, 
