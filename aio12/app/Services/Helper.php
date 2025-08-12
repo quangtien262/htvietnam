@@ -155,12 +155,12 @@ class Helper
     }
     public function getLinkMenu($menu)
     {
-        if(empty($menu)) {
+        if (empty($menu)) {
             return '';
         }
         $sluggable = 'data';
         $link = '';
-        if(!empty($menu->name)) {
+        if (!empty($menu->name)) {
             $sluggable = self::formatText($menu->name_data);
         }
 
@@ -216,9 +216,12 @@ class Helper
         return Product::find($id);
     }
 
-    function getCity()
+    public function getImages($id)
     {
+        return Product::find($id);
     }
+
+    function getCity() {}
 
     public function getName($tblName, $id = 0)
     {
@@ -516,11 +519,11 @@ class Helper
     public function getAvatarProduct($product, $isShowNoImage = true)
     {
         $img = '';
-        if(!empty($product) && !empty($product->images) && !empty($product->images['avatar'])) {
+        if (!empty($product) && !empty($product->images) && !empty($product->images['avatar'])) {
             $img = $product->images['avatar'];
         } else if ($isShowNoImage) {
             $img = '/images/no-image.jpg';
-        } 
+        }
         return $img;
     }
 
@@ -576,7 +579,8 @@ class Helper
         }
     }
 
-    public function getLinkFooter() {
+    public function getLinkFooter()
+    {
         return LinkFooter::query()->orderBy('sort_order', 'asc')->get();
     }
 }
