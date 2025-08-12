@@ -11,6 +11,7 @@ use App\Models\Admin\Product;
 use App\Models\Admin\Table;
 use App\Models\AdminUser;
 use App\Services\Admin\TblService;
+use App\Services\AnalyticService;
 
 class AdminController extends Controller
 {
@@ -37,6 +38,13 @@ class AdminController extends Controller
                 'banChay' => $banchay
             ]
         );
+    }
+
+    public function dashboardWeb()
+    {
+        $views = AnalyticService::getAll();
+        $viewData = [];
+        return Inertia::render('Admin/Dashboard/web', $viewData);
     }
 
 

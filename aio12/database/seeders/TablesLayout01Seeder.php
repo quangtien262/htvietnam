@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
@@ -47,49 +46,7 @@ class TablesLayout01Seeder extends Seeder
 
         //news
         $this->createNews();
-
-        //doi_tac
-        // $this->createDoiTac($this);
-
-
-        // $this->command->info('migrate About');
-        // MigrateService::createAbout(
-        //     ['Giới thiệu'],
-        //     '/layouts/layout04/images/news/03.jpg',
-        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>'],
-        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>']
-        // );
-
-        // block info
-        // $this->command->info('Migrate block info');
-        // MigrateService::createBlockInfo(['Giới thiệu'], '', [], ['description' => ['HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch, keo chà ron, phụ gia và hóa chất xây dựng']]);
-
-        // block
-        // $this->createBlock();
-
-        // product info
-        // $this->command->info('Migrate product info');
-        // MigrateService::createProductInfo(['Giao hàng toàn quốc'], '/layouts/layout04/images/policy-product-1.png');
-        // MigrateService::createProductInfo(['Tích điểm tất cả sản phẩm'], '/layouts/layout04/images/policy-product-2.png');
-        // MigrateService::createProductInfo(['Thời gian chuẩn bị hàng nhanh'], '/layouts/layout04/images/policy-product-3.png');
-        // MigrateService::createProductInfo(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
-
-        // $this->command->info('Migrate link_footer');
-        // MigrateService::createLinkFooter(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
-
-        // MigrateService::createData('colors',  [],['name_data' => ['Đỏ','red']]);
-        // MigrateService::createData('colors',  [],['name_data' => ['Xanh','Blue']]);
-
-        // MigrateService::createData('size',  [],['name_data' => ['XL','XL']]);
-        // MigrateService::createData('size',  [],['name_data' => ['XXL','XXL']]);
-
-        // DB::table('product_colors')->insert(['name' => 1, 'price_up' => 0]);
-        // DB::table('product_colors')->insert(['name' => 2, 'price_up' => 0]);
-
-        // DB::table('product_size')->insert(['name' => 1, 'price_up' => 0]);
-        // DB::table('product_size')->insert(['name' => 2, 'price_up' => 0]);
-
-        // MigrateService::createData('categorys',  [],['name_data' => ['XXL','XXL']]);
+        
     }
 
     private function createDataProduct()

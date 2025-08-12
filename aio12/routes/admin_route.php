@@ -377,5 +377,9 @@ Route::group(['prefix' => 'report'], function () {
 });
 
 
+Route::group(['prefix' => 'web'], function () {
+    Route::get('/', [AdminController::class, 'dashboardWeb'])->name('web.dashboard');
+});
+
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
 Route::post('/data/delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');

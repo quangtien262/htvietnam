@@ -2,14 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin\Table;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Web\Menu;
-use App\Models\Web\WebConfig;
 use Illuminate\Support\Facades\DB;
-use App\Services\Admin\CrawlService;
-use App\Services\MigrateService;
 
 class StatusSeeder extends Seeder
 {

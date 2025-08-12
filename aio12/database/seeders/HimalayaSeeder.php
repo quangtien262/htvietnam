@@ -2,16 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin\DataTelesales;
 use App\Models\Admin\Product;
 use App\Models\Admin\Table;
-use App\Models\AdminUser;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Web\Menu;
-use App\Models\Web\WebConfig;
 use Illuminate\Support\Facades\DB;
-use App\Services\Admin\CrawlService;
 use App\Services\MigrateService;
 
 class HimalayaSeeder extends Seeder

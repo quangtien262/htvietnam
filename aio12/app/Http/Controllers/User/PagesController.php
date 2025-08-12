@@ -21,6 +21,7 @@ use App\Models\Web\Address;
 use App\Models\Web\Landingpage;
 use App\Models\Web\Page;
 use App\Models\Web\QA;
+use App\Services\AnalyticService;
 use App\Services\User\NewsService;
 use App\Services\User\VideoService;
 
@@ -33,6 +34,10 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
+        AnalyticService::addView();      // Tổng lượt view theo ngày
+        AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
+
+
         $config = WebConfig::query()->find(1);
         $param = [
             'config' => $config,
@@ -60,7 +65,7 @@ class PagesController extends Controller
         if (count($menu['subMenuId']) > 1) {
             unset($menu['subMenuId'][0]);
             $menuData = Menu::query()->whereIn('menus.id', $menu['subMenuId'])->get();
-            return View('layouts.layout' . $config->layout . '.pages.list', compact('menu','langId', 'config', 'seo','menuData'));
+            return View('layouts.layout' . $config->layout . '.pages.list', compact('menu', 'langId', 'config', 'seo', 'menuData'));
         }
 
         $menu = $menu['menu'];
@@ -139,7 +144,7 @@ class PagesController extends Controller
             'keywords' => $config->meta_keyword,
             'description' => $config->meta_description,
         ];
-        return View('layouts.layout' . $config->layout . '.pages.search', compact('config',  'products', 'seo', 'bds','videos'));
+        return View('layouts.layout' . $config->layout . '.pages.search', compact('config',  'products', 'seo', 'bds', 'videos'));
     }
 
 

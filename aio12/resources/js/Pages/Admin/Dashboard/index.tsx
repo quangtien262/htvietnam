@@ -4,7 +4,7 @@ import { Select, Col, Row, Card,Modal, Button  } from 'antd';
 import { Link, router } from "@inertiajs/react";
 
 import {
-    BoxPlotFilled, GlobalOutlined, FileProtectOutlined, CopyOutlined, LineChartOutlined,
+    DribbbleSquareOutlined, GlobalOutlined, FileProtectOutlined, CopyOutlined, LineChartOutlined,
     HddOutlined, NodeExpandOutlined, DeleteColumnOutlined, OrderedListOutlined, IssuesCloseOutlined,
     DoubleRightOutlined, DoubleLeftOutlined, ForkOutlined, SortAscendingOutlined, EditFilled,
     FileSearchOutlined, ShopFilled, PayCircleOutlined, HourglassOutlined, DeleteRowOutlined,
@@ -29,6 +29,7 @@ export default function Dashboard(props) {
             // tables={props.tables}
             content={
                 <div>
+
                     <Card type="inner" title='Điều hướng nhanh'>
                         <Select placeholder="Nhập để điều hướng quản trị nhanh đến chức năng tương ứng"
                             showSearch
@@ -42,6 +43,36 @@ export default function Dashboard(props) {
                     </Card>
 
                     <Row className='main-home'>
+                        {/* QUẢN TRỊ WEBSITE */}
+                        <Col sm={6} className='item-home'>
+                            <Card variant="borderless" className='item-dashboard'>
+                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                                    <div className="ant-statistic-title">
+                                        <Link href={route('web.dashboard')}>
+                                            <DribbbleSquareOutlined /> QUẢN TRỊ WEBSITE
+                                        </Link>
+                                    </div>
+                                    
+                                    <div className="ant-statistic-content" >
+                                        <div className="ant-statistic-content-prefix">
+                                            <DribbbleSquareOutlined />
+                                        </div>
+                                        <div className="ant-statistic-content-value">
+                                            <div>
+                                                <ul className="dashboard-list-item">
+                                                    <li><HddOutlined /> Quản lý sản phẩm</li>
+                                                    <li><DoubleLeftOutlined /> Quản lý tin tức</li>
+                                                    <li><DoubleRightOutlined /> Cài đặt website</li>
+                                                    <li><FileSearchOutlined /> Cài đặt trang chủ </li>
+                                                    <li><FileSearchOutlined /> .....</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+
                         {/* QUẢN LÝ KHO HÀNG */}
                         <Col sm={6} className='item-home'>
                             <Card variant="borderless" className='item-dashboard'>
@@ -262,68 +293,12 @@ export default function Dashboard(props) {
                                 </div>
                             </Card>
                         </Col>
-
-                        {/* QUẢN LÝ TÀI CHÍNH */}
-                        <Col sm={6} className='item-home'>
-                            <Card variant="borderless" className='item-dashboard'>
-                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                                    <div className="ant-statistic-title">
-                                        <span onClick={()=>setIsOpenModalConfirm(true)}>
-                                            <a><SettingFilled /> QUẢN LÝ TÀI CHÍNH</a>
-                                        </span>
-                                        {/* <Link href={route('setting.dashboard')}>
-                                            <SettingFilled />
-                                            CÀI ĐẶT HỆ THỐNG
-                                        </Link> */}
-                                    </div>
-                                    <div className="ant-statistic-content" >
-                                        <div className="ant-statistic-content-prefix">
-                                            <SettingFilled />
-                                        </div>
-                                        <div className="ant-statistic-content-value">
-                                            <div>
-                                                <ul className="dashboard-list-item">
-                                                    <li><IssuesCloseOutlined /> Phân quyền hệ thống</li>
-                                                    <li><ColumnWidthOutlined /> Cài đặt các thông số, trạng thái</li>
-                                                    <li><InfoCircleFilled /> Cài đặt thông tin công ty</li>
-                                                    <li><SlidersFilled /> Cài đặt hệ thống</li>
-                                                    <li><EditFilled /> .....</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col>
-
-                        {/* QUẢN TRỊ WEBSITE */}
-                        {/* <Col sm={6} className='item-home'>
-                            <Card variant="borderless" className='item-dashboard'>
-                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                                    <div className="ant-statistic-title">QUẢN TRỊ WEBSITE</div>
-                                    <div className="ant-statistic-content" >
-                                        <div className="ant-statistic-content-prefix">
-                                            <HddFilled />
-                                        </div>
-                                        <div className="ant-statistic-content-value">
-                                            <div>
-                                                <ul className="dashboard-list-item">
-                                                    <li><HddOutlined /> Quản lý sản phẩm</li>
-                                                    <li><DoubleLeftOutlined /> Quản lý tin tức</li>
-                                                    <li><DoubleRightOutlined /> Cài đặt website</li>
-                                                    <li><FileSearchOutlined /> Cài đặt trang chủ </li>
-                                                    <li><FileSearchOutlined /> .....</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col> */}
+                        
+                        
                     </Row>
 
                     <Modal
-                        title=<div><a><InfoCircleFilled /></a> Tính năng này đang tạm khóa</div>
+                        title={<div><a><InfoCircleFilled /></a> Tính năng này đang tạm khóa</div>}
                         open={isOpenModalConfirm}
                         // onOk={formEdit}
                         width={600}
