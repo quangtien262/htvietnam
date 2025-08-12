@@ -22,12 +22,19 @@ class ContactController extends Controller
     public function index(Request $request)
     {
         $config = WebConfig::query()->find(1);
-        $landingPage = Landingpage::orderBy('sort_order', 'asc')->get();
         $message = $request->session()->all();
-        
-        $menuId = 0;
         $menuContact = Menu::query()->where('display_type', 'contact')->first();
-        return View('layouts.layout' . $config->layout . '.contact.index', compact('config','menuContact', 'message','landingPage', 'menuId'));
+        $param = [
+            'config' => $config,
+            'menuContact' => $menuContact,
+            'message' => $message,
+            'seo' => [
+                'title' => $config->title,
+                'keywords' => $config->meta_keyword,
+                'description' => $config->meta_description,
+            ],
+        ];
+        return View('layouts.layout' . $config->layout . '.contact.index', $param);
     }
 
 
@@ -40,20 +47,20 @@ class ContactController extends Controller
     public function result(Request $request)
     {
         $message = $request->session()->all();
-        if(empty($message['success'])) {
+        if (empty($message['success'])) {
             return redirect()->route('contact');
         }
         $landingPage = Landingpage::orderBy('sort_order', 'asc')->get();
         $config = WebConfig::query()->find(1);
         $menuId = 0;
-        return View('common.contact_success', compact('config', 'message','landingPage', 'menuId'));
+        return View('common.contact_success', compact('config', 'message', 'landingPage', 'menuId'));
     }
-    public function sendMail(Request $request){
-        $data =[];
+    public function sendMail(Request $request)
+    {
+        $data = [];
         $config = WebConfig::find(1);
         $data['name'] = $request->input('mailMess');
         MailMaketting::create($data);
-        return View('common.contact_success',compact('config'));
+        return View('common.contact_success', compact('config'));
     }
 }
-

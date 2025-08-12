@@ -161,7 +161,7 @@ class Helper
         $sluggable = 'data';
         $link = '';
         if(!empty($menu->name)) {
-            $sluggable = self::formatText($menu->name);
+            $sluggable = self::formatText($menu->name_data);
         }
 
         $displayType = $menu->display_type;
@@ -175,10 +175,9 @@ class Helper
                 $link = route($displayType, [$sluggable, $menu->id]);
                 break;
             case 'contact':
-                $link = route('contact');
-                break;
+            case 'home':
             case 'about':
-                $link = route('about');
+                $link = route($displayType);
                 break;
             default:
                 # code...
@@ -190,7 +189,7 @@ class Helper
 
     public function getLinkNews($news)
     {
-        $sluggable = self::formatText($news->name);
+        $sluggable = self::formatText($news->name_data);
         return route('news.detail', [$sluggable, $news->id]);
     }
 
@@ -202,7 +201,7 @@ class Helper
 
     public function getLinkProduct($product)
     {
-        $sluggable = self::formatText($product->name);
+        $sluggable = self::formatText($product->name_data);
         return route('product.detail', [$sluggable, $product->id]);
     }
 
@@ -512,6 +511,17 @@ class Helper
             <span class="' . $classPrice . '">' . number_format(intval($product->promo_price), 0, '.', '.') . '₫</span>';
         }
         return '<span class="' . $classPrice . '">' . number_format(intval($product->price), 0, '.', '.')  . '₫</span>';
+    }
+
+    public function getAvatarProduct($product, $isShowNoImage = true)
+    {
+        $img = '';
+        if(!empty($product) && !empty($product->images) && !empty($product->images['avatar'])) {
+            $img = $product->images['avatar'];
+        } else if ($isShowNoImage) {
+            $img = '/images/no-image.jpg';
+        } 
+        return $img;
     }
 
     public function showProductAvatar($product, $class = '', $id = '', $attr = '')

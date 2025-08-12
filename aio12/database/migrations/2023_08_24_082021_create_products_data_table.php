@@ -18,7 +18,10 @@ return new class extends Migration
             $table->integer('languages_id')->nullable();
             $table->integer('data_id')->nullable();
             $table->longtext('description')->nullable();
+            $table->longtext('description02')->nullable();
             $table->longtext('content')->nullable();
+
+
             $table->text('meta_title')->nullable();
             $table->text('meta_keyword')->nullable();
             $table->text('meta_description')->nullable();

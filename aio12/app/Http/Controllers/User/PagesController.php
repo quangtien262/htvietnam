@@ -33,9 +33,6 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-        $news = app('DataService')->getNewsByConditions([],[],4);
-        dd($news);
-        
         $config = WebConfig::query()->find(1);
         $param = [
             'config' => $config,
@@ -150,7 +147,17 @@ class PagesController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $landingPage = Landingpage::query()->where('menu_id', $menuId)->orderBy('sort_order', 'asc')->get();
-        return View('layouts.layout' . $config->layout . '.landingpage.index', compact('config', 'landingPage', 'menuId'));
+        $param = [
+            'config' => $config,
+            'landingPage' => $landingPage,
+            'menuId' => $menuId,
+            'seo' => [
+                'title' => $config->title,
+                'keywords' => $config->meta_keyword,
+                'description' => $config->meta_description,
+            ],
+        ];
+        return View('layouts.layout' . $config->layout . '.landingpage.index', $param);
     }
 
     public function address(Request $request, $sluggable, $menuId)

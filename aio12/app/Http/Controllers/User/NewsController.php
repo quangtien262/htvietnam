@@ -26,40 +26,48 @@ class NewsController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $menu = UserService::getMenuDetail($menuId);
-
-        $news = News::query()->whereIn('news.menu_id', $menu['subMenuId']);
-
-        $news = $news->orderBy('news.create_date', 'desc')->paginate(config('constant.paginate'));
-
-        $fullUrl = \URL::current();
+        $news = News::query()->whereIn('news.menu_id', $menu['subMenuId'])
+            ->orderBy('news.updated_at', 'desc')
+            ->paginate(config('constant.paginate'));
         $seo = [
             'title' => $menu['menu']->name,
             'keywords' => $menu['menu']->meta_keyword,
             'description' => $menu['menu']->meta_description,
         ];
-        return View('layouts.layout' . $config->layout . '.news.index',
-            compact('news','fullUrl', 'menu',  'config', 'seo'));
+        $param = [
+            'news' => $news,
+            'menu' => $menu,
+            'config' => $config,
+            'seo' => $seo,
+        ];
+        return View('layouts.layout' . $config->layout . '.news.index', $param);
     }
 
 
     public function detail(Request $request, $sluggableNews, $newsId)
     {
         $config = WebConfig::query()->find(1);
-        $viewData = [];
-        $news = News::query(false)->where('news.id', $newsId)->first();
-        $menu = UserService::getMenuDetail($news->menu_id);
-        $newsLatest = News::query()->where('news.id', '!=', $newsId)->orderBy('news.create_date', 'desc')->paginate(9);
-        $tags = Tags::OrderBy('id', 'desc')->paginate(9);
-        $parent = $menu['parent'];
 
-        $fullUrl = \URL::current();
+        $news = News::query(false)->where('news.id', $newsId)->first();
+        
+        $menu = UserService::getMenuDetail($news->menu_id);
+        
+        // dd($menu);
+        $newsLatest = News::query()->where('news.id', '!=', $newsId)->orderBy('news.create_date', 'desc')->limit(10)->get();
+        
         $seo = [
             'title' => $news->name,
             'keywords' => $news->meta_keyword,
             'description' => $news->meta_description,
         ];
-        return View('layouts.layout' . $config->layout . '.news.detail',
-            compact('fullUrl','news', 'newsLatest', 'menu', 'config', 'tags', 'seo'));
+        $param = [
+            'news' => $news,
+            'newsLatest' => $newsLatest,
+            'menu' => $menu,
+            'config' => $config,
+            'seo' => $seo,
+        ];
+        return View('layouts.layout' . $config->layout . '.news.detail', $param);
     }
 
 

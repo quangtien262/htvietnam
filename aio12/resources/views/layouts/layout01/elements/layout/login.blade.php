@@ -28,7 +28,7 @@
                             name="login" value="Log in">Log in</button>
                     </p>
                     <p class="woocommerce-LostPassword lost_password">
-                        <a href="https://solar3.maugiaodien.com/tai-khoan/lost-password/">Lost your password?</a>
+                        <a href="">Lost your password?</a>
                     </p>
                 </form>
             </div>

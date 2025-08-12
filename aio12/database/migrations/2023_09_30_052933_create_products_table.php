@@ -27,9 +27,14 @@ return new class extends Migration
             $table->text('product_group_ids_apply')->nullable(); // thẻ(chọn nhiều)
             $table->integer('thuong_hieu_id')->default(0)->nullable(); // HH, dich vu, gói, thẻ
             $table->integer('vi_tri_id')->default(0)->nullable(); // HH
+
             $table->integer('gia_von')->default(0)->nullable();  // HH
             $table->integer('gia_ban')->default(0)->nullable(); // HH, dich vu, gói, thẻ
             $table->integer('gia_khuyen_mai')->default(0)->nullable();
+
+            $table->integer('best_saler')->default(0)->nullable();
+            $table->integer('is_hot')->default(0)->nullable();
+
             $table->integer('menh_gia')->default(0)->nullable(); // thẻ: nhập số tiền mệnh giá
             $table->integer('trong_luong')->default(0)->nullable(); // HH,
             $table->integer('ban_truc_tiep')->default(0)->default(0)->nullable(); // HH, dich vu
@@ -90,9 +95,11 @@ return new class extends Migration
             $table->integer('thoi_gian_khau_hao')->nullable();
             // $table->integer('status_product_id')->nullable();
             $table->text('images')->nullable();
-            $table->integer('ton_kho_toi_thieu')->nullable();
-            $table->integer('ton_kho_toi_da')->nullable();
+            $table->integer('ton_kho_toi_thieu')->default(1)->nullable();
+            $table->integer('ton_kho_toi_da')->default(99999)->nullable();
             $table->text('description')->nullable();
+
+            $table->integer('is_active')->default(1)->nullable();
 
             // đơn vị tính mặc định, hiện tại đang ko hiển thị trên data vì đang có nhiều đơn vị quy đổi
 
@@ -158,30 +165,6 @@ return new class extends Migration
             ]
         );
         $tt_khac = Column::where('table_id', $tableId)->where('name', 'block_tt_khac')->first();
-
-
-        // $quyDoiDV = MigrateService::createColumn02(
-        //     $tableId,
-        //     'block_quy_doi',
-        //     'ĐƠN VỊ QUY ĐỔI',
-        //     'INT',
-        //     'number',
-        //     4,
-        //     [
-        //         'block_type' => 'block_basic',
-        //     ]
-        // );
-
-        // $donVi = Table::where('name', 'product_unit')->first();
-        // MigrateService::createColumn02($tableId, 'don_vi_id', 'Đơn vị tính', 'INT', 'select', $order_col++, 
-        // ['select_table_id' => $donVi->id, 'add_express' => 1, 'parent_id' => $quyDoiDV->id]);
-        // $chuyenDoiDonVi = Table::where('name', 'product_conversion_unit')->first();
-        // MigrateService::createColumn02($tableId, 'conversion_unit_id', 'Danh sách quy đổi ', 'INT', 'select', $order_col++, 
-        // ['select_table_id' => $chuyenDoiDonVi->id, 'add_express' => 1, 'parent_id' => $quyDoiDV->id]);
-        // MigrateService::createColumn02($tableId, 'he_so', 'Hệ số quy đổi', 'VARCHAR', 'text', $order_col++, 
-        // ['parent_id' => $quyDoiDV->id]);
-        // MigrateService::createColumn02($tableId, 'gia_tien', 'Giá tiền(Giá vốn)', 'INT', 'number', $order_col++, 
-        // ['parent_id' => $quyDoiDV->id]);
 
         MigrateService::createColumn02(
             $tableId,

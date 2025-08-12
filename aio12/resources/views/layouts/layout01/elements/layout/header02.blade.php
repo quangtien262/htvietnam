@@ -3,8 +3,9 @@
         <!-- Logo -->
         <div id="logo" class="flex-col logo">
         <!-- Header logo -->
-        <a href="https://solar3.maugiaodien.com/" title="Mẫu web công ty điện mặt trời" rel="home">
-        <img width="176" height="43" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/logo-1.png" class="header_logo header-logo" alt="Mẫu web công ty điện mặt trời"/><img  width="176" height="43" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/logo-1.png" class="header-logo-dark" alt="Mẫu web công ty điện mặt trời"/></a>
+        <a href="{{route('home')}}" title="{{$seo['title']}}" rel="home">
+            <img width="176" height="43" src="{{$config->logo}}" class="header_logo header-logo" alt="{{$seo['title']}}"/>
+            <img  width="176" height="43" src="{{$config->logo}}" class="header-logo-dark" alt="{{$seo['title']}}"/></a>
         </div>
         <!-- Mobile Left Elements -->
         <div class="flex-col show-for-medium flex-left">
@@ -17,11 +18,7 @@
         </ul>
         </div>
         <!-- Left Elements -->
-        <div class="flex-col hide-for-medium flex-left
-        flex-grow">
-        <ul class="header-nav header-nav-main nav nav-left  nav-size-large nav-spacing-large nav-uppercase" >
-        </ul>
-        </div>
+
         <!-- Right Elements -->
         <div class="flex-col hide-for-medium flex-right">
         <ul class="header-nav header-nav-main nav nav-right  nav-size-large nav-spacing-large nav-uppercase">
@@ -56,8 +53,11 @@
                                 </div>
                                 </div>
                                 <div class="icon-box-text last-reset">
-                                <h3>0972.939.xxx</h3>
-                                <p><a href="https://solar3.maugiaodien.com/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="780f1d1a1c1d1517381f15191114561b1715">[email&#160;protected]</a></p>
+                                    <h3>{{$config->phone}}</h3>
+                                    <p>
+                                        <a href="mailto:{{$config->email}}" class="__cf_email__">{{$config->email}}</a>
+                                        <br/><br/>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -68,9 +68,9 @@
                                 <div class="icon-box-img" style="width: 50px">
                                 <div class="icon">
                                     <div class="icon-inner" >
+                                        {{-- icon localtion --}}
                                         <?xml version="1.0" encoding="utf-8"?>
                                         <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-                                        <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                                         <svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                                             width="800px" height="800px" viewBox="595 796 200 200" enable-background="new 595 796 200 200" xml:space="preserve">
                                             <g>
@@ -88,8 +88,8 @@
                                 </div>
                                 </div>
                                 <div class="icon-box-text last-reset">
-                                <h3>79 Minh Khai</h3>
-                                <p>Quận Hai Bà Trưng, Hà Nội</p>
+                                <h3>LK14, KĐT Hateco Green City</h3>
+                                <p>Foresa 4, phường Xuân Phương, quận Nam Từ Liêm, thành phố Hà Nội, Việt Nam.</p>
                                 </div>
                             </div>
                         </div>

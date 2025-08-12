@@ -30,11 +30,12 @@ class TablesLayout01Seeder extends Seeder
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
-        MigrateService::webconfig();
+        MigrateService::webconfig('01', ['logo' => '/layouts/01/images/logo.png']);
 
         // create languages
-        MigrateService::createLanguage('Tiếng Việt','vi',1,'/imgs/flags/vn.png');
-        MigrateService::createLanguage('English','vi',1,'/imgs/flags/vn.png');
+        MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vn.png');
+        MigrateService::createLanguage('English', 'en', 1, '/images/languages/en.png');
+        MigrateService::createLanguage('Chinese', 'ch', 1, '/images/languages/ch.png');
         //menu
         $this->createDataMenu();
 
@@ -95,16 +96,9 @@ class TablesLayout01Seeder extends Seeder
     {
         $this->command->info('migrate Product');
         $imgs = [
-            '/layouts/layout04/images/product-test/01.jpg',
-            '/layouts/layout04/images/product-test/02.jpg',
-            '/layouts/layout04/images/product-test/03.jpg',
-            '/layouts/layout04/images/product-test/04.jpg',
-            '/layouts/layout04/images/product-test/05.jpg',
-            '/layouts/layout04/images/product-test/06.jpg',
-            '/layouts/layout04/images/product-test/07.jpg',
-            '/layouts/layout04/images/product-test/08.jpg',
-            '/layouts/layout04/images/product-test/09.jpg',
-            '/layouts/layout04/images/product-test/10.jpg'
+            '/layouts/01/product-test/1.png',
+            '/layouts/01/product-test/2.png',
+            '/layouts/01/product-test/3.png',
         ];
         $images = [
             'avatar' => $imgs[array_rand($imgs)],
@@ -112,48 +106,33 @@ class TablesLayout01Seeder extends Seeder
         ];
 
         MigrateService::createProduct(
-            ['Sơn beger'],
+            ['HẠT NHỰA MÀU', 'Color Masterbatch', '塑料粒颗颜色'],
             12000,
-            ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs],
+            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2], 'category_id' => 1]
+            ['menu_id' => 2]
         );
         MigrateService::createProduct(
-            ['Sơn ngoại thất'],
+            ['HẠT CHỐNG ẨM', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
-            ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs],
+            ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
             [],
-            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]
+            ['menu_id' => 2]
         );
-        MigrateService::createProduct(['Sản phẩm'], 14000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Chống Thấm'], 15000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Phụ Gia'], 16000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu cho sàn'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu khác'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liêu sửa chữa'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu trám'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Màu sơn'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Gạch men'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Dung dịch tẩy rửa'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Keo chà ron'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Keo dán gạch'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Sơn lót'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs]);
-        MigrateService::createProduct(['Sơn ngoại thất'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Sơn nội thất'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
+        MigrateService::createProduct(
+            ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
+            13000,
+            ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
+            [],
+            ['menu_id' => 2]
+        );
+        MigrateService::createProduct(
+            ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
+            13000,
+            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
+            [],
+            ['menu_id' => 2]
+        );
     }
 
 
@@ -170,50 +149,52 @@ class TablesLayout01Seeder extends Seeder
 
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
 
-
-        MigrateService::createMenu(['Giới thiệu', 'About'], 'single_page', ['parent_id' => 0], ['content' => [$contentAbout,$contentAbout], 'description' => [$desAbout]]);
+        MigrateService::createMenu(['Trang chủ', 'Home'], 'home', 
+        ['parent_id' => 0, 'sort_order' => $sortOrder++]);
+        MigrateService::createMenu(['Giới thiệu', 'About'], 'landingpage', ['parent_id' => 0, 'sort_order' => $sortOrder++], 
+        ['content' => [$contentAbout, $contentAbout], 'description' => [$desAbout]]);
         $product = MigrateService::createMenu(['Sản Phẩm', 'Products'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(['Tuyển dụng', 'Job'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(['Tin Tức', 'News'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Liên Hệ', 'Contact'], 'contact', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(
-            ['Công thức sửa chữa tiên tiến','Công thức sửa chữa tiên tiến'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
+            ['Liên Hệ', 'Contact'],
+            'contact',
+            [
+                'parent_id' => 0,
+                'sort_order' => $sortOrder++,
+            ],
+            [
+                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+            ]
         );
         MigrateService::createMenu(
-            ['Đột phá tuyệt vời về màu sơn','Đột phá tuyệt vời về màu sơn'],
+            ['Công thức sửa chữa tiên tiến', 'Công thức sửa chữa tiên tiến'],
             'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
+            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
+            [
+                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+            ]
+        );
+        MigrateService::createMenu(
+            ['Đột phá tuyệt vời về màu sơn', 'Đột phá tuyệt vời về màu sơn'],
+            'product',
+            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
+            [
+                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+            ]
         );
         $gachMen = MigrateService::createMenu(
             ['Gạch men', 'Gạch men'],
             'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
+            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
+            [
+                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+            ]
         );
-        MigrateService::createMenu(['Bột trét tường'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Chống thấm'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Phụ gia'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        $xd = MigrateService::createMenu(['Vật liệu xây dựng cho sàn'], 'product', ['parent_id' => $product->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn2'],
-            'product',
-            ['parent_id' =>  $xd->id, 'sort_order' => $sortOrder++]
-        );
-       $me=  MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn3'],
-            'product',
-            ['parent_id' =>  $xd->id, 'sort_order' => $sortOrder++]
-          
-        );
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn4'],
-            'product',
-            ['parent_id' =>  $me->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn4'],
-            'product',
-            ['parent_id' =>  $me->id, 'sort_order' => $sortOrder++]);
     }
 
 

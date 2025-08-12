@@ -172,12 +172,12 @@ export default function Dashboard(props) {
                             <Card variant="borderless" className='item-dashboard'>
                                 <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                                     <div className="ant-statistic-title">
-                                        <span onClick={()=>setIsOpenModalConfirm(true)}>
+                                        {/* <span onClick={()=>setIsOpenModalConfirm(true)}>
                                             <a><CalendarFilled /> QUẢN LÝ CÔNG VIỆC</a>
-                                        </span>
-                                        {/* <Link href={route('task.dashboard')}>
+                                        </span> */}
+                                        <Link href={route('task.dashboard')}>
                                             <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
-                                        </Link> */}
+                                        </Link>
                                     </div>
                                     <div className="ant-statistic-content" >
                                         <div className="ant-statistic-content-prefix">

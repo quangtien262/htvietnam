@@ -10,7 +10,7 @@
                               <div class="icon-box-img" style="width: 142px">
                                  <div class="icon">
                                     <div class="icon-inner" >
-                                       <img width="176" height="43" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/logo.png" class="attachment-medium size-medium" alt="" decoding="async" loading="lazy" />					
+                                       <img width="176" height="43" src="{{$config->logo}}" class="attachment-medium size-medium" alt="" decoding="async" loading="lazy" />					
                                     </div>
                                  </div>
                               </div>
@@ -25,7 +25,15 @@
                                  }
                               </style>
                            </div>
-                           <div class="social-icons follow-icons full-width text-left" ><a href="#" target="_blank" data-label="Facebook" rel="noopener noreferrer nofollow" class="icon primary button circle facebook tooltip" title="Follow on Facebook" aria-label="Follow on Facebook"><i class="icon-facebook" ></i></a><a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="Instagram" class="icon primary button circle  instagram tooltip" title="Follow on Instagram" aria-label="Follow on Instagram"><i class="icon-instagram" ></i></a><a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="TikTok" class="icon primary button circle tiktok tooltip" title="Follow on TikTok" aria-label="Follow on TikTok"><i class="icon-tiktok" ></i></a><a href="#" target="_blank" rel="noopener noreferrer nofollow"  data-label="Pinterest"  class="icon primary button circle  pinterest tooltip" title="Follow on Pinterest" aria-label="Follow on Pinterest"><i class="icon-pinterest" ></i></a><a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="YouTube" class="icon primary button circle  youtube tooltip" title="Follow on YouTube" aria-label="Follow on YouTube"><i class="icon-youtube" ></i></a></div>
+                           <div class="social-icons follow-icons full-width text-left" >
+                              <a href="#" target="_blank" data-label="Facebook" rel="noopener noreferrer nofollow" class="icon primary button circle facebook tooltip" title="Follow on Facebook" aria-label="Follow on Facebook">
+                                 <i class="icon-facebook" ></i>
+                              </a>
+                              <a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="Instagram" class="icon primary button circle  instagram tooltip" title="Follow on Instagram" aria-label="Follow on Instagram"><i class="icon-instagram" ></i></a>
+                              <a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="TikTok" class="icon primary button circle tiktok tooltip" title="Follow on TikTok" aria-label="Follow on TikTok"><i class="icon-tiktok" ></i></a>
+                              <a href="#" target="_blank" rel="noopener noreferrer nofollow"  data-label="Pinterest"  class="icon primary button circle  pinterest tooltip" title="Follow on Pinterest" aria-label="Follow on Pinterest"><i class="icon-pinterest" ></i></a>
+                              <a href="#" target="_blank" rel="noopener noreferrer nofollow" data-label="YouTube" class="icon primary button circle  youtube tooltip" title="Follow on YouTube" aria-label="Follow on YouTube"><i class="icon-youtube" ></i></a>
+                           </div>
                         </div>
                      </div>
                      <div id="col-1994144840" class="col medium-3 small-6 large-3"  >
@@ -55,7 +63,7 @@
                                  </div>
                               </div>
                               <div class="icon-box-text last-reset">
-                                 <p>xxx Trần Khát Chân, Hai Bà Trưng, Hà Nội</p>
+                                 <p>{{$config->address}}</p>
                               </div>
                            </div>
                            <div class="icon-box featured-box icon-box-left text-left"  >
@@ -72,8 +80,8 @@
                                  </div>
                               </div>
                               <div class="icon-box-text last-reset">
-                                 <p>0972.939.xxx<br />
-                                    0800 123 xxxx
+                                 <p>
+                                    {{$config->phone}}
                                  </p>
                               </div>
                            </div>

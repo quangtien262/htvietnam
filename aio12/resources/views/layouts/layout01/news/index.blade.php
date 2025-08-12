@@ -1,69 +1,108 @@
-@extends('layouts.layout01.index')
+@extends('layouts.layout01.lay01')
 
 @section('content')
-    <div class="bg-event lr-banner-pos">
-        <div class="bg-full">
-            <div class="archives post post1 bg4">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="bridcrumb" itemscope="" itemtype="http://schema.org/BreadcrumbList">
-                                <span itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
-                                    <a href="{{ route('home') }}" itemprop="item" title="">
-                                        <span itemprop="name">{{__('home')}}</span>
-                                    </a>
-                                    <meta itemprop="position" content="1" />
-                                    <span>/</span>
-                                </span>
-                                <span itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
-                                    <a href="{{ app('Helper')->getLinkMenu($menu['menu']) }}" itemprop="item" title="{{ $menu['menu']->name }}" class="bcrumbs-item">
-                                        <span itemprop="name">{{ $menu['menu']->name }}</span>
-                                    </a>
-                                    <meta itemprop="position" content="2" />
-                                </span>
+    <div id="content" class="blog-wrapper blog-archive page-wrapper">
+        <section class="section dau-trang-section dark has-parallax" id="section_320154646">
+            <div class="bg section-bg fill bg-fill parallax-active bg-loaded" data-parallax-container=".section"
+                data-parallax-background="" data-parallax="-7"
+                style="height: 760.462px; transform: translate3d(0px, -131.69px, 0px); backface-visibility: hidden;">
+                <div class="section-bg-overlay absolute fill"></div>
+            </div>
+            <div class="section-content relative">
+                <div class="row align-middle" id="row-1345272763">
+                    <div id="col-914956584" class="col medium-6 small-12 large-6">
+                        <div class="col-inner">
+                            <div class="tieu-de">
+                                <h1 class="page-title is-large uppercase">
+                                    <span>Tin tức</span>
+                                </h1>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12 col-lg-8 scroll-content">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h1 class="widget-title1 channel-group fontbold">{{ $menu['menu']->name }}</h1>
-                                </div>
-                            </div>
-
-                            @php
-                                $newByMenu2 = app('Helper')->getDataInArray('news', ['menu_id' => $menu['subMenuId']], $orderBy = ['id' => 'desc']);
-                            @endphp
-                            <div class="business padding20 border-radious5" id="channel-container">
-                                @foreach ($news as $item)
-                                    @include('layouts.layout01.news.news_item')
-                                @endforeach
-
-                                {{ $news->onEachSide(5)->links() }}
-                                <hr class="horizontal-dotb dkt-horizontal" />
-                            </div>
-                            <hr class="horizontal-dottb ipd-horizontal" />
-                        </div>
-
-                        {{-- Cổ phiếu mới lên sàn --}}
-                        <div class="col-lg-4 col-md-12">
-                            {{-- TOP VIEW --}}
-                            <div class="last-scroll-3">
-                                <div class="widget mb10 rightdetail">
-                                    <h2 class="widget-title fontbold">{{__('user.top_view')}}</h2>
-                                    @include('layouts.layout01.news.newsMost')
-                                </div>
-                                <hr class="horizontal-dottb dkt-horizontal horizontal-option" />
-                            </div>
-                            <div class="last-scroll-4">
-                                <div class="vst-ads-right">
-                                </div>
-                            </div>
+                    <div id="col-526786999" class="col medium-6 small-12 large-6">
+                        <div class="col-inner text-right">
+                            <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
+                                <p><a href="https://gioithieucongty2.ninhbinhweb.site">Trang chủ</a><span class="separator">
+                                        - </span><span class="last">Tin tức</span></p>
+                            </nav>
                         </div>
                     </div>
                 </div>
             </div>
+            <style>
+                #section_320154646 {
+                    padding-top: 60px;
+                    padding-bottom: 60px;
+                }
+
+                #section_320154646 .section-bg-overlay {
+                    background-color: rgba(0, 0, 0, 0.924);
+                }
+
+                #section_320154646 .section-bg.bg-loaded {
+                    background-image: url(/wp-content/uploads/2023/01/img3.jpg);
+                }
+
+                #section_320154646 .ux-shape-divider--top svg {
+                    height: 150px;
+                    --divider-top-width: 100%;
+                }
+
+                #section_320154646 .ux-shape-divider--bottom svg {
+                    height: 150px;
+                    --divider-width: 100%;
+                }
+            </style>
+        </section>
+        <div class="row align-center">
+            <div class="large-12 col">
+                <div class="row large-columns-3 medium-columns- small-columns-1">
+                    @foreach ($news as $n)
+                        @php
+                            $link = app('Helper')->getLinkNews($n);
+                        @endphp
+                        <div class="col post-item">
+                            <div class="col-inner">
+                                <a href="{{ $link }}" class="plain">
+                                    <div class="box box-text-bottom box-blog-post has-hover">
+                                        <div class="box-image">
+                                            <div class="image-cover" style="padding-top:56%;">
+                                                <img width="300" height="200"
+                                                    src="{{$n->image}}"
+                                                    class="attachment-medium size-medium wp-post-image" alt="" decoding="async"
+                                                    loading="lazy"
+                                                    srcset="{{$n->image}} 300w, {{$n->image}} 1024w, {{$n->image}} 768w, {{$n->image}} 600w, {{$n->image}} 1170w"
+                                                    sizes="auto, (max-width: 300px) 100vw, 300px">
+                                            </div>
+                                        </div>
+                                        <div class="box-text text-left">
+                                            <div class="box-text-inner blog-post-inner">
+                                                <h5 class="post-title is-large ">{{$n->name_data}}</h5>
+                                                <div class="is-divider"></div>
+                                                <p class="from_the_blog_excerpt">{{ $n->description }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="badge absolute top post-date badge-square">
+                                            <div class="badge-inner">
+                                                @if (!empty($n->updated_at))
+                                                    <span class="post-date-day">{{ $n->updated_at->format('d/m') }}</span><br>
+                                                    <span
+                                                        class="post-date-month is-xsmall">{{ $n->updated_at->format('Y') }}</span>
+                                                @else
+                                                    <span class="post-date-day">{{ $n->created_at->format('d/m') }}</span><br>
+                                                    <span
+                                                        class="post-date-month is-xsmall">{{ $n->created_at->format('Y') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
+
 @endsection

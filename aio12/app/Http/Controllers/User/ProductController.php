@@ -23,18 +23,19 @@ class ProductController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $menu = UserService::getMenuDetail($menuId);
-        $subMenu = $menu['subMenu'];
-
         $products = Product::getProduct($menu, $request);
-        
-        $news = News::query()->get();
         $seo = [
             'title' => $menu['menu']->name,
             'keywords' => $menu['menu']->meta_keyword,
             'description' => $menu['menu']->meta_description,
         ];
-
-        return View('layouts.layout' . $config->layout . '.product.index', compact('menu', 'products', 'config', 'news', 'seo','subMenu'));
+        $param = [
+            'products' => $products,
+            'menu' => $menu,
+            'config' => $config,
+            'seo' => $seo,
+        ];
+        return View('layouts.layout' . $config->layout . '.product.index', $param);
     }
 
 
@@ -44,17 +45,31 @@ class ProductController extends Controller
         $product = Product::query(false)->where('products.id', $productId)->first();
         $menu = UserService::getMenuDetail($product->menu_id);
         $subMenu = $menu['subMenu'];
-        $fullUrl = \URL::current();
-        $images = $product->images;
-        $product_lienquan = Product::query()->where('products.id', '!=', $productId)->orderBy('products.create_date', 'desc')->paginate(9);
+        $images = [];
+        if (!empty($product->images) && !empty($product->images['images'])) {
+            $images = $product->images['images'];
+        }
+        $product_lienquan = Product::query()->where('products.id', '!=', $productId)
+            ->orderBy('products.updated_at', 'desc')
+            ->paginate(9);
         $productLatest = Product::query()->limit(10)->get();
 
-        $seo = [
-            'title' => $product->name,
-            'keywords' => $product->meta_keyword,
-            'description' => $product->meta_description,
-        ];
-        return View('layouts.layout' . $config->layout . '.product.detail', compact('fullUrl','config', 'product', 'menu','subMenu', 'images', 'product_lienquan', 'productLatest', 'seo'));
+        $seo =
+            $param = [
+                'config' => $config,
+                'product' => $product,
+                'menu' => $menu,
+                'subMenu' => $subMenu,
+                'images' => $images,
+                'product_lienquan' => $product_lienquan,
+                'productLatest' => $productLatest,
+                'seo' => [
+                    'title' => $product->name,
+                    'keywords' => $product->meta_keyword,
+                    'description' => $product->meta_description,
+                ]
+            ];
+        return View('layouts.layout' . $config->layout . '.product.detail', $param);
     }
 
     public function search(Request $request)

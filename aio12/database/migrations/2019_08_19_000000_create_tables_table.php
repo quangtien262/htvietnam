@@ -17,10 +17,16 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name')->nullable(); // tên bảng, dùng để tạo database
+            $table->string('display_name')->nullable(); // tên hiển thị, dùng để hiển thị ở table list, form add/edit
+
+            // Phần này dành cho web
             $table->text('title')->nullable();
+            $table->text('title_desc')->nullable();
             $table->text('description')->nullable();
-            $table->string('display_name')->nullable();
+            $table->text('content')->nullable();
+
+            // config table
             $table->integer('sort_order')->default(0)->nullable();
             $table->integer('type_show')->default(0)->nullable();
             $table->string('model_name')->nullable();

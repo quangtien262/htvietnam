@@ -79,11 +79,11 @@
                                              </div>
                                           </div>
                                           <div class="icon-box-text last-reset">
-                                             <h3>GỬI EMIAL</h3>
+                                             <h3>GỬI EMAIL</h3>
                                              <p>
-                                                <a>[email&#160;protected]</a>
+                                                <a>{{$config->email}}</a>
                                                 <br />
-                                                <a class="__cf_email__">[email&#160;protected]</a></p>
+                                                <a class="__cf_email__">{{$config->email}}</a></p>
                                           </div>
                                        </div>
                                     </div>

@@ -1,0 +1,82 @@
+._hidden {
+    display: none;
+}
+.error {
+    color: red;
+}
+.main-add-item {
+    text-align: center !important;
+}
+.btn-add {
+    cursor: pointer;
+    background: #007bff;
+    color: #fff !important;
+    padding: 3px 20px 5px 20px;
+    border-radius: 7px;
+}
+.img-land {
+    max-width: 200px;
+}
+
+.imgs-land {
+    max-width: 200px;
+    width: 100%;
+}
+
+.land-icon-delete-img {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: red;
+    color: #fff !important;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.land-fast-edit {
+    position: absolute;
+    background: #ff0303;
+    color: #fff;
+    padding: 1px 10px;
+    z-index: 100;
+    top: -15px;
+    left: 49%;
+}
+.land-fast-edit1 {
+    /* margin-left: 50%; */
+    position: absolute;
+    background: #ff0303;
+    color: #fff;
+    padding: 1px 10px;
+    z-index: 100;
+    left: 70%;
+}
+.admin-land-item {
+    cursor: pointer;
+}
+.admin-land-item img:hover{
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    /* background-color: #007bff; */
+}
+.img-loading {
+    margin: auto;
+}
+.delete-land {
+    margin-left: 70%;
+}
+.label_hide {
+    cursor: pointer;
+}
+.stt {
+    width: 1%;
+    text-align: center;
+}
+.land-confirm-delete {
+    text-align: right;
+    background: #887d04;
+    color: #fff;
+    line-height: 28px;
+}
+.confirm-delete-land {
+
+}

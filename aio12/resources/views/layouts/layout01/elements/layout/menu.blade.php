@@ -1,45 +1,34 @@
+@php
+    $menus = app('DataService')->getMenuByConditions(['menus.parent_id' => 0]);
+@endphp
+
 <div id="wide-nav" class="header-bottom wide-nav hide-for-medium">
     <div class="flex-row container">
         <div class="flex-col hide-for-medium flex-left">
             <ul class="nav header-nav header-bottom-nav nav-left  nav-size-medium nav-spacing-xlarge nav-uppercase">
-                <li id="menu-item-62"
-                    class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-2 current_page_item menu-item-62 active menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/" aria-current="page" class="nav-top-link">Trang chủ</a>
-                </li>
-                <li id="menu-item-66"
-                    class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66 menu-item-design-default has-dropdown">
-                    <a href="https://solar3.maugiaodien.com/about-us/" class="nav-top-link" aria-expanded="false"
-                        aria-haspopup="menu">Về chúng tôi<i class="icon-angle-down"></i></a>
-                    <ul class="sub-menu nav-dropdown nav-dropdown-simple">
-                        <li id="menu-item-100"
-                            class="menu-item menu-item-type-custom menu-item-object-custom menu-item-100"><a
-                                href="#">Shortcode and Widgets</a></li>
-                        <li id="menu-item-101"
-                            class="menu-item menu-item-type-custom menu-item-object-custom menu-item-101"><a
-                                href="#">Department Single Profile</a></li>
-                        <li id="menu-item-102"
-                            class="menu-item menu-item-type-custom menu-item-object-custom menu-item-102"><a
-                                href="#">Breadcrumbs</a></li>
-                        <li id="menu-item-103"
-                            class="menu-item menu-item-type-custom menu-item-object-custom menu-item-103"><a
-                                href="#">Our Features</a></li>
-                    </ul>
-                </li>
-                <li id="menu-item-63"
-                    class="menu-item menu-item-type-post_type menu-item-object-page menu-item-63 menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/cua-hang/" class="nav-top-link">Sản phẩm</a></li>
-                <li id="menu-item-740"
-                    class="menu-item menu-item-type-post_type menu-item-object-page menu-item-740 menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/du-an-2/" class="nav-top-link">Dự án</a></li>
-                <li id="menu-item-67"
-                    class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-67 menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/tin-tuc/" class="nav-top-link">Tin tức</a></li>
-                <li id="menu-item-71"
-                    class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-71 menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/khuyen-mai/" class="nav-top-link">Khuyến mại</a></li>
-                <li id="menu-item-65"
-                    class="menu-item menu-item-type-post_type menu-item-object-page menu-item-65 menu-item-design-default">
-                    <a href="https://solar3.maugiaodien.com/contact-us/" class="nav-top-link">Liên hệ</a></li>
+                @foreach ($menus as $parent)
+                    @php
+                        $dropdown = '';
+                        $htmlSubMenu = '';
+                        $htmlSubMenu = '';
+                        $linkParent = app('Helper')->getLinkMenu($parent);
+                        $subMenus = app('DataService')->getMenuByConditions(['menus.parent_id' => $parent->id]);
+                        if (count($subMenus) > 0) {
+                            $dropdown = 'has-dropdown';
+                            $htmlSubMenu = '<ul class="sub-menu nav-dropdown nav-dropdown-simple">';
+                            foreach ($subMenus as $sub) {
+                                $linkSub = app('Helper')->getLinkMenu($sub);
+                                $htmlSubMenu .= '<li id="menu-item-' . $sub->id . '" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-' . $sub->id . '"><a href="' . $linkSub . '">' . $sub->name_data . '</a></li>';
+                            }
+                            $htmlSubMenu .= '</ul>';
+                        }
+                    @endphp
+                    <li id="menu-item-{{$parent->id}}"
+                        class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-{{$parent->id}} menu-item-design-default {{ $dropdown }}">
+                        <a href="{{$linkParent}}" aria-current="page" class="nav-top-link">{{ $parent->name_data }}</a>
+                        {!! $htmlSubMenu !!}
+                    </li>
+                @endforeach
             </ul>
         </div>
         <div class="flex-col hide-for-medium flex-right flex-grow">

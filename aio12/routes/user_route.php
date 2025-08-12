@@ -67,6 +67,8 @@ Route::post( 'sendMail', [ContactController::class, 'sendMail'])->name('sendMail
 // send info
 Route::post('contact/send-info', [OrdersController::class, 'sendOrdersBDS'])->name('orders.bds');
 
+Route::get('{sluggable}/h{menuId}.html', [PagesController::class, 'about'])->name('about');
+
 //singlepage
 Route::get('{sluggable}/a{menuId}.html', [PagesController::class, 'singlePage'])->name('single_page');
 Route::get('{sluggable}/b{menuId}.html', [PagesController::class, 'pageList'])->name('page_list');
