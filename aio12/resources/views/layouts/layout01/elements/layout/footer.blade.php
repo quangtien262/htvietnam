@@ -70,7 +70,6 @@
                               <div class="icon-box-img" style="width: 20px">
                                  <div class="icon">
                                     <div class="icon-inner" >
-                                       <?xml version="1.0" encoding="utf-8"?>
                                        <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                                        <svg fill="#000000" width="800px" height="800px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                                           <title>phone-plus</title>
@@ -89,7 +88,6 @@
                               <div class="icon-box-img" style="width: 20px">
                                  <div class="icon">
                                     <div class="icon-inner" >
-                                       <?xml version="1.0" encoding="utf-8"?>
                                        <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                                        <svg fill="#000000" width="800px" height="800px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                                           <title>envelope-open</title>
