@@ -9,6 +9,7 @@ use App\Models\Web\WebConfig;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Models\Web\BDS;
+use App\Models\Web\Image;
 use App\Models\Web\Languages;
 use App\Models\Web\LinkFooter;
 use App\Services\User\UserService;
@@ -26,12 +27,49 @@ class Helper
     {
         return UserService::getLang();
     }
+
+    public function getDataLang($table, $conditions = [], $orderBy = [], $limit = 0)
+    {
+        $tableLang = $table . '_data';
+        $data = DB::table($table)->select(
+            $table . '.*',
+            $table . '.id as id',
+            $tableLang . '.name_data as name_data',
+            $tableLang . '.languages_id as languages_id',
+            $tableLang . '.*',
+        )
+            ->leftJoin($tableLang, $tableLang . '.data_id', '=', $table . '.id')
+            ->where($tableLang . '.languages_id', UserService::getLang()->id);
+            
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $data = $data->where($key, $val);
+            }
+        }
+
+        if (!empty($orderBy)) {
+            foreach ($orderBy as $key => $val) {
+                $data = $data->orderBy($key, $val);
+            }
+        }
+
+        if ($limit == 0) {
+            $data = $data->get();
+        } else if ($limit == 1) {
+            $data = $data->first();
+        } else {
+            $data = $data->paginate($limit);
+        }
+
+        return $data;
+    }
+
     /**
      * condition = ['column_name' => 'value']
      * orderBy = ['column_name' => 'desc/asc']
      * limit: 0: get all; 1: get first; >1: get by limit
      */
-    public function getDataByConditions($table, $conditions = null, $orderBy = ['sort_order' => 'asc'], $limit = 0)
+    public function getDataByConditions($table, $conditions = [], $orderBy = ['id' => 'desc'], $limit = 0)
     {
         $data = DB::table($table);
         if (!empty($conditions)) {
@@ -211,12 +249,34 @@ class Helper
         return route('bds.detail', [$sluggable, $bds->id]);
     }
 
-    public function getProduct($id)
-    {
-        return Product::find($id);
-    }
 
-    public function getImages($id)
+    public function getProducts($conditions = [], $orderBy = ['id' => 'desc'], $limit = 0)
+    {
+        $data = Product::query();
+
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $data = $data->where($key, $val);
+            }
+        }
+
+        if (!empty($orderBy)) {
+            foreach ($orderBy as $key => $val) {
+                $data = $data->orderBy($key, $val);
+            }
+        }
+
+        if ($limit == 0) {
+            $data = $data->get();
+        } else if ($limit == 1) {
+            $data = $data->first();
+        } else {
+            $data = $data->limit($limit)->get();
+        }
+
+        return $data;
+    }
+    public function getProduct($id)
     {
         return Product::find($id);
     }

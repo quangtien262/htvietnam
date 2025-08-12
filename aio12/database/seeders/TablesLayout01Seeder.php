@@ -205,6 +205,8 @@ class TablesLayout01Seeder extends Seeder
         MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide01.jpg', 1);
         MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide02.jpg', 1);
         MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide03.jpg', 1);
+        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide04.jpg', 1);
+        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide05.jpg', 1);
     }
 
     private function createNews()

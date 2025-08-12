@@ -2212,6 +2212,9 @@ span.widget-title:after {
 .product-name:hover {
     color: #fcca03;
 }
+.text-box-content {
+    background-color: #7365023d;
+}
 
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
