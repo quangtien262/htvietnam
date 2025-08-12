@@ -1,7 +1,7 @@
 @php
-    $logo114 = 'https://' . $_SERVER['SERVER_NAME'] . '/logo/114.png';
-    $logo = 'https://' . $_SERVER['SERVER_NAME'] . '/logo/logo.png';
-    $banner = 'https://' . $_SERVER['SERVER_NAME'] . '/images/banner.png';
+    $logo114 = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo ;
+    $logo = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo;
+    $banner = 'https://' . $_SERVER['SERVER_NAME'] . $config->logo;
 @endphp
 <meta charset="utf-8" data-n-head="ssr" />
 <meta data-n-head="ssr" name="viewport" content="width=device-width, initial-scale=1"/>
@@ -76,44 +76,44 @@
 <title>{{ $seo['title'] ?? $config->name }}</title>
 
 <link rel="icon" type="image/x-icon"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png?v={{ config('app.version') }}" />
+    href="{{$logo114}}?v={{ config('app.version') }}" />
 <link rel="shotcut" type="image/x-icon" href="{{ $config->logo }}?v={{ config('app.version') }}" />
 <link rel="image_src" type="image/jpeg"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png?v={{ config('app.version') }}" />
+    href="{{$logo114}}?v={{ config('app.version') }}" />
 
 <!-- iPad icons -->
 <link rel="apple-touch-icon-precomposed"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/1.png?v={{ config('app.version') }}" sizes="72x72"/>
+    href="{{$logo114}}?v={{ config('app.version') }}" sizes="72x72"/>
 <link rel="apple-touch-icon-precomposed"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png?v={{ config('app.version') }}" sizes="144x144"/>
+    href="{{$logo114}}?v={{ config('app.version') }}" sizes="144x144"/>
 <!-- iPhone and iPod touch icons -->
 <link rel="apple-touch-icon-precomposed"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/57.png?v={{ config('app.version') }}" sizes="57x57"/>
+    href="{{$logo114}}?v={{ config('app.version') }}" sizes="57x57"/>
 <link rel="apple-touch-icon-precomposed"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png?v={{ config('app.version') }}" sizes="114x114"/>
+    href="{{$logo114}}?v={{ config('app.version') }}" sizes="114x114"/>
 <!-- Nokia Symbian -->
-<link rel="nokia-touch-icon" href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/1.png"/>
+<link rel="nokia-touch-icon" href="{{$logo114}}"/>
 <!-- Android icon precomposed so it takes precedence -->
-<link rel="apple-touch-icon-precomposed" href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/1.png" sizes="1x1"/>
+<link rel="apple-touch-icon-precomposed" href="{{$logo114}}" sizes="1x1"/>
 <link data-n-head="ssr" rel="apple-touch-icon" sizes="180x180"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png"/>
+    href="{{$logo114}}"/>
 
-<link rel="apple-touch-icon" href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png" />
-<meta name="msapplication-TileImage" content="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png" />
+<link rel="apple-touch-icon" href="{{$logo114}}" />
+<meta name="msapplication-TileImage" content="{{$logo114}}" />
 
 
 <meta data-n-head="ssr" charset="utf-8"/>
 <meta data-n-head="ssr" name="viewport" content="width=device-width, initial-scale=1"/>
 <meta data-n-head="ssr" name="apple-mobile-web-app-title" content="{{ $config->name_company }}"/>
 <meta data-n-head=" ssr" name="application-name" content="{{ $config->name_company }}"/>
-<meta data-n-head="ssr" name="msapplication-TileImage" content="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png"/>
+<meta data-n-head="ssr" name="msapplication-TileImage" content="{{$logo114}}"/>
 <meta data-n-head="ssr" name="telegram:channel" content="@{{ $config->name_company }}"/>
 
 
 <link data-n-head="ssr" rel="icon" type="image/png" sizes="16x16"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/57.png"/>
+    href="{{$logo114}}"/>
 <link data-n-head="ssr" rel="icon" type="image/png" sizes="32x32"
-    href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/57.png"/>
-<link data-n-head="ssr" rel="mask-icon" href="https://{{ $_SERVER['SERVER_NAME'] }}/logo/114.png" color="#1a1b1d"/>
-<link data-n-head="ssr" rel="shortcut icon" href="https://{{ $_SERVER['SERVER_NAME'] }}/favicon.ico"/>
+    href="{{$logo114}}"/>
+<link data-n-head="ssr" rel="mask-icon" href="{{$logo114}}" color="#1a1b1d"/>
+<link data-n-head="ssr" rel="shortcut icon" href="{{$logo114}}"/>
 <meta data-n-head="ssr" property="twitter:card" content="summary_large_image"/>
