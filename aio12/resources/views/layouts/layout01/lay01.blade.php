@@ -3,7 +3,7 @@
 
 <head>
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css?ver={{ env('APP_VERSION') }}" rel="stylesheet">
+    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css?ver={{ env('APP_VERSION') }}" rel="stylesheet"> --}}
 
     @include('common.meta')
 
@@ -179,14 +179,11 @@
     <script src="/layouts/01/js/woocommerce.js?ver={{env('APP_VERSION')}}" id="flatsome-theme-woocommerce-js-js"></script>
 
     {{-- admin --}}
-    <link rel='stylesheet' href="/common/css/common.css?ver={{ env('APP_VERSION') }}" media='all' />
+    {{-- <link rel='stylesheet' href="/common/css/common.css?ver={{ env('APP_VERSION') }}" media='all' /> --}}
 
-    <script src="/common/js/jquery.224.min.js?ver={{ env('APP_VERSION') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js?ver={{ env('APP_VERSION') }}"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p?ver={{ env('APP_VERSION') }}" crossorigin="anonymous">
-    </script>
-    
-    <script src="/common/js/common.js?ver={{ env('APP_VERSION') }}"></script>
+    {{-- <script src="/common/js/jquery.224.min.js?ver={{ env('APP_VERSION') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js?ver={{ env('APP_VERSION') }}"></script>
+    <script src="/common/js/common.js?ver={{ env('APP_VERSION') }}"></script> --}}
 </body>
 
 </html>
