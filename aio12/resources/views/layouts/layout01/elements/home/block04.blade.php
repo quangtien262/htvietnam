@@ -6,8 +6,8 @@
                         <div id="col-1371759818" class="col medium-4 small-12 large-4"  >
                            <div class="col-inner"  >
                               <div class="tieu-de">
-                                 <h2>LÝ DO CHỌN CHÚNG TÔI</h2>
-                                 <p>NHIỀU DỊCH VỤ ĐA DẠNG KHÁC NHAU<br />
+                                 <h2>Sản phẩm và ứng dụng</h2>
+                                 <p>Sản phẩm được ứng dụng đa dạng trong thực tế<br />
                               </div>
                               <p><span style="color: #808080; font-size: 95%;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dapibus erat in tincidunt consequat. Phasellus sit amet convallis turpis, id molestie nunc.</span></p>
                            </div>

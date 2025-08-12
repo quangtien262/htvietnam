@@ -10,8 +10,8 @@
                         <div id="col-1606264330" class="col medium-6 small-12 large-6"  >
                            <div class="col-inner"  >
                               <div class="tieu-de">
-                                 <p>FROM IDEA TO REALIZATION</p>
-                                 <h2>TỪ Ý TƯỞNG ĐẾN HIỆN THỰC</h2>
+                                 <p>Quy trình làm việc của chúng tôi</p>
+                                 <h2>Quy trình thực hiện</h2>
                               </div>
                               <p><span style="color: #ffffff; font-size: 90%;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae arcu nec metus ultrices scelerisque facilisis id leo. Praesent iaculis lorem ut dictum tempus. Pellentesque sit amet erat at orci bibendum consequat.</span></p>
                               <div class="row row-small"  id="row-1854211297">

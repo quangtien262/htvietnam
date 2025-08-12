@@ -6,7 +6,7 @@
                         <div id="col-1403247314" class="col medium-6 small-12 large-6"  >
                            <div class="col-inner"  >
                               <div class="tieu-de">
-                                 <h2>CHÚNG TÔI LÀM NHỮNG CÔNG TRÌNH TUYỆT VỜI, MỘT SỐ DỰ ÁN CỦA CHÚNG TÔI Ở ĐÂY.</h2>
+                                 <h2>Lý do chọn chúng tôi.</h2>
                               </div>
                               <p><span style="color: #999999; font-size: 90%;">Nulla sed ligula ut ipsum elementum gravida. Pellentesque nec imperdiet felis. Fusce sodales quam eget lorem volutpat, ornare luctus est dictum. Nam varius pretium condimentum. Duis consequat, lectus ac aliquam elementum, purus odio.</span></p>
                               <a href="#" target="_self" class="button primary lowercase nut-xem-them"  >

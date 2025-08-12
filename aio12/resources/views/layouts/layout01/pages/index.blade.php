@@ -26,7 +26,7 @@
     @include('layouts.layout01.elements.home.news');
 
     {{-- KHÁCH HÀNG NÓI VỀ CHÚNG TÔI --}}
-    @include('layouts.layout01.elements.home.block07');
+    {{-- include('layouts.layout01.elements.home.block07'); --}}
 
     {{-- LIÊN HỆ NGAY --}}
     @include('layouts.layout01.elements.home.contact');
