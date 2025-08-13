@@ -40,7 +40,7 @@
                                     >
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_1781374536">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="/layouts/01/project/13.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/13.jpg 1170w, /layouts/01/project/13-300x200.jpg 300w, /layouts/01/project/13-1024x683.jpg 1024w, /layouts/01/project/13-768x512.jpg 768w, /layouts/01/project/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_1781374536 {
@@ -50,7 +50,7 @@
                                     </div>
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_167719211">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img decoding="async" width="1170" height="780" src="/layouts/01/project/12.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/12.jpg 1170w, /layouts/01/project/12-300x200.jpg 300w, /layouts/01/project/12-1024x683.jpg 1024w, /layouts/01/project/12-768x512.jpg 768w, /layouts/01/project/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_167719211 {
@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_887392697">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img decoding="async" width="1170" height="780" src="/layouts/01/project/11.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/11.jpg 1170w, /layouts/01/project/11-300x200.jpg 300w, /layouts/01/project/11-1024x683.jpg 1024w, /layouts/01/project/11-768x512.jpg 768w, /layouts/01/project/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_887392697 {
@@ -93,7 +93,7 @@
                                     >
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_2092732888">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img fetchpriority="high" decoding="async" width="1170" height="780" src="/layouts/01/project/13.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/13.jpg 1170w, /layouts/01/project/13-300x200.jpg 300w, /layouts/01/project/13-1024x683.jpg 1024w, /layouts/01/project/13-768x512.jpg 768w, /layouts/01/project/13-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_2092732888 {
@@ -103,7 +103,7 @@
                                     </div>
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_2063696572">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img decoding="async" width="1170" height="780" src="/layouts/01/project/12.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/12.jpg 1170w, /layouts/01/project/12-300x200.jpg 300w, /layouts/01/project/12-1024x683.jpg 1024w, /layouts/01/project/12-768x512.jpg 768w, /layouts/01/project/12-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_2063696572 {
@@ -113,7 +113,7 @@
                                     </div>
                                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_1477543153">
                                        <div class="img-inner image-cover dark" style="padding-top:100%;">
-                                          <img decoding="async" width="1170" height="780" src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg" class="attachment-original size-original" alt="" srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11.jpg 1170w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-300x200.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-1024x683.jpg 1024w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-768x512.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
+                                          <img decoding="async" width="1170" height="780" src="/layouts/01/project/11.jpg" class="attachment-original size-original" alt="" srcset="/layouts/01/project/11.jpg 1170w, /layouts/01/project/11-300x200.jpg 300w, /layouts/01/project/11-1024x683.jpg 1024w, /layouts/01/project/11-768x512.jpg 768w, /layouts/01/project/11-600x400.jpg 600w" sizes="(max-width: 1170px) 100vw, 1170px" />						
                                        </div>
                                        <style>
                                           #image_1477543153 {

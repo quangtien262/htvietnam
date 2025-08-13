@@ -60,8 +60,8 @@ return new class extends Migration
             ['show_in_list' => 1, 'edit' => 0]
         );
 
-        MigrateService::createColumn02($data->id, 'image', 'Ảnh đại diện', 'text', 'image_crop', $order++,
-        ['edit' => 0]);
+        MigrateService::createColumn02($data->id, 'image', 'Ảnh nền', 'text', 'image_crop', $order++,
+        ['edit' => 1, 'conditions' => 1, 'show_in_list' => 1]);
 
         $confirm = Table::where('name', 'confirm')->first();
         MigrateService::createColumn02($data->id, 'is_active', 'Hiển thị', 'INT', 'select', $order++, 

@@ -25,8 +25,6 @@ return new class extends Migration
             $table->integer('size')->nullable();
             $table->longText('share')->nullable();
             $table->string('is_share_all')->nullable();
-            // $table->integer('admin_users_id')->nullable();
-
             MigrateService::createBaseColumn($table);
         });
         

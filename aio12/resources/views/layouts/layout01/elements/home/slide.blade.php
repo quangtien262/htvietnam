@@ -39,15 +39,11 @@
                         <div data-animate="blurIn">
                             <div class="text-box-content text dark">
                                 <div class="text-inner text-center">
-                                    <p style="text-align: center;"><span style="font-size: 120%;">CÔNG TY ĐIỆN GIÓ
-                                            WEBDEMO</span></p>
-                                    <h2 style="text-align: center;"><span style="font-size: 130%;">SẠCH, AN TOÀN, TÁI
-                                            TẠO</span></h2>
-                                    <p style="text-align: center;">Nulla eget ipsum id est accumsan pellentesque nec et
-                                        odio. Duis sit amet convallis sem, tincidunt feugiat lorem. Nunc porttitor arcu
-                                        ac dui aliquam efficitur.</p>
+                                    <p style="text-align: center;"><span style="font-size: 120%;">{{$image->description}}</span></p>
+                                    <h2 style="text-align: center;"><span style="font-size: 130%;">{{$image->name_data}}</span></h2>
+                                    <p style="text-align: center;">{{ $image->content }}</p>
                                     <a href="#" target="_self" class="button primary lowercase nut-xem-them">
-                                        <span>Discover now</span>
+                                        <span>Xem chi tiết</span>
                                     </a>
                                 </div>
                             </div>

@@ -8,9 +8,24 @@ use Illuminate\Support\Facades\Request;
 class AnalyticService
 {
     protected static $file = 'storage/app/view_stats.json';
+    protected static $file_IP = 'storage/app/view_stats_ip.json';
 
     // Lấy toàn bộ dữ liệu view
     public static function getAll()
+    {
+        $data = self::readFileViewStats();
+        $viewStats = [];
+        foreach ($data as $date => $view) {
+            $viewStats[] = [
+                'date' => $date,
+                'view' => $view,
+            ];
+        }
+
+        return $viewStats;
+    }
+
+    public static function readFileViewStats()
     {
         if (!File::exists(base_path(self::$file))) {
             return [];
@@ -24,7 +39,7 @@ class AnalyticService
     public static function addView()
     {
         $date = date('Y-m-d');
-        $data = self::getAll();
+        $data = self::readFileViewStats();
 
         if (isset($data[$date])) {
             $data[$date]++;
@@ -38,7 +53,7 @@ class AnalyticService
     // Lấy lượt view của một ngày
     public static function getByDate($date)
     {
-        $data = self::getAll();
+        $data = self::readFileViewStats();
         return $data[$date] ?? 0;
     }
 
@@ -58,11 +73,11 @@ class AnalyticService
             $data[$date][$ip] = 1;
         }
 
-        File::put(base_path('storage/app/view_stats_ip.json'), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        File::put(base_path(self::$file_IP), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
-    // Lấy toàn bộ dữ liệu view theo IP
-    public static function getAllByIp()
+     // Lấy toàn bộ dữ liệu view theo IP
+    public static function readFileViewStatsIP()
     {
         $file = base_path('storage/app/view_stats_ip.json');
         if (!File::exists($file)) {
@@ -72,11 +87,31 @@ class AnalyticService
         return json_decode($json, true) ?? [];
     }
 
+    // Lấy toàn bộ dữ liệu view theo IP
+    public static function getAllByIp()
+    {
+        $data = self::readFileViewStatsIP();
+        if (empty($data)) {
+            return [];
+        }
+        $viewStatsIp = [];
+        foreach ($data as $date => $ips) {
+            foreach ($ips as $ip => $view) {
+                $viewStatsIp[] = [
+                    'date' => $date,
+                    'ip' => $ip,
+                    'view' => $view,
+                ];
+            }
+        }
+        return $viewStatsIp;
+    }
+
     // Lấy lượt truy cập của một IP trong ngày
     public static function getByIp($ip, $date = null)
     {
         $date = $date ?? date('Y-m-d');
-        $data = self::getAllByIp();
+        $data = self::readFileViewStatsIP();
         return $data[$date][$ip] ?? 0;
     }
 }

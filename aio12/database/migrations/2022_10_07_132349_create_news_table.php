@@ -45,7 +45,7 @@ return new class extends Migration
 
         $menus = Table::where('name', 'menus')->first();
         MigrateService::createColumn02($news->id, 'menu_id', 'Menu', 'TEXT', 'select', $order_col++, 
-        ['select_table_id' => $menus->id, 'show_in_list' => 1]);
+        ['select_table_id' => $menus->id, 'show_in_list' => 1, 'add2search' => 1]);
         
         MigrateService::createColumn02($news->id, 'tags_id', 'Tags', 'TEXT', 'tags', $order_col++, ['edit' => 0]);
         MigrateService::createColumn02($news->id, 'is_active', 'Active', 'INT', 'select', $order_col++, ['edit' => 0]);

@@ -12,6 +12,7 @@ use App\Models\Admin\Table;
 use App\Models\AdminUser;
 use App\Services\Admin\TblService;
 use App\Services\AnalyticService;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -30,21 +31,43 @@ class AdminController extends Controller
             ];
         }
 
-        return Inertia::render(
-            'Admin/Pages/index',
-            [
-                'tables' => $tables,
-                'tablesSelects' => $tablesSelects,
-                'banChay' => $banchay
-            ]
-        );
+        $param = [
+            'tables' => $tables,
+            'tablesSelects' => $tablesSelects,
+            'banChay' => $banchay
+        ];
+        return Inertia::render('Admin/Pages/index', $param);
     }
 
     public function dashboardWeb()
     {
-        $views = AnalyticService::getAll();
-        $viewData = [];
-        return Inertia::render('Admin/Dashboard/web', $viewData);
+        // Lấy dữ liệu lượt view theo ngày
+        $viewStats = AnalyticService::getAll();
+        // Lấy dữ liệu lượt view theo IP
+        // $viewStatsIp = AnalyticService::getAllByIp();
+
+        // $today = date('Y-m-d');
+        $contacts = DB::table('contact')
+            // ->whereDate('created_at', $today)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->select('id', 'name', 'email', 'phone', 'created_at')
+            ->get();
+
+        $orders = DB::table('orders')
+            // ->whereDate('created_at', $today)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $param = [
+            'viewStats' => $viewStats,
+            // 'viewStatsIp' => $viewStatsIp,
+            'contacts' => $contacts,
+            'orders' => $orders
+        ];
+        // dd($param);
+        return Inertia::render('Admin/Dashboard/web', $param);
     }
 
 

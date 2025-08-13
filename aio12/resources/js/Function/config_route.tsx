@@ -8,6 +8,27 @@ export const tblSetting = [];
 export const tblTaiChinh = ['hoa_don'];
 export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
+export const tblWeb = ['images', 'contact', 'orders'];
+
+export const routeHome = [
+    {
+        parent: {
+            link: route('dashboard'),
+            display_name: 'Dashboard',
+            key: key++
+        },
+        sub: {}
+    },
+    {
+        parent: {
+            link: route('home'),
+            display_name: 'Trang chủ web',
+            key: key++
+        },
+        sub: {}
+    },
+
+];
 
 export const routeQLKho = [
     {
@@ -118,14 +139,6 @@ export const routeSales = [
         },
         sub: []
     },
-    // {
-    //     parent: {
-    //         link: route('ncc.index'),
-    //         display_name: 'Báo giá',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
     {
         parent: {
             link: route('data.tblName', ['dat_lich']),
@@ -348,9 +361,49 @@ export const routeTaiSan = [
     },
 ];
 
-interface Table {
-  name: string;
-}
+export const routeWeb = [
+    {
+        parent: {
+            link: route('web.dashboard'),
+            display_name: 'Tổng quan',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['orders']),
+            display_name: 'Đơn đặt hàng',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['contact']),
+            display_name: 'Liên hệ',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['news']),
+            display_name: 'Tin tức',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['images']),
+            display_name: 'Ảnh banner',
+            key: key++
+        },
+        sub: []
+    }
+];
+
 export function itemMenu(tableName: string) {
     if (tblKhoHang.includes(tableName)) {
         return routeQLKho;
@@ -366,6 +419,9 @@ export function itemMenu(tableName: string) {
     }
     if (tblTaiSan.includes(tableName)) {
         return routeTaiSan;
+    }
+    if (tblWeb.includes(tableName)) {
+        return routeWeb;
     }
     return false;
 }

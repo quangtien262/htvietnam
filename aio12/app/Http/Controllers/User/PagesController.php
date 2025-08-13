@@ -35,7 +35,7 @@ class PagesController extends Controller
     public function index(Request $request)
     {
         AnalyticService::addView();      // Tổng lượt view theo ngày
-        AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
+        // AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
 
 
         $config = WebConfig::query()->find(1);

@@ -25,16 +25,14 @@ return new class extends Migration
             $table->integer('price')->nullable();
             $table->integer('promo_price')->nullable();
             $table->text('note')->nullable();
-            $table->integer('sort_order')->nullable();
             $table->integer('quantity')->nullable();
             $table->integer('is_payment')->default(0)->nullable();
             $table->integer('invoice')->default(0)->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->integer('is_view')->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-
-            $table->timestamps();
+            
+            MigrateService::createBaseColumn($table);
         });
         $order_col = 1;
         $user = Table::where('name', 'users')->first();

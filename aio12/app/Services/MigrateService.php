@@ -22,7 +22,8 @@ use App\Models\Web\ProductSetting;
 use App\Models\Web\WebConfigData;
 
 
-class MigrateService
+class 
+MigrateService
 {
 
     static function createTable02(
@@ -1116,12 +1117,12 @@ class MigrateService
         $data->save();
     }
 
-    static function createLanguage($langName, $langCode, $isDefault = 0, $icon= '')
+    static function createLanguage($langName, $langCode, $is_key = 0, $icon= '')
     {
         $language = new Language();
         $language->name = $langName;
         $language->code = $langCode;
-        $language->is_default = $isDefault;
+        $language->is_key = $is_key;
         $language->icon = $icon;
         $language->save();
         return $language;

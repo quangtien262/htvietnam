@@ -112,6 +112,7 @@
                         <div class="col-inner"  >
                            <h3>THƯ VIỆN</h3>
                            <div class="row large-columns-2 medium-columns- small-columns- row-xsmall">
+
                               <div class="gallery-col col" >
                                  <div class="col-inner">
                                     <a class="image-lightbox lightbox-gallery" href="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/22.jpg" title="">
@@ -129,6 +130,7 @@
                                     </a>
                                  </div>
                               </div>
+                              
                               <div class="gallery-col col" >
                                  <div class="col-inner">
                                     <a class="image-lightbox lightbox-gallery" href="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/8.jpg" title="">
@@ -180,6 +182,7 @@
                                     </a>
                                  </div>
                               </div>
+
                            </div>
                         </div>
                      </div>

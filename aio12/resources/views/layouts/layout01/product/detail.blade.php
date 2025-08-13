@@ -5,44 +5,43 @@
 <head>
     @include('common.meta')
 
-    <link rel='prefetch' href='/layouts/01/js/chunk.countup.js?{{env('APP_VERSION')}}' />
-    <link rel='prefetch' href='/layouts/01/js/chunk.sticky-sidebar.js?{{env('APP_VERSION')}}' />
-    <link rel='prefetch' href='/layouts/01/js/chunk.tooltips.js?{{env('APP_VERSION')}}' />
-    <link rel='prefetch' href='/layouts/01/js/chunk.vendors-popups.js?{{env('APP_VERSION')}}' />
-    <link rel='prefetch' href='/layouts/01/js/chunk.vendors-slider.js?{{env('APP_VERSION')}}' />
+    <link rel='prefetch' href='/layouts/01/js/chunk.countup.js?{{ env('APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/01/js/chunk.sticky-sidebar.js?{{ env('APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/01/js/chunk.tooltips.js?{{ env('APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/01/js/chunk.vendors-popups.js?{{ env('APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/01/js/chunk.vendors-slider.js?{{ env('APP_VERSION') }}' />
 
+
+    <link rel='stylesheet' href='/layouts/01/css/styles.css?ver={{ env('APP_VERSION') }}' type='text/css'
+        media='all' />
+
+    <link rel='stylesheet' href='/layouts/01/css/photoswipe.min.css?ver={{ env('APP_VERSION') }}' type='text/css'
+        media='all' />
+    <link rel='stylesheet' href='/layouts/01/css/default-skin.min.css?ver={{ env('APP_VERSION') }}' type='text/css'
+        media='all' />
+
+    <link rel='stylesheet' href='/layouts/01/css/all.css' type='text/css' media='all' />
+    <link rel='stylesheet' href='/layouts/01/css/flatsome.css?ver={{ env('APP_VERSION') }}' type='text/css'
+        media='all' />
+
+    <link rel='stylesheet' href='/layouts/01/css/flatsome-shop.css?ver={{ env('APP_VERSION') }}' type='text/css'
+        media='all' />
 
     {{-- new --}}
-    <link rel='stylesheet' id='contact-form-7-css'
-        href='https://solar3.maugiaodien.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=5.7.3'
-        type='text/css' media='all' />
-    <link rel='stylesheet' id='photoswipe-css'
-        href='https://solar3.maugiaodien.com/wp-content/plugins/woocommerce/assets/css/photoswipe/photoswipe.min.css?ver=7.3.0'
-        type='text/css' media='all' />
-    <link rel='stylesheet' id='photoswipe-default-skin-css'
+
+    {{-- <link rel='stylesheet' id='photoswipe-default-skin-css'
         href='https://solar3.maugiaodien.com/wp-content/plugins/woocommerce/assets/css/photoswipe/default-skin/default-skin.min.css?ver=7.3.0'
-        type='text/css' media='all' />
-    <style id='woocommerce-inline-inline-css' type='text/css'>
+        type='text/css' media='all' /> --}}
+
+    {{-- <style id='woocommerce-inline-inline-css' type='text/css'>
         .woocommerce form .form-row .required {
             visibility: visible;
         }
-    </style>
-    <link rel='stylesheet' id='font-awesome-official-css' href='https://use.fontawesome.com/releases/v6.2.1/css/all.css'
-        type='text/css' media='all' integrity="sha384-twcuYPV86B3vvpwNhWJuaLdUSLF9+ttgM2A6M870UYXrOsxKfER2MKox5cirApyA"
-        crossorigin="anonymous" />
-    <link rel='stylesheet' id='flatsome-main-css'
-        href='https://solar3.maugiaodien.com/wp-content/themes/flatsome/assets/css/flatsome.css?ver=3.16.2'
-        type='text/css' media='all' />
-
-    <link rel='stylesheet' href='/layouts/01/css/styles.css?{{env('APP_VERSION')}}' type='text/css' media='all' />
-
-    <link rel='stylesheet' id='flatsome-shop-css'
-        href='https://solar3.maugiaodien.com/wp-content/themes/flatsome/assets/css/flatsome-shop.css?ver=3.16.2'
-        type='text/css' media='all' />
+    </style> --}}
     <link rel='stylesheet' href='/layouts/01/css/style.css?ver=3.0' type='text/css' media='all' />
     <link rel='stylesheet' href='/layouts/01/css/v4-shims.css' type='text/css' media='all' />
-    <script src="/layouts/01/js/jquery.min.js?{{env('APP_VERSION')}}" id="jquery-core-js"></script>
-    <script src="/layouts/01/js/jquery-migrate.min.js?{{env('APP_VERSION')}}" id="jquery-migrate-js"></script>
+    <script src="/layouts/01/js/jquery.min.js?{{ env('APP_VERSION') }}" id="jquery-core-js"></script>
+    <script src="/layouts/01/js/jquery-migrate.min.js?{{ env('APP_VERSION') }}" id="jquery-migrate-js"></script>
 
 </head>
 
@@ -96,7 +95,7 @@
                                     <div class="col-inner">
                                         <div class="tieu-de">
                                             <h1 class="entry-title is-larger uppercase pb-0 pt-0 mb-0">
-                                                {{$menu['menu']->name}}
+                                                {{ $menu['menu']->name }}
                                             </h1>
                                         </div>
                                     </div>
@@ -106,7 +105,7 @@
                                         <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
                                             <p>
                                                 <a href="/">Trang chủ</a><span class="separator"> / </span>
-                                                <a href="">{{$menu['menu']->name}}</a>
+                                                <a href="">{{ $menu['menu']->name }}</a>
                                                 <br />
                                                 <span class="last">Lorem stet clita kasd</span>
                                             </p>
@@ -126,7 +125,7 @@
                             }
 
                             #section_320154646 .section-bg.bg-loaded {
-                                background-image: url(https://solar3.maugiaodien.com/wp-content/uploads/2023/01/img3.jpg);
+                                background-image: url(/layouts/01/images/bg/img3.jpg);
                             }
 
                             #section_320154646 .ux-shape-divider--top svg {
@@ -153,8 +152,8 @@
                                     role="search">
                                     <div class="flex-row relative">
                                         <div class="flex-col flex-grow">
-                                            <input type="search" class="search-field mb-0" name="s" value="" id="s"
-                                                placeholder="Search&hellip;" />
+                                            <input type="search" class="search-field mb-0" name="s"
+                                                value="" id="s" placeholder="Search&hellip;" />
                                         </div>
                                         <div class="flex-col">
                                             <button type="submit"
@@ -172,60 +171,11 @@
                                 <span class="widget-title shop-sidebar">Sản phẩm mới</span>
                                 <div class="is-divider small"></div>
                                 <ul class="product_list_widget">
-                                    <li>
-                                        <a
-                                            href="https://solar3.maugiaodien.com/pellentesque-habitant-morbi-tristique-senectus/">
-                                            <img width="100" height="100"
-                                                src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-100x100.jpg"
-                                                class="attachment-woocommerce_gallery_thumbnail size-woocommerce_gallery_thumbnail"
-                                                alt="" decoding="async"
-                                                srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-100x100.jpg 100w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-300x300.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-150x150.jpg 150w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-768x768.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05-600x600.jpg 600w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/05.jpg 800w"
-                                                sizes="(max-width: 100px) 100vw, 100px" /> <span
-                                                class="product-title">Pellentesque habitant morbi tristique
-                                                senectus</span>
-                                        </a>
-                                        <span class="woocommerce-Price-amount amount"><bdi><span
-                                                    class="woocommerce-Price-currencySymbol">&#8363;</span>456.000</bdi></span>
-                                    </li>
-                                    <li>
-                                        <a href="https://solar3.maugiaodien.com/lorem-stet-clita-kasd/">
-                                            <img width="100" height="100"
-                                                src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-100x100.jpg"
-                                                class="attachment-woocommerce_gallery_thumbnail size-woocommerce_gallery_thumbnail"
-                                                alt="" decoding="async"
-                                                srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-100x100.jpg 100w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-300x300.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-150x150.jpg 150w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-768x768.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04-600x600.jpg 600w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04.jpg 800w"
-                                                sizes="(max-width: 100px) 100vw, 100px" /> <span
-                                                class="product-title">Lorem stet clita kasd</span>
-                                        </a>
-                                        <span class="woocommerce-Price-amount amount"><bdi><span
-                                                    class="woocommerce-Price-currencySymbol">&#8363;</span>600.000</bdi></span>
-                                    </li>
-                                    <li>
-                                        <a href="https://solar3.maugiaodien.com/rebum-stet-clita-kasd-sit-amet/">
-                                            <img width="100" height="100"
-                                                src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-100x100.jpg"
-                                                class="attachment-woocommerce_gallery_thumbnail size-woocommerce_gallery_thumbnail"
-                                                alt="" decoding="async"
-                                                srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-100x100.jpg 100w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-300x300.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-150x150.jpg 150w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-768x768.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03-600x600.jpg 600w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/03.jpg 800w"
-                                                sizes="(max-width: 100px) 100vw, 100px" /> <span
-                                                class="product-title">Rebum stet clita kasd sit amet</span>
-                                        </a>
-                                        <span class="woocommerce-Price-amount amount"><bdi><span
-                                                    class="woocommerce-Price-currencySymbol">&#8363;</span>4.566.000</bdi></span>
-                                    </li>
-                                    <li>
-                                        <a href="https://solar3.maugiaodien.com/pellentesque-habitant-morbi-tristique/">
-                                            <img width="100" height="100"
-                                                src="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-100x100.jpg"
-                                                class="attachment-woocommerce_gallery_thumbnail size-woocommerce_gallery_thumbnail"
-                                                alt="" decoding="async" loading="lazy"
-                                                srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-100x100.jpg 100w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-300x300.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-150x150.jpg 150w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-768x768.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01-600x600.jpg 600w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/01.jpg 800w"
-                                                sizes="auto, (max-width: 100px) 100vw, 100px" /> <span
-                                                class="product-title">Pellentesque habitant morbi tristique</span>
-                                        </a>
-                                        <span class="woocommerce-Price-amount amount"><bdi><span
-                                                    class="woocommerce-Price-currencySymbol">&#8363;</span>229.000</bdi></span>
-                                    </li>
+                                    @foreach ($productLatest as $pro)
+                                        @include('layouts.layout01.elements.product.item_product', [
+                                            'product' => $pro,
+                                        ])
+                                    @endforeach
                                 </ul>
                             </aside>
 
@@ -255,16 +205,20 @@
                                         "dragThreshold" : 15,
                                         "pageDots": false,
                                         "rightToLeft": false       }'>
-                                                @foreach($images as $image)
-                                                    <div data-thumb="{{$image}}" data-thumb-alt=""
+                                                @foreach ($images as $image)
+                                                    <div data-thumb="{{ $image }}" data-thumb-alt=""
                                                         class="woocommerce-product-gallery__image slide">
-                                                        <a href="{{$image}}">
-                                                            <img width="600" height="600" class="wp-post-image skip-lazy"
-                                                                src="{{$image}}" data-src="{{$image}}"
-                                                                data-large_image="{{$image}}" alt="{{$image}}"
-                                                                title="{{$image}}" data-caption=""
-                                                                data-large_image_width="800" data-large_image_height="800"
-                                                                decoding="async" loading="lazy" srcset="{{$image}}"
+                                                        <a href="{{ $image }}">
+                                                            <img width="600" height="600"
+                                                                class="wp-post-image skip-lazy"
+                                                                src="{{ $image }}"
+                                                                data-src="{{ $image }}"
+                                                                data-large_image="{{ $image }}"
+                                                                alt="{{ $image }}"
+                                                                title="{{ $image }}" data-caption=""
+                                                                data-large_image_width="800"
+                                                                data-large_image_height="800" decoding="async"
+                                                                loading="lazy" srcset="{{ $image }}"
                                                                 sizes="auto, (max-width: 600px) 100vw, 600px" />
                                                         </a>
                                                     </div>
@@ -298,13 +252,14 @@
                                     "contain": true
                                     }'>
 
-                                            @foreach($images as $image)
+                                            @foreach ($images as $image)
                                                 <div class="col">
                                                     <a class="woocommerce-product-gallery__image">
-                                                        <img width="300" height="300" src="{{$image}}"
+                                                        <img width="300" height="300" src="{{ $image }}"
                                                             class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail"
-                                                            alt="{{$image}}" decoding="async" loading="lazy"
-                                                            srcset="{{$image}} 300w, {{$image}} 600w, {{$image}} 150w, {{$image}} 768w, {{$image}} 800w"
+                                                            alt="{{ $image }}" decoding="async"
+                                                            loading="lazy"
+                                                            srcset="{{ $image }} 300w, {{ $image }} 600w, {{ $image }} 150w, {{ $image }} 768w, {{ $image }} 800w"
                                                             sizes="(max-width: 300px) 100vw, 300px" />
                                                     </a>
                                                 </div>
@@ -333,12 +288,14 @@
                                             </p>
                                         </div>
 
-                                        <form class="cart" action="" method="post" enctype='multipart/form-data'>
+                                        <form class="cart" action="" method="post"
+                                            enctype='multipart/form-data'>
                                             <div class="quantity buttons_added">
                                                 <input type="button" value="-" class="minus button is-form">
-                                                <input type="number" class="input-text qty text" step="1" min="1"
-                                                    max="100" name="quantity" value="1" title="Qty" size="4"
-                                                    placeholder="" inputmode="numeric" />
+                                                <input type="number" class="input-text qty text" step="1"
+                                                    min="1" max="100" name="quantity" value="1"
+                                                    title="Qty" size="4" placeholder=""
+                                                    inputmode="numeric" />
                                                 <input type="button" value="+" class="plus button is-form">
                                             </div>
                                             <button type="submit" name="add-to-cart" value="808"
@@ -347,7 +304,8 @@
                                         </form>
                                         <div class="product_meta">
                                             <span class="posted_in">Category: <a
-                                                    href="https://solar3.maugiaodien.com/chua-phan-loai/" rel="tag">Chưa
+                                                    href="https://solar3.maugiaodien.com/chua-phan-loai/"
+                                                    rel="tag">Chưa
                                                     phân loại</a></span>
                                         </div>
                                         <div class="social-icons share-icons share-row relative"><a
@@ -405,12 +363,14 @@
                                         </li>
                                         <li class="additional_information_tab " id="tab-title-additional_information"
                                             role="presentation">
-                                            <a href="#tab-additional_information" role="tab" aria-selected="false"
-                                                aria-controls="tab-additional_information" tabindex="-1">
+                                            <a href="#tab-additional_information" role="tab"
+                                                aria-selected="false" aria-controls="tab-additional_information"
+                                                tabindex="-1">
                                                 Mô tả sản phẩm
                                             </a>
                                         </li>
-                                        <li class="ux_global_tab_tab " id="tab-title-ux_global_tab" role="presentation">
+                                        <li class="ux_global_tab_tab " id="tab-title-ux_global_tab"
+                                            role="presentation">
                                             <a href="#tab-ux_global_tab" role="tab" aria-selected="false"
                                                 aria-controls="tab-ux_global_tab" tabindex="-1">
                                                 thống số kỹ thuật
@@ -461,7 +421,10 @@
                                         data-flickity-options='{"imagesLoaded": true, "groupCells": "100%", "dragThreshold" : 5, "cellAlign": "left","wrapAround": true,"prevNextButtons": true,"percentPosition": true,"pageDots": false, "rightToLeft": false, "autoPlay" : false}'>
 
                                         @foreach ($product_lienquan as $product)
-                                            @include('layouts.layout01.elements.product.item_product_slide', ['product' => $product])
+                                            @include(
+                                                'layouts.layout01.elements.product.item_product_slide',
+                                                ['product' => $product]
+                                            )
                                         @endforeach
                                     </div>
                                 </div>
@@ -487,20 +450,46 @@
 
         <script src="/layouts/01/js/index.js?ver=5.7.3" id="swv-js"></script>
         <script id="contact-form-7-js-extra">
-            var wpcf7 = { "api": { "root": "https:\/\/solar3.maugiaodien.com\/wp-json\/", "namespace": "contact-form-7\/v1" } };
+            var wpcf7 = {
+                "api": {
+                    "root": "https:\/\/solar3.maugiaodien.com\/wp-json\/",
+                    "namespace": "contact-form-7\/v1"
+                }
+            };
         </script>
 
 
+        <script src="/layouts/01/js/photoswipe/photoswipe.min.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
+        <script src="/layouts/01/js/photoswipe-ui-default.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
 
-        <script
-            src="https://solar3.maugiaodien.com/wp-content/plugins/woocommerce/assets/js/photoswipe/photoswipe.min.js?ver=4.1.1-wc.7.3.0"
-            id="photoswipe-js"></script>
-        <script
-            src="https://solar3.maugiaodien.com/wp-content/plugins/woocommerce/assets/js/photoswipe/photoswipe-ui-default.min.js?ver=4.1.1-wc.7.3.0"
-            id="photoswipe-ui-default-js"></script>
         <script id="wc-single-product-js-extra">
             /* <![CDATA[ */
-            var wc_single_product_params = { "i18n_required_rating_text": "Please select a rating", "review_rating_required": "yes", "flexslider": { "rtl": false, "animation": "slide", "smoothHeight": true, "directionNav": false, "controlNav": "thumbnails", "slideshow": false, "animationSpeed": 500, "animationLoop": false, "allowOneSlide": false }, "zoom_enabled": "", "zoom_options": [], "photoswipe_enabled": "1", "photoswipe_options": { "shareEl": false, "closeOnScroll": false, "history": false, "hideAnimationDuration": 0, "showAnimationDuration": 0 }, "flexslider_enabled": "" };
+            var wc_single_product_params = {
+                "i18n_required_rating_text": "Please select a rating",
+                "review_rating_required": "yes",
+                "flexslider": {
+                    "rtl": false,
+                    "animation": "slide",
+                    "smoothHeight": true,
+                    "directionNav": false,
+                    "controlNav": "thumbnails",
+                    "slideshow": false,
+                    "animationSpeed": 500,
+                    "animationLoop": false,
+                    "allowOneSlide": false
+                },
+                "zoom_enabled": "",
+                "zoom_options": [],
+                "photoswipe_enabled": "1",
+                "photoswipe_options": {
+                    "shareEl": false,
+                    "closeOnScroll": false,
+                    "history": false,
+                    "hideAnimationDuration": 0,
+                    "showAnimationDuration": 0
+                },
+                "flexslider_enabled": ""
+            };
             /* ]]> */
         </script>
 
@@ -513,7 +502,10 @@
             id="js-cookie-js"></script> --}}
         <script id="woocommerce-js-extra">
             /* <![CDATA[ */
-            var woocommerce_params = { "ajax_url": "\/wp-admin\/admin-ajax.php", "wc_ajax_url": "\/?wc-ajax=%%endpoint%%" };
+            var woocommerce_params = {
+                "ajax_url": "\/wp-admin\/admin-ajax.php",
+                "wc_ajax_url": "\/?wc-ajax=%%endpoint%%"
+            };
             /* ]]> */
         </script>
 
@@ -523,7 +515,13 @@
             id="woocommerce-js"></script>
         <script id="wc-cart-fragments-js-extra">
             /* <![CDATA[ */
-            var wc_cart_fragments_params = { "ajax_url": "\/wp-admin\/admin-ajax.php", "wc_ajax_url": "\/?wc-ajax=%%endpoint%%", "cart_hash_key": "wc_cart_hash_8531a5111c20efcca97a0648533fafcd", "fragment_name": "wc_fragments_8531a5111c20efcca97a0648533fafcd", "request_timeout": "5000" };
+            var wc_cart_fragments_params = {
+                "ajax_url": "\/wp-admin\/admin-ajax.php",
+                "wc_ajax_url": "\/?wc-ajax=%%endpoint%%",
+                "cart_hash_key": "wc_cart_hash_8531a5111c20efcca97a0648533fafcd",
+                "fragment_name": "wc_fragments_8531a5111c20efcca97a0648533fafcd",
+                "request_timeout": "5000"
+            };
             /* ]]> */
         </script>
         <script
@@ -532,15 +530,47 @@
 
         <script src="/layouts/01/js/flatsome-instant-page.js?ver=1.2.1"></script>
         <script src="/layouts/01/js/wp-polyfill.min.js?ver=3.15.0""></script>
-<script src=" /layouts/01/js/hoverIntent.min.js?ver=1.10.2"></script>
+        <script src=" /layouts/01/js/hoverIntent.min.js?ver=1.10.2"></script>
 
         <script id="flatsome-js-js-extra">
-            var flatsomeVars = { "theme": { "version": "3.16.2" }, "ajaxurl": "https:\/\/solar3.maugiaodien.com\/wp-admin\/admin-ajax.php", "rtl": "", "sticky_height": "70", "assets_url": "https:\/\/solar3.maugiaodien.com\/wp-content\/themes\/flatsome\/assets\/js\/", "lightbox": { "close_markup": "<button title=\"%title%\" type=\"button\" class=\"mfp-close\"><svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-x\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"><\/line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"><\/line><\/svg><\/button>", "close_btn_inside": false }, "user": { "can_edit_pages": false }, "i18n": { "mainMenu": "Main Menu", "toggleButton": "Toggle" }, "options": { "cookie_notice_version": "1", "swatches_layout": false, "swatches_box_select_event": false, "swatches_box_behavior_selected": false, "swatches_box_update_urls": "1", "swatches_box_reset": false, "swatches_box_reset_extent": false, "swatches_box_reset_time": 300, "search_result_latency": "0" }, "is_mini_cart_reveal": "1" };
+            // var flatsomeVars = { "theme": { "version": "3.16.2" }, "ajaxurl": "https:\/\/solar3.maugiaodien.com\/wp-admin\/admin-ajax.php", "rtl": "", "sticky_height": "70", "assets_url": "https:\/\/solar3.maugiaodien.com\/wp-content\/themes\/flatsome\/assets\/js\/", "lightbox": { "close_markup": "<button title=\"%title%\" type=\"button\" class=\"mfp-close\"><svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-x\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"><\/line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"><\/line><\/svg><\/button>", "close_btn_inside": false }, "user": { "can_edit_pages": false }, "i18n": { "mainMenu": "Main Menu", "toggleButton": "Toggle" }, "options": { "cookie_notice_version": "1", "swatches_layout": false, "swatches_box_select_event": false, "swatches_box_behavior_selected": false, "swatches_box_update_urls": "1", "swatches_box_reset": false, "swatches_box_reset_extent": false, "swatches_box_reset_time": 300, "search_result_latency": "0" }, "is_mini_cart_reveal": "1" };
+            var flatsomeVars = {
+                "theme": {
+                    "version": "3.16.2"
+                },
+                "ajaxurl": "https://solar3.maugiaodien.com/wp-admin/admin-ajax.php",
+                "rtl": "",
+                "sticky_height": "70",
+                "assets_url": "/layouts/01/js/",
+                "lightbox": {
+                    "close_markup": "<button title=\"%title%\" type=\"button\" class=\"mfp-close\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-x\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line></svg></button>",
+                    "close_btn_inside": false
+                },
+                "user": {
+                    "can_edit_pages": false
+                },
+                "i18n": {
+                    "mainMenu": "Main Menu",
+                    "toggleButton": "Toggle"
+                },
+                "options": {
+                    "cookie_notice_version": "1",
+                    "swatches_layout": false,
+                    "swatches_box_select_event": false,
+                    "swatches_box_behavior_selected": false,
+                    "swatches_box_update_urls": "1",
+                    "swatches_box_reset": false,
+                    "swatches_box_reset_extent": false,
+                    "swatches_box_reset_time": 300,
+                    "search_result_latency": "0"
+                },
+                "is_mini_cart_reveal": "1"
+            }
         </script>
 
-        <script src="/layouts/01/js/flatsome.js?ver={{env('APP_VERSION')}}" id="flatsome-js-js"></script>
-        <script src="/layouts/01/js/woocommerce.js?ver={{env('APP_VERSION')}}"
-            id="flatsome-theme-woocommerce-js-js"></script>
+        <script src="/layouts/01/js/flatsome.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
+        <script src="/layouts/01/js/woocommerce.js?ver={{ env('APP_VERSION') }}" id="flatsome-theme-woocommerce-js-js">
+        </script>
 
 </body>
 

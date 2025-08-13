@@ -33,8 +33,8 @@ class TablesLayout01Seeder extends Seeder
 
         // create languages
         MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vn.png');
-        MigrateService::createLanguage('English', 'en', 1, '/images/languages/en.png');
-        MigrateService::createLanguage('Chinese', 'ch', 1, '/images/languages/ch.png');
+        MigrateService::createLanguage('English', 'en', 0, '/images/languages/en.png');
+        MigrateService::createLanguage('Chinese', 'ch', 0, '/images/languages/ch.png');
         //menu
         $this->createDataMenu();
 

@@ -17,11 +17,10 @@ import {
 
 import { FormOutlined, CopyOutlined, UploadOutlined, PlusSquareOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
-import { useForm, router, Link } from '@inertiajs/react';
-import { routeQLKho } from "../../../Function/config_route";
+import { router, Link } from '@inertiajs/react';
+import { itemMenu } from "../../../Function/config_route";
 import ImgCrop from 'antd-img-crop';
 
-import '../../../../css/form.css';
 import { checkRule, showData, showDataSelectTable } from '../../../Function/data';
 
 import { parseJson, numberFormat02 } from '../../../Function/common';
@@ -54,7 +53,7 @@ dayjs.extend(timezone);
 const { TextArea } = Input;
 
 export default function Dashboard(props) {
-
+    console.log('fileList', props);
     const [data, setData] = useState(props.data);
     const [submitRedirect, setSubmitRedirect] = useState("detail"); // detail, list
     const [loading, setLoading] = useState(false);
@@ -170,7 +169,12 @@ export default function Dashboard(props) {
         }
     };
 
-    function formatValueForm(columns, values) {
+    // interface Column {
+    //     name: string;
+    //     edit?: number;
+    //     type_edit?: string;
+    // }
+    function formatValueForm(columns: any, values: { [x: string]: string; }) {
         for (const [key, col] of Object.entries(columns)) {
             if (col.edit !== 1) {
                 values[col.name] = '';
@@ -289,6 +293,8 @@ export default function Dashboard(props) {
     const onChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
     };
+
+    
     
     function showDataImages(col) {
         const data = props.data;
@@ -968,7 +974,7 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <Spin spinning={loading} size="large">

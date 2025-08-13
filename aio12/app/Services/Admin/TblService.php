@@ -872,9 +872,9 @@ class TblService extends Service
 
         // insert lang
         if ($table->is_multiple_language == 1) {
-            $languageFirst = Language::where(column: 'is_key', operator: '1')->first();
+            $languageFirst = Language::where( 'is_key',  1)->first();
             if (empty($languageFirst)) {
-                $languageFirst = Language::where('is_key', '1')->first();
+                $languageFirst = Language::first();
             }
             $langName = 'lang_' . $languageFirst->id . '_name_data';
 
@@ -885,11 +885,12 @@ class TblService extends Service
             if ($isGetLink && isset($post['lang_' . $languageFirst->id . '_' . $colLink])) {
                 $dataUpdate['name'] = $post['lang_' . $languageFirst->id . '_' . $colLink];
             }
+            // save language
             $this->saveDataLanguage($table, $post, $dataId);
         }
 
         if (!empty($dataUpdate)) {
-            $this->updateData($table->name, $dataId, data: $dataUpdate);
+            $this->updateData($table->name, $dataId,  $dataUpdate);
         }
 
         return $data;
@@ -1724,10 +1725,9 @@ class TblService extends Service
                     $data[$col->name] = '';
                 }
 
-                // check type == image
-                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop']) && !empty($data->{$col->name})) {
+                // check type == images
+                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop']) && !empty($data[$col->name])) {
                     $jsonImg = CommonService::isJson($data[$col->name]);
-
                     if (!$jsonImg) {
                         if (!empty($data[$col->name])) {
                             $imagesData[] = [

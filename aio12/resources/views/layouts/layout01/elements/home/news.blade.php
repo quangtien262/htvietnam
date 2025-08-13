@@ -99,73 +99,7 @@
                                 </div>
                             @endforeach
 
-                            {{-- <div class="col post-item">
-                                <div class="col-inner">
-                                    <a href="https://solar3.maugiaodien.com/2023/01/31/black-friday-starts-today-and-will-last-until-november-28th/"
-                                        class="plain">
-                                        <div class="box box-vertical box-text-bottom box-blog-post has-hover">
-                                            <div class="box-image" style="width:27%;">
-                                                <div class="image-zoom image-cover" style="padding-top:78%;">
-                                                    <img loading="lazy" decoding="async" width="800" height="800"
-                                                        src="/layouts/layout01/images/new1.jpg"
-                                                        class="attachment-original size-original wp-post-image" alt=""
-                                                        srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01.jpg 800w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01-300x300.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01-150x150.jpg 150w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01-768x768.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01-600x600.jpg 600w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/teaser01-100x100.jpg 100w"
-                                                        sizes="auto, (max-width: 800px) 100vw, 800px" />
-                                                </div>
-                                            </div>
-                                            <div class="box-text text-left">
-                                                <div class="box-text-inner blog-post-inner">
-                                                    <h5 class="post-title is-large ">Black Friday starts today and will last
-                                                        until November 28th</h5>
-                                                    <div class="is-divider"></div>
-                                                    <p class="from_the_blog_excerpt ">his year, Black Friday will take place
-                                                        on Friday, November 25th. At Ledger, we have decided... </p>
-                                                </div>
-                                            </div>
-                                            <div class="badge absolute top post-date badge-square">
-                                                <div class="badge-inner">
-                                                    <span class="post-date-day">31</span><br>
-                                                    <span class="post-date-month is-xsmall">Th1</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col post-item">
-                                <div class="col-inner">
-                                    <a href="https://solar3.maugiaodien.com/2023/01/31/we-are-bringing-our-crypto-hardware-devices-to-all-best/"
-                                        class="plain">
-                                        <div class="box box-vertical box-text-bottom box-blog-post has-hover">
-                                            <div class="box-image" style="width:27%;">
-                                                <div class="image-zoom image-cover" style="padding-top:78%;">
-                                                    <img loading="lazy" decoding="async" width="973" height="780"
-                                                        src="/layouts/layout01/images/new1.jpg"
-                                                        class="attachment-original size-original wp-post-image" alt=""
-                                                        srcset="https://solar3.maugiaodien.com/wp-content/uploads/2023/01/8.jpg 973w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/8-300x240.jpg 300w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/8-768x616.jpg 768w, https://solar3.maugiaodien.com/wp-content/uploads/2023/01/8-600x481.jpg 600w"
-                                                        sizes="auto, (max-width: 973px) 100vw, 973px" />
-                                                </div>
-                                            </div>
-                                            <div class="box-text text-left">
-                                                <div class="box-text-inner blog-post-inner">
-                                                    <h5 class="post-title is-large ">We are bringing our crypto-hardware
-                                                        devices to all Best</h5>
-                                                    <div class="is-divider"></div>
-                                                    <p class="from_the_blog_excerpt ">We are bringing our crypto-hardware
-                                                        devices to all Best Buy stores across the US starting today. Best
-                                                        Buy... </p>
-                                                </div>
-                                            </div>
-                                            <div class="badge absolute top post-date badge-square">
-                                                <div class="badge-inner">
-                                                    <span class="post-date-day">31</span><br>
-                                                    <span class="post-date-month is-xsmall">Th1</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div> --}}
+                            
                         </div>
                     </div>
                 </div>

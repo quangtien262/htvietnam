@@ -15,18 +15,19 @@ import {
 } from "@ant-design/icons";
 
 import "../../../../css/home.css";
+import { routeHome } from "../../../Function/config_route";
 
-export default function Dashboard(props) {
+export default function Dashboard(props:any) {
     const [isOpenModalConfirm, setIsOpenModalConfirm] = useState(false);
 
-    const changeMenu = (id) => {
+    const changeMenu = (id: unknown) => {
         router.get(route('data.index', [id]));
     }
     return (
         <AdminLayout
             auth={props.auth}
             header='Trang chủ'
-            // tables={props.tables}
+            tables={routeHome}
             content={
                 <div>
 

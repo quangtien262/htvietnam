@@ -105,7 +105,20 @@ export default function Dashboard(props: any) {
 
                                 </Col>
 
-                                
+                                <Col span={24} className='item-home'>
+                                    <Card title="Thống kê lượt view theo IP" style={{ marginTop: 24 }}>
+                                        <ResponsiveContainer width="100%" height={250}>
+                                            <LineChart data={props.viewStatsIp}>
+                                                <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
+                                                <XAxis dataKey="ip" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Line type="monotone" dataKey="view" stroke="#52c41a" name="Lượt view/IP" />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </Card>
+                                </Col>
                             </Row>
                         </Col>
 
