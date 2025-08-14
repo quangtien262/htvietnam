@@ -13,8 +13,6 @@
     href="/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css?ver={{ config('app.version') }}">
 <!-- Select2-->
 <link rel="stylesheet" href="/vendor/select2/dist/css/select2.css?ver={{ config('app.version') }}">
-<!-- ColorPicker-->
-{{-- <link rel="stylesheet" href="/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css?ver={{ config('app.version') }}"> --}}
 <!-- Summernote-->
 <link rel="stylesheet" href="/vendor/summernote/dist/summernote.css?ver={{ config('app.version') }}">
 <!-- endbuild-->
@@ -38,11 +36,9 @@
     {{-- <script src="/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script> --}}
     <!-- jQuery Form Validation-->
     {{-- <script src="/vendor/jquery-validation/dist/jquery.validate.js?ver={{ config('app.version') }}"></script>
-     <script src="/vendor/jquery-validation/dist/additional-methods.js?ver={{ config('app.version') }}"></script> --}}
     <!-- Select2-->
-    <script src="/vendor/select2/dist/js/select2.js?ver={{ config('app.version') }}"></script>
-    <!-- ColorPicker-->
-    {{-- <script src="/vendor/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script> --}}
+    {{-- <script src="/vendor/select2/dist/js/select2.js?ver={{ config('app.version') }}"></script> --}}
+    
     <!-- Summernote-->
     <script src="/vendor/summernote/dist/summernote.js?ver={{ config('app.version') }}"></script>
     <!-- Dropzone-->
@@ -56,7 +52,6 @@
     <!-- file manager-->
     <script src="{{ asset('vendor/file-manager/js/file-manager.js') }}"></script>
 
-    {{-- <script src="/vendor/loaders.css?ver={{ config('app.version') }}/loaders.css?ver={{ config('app.version') }}.js"></script> --}}
     <!-- endbuild-->
 
     <!-- App script-->

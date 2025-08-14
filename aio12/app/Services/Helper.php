@@ -24,9 +24,14 @@ class Helper
     {
         return WebConfig::find(1);
     }
-    public function getCurrentLang()
+    public function getCurrentLanguage()
     {
         return UserService::getLang();
+    }
+    public function getLinkLanguage($lang)
+    {
+        // return route('lang.switch', ['lang' => $lang]);
+        return '';
     }
 
     public function getDataLang($table, $conditions = [], $orderBy = [], $limit = 0)

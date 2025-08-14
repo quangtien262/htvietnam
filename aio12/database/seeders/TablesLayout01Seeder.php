@@ -28,7 +28,7 @@ class TablesLayout01Seeder extends Seeder
         DB::table('languages')->truncate();
 
         // create languages
-        MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vn.png');
+        MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vi.png');
         MigrateService::createLanguage('English', 'en', 0, '/images/languages/en.png');
         MigrateService::createLanguage('Chinese', 'ch', 0, '/images/languages/ch.png');
 
@@ -99,7 +99,8 @@ class TablesLayout01Seeder extends Seeder
             12000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 3]
+            ['menu_id' => 3],
+            ['name_data' => ['Hạt nhựa màu', 'Color Masterbatch', '塑料粒颗颜色']]
         );
         MigrateService::createProduct(
             ['HẠT CHỐNG ẨM', 'Color Masterbatch', '塑料粒颗颜色'],
