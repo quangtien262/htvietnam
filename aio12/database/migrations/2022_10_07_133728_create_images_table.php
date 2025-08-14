@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('type')->nullable(); // slide, banner, ,,,,
             $table->text('image')->nullable();
             $table->text('link')->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
         });

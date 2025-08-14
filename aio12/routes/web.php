@@ -23,6 +23,7 @@ Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [AdminController::class, 'index'])->name('home');
     Route::group(['prefix' => 'adm'], function () {
             require __DIR__ . '/admin_route.php';
+            require __DIR__ . '/admin_web_route.php';
     });
     require __DIR__ . '/himalaya_route.php';
 });

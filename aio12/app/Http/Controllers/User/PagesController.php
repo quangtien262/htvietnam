@@ -20,6 +20,7 @@ use App\Models\Web\About;
 use App\Models\Web\Address;
 use App\Models\Web\Landingpage;
 use App\Models\Web\Page;
+use App\Models\Web\PageSetting;
 use App\Models\Web\QA;
 use App\Services\AnalyticService;
 use App\Services\User\NewsService;
@@ -36,17 +37,21 @@ class PagesController extends Controller
     {
         AnalyticService::addView();      // Tổng lượt view theo ngày
         // AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
-
-
+        
+        $pageSetting = PageSetting::query()
+            ->where('page_setting.menu_id', 0)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
         $config = WebConfig::query()->find(1);
         $param = [
             'config' => $config,
             'langId' => UserService::getLang(),
+            'pageSetting' => $pageSetting,
             'seo' => [
                 'title' => $config->title,
                 'keywords' => $config->meta_keyword,
                 'description' => $config->meta_description,
-            ],
+            ]
         ];
         return View('layouts.layout' . $config->layout . '.pages.index', $param);
     }

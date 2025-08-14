@@ -1,12 +1,13 @@
-$(document).ready(function () {
-    $("#btnAddLand").click(function () {
-        $("#btnUpdateSortOrderLand").hide();
-        $("#btnAddLand").hide();
+var $jq = jQuery.noConflict();
+$jq(document).ready(function () {
+    $jq("#btnAddLand").click(function () {
+        $jq("#btnUpdateSortOrderLand").hide();
+        $jq("#btnAddLand").hide();
     });
 
-    $("#sort_order_block").click(function () {
-        $("#btnUpdateSortOrderLand").show();
-        $("#btnAddLand").show();
+    $jq("#sort_order_block").click(function () {
+        $jq("#btnUpdateSortOrderLand").show();
+        $jq("#btnAddLand").show();
     });
 });
 
@@ -14,51 +15,52 @@ $(document).ready(function () {
  * Cập nhật số lượng giỏ hàng
  */
 function updateQty(cartId) {
-    e = $("#" + cartId);
+    e = $jq("#" + cartId);
 }
 
 function productSupport(pname, pid) {
-    $("#support-product-name").text(pname);
-    $("#input-product-name").val(pname);
-    $("#input-product-id").val(pid);
+    $jq("#support-product-name").text(pname);
+    $jq("#input-product-name").val(pname);
+    $jq("#input-product-id").val(pid);
 }
 
 function ajaxLoadUrl(url, result) {
-    $(result).html(
-        '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
+    $jq(result).html(
+        '<img style="max-height:100px" class="img-loading" src="/images/loading/pink_loader.gif"/>'
     );
-    $.ajax({
-        type: "get",
-        url: url,
-        success: function (data) {
-            $(result).html(data);
-        },
-        error: function (data) {
-            $(result).html(
-                "Có lỗi xảy ra, vui lòng tải lại trình duyệt và thử lại"
-            );
-        },
-    });
+    $jq(result).attr('src', url);
+    // $jq.ajax({
+    //     type: "get",
+    //     url: url,
+    //     success: function (data) {
+    //         $jq(result).html(data);
+    //     },
+    //     error: function (data) {
+    //         $jq(result).html(
+    //             "Có lỗi xảy ra, vui lòng tải lại trình duyệt và thử lại"
+    //         );
+    //     },
+    // });
 }
 
 function addItem(e, eShow, next) {
-    $(e).hide();
-    $(eShow).show();
-    $(next).show();
+    $jq(e).hide();
+    $jq(eShow).show();
+    $jq(next).show();
 }
 
 function submitForm(url, result) {
-    $(result).html(
+    $jq(result).html(
         '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
     );
-    $.ajax({
+    $jq.ajax({
         type: "get",
         url: url,
         success: function (data) {
-            $(result).html(data);
+            $jq(result).html(data);
         },
         error: function (data) {
-            $(result).html(
+            $jq(result).html(
                 "Có lỗi xảy ra, vui lòng tải lại trình duyệt và thử lại"
             );
         },
@@ -66,7 +68,7 @@ function submitForm(url, result) {
 }
 
 function removeElement(e) {
-    $(e).remove();
+    $jq(e).remove();
 }
 
 const form = document.querySelector("#subcriber");
@@ -86,24 +88,24 @@ function addSubcriber() {
 }
 
 function updateSortOrder() {
-    $("#result-sort-order").html(
+    $jq("#result-sort-order").html(
         '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
     );
-    $.ajax({
+    $jq.ajax({
         headers: {
-            "X-CSRF-Token": $('meta[name="csrf-token"]').attr("content"),
+            "X-CSRF-Token": $jq('meta[name="csrf-token"]').attr("content"),
         },
         type: "post",
         url: "/adm/landingpage/sort-order",
         data: {
-            data: $("#nestable-output").val(),
+            data: $jq("#nestable-output").val(),
         },
         success: function (data) {
-            $("#isReload").val("1");
-            $("#result-sort-order").html("Cập nhật thứ tự thành công");
+            $jq("#isReload").val("1");
+            $jq("#result-sort-order").html("Cập nhật thứ tự thành công");
         },
         error: function (err) {
-            $("#result-sort-order").html(
+            $jq("#result-sort-order").html(
                 '<em class="_red">Cập nhật thứ tự thất bại</em>'
             );
         },
@@ -111,58 +113,51 @@ function updateSortOrder() {
 }
 
 function closeSortOrder() {
-    $("#result-sort-order").html(
+    $jq("#result-sort-order").html(
         '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
     );
-    if ($("#isReload").val() === "1") {
+    if ($jq("#isReload").val() === "1") {
         location.reload();
         return;
     }
-    $("#btnCloseSsortOrder_hidden").click();
-    $("#result-sort-order").html("");
+    $jq("#btnCloseSsortOrder_hidden").click();
+    $jq("#result-sort-order").html("");
 }
 
 function addLandingpage(id, menuId) {
-    $("#result-sort-order").html(
+    $jq("#content").html(
         '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
     );
-    $.ajax({
+    $jq.ajax({
         headers: {
-            "X-CSRF-Token": $('meta[name="csrf-token"]').attr("content"),
+            "X-CSRF-Token": $jq('meta[name="csrf-token"]').attr("content"),
         },
         type: "post",
-        url: "/adm/landingpage/create",
+        url: "/adm/page-setting/create",
         data: {
             id: id,
             menu_id: menuId,
         },
         success: function (data) {
             console.log("data", data);
-            ajaxLoadUrl(
-                "/adm/landingpage/sort-order/" + menuId,
-                "#content-modal-sort-order"
-            );
-            $("#result-sort-order").html("");
-            $("#btnUpdateSortOrderLand").show();
-            $("#btnAddLand").show();
-            $("#isReload").val("1");
+            $jq("#content").html(data);
         },
     });
 }
 
 function hideLand(e) {
-    $("#result-sort-order").html(
+    $jq("#result-sort-order").html(
         '<img class="img-loading" src="/images/loading/loader.big.black.gif"/>'
     );
-    var id = $(e).val();
+    var id = $jq(e).val();
     var is_active = 1;
-    if ($(e).is(":checked")) {
+    if ($jq(e).is(":checked")) {
         is_active = 0;
     }
 
-    $.ajax({
+    $jq.ajax({
         headers: {
-            "X-CSRF-Token": $('meta[name="csrf-token"]').attr("content"),
+            "X-CSRF-Token": $jq('meta[name="csrf-token"]').attr("content"),
         },
         type: "post",
         url: "/adm/landingpage/active",
@@ -171,17 +166,17 @@ function hideLand(e) {
             active: is_active,
         },
         success: function (data) {
-            $("#isReload").val("1");
-            $("#result-sort-order").html("");
+            $jq("#isReload").val("1");
+            $jq("#result-sort-order").html("");
             if (is_active == 1)
-                $("#result-sort-order").html(
+                $jq("#result-sort-order").html(
                     "Cài đặt <b>HIỂN THỊ</b> thành công"
                 );
-            else $("#result-sort-order").html("Cài đặt <b>ẨN</b> thành công");
+            else $jq("#result-sort-order").html("Cài đặt <b>ẨN</b> thành công");
         },
         error: function (err) {
-            $("#result-sort-order").html("");
-            $("#result-sort-order").html(
+            $jq("#result-sort-order").html("");
+            $jq("#result-sort-order").html(
                 '<em class="error">Ẩn khối không thành công, vui lòng refresh lại trình duyệt và thử lại</em>'
             );
         },
@@ -189,11 +184,11 @@ function hideLand(e) {
 }
 
 function deleteConfirm(eConfirm) {
-    $(eConfirm).show();
+    $jq(eConfirm).show();
 }
 
 function cancelDeleteLand(eConfirm) {
-    $(eConfirm).hide();
+    $jq(eConfirm).hide();
 }
 
 function deletedLand(id) {
@@ -225,7 +220,17 @@ function deletedLand(id) {
 }
 
 function emptyLandInput(e_tr) {
-    $(e_tr).children('td').children('input').val('');
-    $(e_tr).children('td').children('textarea').val('');
-    $(e_tr).children('td').children('textarea').text('');
+    $jq(e_tr).children('td').children('input').val('');
+    $jq(e_tr).children('td').children('textarea').val('');
+    $jq(e_tr).children('td').children('textarea').text('');
 }
+
+
+// $.ajax({
+//   method: "POST",
+//   url: "some.php",
+//   data: { name: "John", location: "Boston" }
+// })
+//   .done(function( msg ) {
+//     alert( "Data Saved: " + msg );
+//   });

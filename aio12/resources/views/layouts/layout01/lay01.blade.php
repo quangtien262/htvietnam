@@ -2,8 +2,8 @@
 <html lang="vi">
 
 <head>
-
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css?ver={{ env('APP_VERSION') }}" rel="stylesheet"> --}}
+    {{-- load bootstrap --}}
+    <link rel="stylesheet" href="/vendor/bootstrap4/css/bootstrap.min.css">
 
     @include('common.meta')
 
@@ -15,8 +15,8 @@
 
     <link rel='stylesheet' href='/layouts/01/css/styles.css?ver={{ env('APP_VERSION') }}' type='text/css'
         media='all' />
-    {{-- <link rel='stylesheet' href='/layouts/01/css/flatsome-swatches-frontend.css?ver={{env('APP_VERSION')}}' type='text/css' media='all' /> --}}
-    <link rel='stylesheet' href='/layouts/01/css/all.css' type='text/css' media='all' />
+    <link rel='stylesheet' href='/vendor/fontawesome-free-7.0.0-web/css/all.min.css' type='text/css' media='all' />
+
     <link rel='stylesheet' href='/layouts/01/css/flatsome.css?ver={{ env('APP_VERSION') }}' type='text/css'
         media='all' />
 
@@ -24,14 +24,10 @@
         media='all' />
     <link rel='stylesheet' href='/layouts/01/css/style.css?ver=3.0' type='text/css' media='all' />
     <link rel='stylesheet' href='/layouts/01/css/v4-shims.css' type='text/css' media='all' />
-    <script src="/layouts/01/js/jquery.min.js?ver={{ env('APP_VERSION') }}" id="jquery-core-js"></script>
-    <script src="/layouts/01/js/jquery-migrate.min.js?ver={{ env('APP_VERSION') }}" id="jquery-migrate-js"></script>
 
-    <style id='woocommerce-inline-inline-css' type='text/css'>
-        .woocommerce form .form-row .required {
-            visibility: visible;
-        }
-    </style>
+    <script src="/layouts/01/js/jquery.min.js?ver={{ env('APP_VERSION') }}" id="jquery-core-js"></script>
+
+    <script src="/layouts/01/js/jquery-migrate.min.js?ver={{ env('APP_VERSION') }}" id="jquery-migrate-js"></script>
 
 </head>
 
@@ -188,7 +184,7 @@
             "theme": {
                 "version": "3.16.2"
             },
-            "ajaxurl": "https://solar3.maugiaodien.com/wp-admin/admin-ajax.php",
+            "ajaxurl": "/",
             "rtl": "",
             "sticky_height": "70",
             "assets_url": "/layouts/01/js/",
@@ -217,22 +213,17 @@
             "is_mini_cart_reveal": "1"
         }
     </script>
-    <script src="/layouts/01/js/flatsome.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
+    
+    {{-- <script src="/vendor/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.js?ver={{ config('app.version') }}"></script> --}}
 
-    <script src="/layouts/01/js/flatsome-swatches-frontend.js?ver={{env('APP_VERSION')}}"></script>
+    <script src="/layouts/01/js/flatsome.js?ver={{ env('APP_VERSION') }}"></script>
 
-    <script src="/layouts/01/js/woocommerce.js?ver={{ env('APP_VERSION') }}" id="flatsome-theme-woocommerce-js-js">
-    </script>
+    {{-- <script src="/layouts/01/js/flatsome-swatches-frontend.js?ver={{ env('APP_VERSION') }}"></script> --}}
 
-    {{-- admin --}}
-    {{-- <link rel='stylesheet' href="/common/css/common.css?ver={{ env('APP_VERSION') }}" media='all' /> --}}
+    {{-- <script src="/layouts/01/js/woocommerce.js?ver={{ env('APP_VERSION') }}"></script> --}}
 
-    {{-- <script src="/common/js/jquery.224.min.js?ver={{ env('APP_VERSION') }}"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js?ver={{ env('APP_VERSION') }}">
-    </script>
+    <script src="/vendor/bootstrap4/js/bootstrap.min.js?ver={{ config('app.version') }}"></script>
 
-    <script src="/common/js/common.js?ver={{ env('APP_VERSION') }}"></script> --}}
 </body>
 
 </html>

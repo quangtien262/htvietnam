@@ -19,10 +19,8 @@ return new class extends Migration
             $table->string('languages_id')->nullable();
             $table->longtext('description')->nullable();
             $table->longtext('content')->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->timestamps();
+
+            MigrateService::createBaseColumn($table);
         });
 
         // Setting

@@ -15,11 +15,10 @@ return new class extends Migration
         Schema::create('block_info', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
             $table->text('image')->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->timestamps();
+           
+            MigrateService::createBaseColumn($table);
         });
 
         // setting

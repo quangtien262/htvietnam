@@ -7,7 +7,7 @@
                         <li class="">
                             <a href="mailto:{{$config->email}}" class="tooltip" title="{{$config->email}}">
                                 <i class="icon-envelop" style="font-size:16px;"></i> <span>
-                                    <span class="__cf_email__">{{$config->email}}</span>
+                                    <span class="__cf_email__">{{$config->email}}xxxxxxxxx</span>
                                 </span>
                             </a>
                         </li>

@@ -1,3 +1,5 @@
+@if ($page->block_type == 'contact')
+
 <section class="section section8" id="section_2131306808">
    <div class="bg section-bg fill bg-fill  bg-loaded">
    </div>
@@ -6,16 +8,10 @@
          <div id="col-1326594740" class="col small-12 large-12">
             <div class="col-inner">
                <div class="tieu-de">
-                  <p style="text-align: center;">KẾT NỐI VỚI WEBDEMO</p>
-                  <h2 style="text-align: center;">
-                     LIÊN HỆ NGAY
-                  </h2>
+                  <p style="text-align: center;">{{$page->description}}</p>
+                  <h2 style="text-align: center;">{{$page->name_data}}</h2>
                </div>
-               <p style="text-align: center;"><span style="color: #808080; font-size: 95%;"><em>Lorem ipsum dolor sit
-                        amet, consectetur adipiscing elit. Praesent dapibus erat in tincidunt consequat. Phasellus sit
-                        amet<br />
-                        convallis turpis, molestie nunc. Nulla facilisi. Vestibulum aliquam convallis
-                        ligula.</em></span>
+               <p style="text-align: center;"><span style="color: #808080; font-size: 95%;"><em>{{$page->content}}</em></span>
                </p>
             </div>
          </div>
@@ -42,7 +38,7 @@
                            </div>
                            <div class="icon-box-text last-reset">
                               <h3>VĂN PHÒNG CÔNG TY</h3>
-                              <p>1116 15th St, Sacramento,<br />California, CA 95814, USA</p>
+                              <p>{{ $config->office }}</p>
                            </div>
                         </div>
                      </div>
@@ -65,7 +61,7 @@
                            </div>
                            <div class="icon-box-text last-reset">
                               <h3>GỌI NGAY 24/7</h3>
-                              <p>Support: 0972.939.xxx<br />Office: 0800 123 xxxx</p>
+                              <p>Hotline: <a href="tel:{{ $config->phone_language }}">{{ $config->phone_language }}</a></p>
                            </div>
                         </div>
                      </div>
@@ -89,9 +85,7 @@
                            <div class="icon-box-text last-reset">
                               <h3>GỬI EMAIL</h3>
                               <p>
-                                 <a>{{$config->email}}</a>
-                                 <br />
-                                 <a class="__cf_email__">{{$config->email}}</a>
+                                 <a href="mailto:{{$config->email}}">{{$config->email}}</a>
                               </p>
                            </div>
                         </div>
@@ -161,20 +155,6 @@
          </div>
       </div>
    </div>
-   <style>
-      #section_2131306808 {
-         padding-top: 80px;
-         padding-bottom: 80px;
-      }
-
-      #section_2131306808 .ux-shape-divider--top svg {
-         height: 150px;
-         --divider-top-width: 100%;
-      }
-
-      #section_2131306808 .ux-shape-divider--bottom svg {
-         height: 150px;
-         --divider-width: 100%;
-      }
-   </style>
 </section>
+
+@endif

@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('languages_id')->nullable();
             $table->longtext('description')->nullable();
             $table->longtext('content')->nullable();
-            $table->timestamps();
+
+            MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
@@ -63,7 +64,7 @@ return new class extends Migration
         MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', 'select', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
+        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày cập nhật', 'INT', 'datetime', $order++, ['edit' => 0]);
     }
 
     /**

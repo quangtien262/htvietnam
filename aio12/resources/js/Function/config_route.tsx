@@ -401,6 +401,14 @@ export const routeWeb = [
             key: key++
         },
         sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['doi_tac']),
+            display_name: 'Logo đối tác',
+            key: key++
+        },
+        sub: []
     }
 ];
 

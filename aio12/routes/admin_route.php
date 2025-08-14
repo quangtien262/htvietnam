@@ -107,20 +107,6 @@ Route::group(['prefix' => 'configtbl'], function () {
     Route::post('column/update-sort-order', [TblController::class, 'updateSortOrderColumn'])->name('column.update_sort_order');
 });
 
-// landingpage
-Route::group(['prefix' => 'landingpage'], function () {
-    Route::get('edit/{id}', [LandingPageController::class, 'formBasic'])->name('land.form');
-    Route::post('update', [LandingPageController::class, 'update'])->name('land.update');
-    Route::get('sort-order/{menuId}', [LandingPageController::class, 'sortOrder'])->name('land.sort_order');
-    Route::post('sort-order', [LandingPageController::class, 'updateSortOrder']);
-    Route::get('create/{menuId}', [LandingPageController::class, 'listLandingpageDefault'])->name('land.create');
-    Route::post('create', [LandingPageController::class, 'createLandingpage']);
-    Route::post('active', [LandingPageController::class, 'activeLand'])->name('land.active');
-    Route::post('show-in-menu', [LandingPageController::class, 'showInMenu'])->name('land.show_in_menu');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
-});
-
 //gmail
 Route::group(['prefix' => 'gmail'], function () {
     Route::get('/', [GmailController::class, 'index'])->name('gmail');

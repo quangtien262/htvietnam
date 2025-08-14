@@ -12,6 +12,7 @@ return [
     'please' => 'Please',
     'login' => 'Login',
     'register' => 'Register',
+    'remember_me'=>'Remember me',
     'have_account' => 'You have been account?',
     'not_account' => 'Do not have an account sign in?',
     'register_here' => 'Register here',

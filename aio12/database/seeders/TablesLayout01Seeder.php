@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Services\LandingpageData\Layout01;
 use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
@@ -26,27 +27,62 @@ class TablesLayout01Seeder extends Seeder
         DB::table('about')->truncate();
         DB::table('languages')->truncate();
 
-        // config admin menu
-        MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
-
-        MigrateService::webconfig('01', ['logo' => '/layouts/01/images/logo.png']);
-
         // create languages
         MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vn.png');
         MigrateService::createLanguage('English', 'en', 0, '/images/languages/en.png');
         MigrateService::createLanguage('Chinese', 'ch', 0, '/images/languages/ch.png');
+
+        // config admin menu
+        MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
+
+        MigrateService::webconfig(
+            '01',
+            [
+                'logo' => '/layouts/01/images/logo.png',
+                'phone' => '(84) 24 665 72208',
+                'website' => 'www.gccgroup.vn',
+                'email' => 'contact@gccgroup.vn',
+                'mst' => '5200886602'
+            ],
+            [
+                'office' => [
+                    'LK14, Hateco Green City, Foresa 4, phường Xuân Phương, TP. Hà Nội, Việt Nam',
+                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
+                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
+                ],
+                'address' => [
+                    'Nhà số 2, Ngõ 30, Đường Ngõ Đình, Thôn 5, Xã Sơn Đồng, thành phố Hà Nội, Việt Nam',
+                    'No 2/30 Ngo Dinh Street, N. 5 Hamlet, Son Dong commune, Hanoi city, Vietnam',
+                    'No 2/30 Ngo Dinh Street, N. 5 Hamlet, Son Dong commune, Hanoi city, Vietnam'
+                ],
+                'factory' => [
+                    'Thôn Nho Lâm, phường Đường Hào, tỉnh Hưng Yên, Việt Nam',
+                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam',
+                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam'
+                ],
+                'phone_language' => [
+                    '(84) 24 665 72208 ',
+                    '(84) 24 665 72208 ',
+                    '(84) 24 665 72208 '
+                ],
+                'company_name' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ]
+            ]
+        );
+
         //menu
         $this->createDataMenu();
 
         // product
         $this->createDataProduct();
 
-        // slide
-        $this->createSlide();
-
         //news
         $this->createNews();
-        
+
+        $this->settingHome();
     }
 
     private function createDataProduct()
@@ -57,38 +93,34 @@ class TablesLayout01Seeder extends Seeder
             '/layouts/01/product-test/2.png',
             '/layouts/01/product-test/3.png',
         ];
-        $images = [
-            'avatar' => $imgs[array_rand($imgs)],
-            'images' => $imgs
-        ];
 
         MigrateService::createProduct(
             ['HẠT NHỰA MÀU', 'Color Masterbatch', '塑料粒颗颜色'],
             12000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 2]
+            ['menu_id' => 3]
         );
         MigrateService::createProduct(
             ['HẠT CHỐNG ẨM', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
             [],
-            ['menu_id' => 2]
+            ['menu_id' => 3]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
             [],
-            ['menu_id' => 2]
+            ['menu_id' => 3]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             [],
-            ['menu_id' => 2]
+            ['menu_id' => 3]
         );
     }
 
@@ -106,10 +138,17 @@ class TablesLayout01Seeder extends Seeder
 
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
 
-        MigrateService::createMenu(['Trang chủ', 'Home'], 'home', 
-        ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Giới thiệu', 'About'], 'landingpage', ['parent_id' => 0, 'sort_order' => $sortOrder++], 
-        ['content' => [$contentAbout, $contentAbout], 'description' => [$desAbout]]);
+        MigrateService::createMenu(
+            ['Trang chủ', 'Home'],
+            'home',
+            ['parent_id' => 0, 'sort_order' => $sortOrder++]
+        );
+        MigrateService::createMenu(
+            ['Giới thiệu', 'About'],
+            'landingpage',
+            ['parent_id' => 0, 'sort_order' => $sortOrder++],
+            ['content' => [$contentAbout, $contentAbout], 'description' => [$desAbout]]
+        );
         $product = MigrateService::createMenu(['Sản Phẩm', 'Products'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(['Tuyển dụng', 'Job'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(['Tin Tức', 'News'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
@@ -152,18 +191,6 @@ class TablesLayout01Seeder extends Seeder
                 'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
             ]
         );
-    }
-
-
-    private function createSlide()
-    {
-        $this->command->info('migrate slide');
-        // slide
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide01.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide02.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide03.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide04.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide05.jpg', 1);
     }
 
     private function createNews()
@@ -241,120 +268,36 @@ class TablesLayout01Seeder extends Seeder
         );
     }
 
-    private function createDoiTac()
+    private function settingHome()
     {
-        $this->command->info('migrate block info');
+        $sort_order = 1;
+        // slide
+        Layout01::banner($sort_order++);
 
-        $sortOrder = 1;
-        DB::table('doi_tac')->insert([
-            'name' => 'OHUI',
-            'image' => '/layouts/layout05/images/brand/brand-1.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'SulWhaSoo',
-            'image' => '/layouts/layout05/images/brand/brand-2.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Laneige',
-            'image' => '/layouts/layout05/images/brand/brand-3.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'VIB',
-            'image' => '/layouts/layout05/images/brand/brand-4.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 01',
-            'image' => '/layouts/layout05/images/brand/brand-5.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-6.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-7.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-6.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-5.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-4.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-3.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-    }
+        // product
+        Layout01::products($sort_order++);
+        
+        // Why Choose Us
+        Layout01::block03($sort_order++);
 
-    private function createBlock()
-    {
-        $this->command->info('migrate block');
-        $this->command->info('Migrate block');
-        MigrateService::createBlock(
-            ['Giải pháp hoàn chỉnh'],
-            '/layouts/layout04/images/service/service-1.png',
-            [],
-            ['description' => ['HTVN cung cấp sản phẩm trọn gói từ keo chà ron, keo dán gạch, phụ gia và hóa chất xây dựng', 'HTVN cung cấp sản phẩm trọn gói từ keo chà ron, keo dán gạch, phụ gia và hóa chất xây dựng']]
-        );
+        // ứng dụng thực tế
+        Layout01::block04($sort_order++);
 
-        MigrateService::createBlock(
-            ['Công nghệ dẫn đầu'],
-            '/layouts/layout04/images/service/service-2.png',
-            [],
-            ['description' => ['Chúng tôi chưa bao giờ ngừng phát triển, nghiên cứu, thử nghiệm và cải tiến chất lượng sản phẩm', 'Chúng tôi chưa bao giờ ngừng phát triển, nghiên cứu, thử nghiệm và cải tiến chất lượng sản phẩm']]
-        );
+        // thông kê
+        Layout01::block05($sort_order++);
 
-        MigrateService::createBlock(
-            ['Triết lý kinh doanh'],
-            '/layouts/layout04/images/service/service-3.png',
-            [],
-            ['description' => ['“ Creating Happiness for You and Your Family – Tạo ra hạnh phúc cho bạn và gia đình bạn”', '“ Creating Happiness for You and Your Family – Tạo ra hạnh phúc cho bạn và gia đình bạn”']]
-        );
+        // dự án đã làm
+        Layout01::block06($sort_order++);
 
-        MigrateService::createBlock(
-            ['Đội ngũ kỹ thuật'],
-            '/layouts/layout04/images/service/service-4.png',
-            [],
-            ['description' => ['Chuyên nghiệp cung cấp giải pháp ốp lát tiết kiệm chi phí tối đa.', 'Chuyên nghiệp cung cấp giải pháp ốp lát tiết kiệm chi phí tối đa.']]
-        );
+        // news
+        Layout01::news($sort_order++);
+
+        // contact
+        Layout01::contact($sort_order++);
+
+        Layout01::doiTac($sort_order++);
+
+        // list block landing page
+        Layout01::createBlocks();
     }
 }

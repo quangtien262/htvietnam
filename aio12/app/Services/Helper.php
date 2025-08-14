@@ -12,6 +12,7 @@ use App\Models\Web\BDS;
 use App\Models\Web\Image;
 use App\Models\Web\Languages;
 use App\Models\Web\LinkFooter;
+use App\Models\Web\PageSetting;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\App;
 use PSpell\Config;
@@ -40,7 +41,7 @@ class Helper
         )
             ->leftJoin($tableLang, $tableLang . '.data_id', '=', $table . '.id')
             ->where($tableLang . '.languages_id', UserService::getLang()->id);
-            
+
         if (!empty($conditions)) {
             foreach ($conditions as $key => $val) {
                 $data = $data->where($key, $val);
@@ -642,5 +643,12 @@ class Helper
     public function getLinkFooter()
     {
         return LinkFooter::query()->orderBy('sort_order', 'asc')->get();
+    }
+
+    public function getPageSeting($menuId = 0) {
+        return PageSetting::query()
+            ->where('page_setting.menu_id', $menuId)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
     }
 }

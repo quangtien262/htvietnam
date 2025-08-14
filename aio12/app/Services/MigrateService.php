@@ -218,6 +218,7 @@ MigrateService
         foreach ($config as $key => $val) {
             $conf[$key] = $val;
         }
+
         WebConfig::create($conf);
 
         $languages = Language::get();
@@ -824,8 +825,8 @@ MigrateService
      * $datas = ['name' => 'name']
      * $datasLang = ['column_name' => ['lang01','lang02']]
      */
-    static function createData($tblName, $datas = [], $datasLang = [])
-    {
+    static function createData($tblName, $datas = [], $datasLang = []){
+
         $dataInsert = [];
 
         foreach ($datas as $key => $val) {
@@ -838,6 +839,8 @@ MigrateService
 
         $dataId = DB::table($tblName)->insertGetId($dataInsert);
         $data = DB::table($tblName)->where('id', $dataId)->first();
+
+        if(!$datasLang) return;
 
         // save by language
         $tableData = $tblName . '_data';

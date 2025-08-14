@@ -20,20 +20,20 @@ return new class extends Migration
             $table->text('data_id')->nullable();
             $table->text('languages_id')->nullable();
             $table->text('title')->nullable();
+            $table->text('company_name')->nullable();
             $table->text('meta_title')->nullable();
             $table->text('meta_keyword')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('slogan')->nullable();
             $table->text('footer')->nullable();
             $table->text('address')->nullable();
+            $table->text('office')->nullable();
+            $table->text('factory')->nullable(); // nhà máy
+            $table->text('phone_language')->nullable();
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->integer('create_by')->default(1)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('is_recycle_bin')->default(0)->nullable();
-            $table->timestamps();
+            MigrateService::createBaseColumn($table);
         });
 
         $order = 1;

@@ -130,7 +130,7 @@ class LandingPageController extends Controller
     public function sortOrder(Request $request, $menuId = 0)
     {
         $htmlListDragDrop = $this->getHtmlListDragDrop($menuId);
-        return View('admin.landingpage.sort_order', compact('htmlListDragDrop'));
+        return View('admin.page_setting.sort_order', compact('htmlListDragDrop'));
     }
 
     public function updateSortOrder(Request $request, $menuId = 0)

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('gg_map')->nullable();
             $table->text('gg_analytic')->nullable();
 
+            $table->string('mst')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->text('zalo')->nullable();

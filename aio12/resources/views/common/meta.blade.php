@@ -1,7 +1,10 @@
 @php
-    $logo114 = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo ;
-    $logo = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo;
-    $banner = 'https://' . $_SERVER['SERVER_NAME'] . $config->logo;
+    // $logo114 = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo ;
+    // $logo = 'https://' . $_SERVER['SERVER_NAME'] .  $config->logo;
+    // $banner = 'https://' . $_SERVER['SERVER_NAME'] . $config->logo;
+    $logo114 = $config->logo ;
+    $logo =  $config->logo;
+    $banner = $config->logo;
 @endphp
 <meta charset="utf-8" data-n-head="ssr" />
 <meta data-n-head="ssr" name="viewport" content="width=device-width, initial-scale=1"/>

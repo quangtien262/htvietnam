@@ -1,4 +1,4 @@
-@extends('admin.landingpage.land_layout')
+@extends('admin.page_setting.page_setting_layout')
 @section('content')
 <div class="card">
     <div class="card-body">

@@ -11,6 +11,7 @@ return [
     'please' => 'Please',
     'login' => 'Đăng nhập',
     'register' => 'Đăng ký',
+    'remember_me'=>'Remember me',
     'have_account' => 'Bạn đã có tài khoản đăng nhập?',
     'not_account' => 'Bạn chưa có tài khoản đăng nhập?',
     'register_here' => 'Đang ký tại đây',
@@ -96,4 +97,5 @@ return [
     'price-desc' => 'Giá giảm dần',
     'price-asc' => 'Giá tăng dần',
     'name' => 'Sắp xếp theo tên',
+    'view_all'=>'Xem tất cả',
 ];

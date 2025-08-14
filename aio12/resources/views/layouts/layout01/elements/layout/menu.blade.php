@@ -64,10 +64,8 @@
                         </li>
                     </ul>
                 </li>
-                <li class="account-item has-icon
-                              ">
-                    <a href="https://solar3.maugiaodien.com/tai-khoan/"
-                        class="nav-top-link nav-top-not-logged-in is-small" data-open="#login-form-popup">
+                <li class="account-item has-icon">
+                    <a class="nav-top-link nav-top-not-logged-in is-small" data-open="#login-form-popup">
                         <i class="icon-user"></i>
                     </a>
                 </li>

@@ -1021,7 +1021,7 @@ html {
     margin-bottom: 2px;
     line-height: 1.3;
     text-transform: uppercase;
-    font-size: 35px;
+    font-size: 30px;
 }
 
 .tieu-de p {
@@ -2209,13 +2209,46 @@ span.widget-title:after {
     font-weight: bold;
     color: black;
 }
+
 .product-name:hover {
     color: #fcca03;
 }
+
 .text-box-content {
     background-color: #7365023d;
 }
 
+#section_2131306808 {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+#section_2131306808 .ux-shape-divider--top svg {
+    height: 150px;
+    --divider-top-width: 100%;
+}
+
+#section_2131306808 .ux-shape-divider--bottom svg {
+    height: 150px;
+    --divider-width: 100%;
+}
+.tieu-de {
+    text-transform: uppercase;
+}
+.text-right {
+    text-align: right;
+}
+._right {
+    float: right;
+}
+.left100 {
+    width: 100%;
+    float: left;
+    border-bottom: 1px solid #b1bfe4;
+}
+._hidden {
+    display: none;
+}
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
 
