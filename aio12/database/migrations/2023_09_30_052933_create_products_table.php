@@ -63,7 +63,7 @@ return new class extends Migration
             $table->text('product_apply')->nullable(); // product_dich_vu_apply // gói: chọn các dv dc dùng trong gói
 
             // the
-            $table->text('loai_hang_hoa')->nullable(); // thẻ - chọn nhiều loại hàng hóa dc dùng trong thẻ
+            $table->text('loai_hang_hoa')->nullable(); // thẻ - chọn nhiều loại sản phẩm dc dùng trong thẻ
             $table->text('hang_hoa_ap_dung')->nullable();  // thẻ - chọn nhiều các sp dc dùng trong thẻ
 
             // số lượng trong 1 thẻ LT
@@ -126,7 +126,7 @@ return new class extends Migration
         MigrateService::createColumn02(
             $tableId,
             'block_hh',
-            'Thông tin hàng hóa',
+            'Thông tin sản phẩm',
             'INT',
             'number',
             0,
@@ -161,17 +161,17 @@ return new class extends Migration
         MigrateService::createColumn02(
             $tableId,
             'code',
-            'Mã hàng hóa',
+            'Mã sản phẩm',
             'VARCHAR',
             'text',
             $order_col++,
-            ['parent_id' => $hh->id, 'show_in_list' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
+            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 0, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
         );
 
         MigrateService::createColumn02(
             $tableId,
             'name',
-            'Tên hàng hóa',
+            'Tên sản phẩm',
             'VARCHAR',
             'text',
             $order_col++,
@@ -182,7 +182,7 @@ return new class extends Migration
         MigrateService::createColumn02(
             $tableId,
             'product_group_id',
-            'Nhóm hàng hóa',
+            'Nhóm sản phẩm',
             'INT',
             'select',
             $order_col++,
@@ -193,9 +193,10 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'status_product_id', 'Trạng thái', 'INT', 'select', $order_col++, ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1]);
 
 
-        MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'image', $order_col++, ['parent_id' => $hh->id]);
-        MigrateService::createColumn02($tableId, 'capital_price', 'Giá vốn', 'INT', 'number', $order_col++, ['require' => 1, 'parent_id' => $hh->id]);
-        MigrateService::createColumn02($tableId, 'thoi_gian_khau_hao', 'Thời gian khấu hao(Tháng)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
+        MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'image', $order_col++, 
+        ['parent_id' => $hh->id, 'col' => 24]);
+        // MigrateService::createColumn02($tableId, 'capital_price', 'Giá vốn', 'INT', 'number', $order_col++, ['require' => 1, 'parent_id' => $hh->id]);
+        // MigrateService::createColumn02($tableId, 'thoi_gian_khau_hao', 'Thời gian khấu hao(Tháng)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
         MigrateService::createColumn02(
             $tableId,
@@ -216,28 +217,28 @@ return new class extends Migration
             ['parent_id' => $tt_khac->id]
         );
 
-        MigrateService::createColumn02(
-            $tableId,
-            'description',
-            'Mô tả',
-            'TEXT',
-            'textarea',
-            $order_col++,
-            ['parent_id' => $tt_khac->id, 'col' => 12]
-        );
+        // MigrateService::createColumn02(
+        //     $tableId,
+        //     'description',
+        //     'Mô tả',
+        //     'TEXT',
+        //     'textarea',
+        //     $order_col++,
+        //     ['parent_id' => $tt_khac->id, 'col' => 12]
+        // );
 
-        $qd = Table::where('name', 'don_vi_quy_doi')->first();
-        MigrateService::createColumn02(
-            $tableId,
-            'don_vi_quy_doi_id',
-            'Đơn vị quy đổi',
-            'TEXT',
-            'selects_table',
-            $order_col++,
-            ['select_table_id' => $qd->id, 'add_express' => 1, 'parent_id' => $tt_khac->id]
-        );
+        // $qd = Table::where('name', 'don_vi_quy_doi')->first();
+        // MigrateService::createColumn02(
+        //     $tableId,
+        //     'don_vi_quy_doi_id',
+        //     'Đơn vị quy đổi',
+        //     'TEXT',
+        //     'selects_table',
+        //     $order_col++,
+        //     ['select_table_id' => $qd->id, 'add_express' => 1, 'parent_id' => $tt_khac->id]
+        // );
 
-        MigrateService::createColumn02($tableId, 'price', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
+        MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
         MigrateService::baseColumn($tbl);
     }
