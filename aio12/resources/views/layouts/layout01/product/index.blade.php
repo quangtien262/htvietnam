@@ -1,7 +1,6 @@
 @extends('layouts.layout01.lay01')
 
 @section('content')
-
     <main id="main" class="">
         <section class="section dau-trang-section dark has-parallax" id="section_320154646">
             <div class="bg section-bg fill bg-fill parallax-active bg-loaded" data-parallax-container=".section"
@@ -72,11 +71,11 @@
                                     <div class="product-small box ">
                                         <div class="box-image">
                                             <div class="image-none">
-                                                <a href="{{$link}}" aria-label="Lorem stet clita kasd">
-                                                    <img width="300" height="300" src="{{$avatar}}"
+                                                <a href="{{ $link }}" aria-label="Lorem stet clita kasd">
+                                                    <img width="300" height="300" src="{{ $avatar }}"
                                                         class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail"
                                                         alt="" decoding="async"
-                                                        srcset="{{$avatar}} 300w, {{$avatar}} 150w, {{$avatar}} 768w, {{$avatar}} 600w, {{$avatar}} 100w, {{$avatar}} 800w"
+                                                        srcset="{{ $avatar }} 300w, {{ $avatar }} 150w, {{ $avatar }} 768w, {{ $avatar }} 600w, {{ $avatar }} 100w, {{ $avatar }} 800w"
                                                         sizes="(max-width: 300px) 100vw, 300px"> </a>
                                             </div>
                                             <div class="image-tools is-small top right show-on-hover">
@@ -91,15 +90,15 @@
                                             <div class="title-wrapper">
                                                 <p class="name product-title woocommerce-loop-product__title"
                                                     style="height: 56px;">
-                                                    <a href="{{$link}}"
-                                                        class="product-name">{{$product->name_data}}</a>
+                                                    <a href="{{ $link }}"
+                                                        class="product-name">{{ $product->name_data }}</a>
                                                 </p>
                                             </div>
                                             <div class="price-wrapper" style="height: 18px;">
                                                 <span class="price">
                                                     <span class="woocommerce-Price-amount amount">
                                                         <bdi>
-                                                            {{number_format($product->gia_ban)}}
+                                                            {{ number_format($product->gia_ban) }}
                                                         </bdi>
                                                     </span>
                                                 </span>
@@ -122,8 +121,8 @@
                         <form method="get" class="searchform" action="https://solar3.maugiaodien.com/" role="search">
                             <div class="flex-row relative">
                                 <div class="flex-col flex-grow">
-                                    <input type="search" class="search-field mb-0" name="s" value="" id="s"
-                                        placeholder="Search…">
+                                    <input type="search" class="search-field mb-0" name="s" value=""
+                                        id="s" placeholder="Search…">
                                 </div>
                                 <div class="flex-col">
                                     <button type="submit" class="ux-search-submit submit-button secondary button icon mb-0"
@@ -136,26 +135,28 @@
                     </aside>
                     <aside id="woocommerce_layered_nav-2"
                         class="widget woocommerce widget_layered_nav woocommerce-widget-layered-nav">
-                        <span class="widget-title shop-sidebar">Công suất</span>
+                        <span class="widget-title shop-sidebar">Loại nhựa nền</span>
                         <div class="is-divider small"></div>
                         <ul class="woocommerce-widget-layered-nav-list">
                             <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="https://solar3.maugiaodien.com/cua-hang/?filter_cong-suat=1000w">1000W</a> <span
-                                    class="count">(4)</span></li>
+                                    href="/">Loại 01</a> <span class="count">(0)</span></li>
+                            <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
+                                    href="/">Loại 02</a> <span class="count">(0)</span></li>
                         </ul>
                     </aside>
                     <aside id="woocommerce_layered_nav-3"
                         class="widget woocommerce widget_layered_nav woocommerce-widget-layered-nav">
-                        <span class="widget-title shop-sidebar">Động cơ</span>
+                        <span class="widget-title shop-sidebar">Ứng dụng</span>
                         <div class="is-divider small"></div>
                         <ul class="woocommerce-widget-layered-nav-list">
                             <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="https://solar3.maugiaodien.com/cua-hang/?filter_dong-co=2-4l-turbo">2.4L Turbo</a>
-                                <span class="count">(1)</span>
+                                    href="#">Ép phun</a>
+                                <span class="count">(0)</span>
                             </li>
                             <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="https://solar3.maugiaodien.com/cua-hang/?filter_dong-co=2l">2L</a> <span
-                                    class="count">(3)</span></li>
+                                    href="#">Vải không dệt</a>
+                                <span class="count">(0)</span>
+                            </li>
                         </ul>
                     </aside>
 
@@ -165,7 +166,9 @@
                         <div class="is-divider small"></div>
                         <ul class="product_list_widget">
                             @foreach ($products as $product)
-                                @include('layouts.layout01.elements.product.item_product', ['product' => $product])
+                                @include('layouts.layout01.elements.product.item_product', [
+                                    'product' => $product,
+                                ])
                             @endforeach
                         </ul>
                     </aside>
@@ -173,5 +176,4 @@
             </div>
         </div>
     </main>
-
 @endsection

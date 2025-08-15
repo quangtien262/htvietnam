@@ -184,12 +184,14 @@ class Helper
     }
     public function getLinkMenu($menu)
     {
+        
         if (empty($menu)) {
             return '';
         }
         $sluggable = 'data';
         $link = '';
-        if (!empty($menu->name_data)) {
+        $lang = UserService::getLang();
+        if (!empty($menu->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($menu->name_data);
         }
 
@@ -218,8 +220,9 @@ class Helper
 
     public function getLinkNews($news)
     {
+        $lang = UserService::getLang();
         $sluggable = 'news';
-        if(!empty($news->name_data)) {
+        if(!empty($news->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($news->name_data);
         }
         return route('news.detail', [$sluggable, $news->id]);
@@ -227,13 +230,21 @@ class Helper
 
     public function getLinkTags($tags)
     {
-        $sluggable = self::formatText($tags->name);
+        $lang = UserService::getLang();
+        $sluggable = 'tags';
+        if (!empty($tags->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($tags->name_data);
+        }
         return route('news.tags', [$sluggable, $tags->id]);
     }
 
     public function getLinkProduct($product)
     {
-        $sluggable = self::formatText($product->name_data);
+        $lang = UserService::getLang();
+        $sluggable = 'product';
+        if (!empty($product->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($product->name_data);
+        }
         return route('product.detail', [$sluggable, $product->id]);
     }
 
