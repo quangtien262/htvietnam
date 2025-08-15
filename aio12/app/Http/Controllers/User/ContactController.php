@@ -23,7 +23,7 @@ class ContactController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $message = $request->session()->all();
-        $menuContact = Menu::query()->where('display_type', 'contact')->first();
+        $menuContact = Menu::query()->where('menus.display_type', 'contact')->first();
         $param = [
             'config' => $config,
             'menuContact' => $menuContact,

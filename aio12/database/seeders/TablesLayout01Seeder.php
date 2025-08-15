@@ -85,6 +85,8 @@ class TablesLayout01Seeder extends Seeder
         // list block landing page
         Layout01::createBlocks();
 
+        // menu lien he
+        Layout01::contact(1, 6);
         // block about
         $sort_order = 1;
         $aboutId = 2;
@@ -180,7 +182,7 @@ class TablesLayout01Seeder extends Seeder
         MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
         MigrateService::createMenu(
             ['Liên Hệ', 'Contact', '联系'],
-            'contact',
+            'landingpage',
             [
                 'parent_id' => 0,
                 'sort_order' => $sortOrder++,

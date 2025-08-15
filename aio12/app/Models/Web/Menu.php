@@ -22,7 +22,7 @@ class Menu extends Model {
             'menus.icon as icon',
             'menus.sort_order as sort_order',
             'menus.current_link as current_link',
-            'menus.image as image',
+            'menus.images as images',
             'menus.position as position',
             'menus.type_sub_menu as type_sub_menu',
 

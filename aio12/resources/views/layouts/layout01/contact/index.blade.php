@@ -14,15 +14,14 @@
                     <div id="col-1309613634" class="col medium-6 small-12 large-6">
                         <div class="col-inner">
                             <div class="tieu-de">
-                                <h2>CONTACT 2</h2>
+                                <h2>CONTACT</h2>
                             </div>
                         </div>
                     </div>
                     <div id="col-886693919" class="col medium-6 small-12 large-6">
                         <div class="col-inner text-right">
                             <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
-                                <p><a href="https://gioithieucongty2.ninhbinhweb.site" target="_blank" rel="noopener">Trang
-                                        chủ</a><span class="separator"> - </span><span class="last">Liên hệ</span></p>
+                                <p><a href="/" target="_blank" rel="noopener">Trang chủ</a><span class="separator"> - </span><span class="last">Liên hệ</span></p>
                             </nav>
                         </div>
                     </div>
