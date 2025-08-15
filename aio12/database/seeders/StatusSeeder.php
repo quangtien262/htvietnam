@@ -331,5 +331,11 @@ class StatusSeeder extends Seeder
             ['name' => 'Đã nhập hàng'],
             ['name' => 'Lưu nháp'],
         ]);
+
+        DB::table('countries')->insert([
+            ['name' => 'Việt Nam'],
+            ['name' => 'Hoa Kỳ'],
+            ['name' => 'Trung Quốc'],
+        ]);
     }
 }

@@ -1,7 +1,7 @@
 @if ($page->block_type == 'doiTac')
 
 @php
-    $doiTac = app('Helper')->getDataByConditions('doi_tac', [], ['sort_order' => 'asc'], 20);
+    $doiTac = app('Helper')->getDataByConditions('doi_tac', ['doi_tac.page_setting_id' => $page->data_id], ['doi_tac.sort_order' => 'asc'], 20);
 @endphp
 <section class="section section9" id="section_356292301">
     <div class="bg section-bg fill bg-fill bg-loaded">

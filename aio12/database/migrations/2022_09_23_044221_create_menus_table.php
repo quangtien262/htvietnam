@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable(); // tên menu
-            $table->text('image')->nullable(); // hình ảnh (nếu có))
+            $table->text('images')->nullable(); // hình ảnh (nếu có))
             $table->string('display_type')->nullable(); // kiểu hiển thị
             $table->integer('position')->default(0)->nullable(); // 1 is MenuTop 0 is MenuLeft
             $table->integer('parent_id')->default(0)->nullable();
@@ -60,7 +60,7 @@ return new class extends Migration
             ['show_in_list' => 1, 'edit' => 0]
         );
 
-        MigrateService::createColumn02($data->id, 'image', 'Ảnh nền', 'text', 'image_crop', $order++,
+        MigrateService::createColumn02($data->id, 'images', 'Ảnh nền', 'text', 'images_crop', $order++,
         ['edit' => 1, 'conditions' => 1, 'show_in_list' => 1]);
 
         $confirm = Table::where('name', 'confirm')->first();

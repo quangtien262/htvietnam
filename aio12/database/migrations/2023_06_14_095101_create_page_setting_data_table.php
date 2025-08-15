@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('page_setting_data', function (Blueprint $table) {
             $table->id();
             $table->text('name_data')->nullable(); //title
+            $table->text('title_description')->nullable(); //title
             $table->integer('data_id')->default(0)->nullable();
             $table->integer('languages_id')->default(0)->nullable();
             $table->text('images_data')->nullable();

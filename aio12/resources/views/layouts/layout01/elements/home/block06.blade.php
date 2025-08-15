@@ -1,7 +1,7 @@
 @if ($page->block_type == 'block06')
 
     @php
-        $block06 = app('Helper')->getDataLang('block06', [], ['block06.sort_order' => 'asc']);
+        $block06 = app('Helper')->getDataLang('block06', ['block06.page_setting_id' => $page->data_id], ['block06.sort_order' => 'asc']);
     @endphp
     <section class="section section5 dark" id="section_430949110">
         <div class="bg section-bg fill bg-fill  ">
@@ -26,11 +26,11 @@
                         <div class="row row-small" id="row-1854211297">
                             @foreach ($block06 as $item)
                                 <div class=" col medium-4 small-12 large-4">
-                                    <div class="icon-box featured-box icon-box-top text-left">
-                                        <div class="icon-box-img" style="width: 50px">
+                                    <div class="icon-box featured-box icon-box-top text-center">
+                                        <div class="icon-box-img icon05">
                                             <div class="icon">
                                                 <div class="icon-inner">
-                                                    <i class="fas fa-wifi"></i>
+                                                   {!! $item->icon !!}
                                                 </div>
                                             </div>
                                         </div>

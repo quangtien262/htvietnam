@@ -1,4 +1,4 @@
-@if ($page->block_type == 'product')
+@if ($page->block_type == 'products')
 
 @php
    $products = app('Helper')->getProducts();

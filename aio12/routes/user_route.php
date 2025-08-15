@@ -68,6 +68,7 @@ Route::get('tim-kiem.html', [PagesController::class, 'search'])->name('search');
 // contact
 Route::get('contact.html', [ContactController::class, 'index'])->name('contact');
 Route::post('contact.html', [ContactController::class, 'sendContact']);
+Route::post('gui-lien-he.html', [ContactController::class, 'sendContact02'])->name('sendContact02');
 Route::get('send-contact.html', [ContactController::class, 'result'])->name('contact.result');
 Route::post('sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
 

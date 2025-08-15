@@ -253,7 +253,6 @@ MigrateService
             'name' => $name[0],
             'display_type' => $displayType, // bài viết đơn theo menu
             'parent_id' => 0,
-            'image' => '',
             'is_active' => 1
         ];
         $menu = new Menu();

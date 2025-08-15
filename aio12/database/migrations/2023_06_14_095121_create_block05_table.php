@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('note')->nullable();
+            $table->string('icon')->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
             $table->integer('menu_id')->default(0)->nullable();
             $table->string('block_type_id')->nullable();
-            $table->string('image')->nullable();
             $table->longText('images')->nullable();
-            $table->integer('page_setting_id')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
         });

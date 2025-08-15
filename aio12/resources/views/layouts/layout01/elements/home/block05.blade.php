@@ -1,7 +1,7 @@
 @if ($page->block_type == 'block05')
 
     @php
-        $block05 = app('Helper')->getDataLang('block05', [], ['block05.sort_order' => 'asc']);
+        $block05 = app('Helper')->getDataLang('block05', ['block05.page_setting_id' => $page->data_id], ['block05.sort_order' => 'asc']);
     @endphp
     <section class="section gioi-thieu-section section4 dark" id="section_2030097078"
         style="padding-top: 80px;padding-bottom: 80px;background-color: rgb(51, 51, 51);">

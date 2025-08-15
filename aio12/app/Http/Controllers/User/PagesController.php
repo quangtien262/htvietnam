@@ -37,7 +37,7 @@ class PagesController extends Controller
     {
         AnalyticService::addView();      // Tổng lượt view theo ngày
         // AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
-        
+
         $pageSetting = PageSetting::query()
             ->where('page_setting.menu_id', 0)
             ->orderBy('page_setting.sort_order', 'asc')
@@ -149,17 +149,22 @@ class PagesController extends Controller
             'keywords' => $config->meta_keyword,
             'description' => $config->meta_description,
         ];
-        return View('layouts.layout' . $config->layout . '.pages.search', compact('config',  'products', 'seo', 'bds', 'videos'));
+        return View('layouts.layout' . $config->layout . '.pages.search', compact('config', 'products', 'seo', 'bds', 'videos'));
     }
 
 
     public function landingpage(Request $request, $sluggable, $menuId = 0)
     {
         $config = WebConfig::query()->find(1);
-        $landingPage = Landingpage::query()->where('menu_id', $menuId)->orderBy('sort_order', 'asc')->get();
+        $pageSetting = PageSetting::query()
+            ->where('page_setting.menu_id', $menuId)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
+        $menu = UserService::getMenuDetail($menuId);
         $param = [
             'config' => $config,
-            'landingPage' => $landingPage,
+            'pageSetting' => $pageSetting,
+            'menu' => $menu,
             'menuId' => $menuId,
             'seo' => [
                 'title' => $config->title,

@@ -9,7 +9,7 @@ use Exception;
 class Layout01
 {
 
-    static function createBlocks()
+    static function createBlocks($menuId = 0)
     {
         $sort_order = 0;
         MigrateService::createData(
@@ -17,7 +17,7 @@ class Layout01
             [
                 'name' => 'banner',
                 'display_name' => 'banner',
-                'image' => '/layouts/01/images/block/10.png',
+                'image' => '/layouts/01/images/block/banner.png',
                 'sort_order' => $sort_order
             ]
         );
@@ -26,7 +26,7 @@ class Layout01
             [
                 'name' => 'news',
                 'display_name' => 'news',
-                'image' => '/layouts/01/images/block/7.png',
+                'image' => '/layouts/01/images/block/news.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -35,7 +35,7 @@ class Layout01
             [
                 'name' => 'products',
                 'display_name' => 'Product',
-                'image' => '/layouts/01/images/block/11.png',
+                'image' => '/layouts/01/images/block/product.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -44,7 +44,7 @@ class Layout01
             [
                 'name' => 'doiTac',
                 'display_name' => 'Đối tác',
-                'image' => '/layouts/01/images/block/9.png',
+                'image' => '/layouts/01/images/block/doi-tac.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -171,6 +171,7 @@ class Layout01
         $page = MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'block03',
                 'display_name' => 'block03',
                 'block_type' => 'block03',
@@ -196,6 +197,7 @@ class Layout01
         MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'contact',
                 'display_name' => 'Liên hệ',
                 'sort_order' => $sortOrder,
@@ -215,12 +217,14 @@ class Layout01
         $page = MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'doiTac',
                 'display_name' => 'Đối tác',
                 'sort_order' => $sortOrder,
                 'block_type' => 'doiTac',
                 'table_data' => 'doi_tac'
-            ], [
+            ],
+            [
                 'name_data' => ['Đối tác', 'Partner', '合作伙伴']
             ]
         );
@@ -243,9 +247,10 @@ class Layout01
         $content04_vi = 'Sản phẩm của chúng tôi đã và đang được ứng dụng hiệu quả trong nhiều lĩnh vực thực tế, góp phần nâng cao chất lượng cuộc sống và đáp ứng đa dạng nhu cầu của khách hàng.';
         $content04_en = 'Our products are effectively applied in many practical fields, contributing to improving the quality of life and meeting diverse customer needs.';
         $content04_ch = '我们的产品在多个实际领域得到有效应用，为提高生活质量和满足客户多样化需求做出贡献。';
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'block04',
                 'name' => 'Ứng dụng thực tế',
                 'block_type' => 'block04',
@@ -259,6 +264,39 @@ class Layout01
                 'content' => [$content04_vi, $content04_en, $content04_ch]
             ]
         );
+
+        MigrateService::createData(
+            'block04',
+            ['icon' => '<i class="fas fa-text-width"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Ép phun', 'Injection Molding', '注塑'],
+                'description' => ['Phương pháp này được sử dụng rộng rãi trong gia công nhựa, đặc biệt là trong các chi tiết phức tạp.', 'This method is widely used in plastic processing, especially for complex details.', '这种方法广泛用于塑料加工，特别是复杂细节。']
+            ]
+        );
+        MigrateService::createData(
+            'block04',
+            ['icon' => '<i class="fas fa-suitcase-rolling"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Dệt bao PP', 'PP Woven Fabric', 'PP编织布'],
+                'description' => ['Phương pháp này có thể được sử dụng với nhiều loại vật liệu nhựa, bao gồm polyethylene mật độ thấp (LDPE), polyethylene mật độ cao (HDPE), polypropylene (PP) và polystyrene (PS).', 'Extrusion can be used with a wide range of plastic materials, including low-density polyethylene (LDPE), high-density polyethylene (HDPE), polypropylene (PP), and polystyrene (PS).', '挤出可以与多种塑料材料一起使用，包括低密度聚乙烯（LDPE）、高密度聚乙烯（HDPE）、聚丙烯（PP）和聚苯乙烯（PS）。']
+            ]
+        );
+        MigrateService::createData(
+            'block04',
+            ['icon' => '<i class="fas fa-tag"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Vải không dệt', 'Non-woven Fabric', '无纺布'],
+                'description' => ['Vải không dệt là loại vải được sản xuất không qua quá trình dệt truyền thống, Sử dụng các hạt nhựa tổng hợp như polypropylene (PP), polyester (PET), v.v.', 'Non-woven fabric is a type of fabric produced without traditional weaving processes, using synthetic plastic particles such as polypropylene (PP), polyester (PET), etc.', '无纺布是一种不经过传统织造工艺生产的面料，使用聚丙烯（PP）、聚酯（PET）等合成塑料颗粒。']
+            ]
+        );
+        MigrateService::createData(
+            'block04',
+            ['icon' => '<i class="fas fa-syringe"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Đùn thổi màng', 'Blown Film Extrusion', '吹膜挤出'],
+                'description' => ['Đùn thổi màng (Blown Film Extrusion) là một phương pháp sản xuất màng nhựa mỏng, thường dùng để làm bao bì, túi nilon, màng phủ nông nghiệp, v.v.', 'Blown film extrusion is a method of producing thin plastic films, commonly used for packaging, plastic bags, agricultural covers, etc.', '吹膜挤出是一种生产薄塑料膜的方法，通常用于包装、塑料袋、农业覆盖物等。']
+            ]
+        );
     }
 
     static function block05($sortOrder = 0, $menuId = 0)
@@ -266,6 +304,7 @@ class Layout01
         $page = MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'block05',
                 'display_name' => 'Dự án hoàn thành',
                 'block_type' => 'block05',
@@ -315,6 +354,7 @@ class Layout01
         $page = MigrateService::createData(
             'page_setting',
             [
+                'menu_id' => $menuId,
                 'name' => 'block06',
                 'display_name' => 'Quy trình thực hiện',
                 'sort_order' => $sortOrder,
@@ -333,18 +373,119 @@ class Layout01
         );
         MigrateService::createData(
             'block06',
-            ['note' => '<i class="fas fa-disease"></i>', 'page_setting_id' => $page->id],
+            [
+                'icon' => '<i class="fas fa-disease"></i>',
+                'page_setting_id' => $page->id
+            ],
             ['name_data' => ['Phân tích nhu cầu khách hàng', 'Customer Needs Analysis', '客户需求分析']],
         );
         MigrateService::createData(
             'block06',
-            ['note' => '<i class="fas fa-coins"></i>', 'page_setting_id' => $page->id],
+            [
+                'icon' => '<i class="fas fa-coins"></i>',
+                'page_setting_id' => $page->id
+            ],
             ['name_data' => ['Tư vấn sản phẩm phù hợp', 'Product Consultation', '产品咨询']],
         );
         MigrateService::createData(
             'block06',
-            ['note' => '<i class="fas fa-server"></i>', 'page_setting_id' => $page->id],
+            [
+                'icon' => '<i class="fas fa-server"></i>',
+                'page_setting_id' => $page->id
+            ],
             ['name_data' => ['Báo giá sản phẩm', 'Product Pricing', '产品定价']],
+        );
+    }
+
+    static function block08($sortOrder = 0, $menuId = 0)
+    {
+        $content04 = 'Trở thành Tập đoàn khai thác đá uy tín trong nước và quốc tế. Trở thành công ty khai thác đá  quốc tế chuyên nghiệp nằm trong nhóm dẫn đầu khu vực, với năng lực hoạt động toàn cầu. Hoạt động chuyên nghiệp, phân công chuyên môn hóa tất cả các chức năng nhiệm vụ, mọi hệ thống, tài chính minh bạch, quy trình nhất quán.';
+        $content04_en = 'To become a reputable stone mining corporation domestically and internationally. To become a professional international stone mining company in the leading group of the region, with global operational capacity. Professional operations, specialization of all functional tasks, transparent finance, and consistent processes.';
+        $content04_ch = '成为国内外知名的石材开采集团。成为区域领先、具备全球运营能力的专业国际石材开采公司。实现专业化运营，所有职能任务分工明确，系统完善，财务透明，流程一致。';
+
+        MigrateService::createData(
+            'page_setting',
+            [
+                'menu_id' => $menuId,
+                'name' => 'block08',
+                'display_name' => 'block08',
+                'sort_order' => $sortOrder,
+                'block_type' => 'block08',
+                'table_data' => 'block08',
+                'images' => json_encode([
+                    'avatar' => '/layouts/01/images/about/3.jpg',
+                    'images' => ['/layouts/01/images/about/3.jpg']
+                ])
+            ],
+            [
+                'name_data' => ['Tầm nhìn', 'Vision', '愿景'],
+                'content' => [$content04, $content04_en, $content04_ch]
+            ]
+        );
+    }
+
+    static function block08_02($sortOrder = 0, $menuId = 0)
+    {
+        $content04 = 'Đối với thị trường, khách hàng: Cung cấp các sản phẩm – dịch vụ với chất lượng cao, đảm bảo đúng tiến độ. Bên cạnh giá trị chất lượng vượt trội, trong mỗi sản phẩm – dịch vụ đều mang tính thẩm mỹ cao nhằm thỏa mãn tối đa nhu cầu chính đáng của khách hàng.
+Đối với cổ đông và đối tác: Đề cao tinh thần hợp tác cùng phát triển để trở thành “Người đồng hành số 1” của các đối tác và cổ đông; gia tăng các giá trị đầu tư mới hấp dẫn và bền vững.
+Đối với nhân viên: Xây dựng môi trường làm việc chuyên nghiệp, năng động, sáng tạo và nhân văn; thực hiện các chế độ đãi ngộ hợp lý về vật chất và tinh thần .
+Đối với xã hội: Hài hòa lợi ích doanh nghiệp với lợi ích xã hội; đóng góp tích cực vào các hoạt động hướng về cộng đồng, thể hiện tinh thần trách nhiệm công dân và niềm tự hào dân tộc.';
+        $content04_en = 'For the market and customers: Provide high-quality products and services, ensuring timely delivery. In addition to outstanding quality, each product and service also possesses high aesthetics to fully satisfy the legitimate needs of customers.
+For shareholders and partners: Promote the spirit of cooperation and joint development to become the "No. 1 companion" of partners and shareholders; increase attractive and sustainable new investment values.
+For employees: Build a professional, dynamic, creative, and humane working environment; implement reasonable material and spiritual welfare policies.
+For society: Harmonize business interests with social interests; actively contribute to community-oriented activities, demonstrating civic responsibility and national pride.';
+        $content04_ch = '对于市场和客户：提供高质量的产品和服务，确保按时交付。除了卓越的质量外，每一项产品和服务都具有很高的美学价值，以最大程度满足客户的正当需求。
+对于股东和合作伙伴：倡导合作共赢的发展精神，成为合作伙伴和股东的“第一同行者”；不断提升具有吸引力和可持续性的投资价值。
+对于员工：营造专业、充满活力、创新和人文关怀的工作环境；在物质和精神方面实行合理的福利政策。
+对于社会：实现企业利益与社会利益的和谐统一；积极参与社区公益活动，展现公民责任感和民族自豪感。';
+
+        MigrateService::createData(
+            'page_setting',
+            [
+                'menu_id' => $menuId,
+                'name' => 'block08',
+                'display_name' => 'block08',
+                'sort_order' => $sortOrder,
+                'block_type' => 'block08',
+                'table_data' => 'block08',
+                'images' => json_encode([
+                    'avatar' => '/layouts/01/images/about/2.jpg',
+                    'images' => ['/layouts/01/images/about/2.jpg']
+                ])
+            ],
+            [
+                'name_data' => ['Giá trị cốt lõi', 'Core values', '核心价值观'],
+                'content' => [$content04, $content04_en, $content04_ch],
+                'description' => ['', '', '']
+            ]
+        );
+    }
+
+    static function block09($sortOrder = 0, $menuId = 0)
+    {
+        $content04 = 'Là doanh nghiệp tiên phong, GCC mang sứ mệnh cung cấp  sản phẩm của mình  100% thuần Việt được khai thác từ mỏ đá Mông Sơn, Lục yên – Yên bái  làm nguyên liệu cho việc sản xuất cho các ngành công nghiệp . Đồng thời, việc vận dụng các công nghệ tiên tiến, hiện đại nhất từ Đức  dưới bàn tay, khối óc của người Việt giúp GCC tạo nên lợi thế cạnh tranh về giá trị từ đó mang đến nguồn nguyên liệu, chế phẩm hoàn hảo cho các nhà đầu tư trong và ngoài nước. Bên cạnh sứ mệnh là doanh nghiệp tiên phong trong lĩnh vực sản xuất và thương mại , GCC còn có những đóng góp giá trị cho sự nghiệp tự cung tự cấp của nền công nghiệp nói riêng và nền kinh tế Việt Nam nói chung.';
+        $content04_en = 'As a pioneering enterprise, GCC is committed to providing 100% Vietnamese products sourced from the Mong Son quarry in Luc Yen – Yen Bai as raw materials for various industries. At the same time, by applying the most advanced German technologies through the skills and intellect of Vietnamese people, GCC creates a competitive advantage in value, thereby offering perfect materials and products for both domestic and international investors. In addition to its mission as a pioneer in manufacturing and trading, GCC also makes valuable contributions to the self-sufficiency of the industry in particular and the Vietnamese economy in general.';
+        $content04_ch = '作为行业先锋企业，GCC肩负着提供100%源自越南芒山（Mông Sơn）、陆安（Lục Yên）——安沛（Yên Bái）矿山的原材料，用于各类工业生产的使命。同时，GCC将德国最先进的技术与越南人的智慧和技能相结合，创造出独特的价值竞争优势，为国内外投资者带来优质的原材料和制品。除了作为生产和贸易领域的先驱使命外，GCC还为工业自给自足事业以及越南经济的发展做出了宝贵贡献。';
+
+        MigrateService::createData(
+            'page_setting',
+            [
+                'menu_id' => $menuId,
+                'name' => 'block06',
+                'display_name' => 'block09',
+                'sort_order' => $sortOrder,
+                'block_type' => 'block09',
+                'table_data' => 'block09',
+                'images' => json_encode([
+                    'avatar' => '/layouts/01/images/about/1.jpg',
+                    'images' => ['/layouts/01/images/about/1.jpg']
+                ])
+            ],
+            [
+                'name_data' => ['Sứ mệnh', 'Mission', '使命'],
+                'content' => [$content04, $content04_en, $content04_ch],
+                'description' => ['', '', '']
+            ]
         );
     }
 }

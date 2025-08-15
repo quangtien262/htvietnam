@@ -13,59 +13,54 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('why_us', function (Blueprint $table) {
+        Schema::create('block04_data', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('note')->nullable();
-            $table->string('icon')->nullable();
-            $table->integer('page_setting_id')->default(0)->nullable();
-            $table->integer('menu_id')->default(0)->nullable();
-            $table->string('block_type_id')->nullable();
-            $table->longText('images')->nullable();
+            $table->string('name_data')->nullable();
+            $table->string('data_id')->nullable();
+            $table->string('languages_id')->nullable();
+            $table->longtext('description')->nullable();
+            $table->longtext('content')->nullable();
 
             MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
+        $parent = Table::where('name', 'block')->first();
         $data = MigrateService::createTable02(
-            'why_us',
-            'Lý do chọn chúng tôi',
-            ['is_multiple_language' => 1, 'table_data' => 'block_data', 'parent_id' => 0, 'type_show' => 0]
+            'block04_data',
+            'block04_data',
+            ['is_edit' => 0, 'parent_id' => $parent->id ]
         );
 
         MigrateService::createColumn02(
             $data->id,
-            'image',
-            'Hình ảnh',
-            'TEXT',
-            'image_crop',
-            $order++,
-            ['show_in_list' => 1, 'ratio_crop' => 1, 'conditions' => 1]
-        );
-
-        MigrateService::createColumn02(
-            $data->id,
-            'images',
-            'Hình ảnh',
-            'TEXT',
-            'image_crop',
-            $order++,
-            ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 0]
-        );
-
-        MigrateService::createColumn02(
-            $data->id,
-            'name',
+            'name_data',
             'Tiêu đề',
             'VARCHAR',
             'text',
             $order++,
-            ['show_in_list' => 1, 'edit' => 1]
+            ['show_in_list' => 1, 'edit' => 0]
+        );
+        MigrateService::createColumn02(
+            $data->id,
+            'description',
+            'Mô tả ngắn',
+            'TEXT',
+            'textarea',
+            $order++,
+            ['show_in_list' => 1, 'col' => 24]
+        );
+        MigrateService::createColumn02(
+            $data->id,
+            'content',
+            'Nội dung',
+            'LONGTEXT',
+            'textarea',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24, 'edit' => 0]
         );
 
         MigrateService::createColumn02($data->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        $blockInfo = Table::where('name', 'block_info')->first();
-        MigrateService::createColumn02($data->id, 'block_info_id', 'block_info_id', 'INT', 'select', $order++, ['edit' => 0, 'select_table_id' => $blockInfo->id]);
         MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', 'select', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
@@ -77,6 +72,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('why_us');
+        Schema::dropIfExists('block04_data');
     }
 };

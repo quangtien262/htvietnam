@@ -197,6 +197,31 @@ class PageSettingController extends Controller
         return $this->sendSuccessResponse([], $message = 'successfully');
     }
 
+    public function editPageSetting(Request $request, $pageId = 0) {
+        $page = PageSetting::find($pageId);
+        $data = [
+            'page' => $page,
+            'pageId' => $pageId,
+            'request' => $request->all(),
+        ];
+        return View('admin.page_setting.edit_page_setting', $data);
+    }
+
+    public function savePageSetting(Request $request, $pageId = 0) {
+        $data = $request->validate([
+            'id' => 'required|exists:page_setting,id',
+            'name' => 'required|string|max:255',
+            'sort_order' => 'required|integer',
+        ]);
+
+        $pageSetting = PageSetting::find($pageId);
+        $pageSetting->name = $data['name'];
+        $pageSetting->sort_order = $data['sort_order'];
+        $pageSetting->save();
+
+        return $this->sendSuccessResponse([], $message = 'successfully');
+    }
+
     private function updateSortOrderTable($tableName, $sortOrder, $menuId = 0)
     {
         try {

@@ -17,6 +17,10 @@ Route::group(['prefix' => 'page-setting'], function () {
     Route::post('show-in-menu', [PageSettingController::class, 'showInMenu'])->name('pageSetting.show_in_menu');
     Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
     Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
+
+
+    Route::get('edit-page-setting/{pageId?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
+    Route::post('save-page-setting/{pageId?}', [PageSettingController::class, 'savePageSetting'])->name('pageSetting.save');
 });
 
 // landingpage

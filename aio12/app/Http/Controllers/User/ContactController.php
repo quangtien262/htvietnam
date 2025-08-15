@@ -38,10 +38,45 @@ class ContactController extends Controller
     }
 
 
-    public function sendContact(ContactRequest $request)
+    public function sendContact(Request $request)
     {
         Contact::create($request->all()['contact']);
         return redirect()->route('contact.result')->with('success', 'Gửi đăng ký thành công, Cảm ơn bạn, chúng tôi sẽ liên hệ lại với bạn sớm nhất có thể!');
+    }
+
+    public function sendContact02(Request $request)
+    {
+        $config = WebConfig::query()->find(1);
+        if (empty($request->contact['name'])) {
+            return $this->sendErrorResponse(' .name_error', 'Vui lòng nhập họ tên');
+        }
+        if (empty($request->contact['email'])) {
+            return $this->sendErrorResponse(' .email_error', 'Vui lòng nhập email');
+        }
+        if (empty($request->contact['phone'])) {
+            return $this->sendErrorResponse(' .phone_error', 'Vui lòng nhập số điện thoại');
+        }
+        if (empty($request->contact['content'])) {
+            return $this->sendErrorResponse(' .content_error', 'Vui lòng nhập nội dung');
+        }
+
+        $email = $request->contact['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendErrorResponse(' .email_error', 'Định dạng email không đúng');
+        }
+
+        $post = $request->contact;
+        Contact::create($post);
+
+        if (!empty($config->email)) {
+            $title = $post['name'];
+            $email = $config->email;
+            Mail::send('mail.send_mail', ['post' => $post], function ($message) use ($title, $email) {
+                $message->to($email)->subject($title);
+            });
+        }
+
+        return $this->sendSuccessResponse('success');
     }
 
     public function result(Request $request)

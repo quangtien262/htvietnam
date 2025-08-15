@@ -1,7 +1,7 @@
 @if ($page->block_type == 'banner')
 
     @php
-        $images = app('Helper')->getDataLang('images', [], ['images.sort_order' => 'asc']);
+        $images = app('Helper')->getDataLang('images', ['images.page_setting_id' => $page->data_id], ['images.sort_order' => 'asc']);
     @endphp
     <div class="slider-wrapper relative slider-section" id="slider-1086543072">
         <div class="slider slider-nav-dots-simple slider-nav-simple slider-nav-normal slider-nav-light slider-style-normal"

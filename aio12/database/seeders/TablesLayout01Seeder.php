@@ -82,6 +82,24 @@ class TablesLayout01Seeder extends Seeder
         //news
         $this->createNews();
 
+        // list block landing page
+        Layout01::createBlocks();
+
+        // block about
+        $sort_order = 1;
+        $aboutId = 2;
+        // giới thiệu
+        // Layout01::block07($sort_order++, $aboutId);
+
+        // tầm nhìn
+        Layout01::block08($sort_order++, $aboutId);
+        // sứ mệnh
+        Layout01::block09($sort_order++, $aboutId);
+        // giá trị cốt lõi
+        Layout01::block08_02($sort_order++, $aboutId);
+
+
+        // block home
         $this->settingHome();
     }
 
@@ -138,27 +156,35 @@ class TablesLayout01Seeder extends Seeder
             </div>';
 
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
-
+        $imgs = [
+            'avatar' => '/layouts/01/images/bg/img3.jpg',
+            'images' => ['/layouts/01/images/bg/img3.jpg']
+        ];
+        $images = json_encode($imgs);
         MigrateService::createMenu(
             ['Trang chủ', 'Home', '首页'],
             'home',
-            ['parent_id' => 0, 'sort_order' => $sortOrder++]
+            ['parent_id' => 0, 'sort_order' => $sortOrder++],
+            [
+                'content' => ['', '', '']
+            ]
         );
         MigrateService::createMenu(
             ['Giới thiệu', 'About', '关于'],
             'landingpage',
-            ['parent_id' => 0, 'sort_order' => $sortOrder++],
-            ['content' => [$contentAbout, $contentAbout], 'description' => [$desAbout]]
+            ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images],
+            ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout,$desAbout,$desAbout]]
         );
-        $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
+        $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Media', 'Media', '媒体'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
         MigrateService::createMenu(
             ['Liên Hệ', 'Contact', '联系'],
             'contact',
             [
                 'parent_id' => 0,
                 'sort_order' => $sortOrder++,
+                'images' => $images
             ],
             [
                 'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
@@ -271,8 +297,5 @@ class TablesLayout01Seeder extends Seeder
         Layout01::contact($sort_order++);
 
         Layout01::doiTac($sort_order++);
-
-        // list block landing page
-        Layout01::createBlocks();
     }
 }

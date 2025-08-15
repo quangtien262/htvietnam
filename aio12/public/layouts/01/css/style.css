@@ -714,6 +714,7 @@ button[type="submit"]:focus-visible {
 
 body {
     color: #333333;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 h1,
@@ -1273,9 +1274,12 @@ html {
 .section5 .icon-box {
     position: relative;
     margin-bottom: 20px;
-    padding: 30px;
+    padding: 15px;
     background: #ffffffeb;
     opacity: 1;
+    text-align: center;
+    height: 150px;
+    overflow: hidden;
 }
 
 .section5 .icon-box svg {
@@ -2249,6 +2253,35 @@ span.widget-title:after {
 ._hidden {
     display: none;
 }
+.icon05 {
+    color: #000000;
+    font-size: 50px;
+    margin-bottom: 0px !important;
+    text-align: center;
+}
+/* item04 */
+.icon04 {
+    font-size: 40px;
+    background: #e3e3e387;
+    border-radius: 10px;
+}
+a:hover {
+    text-decoration: none;
+}
+.title04 {
+    text-transform: uppercase;
+}
+.item04 a:hover {
+    background-color: #c5c5c5;
+}
+#header-contact li a {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.header-bottom-nav li a {
+    font-weight: bold !important;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
 

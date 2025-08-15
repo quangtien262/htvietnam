@@ -1,6 +1,16 @@
 @if ($page->block_type == 'block03')
 
     <section class="section section2 dark" id="section_1639615905">
+         {{-- btn edit --}}
+         @if(auth()->guard('admin_users')->check())
+            <div class="main-btn-edit">
+                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['pageId' => $page->data_id]) }}', '#modalEdit')"
+                     data-toggle="modal" data-target="#modalXLEdit">
+                     Sửa khối này
+                  </button>
+            </div>
+        @endif
+        {{-- content --}}
         <div class="bg section-bg fill bg-fill  bg-loaded">
         </div>
         <div class="section-content relative">
@@ -9,7 +19,7 @@
                     <div class="col-inner">
                         <div class="tieu-de">
                             <p>{{ $page->description }}</p>
-                            <h2>{{ $page->name_data }}</h2>
+                            <h2>{{ $page->name_data }}xxxx</h2>
                         </div>
                         <p><span style="color: #999999; font-size: 90%;">{{ $page->content }}</span></p>
                         @if (!empty($page->link))
@@ -89,10 +99,8 @@
                                             id="image_{{ $idx }}" style="width: 100%;">
                                             <div class="img-inner image-cover dark" style="padding-top:100%;">
                                                 <img fetchpriority="high" decoding="async" width="1170" height="780"
-                                                    src="{{ $image }}" 
-                                                    class="attachment-original size-original"
-                                                    alt="{{ $page->name_data }}" 
-                                                    srcset="{{ $image }}"
+                                                    src="{{ $image }}" class="attachment-original size-original"
+                                                    alt="{{ $page->name_data }}" srcset="{{ $image }}"
                                                     sizes="(max-width: 1170px) 100vw, 1170px" />
                                             </div>
                                         </div>

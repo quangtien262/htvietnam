@@ -10,10 +10,10 @@
 
         {{-- include('layouts.layout01.elements.home.block02'); --}}
 
-        {{-- MỘT SỐ DỰ ÁN --}}
+        {{-- why us --}}
         @include('layouts.layout01.elements.home.block03')
 
-        {{-- LÝ DO CHỌN CHÚNG TÔI --}}
+        {{-- Ứng dụng thực tế --}}
         @include('layouts.layout01.elements.home.block04')
 
         {{-- con số --}}
@@ -44,8 +44,11 @@
             </button>
         </div>
     @endif
+
     {{-- modalXLContent --}}
-    @include('modal.modalXL')
+    @include('modal.modalEdit')
+    {{-- modalXLContent --}}
+    @include('modal.modalSetting')
     {{-- modalDefaultContent --}}
     @include('modal.modal_default')
 

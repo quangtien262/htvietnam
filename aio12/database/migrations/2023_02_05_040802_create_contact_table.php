@@ -18,11 +18,13 @@ return new class extends Migration
         Schema::create('contact', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('title')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('product_name')->nullable();
             $table->string('product_id')->nullable();
             $table->string('content')->nullable();
+            $table->string('country_id')->nullable();
             $table->string('is_view')->nullable();
             
             MigrateService::createBaseColumn($table);
@@ -34,6 +36,7 @@ return new class extends Migration
         // $this->createTable($id, 'contact', 'Liên hệ', 2, 0, 1, 309);
         MigrateService::createColumn02($contact->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($contact->id, 'name', 'Họ tên', 'TEXT', 'text', $order++, ['show_in_list' => 1, 'is_view_detail' => 1]);
+        MigrateService::createColumn02($contact->id, 'title', 'Tiêu đề', 'TEXT', 'text', $order++, ['show_in_list' => 1, 'is_view_detail' => 1]);
         MigrateService::createColumn02($contact->id, 'email', 'Email', 'TEXT', 'text', $order++, ['show_in_list' => 1]);
         MigrateService::createColumn02($contact->id, 'phone', 'Điện thoại', 'TEXT', 'text', $order++, ['show_in_list' => 1]);
         MigrateService::createColumn02($contact->id, 'content', 'Nội dung', 'longtext', 'text', $order++);

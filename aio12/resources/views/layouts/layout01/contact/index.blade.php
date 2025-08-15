@@ -39,7 +39,7 @@
                 }
 
                 #section_386067057 .section-bg.bg-loaded {
-                    background-image: url(https://solar3.maugiaodien.com/wp-content/uploads/2023/01/img3.jpg);
+                    background-image: url(/layouts/01/images/bg/img3.jpg);
                 }
 
                 #section_386067057 .ux-shape-divider--top svg {

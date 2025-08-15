@@ -103,5 +103,15 @@ return [
         'price-asc' => 'Order by price ascending',
         'name' => 'Order by price name',
     ],
-
+    'view_all'=>'View all',
+    'send_message' => 'Send Message',
+    'select_area' => 'Select area',
+    'enter_your_name' => 'Enter your name',
+    'enter_your_email' => 'Enter your email',
+    'enter_your_message' => 'Enter your message',
+    'title' => 'Title',
+    'other' => 'Other',
+    'english' => 'English',
+    'china' => 'China',
+    'vietnam' => 'Vietnam',
 ];

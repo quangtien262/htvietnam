@@ -102,5 +102,15 @@ return [
         'price-asc' => '按价格升序排列',
         'name' => '按名称排序',
     ],
-
+    'view_all'=>'查看所有',
+    'send_message' => '发送消息',
+    'select_area' => '选择区域',
+    'enter_your_name' => '输入您的姓名',
+    'enter_your_email' => '输入您的电子邮件',
+    'enter_your_message' => '输入您的留言',
+    'title' => '标题',
+    'other' => '其他',
+    'english' => '英语',
+    'china' => '中国',
+    'vietnam' => '越南',
 ];
