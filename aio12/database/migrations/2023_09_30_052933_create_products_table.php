@@ -193,8 +193,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'status_product_id', 'Trạng thái', 'INT', 'select', $order_col++, ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1]);
 
 
-        MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'image', $order_col++, 
-        ['parent_id' => $hh->id, 'col' => 24]);
+        
         // MigrateService::createColumn02($tableId, 'capital_price', 'Giá vốn', 'INT', 'number', $order_col++, ['require' => 1, 'parent_id' => $hh->id]);
         // MigrateService::createColumn02($tableId, 'thoi_gian_khau_hao', 'Thời gian khấu hao(Tháng)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
@@ -240,6 +239,9 @@ return new class extends Migration
 
         MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
+        MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'images', $order_col++, 
+        ['parent_id' => $hh->id, 'col' => 24]);
+        
         MigrateService::baseColumn($tbl);
     }
 
