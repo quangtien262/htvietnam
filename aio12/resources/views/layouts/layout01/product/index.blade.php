@@ -139,9 +139,9 @@
                         <div class="is-divider small"></div>
                         <ul class="woocommerce-widget-layered-nav-list">
                             <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="/">Loại 01</a> <span class="count">(0)</span></li>
+                                    href="#">Loại 01</a> <span class="count">(0)</span></li>
                             <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="/">Loại 02</a> <span class="count">(0)</span></li>
+                                    href="#">Loại 02</a> <span class="count">(0)</span></li>
                         </ul>
                     </aside>
                     <aside id="woocommerce_layered_nav-3"
