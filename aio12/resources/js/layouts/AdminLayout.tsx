@@ -155,14 +155,15 @@ export default function Admin({
 
                 {/* main-menu-header-right */}
                 <div className="main-menu-header">
-                    <Button className="btn-thu-ngan" onClick={() => { window.open(route('hoaDon.create'), '_blank').focus(); }}>
+                    {/* <Button className="btn-thu-ngan" onClick={() => { window.open(route('hoaDon.create'), '_blank').focus(); }}>
                         <MoneyCollectFilled />
                         Thu ngân
                     </Button>
 
                     <a className="icon-header" href={route('admin.setting.menu')} target="new">
                         <SettingOutlined />
-                    </a>
+                    </a> */}
+
                     <Dropdown menu={{ items }} trigger={['click']}>
                         <a className="icon-header" onClick={(e) => e.preventDefault()}>
                             <UserOutlined />
