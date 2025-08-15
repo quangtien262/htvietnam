@@ -30,13 +30,13 @@ export default function Dashboard(props:any) {
             tables={routeHome}
             content={
                 <div>
-                    <iframe
+                    {/* <iframe
                         src="/"
                         width="100%"
                         height="500"
                         style={{ border: 'none' }}
                         title="Demo iframe"
-                    />
+                    /> */}
 
                     <Card type="inner" title='Điều hướng nhanh'>
                         <Select placeholder="Nhập để điều hướng quản trị nhanh đến chức năng tương ứng"
@@ -71,7 +71,7 @@ export default function Dashboard(props:any) {
                                                     <li><HddOutlined /> Quản lý sản phẩm</li>
                                                     <li><DoubleLeftOutlined /> Quản lý tin tức</li>
                                                     <li><DoubleRightOutlined /> Cài đặt website</li>
-                                                    <li><FileSearchOutlined /> Cài đặt trang chủ </li>
+                                                    <li><FileSearchOutlined /> Cài đặt trang chủ</li>
                                                     <li><FileSearchOutlined /> .....</li>
                                                 </ul>
                                             </div>
