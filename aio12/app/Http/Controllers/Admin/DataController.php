@@ -470,9 +470,9 @@ class DataController extends Controller
         $per = TblService::getPermission();
         $table = Table::find($tableId);
 
-        if ($table->name == 'products') {
-            return to_route('product.add');
-        }
+        // if ($table->name == 'products') {
+        //     return to_route('product.add');
+        // }
 
         if (!in_array($table->id, $per['table_add']) && \Auth::guard('admin_users')->user()->id != 1) {
             return to_route('admin.permission_denied');
