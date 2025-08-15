@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('block_type_id')->nullable();
             $table->string('image')->nullable();
             $table->longText('images')->nullable();
-            $table->integer('block_info_id')->default(0)->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
         });

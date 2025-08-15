@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('link')->nullable();
             $table->integer('menu_id')->default(0)->nullable();
-            
+            $table->integer('page_setting_id')->default(0)->nullable();
+
             MigrateService::createBaseColumn($table);
         });
         $order_col = 1;

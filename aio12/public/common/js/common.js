@@ -1,13 +1,15 @@
 var $jq = jQuery.noConflict();
 $jq(document).ready(function () {
-    $jq("#btnAddLand").click(function () {
-        $jq("#btnUpdateSortOrderLand").hide();
-        $jq("#btnAddLand").hide();
+    $jq("#btnAddNewBlock").click(function () {
+        ajaxLoadUrl('/adm/page-setting/create', '#modalXLContent'); 
+        $jq(this).hide(); 
+        $jq('#btnSortOrder').show();
     });
 
-    $jq("#sort_order_block").click(function () {
-        $jq("#btnUpdateSortOrderLand").show();
-        $jq("#btnAddLand").show();
+    $jq("#btnSortOrder").click(function () {
+        ajaxLoadUrl('/adm/page-setting/sort-order', '#modalXLContent')
+        $jq(this).hide(); 
+        $jq('#btnAddNewBlock').show();
     });
 });
 

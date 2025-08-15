@@ -72,7 +72,7 @@ class Layout01
      */
     static function banner($sortOrder = 0, $menuId = 0)
     {
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'name' => 'banner',
@@ -93,8 +93,8 @@ class Layout01
                 '/layouts/01/images/slide0' . $i . '.jpg',
                 1,
                 [
-                    'menu_id' => $menuId
-                    
+                    'menu_id' => $menuId,
+                    'page_setting_id' => $page->id
                 ],
                 [
                     'name_data' => ['Slide 0' . $i, 'Slide 0' . $i, 'Slide 0' . $i],
@@ -168,7 +168,7 @@ class Layout01
         $content03_vi = 'Chúng tôi tự hào là đối tác tin cậy của nhiều khách hàng và doanh nghiệp nhờ vào đội ngũ chuyên gia giàu kinh nghiệm, quy trình làm việc chuyên nghiệp và cam kết mang lại giá trị bền vững. Với các giải pháp tối ưu, sản phẩm chất lượng cao cùng dịch vụ hậu mãi tận tâm, chúng tôi luôn nỗ lực đáp ứng mọi nhu cầu và vượt qua sự mong đợi của khách hàng. Lựa chọn chúng tôi, bạn sẽ nhận được sự đồng hành uy tín trên hành trình phát triển và thành công.';
         $content03_en = 'We are proud to be a trusted partner of many customers and businesses thanks to our team of experienced experts, professional working processes, and commitment to delivering sustainable value. With optimal solutions, high-quality products, and dedicated after-sales service, we always strive to meet all customer needs and exceed their expectations. Choosing us, you will receive reliable companionship on the journey of development and success.';
         $content03_ch = '我们自豪地成为许多客户和企业的可信赖合作伙伴，这得益于我们经验丰富的专家团队、专业的工作流程以及对提供可持续价值的承诺。凭借优化的解决方案、高质量的产品和贴心的售后服务，我们始终努力满足客户的所有需求并超越他们的期望。选择我们，您将获得在发展和成功之旅中的可靠伴侣。';
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'name' => 'block03',
@@ -212,7 +212,7 @@ class Layout01
 
     static function doiTac($sortOrder = 0, $menuId = 0)
     {
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'name' => 'doiTac',
@@ -232,7 +232,8 @@ class Layout01
                 'image' => '/layouts/01/images/brand/' . $i . '.png',
                 'parent_id' => '0',
                 'sort_order' => $i,
-                'menu_id' => $menuId
+                'menu_id' => $menuId,
+                'page_setting_id' => $page->id
             ]);
         }
     }
@@ -262,7 +263,7 @@ class Layout01
 
     static function block05($sortOrder = 0, $menuId = 0)
     {
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'name' => 'block05',
@@ -281,27 +282,27 @@ class Layout01
 
         MigrateService::createData(
             'block05',
-            ['note' => 1888],
+            ['note' => 1888, 'page_setting_id' => $page->id],
             ['name_data' => ['DỰ ÁN HOÀN THÀNH', 'Project Completed', '完成的项目']],
         );
         MigrateService::createData(
             'block05',
-            ['note' => 1888],
+            ['note' => 1888, 'page_setting_id' => $page->id],
             ['name_data' => ['KHÁCH HÀNG', 'CUSTOMER', '客户']],
         );
         MigrateService::createData(
             'block05',
-            ['note' => 1888],
+            ['note' => 1888, 'page_setting_id' => $page->id],
             ['name_data' => ['ĐỐI TÁC UY TÍN', 'PRESTIGIOUS PARTNER', '优质合作伙伴']],
         );
         MigrateService::createData(
             'block05',
-            ['note' => 200],
+            ['note' => 200, 'page_setting_id' => $page->id],
             ['name_data' => ['Nhân sự', 'Human Resources', '人力资源']]
         );
         MigrateService::createData(
             'block05',
-            ['note' => 1888],
+            ['note' => 1888, 'page_setting_id' => $page->id],
             ['name_data' => ['Mẫu sản phẩm', 'Product Template', '产品模板']],
         );
     }
@@ -311,7 +312,7 @@ class Layout01
         $content04 = '"Quy trình thực hiện" chặt chẽ giúp khách hàng hiểu rõ các bước làm việc chuyên nghiệp, minh bạch và hiệu quả của công ty. Tại đây, mọi giai đoạn từ tư vấn, triển khai đến bàn giao đều được trình bày rõ ràng, giúp khách hàng yên tâm khi hợp tác cùng doanh nghiệp.';
         $content04_en = '"Implementation Process" helps customers understand the professional, transparent and effective working steps of the company. Here, every stage from consulting, implementation to handover is clearly presented, helping customers feel secure when cooperating with the enterprise.';
         $content04_ch = '"实施过程"帮助客户清楚了解公司的专业、透明和高效的工作步骤。在这里，从咨询、实施到交付的每个阶段都得到了清晰的展示，帮助客户在与企业合作时感到安心。';
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'name' => 'block06',
@@ -332,17 +333,17 @@ class Layout01
         );
         MigrateService::createData(
             'block06',
-            ['note' => 1888],
+            ['note' => '<i class="fas fa-disease"></i>', 'page_setting_id' => $page->id],
             ['name_data' => ['Phân tích nhu cầu khách hàng', 'Customer Needs Analysis', '客户需求分析']],
         );
         MigrateService::createData(
             'block06',
-            ['note' => 1888],
+            ['note' => '<i class="fas fa-coins"></i>', 'page_setting_id' => $page->id],
             ['name_data' => ['Tư vấn sản phẩm phù hợp', 'Product Consultation', '产品咨询']],
         );
         MigrateService::createData(
             'block06',
-            ['note' => 1888],
+            ['note' => '<i class="fas fa-server"></i>', 'page_setting_id' => $page->id],
             ['name_data' => ['Báo giá sản phẩm', 'Product Pricing', '产品定价']],
         );
     }

@@ -16,7 +16,21 @@
                     <button id="btnCloseModalXL1" type="button" class="btn btn-secondary _right" data-dismiss="modal">Đóng</button>
                     <button id="btnReloadModalXL1" type="button" class="btn btn-secondary _right _hidden" onclick="location.reload()">Đóng</button>
                     {{-- add new block --}}
-                    <button type="button" class="btn btn-primary _right" onclick="ajaxLoadUrl('{{ route('pageSetting.create') }}', '#modalXLContent')">Thêm mới block</button>
+                    <button id="btnAddNewBlock" 
+                        onclick=""
+                        type="button" 
+                        class="btn btn-primary _right">
+                        <i class="fas fa-plus"></i> 
+                        Thêm mới block
+                    </button>
+                    {{-- sort order --}}
+                    <button id="btnSortOrder" 
+                        type="button" 
+                        onclick="ajaxLoadUrl('{{ route('pageSetting.sort_order') }}', '#modalXLContent'); $(this).hide(); $('#btnAddNewBlock').show();"
+                        class="btn btn-primary _right _hidden">
+                        <i class="fas fa-reply-all"></i>
+                        Quay lại danh sách
+                    </button>
                 </div>
                 <iframe id="modalXLContent" class="modal-content" style="width:100%;height:80vh;border:none;">
                 </iframe>
