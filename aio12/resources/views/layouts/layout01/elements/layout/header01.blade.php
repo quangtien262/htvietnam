@@ -22,7 +22,7 @@
                         
                         @foreach($langs as $lang)
                             <li class="">
-                                <a href="{{ app('Helper')->getLinkLanguage($lang) }}" class="" title="{{ $lang->name }}">
+                                <a href="{{ route('change_language', [$lang->code]) }}" class="" title="{{ $lang->name }}">
                                     <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="width:16px;height:16px;">
                                 </a>
                             </li>

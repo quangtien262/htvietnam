@@ -169,21 +169,6 @@ class Helper
         return $menu;
     }
 
-    /**
-     * parentID: menu id
-     * condition = ['column_name' => 'value']
-     */
-    // public function getLinkFooter($conditions = []) {
-    //     $linkFooter = LinkFooter::orderBy('sort_order', 'asc');
-    //     if(!empty($conditions)) {
-    //         foreach($conditions as $key => $val) {
-    //             $linkFooter = $linkFooter->where($key, $val);
-    //         }
-    //     }
-    //     $linkFooter = $linkFooter->get();
-    //     return $linkFooter;
-    // }
-
     public function getBDSByMenu($menu, $limit)
     {
         $menuIds = UserService::getSubmenuId($menu);
@@ -204,7 +189,7 @@ class Helper
         }
         $sluggable = 'data';
         $link = '';
-        if (!empty($menu->name)) {
+        if (!empty($menu->name_data)) {
             $sluggable = self::formatText($menu->name_data);
         }
 
@@ -233,7 +218,10 @@ class Helper
 
     public function getLinkNews($news)
     {
-        $sluggable = self::formatText($news->name_data);
+        $sluggable = 'news';
+        if(!empty($news->name_data)) {
+            $sluggable = self::formatText($news->name_data);
+        }
         return route('news.detail', [$sluggable, $news->id]);
     }
 

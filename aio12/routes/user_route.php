@@ -19,6 +19,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PagesController::class, 'index'])->name('home');
 
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['vi', 'en', 'ch'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+    }
+    return redirect()->back();
+})->name('change_language');
 
 //news
 Route::get('{sluggable}/n{menuId}.html', [NewsController::class, 'index'])->name('news');
@@ -62,7 +69,7 @@ Route::get('tim-kiem.html', [PagesController::class, 'search'])->name('search');
 Route::get('contact.html', [ContactController::class, 'index'])->name('contact');
 Route::post('contact.html', [ContactController::class, 'sendContact']);
 Route::get('send-contact.html', [ContactController::class, 'result'])->name('contact.result');
-Route::post( 'sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
+Route::post('sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
 
 // send info
 Route::post('contact/send-info', [OrdersController::class, 'sendOrdersBDS'])->name('orders.bds');
@@ -116,7 +123,7 @@ Route::post('/add-subcriber', [NewsletterController::class, 'addSubcriber'])->na
 // Phan boi chau
 Route::get('{sluggable}/x{menuId}.html', [PhanboichauController::class, 'giaoVien'])->name('giao_vien');
 Route::get('{sluggable}/m{menuId}.html', [PhanboichauController::class, 'review'])->name('review');
-Route::post( 'gui-tuyen-sinh', [PhanboichauController::class, 'sendTuyensinh'])->name('tuyen_sinh');
+Route::post('gui-tuyen-sinh', [PhanboichauController::class, 'sendTuyensinh'])->name('tuyen_sinh');
 Route::get('tim-kiem-New.html', [PhanboichauController::class, 'search_pbc'])->name('search_phc');
 
 

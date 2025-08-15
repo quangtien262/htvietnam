@@ -140,21 +140,21 @@ class TablesLayout01Seeder extends Seeder
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
 
         MigrateService::createMenu(
-            ['Trang chủ', 'Home'],
+            ['Trang chủ', 'Home', '首页'],
             'home',
             ['parent_id' => 0, 'sort_order' => $sortOrder++]
         );
         MigrateService::createMenu(
-            ['Giới thiệu', 'About'],
+            ['Giới thiệu', 'About', '关于'],
             'landingpage',
             ['parent_id' => 0, 'sort_order' => $sortOrder++],
             ['content' => [$contentAbout, $contentAbout], 'description' => [$desAbout]]
         );
-        $product = MigrateService::createMenu(['Sản Phẩm', 'Products'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Tuyển dụng', 'Job'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Tin Tức', 'News'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
+        $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
+        MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
+        MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
         MigrateService::createMenu(
-            ['Liên Hệ', 'Contact'],
+            ['Liên Hệ', 'Contact', '联系'],
             'contact',
             [
                 'parent_id' => 0,
@@ -165,33 +165,7 @@ class TablesLayout01Seeder extends Seeder
                 'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
             ]
         );
-        MigrateService::createMenu(
-            ['Công thức sửa chữa tiên tiến', 'Công thức sửa chữa tiên tiến'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
-            [
-                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
-                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
-            ]
-        );
-        MigrateService::createMenu(
-            ['Đột phá tuyệt vời về màu sơn', 'Đột phá tuyệt vời về màu sơn'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
-            [
-                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
-                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
-            ]
-        );
-        $gachMen = MigrateService::createMenu(
-            ['Gạch men', 'Gạch men'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1],
-            [
-                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
-                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
-            ]
-        );
+        
     }
 
     private function createNews()
