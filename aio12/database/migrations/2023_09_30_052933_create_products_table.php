@@ -118,25 +118,8 @@ return new class extends Migration
             MigrateService::createBaseColumn($table);
         });
 
-        Table::create([
-            'name' => 'products',
-            'display_name' => 'Hàng hóa',
-            'sort_order' => 0,
-            'type_show' => config('constant.type_show.basic'),
-            'count_item_of_page' => 30,
-            'is_edit' => 1,
-            'form_data_type' => 1,
-            'have_delete' => 1,
-            'have_add_new' => 1,
-            'parent_id' => 0,
-            'is_show_btn_edit' => 1,
-            'tab_table_id' => 0,
-            'tab_table_name' => '',
-            'table_data' => '',
-            'is_label' => 0,
-            'search_position' => 1
-        ]);
-        $tbl = Table::where('name', 'products')->first();
+        $tbl = MigrateService::createTable02('products', 'Sản phẩm', ['is_multiple_language' => 1, 'table_data' => 'products_data', 'parent_id' => 0]);
+        // $tbl = Table::where('name', 'products')->first();
         $tableId = $tbl->id;
         $order_col = 1;
 

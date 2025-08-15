@@ -28,7 +28,7 @@ use App\Services\Admin\TblModel;
 class DataController extends Controller
 {
     const CHECK_REDIRECT_TABLE = [
-        'products' => 'product.list',
+        // 'products' => 'product.list',
         'users' => 'customer.index',
         'admin_users' => 'nhanVien.index',
         'hoa_don' => 'hoaDon.index',

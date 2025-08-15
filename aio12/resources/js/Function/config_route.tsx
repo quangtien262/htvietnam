@@ -8,7 +8,7 @@ export const tblSetting = [];
 export const tblTaiChinh = ['hoa_don'];
 export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
-export const tblWeb = ['images', 'contact', 'orders'];
+export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 'products'];
 
 export const routeHome = [
     {
@@ -390,6 +390,14 @@ export const routeWeb = [
         parent: {
             link: route('data.tblName', ['news']),
             display_name: 'Tin tức',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['products']),
+            display_name: 'Sản phẩm',
             key: key++
         },
         sub: []
