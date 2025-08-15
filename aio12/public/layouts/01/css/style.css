@@ -1891,7 +1891,8 @@ span.widget-title:after {
 
 .product-small .price-wrapper bdi {
     color: #fcca00;
-    font-size: 18px;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .woocommerce-Tabs-panel {
@@ -2209,9 +2210,10 @@ span.widget-title:after {
 
 /*************** ADD CUSTOM CSS HERE.   ***************/
 .product-name {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: black;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .product-name:hover {
