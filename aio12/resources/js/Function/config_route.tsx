@@ -417,7 +417,15 @@ export const routeWeb = [
             key: key++
         },
         sub: []
-    }
+    },
+    // {
+    //     parent: {
+    //         link: route('data.tblName', ['web_config']),
+    //         display_name: 'Cài đặt website',
+    //         key: key++
+    //     },
+    //     sub: []
+    // }
 ];
 
 export function itemMenu(tableName: string) {
