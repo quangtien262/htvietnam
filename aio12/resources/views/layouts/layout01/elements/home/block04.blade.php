@@ -15,7 +15,7 @@
                      Sửa tiêu đề
                   </button>
 
-                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.listData', ['tblName' => 'block04', 'id' => $page->data_id, 'is_image' => true]) }}', '#modalEdit')"
+                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.listData', ['tblName' => 'block04', 'pageId' => $page->data_id, 'is_image' => false]) }}', '#modalEdit')"
                      data-toggle="modal" data-target="#modalXLEdit">
                      Sửa nội dung
                   </button>

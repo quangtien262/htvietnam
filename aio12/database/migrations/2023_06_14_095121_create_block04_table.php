@@ -16,12 +16,11 @@ return new class extends Migration
         Schema::create('block04', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('icon')->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();
-            $table->string('note')->nullable();
             $table->integer('menu_id')->default(0)->nullable();
-            $table->string('block_type_id')->nullable();
+            $table->string('icon')->nullable();
             $table->longText('images')->nullable();
+            $table->string('note')->nullable();
 
             MigrateService::createBaseColumn($table);
         });
@@ -48,7 +47,7 @@ return new class extends Migration
             'images',
             'Hình ảnh',
             'TEXT',
-            'image_crop',
+            'images_crop',
             $order++,
             ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 1]
         );
@@ -64,9 +63,7 @@ return new class extends Migration
         );
 
         MigrateService::createColumn02($data->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        $blockInfo = Table::where('name', 'block_info')->first();
-        MigrateService::createColumn02($data->id, 'block_info_id', 'block_info_id', 'INT', 'select', $order++, 
-        ['edit' => 0, 'select_table_id' => $blockInfo->id]);
+        
         MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', 'select', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);

@@ -298,8 +298,7 @@ class PageSettingController extends Controller
     {
         $html = '';
         $tableData = TblModel::model($tableName)->where('page_setting_id', $pageId)->OrderBy('sort_order', 'asc')->get();
-        echo $tableName;
-        dd($tableData);
+       
         if (!empty($tableData)) {
             $html = '<ol class="dd-list">';
             foreach ($tableData as $td) {

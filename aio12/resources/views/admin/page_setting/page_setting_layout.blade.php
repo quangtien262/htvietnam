@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="/vendor/summernote/dist/summernote.css?ver={{ config('app.version') }}">
 <!-- endbuild-->
 <!-- Current styles-->
+<link rel="stylesheet" href="/admin/css/app.css?ver={{ config('app.version') }}">
 <link rel="stylesheet" href="/admin/css/styles.css?ver={{ config('app.version') }}">
 </head>
 
