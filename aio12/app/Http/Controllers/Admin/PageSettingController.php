@@ -19,23 +19,6 @@ use App\Services\User\UserService;
 class PageSettingController extends Controller
 {
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function formBasic(Request $request, $id)
-    {
-        if (empty($request->block) || empty($request->col)) {
-            return 'Block này đã bị xóa, vui lòng tải lại trình duyệt để cập nhật lại nội dung mới nhất';
-        }
-        $col = explode('-', $request->col);
-        $blockName = $request->block;
-        $landingpage = PageSetting::find($id);
-        $block = $this->getBlockConfig()::CONFIG[$blockName];
-        return View('admin.page_setting.form_basic', compact('block', 'landingpage', 'id', 'blockName', 'col'));
-    }
-
     public function update(Request $request)
     {
         $block = $this->getBlockConfig()::CONFIG[$request->block_name];
@@ -139,14 +122,14 @@ class PageSettingController extends Controller
     public function updateSortOrder(Request $request, $menuId = 0)
     {
         if (empty($request->data)) {
-            return $this->sendSuccessResponse('', config('constants.return.success'));
+            return $this->sendErrorResponse('', 'Error');
         }
         $sortOrder = json_decode($request->data, true);
-        $result = $this->updateSortOrderTable('page_setting', $sortOrder, $menuId);
+        $result = $this->updateSortOrderPageSetting('page_setting', $sortOrder, $menuId);
         if ($result) {
-            return $this->sendSuccessResponse($result, $message = 'successfully');
+            return $this->sendSuccessResponse($result, 'successfully');
         }
-        return $this->sendErrorResponse($result, $message = 'Error');
+        return $this->sendErrorResponse($result, 'Error');
     }
 
     public function listLandingpageDefault(Request $request, $menuId = 0)
@@ -247,6 +230,7 @@ class PageSettingController extends Controller
                     if ($k == 'id') {
                         continue;
                     }
+
                     $dataLang->{$k} = $v;
                 }
 
@@ -288,17 +272,55 @@ class PageSettingController extends Controller
         return $this->sendSuccessResponse([], $message = 'successfully');
     }
 
+    public function editBlock($tblName, $id = 0)
+    {
+        $languages = Language::orderBy('sort_order', 'asc')->get();
+        $data = TblModel::find($tblName, $id);
+        $languagesData = [];
+        foreach ($languages as $language) {
+            $languagesData[$language->id] = DB::table('page_setting_data')
+                ->where('data_id', $id)
+                ->where('languages_id', $language->id)
+                ->first();
+        }
+        $data = [
+            'data' => $data,
+            'id' => $id,
+            'request' => $request->all(),
+            'languages' => $languages,
+            'languagesData' => $languagesData,
+            'tblName' => $tblName
+        ];
+        return View('admin.page_setting.edit_page_setting', $data);
+    }
 
     public function listData(Request $request, $tblName, $pageId = 0)
     {
         $htmlListDragDrop = $this->getHtmlDataDragDrop($tblName, $pageId);
-        return View('admin.page_setting.list_data', compact('htmlListDragDrop'));
+        return View('admin.page_setting.list_data', compact('htmlListDragDrop', 'tblName', 'pageId'));
+    }
+
+    public function updateSortOrderData(Request $request, $menuId = 0)
+    {
+        if (empty($request->tbl) || empty($request->pageId)) {
+            return $this->sendErrorResponse('Invalid request');
+        }
+        if (empty($request->data)) {
+            return $this->sendErrorResponse('No data sort order');
+        }
+
+        $sortOrder = json_decode($request->data, true);
+        $result = $this->updateSortOrderBlock($request->tbl, $sortOrder, $request->pageId);
+        if ($result) {
+            return $this->sendSuccessResponse($result, 'successfully');
+        }
+        return $this->sendErrorResponse($result, 'Error');
     }
     private function getHtmlDataDragDrop($tableName, $pageId)
     {
         $html = '';
         $tableData = TblModel::model($tableName)->where('page_setting_id', $pageId)->OrderBy('sort_order', 'asc')->get();
-       
+
         if (!empty($tableData)) {
             $html = '<ol class="dd-list">';
             foreach ($tableData as $td) {
@@ -322,10 +344,14 @@ class PageSettingController extends Controller
                                 </div>
                             </div>
                             <div class="option-dd">
-                                <input ' . $checked . ' onchange="hideLand(this,' . $td->id . ')" id="hide_' . $td->id . '" type="checkbox" name="hide[]" value="' . $td->id . '"/>
+                                <input ' . $checked . ' onchange="" id="hide_' . $td->id . '" type="checkbox" name="hide[]" value="' . $td->id . '"/>
                                 <label class"label_hide" for="hide_' . $td->id . '">' . __('land.hidden_block') . '</label>
+                                
+                                <a class="delete-land" href="'.route('pageSetting.edit', ['tblName' => $tableName, 'id' => $td->id]).'" >
+                                   <b> <i class="ion-trash-a"></i> ' . __('land.edit') . '</b>
+                                </a>
 
-                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" >
+                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" style="float: right;">
                                    <b> <i class="ion-trash-a"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>
@@ -347,7 +373,7 @@ class PageSettingController extends Controller
         return $html;
     }
 
-    private function updateSortOrderTable($tableName, $sortOrder, $menuId = 0)
+    private function updateSortOrderBlock($tableName, $sortOrder, $menuId = 0)
     {
         try {
             DB::beginTransaction();
@@ -355,7 +381,26 @@ class PageSettingController extends Controller
                 $idx = $key + 1;
                 DB::table($tableName)->where('id', $value['id'])->update(['sort_order' => $idx]);
                 if (isset($value['children'])) {
-                    $this->updateSortOrderTable($tableName, $value['children'], $menuId);
+                    $this->updateSortOrderBlock($tableName, $value['children'], $menuId);
+                }
+            }
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return false;
+        }
+    }
+
+    private function updateSortOrderPageSetting($tableName, $sortOrder, $menuId = 0)
+    {
+        try {
+            DB::beginTransaction();
+            foreach ($sortOrder as $key => $value) {
+                $idx = $key + 1;
+                DB::table($tableName)->where('id', $value['id'])->update(['sort_order' => $idx]);
+                if (isset($value['children'])) {
+                    $this->updateSortOrderPageSetting($tableName, $value['children'], $menuId);
                 }
             }
             DB::commit();
@@ -369,7 +414,10 @@ class PageSettingController extends Controller
     private function getHtmlPageSettingDragDrop($menuId)
     {
         $html = '';
-        $tableData = PageSetting::where('page_setting.menu_id', $menuId)->OrderBy('page_setting.sort_order', 'asc')->get();
+        $tableData = PageSetting::query()
+            ->where('page_setting.menu_id', $menuId)
+            ->OrderBy('page_setting.sort_order', 'asc')
+            ->get();
         if (!empty($tableData)) {
             $html = '<ol class="dd-list">';
             foreach ($tableData as $td) {
@@ -387,7 +435,7 @@ class PageSettingController extends Controller
                                         </div>
                                         <div class="mda-list-item-text mda-2-line">
                                             <em class="type-block">' . $td->block_type . '</em>
-                                            <h3>' . $td->name . '</h3>
+                                            <h3>' . $td->name_data . '</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -399,7 +447,7 @@ class PageSettingController extends Controller
                                 <input ' . $checked . ' onchange="showInMenu(this,' . $td->id . ')" id="show-in-menu_' . $td->id . '" type="checkbox" name="show_in_menu[]" value="' . $td->id . '"/>
                                 <label class"label_hide" for="hide_' . $td->id . '">' . __('land.show_in_menu') . '</label>
 
-                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" >
+                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" style="float: right;">
                                    <b> <i class="ion-trash-a"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>

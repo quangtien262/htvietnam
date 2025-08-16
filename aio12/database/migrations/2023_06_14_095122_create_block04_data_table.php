@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('block04_data', function (Blueprint $table) {
             $table->id();
-            $table->string('name_data')->nullable();
+            $table->text('name_data')->nullable();
+            $table->text('title_description')->nullable();
             $table->string('data_id')->nullable();
             $table->string('languages_id')->nullable();
-            $table->longtext('description')->nullable();
+            $table->text('description')->nullable();
             $table->longtext('content')->nullable();
 
             MigrateService::createBaseColumn($table);

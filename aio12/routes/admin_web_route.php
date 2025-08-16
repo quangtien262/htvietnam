@@ -15,13 +15,16 @@ Route::group(['prefix' => 'page-setting'], function () {
     Route::post('create/{menuId?}', [PageSettingController::class, 'createLandingpage']);
     Route::post('active', [PageSettingController::class, 'activeLand'])->name('pageSetting.active');
     Route::post('show-in-menu', [PageSettingController::class, 'showInMenu'])->name('pageSetting.show_in_menu');
-    Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
-    Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
+
+    Route::post('delete/{tblName}/{id}', [PageSettingController::class, 'deleteData'])->name('pageSetting.deleteData');
 
 
     Route::get('list-data/{tblName}/{pageId?}', [PageSettingController::class, 'listData'])->name('pageSetting.listData');
-    Route::get('sort-order-data/{menuId?}', [PageSettingController::class, 'sortOrderData'])->name('pageSetting.sort_order_data');
+    Route::post('sort-order-data/{menuId?}', [PageSettingController::class, 'updateSortOrderData'])->name('pageSetting.sort_order_data');
     Route::get('edit-page-setting/{tblName}/{id?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
+
+    // Route::get('add-block/{tblName}/{id?}', [PageSettingController::class, 'addBlock'])->name('pageSetting.addBlock');
+    Route::get('edit-block/{tblName}/{id?}', [PageSettingController::class, 'editBlock'])->name('pageSetting.editBlock');
     Route::post('save-data/{pageId?}', [PageSettingController::class, 'saveData'])->name('saveData');
 });
 

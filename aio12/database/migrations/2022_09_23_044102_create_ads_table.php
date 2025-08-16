@@ -18,8 +18,11 @@ return new class extends Migration
         Schema::create('ads', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->text('image')->nullable();
+            $table->string('note')->nullable();
+            $table->string('icon')->nullable();
+            $table->text('images')->nullable();
             $table->string('menus_id')->default(0)->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
             $table->string('is_front')->default(0)->nullable();
             $table->integer('is_active')->default(1)->nullable();
 

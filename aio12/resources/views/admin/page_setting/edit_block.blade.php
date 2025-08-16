@@ -26,14 +26,6 @@
 
             <div class="row">
 
-                <div class="col-sm-12">
-                    <input id="chk_active" name="data[active]" type="checkbox" value="0" />
-                    <span for="chk_active">
-                        <em>Tạm Ẩn khối này</em>
-                    </span>
-                    <br /><br />
-                </div>
-
                 @if(!empty($_GET['is_image']))
                     <div class="col-sm-12">
                         <span>Chọn hình ảnh</span>
@@ -69,7 +61,7 @@
 
                         <div class="row">
                             <input type="hidden" name="lang[{{ $language->id }}][id]"
-                                value="{{ $languagesData[$language->id]->id ?? 0 }}" />
+                                value="{{ $languagesData[$language->id]->id }}" />
                             <div class="col-sm-6">
                                 <label>
                                     <b>Tiêu đề</b>
@@ -145,7 +137,7 @@
                     success: function(result) {
                         $('#result').text('Đã cập nhật lại dữ liệu thành công');
                         $btn.prop('disabled', false); // Enable lại nút
-
+                        
                         window.parent.document.getElementById('btnCloseModalXL1').style.display = 'none';
                         window.parent.document.getElementById('btnCloseModalXL2').style.display = 'none';
                         window.parent.document.getElementById('btnReloadModalXL1').style.display = 'block';

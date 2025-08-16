@@ -16,8 +16,9 @@ return new class extends Migration
         Schema::create('block_data', function (Blueprint $table) {
             $table->id();
             $table->string('name_data')->nullable();
-            $table->string('data_id')->nullable();
-            $table->string('languages_id')->nullable();
+            $table->string('title_description')->nullable();
+            $table->integer('data_id')->nullable();
+            $table->integer('languages_id')->nullable();
             $table->longtext('description')->nullable();
             $table->longtext('content')->nullable();
 

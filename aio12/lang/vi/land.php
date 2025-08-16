@@ -25,6 +25,7 @@ return [
     'add_block' => 'Thêm khối mới',
     'removed' => 'Xóa',
     'close' => 'Đóng',
+    'edit' => 'Sửa',
     'cancel' => 'Hủy',
     'update_order' => 'Cập nhật thứ tự',
     'hidden_block' => 'Ẩn khối này',

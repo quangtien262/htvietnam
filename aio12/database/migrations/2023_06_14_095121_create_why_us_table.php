@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('why_us', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('title_description')->nullable();
             $table->string('note')->nullable();
             $table->string('icon')->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();

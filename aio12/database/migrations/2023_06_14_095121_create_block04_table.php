@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('page_setting_id')->default(0)->nullable();
             $table->integer('menu_id')->default(0)->nullable();
             $table->string('icon')->nullable();
+            $table->string('note')->nullable();
             $table->longText('images')->nullable();
             $table->string('note')->nullable();
 

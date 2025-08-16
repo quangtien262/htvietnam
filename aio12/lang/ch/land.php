@@ -25,6 +25,7 @@ return [
     'add_block' => 'Add new block',
     'removed' => 'Removed',
     'close' => 'Close',
+    'edit' => 'Edit',
     'cancel' => 'Cancel',
     'update_order' => 'Update Sort Order',
     'hidden_block' => 'Hidden block',
