@@ -8,6 +8,19 @@
         );
     @endphp
     <section class="section section3" id="section_814293249">
+      @if(auth()->guard('admin_users')->check())
+            <div class="main-btn-edit">
+                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id, 'is_image' => false]) }}', '#modalEdit')"
+                     data-toggle="modal" data-target="#modalXLEdit">
+                     Sửa tiêu đề
+                  </button>
+
+                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.listData', ['tblName' => 'block04', 'id' => $page->data_id, 'is_image' => true]) }}', '#modalEdit')"
+                     data-toggle="modal" data-target="#modalXLEdit">
+                     Sửa nội dung
+                  </button>
+            </div>
+        @endif
         <div class="bg section-bg fill bg-fill  bg-loaded">
         </div>
         <div class="section-content relative">

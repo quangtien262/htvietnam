@@ -19,6 +19,8 @@ Route::group(['prefix' => 'page-setting'], function () {
     Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
 
 
+    Route::get('list-data/{tblName}/{pageId?}', [PageSettingController::class, 'listData'])->name('pageSetting.listData');
+    Route::get('sort-order-data/{menuId?}', [PageSettingController::class, 'sortOrderData'])->name('pageSetting.sort_order_data');
     Route::get('edit-page-setting/{tblName}/{id?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
     Route::post('save-data/{pageId?}', [PageSettingController::class, 'saveData'])->name('saveData');
 });

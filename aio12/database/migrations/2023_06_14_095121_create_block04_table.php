@@ -50,7 +50,7 @@ return new class extends Migration
             'TEXT',
             'image_crop',
             $order++,
-            ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 0]
+            ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 1]
         );
 
         MigrateService::createColumn02(

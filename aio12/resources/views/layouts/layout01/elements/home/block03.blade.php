@@ -4,7 +4,7 @@
          {{-- btn edit --}}
          @if(auth()->guard('admin_users')->check())
             <div class="main-btn-edit">
-                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id]) }}', '#modalEdit')"
+                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id, 'is_image' => true]) }}', '#modalEdit')"
                      data-toggle="modal" data-target="#modalXLEdit">
                      Sửa khối này
                   </button>

@@ -34,24 +34,26 @@
                     <br /><br />
                 </div>
 
-                <div class="col-sm-12">
-                    <span>Chọn hình ảnh</span>
-                    <input multiple="multiple" class="form-control" type="file" name="file[]" />
-                    @if(!empty($data->images) && !empty($data->images['images']))
-                        <div class="row">
-                            @foreach ($data->images['images'] as $key => $image)
-                                <div id="image-{{ $key }}" class="col-sm-3">
-                                    <img src="{{ $image }}" alt="" style="width: 100%; height: auto;" />
-                                    <input type="hidden" name="images[]" value="{{ $image }}" />
-                                    <button type="button" class="btn btn-danger btn-sm remove-image"
-                                        onclick=" $('#image-{{ $key }}').remove()"
-                                        data-id="{{ $key }}">Xóa</button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                    <br /><br />
-                </div>
+                @if(!empty($_GET['is_image']))
+                    <div class="col-sm-12">
+                        <span>Chọn hình ảnh</span>
+                        <input multiple="multiple" class="form-control" type="file" name="file[]" />
+                        @if(!empty($data->images) && !empty($data->images['images']))
+                            <div class="row">
+                                @foreach ($data->images['images'] as $key => $image)
+                                    <div id="image-{{ $key }}" class="col-sm-3">
+                                        <img src="{{ $image }}" alt="" style="width: 100%; height: auto;" />
+                                        <input type="hidden" name="images[]" value="{{ $image }}" />
+                                        <button type="button" class="btn btn-danger btn-sm remove-image"
+                                            onclick=" $('#image-{{ $key }}').remove()"
+                                            data-id="{{ $key }}">Xóa</button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        <br /><br />
+                    </div>
+                @endif
             </div>
             <ul class="nav nav-tabs">
                 @foreach ($languages as $idx => $language)
@@ -143,6 +145,11 @@
                     success: function(result) {
                         $('#result').text('Đã cập nhật lại dữ liệu thành công');
                         $btn.prop('disabled', false); // Enable lại nút
+                        
+                        window.parent.document.getElementById('btnCloseModalXL1').style.display = 'none';
+                        window.parent.document.getElementById('btnCloseModalXL2').style.display = 'none';
+                        window.parent.document.getElementById('btnReloadModalXL1').style.display = 'block';
+                        window.parent.document.getElementById('btnReloadModalXL2').style.display = 'block';
                     },
                     error: function() {
                         $('#result').text('Có lỗi xảy ra!');

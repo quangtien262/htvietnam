@@ -25,7 +25,7 @@
                 $('#resultSortOrder').text('Đang lưu thay đổi...');
                 var sortOrder = $('#nestable-output').val();
                 $.ajax({
-                    url: '{{ route('pageSetting.sort_order') }}',
+                    url: '{{ route('pageSetting.sort_order_data') }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
