@@ -19,8 +19,8 @@ Route::group(['prefix' => 'page-setting'], function () {
     Route::post('delete', [PageSettingController::class, 'delete'])->name('pageSetting.delete');
 
 
-    Route::get('edit-page-setting/{pageId?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
-    Route::post('save-page-setting/{pageId?}', [PageSettingController::class, 'savePageSetting'])->name('pageSetting.save');
+    Route::get('edit-page-setting/{tblName}/{id?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
+    Route::post('save-data/{pageId?}', [PageSettingController::class, 'saveData'])->name('saveData');
 });
 
 // landingpage

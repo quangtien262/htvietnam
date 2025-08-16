@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Admin\Language;
+use App\Services\Admin\TblModel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
@@ -197,27 +199,89 @@ class PageSettingController extends Controller
         return $this->sendSuccessResponse([], $message = 'successfully');
     }
 
-    public function editPageSetting(Request $request, $pageId = 0) {
-        $page = PageSetting::find($pageId);
+    public function editPageSetting(Request $request, $tblName, $id = 0) {
+        $languages = Language::orderBy('sort_order', 'asc')->get();
+        $data = TblModel::find($tblName, $id);
+        $languagesData = [];
+        foreach ($languages as $language) {
+            $languagesData[$language->id] = DB::table('page_setting_data')
+                ->where('data_id', $id)
+                ->where('languages_id', $language->id)
+                ->first();
+        }
         $data = [
-            'page' => $page,
-            'pageId' => $pageId,
+            'data' => $data,
+            'id' => $id,
             'request' => $request->all(),
+            'languages' => $languages,
+            'languagesData' => $languagesData,
+            'tblName' => $tblName
         ];
         return View('admin.page_setting.edit_page_setting', $data);
     }
 
-    public function savePageSetting(Request $request, $pageId = 0) {
-        $data = $request->validate([
-            'id' => 'required|exists:page_setting,id',
-            'name' => 'required|string|max:255',
-            'sort_order' => 'required|integer',
-        ]);
+    public function saveData(Request $request, $id = 0) {
+        // dd($request->all());
 
-        $pageSetting = PageSetting::find($pageId);
-        $pageSetting->name = $data['name'];
-        $pageSetting->sort_order = $data['sort_order'];
-        $pageSetting->save();
+        if(empty($request->tbl)) {
+            return $this->sendErrorResponse('error');
+        }
+        $tableLang = $request->tbl . '_data';
+
+        // save data
+        $data = TblModel::find($request->tbl, $id);
+        if(!empty($request->data)) {
+            foreach($request->data as $key => $val) {
+                $data->{$key} = $val;
+            }
+            $data->save();
+        }
+
+        // save language data
+        if(!empty($request->lang)) {
+            foreach($request->lang as $key => $values) {
+                $dataLang = TblModel::find($tableLang, $values['id']);
+                foreach($values as $k => $v) {
+                    if($k == 'id') {
+                        continue;
+                    }
+                    $dataLang->{$k} = $v;
+                }
+                
+                $dataLang->save();
+            }
+        }
+
+        // update images
+        $images = [];
+        if(!empty($request->images)) {
+            $images = $request->images;
+        }
+
+        // save file
+        if(!empty($request->file)) {
+            // check và tạo thư mục landingpage nếu chưa có
+            if (!file_exists(public_path('files/landingpage'))) {
+                mkdir(public_path('files/landingpage'), 0755, true);
+            }
+            // upload multiple file
+            foreach($request->file as $key => $file) {
+                if(is_array($file)) {
+                    foreach($file as $f) {
+                        $fileName = app('Helper')->generateRandomString(5) . '_' . time() . '.' . $f->extension();
+                        $f->move(public_path('files/landingpage'), $fileName);
+                        $images[] = "/files/landingpage/" . $fileName;
+                    }
+                } else {
+                    $fileName = app('Helper')->generateRandomString(5) . '_' . time() . '.' . $file->extension();
+                    $file->move(public_path('files/landingpage'), $fileName);
+                    $images[] = "/files/landingpage/" . $fileName;
+                }
+            }
+        }
+        $avatar = $images[0] ?? '';
+        $data->images = ['images' => $images,'avatar' => $avatar];
+        $data->save();
 
         return $this->sendSuccessResponse([], $message = 'successfully');
     }

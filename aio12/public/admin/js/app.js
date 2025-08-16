@@ -64,7 +64,7 @@
         // Summernote HTML editor
         $('.summernote').each(function(){
             $(this).summernote({
-                height: 380,
+                height: 200,
                 toolbar: [
                     // [groupName, [list of button]]
                     ['style', ['bold', 'italic', 'underline', 'clear']],

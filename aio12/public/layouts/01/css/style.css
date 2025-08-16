@@ -2238,50 +2238,68 @@ span.widget-title:after {
     height: 150px;
     --divider-width: 100%;
 }
+
 .tieu-de {
     text-transform: uppercase;
 }
+
 .text-right {
     text-align: right;
 }
+
 ._right {
     float: right;
 }
+
 .left100 {
     width: 100%;
     float: left;
     border-bottom: 1px solid #b1bfe4;
 }
+
 ._hidden {
     display: none;
 }
+
 .icon05 {
     color: #000000;
     font-size: 50px;
     margin-bottom: 0px !important;
     text-align: center;
 }
+
 /* item04 */
 .icon04 {
     font-size: 40px;
     background: #e3e3e387;
     border-radius: 10px;
 }
+
 a:hover {
     text-decoration: none;
 }
+
 .title04 {
     text-transform: uppercase;
 }
+
 .item04 a:hover {
     background-color: #c5c5c5;
 }
+
 #header-contact li a {
     font-family: Arial, Helvetica, sans-serif;
 }
+
 .header-bottom-nav li a {
     font-weight: bold !important;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+.modal-content {
+    width: 100%;
+    padding: 10px;
+    border: 0px;
 }
 
 @media only screen and (max-width: 48em) {

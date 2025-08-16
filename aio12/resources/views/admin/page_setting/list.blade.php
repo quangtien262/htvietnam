@@ -68,9 +68,7 @@
 
     <script>
         function addLandingpage(id, menuId) {
-            $("#content").html(
-                '<img class="img-loading" src="/images/loading/loadding.jpg" style="width: 100px;" />'
-            );
+            $("#content").html('<img class="img-loading" src="/images/loading/loading.jpg" style="width: 100px;" />');
             $.ajax({
                 headers: {
                     "X-CSRF-Token": $('input[name="_token"]').val(),
