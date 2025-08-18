@@ -700,4 +700,22 @@ class Helper
         }
         return $result;
     }
+
+    public function settingLandingPage($menuId)
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+
+        $result = '';
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<div style="position: fixed; top: 50%; right: 0px; z-index: 1000;">
+                            <button class="btn btn-setting" 
+                                onclick="ajaxLoadUrl(\'' . route('pageSetting.sort_order', [$menuId]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                                Cài đặt
+                            </button>
+                        </div>';
+        }
+        return $result;
+    }
 }

@@ -35,14 +35,7 @@
     @endforeach
 
     {{-- btn admin --}}
-    @if(auth()->guard('admin_users')->check())
-        <div style="position: fixed; top: 50%; right: 0px; z-index: 1000;">
-            <button class="btn btn-setting" 
-                onclick="ajaxLoadUrl('{{ route('pageSetting.sort_order') }}', '#modalXLContent')" data-toggle="modal" data-target="#modal-xl">
-                Cài đặt
-            </button>
-        </div>
-    @endif
+    {!! app('Helper')->settingLandingPage(0) !!}
 
     {{-- modalXLContent --}}
     @include('modal.modalSetting')

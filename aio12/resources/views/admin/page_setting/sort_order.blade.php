@@ -1,4 +1,3 @@
-
 @extends('admin.page_setting.page_setting_layout')
 @section('section_title', 'Sắp xếp thứ tự')
 
@@ -28,9 +27,11 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('#updateSortOrder').click(function () {
-                $('#resultSortOrder').html('<img class="img-loading" src="/images/loading/loading.jpg" style="width: 100px;" />');
+        $(document).ready(function() {
+            $('#updateSortOrder').click(function() {
+                $('#resultSortOrder').html(
+                    '<img class="img-loading" src="/images/loading/loading.jpg" style="width: 100px;" />'
+                    );
                 var sortOrder = $('#nestable-output').val();
                 $.ajax({
                     url: '{{ route('pageSetting.sort_order') }}',
@@ -39,16 +40,15 @@
                         _token: '{{ csrf_token() }}',
                         data: sortOrder
                     },
-                    success: function (response) {
+                    success: function(response) {
                         $('#resultSortOrder').html('Lưu thay đổi thành công!');
-                        window.parent.document.getElementById('btnCloseModalXL2').style.display = 'none';
-                        window.parent.document.getElementById('btnReloadModalXL2').style.display = 'block';
-
-                        window.parent.document.getElementById('btnCloseModalHeader1').style.display = 'none';
-                        window.parent.document.getElementById('btnCloseModalHeaderReload1').style.display = 'block';
+                        window.parent.document.getElementById('btnCloseModalXL2').style
+                            .display = 'none';
+                        window.parent.document.getElementById('btnReloadModalXL2').style
+                            .display = 'block';
                         // Handle success
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         // Handle error
                     }
                 });

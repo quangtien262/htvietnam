@@ -40,7 +40,7 @@
                             <div class="header-search-form-wrapper">
                                 <div class="searchform-wrapper ux-search-box relative is-normal">
                                     <form role="search" method="get" class="searchform"
-                                        action="https://solar3.maugiaodien.com/">
+                                        action="">
                                         <div class="flex-row relative">
                                             <div class="flex-col flex-grow">
                                                 <label class="screen-reader-text"
@@ -65,12 +65,18 @@
                     </ul>
                 </li>
                 <li class="account-item has-icon">
-                    <a class="nav-top-link nav-top-not-logged-in is-small" data-open="#login-form-popup">
-                        <i class="icon-user"></i>
-                    </a>
+                    @if (auth()->guard('admin_users')->check()) 
+                        <a class="nav-top-link nav-top-not-logged-in is-small" target="new" href="/adm">
+                            <i class="icon-user"></i>
+                        </a>
+                    @else
+                        <a class="nav-top-link nav-top-logged-in is-small" data-open="#logout-form-popup">
+                            <i class="icon-user"></i>
+                        </a>
+                    @endif
                 </li>
                 <li class="cart-item has-icon">
-                    <a href="https://solar3.maugiaodien.com/gio-hang/"
+                    <a href=""
                         class="header-cart-link off-canvas-toggle nav-top-link is-small" data-open="#cart-popup"
                         data-class="off-canvas-cart" title="Cart" data-pos="right">
                         <i class="icon-shopping-cart" data-icon-label="0">

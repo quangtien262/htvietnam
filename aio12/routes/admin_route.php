@@ -1,23 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\AdmApiController;
+use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\GmailController;
-use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Admin\DownloadController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\CrawlController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\GoogleController;
-use App\Http\Controllers\Admin\SunController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\LuckyController;
 use App\Http\Controllers\Admin\HimalayaController;
@@ -365,6 +361,9 @@ Route::group(['prefix' => 'report'], function () {
 
 Route::group(['prefix' => 'web'], function () {
     Route::get('/', [AdminController::class, 'dashboardWeb'])->name('web.dashboard');
+
+    Route::get('/landing-page', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
+    Route::get('/landing-page/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
 });
 
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');

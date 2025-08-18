@@ -319,7 +319,7 @@ class PageSettingController extends Controller
                                    <b> <i class="fas fa-pencil"></i></i> ' . __('land.edit') . '</b>
                                 </a>
 
-                                <a class="delete-land" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show()" style="float: right;">
+                                <a class="delete-land" style="float: right;" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show();window.parent.document.getElementById(\'btnCloseModalXL2\').style.display = \'none\'; window.parent.document.getElementById(\'btnReloadModalXL2\').style.display = \'block\';">
                                    <b> <i class="fas fa-trash"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>
@@ -417,7 +417,7 @@ class PageSettingController extends Controller
                                    <b> <i class="fas fa-pencil"></i> Sửa </b>
                                 </a>
 
-                                <a class="delete-land" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show()" style="float: right;">
+                                <a class="delete-land" style="float: right;" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show();window.parent.document.getElementById(\'btnCloseModalXL2\').style.display = \'none\'; window.parent.document.getElementById(\'btnReloadModalXL2\').style.display = \'block\';">
                                    <b> <i class="fas fa-trash"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>

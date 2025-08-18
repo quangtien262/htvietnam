@@ -5,11 +5,11 @@ import {
 } from "antd";
 import {
     UserOutlined, DownOutlined,
-    SettingOutlined,
-    BellOutlined,
+    DashboardOutlined,
+    UnorderedListOutlined,
     LockOutlined,
     LogoutOutlined,
-    MoneyCollectFilled
+    HomeOutlined
 } from "@ant-design/icons";
 
 
@@ -53,6 +53,16 @@ export default function Admin({
             {
                 label: <Link href={route("dashboard")} className="a-logo"><img className="logo-header" src="/images/logo.png" /></Link>,
                 key: 0,
+                // icon: <HomeOutlined />,
+            },
+            {
+                label: <a href={route("home")}><HomeOutlined /> Website</a>,
+                key: 1,
+                // icon: <HomeOutlined />,
+            },
+            {
+                label: <a href={route("dashboard")}><DashboardOutlined /> Admin</a>,
+                key: 2,
                 // icon: <HomeOutlined />,
             },
         ];
