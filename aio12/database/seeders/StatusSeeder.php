@@ -16,6 +16,19 @@ class StatusSeeder extends Seeder
     public function run()
     {
 
+        //route
+        $order = 1;
+        DB::table('route')->insert(
+            [
+                ['name' => 'product', 'display_name' => 'Trang sản phẩm', 'parent_id' => 0, 'sort_order' => $order++],
+                ['name' => 'news', 'display_name' => 'Trang tin tức', 'parent_id' => 0, 'sort_order' => $order++],
+                ['name' => 'video', 'display_name' => 'Video', 'parent_id' => 0, 'sort_order' => $order++],
+                ['name' => 'single_page', 'display_name' => 'Bài viết đơn', 'parent_id' => 0, 'sort_order' => $order++],
+                ['name' => 'about', 'display_name' => 'Trang giới thiệu', 'parent_id' => 0, 'sort_order' => $order++],
+                ['name' => 'contact', 'display_name' => 'Trang liên hệ', 'parent_id' => 0, 'sort_order' => $order++]
+            ]
+        ); 
+        
         // status nv
         DB::table('admin_user_status')->truncate();
         DB::table('admin_user_status')->insert([
