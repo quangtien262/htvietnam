@@ -6,8 +6,108 @@ use App\Services\MigrateService;
 use DB;
 use Exception;
 
-class Layout01
+class Layout01 extends Land
 {
+    const CONFIG_LAND_89 = [
+        // all
+        'name' => false,
+        'images' => false,
+        'image' => true,
+        'link' => false,
+        'active' => true,
+        'menu_id' => false,
+        'note' => false,
+        'icon' => false,
+        // lang
+        'name_data' => true,
+        'title_description' => false,
+        'images_data' => false,
+        'description' => false,
+        'content' => true,
+    ];
+    const BLOCKS_CONFIG = [
+        'images' => [
+            'page' => self::PAGE_NONE,
+            'block' => self::BLOCK_IMAGE_DATA,
+        ],
+        'news' => [
+            'page' => self::PAGE_DEFAULT,
+            'block' => self::BLOCK_NONE,
+        ],
+        'products' => [
+            'page' => self::PAGE_DEFAULT,
+            'block' => self::BLOCK_NONE,
+        ],
+        'doi_tac' => [
+            'page' => self::PAGE_NONE,
+            'block' => self::BLOCK_IMAGES,
+        ],
+        'contact' => [
+            'page' => self::PAGE_DEFAULT,
+            'block' => self::BLOCK_NONE,
+        ],
+        'block03' => [
+            'page' => self::PAGE_IMAGES_DATA,
+            'block' => self::BLOCK_DEFAULT,
+        ],
+        'block04' => [
+            'page' => self::PAGE_DEFAULT,
+            'block' => self::BLOCK_ICON,
+        ],
+        'block05' => [
+            'page' => self::PAGE_NONE,
+            'block' => [
+                // all
+                'name' => false,
+                'images' => false,
+                'image' => false,
+                'link' => false,
+                'active' => true,
+                'menu_id' => false,
+                'note' => true,
+                'icon' => false,
+                // lang
+                'name_data' => true,
+                'title_description' => false,
+                'images_data' => false,
+                'description' => false,
+                'content' => false,
+            ],
+        ],
+        'block06' => [
+            'page' => self::PAGE_DEFAULT,
+            'block' => [
+                'name' => false,
+                'images' => false,
+                'image' => false,
+                'link' => true,
+                'active' => true,
+                'menu_id' => false,
+                'note' => false,
+                'icon' => true,
+                // lang
+                'name_data' => true,
+                'title_description' => false,
+                'images_data' => false,
+                'description' => false,
+                'content' => false,
+            ],
+        ],
+        
+        'block08' => [
+            'page' => self::CONFIG_LAND_89,
+            'block' => self::BLOCK_NONE,
+        ],
+        
+        'block09' => [
+            'page' => self::CONFIG_LAND_89,
+            'block' => self::BLOCK_NONE,
+        ],
+    ];
+    static function getConfig($block)
+    {
+        return self::BLOCKS_CONFIG[$block] ?? null;
+    }
 
     static function createBlocks($menuId = 0)
     {
@@ -15,8 +115,8 @@ class Layout01
         MigrateService::createData(
             'list_landingpage',
             [
-                'name' => 'banner',
-                'display_name' => 'banner',
+                'name' => 'images',
+                'display_name' => 'Hình ảnh',
                 'image' => '/layouts/01/images/block/banner.png',
                 'sort_order' => $sort_order
             ]
@@ -70,14 +170,14 @@ class Layout01
     /**
      * @throws Exception
      */
-    static function banner($sortOrder = 0, $menuId = 0)
+    static function images($sortOrder = 0, $menuId = 0)
     {
         $page = MigrateService::createData(
             'page_setting',
             [
-                'name' => 'banner',
+                'name' => 'images',
                 'display_name' => 'Slider hình ảnh banner',
-                'block_type' => 'banner',
+                'block_type' => 'images',
                 'sort_order' => $sortOrder,
                 'table_data' => 'images',
                 'table_edit' => 'images',
@@ -218,10 +318,9 @@ class Layout01
             'page_setting',
             [
                 'menu_id' => $menuId,
-                'name' => 'doiTac',
-                'display_name' => 'Đối tác',
+                'name' => 'doi_tac',
                 'sort_order' => $sortOrder,
-                'block_type' => 'doiTac',
+                'block_type' => 'doi_tac',
                 'table_data' => 'doi_tac'
             ],
             [
@@ -231,14 +330,22 @@ class Layout01
 
         // content data
         for ($i = 1; $i <= 6; $i++) {
-            DB::table('doi_tac')->insert([
-                'name' => 'Đối tác ' . $i,
-                'image' => '/layouts/01/images/brand/' . $i . '.png',
-                'parent_id' => '0',
-                'sort_order' => $i,
-                'menu_id' => $menuId,
-                'page_setting_id' => $page->id
-            ]);
+            $img = '/layouts/01/images/brand/' . $i . '.png';
+            MigrateService::createData(
+                'doi_tac',
+                [
+                    'menu_id' => $menuId,
+                    'page_setting_id' => $page->id,
+                    'name' => 'Đối tác ' . $i,
+                    'images' => json_encode(['avatar' => $img, 'images' => [$img]]),
+                    'sort_order' => $i,
+                    'parent_id' => '0',
+                ],
+                [
+                    'name_data' => ['Đối tác ', 'Partner', '合作伙伴'],
+                ]
+            );
+
         }
     }
 

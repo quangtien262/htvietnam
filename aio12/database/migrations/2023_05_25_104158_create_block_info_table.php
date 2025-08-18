@@ -19,8 +19,10 @@ return new class extends Migration
             $table->string('icon')->nullable();
             $table->integer('menu_id')->default(0)->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();
+            $table->integer('active')->default(1)->nullable();
             $table->text('image')->nullable();
-           
+            $table->text('images')->nullable();
+
             MigrateService::createBaseColumn($table);
         });
 

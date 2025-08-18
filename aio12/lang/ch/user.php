@@ -113,4 +113,5 @@ return [
     'english' => '英语',
     'china' => '中国',
     'vietnam' => '越南',
+    'view_details' => '查看详情'
 ];

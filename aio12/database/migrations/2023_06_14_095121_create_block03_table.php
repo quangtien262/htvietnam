@@ -13,25 +13,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('block04', function (Blueprint $table) {
+        Schema::create('block03', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('icon')->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();
             $table->integer('menu_id')->default(0)->nullable();
             $table->integer('active')->default(1)->nullable();
-            $table->string('icon')->nullable();
-            $table->text('note')->nullable();
-            $table->text('link')->nullable();
-            $table->text('image')->nullable();
-            $table->longText('images')->nullable();
+            $table->string('images')->nullable();
 
             MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
         $data = MigrateService::createTable02(
-            'block04',
-            'block04',
+            'block03',
+            'Block',
             ['is_multiple_language' => 1, 'table_data' => 'block_data', 'parent_id' => 0, 'type_show' => 0]
         );
 
@@ -43,16 +40,6 @@ return new class extends Migration
             'image_crop',
             $order++,
             ['show_in_list' => 1, 'ratio_crop' => 1, 'conditions' => 1]
-        );
-
-        MigrateService::createColumn02(
-            $data->id,
-            'images',
-            'Hình ảnh',
-            'TEXT',
-            'images_crop',
-            $order++,
-            ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 1]
         );
 
         MigrateService::createColumn02(
@@ -78,6 +65,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('block04');
+        Schema::dropIfExists('block03');
     }
 };

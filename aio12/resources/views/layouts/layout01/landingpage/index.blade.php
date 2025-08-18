@@ -1,52 +1,58 @@
 @extends('layouts.layout01.lay01')
 
 @section('content')
-    {!! app('Helper')->btnLandingpageSetting($menuId) !!}
+    @foreach ($pageSetting as $page)
+        {{-- sứ mệnh --}}
+        @include('layouts.layout01.elements.home.block08')
+        {{-- tầm nhìn --}}
+        @include('layouts.layout01.elements.home.block09')
+        {{-- slide --}}
+        @include('layouts.layout01.elements.home.slide')
 
-    <div id="content" role="main" class="content-area">
+        {{-- product --}}
+        @include('layouts.layout01.elements.home.product')
 
-        @include('layouts.layout01.elements.layout.header03')
+        {{-- include('layouts.layout01.elements.home.block02'); --}}
 
-        @foreach ($pageSetting as $page)
-            {{-- sứ mệnh --}}
-            @include('layouts.layout01.elements.home.block08')
-            {{-- tầm nhìn --}}
-            @include('layouts.layout01.elements.home.block09')
+        {{-- why us --}}
+        @include('layouts.layout01.elements.home.block03')
 
-            {{-- slide --}}
-            @include('layouts.layout01.elements.home.slide')
+        {{-- Ứng dụng thực tế --}}
+        @include('layouts.layout01.elements.home.block04')
 
-            {{-- product --}}
-            @include('layouts.layout01.elements.home.product')
+        {{-- con số --}}
+        @include('layouts.layout01.elements.home.block05')
 
-            {{-- include('layouts.layout01.elements.home.block02'); --}}
+        {{-- quy trinh --}}
+        @include('layouts.layout01.elements.home.block06')
 
-            {{-- why us --}}
-            @include('layouts.layout01.elements.home.block03')
+        {{-- news --}}
+        @include('layouts.layout01.elements.home.news')
 
-            {{-- Ứng dụng thực tế --}}
-            @include('layouts.layout01.elements.home.block04')
+        {{-- KHÁCH HÀNG NÓI VỀ CHÚNG TÔI --}}
+        {{-- include('layouts.layout01.elements.home.block07'); --}}
 
-            {{-- con số --}}
-            @include('layouts.layout01.elements.home.block05')
+        {{-- LIÊN HỆ NGAY --}}
+        @include('layouts.layout01.elements.home.contact')
 
-            {{-- quy trinh --}}
-            @include('layouts.layout01.elements.home.block06')
+        @include('layouts.layout01.elements.home.doi_tac')
+    @endforeach
 
-            {{-- news --}}
-            @include('layouts.layout01.elements.home.news')
+    {{-- btn admin --}}
+    @if (auth()->guard('admin_users')->check())
+        <div style="position: fixed; top: 50%; right: 0px; z-index: 1000;">
+            <button class="btn btn-setting" onclick="ajaxLoadUrl('{{ route('pageSetting.sort_order', [$menuId]) }}', '#modalXLContent')"
+                data-toggle="modal" data-target="#modal-xl">
+                Cài đặt
+            </button>
+        </div>
+    @endif
 
-            {{-- KHÁCH HÀNG NÓI VỀ CHÚNG TÔI --}}
-            {{-- include('layouts.layout01.elements.home.block07'); --}}
+    {{-- modalXLContent --}}
+    @include('modal.modalSetting')
+    {{-- modalDefaultContent --}}
+    @include('modal.modal_default')
 
-            {{-- LIÊN HỆ NGAY --}}
-            @include('layouts.layout01.elements.home.contact')
-
-            @include('layouts.layout01.elements.home.doi_tac')
-        @endforeach
-    </div>
-
-    @include('common.modal_landingpage_edit')
-
-    @include('common.modal_sort_order')
+    <link rel='stylesheet' href='/common/css/admin-control.css?ver={{ env('APP_VERSION') }}' type='text/css' />
+    <script src="/common/js/common.js?ver={{ env('APP_VERSION') }}"></script>
 @endsection

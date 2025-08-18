@@ -16,12 +16,15 @@ return new class extends Migration
         Schema::create('block05', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('note')->nullable();
             $table->string('icon')->nullable();
+            $table->text('note')->nullable();
+            $table->text('link')->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();
             $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('active')->default(1)->nullable();
             $table->string('block_type_id')->nullable();
             $table->longText('images')->nullable();
+            $table->text('image')->nullable();
 
             MigrateService::createBaseColumn($table);
         });

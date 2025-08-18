@@ -1,11 +1,9 @@
 @if ($page->block_type == 'block08')
-@php
-    $image = '';
-    if (!empty($page->images) && !empty($page->images['avatar'])) {
-        $image = $page->images['avatar'];
-    }
-@endphp
+
 <section class="section" id="section_126874805">
+
+    {!! app('Helper')->editTitle($page, true) !!}
+
     <div class="bg section-bg fill bg-fill bg-loaded">
     </div>
     <div class="section-content relative">
@@ -15,9 +13,9 @@
                     <div class="img has-hover x md-x lg-x y md-y lg-y" id="image_{{ $page->id }}" style="width: 100%;">
                         <div class="img-inner dark">
                             <img decoding="async" width="800" height="562"
-                                src="{{ $image }}"
+                                src="{{ $page->image }}"
                                 class="attachment-original size-original" alt=""
-                                srcset="{{ $image }} 800w, {{ $image }} 300w, {{ $image }} 768w, {{ $image }} 600w"
+                                srcset="{{ $page->image }} 800w, {{ $page->image }} 300w, {{ $page->image }} 768w, {{ $page->image }} 600w"
                                 sizes="(max-width: 800px) 100vw, 800px">
                         </div>
                     </div>

@@ -160,6 +160,7 @@ class PagesController extends Controller
             ->where('page_setting.menu_id', $menuId)
             ->orderBy('page_setting.sort_order', 'asc')
             ->get();
+        
         $menu = UserService::getMenuDetail($menuId);
         $param = [
             'config' => $config,

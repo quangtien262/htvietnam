@@ -5,6 +5,9 @@
 @endphp
 
 <section class="section section1" id="section_800775673">
+   
+   {!! app('Helper')->editTitle($page) !!}
+
    <div class="bg section-bg fill bg-fill  bg-loaded">
    </div>
    <div class="section-content relative">
@@ -16,7 +19,7 @@
                   <p style="text-align: center;">{{ $page->description }}</p>
                </div>
                <p style="text-align: center;">
-                  <span style="color: #808080; font-size: 95%;"><em>{{ $page->content }}</em></span>
+                  <span style="color: #808080; font-size: 95%;"><em>{!! $page->content !!}</em></span>
                </p>
             </div>
          </div>

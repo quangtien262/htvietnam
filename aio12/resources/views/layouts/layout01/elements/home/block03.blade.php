@@ -2,14 +2,7 @@
 
     <section class="section section2 dark" id="section_1639615905">
          {{-- btn edit --}}
-         @if(auth()->guard('admin_users')->check())
-            <div class="main-btn-edit">
-                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id, 'is_image' => true]) }}', '#modalEdit')"
-                     data-toggle="modal" data-target="#modalXLEdit">
-                     Sửa khối này
-                  </button>
-            </div>
-        @endif
+         {!! app('Helper')->editTitle($page, true) !!}
         {{-- content --}}
         <div class="bg section-bg fill bg-fill  bg-loaded">
         </div>
@@ -21,7 +14,7 @@
                             <p>{{ $page->description }}</p>
                             <h2>{{ $page->name_data }}</h2>
                         </div>
-                        <p><span style="color: #999999; font-size: 90%;">{{ $page->content }}</span></p>
+                        <p><span style="color: #999999; font-size: 90%;">{!! $page->content !!}</span></p>
                         @if (!empty($page->link))
                             <a href="{{ $page->link }}" target="_self" class="button primary lowercase nut-xem-them">
                                 <span>{{ __('user.view_all') }}</span>

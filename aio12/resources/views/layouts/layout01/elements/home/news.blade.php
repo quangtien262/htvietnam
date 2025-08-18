@@ -5,6 +5,9 @@
     @endphp
     @if (count($news) > 0)
         <section class="section section6" id="section_1636241001">
+
+            {!! app('Helper')->editTitle($page, true) !!}
+
             <div class="bg section-bg fill bg-fill  bg-loaded"></div>
             <div class="section-content relative">
                 <div class="row" id="row-61848502">
@@ -16,7 +19,7 @@
                             </div>
                             <p style="text-align: center;">
                                 <span style="color: #808080; font-size: 95%;">
-                                    <em>{{$page->content}}</em>
+                                    <em>{!! $page->content !!}</em>
                                 </span>
                             </p>
                         </div>

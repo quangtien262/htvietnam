@@ -19,25 +19,11 @@ Route::group(['prefix' => 'page-setting'], function () {
     Route::post('delete/{tblName}/{id}', [PageSettingController::class, 'deleteData'])->name('pageSetting.deleteData');
 
 
-    Route::get('list-data/{tblName}/{pageId?}', [PageSettingController::class, 'listData'])->name('pageSetting.listData');
+    
     Route::post('sort-order-data/{menuId?}', [PageSettingController::class, 'updateSortOrderData'])->name('pageSetting.sort_order_data');
     Route::get('edit-page-setting/{tblName}/{id?}', [PageSettingController::class, 'editPageSetting'])->name('pageSetting.edit');
 
-    // Route::get('add-block/{tblName}/{id?}', [PageSettingController::class, 'addBlock'])->name('pageSetting.addBlock');
-    Route::get('edit-block/{tblName}/{id?}', [PageSettingController::class, 'editBlock'])->name('pageSetting.editBlock');
-    Route::post('save-data/{pageId?}', [PageSettingController::class, 'saveData'])->name('saveData');
-});
-
-// landingpage
-Route::group(['prefix' => 'landingpage'], function () {
-    Route::get('edit/{id}', [LandingPageController::class, 'formBasic'])->name('land.form');
-    Route::post('update', [LandingPageController::class, 'update'])->name('land.update');
-    Route::get('sort-order/{menuId}', [LandingPageController::class, 'sortOrder'])->name('land.sort_order');
-    Route::post('sort-order', [LandingPageController::class, 'updateSortOrder']);
-    Route::get('create/{menuId}', [LandingPageController::class, 'listLandingpageDefault'])->name('land.create');
-    Route::post('create', [LandingPageController::class, 'createLandingpage']);
-    Route::post('active', [LandingPageController::class, 'activeLand'])->name('land.active');
-    Route::post('show-in-menu', [LandingPageController::class, 'showInMenu'])->name('land.show_in_menu');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
+    Route::get('list-block/{tblName}/{pageId?}', [PageSettingController::class, 'listBlock'])->name('pageSetting.listBlock');
+    Route::get('edit-block/{tblName}/{id?}/{pageId?}', [PageSettingController::class, 'editBlock'])->name('pageSetting.editBlock');
+    Route::post('save-data/{id?}/{pageId?}', [PageSettingController::class, 'saveData'])->name('saveData');
 });

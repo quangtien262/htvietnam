@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Admin\Language;
 use App\Services\Admin\TblModel;
+use App\Services\LandingpageData\Layout01;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
@@ -18,105 +19,10 @@ use App\Services\User\UserService;
 
 class PageSettingController extends Controller
 {
-
-    public function update(Request $request)
-    {
-        $block = $this->getBlockConfig()::CONFIG[$request->block_name];
-        $post = $request->all();
-        $data = [];
-        if (isset($post['data'])) {
-            $data = $post['data'];
-        }
-
-        if (empty($data['is_show_btn_register'])) {
-            $data['is_show_btn_register'] = 0;
-        }
-        if (empty($data['is_show_hotline'])) {
-            $data['is_show_hotline'] = 0;
-        }
-        if (empty($data['images'])) {
-            $data['images'] = [];
-        }
-        $json = ['description_json01', 'description_json02', 'description_json03', 'description_json04'];
-        foreach ($post as $key => $val) {
-            if (in_array($key, ['data', 'id', 'block_name', 'hiden'])) {
-                continue;
-            }
-            if (in_array($key, $json)) {
-                $setting = [];
-                for ($i = 0; $i < 15; $i++) {
-                    $tmp = [];
-                    $isAdd = false;
-                    foreach ($block[$key]['setting'] as $k => $v) {
-                        // upload file
-                        if ($k == 'image') {
-                            if (!empty($val[$k][$i])) {
-                                $image = $val[$k][$i];
-                                // $fileName = time() . '.' . $image->extension();
-                                $fileName = app('Helper')->generateRandomString(6) . '_' . time() . '.' . $image->extension();
-                                $image->move(public_path('files/landingpage'), $fileName);
-                                $tmp[$k] = "/files/landingpage/" . $fileName;
-                                $isAdd = true;
-                                continue;
-                            }
-                            if (!empty($post['hiden'][$key]['image'][$i])) {
-                                $tmp[$k] = $post['hiden'][$key]['image'][$i];
-                                $isAdd = true;
-                            }
-                            continue;
-                        }
-
-                        $tmp[$k] = $val[$k][$i];
-                        if (!empty($val[$k][$i])) {
-                            $isAdd = true;
-                        }
-                    }
-                    if ($isAdd) {
-                        $setting[] = $tmp;
-                    }
-                }
-                if (!empty($setting)) {
-                    $data[$key] = $setting;
-                }
-            }
-        }
-
-        if (!empty($request->img)) {
-            foreach ($request->img as $colName => $image) {
-                $fileName = time() . '.' . $image->extension();
-
-                $type = $image->getClientMimeType();
-                $size = $image->getSize();
-                $image->move(public_path('files/landingpage'), $fileName);
-                $data[$colName] = "/files/landingpage/" . $fileName;
-            }
-        }
-
-        if (!empty($request->images_file)) {
-            $imgs = [];
-            foreach ($request->images_file as $image) {
-                $fileName = app('Helper')->generateRandomString(5) . '_' . time() . '.' . $image->extension();
-                $image->move(public_path('files/landingpage'), $fileName);
-                $data['images'][] = "/files/landingpage/" . $fileName;
-            }
-        }
-
-
-        Landingpage::where('id', $request->id)->update($data);
-        $land = Landingpage::find($request->id);
-        if ($land->menu_id == 0) {
-            return redirect('/#' . app('Helper')->generateLandingpageId($land));
-        }
-
-        $menu = Menu::find($land->menu_id);
-        $link = app('Helper')->getLinkMenu($menu) . '/#' . app('Helper')->generateLandingpageId($land);
-        return redirect($link);
-    }
-
     public function sortOrder(Request $request, $menuId = 0)
     {
         $htmlListDragDrop = $this->getHtmlPageSettingDragDrop($menuId);
-        return View('admin.page_setting.sort_order', compact('htmlListDragDrop'));
+        return View('admin.page_setting.sort_order', compact('htmlListDragDrop', 'menuId'));
     }
 
     public function updateSortOrder(Request $request, $menuId = 0)
@@ -138,15 +44,17 @@ class PageSettingController extends Controller
         return View('admin.page_setting.list', compact('list', 'menuId'));
     }
 
-    public function createLandingpage(Request $request)
+    public function createLandingpage(Request $request, $menuId = 0)
     {
-        $land = ListLandingpage::find($request->id);
-        $block = $this->getBlockConfig();
-        $block->{$land->name}($request->menu_id, $request->menu_id);
-
+        // ListLandingpage: là bảng lưu danh sách các block đã được config sẵn
+        $land = ListLandingpage::find($request->list_land_id);
+        $block = $this->getBlockModel();
+        $block->{$land->name}($request->menu_id, $menuId);
+        
         // get data drag and drop
-        $htmlListDragDrop = $this->getHtmlPageSettingDragDrop($request->menu_id);
-        return View('admin.page_setting.sort_order', compact('htmlListDragDrop'));
+        $htmlListDragDrop = $this->getHtmlPageSettingDragDrop($menuId);
+        return $this->sendSuccessResponse([], 'successfully');
+        // return View('admin.page_setting.sort_order', compact('htmlListDragDrop'));
         // return $this->sendSuccessResponse([], $message = 'successfully');
     }
 
@@ -193,39 +101,58 @@ class PageSettingController extends Controller
                 ->where('languages_id', $language->id)
                 ->first();
         }
+        $config = Layout01::getConfig($data->block_type);
         $data = [
             'data' => $data,
             'id' => $id,
             'request' => $request->all(),
             'languages' => $languages,
             'languagesData' => $languagesData,
-            'tblName' => $tblName
+            'tblName' => $tblName,
+            'config' => $config['page']
         ];
         return View('admin.page_setting.edit_page_setting', $data);
     }
 
     public function saveData(Request $request, $id = 0)
     {
-        // dd($request->all());
-
         if (empty($request->tbl)) {
             return $this->sendErrorResponse('error');
         }
         $tableLang = $request->tbl . '_data';
 
         // save data
-        $data = TblModel::find($request->tbl, $id);
+        if (empty($id)) {
+            $data = TblModel::model($request->tbl);
+        } else {
+            $data = TblModel::find($request->tbl, $id);
+        }
+
+        $data->active = $request->active ?? 0;
+        $data->icon = $request->icon ?? '';
+
+        if($request->tbl != 'page_setting') {
+            $data->page_setting_id = $request->pageId;
+        }
+
         if (!empty($request->data)) {
             foreach ($request->data as $key => $val) {
                 $data->{$key} = $val;
             }
-            $data->save();
         }
+
+        $data->save();
 
         // save language data
         if (!empty($request->lang)) {
             foreach ($request->lang as $key => $values) {
-                $dataLang = TblModel::find($tableLang, $values['id']);
+                if (empty($values['id'])) {
+                    $dataLang = TblModel::model($tableLang);
+                } else {
+                    $dataLang = TblModel::find($tableLang, $values['id']);
+                }
+                $dataLang->data_id = $data->id;
+                $dataLang->languages_id = $key;
                 foreach ($values as $k => $v) {
                     if ($k == 'id') {
                         continue;
@@ -237,6 +164,19 @@ class PageSettingController extends Controller
                 $dataLang->save();
             }
         }
+
+        // update image
+        $image = $request->image_hidden;
+        if (!empty($request->image)) {
+            if (!file_exists(public_path('files/landingpage'))) {
+                mkdir(public_path('files/landingpage'), 0755, true);
+            }
+            $fileName = app('Helper')->generateRandomString(5) . '_' . time() . '.' . $request->image->extension();
+            $request->image->move(public_path('files/landingpage'), $fileName);
+            $image = "/files/landingpage/" . $fileName;
+        }
+
+        $data->image = $image;
 
         // update images
         $images = [];
@@ -272,32 +212,53 @@ class PageSettingController extends Controller
         return $this->sendSuccessResponse([], $message = 'successfully');
     }
 
-    public function editBlock($tblName, $id = 0)
+    public function editBlock(Request $request, $tblName, $id = 0, $pageId = 0)
     {
+        $tblLang = $tblName . '_data';
         $languages = Language::orderBy('sort_order', 'asc')->get();
+
+        $page = PageSetting::find($pageId);
+        // dd($page);
+        // save data
         $data = TblModel::find($tblName, $id);
+        // save data lang
         $languagesData = [];
         foreach ($languages as $language) {
-            $languagesData[$language->id] = DB::table('page_setting_data')
+            $languagesData[$language->id] = DB::table($tblLang)
                 ->where('data_id', $id)
                 ->where('languages_id', $language->id)
                 ->first();
         }
-        $data = [
+        $config = Layout01::getConfig($page->block_type);
+
+        $params = [
             'data' => $data,
             'id' => $id,
             'request' => $request->all(),
             'languages' => $languages,
             'languagesData' => $languagesData,
-            'tblName' => $tblName
+            'tblName' => $tblName,
+            'pageId' => $pageId,
+            'config' => $config['block'],
+            'page' => $page
         ];
-        return View('admin.page_setting.edit_page_setting', $data);
+        return View('admin.page_setting.edit_block', $params);
     }
 
-    public function listData(Request $request, $tblName, $pageId = 0)
+    public function listBlock(Request $request, $tblName, $pageId = 0)
     {
         $htmlListDragDrop = $this->getHtmlDataDragDrop($tblName, $pageId);
         return View('admin.page_setting.list_data', compact('htmlListDragDrop', 'tblName', 'pageId'));
+    }
+
+    public function deleteData(Request $request, $tblName, $id)
+    {
+        // delete data
+        DB::table($request->t)->where('id', $id)->delete();
+        // delete data language
+        $tblLang = $request->t . '_data';
+        DB::table($tblLang)->where('data_id', $id)->delete();
+        return $this->sendSuccessResponse([], 'Xóa thành công');
     }
 
     public function updateSortOrderData(Request $request, $menuId = 0)
@@ -318,18 +279,25 @@ class PageSettingController extends Controller
     }
     private function getHtmlDataDragDrop($tableName, $pageId)
     {
+        $langId = UserService::getLang()->id;
+        $tableNameData = $tableName . '_data';
         $html = '';
-        $tableData = TblModel::model($tableName)->where('page_setting_id', $pageId)->OrderBy('sort_order', 'asc')->get();
+        $tableData = TblModel::model($tableName)
+            ->leftJoin($tableNameData, $tableNameData . '.data_id', '=', $tableName . '.id')
+            ->where($tableName . '.page_setting_id', $pageId)
+            ->where($tableNameData . '.languages_id', $langId)
+            ->OrderBy($tableName . '.sort_order', 'asc')
+            ->get();
 
         if (!empty($tableData)) {
             $html = '<ol class="dd-list">';
             foreach ($tableData as $td) {
                 $checked = '';
-                if (empty($td->active)) {
+                if (!empty($td->active)) {
                     $checked = 'checked';
                 }
 
-                $html .= '<li id="main-block-dad-' . $td->id . '" class="dd-item" data-id="' . $td->id . '">
+                $html .= '<li id="main-block-dad-' . $td->data_id . '" class="dd-item" data-id="' . $td->data_id . '">
                             <div class="card b0 dd-handle">
                                 <div class="mda-list">
                                     <div class="mda-list-item">
@@ -338,32 +306,32 @@ class PageSettingController extends Controller
                                         </div>
                                         <div class="mda-list-item-text mda-2-line">
                                             <em class="type-block">' . '' . '</em>
-                                            <h3>' . $td->name . '</h3>
+                                            <h3 class="title-dd">' . $td->name_data . '</h3>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="option-dd">
-                                <input ' . $checked . ' onchange="" id="hide_' . $td->id . '" type="checkbox" name="hide[]" value="' . $td->id . '"/>
-                                <label class"label_hide" for="hide_' . $td->id . '">' . __('land.hidden_block') . '</label>
-                                
-                                <a class="delete-land" href="'.route('pageSetting.edit', ['tblName' => $tableName, 'id' => $td->id]).'" >
-                                   <b> <i class="ion-trash-a"></i> ' . __('land.edit') . '</b>
+                                <input ' . $checked . ' onchange="" id="hide_' . $td->data_id . '" type="checkbox" name="hide[]" value="' . $td->data_id . '"/>
+                                <label class"label_hide" for="hide_' . $td->data_id . '">' . __('land.hidden_block') . '</label>
+
+                                <a class="delete-land" href="' . route('pageSetting.editBlock', [$tableName, $td->data_id, $pageId]) . '" >
+                                   <b> <i class="fas fa-pencil"></i></i> ' . __('land.edit') . '</b>
                                 </a>
 
-                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" style="float: right;">
-                                   <b> <i class="ion-trash-a"></i> ' . __('land.removed') . '</b>
+                                <a class="delete-land" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show()" style="float: right;">
+                                   <b> <i class="fas fa-trash"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>
-                            <div id="delete-confirm-' . $td->id . '" class="land-confirm-delete _hidden">
-                                <a class="confirm-delete-land">
+                            <div id="delete-confirm-' . $td->data_id . '" class="land-confirm-delete _hidden" style="height: 30px;">
+                                <em class="confirm-delete-land" style="float: right;">
                                 ' . __('land.you_delete') . '
                                     &nbsp;
-                                    <b class="land-btn-delete" onclick="deletedLand(' . $td->id . ')"><i class="ion-checkmark-round"></i>' . __('land.removed') . '</b>
+                                    <a><b class="land-btn-delete" onclick="$.post(\'' . route('pageSetting.deleteData', [$tableName, $td->data_id]) . '\', { t: \'' . $tableName . '\', id: \'' . $td->data_id . '\', _token: \'' . csrf_token() . '\' }, function(response) {location.reload();});"><i class="ion-checkmark-round"></i>' . __('land.removed') . '</b></a>
                                     &nbsp;
-                                    <b onclick="cancelDeleteLand(\'#delete-confirm-' . $td->id . '\')"" class="land-btn-cancel-delete"><i class="ion-close-circled"></i> ' . __('land.cancel') . '</b>
+                                    <a><b onclick="$(\'#delete-confirm-' . $td->data_id . '\').hide()" class="land-btn-cancel-delete"><i class="ion-close-circled"></i> ' . __('land.cancel') . '</b></a>
                                     &nbsp;
-                                </a>
+                                </em>
                             </div>';
                 $html .= '</li>';
             }
@@ -413,6 +381,7 @@ class PageSettingController extends Controller
 
     private function getHtmlPageSettingDragDrop($menuId)
     {
+
         $html = '';
         $tableData = PageSetting::query()
             ->where('page_setting.menu_id', $menuId)
@@ -426,7 +395,7 @@ class PageSettingController extends Controller
                     $checked = 'checked';
                 }
 
-                $html .= '<li id="main-block-dad-' . $td->id . '" class="dd-item" data-id="' . $td->id . '">
+                $html .= '<li id="main-block-dad-' . $td->data_id . '" class="dd-item" data-id="' . $td->data_id . '">
                             <div class="card b0 dd-handle">
                                 <div class="mda-list">
                                     <div class="mda-list-item">
@@ -435,42 +404,44 @@ class PageSettingController extends Controller
                                         </div>
                                         <div class="mda-list-item-text mda-2-line">
                                             <em class="type-block">' . $td->block_type . '</em>
-                                            <h3>' . $td->name_data . '</h3>
+                                            <h3 class="title-dd">' . $td->name_data . '</h3>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="option-dd">
-                                <input ' . $checked . ' onchange="hideLand(this,' . $td->id . ')" id="hide_' . $td->id . '" type="checkbox" name="hide[]" value="' . $td->id . '"/>
-                                <label class"label_hide" for="hide_' . $td->id . '">' . __('land.hidden_block') . '</label>
+                                <input ' . $checked . ' onchange="hideLand(this,' . $td->data_id . ')" id="hide_' . $td->data_id . '" type="checkbox" name="hide[]" value="' . $td->data_id . '"/>
+                                <label class"label_hide" for="hide_' . $td->data_id . '">' . __('land.hidden_block') . '</label>
 
-                                <input ' . $checked . ' onchange="showInMenu(this,' . $td->id . ')" id="show-in-menu_' . $td->id . '" type="checkbox" name="show_in_menu[]" value="' . $td->id . '"/>
-                                <label class"label_hide" for="hide_' . $td->id . '">' . __('land.show_in_menu') . '</label>
+                                <a class="delete-land" href="' . route('pageSetting.edit', ['page_setting', $td->data_id]) . '" >
+                                   <b> <i class="fas fa-pencil"></i> Sửa </b>
+                                </a>
 
-                                <a class="delete-land" onclick="deleteConfirm(\'#delete-confirm-' . $td->id . '\')" style="float: right;">
-                                   <b> <i class="ion-trash-a"></i> ' . __('land.removed') . '</b>
+                                <a class="delete-land" onclick="$(\'#delete-confirm-' . $td->data_id . '\').show()" style="float: right;">
+                                   <b> <i class="fas fa-trash"></i> ' . __('land.removed') . '</b>
                                 </a>
                             </div>
-                            <div id="delete-confirm-' . $td->id . '" class="land-confirm-delete _hidden">
-                                <a class="confirm-delete-land">
+                            <div id="delete-confirm-' . $td->data_id . '" class="land-confirm-delete _hidden" style="height: 30px;">
+                                <em class="confirm-delete-land" style="float: right;">
                                 ' . __('land.you_delete') . '
                                     &nbsp;
-                                    <b class="land-btn-delete" onclick="deletedLand(' . $td->id . ')"><i class="ion-checkmark-round"></i>' . __('land.removed') . '</b>
+                                    <a><b class="land-btn-delete" onclick="$.post(\'' . route('pageSetting.deleteData', ['page_setting', $td->data_id]) . '\', { t: \'page_setting\', id: \'' . $td->data_id . '\', _token: \'' . csrf_token() . '\' }, function(response) {location.reload();});"><i class="ion-checkmark-round"></i>' . __('land.removed') . '</b></a>
                                     &nbsp;
-                                    <b onclick="cancelDeleteLand(\'#delete-confirm-' . $td->id . '\')"" class="land-btn-cancel-delete"><i class="ion-close-circled"></i> ' . __('land.cancel') . '</b>
+                                    <a><b onclick="$(\'#delete-confirm-' . $td->data_id . '\').hide()" class="land-btn-cancel-delete"><i class="ion-close-circled"></i> ' . __('land.cancel') . '</b></a>
                                     &nbsp;
-                                </a>
+                                </em>
                             </div>';
                 $html .= '</li>';
             }
             $html .= '</ol>';
         }
-
+        // <input ' . $checked . ' onchange="showInMenu(this,' . $td->data_id . ')" id="show-in-menu_' . $td->data_id . '" type="checkbox" name="show_in_menu[]" value="' . $td->data_id . '"/>
+        // <label class"label_hide" for="show-in-menu_' . $td->data_id . '">' . __('land.show_in_menu') . '</label>
         return $html;
     }
 
 
-    private function getBlockConfig()
+    private function getBlockModel()
     {
         $config = WebConfig::query()->find(1);
         $class = 'App\Services\LandingpageData\Layout' . $config->layout;

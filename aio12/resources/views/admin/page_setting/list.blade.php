@@ -1,7 +1,6 @@
 @extends('admin.page_setting.page_setting_layout')
 
 @section('content')
-
     <style>
         .table-list-block {
             width: 100%;
@@ -42,11 +41,24 @@
     @csrf
 
     <div id="content" class="card">
+        <div class="modal-header">
+            {{-- sort order --}}
+            <a href="{{ route('pageSetting.sort_order') }}">
+                <button id="btnSortOrder" type="button" class="btn btn-primary" style="float: right;">
+                    <i class="fas fa-reply-all"></i>
+                    Quay lại danh sách
+                </button>
+            </a>
+
+            @csrf
+            <textarea id="nestable-output" class="well sort-order-output _hidden"></textarea>
+        </div>
         <div class="card-body">
             <div class="row">
 
                 <div class="col-12 ">
                     <h3 class="title02">Vui lòng CLICK chọn khối mà bạn muốn thêm</h3>
+                    {{ $menuId }}
                 </div>
                 <table class="table-list-block">
                     @foreach ($list as $land)
@@ -55,7 +67,7 @@
                         </tr>
                         <tr>
                             <td class="admin-land-item"
-                                onclick="addLandingpage('{{ $land->id }}', '{{ $menuId }}')">
+                                onclick="addLandingpage({{ $land->id }})">
                                 <img src="{{ $land->image }}" />
                             </td>
                         </tr>
@@ -67,21 +79,19 @@
     </div>
 
     <script>
-        function addLandingpage(id, menuId) {
+        function addLandingpage(landId) {
             $("#content").html('<img class="img-loading" src="/images/loading/loading.jpg" style="width: 100px;" />');
             $.ajax({
                 headers: {
                     "X-CSRF-Token": $('input[name="_token"]').val(),
                 },
                 type: "post",
-                url: "/adm/page-setting/create",
+                url: "{{ route('pageSetting.create', [$menuId]) }}",
                 data: {
-                    id: id,
-                    menu_id: menuId,
+                    list_land_id: landId,
                 },
                 success: function(data) {
-                    console.log("data", data);
-                    $("#content").html(data);
+                    window.location.href = "{{ route('pageSetting.sort_order', [$menuId]) }}";
                 },
             });
         }

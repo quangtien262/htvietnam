@@ -114,4 +114,5 @@ return [
     'english' => 'English',
     'china' => 'China',
     'vietnam' => 'Vietnam',
+    'view_details' => 'View details'
 ];

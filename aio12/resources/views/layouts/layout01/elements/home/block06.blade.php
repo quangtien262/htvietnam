@@ -1,9 +1,19 @@
 @if ($page->block_type == 'block06')
 
     @php
-        $block06 = app('Helper')->getDataLang('block06', ['block06.page_setting_id' => $page->data_id], ['block06.sort_order' => 'asc']);
+        $block06 = app('Helper')->getDataLang(
+            'block06',
+            ['block06.page_setting_id' => $page->data_id],
+            ['block06.sort_order' => 'asc'],
+        );
     @endphp
     <section class="section section5 dark" id="section_430949110">
+
+        <div class="main-btn-edit">
+            {!! app('Helper')->editTitle($page, false) !!}
+            {!! app('Helper')->editContent($page, 'block06', false) !!}
+        </div>
+
         <div class="bg section-bg fill bg-fill  ">
         </div>
         <div class="section-content relative">
@@ -21,7 +31,7 @@
                             <h2>{{ $page->name_data }}</h2>
                         </div>
                         <p>
-                            <span style="color: #ffffff; font-size: 90%;">{{ $page->content }}</span>
+                            <span style="color: #ffffff; font-size: 90%;">{!! $page->content !!}</span>
                         </p>
                         <div class="row row-small" id="row-1854211297">
                             @foreach ($block06 as $item)
@@ -30,12 +40,12 @@
                                         <div class="icon-box-img icon05">
                                             <div class="icon">
                                                 <div class="icon-inner">
-                                                   {!! $item->icon !!}
+                                                    {!! $item->icon !!}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="icon-box-text last-reset">
-                                            <h3>{{$item->name_data}}</h3>
+                                            <h3>{{ $item->name_data }}</h3>
                                         </div>
                                     </div>
                                 </div>

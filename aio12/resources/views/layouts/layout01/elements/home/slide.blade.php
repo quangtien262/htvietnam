@@ -1,9 +1,11 @@
-@if ($page->block_type == 'banner')
+@if ($page->block_type == 'images')
 
     @php
         $images = app('Helper')->getDataLang('images', ['images.page_setting_id' => $page->data_id], ['images.sort_order' => 'asc']);
     @endphp
     <div class="slider-wrapper relative slider-section" id="slider-1086543072">
+            {!! app('Helper')->editContent($page, 'images', true) !!}
+
         <div class="slider slider-nav-dots-simple slider-nav-simple slider-nav-normal slider-nav-light slider-style-normal"
             data-flickity-options='{
                      "cellAlign": "center",
@@ -24,11 +26,11 @@
                      "selectedAttraction": 0.1,
                      "parallax" : 0,
                      "friction": 0.6}'>
-            @foreach ($images as $image)
+            @foreach ($images as $img)
                 <div class="banner has-hover" id="banner-922867367" style="padding-top: 860px;">
                     <div class="banner-inner fill">
                         <div class="banner-bg fill">
-                            <div class="bg fill bg-fill" style="background-image: url({{ $image->image }});"></div>
+                            <div class="bg fill bg-fill" style="background-image: url({{ $img->image }});"></div>
                             <div class="overlay" style="background-color: rgba(0, 0, 0, 0.366)"></div>
                         </div>
                         <div class="banner-layers container">
@@ -39,14 +41,16 @@
                                     <div class="text-box-content text dark">
                                         <div class="text-inner text-center">
                                             <p style="text-align: center;"><span
-                                                    style="font-size: 120%;">{{ $image->description }}</span></p>
+                                                    style="font-size: 120%;">{{ $img->description }}</span></p>
                                             <h2 style="text-align: center;"><span
-                                                    style="font-size: 130%;">{{ $image->name_data }}</span></h2>
-                                            <p style="text-align: center;">{{ $image->content }}</p>
-                                            <a href="#" target="_self"
-                                                class="button primary lowercase nut-xem-them">
-                                                <span>Xem chi tiết</span>
-                                            </a>
+                                                    style="font-size: 130%;">{{ $img->name_data }}</span></h2>
+                                            <p style="text-align: center;">{{ $img->content }}</p>
+                                            @if (!empty($img->link))
+                                                <a href="{{ $img->link }}" target="_self"
+                                                    class="button primary lowercase nut-xem-them">
+                                                    <span>{{__('user.view_details')}}</span>
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

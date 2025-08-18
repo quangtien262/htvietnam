@@ -184,7 +184,7 @@ class Helper
     }
     public function getLinkMenu($menu)
     {
-        
+
         if (empty($menu)) {
             return '';
         }
@@ -222,7 +222,7 @@ class Helper
     {
         $lang = UserService::getLang();
         $sluggable = 'news';
-        if(!empty($news->name_data) && $lang->code != 'ch') {
+        if (!empty($news->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($news->name_data);
         }
         return route('news.detail', [$sluggable, $news->id]);
@@ -286,7 +286,9 @@ class Helper
         return Product::find($id);
     }
 
-    function getCity() {}
+    function getCity()
+    {
+    }
 
     public function getName($tblName, $id = 0)
     {
@@ -308,7 +310,7 @@ class Helper
 
     public function getMenuById($menuId)
     {
-        return  Menu::find($menuId);
+        return Menu::find($menuId);
     }
 
     /**
@@ -474,7 +476,7 @@ class Helper
         $html = '<div class="collapse navbar-collapse" id="myNavbar"><ul class="nav navbar-nav">';
         $menu = Menu::orderBy('sort_order', 'asc')->get();
         foreach ($menu as $idx => $m) {
-            $link =  $this->getLinkByRoute($m->display_type, $m->id);
+            $link = $this->getLinkByRoute($m->display_type, $m->id);
             $active = '';
             if ($route == $m->display_type) {
                 // check active guild
@@ -578,7 +580,7 @@ class Helper
             return '<span class="' . $classPromoPrice . '">' . number_format(intval($product->price), 0, '.', '.') . '₫</span>
             <span class="' . $classPrice . '">' . number_format(intval($product->promo_price), 0, '.', '.') . '₫</span>';
         }
-        return '<span class="' . $classPrice . '">' . number_format(intval($product->price), 0, '.', '.')  . '₫</span>';
+        return '<span class="' . $classPrice . '">' . number_format(intval($product->price), 0, '.', '.') . '₫</span>';
     }
 
     public function getAvatarProduct($product, $isShowNoImage = true)
@@ -649,10 +651,53 @@ class Helper
         return LinkFooter::query()->orderBy('sort_order', 'asc')->get();
     }
 
-    public function getPageSeting($menuId = 0) {
+    public function getPageSeting($menuId = 0)
+    {
         return PageSetting::query()
             ->where('page_setting.menu_id', $menuId)
             ->orderBy('page_setting.sort_order', 'asc')
             ->get();
+    }
+
+    public function editTitle($page, $isMain = true)
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+
+        $result = '';
+
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                <i class="fa-solid fa-pen"></i> Sửa tiêu đề
+                </button>';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
+    }
+    public function editContent($page, $tblName = 'block04', $isMain = true)
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+        $result = '';
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.listBlock', ['tblName' => $tblName, 'pageId' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                     <i class="fa-solid fa-comments"></i> Sửa nội dung';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
     }
 }

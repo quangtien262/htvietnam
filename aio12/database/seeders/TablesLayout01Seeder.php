@@ -275,7 +275,7 @@ class TablesLayout01Seeder extends Seeder
     {
         $sort_order = 1;
         // slide
-        Layout01::banner($sort_order++);
+        Layout01::images($sort_order++);
 
         // product
         Layout01::products($sort_order++);

@@ -28,7 +28,7 @@ return [
     'edit' => 'Edit',
     'cancel' => 'Cancel',
     'update_order' => 'Update Sort Order',
-    'hidden_block' => 'Hidden block',
+    'hidden_block' => 'Show / Hidden block',
     'show_in_menu' => 'Show in menu',
     'you_delete' => 'Want to delete this block?',
     'conten_success' => 'Contact sent successfully, Thank you for your contact, we will get back to you within 24h!',

@@ -20,9 +20,13 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('type')->nullable(); // slide, banner, ,,,,
             $table->text('image')->nullable();
+            $table->text('images')->nullable();
             $table->text('link')->nullable();
+            $table->text('note')->nullable();
+            $table->text('icon')->nullable();
             $table->integer('page_setting_id')->default(0)->nullable();
             $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('active')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
         });
@@ -40,6 +44,7 @@ return new class extends Migration
 
         MigrateService::createColumn02($images->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($images->id, 'name', 'Tiêu đề', 'TEXT', 'text', $order++, ['show_in_list' => 1, 'edit' => 0]);
+        
         MigrateService::createColumn02($images->id, 'image', 'Hình Ảnh', 'TEXT', 'image_crop', $order++, ['conditions' => 1, 'edit' => 1]);
 
         MigrateService::createColumn02(

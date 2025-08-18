@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('name')->nullable(); //title
             $table->text('display_name')->nullable(); //title
             $table->string('block_type')->nullable();
+            $table->string('icon')->nullable();
+            $table->text('image')->nullable();
             $table->text('images')->nullable();
             $table->text('link')->nullable();
             $table->integer('active')->default(1)->nullable();
@@ -26,8 +28,9 @@ return new class extends Migration
             $table->string('table_edit')->nullable();
             $table->string('table_data')->nullable();
             $table->text('table_data_ids')->nullable();
-            $table->text('condition')->nullable();
+            // $table->text('condition')->nullable();
             $table->string('link_edit')->nullable();
+            $table->string('note')->nullable();
 
             MigrateService::createBaseColumn($table);
         });

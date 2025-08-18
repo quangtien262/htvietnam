@@ -28,7 +28,7 @@ return [
     'edit' => 'Sửa',
     'cancel' => 'Hủy',
     'update_order' => 'Cập nhật thứ tự',
-    'hidden_block' => 'Ẩn khối này',
+    'hidden_block' => 'Hiển thị / Ẩn khối này',
     'show_in_menu' => 'Hiển thị ở menu',
     'you_delete' => ' Bạn muốn xóa khối này?',
     'conten_success' => ' Gửi liên hệ thành công, Cảm ơn bạn đã gửi liên hệ, chúng tôi sẽ liên hệ lại với bạn trong vòng 24h!',

@@ -1,5 +1,8 @@
 @if ($page->block_type == 'contact')
     <section class="section section8" id="section_2131306808">
+        
+        {!! app('Helper')->editTitle($page, true) !!}
+
         <div class="bg section-bg fill bg-fill  bg-loaded">
         </div>
         <div class="section-content relative">
@@ -11,7 +14,7 @@
                             <h2 style="text-align: center;">{{ $page->name_data }}</h2>
                         </div>
                         <p style="text-align: center;"><span
-                                style="color: #808080; font-size: 95%;"><em>{{ $page->content }}</em></span>
+                                style="color: #808080; font-size: 95%;"><em>{!! $page->content !!}</em></span>
                         </p>
                     </div>
                 </div>
@@ -194,9 +197,9 @@
                                         </span>
                                         <br />
                                         <input class="wpcf7-form-control has-spinner wpcf7-submit" type="submit"
-                                             onclick="sendContact('#contactForm', this)"
-                                                data-wait="{{ __('user.sending') }}" data-id="contact01"
-                                            id="contact01" value="{{ __('user.send_message') }}" />
+                                            onclick="sendContact('#contactForm', this)"
+                                            data-wait="{{ __('user.sending') }}" data-id="contact01" id="contact01"
+                                            value="{{ __('user.send_message') }}" />
                                     </p>
                                 </div>
                             </div>
@@ -210,8 +213,6 @@
     </section>
 
     <script>
-        
-
         function sendContact(formID, btn) {
             var $jq = jQuery.noConflict();
             $jq('#contact01').html('<img width="20px" src="/images/loadding/giphy.gif"/>Đang gửi yêu cầu.... ');

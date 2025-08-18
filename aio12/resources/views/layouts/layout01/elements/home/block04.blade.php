@@ -7,20 +7,14 @@
             ['block04.sort_order' => 'asc'],
         );
     @endphp
-    <section class="section section3" id="section_814293249">
-      @if(auth()->guard('admin_users')->check())
-            <div class="main-btn-edit">
-                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id, 'is_image' => false]) }}', '#modalEdit')"
-                     data-toggle="modal" data-target="#modalXLEdit">
-                     Sửa tiêu đề
-                  </button>
 
-                  <button class="btn btn-fast-edit" onclick="ajaxLoadUrl('{{ route('pageSetting.listData', ['tblName' => 'block04', 'pageId' => $page->data_id, 'is_image' => false]) }}', '#modalEdit')"
-                     data-toggle="modal" data-target="#modalXLEdit">
-                     Sửa nội dung
-                  </button>
-            </div>
-        @endif
+    <section class="section section3" id="section_814293249">
+
+        <div class="main-btn-edit">
+            {!! app('Helper')->editTitle($page, false) !!}
+            {!! app('Helper')->editContent($page, 'block04', false) !!}
+        </div>
+
         <div class="bg section-bg fill bg-fill  bg-loaded">
         </div>
         <div class="section-content relative">
@@ -31,31 +25,31 @@
                             <h2>{{ $page->name_data }}</h2>
                             <p>{{ $page->description }}<br />
                         </div>
-                        <p><span style="color: #808080; font-size: 95%;">{{ $page->content }}</span></p>
+                        <p><span style="color: #808080; font-size: 95%;">{!! $page->content !!}</span></p>
                     </div>
                 </div>
                 <div id="col-147778346" class="col medium-8 small-12 large-8">
-                  <div class="row">
-                    @foreach ($block04 as $block)
-                        <div class="col-inner col medium-6 small-12 large-6 item04">
-                            <a class="plain" href="#">
-                                <div class="icon-box featured-box icon-box-left text-left">
-                                    <div class="icon-box-img" style="width: 60px">
-                                        <div class="icon">
-                                            <div class="icon-inner icon04">
-                                                {!! $block->icon !!}
+                    <div class="row">
+                        @foreach ($block04 as $block)
+                            <div class="col-inner col medium-6 small-12 large-6 item04">
+                                <a class="plain" href="#">
+                                    <div class="icon-box featured-box icon-box-left text-left">
+                                        <div class="icon-box-img" style="width: 60px">
+                                            <div class="icon">
+                                                <div class="icon-inner icon04">
+                                                    {!! $block->icon !!}
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="icon-box-text last-reset">
+                                            <h3 class="title04">{{ $block->name_data }}</h3>
+                                            <p>{{ $block->description }}</p>
+                                        </div>
                                     </div>
-                                    <div class="icon-box-text last-reset">
-                                        <h3 class="title04">{{ $block->name_data }}</h3>
-                                        <p>{{ $block->description }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    @endforeach
-                  </div>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
                 {{-- <div id="col-322709601" class="col medium-4 small-12 large-4">
