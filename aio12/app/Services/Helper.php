@@ -214,7 +214,9 @@ class Helper
                 # code...
                 break;
         }
-
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
         return $link;
     }
 
@@ -225,7 +227,11 @@ class Helper
         if (!empty($news->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($news->name_data);
         }
-        return route('news.detail', [$sluggable, $news->id]);
+        $link = route('news.detail', [$sluggable, $news->id]);
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
     public function getLinkTags($tags)
@@ -235,7 +241,11 @@ class Helper
         if (!empty($tags->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($tags->name_data);
         }
-        return route('news.tags', [$sluggable, $tags->id]);
+        $link = route('news.tags', [$sluggable, $tags->id]);
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
     public function getLinkProduct($product)
@@ -245,13 +255,21 @@ class Helper
         if (!empty($product->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($product->name_data);
         }
-        return route('product.detail', [$sluggable, $product->id]);
+        $link = route('product.detail', [$sluggable, $product->id]);
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
     public function getLinkBDS($bds)
     {
         $sluggable = self::formatText($bds->name);
-        return route('bds.detail', [$sluggable, $bds->id]);
+        $link = route('bds.detail', [$sluggable, $bds->id]);
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
 

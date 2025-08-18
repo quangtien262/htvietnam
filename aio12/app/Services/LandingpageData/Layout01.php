@@ -519,10 +519,7 @@ class Layout01 extends Land
                 'sort_order' => $sortOrder,
                 'block_type' => 'block08',
                 'table_data' => 'block08',
-                'images' => json_encode([
-                    'avatar' => '/layouts/01/images/about/3.jpg',
-                    'images' => ['/layouts/01/images/about/3.jpg']
-                ])
+                'image' => '/layouts/01/images/about/3.jpg'
             ],
             [
                 'name_data' => ['Tầm nhìn', 'Vision', '愿景'],
@@ -555,10 +552,7 @@ For society: Harmonize business interests with social interests; actively contri
                 'sort_order' => $sortOrder,
                 'block_type' => 'block08',
                 'table_data' => 'block08',
-                'images' => json_encode([
-                    'avatar' => '/layouts/01/images/about/2.jpg',
-                    'images' => ['/layouts/01/images/about/2.jpg']
-                ])
+                'image' => '/layouts/01/images/about/2.jpg'
             ],
             [
                 'name_data' => ['Giá trị cốt lõi', 'Core values', '核心价值观'],
@@ -583,10 +577,7 @@ For society: Harmonize business interests with social interests; actively contri
                 'sort_order' => $sortOrder,
                 'block_type' => 'block09',
                 'table_data' => 'block09',
-                'images' => json_encode([
-                    'avatar' => '/layouts/01/images/about/1.jpg',
-                    'images' => ['/layouts/01/images/about/1.jpg']
-                ])
+                'image' => '/layouts/01/images/about/1.jpg'
             ],
             [
                 'name_data' => ['Sứ mệnh', 'Mission', '使命'],
