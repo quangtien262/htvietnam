@@ -111,90 +111,15 @@
                                 <br />
                                 <div class="is-divider medium"></div>
 
-                                <div class="social-icons share-icons share-row relative">
-
-                                    {{-- facebook --}}
-                                    <a href="https://www.facebook.com/sharer.php?u={{ url()->full() }}"
-                                        data-label="Facebook"
-                                        onclick="window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');"
-                                        target="_blank" class="icon button circle is-outline tooltip facebook"
-                                        title="Share on Facebook" aria-label="Share on Facebook"><i
-                                            class="icon-facebook"></i>
-                                    </a>
-
-                                    {{-- twitter --}}
-                                    <a href="https://twitter.com/share?url={{ url()->full() }}"
-                                        onclick="window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');"
-                                        target="_blank" class="icon button circle is-outline tooltip twitter"
-                                        title="Share on Twitter" aria-label="Share on Twitter"><i class="icon-twitter"></i>
-                                    </a>
-
-                                    {{-- email --}}
-                                    <a href="mailto:?subject={{ urlencode($news->name_data) }}&body={{ urlencode('Xem bài viết này: ' . url()->full()) }}"
-                                        class="icon button circle is-outline tooltip email" title="Email to a Friend"
-                                        aria-label="Email to a Friend">
-                                        <i class="icon-envelop"></i>
-                                    </a>
-
-                                    {{-- pinterest --}}+
-                                    <a href="https://pinterest.com/pin/create/button/?url={{ url()->full() }}&media={{ $news->image }}&description={{ urlencode($news->name_data) }}"
-                                        onclick="window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');"
-                                        target="_blank" class="icon button circle is-outline tooltip pinterest"
-                                        title="Share on pinterest" aria-label="Share on pinterest"><i
-                                            class="icon-pinterest"></i>
-                                    </a>
-
-                                    {{-- linkedin --}}
-                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ url()->full() }}&title={{ urlencode($news->name_data) }}"
-                                        onclick="window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');"
-                                        target="_blank" class="icon button circle is-outline tooltip linkedin"
-                                        title="Share on LinkedIn" aria-label="Share on LinkedIn"><i
-                                            class="icon-linkedin"></i>
-                                    </a>
-                                </div>
+                                {{-- share --}}
+                                @include('layouts.layout01.elements.common.share', ['data' => $news])
                             </div>
                         </div>
                     </div>
                 </article>
 
                 {{-- comment --}}
-                <div id="comments" class="comments-area">
-                    <div id="respond" class="comment-respond">
-                        <h3 id="reply-title" class="comment-reply-title">Để lại một bình luận <small><a rel="nofollow"
-                                    id="cancel-comment-reply-link"
-                                    href="/2023/01/31/sausage-adipisicing-turducken-biltong-shoulder/#respond"
-                                    style="display:none;">Hủy</a></small></h3>
-                        <form action="https://solar3.maugiaodien.com/wp-comments-post.php" method="post" id="commentform"
-                            class="comment-form" novalidate="">
-                            <p class="comment-notes"><span id="email-notes">Email của bạn sẽ không được hiển thị công
-                                    khai.</span> <span class="required-field-message">Các trường bắt buộc được đánh dấu
-                                    <span class="required">*</span></span></p>
-                            <p class="comment-form-comment"><label for="comment">Bình luận <span
-                                        class="required">*</span></label> <textarea id="comment" name="comment" cols="45"
-                                    rows="8" maxlength="65525" required=""></textarea></p>
-                            <p class="comment-form-author"><label for="author">Tên <span class="required">*</span></label>
-                                <input id="author" name="author" type="text" value="" size="30" maxlength="245"
-                                    autocomplete="name" required="">
-                            </p>
-                            <p class="comment-form-email"><label for="email">Email <span class="required">*</span></label>
-                                <input id="email" name="email" type="email" value="" size="30" maxlength="100"
-                                    aria-describedby="email-notes" autocomplete="email" required="">
-                            </p>
-                            <p class="comment-form-url"><label for="url">Trang web</label> <input id="url" name="url"
-                                    type="url" value="" size="30" maxlength="200" autocomplete="url"></p>
-                            <p class="comment-form-cookies-consent"><input id="wp-comment-cookies-consent"
-                                    name="wp-comment-cookies-consent" type="checkbox" value="yes"> <label
-                                    for="wp-comment-cookies-consent">Lưu tên của tôi, email, và trang web trong trình duyệt
-                                    này cho lần bình luận kế tiếp của tôi.</label></p>
-                            <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit"
-                                    value="Gửi bình luận"> <input type="hidden" name="comment_post_ID" value="495"
-                                    id="comment_post_ID">
-                                <input type="hidden" name="comment_parent" id="comment_parent" value="0">
-                            </p>
-                        </form>
-                    </div>
-                    <!-- #respond -->
-                </div>
+                
             </div>
 
             <div class="post-sidebar large-4 col">

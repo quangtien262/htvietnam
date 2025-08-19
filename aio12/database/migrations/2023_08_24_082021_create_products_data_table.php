@@ -20,6 +20,8 @@ return new class extends Migration
             $table->longtext('description')->nullable();
             $table->longtext('description02')->nullable();
             $table->longtext('content')->nullable();
+            $table->longtext('content02')->nullable();
+            $table->longtext('content03')->nullable();
 
 
             $table->text('meta_title')->nullable();
@@ -56,6 +58,24 @@ return new class extends Migration
         MigrateService::createColumn02(
             $productData->id,
             'content',
+            'Nội dung',
+            'LONGTEXT',
+            'tiny',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24]
+        );
+        MigrateService::createColumn02(
+            $productData->id,
+            'content02',
+            'Nội dung',
+            'LONGTEXT',
+            'tiny',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24]
+        );
+        MigrateService::createColumn02(
+            $productData->id,
+            'content03',
             'Nội dung',
             'LONGTEXT',
             'tiny',

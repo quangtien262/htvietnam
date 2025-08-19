@@ -148,8 +148,7 @@
                             <aside id="search-2" class="widget widget_search">
                                 <span class="widget-title shop-sidebar">Tìm kiếm sản phẩm</span>
                                 <div class="is-divider small"></div>
-                                <form method="get" class="searchform" action=""
-                                    role="search">
+                                <form method="get" class="searchform" action="" role="search">
                                     <div class="flex-row relative">
                                         <div class="flex-col flex-grow">
                                             <input type="search" class="search-field mb-0" name="s"
@@ -308,45 +307,10 @@
                                                     rel="tag">Chưa
                                                     phân loại</a></span>
                                         </div>
-                                        <div class="social-icons share-icons share-row relative"><a
-                                                href="whatsapp://send?text=Lorem%20stet%20clita%20kasd - https://solar3.maugiaodien.com/lorem-stet-clita-kasd/"
-                                                data-action="share/whatsapp/share"
-                                                class="icon button circle is-outline tooltip whatsapp show-for-medium"
-                                                title="Share on WhatsApp" aria-label="Share on WhatsApp"><i
-                                                    class="icon-whatsapp"></i></a><a
-                                                href="https://www.facebook.com/sharer.php?u=https://solar3.maugiaodien.com/lorem-stet-clita-kasd/"
-                                                data-label="Facebook"
-                                                onclick="if (!window.__cfRLUnblockHandlers) return false; window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');  return false;"
-                                                rel="noopener noreferrer nofollow" target="_blank"
-                                                class="icon button circle is-outline tooltip facebook"
-                                                title="Share on Facebook" aria-label="Share on Facebook"
-                                                data-cf-modified-e18fd37353d74f8cf6fc4253-=""><i
-                                                    class="icon-facebook"></i></a><a
-                                                href="https://twitter.com/share?url=https://solar3.maugiaodien.com/lorem-stet-clita-kasd/"
-                                                onclick="if (!window.__cfRLUnblockHandlers) return false; window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');  return false;"
-                                                rel="noopener noreferrer nofollow" target="_blank"
-                                                class="icon button circle is-outline tooltip twitter"
-                                                title="Share on Twitter" aria-label="Share on Twitter"
-                                                data-cf-modified-e18fd37353d74f8cf6fc4253-=""><i
-                                                    class="icon-twitter"></i></a><a
-                                                href="https://solar3.maugiaodien.com/cdn-cgi/l/email-protection#51343f253423283e24231130353523342222393423347f323e3c6e2224333b3432256c1d3e23343c74636122253425746361323d3825307463613a30223577303c216a333e35286c123934323a746361253938227463613e24256b74636139252521226b7e7e223e3d3023627f3c30243638303e3538343f7f323e3c7e3d3e23343c7c222534257c323d3825307c3a3022357e"
-                                                rel="nofollow" class="icon button circle is-outline tooltip email"
-                                                title="Email to a Friend" aria-label="Email to a Friend"><i
-                                                    class="icon-envelop"></i></a><a
-                                                href="https://pinterest.com/pin/create/button/?url=https://solar3.maugiaodien.com/lorem-stet-clita-kasd/&amp;media=https://solar3.maugiaodien.com/wp-content/uploads/2023/01/04.jpg&amp;description=Lorem%20stet%20clita%20kasd"
-                                                onclick="if (!window.__cfRLUnblockHandlers) return false; window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');  return false;"
-                                                rel="noopener noreferrer nofollow" target="_blank"
-                                                class="icon button circle is-outline tooltip pinterest"
-                                                title="Pin on Pinterest" aria-label="Pin on Pinterest"
-                                                data-cf-modified-e18fd37353d74f8cf6fc4253-=""><i
-                                                    class="icon-pinterest"></i></a><a
-                                                href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://solar3.maugiaodien.com/lorem-stet-clita-kasd/&amp;title=Lorem%20stet%20clita%20kasd"
-                                                onclick="if (!window.__cfRLUnblockHandlers) return false; window.open(this.href,this.title,'width=500,height=500,top=300px,left=300px');  return false;"
-                                                rel="noopener noreferrer nofollow" target="_blank"
-                                                class="icon button circle is-outline tooltip linkedin"
-                                                title="Share on LinkedIn" aria-label="Share on LinkedIn"
-                                                data-cf-modified-e18fd37353d74f8cf6fc4253-=""><i
-                                                    class="icon-linkedin"></i></a></div>
+
+                                        {{-- share --}}
+                                        @include('layouts.layout01.elements.common.share', ['data' => $product])
+
                                     </div>
                                 </div>
                             </div>
