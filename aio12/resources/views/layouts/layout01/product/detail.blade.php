@@ -148,7 +148,7 @@
                             <aside id="search-2" class="widget widget_search">
                                 <span class="widget-title shop-sidebar">Tìm kiếm sản phẩm</span>
                                 <div class="is-divider small"></div>
-                                <form method="get" class="searchform" action="https://solar3.maugiaodien.com/"
+                                <form method="get" class="searchform" action=""
                                     role="search">
                                     <div class="flex-row relative">
                                         <div class="flex-col flex-grow">
@@ -288,7 +288,7 @@
                                             </p>
                                         </div>
 
-                                        <form class="cart" action="" method="post"
+                                        {{-- <form class="cart" action="" method="post"
                                             enctype='multipart/form-data'>
                                             <div class="quantity buttons_added">
                                                 <input type="button" value="-" class="minus button is-form">
@@ -301,7 +301,7 @@
                                             <button type="submit" name="add-to-cart" value="808"
                                                 class="single_add_to_cart_button button alt wp-element-button">Add to
                                                 cart</button>
-                                        </form>
+                                        </form> --}}
                                         <div class="product_meta">
                                             <span class="posted_in">Category: <a
                                                     href="https://solar3.maugiaodien.com/chua-phan-loai/"

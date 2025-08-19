@@ -32,7 +32,7 @@
                             class="woocommerce-LoopProduct-link woocommerce-loop-product__link">{{ $product->name_data }}</a>
                     </p>
                 </div>
-                <div class="price-wrapper">
+                {{-- <div class="price-wrapper">
                     <span class="price"><span class="woocommerce-Price-amount amount">
                             <bdi>
                                 <span class="woocommerce-Price-currencySymbol">
@@ -41,7 +41,7 @@
                             </bdi>
                         </span>
                     </span>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

@@ -94,7 +94,7 @@
                                                         class="product-name">{{ $product->name_data }}</a>
                                                 </p>
                                             </div>
-                                            <div class="price-wrapper" style="height: 18px;">
+                                            {{-- <div class="price-wrapper" style="height: 18px;">
                                                 <span class="price">
                                                     <span class="woocommerce-Price-amount amount">
                                                         <bdi>
@@ -102,7 +102,7 @@
                                                         </bdi>
                                                     </span>
                                                 </span>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>

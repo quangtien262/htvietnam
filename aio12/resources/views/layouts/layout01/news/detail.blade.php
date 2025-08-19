@@ -12,7 +12,7 @@
         }
 
         #section_320154646 .section-bg.bg-loaded {
-            background-image: url(/wp-content/uploads/2023/01/img3.jpg);
+            background-image: url({{ $news->image }});
         }
 
         #section_320154646 .ux-shape-divider--top svg {
