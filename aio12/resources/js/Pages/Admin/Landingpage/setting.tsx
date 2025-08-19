@@ -82,6 +82,7 @@ export default function Dashboard(props: { auth: unknown; table: { id: number; p
                                 <h1>Cài đặt {props.menu?.name}</h1>
                                 <p>Đây là trình cài đặt website landingpage</p>
                                 <p>Vui lòng click chọn nút màu đỏ để <b>`sửa nội dung`</b> hoặc <b>`cài đặt`</b> ở các khối tương ứng</p>
+                                <p>Click <a onClick={() => window.open(props.link, '_blank')}>vào đây</a> để có thể cài đặt nhanh ở phía bên ngoài website</p>
                             </Col>
                             <Col sm={{ span: 24 }}>
                                 <iframe
