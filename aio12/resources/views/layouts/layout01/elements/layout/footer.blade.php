@@ -138,10 +138,7 @@
                 <div id="col-1439219474" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
                         <h3>VỀ CHÚNG TÔI</h3>
-                        <p><span style="color: #c0c0c0; font-size: 85%;">Cum sociis natoque penatibus et magnis dis
-                                parturient montes, nascetur ridiculus mus. Fusce tempus odio vitae nibh semper, ac
-                                venenatis massa mollis. Proin tempus, mauris eu facilisis feugiat, nisi augue
-                                faucibus.</span></p>
+                        <p><span style="color: #c0c0c0; font-size: 85%;">{{$config->footer}}</span></p>
                     </div>
                 </div>
                 <div id="col-389608184" class="col medium-3 small-6 large-3">
