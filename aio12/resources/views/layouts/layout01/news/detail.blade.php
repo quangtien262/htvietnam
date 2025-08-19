@@ -97,6 +97,12 @@
                         <div class="entry-content single-page">
                             {{-- content --}}
                             <div class="content">
+                                @if (!empty($news->embed_code))
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        {!! $news->embed_code !!}
+                                    </div>
+                                @endif
+                                
                                 {!! $news->content !!}
                             </div>
 

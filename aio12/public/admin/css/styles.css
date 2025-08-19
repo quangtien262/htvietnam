@@ -418,3 +418,8 @@ ul.ul-img-slide li img {
 .card > .mda-list-bordered > .mda-list-item:last-child {
   border-bottom: 0;
 }
+.ant-upload-list-picture-card {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important
+}

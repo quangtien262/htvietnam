@@ -486,3 +486,16 @@ tr.ant-table-expanded-row {
 .width100 {
     width: 100%;
 }
+.ant-upload-list-picture-card {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap !important;
+}
+.ant-upload-list-picture-card img {
+    width: 150px;
+    height: 150px;
+}
+.ant-upload-list-item-image {
+    min-height: 80px;
+    min-width: 80px;
+}

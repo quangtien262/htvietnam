@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('languages_id')->nullable();
             $table->integer('data_id')->nullable();
             $table->text('description')->nullable();
+            $table->text('embed_code')->nullable();
             $table->longtext('content')->nullable();
             $table->text('meta_title')->nullable();
             $table->text('meta_keyword')->nullable();
@@ -35,7 +36,8 @@ return new class extends Migration
         MigrateService::createColumn02($newsData->id, 'data_id', 'data_id', 'INT', 'number', $order++, ['edit' => 0]);
 
         MigrateService::createColumn02($newsData->id, 'name_data', 'Tiêu đề', 'VARCHAR', 'text', $order++);
-        MigrateService::createColumn02($newsData->id, 'description', 'Mô tả ngắn', 'longtext', 'textarea', $order++);
+        MigrateService::createColumn02($newsData->id, 'description', 'Mô tả ngắn', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($newsData->id, 'embed_code', 'Mã nhúng từ nguồn khác', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($newsData->id, 'content', 'Nội dung', 'LONGTEXT', 'tiny', $order++);
         
         MigrateService::createColumn02($newsData->id, 'meta_keyword', '[SEO] Từ khóa', 'TEXT', 'textarea', $order++);

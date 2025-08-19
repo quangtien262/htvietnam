@@ -34,6 +34,8 @@ class News extends Model {
             'news_data.meta_description as meta_description',
             'news_data.id as data_lang_id',
             'news_data.languages_id as languages_id',
+
+            'news_data.embed_code as embed_code',
             // 'news_data.meta_title as meta_title',
         )
         ->leftJoin('news_data', 'news_data.data_id', '=', 'news.id')
