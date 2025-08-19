@@ -104,12 +104,12 @@ return new class extends Migration
         ['parent_id' => $block_basic->id, 'edit'=>0, 'show_in_detail'=>0]);
         MigrateService::createColumn02($data->id, 'mst', 'Mã số thuế', 'TEXT', 'text', $order++, 
         ['parent_id' => $block_basic->id, 'edit'=>1, 'show_in_detail'=>1]);
+        MigrateService::createColumn02($data->id, 'website', 'Website', 'TEXT', 'text', $order++, 
+        ['parent_id' => $block_basic->id]);
         MigrateService::createColumn02($data->id, 'currency_name', 'Tên đơn vị tiền tệ', 'TEXT', 'text', $order++, 
         ['parent_id' => $block_basic->id, 'edit'=>1, 'show_in_detail'=>1]);
         MigrateService::createColumn02($data->id, 'currency', 'Tên tiền tệ viết tắt', 'TEXT', 'text', $order++, 
         ['parent_id' => $block_basic->id, 'edit'=>1, 'show_in_detail'=>1]);
-        MigrateService::createColumn02($data->id, 'website', 'Website', 'TEXT', 'text', $order++, 
-        ['parent_id' => $block_basic->id]);
         MigrateService::createColumn02($data->id, 'logo', 'Logo', 'TEXT', 'image', $order++, 
         ['parent_id' => $logo->id]);
         MigrateService::createColumn02($data->id, 'email', 'Email', 'VARCHAR', 'text', $order++, 
