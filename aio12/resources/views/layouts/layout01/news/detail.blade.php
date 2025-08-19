@@ -125,7 +125,7 @@
             <div class="post-sidebar large-4 col">
                 <div id="secondary" class="widget-area " role="complementary">
                     <aside id="flatsome_recent_posts-2" class="widget flatsome_recent_posts">
-                        <span class="widget-title "><span>Bài viết mới nhất</span></span>
+                        <span class="widget-title "><span>{{__('user.latest_news')}}</span></span>
                         <div class="is-divider small"></div>
                         <ul>
                             @foreach ($newsLatest as $n)

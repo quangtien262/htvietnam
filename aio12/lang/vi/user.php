@@ -108,5 +108,5 @@ return [
     'english' => 'English',
     'china' => 'China',
     'vietnam' => 'Việt Nam',
-    'view_details' => 'Xem chi tiết'
+    'view_details' => 'Xem chi tiết',
 ];

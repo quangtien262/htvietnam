@@ -302,10 +302,7 @@
                                                 cart</button>
                                         </form> --}}
                                         <div class="product_meta">
-                                            <span class="posted_in">Category: <a
-                                                    href="https://solar3.maugiaodien.com/chua-phan-loai/"
-                                                    rel="tag">Chưa
-                                                    phân loại</a></span>
+                                            <span class="posted_in">Category: <a href="" rel="tag">Chưa phân loại</a></span>
                                         </div>
 
                                         {{-- share --}}
