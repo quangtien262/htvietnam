@@ -85,8 +85,8 @@
                                 </div>
                                 </div>
                                 <div class="icon-box-text last-reset">
-                                <h3>LK14, KĐT Hateco Green City</h3>
-                                <p>Foresa 4, phường Xuân Phương, quận Nam Từ Liêm, thành phố Hà Nội, Việt Nam.</p>
+                                <h3>{{$config->address}}</h3>
+                                <p>{{$config->address_description}}</p>
                                 </div>
                             </div>
                         </div>

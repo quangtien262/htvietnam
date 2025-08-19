@@ -52,6 +52,11 @@ class TablesLayout01Seeder extends Seeder
                     'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
                 ],
                 'address' => [
+                    'LK14, KĐT Hateco Green City',
+                    'LK14, KĐT Hateco Green City',
+                    'LK14, KĐT Hateco Green City'
+                ],
+                'address_description' => [
                     'Nhà số 2, Ngõ 30, Đường Ngõ Đình, Thôn 5, Xã Sơn Đồng, thành phố Hà Nội, Việt Nam',
                     'No 2/30 Ngo Dinh Street, N. 5 Hamlet, Son Dong commune, Hanoi city, Vietnam',
                     'No 2/30 Ngo Dinh Street, N. 5 Hamlet, Son Dong commune, Hanoi city, Vietnam'
