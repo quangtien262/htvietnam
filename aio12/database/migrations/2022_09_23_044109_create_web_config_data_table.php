@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('slogan')->nullable();
             $table->text('footer')->nullable();
             $table->text('address')->nullable();
+            $table->text('address_description')->nullable();
             $table->text('office')->nullable();
             $table->text('factory')->nullable(); // nhà máy
             $table->text('phone_language')->nullable();
@@ -50,6 +51,7 @@ return new class extends Migration
         MigrateService::createColumn02($data->id, 'factory', 'Nhà máy', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'phone_language', 'Số điện thoại theo ngôn ngữ', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'address_description', 'Địa chỉ (mô tả)', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'footer', 'Nội dung footer', 'TEXT', 'textarea', $order++, ['edit', 0]);
 
         // SEO
