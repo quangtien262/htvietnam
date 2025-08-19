@@ -80,7 +80,7 @@
                                 </div>
                             </div>
                             <div class="icon-box-text last-reset">
-                                <p>{{ $config->address }}</p>
+                                <p>{{ $config->address_description }}</p>
                             </div>
                         </div>
                         <div class="icon-box featured-box icon-box-left text-left">
