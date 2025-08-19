@@ -80,14 +80,14 @@
                     @endif
                 </li>
                 <li class="cart-item has-icon">
-                    <a href=""
+                    {{-- <a href=""
                         class="header-cart-link off-canvas-toggle nav-top-link is-small" data-open="#cart-popup"
                         data-class="off-canvas-cart" title="Cart" data-pos="right">
                         <i class="icon-shopping-cart" data-icon-label="0">
                         </i>
-                    </a>
+                    </a> --}}
                     <!-- Cart Sidebar Popup -->
-                    <div id="cart-popup" class="mfp-hide widget_shopping_cart">
+                    {{-- <div id="cart-popup" class="mfp-hide widget_shopping_cart">
                         <div class="cart-popup-inner inner-padding">
                             <div class="cart-popup-title text-center">
                                 <h4 class="uppercase">Cart</h4>
@@ -98,7 +98,7 @@
                             </div>
                             <div class="cart-sidebar-content relative"></div>
                         </div>
-                    </div>
+                    </div> --}}
                 </li>
             </ul>
         </div>
