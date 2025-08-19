@@ -6,7 +6,7 @@ import axios from 'axios';
 import { router } from '@inertiajs/react';
 import { ArrowRightOutlined, FormOutlined, SearchOutlined, PlusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import '../../../../css/list.css';
-
+import { itemMenu } from "../../../Function/config_route";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -450,7 +450,7 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <div>

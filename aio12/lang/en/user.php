@@ -10,6 +10,7 @@ return [
     'message' => 'Message',
     'please_sign_in' => 'Please sign in',
     'please' => 'Please',
+    'login_account' => 'Login account',
     'login' => 'Login',
     'register' => 'Register',
     'remember_me'=>'Remember me',

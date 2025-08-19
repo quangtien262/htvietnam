@@ -41,14 +41,25 @@ return new class extends Migration
         ['parent_id' => 0, 'type_show' => 0, 'is_edit' => 0]);
         MigrateService::baseColumn($data);
 
-        MigrateService::createColumn02($data->id, 'name_data', 'Tên công ty', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'title', 'Tiêu đề', 'TEXT', 'textarea', $order++);
+        // MigrateService::createColumn02($data->id, 'name_data', 'Tiêu đề web', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'title', 'Tiêu đề web', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'slogan', 'Slogan', 'TEXT', 'textarea', $order++);
+
+        MigrateService::createColumn02($data->id, 'company_name', 'Tên công ty', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'office', 'Địa chỉ văn phòng', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'factory', 'Nhà máy', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'phone_language', 'Số điện thoại theo ngôn ngữ', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'footer', 'Nội dung footer', 'TEXT', 'textarea', $order++, ['edit', 0]);
+
+        // SEO
         MigrateService::createColumn02($data->id, 'meta_title', '[SEO] Tiêu đề', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'meta_keyword', '[SEO] Từ khóa', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'meta_description', '[SEO] Mô tả', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'slogan', 'Slogan', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'footer', 'Nội dung footer', 'TEXT', 'textarea', $order++, ['edit', 0]);
+        
+        
+        
+        
 
     }
 

@@ -8,19 +8,12 @@ export const tblSetting = [];
 export const tblTaiChinh = ['hoa_don'];
 export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
-export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 'products', 'menus'];
-
-export const routeHome = [
-    // {
-    //     parent: {
-    //         link: route('dashboard'),
-    //         display_name: 'Dashboard',
-    //         key: key++
-    //     },
-    //     sub: {}
-    // },
-
+export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
+    'products', 'menus', 'admin_user.edit', 'admin_user.index', 
+    'admin_user.change_password','web_config'
 ];
+
+export const routeHome = [];
 
 export const routeQLKho = [
     {
@@ -406,6 +399,14 @@ export const routeWeb = [
         parent: {
             link: route('adm.landingpage.index'),
             display_name: 'Landingpage',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['web_config']),
+            display_name: 'Cấu hình web',
             key: key++
         },
         sub: []

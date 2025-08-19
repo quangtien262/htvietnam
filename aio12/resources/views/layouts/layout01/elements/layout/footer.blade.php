@@ -17,9 +17,11 @@
                                 </div>
                             </div>
                             <div class="icon-box-text last-reset">
-                                <p><span style="font-size: 90%; color: #c0c0c0;">Tự hào là một trong những công ty hàng
-                                        đầu trong điện gió tại Việt Nam, chúng tôi tự tin đem đến cho khách hàng những
-                                        sản phẩm và dịch vụ chất lượng với giá cả hợp lý nhất.</span></p>
+                                <p>
+                                    <span style="font-size: 90%; color: #c0c0c0;">
+                                        {{ !empty($config->footer) ? nl2br(e($config->footer)) : '' }}
+                                    </span>
+                                </p>
                             </div>
                         </div>
                         <div id="gap-2082341491" class="gap-element clearfix" style="display:block; height:auto;">
@@ -118,12 +120,16 @@
                                 </div>
                             </div>
                             <div class="icon-box-text last-reset">
-                                <p><a href="https://solar3.maugiaodien.com/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="80e9eee6efaee7e9f5f3e1f2f4aee3efedc0e7ede1e9ecaee3efed">[email&#160;protected]</a><br />
-                                    <a href="https://solar3.maugiaodien.com/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="ff9a919a8d9886bf96919990d19c9092">[email&#160;protected]</a>
+                                <p>
+                                    <a href=""
+                                        class="__cf_email__">
+                                        {{$config->email}}
+                                    </a>
+                                    <br />
+                                    <a href=""
+                                        class="__cf_email__">
+                                        {{$config->email02}}
+                                    </a>
                                 </p>
                             </div>
                         </div>

@@ -9,6 +9,7 @@ return [
     'message' => '留言',
     'please_sign_in' => '请登录',
     'please' => '请',
+    'login_account' => '登录账户',
     'login' => '登录',
     'register' => '注册',
     'remember_me' => '记住我',

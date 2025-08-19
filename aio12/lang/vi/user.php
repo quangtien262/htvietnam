@@ -9,6 +9,7 @@ return [
     'message' => 'Nội dung',
     'please_sign_in' => 'Vui lòng nhập thông tin tài khoản',
     'please' => 'Please',
+    'login_account' => 'Đăng nhập tài khoản',
     'login' => 'Đăng nhập',
     'register' => 'Đăng ký',
     'remember_me'=>'Remember me',

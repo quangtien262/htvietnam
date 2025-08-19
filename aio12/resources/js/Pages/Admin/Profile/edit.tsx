@@ -8,7 +8,7 @@ import axios from 'axios';
 import '../../../../css/form.css';
 import { showData, checkRule } from '../../../Function/data';
 import dayjs from "dayjs";
-
+import { itemMenu } from "../../../Function/config_route";
 export default function EditUser(props) {
     const [data, setData] = useState(props.data);
     const [submitRedirect, setSubmitRedirect] = useState("detail"); // detail, list
@@ -351,7 +351,7 @@ export default function EditUser(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <div>

@@ -70,9 +70,13 @@
                             <i class="icon-user"></i>
                         </a>
                     @else
-                        <a class="nav-top-link nav-top-logged-in is-small" data-open="#logout-form-popup">
+                        {{-- <a class="nav-top-link nav-top-logged-in is-small" data-open="#logout-form-popup">
+                            <i class="icon-user"></i>
+                        </a> --}}
+                        <a class="nav-top-link nav-top-logged-in is-small" data-toggle="modal" data-target="#modalLogin">
                             <i class="icon-user"></i>
                         </a>
+                        
                     @endif
                 </li>
                 <li class="cart-item has-icon">
@@ -100,3 +104,4 @@
         </div>
     </div>
 </div>
+

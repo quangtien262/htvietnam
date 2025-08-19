@@ -71,12 +71,7 @@
 
 
 
-    <div id="enter-id-here" class="lightbox-by-id lightbox-content mfp-hide lightbox-white"
-        style="max-width:850px ;padding:0px">
-        <a href="https://themewp.vn/kho-plugin/" target="_blank">
-            <img src="https://themewp.vn/wp-content/uploads/2025/03/popup-pluginwp_vn.jpg">
-        </a>
-    </div>
+    @include('modal.login')
 
     {{--
     <script data-cfasync="false" src="/layouts/01/js/email-decode.min.js"></script> --}}
@@ -125,7 +120,7 @@
     {{-- btn bottom ở đây --}}
 
     {{-- login --}}
-    @include('layouts.layout01.elements.layout.login');
+    
 
 
 

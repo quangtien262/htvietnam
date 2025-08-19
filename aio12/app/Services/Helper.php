@@ -677,7 +677,7 @@ class Helper
             ->get();
     }
 
-    public function editTitle($page, $isMain = true)
+    public function editTitle($page, $isMain = true, $txtButton = 'Sửa tiêu đề')
     {
         if (!isset($_GET['mod'])) {
             return '';
@@ -691,7 +691,7 @@ class Helper
 
         if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
             $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
-                <i class="fa-solid fa-pen"></i> Sửa tiêu đề
+                <i class="fa-solid fa-pen"></i> ' . $txtButton . '
                 </button>';
         }
         if ($isMain) {
@@ -699,7 +699,7 @@ class Helper
         }
         return $result;
     }
-    public function editContent($page, $tblName = 'block04', $isMain = true)
+    public function editContent($page, $tblName = 'block04', $isMain = true, $txtButton = 'Sửa nội dung')
     {
         if (!isset($_GET['mod'])) {
             return '';
@@ -711,7 +711,8 @@ class Helper
 
         if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
             $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.listBlock', ['tblName' => $tblName, 'pageId' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
-                     <i class="fa-solid fa-comments"></i> Sửa nội dung';
+                     <i class="fa-solid fa-comments"></i> ' . $txtButton . '
+                </button>';
         }
         if ($isMain) {
             $result .= '</div>';
@@ -719,7 +720,7 @@ class Helper
         return $result;
     }
 
-    public function settingLandingPage($menuId)
+    public function settingLandingPage($menuId, $txtButton = 'Cài đặt')
     {
         if (!isset($_GET['mod'])) {
             return '';
@@ -730,7 +731,7 @@ class Helper
             $result .= '<div style="position: fixed; top: 50%; right: 0px; z-index: 1000;">
                             <button class="btn btn-setting" 
                                 onclick="ajaxLoadUrl(\'' . route('pageSetting.sort_order', [$menuId]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
-                                Cài đặt
+                                ' . $txtButton . '
                             </button>
                         </div>';
         }

@@ -40,8 +40,9 @@ class TablesLayout01Seeder extends Seeder
             [
                 'logo' => '/layouts/01/images/logo.png',
                 'phone' => '(84) 24 665 72208',
-                'website' => 'www.gccgroup.vn',
                 'email' => 'contact@gccgroup.vn',
+                'email02' => 'sales@gccgroup.vn',
+                'website' => 'www.gccgroup.vn',
                 'mst' => '5200886602'
             ],
             [
@@ -65,10 +66,25 @@ class TablesLayout01Seeder extends Seeder
                     '(84) 24 665 72208 ',
                     '(84) 24 665 72208 '
                 ],
+                'title' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
+                'name_data' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
                 'company_name' => [
                     'CÔNG TY CỔ PHẦN GCC PLASTIC',
                     'GCC PLASTIC JOINT STOCK COMPANY',
                     'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
+                'footer' => [
+                    'Tự hào là một trong những công ty hàng đầu trong điện gió tại Việt Nam, chúng tôi tự tin đem đến cho khách hàng những sản phẩm và dịch vụ chất lượng với giá cả hợp lý nhất.',
+                    'We are proud to be one of the leading companies in wind power in Vietnam, we are confident to bring customers quality products and services at the most reasonable prices.',
+                    '我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。'
                 ]
             ]
         );
