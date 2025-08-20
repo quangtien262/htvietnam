@@ -2320,6 +2320,16 @@ label, h1, h2, h3, h4, h5, h6, .heading-font {
     cursor: pointer;
 }
 
+.box-location {
+    display: flex;
+    flex-flow: row nowrap;
+    flex-direction: row;
+}
+.header02-right {
+    min-width: 800px;
+}
+
+
 
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
