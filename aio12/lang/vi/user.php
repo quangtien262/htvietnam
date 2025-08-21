@@ -110,4 +110,7 @@ return [
     'china' => 'China',
     'vietnam' => 'Việt Nam',
     'view_details' => 'Xem chi tiết',
+    'title_contact_footer' => 'Thông tin liên hệ',
+    'title_office_footer' => 'Văn phòng',
+    'title_factory_footer' => 'Nhà máy',
 ];

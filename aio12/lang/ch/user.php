@@ -114,5 +114,8 @@ return [
     'english' => '英语',
     'china' => '中国',
     'vietnam' => '越南',
-    'view_details' => '查看详情'
+    'view_details' => '查看详情',
+    'title_contact_footer' => '联系信息',
+    'title_office_footer' => '办公室信息',
+    'title_factory_footer' => '工厂信息',
 ];

@@ -2301,21 +2301,33 @@ a:hover {
     padding: 10px;
     border: 0px;
 }
+
 ._red {
     color: red;
 }
+
 .btn-01 {
     background-color: #fcca03;
     color: #000;
     font-weight: bold;
 }
+
 .btn-01:hover {
     background-color: #cea607;
     color: #fff;
 }
-label, h1, h2, h3, h4, h5, h6, .heading-font {
+
+label,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading-font {
     color: #000000;
 }
+
 .icon-user {
     cursor: pointer;
 }
@@ -2325,10 +2337,20 @@ label, h1, h2, h3, h4, h5, h6, .heading-font {
     flex-flow: row nowrap;
     flex-direction: row;
 }
+
 .header02-right {
     min-width: 800px;
 }
 
+.title {
+    color: #fcca03 !important;
+    font-size: 15px;
+    text-transform: uppercase;
+}
+
+.title-footer {
+    text-transform: uppercase;
+}
 
 
 @media only screen and (max-width: 48em) {

@@ -115,5 +115,8 @@ return [
     'english' => 'English',
     'china' => 'China',
     'vietnam' => 'Vietnam',
-    'view_details' => 'View details'
+    'view_details' => 'View details',
+    'title_contact_footer' => 'Contact Information',
+    'title_office_footer' => 'Office Information',
+    'title_factory_footer' => 'Factory Information',
 ];
