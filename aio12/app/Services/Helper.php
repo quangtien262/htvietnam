@@ -184,9 +184,11 @@ class Helper
     }
     public function getLinkMenu($menu)
     {
-
         if (empty($menu)) {
             return '';
+        }
+        if (empty($menu->current_link)) {
+            return $menu->current_link;
         }
         $sluggable = 'data';
         $link = '';
@@ -735,6 +737,68 @@ class Helper
                             </button>
                         </div>';
         }
+        return $result;
+    }
+
+
+    public function menuLayout01()
+    {
+        $menus = app('DataService')->getMenuByConditions(['menus.parent_id' => 0]);
+        $result = '<ul class="nav header-nav header-bottom-nav nav-left  nav-size-medium nav-spacing-xlarge nav-uppercase">';
+
+        foreach ($menus as $menu) {
+            $dropdown = '';
+            $subHtml = '';
+            $subMenus = app('DataService')->getMenuByConditions(['menus.parent_id' => $menu->id]);
+            if($subMenus && count($subMenus) > 0) {
+                $dropdown = 'has-dropdown';
+                $subHtml = $this->subMenuLayout01($subMenus);
+            }
+            $link = app('Helper')->getLinkMenu($menu);
+            $result .= '<li id="menu-item-' . $menu->id . '"
+                        class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-' . $menu->id . ' menu-item-design-default ' . $dropdown . '">
+                            <a class="nav-link" href="' . $link . '">' . $menu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
+        return $result;
+    }
+
+    private function subMenuLayout01($subMenus) {
+        $result = '<ul class="sub-menu nav-dropdown nav-dropdown-simple sub-menu-pc">';
+        foreach ($subMenus as $subMenu) {
+            $subHtml = '';
+            $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
+            if($subMenusxx && count($subMenusxx) > 0) {
+                $subHtml = $this->subMenuLayout01($subMenusxx);
+            }
+            $result .= '<li class="nav-item">
+                            <a class="nav-link" href="' . app('Helper')->getLinkMenu($subMenu) . '">' . $subMenu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
+        return $result;
+    }
+
+     public function subMenuLayout01_mobile($subMenus) {
+        $result = '<ul class="sub-menu nav-sidebar-ul children sub-menu-mobile">';
+        foreach ($subMenus as $subMenu) {
+            $subHtml = '';
+            $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
+            if($subMenusxx && count($subMenusxx) > 0) {
+                $subHtml = $this->subMenuLayout01_mobile($subMenusxx);
+            }
+            $result .= '<li class="menu-item menu-item-type-custom menu-item-object-custom">
+                            <a href="' . app('Helper')->getLinkMenu($subMenu) . '">' . $subMenu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
         return $result;
     }
 }

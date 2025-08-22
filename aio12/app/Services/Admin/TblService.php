@@ -1419,6 +1419,7 @@ class TblService extends Service
                 'children' => $this->getDataDragDrop($tableId, $data->id, $conditions),
             ];
         }
+        
         return $result;
     }
 

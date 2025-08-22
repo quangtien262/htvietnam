@@ -89,8 +89,8 @@ class TablesLayout01Seeder extends Seeder
                     'GCC PLASTIC JOINT STOCK COMPANY'
                 ],
                 'footer' => [
-                    'Tự hào là một trong những công ty hàng đầu trong điện gió tại Việt Nam, chúng tôi tự tin đem đến cho khách hàng những sản phẩm và dịch vụ chất lượng với giá cả hợp lý nhất.',
-                    'We are proud to be one of the leading companies in wind power in Vietnam, we are confident to bring customers quality products and services at the most reasonable prices.',
+                    'Tự hào là một trong những doanh nghiệp hàng đầu trong khai thác, chế biến đá vôi trắng, sản xuất bột đá siêu mịn, filler masterbatch và nguyên liệu nhựa chất lượng cao, chúng tôi luôn nỗ lực không để đáp ứng kịp thời nhu cầu của khách hàng trong nước và quốc tế.',
+                    'We are proud to be one of the leading companies in exploiting, processing white limestone, producing super fine stone powder, filler masterbatch and high quality plastic materials, we always strive to meet the needs of domestic and international customers in a timely manner.',
                     '我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。'
                 ]
             ]

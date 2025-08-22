@@ -1169,3 +1169,10 @@ ul.menu-header li:first-child {
 .odd-row {
     background-color: #ffffff;
 }
+
+/* tree */
+.ant-tree-switcher-icon {
+    font-size: 30px !important;
+    margin-left: -30px;
+    color: #838282;
+}

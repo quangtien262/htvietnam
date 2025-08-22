@@ -64,6 +64,7 @@ Route::post('{sluggable}/l{productId}.html', [CartController::class, 'add2cart']
 
 // search
 Route::get('tim-kiem.html', [PagesController::class, 'search'])->name('search');
+Route::get('tim-kiem-san-pham.html', [PagesController::class, 'search'])->name('search');
 
 // contact
 Route::get('contact.html', [ContactController::class, 'index'])->name('contact');

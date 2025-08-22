@@ -175,6 +175,7 @@ class DataController extends Controller
             'request' => $_GET,
             'searchData' => $datas['searchData']
         ];
+
         // drag and drop
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
@@ -362,6 +363,8 @@ class DataController extends Controller
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
             $props['dataSource'] = $dataSource;
+            
+            // dd($dataSource);
             return Inertia::render('Admin/Data/index_drag_drop', $props);
         }
 

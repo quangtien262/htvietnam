@@ -931,7 +931,7 @@ html {
 
 .nav-dropdown li a:hover {
     color: #fcca00;
-    background-image: url(/wp-content/uploads/2023/01/arrow-right-svgrepo-com.svg);
+    background-image: url(/layouts/01/icon/arrow-right-svgrepo-com.svg);
     background-size: 16px;
     background-repeat: no-repeat;
     background-position-y: center;
@@ -2178,6 +2178,44 @@ span.widget-title:after {
     }
 }
 
+ul.sub-menu-pc li:hover ul {
+    left: 260px;
+    visibility: visible;
+    opacity: 1;
+    /* background: #fff; */
+    margin-top: -31px;
+    z-index: 100;
+    /* margin-left: 0px; */
+}
+ul.sub-menu-pc li:hover ul li ul {
+    left: 260px;
+    visibility: visible;
+    opacity: 1;
+    /* background: #fff; */
+    margin-top: -51px;
+    z-index: 100;
+}
+
+
+
+ul.sub-menu-mobile li:hover ul {
+    left: 260px;
+    visibility: visible;
+    opacity: 1;
+    /* background: #fff; */
+    margin-top: -31px;
+    z-index: 100;
+    margin-left: 19px;
+}
+ul.sub-menu-mobile li:hover ul li ul {
+    left: 260px;
+    visibility: visible;
+    opacity: 1;
+    /* background: #fff; */
+    margin-top: -35px;
+    z-index: 100;
+}
+
 .label-new.menu-item>a:after {
     content: "New";
 }
@@ -2351,7 +2389,6 @@ h6,
 .title-footer {
     text-transform: uppercase;
 }
-
 
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/

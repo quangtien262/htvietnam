@@ -252,6 +252,6 @@ class Land
         'title_description' => false,
         'images_data' => false,
         'description' => true,
-        'content' => true,
+        'content' => false,
     ];
 }

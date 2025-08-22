@@ -1,8 +1,35 @@
+@php
+    $menus = app('DataService')->getMenuByConditions(['menus.parent_id' => 0]);
+@endphp
 
 <div id="wide-nav" class="header-bottom wide-nav hide-for-medium">
     <div class="flex-row container">
         <div class="flex-col hide-for-medium flex-left">
-            {!! app('Helper')->menuLayout01() !!}
+            
+            <ul class="nav header-nav header-bottom-nav nav-left  nav-size-medium nav-spacing-xlarge nav-uppercase">
+                @foreach ($menus as $parent)
+                    @php
+                        $dropdown = '';
+                        $htmlSubMenu = '';
+                        $htmlSubMenu = '';
+                        $linkParent = app('Helper')->getLinkMenu($parent);
+                        $subMenus = app('DataService')->getMenuByConditions(['menus.parent_id' => $parent->id]);
+                        if (count($subMenus) > 0) {
+                            $dropdown = 'has-dropdown';
+                            $htmlSubMenu = '<ul class="sub-menu nav-dropdown nav-dropdown-simple">';
+                            foreach ($subMenus as $sub) {
+                                $linkSub = app('Helper')->getLinkMenu($sub);
+                            }
+                            $htmlSubMenu .= '</ul>';
+                        }
+                    @endphp
+                    <li id="menu-item-{{$parent->id}}"
+                        class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-{{$parent->id}} menu-item-design-default {{ $dropdown }}">
+                        <a href="{{$linkParent}}" aria-current="page" class="nav-top-link">{{ $parent->name_data }}</a>
+                        {!! $htmlSubMenu !!}
+                    </li>
+                @endforeach
+            </ul>
         </div>
         <div class="flex-col hide-for-medium flex-right flex-grow">
             <ul class="nav header-nav header-bottom-nav nav-right  nav-size-medium nav-spacing-xlarge nav-uppercase">
