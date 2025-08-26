@@ -450,34 +450,125 @@ class Layout01 extends Land
 
         MigrateService::createData(
             'block04',
+            ['image' => '/layouts/01/gcc/icon1.png', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['THỔI PHIM', 'Blown Film', '吹膜'],
+                'description' => [
+                    'Ứng dụng trong sản xuất túi nilon, màng phủ nông nghiệp, màng đóng gói thực phẩm, bao bì công nghiệp, túi siêu thị, túi rác, góp phần giảm giá thành và cải thiện tính chất sản phẩm.',
+                    'Application in the production of nylon bags, agricultural covers, food packaging films, industrial packaging, supermarket bags, garbage bags, contributing to cost reduction and improving product properties.',
+                    '在生产尼龙袋、农业覆盖物、食品包装薄膜、工业包装、超市袋、垃圾袋等方面的应用，有助于降低成本，提高产品性能。'
+                ]
+            ]
+        );
+        MigrateService::createData(
+            'block04',
+            ['image' => '/layouts/01/gcc/icon2.png', 'page_setting_id' => $page->id],
+            [
+                'name_data' =>  ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
+                'description' => [
+                    'Ứng dụng trong sản xuất bao dệt PP, bao bì nông sản, bao xi măng, bao phân bón, bao thức ăn chăn nuôi, thảm nhựa, sợi PP… giúp giảm chi phí và nâng cao độ bền sản phẩm.',
+                    'Application in the production of PP woven bags, agricultural packaging, cement bags, fertilizer bags, animal feed bags, plastic carpets, PP fibers… helps reduce costs and improve product durability.',
+                    '在生产PP编织袋、农用包装、水泥袋、肥料袋、饲料袋、塑料地毯、PP纤维等方面的应用，有助于降低成本，提高产品耐用性。'
+                ]
+            ]
+        );
+        MigrateService::createData(
+            'block04',
+            ['image' => '/layouts/01/gcc/icon3.png', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['SẢN XUẤT SẢN PHẨM BẰNG NHỰA', 'PLASTIC PRODUCT MANUFACTURING', '塑料产品制造'],
+                'description' => [
+                    'Ứng dụng trong sản xuất sản phẩm nhựa ép đùn, ép phun như hộp nhựa, chai lọ, nắp đậy, ống nhựa, đồ gia dụng, linh kiện kỹ thuật… giúp tối ưu chi phí và cải thiện tính năng sản phẩm.',
+                    'Application in the production of extruded and injection molded plastic products such as plastic boxes, bottles, caps, pipes, household items, and technical components… helps optimize costs and improve product features.',
+                    '在生产挤出和注塑塑料产品方面的应用，如塑料盒、瓶子、盖子、管道、家居用品和技术组件……有助于优化成本并改善产品特性。'
+                ]
+            ]
+        );
+        
+        MigrateService::createData(
+            'block04',
+            ['image' => '/layouts/01/gcc/icon4.png', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['SẢN XUẤT VẢI KHÔNG DỆT', 'NON-WOVEN FABRIC MANUFACTURING', '无纺布生产'],
+                'description' => [
+                    'Ứng dụng trong sản xuất vải không dệt như túi thân thiện môi trường, khăn ướt, khẩu trang y tế, đồ bảo hộ, thảm trải, vật liệu lọc… giúp giảm giá thành và nâng cao tính năng sử dụng.',
+                    'Application in the production of non-woven fabrics such as eco-friendly bags, wet wipes, medical masks, protective clothing, mats, filter materials… helps reduce costs and enhance usability.',
+                    '在生产无纺布方面的应用，如环保袋、湿巾、医用口罩、防护服、垫子、过滤材料……有助于降低成本并提高可用性。'
+                ]
+            ]
+        );
+    }
+
+    static function block04_icon($sortOrder = 0, $menuId = 0)
+    {
+        $content04_vi = 'Sản phẩm của chúng tôi đã và đang được ứng dụng hiệu quả trong nhiều lĩnh vực thực tế, góp phần nâng cao chất lượng cuộc sống và đáp ứng đa dạng nhu cầu của khách hàng.';
+        $content04_en = 'Our products are effectively applied in many practical fields, contributing to improving the quality of life and meeting diverse customer needs.';
+        $content04_ch = '我们的产品在多个实际领域得到有效应用，为提高生活质量和满足客户多样化需求做出贡献。';
+        $page = MigrateService::createData(
+            'page_setting',
+            [
+                'menu_id' => $menuId,
+                'name' => 'block04',
+                'name' => 'Ứng dụng thực tế',
+                'block_type' => 'block04',
+                'sort_order' => $sortOrder,
+                'table_data' => 'block04',
+                'table_edit' => 'block04'
+            ],
+            [
+                'name_data' => ['Ứng dụng thực tế', 'Practical Application', '实际应用'],
+                'description' => ['Sản phẩm được ứng dụng đa dạng trong thực tế', 'Products are widely applied in practice', '产品在实践中得到广泛应用'],
+                'content' => [$content04_vi, $content04_en, $content04_ch]
+            ]
+        );
+
+        MigrateService::createData(
+            'block04',
             ['icon' => '<i class="fas fa-text-width"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' => ['Ép phun', 'Injection Molding', '注塑'],
-                'description' => ['Phương pháp này được sử dụng rộng rãi trong gia công nhựa, đặc biệt là trong các chi tiết phức tạp.', 'This method is widely used in plastic processing, especially for complex details.', '这种方法广泛用于塑料加工，特别是复杂细节。']
+                'name_data' => ['THỔI PHIM', 'Blown Film', '吹膜'],
+                'description' => [
+                    'Ứng dụng trong sản xuất túi nilon, màng phủ nông nghiệp, màng đóng gói thực phẩm, bao bì công nghiệp, túi siêu thị, túi rác, góp phần giảm giá thành và cải thiện tính chất sản phẩm.',
+                    'Application in the production of nylon bags, agricultural covers, food packaging films, industrial packaging, supermarket bags, garbage bags, contributing to cost reduction and improving product properties.',
+                    '在生产尼龙袋、农业覆盖物、食品包装薄膜、工业包装、超市袋、垃圾袋等方面的应用，有助于降低成本，提高产品性能。'
+                ]
             ]
         );
         MigrateService::createData(
             'block04',
             ['icon' => '<i class="fas fa-suitcase-rolling"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' => ['Dệt bao PP', 'PP Woven Fabric', 'PP编织布'],
-                'description' => ['Phương pháp này có thể được sử dụng với nhiều loại vật liệu nhựa, bao gồm polyethylene mật độ thấp (LDPE), polyethylene mật độ cao (HDPE), polypropylene (PP) và polystyrene (PS).', 'Extrusion can be used with a wide range of plastic materials, including low-density polyethylene (LDPE), high-density polyethylene (HDPE), polypropylene (PP), and polystyrene (PS).', '挤出可以与多种塑料材料一起使用，包括低密度聚乙烯（LDPE）、高密度聚乙烯（HDPE）、聚丙烯（PP）和聚苯乙烯（PS）。']
-            ]
-        );
-        MigrateService::createData(
-            'block04',
-            ['icon' => '<i class="fas fa-tag"></i>', 'page_setting_id' => $page->id],
-            [
-                'name_data' => ['Vải không dệt', 'Non-woven Fabric', '无纺布'],
-                'description' => ['Vải không dệt là loại vải được sản xuất không qua quá trình dệt truyền thống, Sử dụng các hạt nhựa tổng hợp như polypropylene (PP), polyester (PET), v.v.', 'Non-woven fabric is a type of fabric produced without traditional weaving processes, using synthetic plastic particles such as polypropylene (PP), polyester (PET), etc.', '无纺布是一种不经过传统织造工艺生产的面料，使用聚丙烯（PP）、聚酯（PET）等合成塑料颗粒。']
+                'name_data' =>  ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
+                'description' => [
+                    'Ứng dụng trong sản xuất bao dệt PP, bao bì nông sản, bao xi măng, bao phân bón, bao thức ăn chăn nuôi, thảm nhựa, sợi PP… giúp giảm chi phí và nâng cao độ bền sản phẩm.',
+                    'Application in the production of PP woven bags, agricultural packaging, cement bags, fertilizer bags, animal feed bags, plastic carpets, PP fibers… helps reduce costs and improve product durability.',
+                    '在生产PP编织袋、农用包装、水泥袋、肥料袋、饲料袋、塑料地毯、PP纤维等方面的应用，有助于降低成本，提高产品耐用性。'
+                ]
             ]
         );
         MigrateService::createData(
             'block04',
             ['icon' => '<i class="fas fa-syringe"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' => ['Đùn thổi màng', 'Blown Film Extrusion', '吹膜挤出'],
-                'description' => ['Đùn thổi màng (Blown Film Extrusion) là một phương pháp sản xuất màng nhựa mỏng, thường dùng để làm bao bì, túi nilon, màng phủ nông nghiệp, v.v.', 'Blown film extrusion is a method of producing thin plastic films, commonly used for packaging, plastic bags, agricultural covers, etc.', '吹膜挤出是一种生产薄塑料膜的方法，通常用于包装、塑料袋、农业覆盖物等。']
+                'name_data' => ['SẢN XUẤT SẢN PHẨM BẰNG NHỰA', 'PLASTIC PRODUCT MANUFACTURING', '塑料产品制造'],
+                'description' => [
+                    'Ứng dụng trong sản xuất sản phẩm nhựa ép đùn, ép phun như hộp nhựa, chai lọ, nắp đậy, ống nhựa, đồ gia dụng, linh kiện kỹ thuật… giúp tối ưu chi phí và cải thiện tính năng sản phẩm.',
+                    'Application in the production of extruded and injection molded plastic products such as plastic boxes, bottles, caps, pipes, household items, and technical components… helps optimize costs and improve product features.',
+                    '在生产挤出和注塑塑料产品方面的应用，如塑料盒、瓶子、盖子、管道、家居用品和技术组件……有助于优化成本并改善产品特性。'
+                ]
+            ]
+        );
+        
+        MigrateService::createData(
+            'block04',
+            ['icon' => '<i class="fas fa-tag"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['SẢN XUẤT VẢI KHÔNG DỆT', 'NON-WOVEN FABRIC MANUFACTURING', '无纺布生产'],
+                'description' => [
+                    'Ứng dụng trong sản xuất vải không dệt như túi thân thiện môi trường, khăn ướt, khẩu trang y tế, đồ bảo hộ, thảm trải, vật liệu lọc… giúp giảm giá thành và nâng cao tính năng sử dụng.',
+                    'Application in the production of non-woven fabrics such as eco-friendly bags, wet wipes, medical masks, protective clothing, mats, filter materials… helps reduce costs and enhance usability.',
+                    '在生产无纺布方面的应用，如环保袋、湿巾、医用口罩、防护服、垫子、过滤材料……有助于降低成本并提高可用性。'
+                ]
             ]
         );
     }

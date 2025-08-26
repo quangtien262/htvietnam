@@ -55,6 +55,18 @@ return new class extends Migration
             $order++,
             ['show_in_list' => 1, 'col' => 24]
         );
+
+        MigrateService::createColumn02(
+            $productData->id,
+            'meta_title',
+            '[SEO] Tiêu đề',
+            'TEXT',
+            'text',
+            $order++,
+            ['col' => 24, 'require' => 0]
+        );
+
+        
         MigrateService::createColumn02(
             $productData->id,
             'content',
@@ -81,16 +93,6 @@ return new class extends Migration
             'tiny',
             $order++,
             ['show_in_list' => 0, 'col' => 24]
-        );
-
-        MigrateService::createColumn02(
-            $productData->id,
-            'meta_title',
-            '[SEO] Tiêu đề',
-            'TEXT',
-            'text',
-            $order++,
-            ['col' => 24, 'require' => 0]
         );
         
         MigrateService::columnSEO($productData, $order++);

@@ -28,6 +28,8 @@ class Product extends Model {
             'products_data.name_data as name_data',
             'products_data.description as description',
             'products_data.content as content',
+            'products_data.content02 as content02',
+            'products_data.content03 as content03',
             'products_data.meta_title as meta_title',
             'products_data.meta_keyword as meta_keyword',
             'products_data.meta_description as meta_description',

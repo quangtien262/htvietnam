@@ -324,7 +324,7 @@
                                         </li>
                                         <li class="additional_information_tab " id="tab-title-additional_information"
                                             role="presentation">
-                                            <a href="#tab-additional_information" role="tab"
+                                            <a href="#tabContent02" role="tab"
                                                 aria-selected="false" aria-controls="tab-additional_information"
                                                 tabindex="-1">
                                                 Mô tả sản phẩm
@@ -332,7 +332,7 @@
                                         </li>
                                         <li class="ux_global_tab_tab " id="tab-title-ux_global_tab"
                                             role="presentation">
-                                            <a href="#tab-ux_global_tab" role="tab" aria-selected="false"
+                                            <a href="#tabContent03" role="tab" aria-selected="false"
                                                 aria-controls="tab-ux_global_tab" tabindex="-1">
                                                 thống số kỹ thuật
                                             </a>
@@ -354,22 +354,17 @@
                                             {!! $product->content !!}
                                         </div>
                                         <div class="woocommerce-Tabs-panel woocommerce-Tabs-panel--additional_information panel entry-content "
-                                            id="tab-additional_information" role="tabpanel"
+                                            id="tabContent02" role="tabpanel"
                                             aria-labelledby="tab-title-additional_information">
                                             {!! $product->content02 !!}
                                         </div>
 
-                                        <div id="tab-ux_global_tab"
+                                        <div id="tabContent03"
                                             class="woocommerce-Tabs-panel woocommerce-Tabs-panel--ux_global_tab panel entry-content "
                                             role="tabpanel" aria-labelledby="tab-title-ux_global_tab">
                                             {!! $product->content03 !!}
                                         </div>
 
-                                        {{-- <div
-                                            class="woocommerce-Tabs-panel woocommerce-Tabs-panel--reviews panel entry-content "
-                                            id="tab-reviews" role="tabpanel" aria-labelledby="tab-title-reviews">
-                                            include('layouts.layout01.elements.product.tab_review')
-                                        </div> --}}
 
                                     </div>
                                 </div>
