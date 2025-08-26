@@ -11,6 +11,7 @@ use App\Models\Web\Contact;
 use App\Http\Requests\User\ContactRequest;
 use App\Models\Web\Landingpage;
 use App\Models\Web\Menu;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -53,6 +54,12 @@ class ContactController extends Controller
         if (empty($request->contact['email'])) {
             return $this->sendErrorResponse(' .email_error', 'Vui lòng nhập email');
         }
+
+        $email = $request->contact['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendErrorResponse(' .email_error', 'Định dạng email không đúng');
+        }
+
         if (empty($request->contact['phone'])) {
             return $this->sendErrorResponse(' .phone_error', 'Vui lòng nhập số điện thoại');
         }
@@ -60,9 +67,12 @@ class ContactController extends Controller
             return $this->sendErrorResponse(' .content_error', 'Vui lòng nhập nội dung');
         }
 
-        $email = $request->contact['email'];
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->sendErrorResponse(' .email_error', 'Định dạng email không đúng');
+        if ( empty($request->contact['title'])) {
+            return $this->sendErrorResponse(' .title_error', 'Vui lòng nhập tiêu đề');
+        }
+
+        if (empty($request->contact['area'])) {
+            return $this->sendErrorResponse(' .area_error', 'Vui lòng nhập khu vực');
         }
 
         $post = $request->contact;

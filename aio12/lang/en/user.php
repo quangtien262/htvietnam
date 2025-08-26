@@ -119,4 +119,6 @@ return [
     'title_contact_footer' => 'Contact Information',
     'title_office_footer' => 'Office Information',
     'title_factory_footer' => 'Factory Information',
+    'send_contact_success' => 'Send contact request successfully, thank you for contacting us, we will get back to you within 24 hours!',
+    'send_contact_error' => 'Send contact request failed, please try again later!'
 ];

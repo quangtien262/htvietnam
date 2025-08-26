@@ -24,14 +24,15 @@ return new class extends Migration
             $table->text('logo')->nullable();
             $table->text('website')->nullable();
             $table->text('code')->nullable();
-            $table->text('gg_map')->nullable();
             $table->text('gg_analytic')->nullable();
+            $table->text('boxchat')->nullable();
 
-            
+            //
             $table->text('code_gg_map_office')->nullable();
             $table->text('code_gg_map_factory')->nullable();
             $table->text('code_gg_map_address')->nullable();
             $table->text('code_gg_map_address02')->nullable();
+            $table->text('gg_map')->nullable();
 
             $table->string('mst')->nullable();
             $table->string('email')->nullable();

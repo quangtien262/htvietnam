@@ -187,7 +187,7 @@ class Helper
         if (empty($menu)) {
             return '';
         }
-        if (empty($menu->current_link)) {
+        if (!empty($menu->current_link)) {
             return $menu->current_link;
         }
         $sluggable = 'data';
@@ -196,7 +196,6 @@ class Helper
         if (!empty($menu->name_data) && $lang->code != 'ch') {
             $sluggable = self::formatText($menu->name_data);
         }
-
         $displayType = $menu->display_type;
 
         switch ($displayType) {
@@ -701,6 +700,15 @@ class Helper
         }
         return $result;
     }
+
+    /**
+     * Edit content button
+     * @param $page
+     * @param string $tblName
+     * @param bool $isMain: có bo khung riêng không
+     * @param string $txtButton
+     * @return string
+     */
     public function editContent($page, $tblName = 'block04', $isMain = true, $txtButton = 'Sửa nội dung')
     {
         if (!isset($_GET['mod'])) {
@@ -713,6 +721,35 @@ class Helper
 
         if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
             $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.listBlock', ['tblName' => $tblName, 'pageId' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                     <i class="fa-solid fa-comments"></i> ' . $txtButton . '
+                </button>';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
+    }
+
+    /**
+     * Edit content button
+     * @param $page
+     * @param string $tblName
+     * @param bool $isMain: có bo khung riêng không
+     * @param string $txtButton
+     * @return string
+     */
+    public function editBlock($page, $tblName = 'block04', $blockId, $isMain = true, $txtButton = 'Sửa nội dung')
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+        $result = '';
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.editBlock', [$tblName, $blockId, $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
                      <i class="fa-solid fa-comments"></i> ' . $txtButton . '
                 </button>';
         }
@@ -757,7 +794,7 @@ class Helper
             $link = app('Helper')->getLinkMenu($menu);
             $result .= '<li id="menu-item-' . $menu->id . '"
                         class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-' . $menu->id . ' menu-item-design-default ' . $dropdown . '">
-                            <a class="nav-link" href="' . $link . '">' . $menu->name_data . '</a>
+                            <a class="nav-link" href="' . $link . '">' . $menu->name_data .  '</a>
                             ' . $subHtml . '
                         </li>';
         }

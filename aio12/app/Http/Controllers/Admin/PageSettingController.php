@@ -229,7 +229,8 @@ class PageSettingController extends Controller
                 ->where('languages_id', $language->id)
                 ->first();
         }
-        $config = Layout01::getConfig($page->block_type);
+        
+        $config = Layout01::getConfig($tblName);
 
         $params = [
             'data' => $data,

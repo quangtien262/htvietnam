@@ -2187,6 +2187,7 @@ ul.sub-menu-pc li:hover ul {
     z-index: 100;
     /* margin-left: 0px; */
 }
+
 ul.sub-menu-pc li:hover ul li ul {
     left: 260px;
     visibility: visible;
@@ -2207,6 +2208,7 @@ ul.sub-menu-mobile li:hover ul {
     z-index: 100;
     margin-left: 19px;
 }
+
 ul.sub-menu-mobile li:hover ul li ul {
     left: 260px;
     visibility: visible;
@@ -2390,6 +2392,13 @@ h6,
     text-transform: uppercase;
 }
 
+.btn-submit {
+    background-color: #fcca03 !important;
+    color: #000 !important;
+}
+._success {
+    color: green;
+}
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
 

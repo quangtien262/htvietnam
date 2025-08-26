@@ -8,7 +8,7 @@ use Exception;
 
 class Layout01 extends Land
 {
-    const CONFIG_LAND_89 = [
+    const CONFIG_BLOCK_89 = [
         // all
         'name' => false,
         'images' => false,
@@ -93,17 +93,58 @@ class Layout01 extends Land
                 'content' => false,
             ],
         ],
-        
+
         'block08' => [
-            'page' => self::CONFIG_LAND_89,
+            'page' => self::CONFIG_BLOCK_89,
             'block' => self::BLOCK_NONE,
         ],
-        
+
         'block09' => [
-            'page' => self::CONFIG_LAND_89,
+            'page' => self::CONFIG_BLOCK_89,
             'block' => self::BLOCK_NONE,
+        ],
+
+        'block_contact01' => [
+            'page' => self::PAGE_NONE,
+            'block' => [
+                'name' => false,
+                'images' => false,
+                'image' => false,
+                'link' => false,
+                'active' => true,
+                'menu_id' => false,
+                'note' => false,
+                'icon' => true,
+                // lang
+                'name_data' => true,
+                'title_description' => false,
+                'images_data' => false,
+                'description' => false,
+                'content' => true,
+            ],
+        ],
+
+        'block_contact02' => [
+            'page' => self::PAGE_NONE,
+            'block' => [
+                'name' => false,
+                'images' => false,
+                'image' => false,
+                'link' => false,
+                'active' => true,
+                'menu_id' => false,
+                'note' => false,
+                'icon' => false,
+                // lang
+                'name_data' => true,
+                'title_description' => false,
+                'images_data' => false,
+                'description' => true,
+                'content' => false,
+            ],
         ],
     ];
+
     static function getConfig($block)
     {
         return self::BLOCKS_CONFIG[$block] ?? null;
@@ -294,7 +335,7 @@ class Layout01 extends Land
         $contentContact_vi = 'Hãy gửi những thắc mắc của bạn cho chúng tôi. Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn';
         $contentContact_en = 'Please send your inquiries to us. We are always ready to listen and assist you';
         $contentContact_ch = '请将您的询问发送给我们。我们始终准备倾听和协助您';
-        MigrateService::createData(
+        $page = MigrateService::createData(
             'page_setting',
             [
                 'menu_id' => $menuId,
@@ -308,6 +349,41 @@ class Layout01 extends Land
                 'name_data' => ['Liên hệ', 'Contact', '联系'],
                 'description' => ['KẾT NỐI VỚI GCC', 'CONNECT WITH GCC', '与GCC联系'],
                 'content' => [$contentContact_vi, $contentContact_en, $contentContact_ch]
+            ]
+        );
+
+        MigrateService::createData(
+            'block_contact01',
+            ['icon' => '<i class="far fa-map"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['VĂN PHÒNG CÔNG TY', 'COMPANY OFFICE', '公司办公室'],
+                'content' => ['LK14, Hateco Green City, Foresa 4, phường Xuân Phương, TP. Hà Nội, Việt Nam', 'LK14, Hateco Green City, Foresa 4, Xuan Phuong Ward, Hanoi, Vietnam', 'LK14, Hateco Green City, Foresa 4, 轩芳区, 河内, 越南']
+            ]
+        );
+        MigrateService::createData(
+            'block_contact01',
+            ['icon' => '<i class="fas fa-phone-volume"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['GỌI NGAY 24/7', 'CALL NOW 24/7', '全天候24/7呼叫'],
+                'content' => ['Hotline: <a href="tel:+8402432008888">+84 024 3200 8888</a>', 'Hotline: <a href="tel:+8402432008888">+84 024 3200 8888</a>', '热线：<a href="tel:+8402432008888">+84 024 3200 8888</a>']
+            ]
+        );
+        MigrateService::createData(
+            'block_contact01',
+            ['icon' => '<i class="fas fa-envelope"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['GỬI EMAIL', 'SEND EMAIL', '发送电子邮件'],
+                'content' => ['Email: <a href="mailto:contact@gccgroup.vn">contact@gccgroup.vn</a>', 'Email: <a href="mailto:contact@gccgroup.vn">contact@gccgroup.vn</a>', '电子邮件：<a href="mailto:contact@gccgroup.vn">contact@gccgroup.vn</a>']
+            ]
+        );
+
+        // block 02
+        MigrateService::createData(
+            'block_contact02',
+            ['icon' => '<i class="fas fa-text-width"></i>', 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['CONTACT FORM', 'CONTACT FORM', '联系表单'],
+                'description' => ['BIỂU MẪU LIÊN HỆ', 'BIỂU MẪU LIÊN HỆ', '联系表单']
             ]
         );
     }

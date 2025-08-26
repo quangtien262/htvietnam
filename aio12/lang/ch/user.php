@@ -118,4 +118,6 @@ return [
     'title_contact_footer' => '联系信息',
     'title_office_footer' => '办公室信息',
     'title_factory_footer' => '工厂信息',
+    'send_contact_success' => '发送联系请求成功，感谢您与我们联系，我们将在24小时内与您联系！',
+    'send_contact_error' => '发送联系请求失败，请稍后再试！'
 ];

@@ -120,3 +120,8 @@
 <link data-n-head="ssr" rel="mask-icon" href="{{$logo114}}" color="#1a1b1d"/>
 <link data-n-head="ssr" rel="shortcut icon" href="{{$logo114}}"/>
 <meta data-n-head="ssr" property="twitter:card" content="summary_large_image"/>
+
+{!! $config->gg_analytic !!}
+{!! $config->boxchat !!}
+{!! $config->code !!}
+

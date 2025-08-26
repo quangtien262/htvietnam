@@ -45,7 +45,8 @@ class TablesLayout01Seeder extends Seeder
                 'website' => 'www.gccgroup.vn',
                 'mst' => '5200886602',
                 'code_gg_map_factory' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7454.60715070508!2d106.1241353!3d20.9001027!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135a344312efcd9%3A0x2addc6e2ee7a6b83!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24gR0NDIFBMQVNUSUM!5e0!3m2!1svi!2s!4v1755735897811!5m2!1svi!2s" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
-                'code_gg_map_office' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d232.75097609136785!2d105.7463238!3d21.0320611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455df256e0ec5%3A0x183863e6b7216ec7!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24ga2hvw6FuZyBz4bqjbiBHQ0M!5e0!3m2!1svi!2s!4v1755735862704!5m2!1svi!2s"  style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>'
+                'code_gg_map_office' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d232.75097609136785!2d105.7463238!3d21.0320611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455df256e0ec5%3A0x183863e6b7216ec7!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24ga2hvw6FuZyBz4bqjbiBHQ0M!5e0!3m2!1svi!2s!4v1755735862704!5m2!1svi!2s"  style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+                'boxchat' => '<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="c5ca3664-9fb9-49ab-b905-0caa31a07c16";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>',
             ],
             [
                 'office' => [

@@ -208,9 +208,15 @@
                         <button id="btnSave" type="button" class="btn btn-save">
                             <i class="fa fa-save"></i> Cập nhật
                         </button>
+                        <button id="btnSaveAndClose" type="button" class="btn btn-save">
+                            <i class="fa fa-save"></i> Lưu và đóng
+                        </button>
                     @else
                         <button id="btnSave" type="button" class="btn btn-save">
                             <i class="fa fa-save"></i> Lưu & tiếp tục thêm mới
+                        </button>
+                        <button id="btnSaveAndClose" type="button" class="btn btn-save">
+                            <i class="fa fa-save"></i> Thêm và đóng
                         </button>
                     @endif
 
@@ -229,6 +235,7 @@
     @include('admin.page_setting.icon_modal')
 
     <script>
+
         $('#btnSave').on('click', function() {
             var $btn = $(this);
             $btn.prop('disabled', true); // Disable nút
@@ -256,5 +263,32 @@
                 })
                 .submit()
         });
+
+
+        // save and close
+        $('#btnSaveAndClose').on('click', function() {
+            var $btn = $(this);
+            $btn.prop('disabled', true); // Disable nút
+
+            var result = '#result';
+            $(result).html(
+                '<img class="img-loading" src="/images/loading/loading.jpg" style="width: 100px;" />'
+            );
+            $('#formData')
+                .ajaxForm({
+                    target: result,
+                    delegation: true,
+                    dataType: 'json',
+                    success: function(result) {
+                        window.parent.location.reload();
+                    },
+                    error: function() {
+                        $('#result').text('Có lỗi xảy ra!');
+                        $btn.prop('disabled', false); // Enable lại nút
+                    }
+                })
+                .submit()
+        });
+
     </script>
 @endsection

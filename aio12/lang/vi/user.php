@@ -113,4 +113,6 @@ return [
     'title_contact_footer' => 'Thông tin liên hệ',
     'title_office_footer' => 'Văn phòng',
     'title_factory_footer' => 'Nhà máy',
+    'send_contact_success' => 'Gửi yêu cầu thành công, cảm ơn bạn đã gửi liên hệ cho chúng tôi, Chúng tôi sẽ liên hệ lại với bạn trong vòng 24h!',
+    'send_contact_error' => 'Gửi yêu cầu thất bại, vui lòng thử lại sau!'
 ];

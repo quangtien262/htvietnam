@@ -28,13 +28,13 @@
             <ul class="nav top-bar-nav nav-right nav-small  nav-">
                 <li class="html header-social-icons ml-0">
                     <div class="social-icons follow-icons">
-                @foreach ($langs as $lang)
-                        &nbsp;&nbsp;&nbsp;
-                        <a href="{{ route('change_language', [$lang->code]) }}" class=""
-                            title="{{ $lang->name }}">
-                            <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="height:30px;">
-                        </a>
-                @endforeach
+                        @foreach ($langs as $lang)
+                                &nbsp;&nbsp;&nbsp;
+                                <a href="{{ route('change_language', [$lang->code]) }}" class=""
+                                    title="{{ $lang->name }}">
+                                    <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="height:25px;">
+                                </a>
+                        @endforeach
                 
                     </div>
                 </li>
