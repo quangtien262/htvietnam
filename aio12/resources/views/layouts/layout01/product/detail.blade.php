@@ -351,18 +351,18 @@
                                         <div class="woocommerce-Tabs-panel woocommerce-Tabs-panel--description panel entry-content active"
                                             id="tab-description" role="tabpanel"
                                             aria-labelledby="tab-title-description">
-                                            {!! $product->description !!}
+                                            {!! $product->content !!}
                                         </div>
                                         <div class="woocommerce-Tabs-panel woocommerce-Tabs-panel--additional_information panel entry-content "
                                             id="tab-additional_information" role="tabpanel"
                                             aria-labelledby="tab-title-additional_information">
-                                            {!! $product->description02 !!}
+                                            {!! $product->content02 !!}
                                         </div>
 
                                         <div id="tab-ux_global_tab"
                                             class="woocommerce-Tabs-panel woocommerce-Tabs-panel--ux_global_tab panel entry-content "
                                             role="tabpanel" aria-labelledby="tab-title-ux_global_tab">
-                                            {!! $product->content !!}
+                                            {!! $product->content03 !!}
                                         </div>
 
                                         {{-- <div

@@ -10,7 +10,7 @@
             'block_contact02',
             ['block_contact02.page_setting_id' => $page->data_id],
             ['block_contact02.sort_order' => 'asc'],
-            1
+            1,
         );
     @endphp
 
@@ -46,7 +46,8 @@
                                         <div class="icon-box featured-box icon-box-left text-left">
                                             <div class="icon-box-img" style="width: 40px">
                                                 <div class="icon">
-                                                    <div class="icon-inner" style="font-size: 40px">{!! $block1->icon !!}</div>
+                                                    <div class="icon-inner" style="font-size: 40px">
+                                                        {!! $block1->icon !!}</div>
                                                 </div>
                                             </div>
                                             <div class="icon-box-text last-reset">
@@ -57,7 +58,7 @@
                                     </div>
                                 </div>
                             @endforeach
-                            
+
                         </div>
                     </div>
                 </div>
@@ -76,8 +77,10 @@
 
                         {!! app('Helper')->editBlock($page, 'block_contact02', $blockContact02->data_id, true) !!}
 
-                        <p style="text-align: center;"><span style="color: #808080;">{{$blockContact02->description}}</span></p>
-                        <h2 class="text-uppercase topmargin_5 bottommargin_25" style="text-align: center;">{{$blockContact02->name_data}}</h2>
+                        <p style="text-align: center;"><span
+                                style="color: #808080;">{{ $blockContact02->description }}</span></p>
+                        <h2 class="text-uppercase topmargin_5 bottommargin_25" style="text-align: center;">
+                            {{ $blockContact02->name_data }}</h2>
                         <div class="wpcf7 no-js" id="wpcf7-f563-p2-o1" lang="vi" dir="ltr">
 
                             <div class="screen-reader-response">
@@ -107,9 +110,8 @@
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
                                                 <input size="40"
                                                     class="wpcf7-form-control wpcf7-text wpcf7-email wpcf7-validates-as-email"
-                                                    aria-invalid="false"
-                                                    placeholder="{{ __('user.enter_your_email') }}" value=""
-                                                    type="email" name="contact[email]" />
+                                                    aria-invalid="false" placeholder="{{ __('user.enter_your_email') }}"
+                                                    value="" type="email" name="contact[email]" />
                                                 <label class="error email_error _red" id="email_error"
                                                     for="email"></label>
                                             </span>
@@ -118,14 +120,16 @@
                                     <div class="col large-6">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                                <select id="area" class="wpcf7-form-control wpcf7-text" name="contact[area]">
+                                                <select id="area" class="wpcf7-form-control wpcf7-text"
+                                                    name="contact[area]">
                                                     <option value="">{{ __('user.select_area') }}</option>
                                                     <option value="1">{{ __('user.vietnam') }}</option>
                                                     <option value="2">{{ __('user.english') }}</option>
                                                     <option value="3">{{ __('user.china') }}</option>
                                                     <option value="4">{{ __('user.other') }}</option>
                                                 </select>
-                                                <label class="error area_error _red" id="area_error" for="area"></label>
+                                                <label class="error area_error _red" id="area_error"
+                                                    for="area"></label>
                                             </span>
                                         </p>
                                     </div>
@@ -140,7 +144,7 @@
                                             </span>
                                         </p>
                                     </div>
-                                    
+
                                     <div class="col large-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="title">
@@ -161,11 +165,11 @@
                                                     for="content"></label>
                                             </span>
                                             <br />
-                                            <p id="result" class="_success"></p>
-                                            <input class="wpcf7-form-control has-spinner wpcf7-submit btn-submit"
-                                                type="button" onclick="sendContact('#contactForm')"
-                                                data-wait="{{ __('user.sending') }}" data-id="contact01"
-                                                id="btnContact01" value="{{ __('user.send_message') }}" />
+                                        <p id="result" class="_success"></p>
+                                        <input class="wpcf7-form-control has-spinner wpcf7-submit btn-submit"
+                                            type="button" onclick="sendContact('#contactForm')"
+                                            data-wait="{{ __('user.sending') }}" data-id="contact01"
+                                            id="btnContact01" value="{{ __('user.send_message') }}" />
                                         </p>
                                     </div>
                                 </div>
@@ -179,6 +183,8 @@
     </section>
 
     <script>
+        
+
         function sendContact(formID) {
             var $jq = jQuery.noConflict();
             $jq('#result').html('<img width="20px" src="/images/loading/loader.big.black.gif"/>Đang gửi yêu cầu.... ');
@@ -193,7 +199,7 @@
                 return obj;
             }, {});
             console.log(formData);
-            console.log('datazzzx',  formData);
+            console.log('datazzzx', formData);
 
             $jq.ajax({
                 type: "POST",

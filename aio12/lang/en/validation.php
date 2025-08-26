@@ -153,6 +153,15 @@ return [
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
 
+    'full_name_is_empty' => 'Full name is required.',
+    'email_is_empty' => 'Email address is required.',
+    'phone_is_empty' => 'Phone number is required.',
+    'address_is_empty' => 'Address is required.',
+    'email_format' => 'Invalid email address format.',
+    'title_is_empty' => 'Title is required.',
+    'content_is_empty' => 'Content is required.',
+    'area_is_empty' => 'Area is required.',
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

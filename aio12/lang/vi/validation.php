@@ -153,6 +153,15 @@ return [
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
 
+    'full_name_is_empty' => 'Vui lòng nhập họ và tên.',
+    'email_is_empty' => 'Vui lòng nhập địa chỉ email.',
+    'phone_is_empty' => 'Vui lòng nhập số điện thoại.',
+    'address_is_empty' => 'Vui lòng nhập địa chỉ.',
+    'email_format' => 'Địa chỉ email không hợp lệ.',
+    'title_is_empty' => 'Vui lòng nhập tiêu đề.',
+    'content_is_empty' => 'Vui lòng nhập nội dung.',
+    'area_is_empty' => 'Vui lòng nhập khu vực.',
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

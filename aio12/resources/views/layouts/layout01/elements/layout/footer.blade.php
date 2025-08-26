@@ -112,9 +112,9 @@
                 <div id="col-1439219474" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
                         <h3 class="title-footer">{{__('user.title_office_footer')}}</h3>
-                        <p>{!! !empty($config->office) ? nl2br($config->office) : '' !!}</p>
+                        <p class="address-footer">{!! !empty($config->office) ? nl2br($config->office) : '' !!}</p>
                         <div>
-                            {!! $config->code_gg_map_office !!}
+                            {!! !empty($config->code_gg_map_office) ? nl2br($config->code_gg_map_office) : '' !!}
                         </div>
                     </div>
                 </div>
@@ -122,9 +122,9 @@
                 <div id="col-389608184" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
                         <h3 class="title-footer">{{__('user.title_factory_footer')}}</h3>
-                        <p>{!! !empty($config->factory) ? nl2br($config->factory) : '' !!}</p>
+                        <p class="address-footer">{!! !empty($config->factory) ? nl2br($config->factory) : '' !!}</p>
                         <div>
-                            {!! $config->code_gg_map_factory !!}
+                            {!! !empty($config->code_gg_map_factory) ? nl2br($config->code_gg_map_factory) : '' !!}
                         </div>
                     </div>
                 </div>

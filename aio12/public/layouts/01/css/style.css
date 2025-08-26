@@ -2399,6 +2399,10 @@ h6,
 ._success {
     color: green;
 }
+.address-footer {
+    min-height: 75px;
+}
+
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/
 

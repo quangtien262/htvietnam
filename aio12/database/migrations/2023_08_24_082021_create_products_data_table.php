@@ -58,7 +58,7 @@ return new class extends Migration
         MigrateService::createColumn02(
             $productData->id,
             'content',
-            'Nội dung',
+            'Ứng dụng',
             'LONGTEXT',
             'tiny',
             $order++,
@@ -67,7 +67,7 @@ return new class extends Migration
         MigrateService::createColumn02(
             $productData->id,
             'content02',
-            'Nội dung',
+            'Mô tả sản phẩm',
             'LONGTEXT',
             'tiny',
             $order++,
@@ -76,7 +76,7 @@ return new class extends Migration
         MigrateService::createColumn02(
             $productData->id,
             'content03',
-            'Nội dung',
+            'Thông số kỹ thuật',
             'LONGTEXT',
             'tiny',
             $order++,

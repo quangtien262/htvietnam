@@ -49,30 +49,30 @@ class ContactController extends Controller
     {
         $config = WebConfig::query()->find(1);
         if (empty($request->contact['name'])) {
-            return $this->sendErrorResponse(' .name_error', 'Vui lòng nhập họ tên');
+            return $this->sendErrorResponse(' .name_error', __('validation.full_name_is_empty'));
         }
         if (empty($request->contact['email'])) {
-            return $this->sendErrorResponse(' .email_error', 'Vui lòng nhập email');
+            return $this->sendErrorResponse(' .email_error', __('validation.email_is_empty'));
         }
 
         $email = $request->contact['email'];
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->sendErrorResponse(' .email_error', 'Định dạng email không đúng');
+            return $this->sendErrorResponse(' .email_error', __('validation.email_format'));
         }
 
         if (empty($request->contact['phone'])) {
-            return $this->sendErrorResponse(' .phone_error', 'Vui lòng nhập số điện thoại');
+            return $this->sendErrorResponse(' .phone_error', __('validation.phone_is_empty'));
         }
         if (empty($request->contact['content'])) {
-            return $this->sendErrorResponse(' .content_error', 'Vui lòng nhập nội dung');
+            return $this->sendErrorResponse(' .content_error', __('validation.content_is_empty'));
         }
 
         if ( empty($request->contact['title'])) {
-            return $this->sendErrorResponse(' .title_error', 'Vui lòng nhập tiêu đề');
+            return $this->sendErrorResponse(' .title_error', __('validation.title_is_empty'));
         }
 
         if (empty($request->contact['area'])) {
-            return $this->sendErrorResponse(' .area_error', 'Vui lòng nhập khu vực');
+            return $this->sendErrorResponse(' .area_error', __('validation.area_is_empty'));
         }
 
         $post = $request->contact;
