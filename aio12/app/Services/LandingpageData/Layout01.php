@@ -612,7 +612,7 @@ class Layout01 extends Land
             ['page_setting_id' => $page->id],
             [
                 'name_data' => ['Sản lượng xuất khẩu', 'Export Output', '出口产量'],
-                'description' => ['10.000 tấn/năm', '10,000 tons/year', '10,000吨/年']
+                'description' => ['10.000', '10,000 tons/year', '10,000吨/年']
             ],
         );
         MigrateService::createData(
@@ -620,7 +620,7 @@ class Layout01 extends Land
             [ 'page_setting_id' => $page->id],
             [
                 'name_data' => ['Số lượng khách hàng', 'Number of Customers', '客户数量'],
-                'description' => ['368 Khách hàng', '368 Customers', '368客户']
+                'description' => ['368', '368 Customers', '368客户']
             ]
         );
         MigrateService::createData(
@@ -628,7 +628,7 @@ class Layout01 extends Land
             [ 'page_setting_id' => $page->id],
             [
                 'name_data' => ['Số Quốc gia đã xuất khẩu', 'Number of Exporting Countries', '出口国家数量'],
-                'description' => ['59 Quốc gia', '59 Countries', '59个国家']
+                'description' => ['59', '59 Countries', '59个国家']
             ]
         );
         // MigrateService::createData(
