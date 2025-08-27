@@ -10,7 +10,7 @@ export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
 export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
     'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-    'admin_user.change_password','web_config'
+    'admin_user.change_password','web_config','video'
 ];
 
 export const routeHome = [];
@@ -357,22 +357,6 @@ export const routeWeb = [
     },
     {
         parent: {
-            link: route('data.tblName', ['orders']),
-            display_name: 'Đơn đặt hàng',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('data.tblName', ['contact']),
-            display_name: 'Liên hệ',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
             link: route('data.tblName', ['news']),
             display_name: 'Tin tức',
             key: key++
@@ -389,6 +373,14 @@ export const routeWeb = [
     },
     {
         parent: {
+            link: route('data.tblName', ['video']),
+            display_name: 'Video',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
             link: route('data.tblName', ['menus']),
             display_name: 'Menu',
             key: key++
@@ -399,6 +391,22 @@ export const routeWeb = [
         parent: {
             link: route('adm.landingpage.index'),
             display_name: 'Landingpage',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['orders']),
+            display_name: 'Đơn đặt hàng',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
+            link: route('data.tblName', ['contact']),
+            display_name: 'Liên hệ',
             key: key++
         },
         sub: []

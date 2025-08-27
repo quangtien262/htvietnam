@@ -119,5 +119,9 @@ return [
     'title_office_footer' => '办公室信息',
     'title_factory_footer' => '工厂信息',
     'send_contact_success' => '发送联系请求成功，感谢您与我们联系，我们将在24小时内与您联系！',
-    'send_contact_error' => '发送联系请求失败，请稍后再试！'
+    'send_contact_error' => '发送联系请求失败，请稍后再试！',
+    'download' => '下载',
+    'request_download_success' => '请求下载成功，感谢您的请求！',
+    'file_is_updating' => '文件正在更新',
+    'latest_video' => '最新视频',
 ];

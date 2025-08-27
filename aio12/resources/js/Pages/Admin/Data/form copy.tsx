@@ -15,12 +15,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import {
-    FormOutlined, CopyOutlined,
-    UploadOutlined,
-    EditOutlined, RollbackOutlined
-
-} from '@ant-design/icons';
+import { FormOutlined, CopyOutlined, UploadOutlined, PlusSquareOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
 import { router, Link } from '@inertiajs/react';
 import { itemMenu } from "../../../Function/config_route";
@@ -72,8 +67,7 @@ export default function Dashboard(props) {
         }
     }
     ));
-
-    const [fileDocument, setFileDocument] = useState([]);
+    const [fileListExpress, setFileListExpress] = useState([]);
 
     //permission
     const [permissionList, setPermissionList] = useState(props.userPermission);
@@ -300,8 +294,8 @@ export default function Dashboard(props) {
         setFileList(newFileList);
     };
 
-
-
+    
+    
     function showDataImages(col) {
         const data = props.data;
         let result;
@@ -397,32 +391,12 @@ export default function Dashboard(props) {
         }
     });
 
-    const uploadRef = useRef();
-    const handleClick = () => {
-        // Truy cập input file ẩn và click
-        if (uploadRef.current) {
-            const input = uploadRef.current.querySelector('input[type="file"]');
-            if (input) input.click();
-        }
-    };
-
     const imageItems = props.columns.map((col) => {
-
-        if (["file"].includes(col.type_edit)) {
-            // form upload
-            console.log('xxxx');
-
-            return <Col span={24}>
-                xxxxxxxxxxxxxxxxxxxx
-            </Col>;
-        }
-
         if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
             if (checkConfig(col)) {
                 return showDataImages(col);
             }
         }
-
     });
 
     const cellRender = (current) => {
@@ -936,7 +910,6 @@ export default function Dashboard(props) {
                 );
                 continue;
             }
-
             content.push(showData(col, props.dataLanguage, lang.id));
         }
 
@@ -1027,7 +1000,6 @@ export default function Dashboard(props) {
 
                             {/* language */}
                             {checkShowDataLanguage()}
-
                             <div>
                                 <br />
                                 <Space>

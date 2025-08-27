@@ -228,7 +228,6 @@
         };
 
 
-
         function validationFormContact(formID) {
             $jq(formID + '  .name_error').text('');
             $jq(formID + '  .email_error').text('');

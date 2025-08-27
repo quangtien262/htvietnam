@@ -55,11 +55,16 @@ class TablesLayout01Seeder extends Seeder
                     'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
                 ],
                 'address' => [
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
+                ],
+                'address_header' => [
                     'LK14, KĐT Hateco Green City',
                     'LK14, KĐT Hateco Green City',
                     'LK14, KĐT Hateco Green City'
                 ],
-                'address_description' => [
+                'address_header_description' => [
                     'Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
                     'Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
                     'Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
@@ -106,6 +111,9 @@ class TablesLayout01Seeder extends Seeder
         //news
         $this->createNews();
 
+        // video
+        $this->createVideo();
+
         // list block landing page
         Layout01::createBlocks();
 
@@ -138,12 +146,14 @@ class TablesLayout01Seeder extends Seeder
             '/layouts/01/product-test/3.png',
         ];
 
+        $file = 'layouts/01/product-test/3.png';
+
         MigrateService::createProduct(
             ['HẠT NHỰA MÀU', 'Color Masterbatch', '塑料粒颗颜色'],
             12000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 3],
+            ['menu_id' => 3, 'file' => $file],
             ['name_data' => ['Hạt nhựa màu', 'Color Masterbatch', '塑料粒颗颜色']]
         );
         MigrateService::createProduct(
@@ -151,21 +161,21 @@ class TablesLayout01Seeder extends Seeder
             13000,
             ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3]
+            ['menu_id' => 3, 'file' => $file]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3]
+            ['menu_id' => 3, 'file' => $file]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3]
+            ['menu_id' => 3, 'file' => $file]
         );
     }
 
@@ -199,10 +209,10 @@ class TablesLayout01Seeder extends Seeder
             ['Giới thiệu', 'About', '关于'],
             'landingpage',
             ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images],
-            ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout,$desAbout,$desAbout]]
+            ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout, $desAbout, $desAbout]]
         );
         $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
-        MigrateService::createMenu(['Media', 'Media', '媒体'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
         MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
         MigrateService::createMenu(
             ['Liên Hệ', 'Contact', '联系'],
@@ -217,7 +227,7 @@ class TablesLayout01Seeder extends Seeder
                 'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
             ]
         );
-        
+
     }
 
     private function createNews()
@@ -303,7 +313,7 @@ class TablesLayout01Seeder extends Seeder
 
         // product
         Layout01::products($sort_order++);
-        
+
         // Why Choose Us
         Layout01::block03($sort_order++);
 
@@ -323,5 +333,49 @@ class TablesLayout01Seeder extends Seeder
         Layout01::contact($sort_order++);
 
         Layout01::doiTac($sort_order++);
+    }
+
+    private function createVideo()
+    {
+        $video = '<iframe width="1480" height="833" src="https://www.youtube.com/embed/5jpgmX2GK9Q" title="GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+        $this->command->info('migrate Video');
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 4,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video,$video,$video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
+        );
+
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 4,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video,$video,$video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
+        );
+
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 4,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video,$video,$video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
+        );
     }
 }

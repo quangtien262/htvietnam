@@ -60,21 +60,24 @@ class PagesController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $langId = UserService::getLang();
-        $menu = UserService::getMenuDetail($menuId);
+        $menuInfo = UserService::getMenuDetail($menuId);
         $seo = [
-            'title' => $menu['menu']->name,
-            'keywords' => $menu['menu']->meta_keyword,
-            'description' => $menu['menu']->meta_description,
+            'title' => $menuInfo['menu']->name,
+            'keywords' => $menuInfo['menu']->meta_keyword,
+            'description' => $menuInfo['menu']->meta_description,
         ];
 
-        if (count($menu['subMenuId']) > 1) {
-            unset($menu['subMenuId'][0]);
-            $menuData = Menu::query()->whereIn('menus.id', $menu['subMenuId'])->get();
+        if (count($menuInfo['subMenuId']) > 1) {
+            unset($menuInfo['subMenuId'][0]);
+            $menuData = Menu::query()->whereIn('menus.id', $menuInfo['subMenuId'])->get();
             return View('layouts.layout' . $config->layout . '.pages.list', compact('menu', 'langId', 'config', 'seo', 'menuData'));
         }
 
-        $menu = $menu['menu'];
-        return View('layouts.layout' . $config->layout . '.pages.single_page', compact('config', 'menu', 'seo'));
+        $newsLatest = News::query()->orderBy('news.create_date', 'desc')->limit(10)->get();
+
+        $menu = Menu::query()->find($menuId);
+        // dd($menu);
+        return View('layouts.layout' . $config->layout . '.pages.single_page', compact('config', 'menu', 'seo', 'newsLatest', 'menuInfo'));
     }
 
     public function pageList($menuId)

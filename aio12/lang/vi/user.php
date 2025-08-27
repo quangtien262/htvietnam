@@ -114,5 +114,9 @@ return [
     'title_office_footer' => 'Văn phòng',
     'title_factory_footer' => 'Nhà máy',
     'send_contact_success' => 'Gửi yêu cầu thành công, cảm ơn bạn đã gửi liên hệ cho chúng tôi, Chúng tôi sẽ liên hệ lại với bạn trong vòng 24h!',
-    'send_contact_error' => 'Gửi yêu cầu thất bại, vui lòng thử lại sau!'
+    'send_contact_error' => 'Gửi yêu cầu thất bại, vui lòng thử lại sau!',
+    'download' => 'Tải xuống',
+    'request_download_success' => 'Yêu cầu tải xuống thành công, cảm ơn bạn đã gửi yêu cầu!',
+    'file_is_updating' => 'Tài liệu đang được cập nhật',
+    'latest_video' => 'Video mới nhất',
 ];

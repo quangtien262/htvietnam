@@ -112,6 +112,7 @@ return new class extends Migration
             $table->text('product_color_ids')->nullable();
             $table->text('product_size_ids')->nullable();
             
+            $table->string('file')->nullable();
 
             $table->integer('is_parent')->default(0)->nullable(); // 
 
@@ -238,6 +239,9 @@ return new class extends Migration
         // );
 
         MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
+
+        MigrateService::createColumn02($tableId, 'file', 'File download', 'text', 'file', $order_col++, 
+        ['parent_id' => $hh->id, 'col' => 24]);
 
         MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'images', $order_col++, 
         ['parent_id' => $hh->id, 'col' => 24]);

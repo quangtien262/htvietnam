@@ -120,5 +120,9 @@ return [
     'title_office_footer' => 'Office Information',
     'title_factory_footer' => 'Factory Information',
     'send_contact_success' => 'Send contact request successfully, thank you for contacting us, we will get back to you within 24 hours!',
-    'send_contact_error' => 'Send contact request failed, please try again later!'
+    'send_contact_error' => 'Send contact request failed, please try again later!',
+    'download' => 'Download',
+    'request_download_success' => 'Request download successfully, thank you for your request!',
+    'file_is_updating' => 'File is updating',
+    'latest_video' => 'Latest video',
 ];

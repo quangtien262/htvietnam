@@ -21,13 +21,12 @@ class VideoController extends Controller
         if(empty($menu['parent'])){
             $parent = $menu['menu'];
             $subMenu = $menu['subMenu'];
-        } else{
+        } else {
             $subMenu = Menu::query()->where('menus.parent_id', $parent->id)->get(); 
-          
         }
         $videos = Video::query()
         ->whereIn('video.menu_id', $menu['subMenuId'])
-        ->orderBy('video.create_date', 'desc')
+        ->orderBy('video.id', 'desc')
         ->paginate(config('constant.paginate'));
 
         if ($config->layout == 89 && count($videos) == 1) {
@@ -59,8 +58,8 @@ class VideoController extends Controller
         }
         $fullUrl = \URL::current();
         $images = $video->images;
-        $video_lienquan = Video::query()->where('video.id', '!=', $VideoId)->orderBy('video.create_date', 'desc')->paginate(9);;
-        $videoLatest = Video::orderBy('id', 'desc')->offset(0)->limit(3)->get();
+        $video_lienquan = Video::query()->where('video.id', '!=', $VideoId)->orderBy('video.create_date', 'desc')->paginate(9);
+        $videoLatest = Video::query()->orderBy('id', 'desc')->offset(0)->limit(10)->get();
 
         $seo = [
             'title' => $video->name,

@@ -32,13 +32,12 @@
                     <div class="row">
                         @foreach ($block04 as $block)
                             <div class="col-inner col medium-6 small-12 large-6 item04">
-
-                                <a class="plain" {{ $block->link ? 'href=' . $block->link : '' }}>
+                                <a class="plain" href="#">
                                     <div class="icon-box featured-box icon-box-left text-left">
                                         <div class="icon-box-img" style="width: 60px">
                                             <div class="icon">
                                                 <div class="icon-inner icon04">
-                                                    <img src="{{ $block->image }}" alt="{{ $block->name_data }}"/>
+                                                    {!! $block->icon !!}
                                                 </div>
                                             </div>
                                         </div>

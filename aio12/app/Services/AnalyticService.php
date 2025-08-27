@@ -46,7 +46,6 @@ class AnalyticService
         } else {
             $data[$date] = 1;
         }
-
         File::put(base_path(self::$file), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
@@ -113,5 +112,11 @@ class AnalyticService
         $date = $date ?? date('Y-m-d');
         $data = self::readFileViewStatsIP();
         return $data[$date][$ip] ?? 0;
+    }
+
+    public static function getTotalViews()
+    {
+        $data = self::readFileViewStats();
+        return array_sum($data);
     }
 }

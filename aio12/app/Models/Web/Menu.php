@@ -12,7 +12,7 @@ class Menu extends Model {
     
     static function query($langId = 0) {
         if(empty($langId)) {
-            $langId = UserService::getLang();
+            $langId = UserService::getLang()->id;
         }
         return self::select(
             'menus.id as id',

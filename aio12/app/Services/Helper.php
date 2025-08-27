@@ -204,6 +204,7 @@ class Helper
             case 'bds':
             case 'single_page':
             case 'news':
+            case 'video':
                 $link = route($displayType, [$sluggable, $menu->id]);
                 break;
             case 'contact':
@@ -234,7 +235,19 @@ class Helper
         }
         return $link;
     }
-
+    public function getLinkVideo($video)
+    {
+        $lang = UserService::getLang();
+        $sluggable = 'video';
+        if (!empty($video->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($video->name_data);
+        }
+        $link = route('video.detail', [$sluggable, $video->id]);
+        if(!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
+    }
     public function getLinkTags($tags)
     {
         $lang = UserService::getLang();
@@ -777,6 +790,10 @@ class Helper
         return $result;
     }
 
+    public function getTotalViews() {
+        return AnalyticService::getTotalViews();
+    }
+
 
     public function menuLayout01()
     {
@@ -838,4 +855,5 @@ class Helper
         $result .= '</ul>';
         return $result;
     }
+
 }

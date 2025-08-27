@@ -52,7 +52,23 @@ class Layout01 extends Land
         ],
         'block04' => [
             'page' => self::PAGE_DEFAULT,
-            'block' => self::BLOCK_ICON,
+            'block' => [
+                // all
+                'name' => false,
+                'images' => false,
+                'image' => true,
+                'link' => true,
+                'active' => false,
+                'menu_id' => false,
+                'note' => false,
+                'icon' => false,
+                // lang
+                'name_data' => true,
+                'title_description' => false,
+                'images_data' => false,
+                'description' => true,
+                'content' => false,
+            ],
         ],
         'block05' => [
             'page' => self::PAGE_NONE,
@@ -464,7 +480,7 @@ class Layout01 extends Land
             'block04',
             ['image' => '/layouts/01/gcc/icon2.png', 'page_setting_id' => $page->id],
             [
-                'name_data' =>  ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
+                'name_data' => ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
                 'description' => [
                     'Ứng dụng trong sản xuất bao dệt PP, bao bì nông sản, bao xi măng, bao phân bón, bao thức ăn chăn nuôi, thảm nhựa, sợi PP… giúp giảm chi phí và nâng cao độ bền sản phẩm.',
                     'Application in the production of PP woven bags, agricultural packaging, cement bags, fertilizer bags, animal feed bags, plastic carpets, PP fibers… helps reduce costs and improve product durability.',
@@ -484,7 +500,7 @@ class Layout01 extends Land
                 ]
             ]
         );
-        
+
         MigrateService::createData(
             'block04',
             ['image' => '/layouts/01/gcc/icon4.png', 'page_setting_id' => $page->id],
@@ -538,7 +554,7 @@ class Layout01 extends Land
             'block04',
             ['icon' => '<i class="fas fa-suitcase-rolling"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' =>  ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
+                'name_data' => ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
                 'description' => [
                     'Ứng dụng trong sản xuất bao dệt PP, bao bì nông sản, bao xi măng, bao phân bón, bao thức ăn chăn nuôi, thảm nhựa, sợi PP… giúp giảm chi phí và nâng cao độ bền sản phẩm.',
                     'Application in the production of PP woven bags, agricultural packaging, cement bags, fertilizer bags, animal feed bags, plastic carpets, PP fibers… helps reduce costs and improve product durability.',
@@ -558,7 +574,7 @@ class Layout01 extends Land
                 ]
             ]
         );
-        
+
         MigrateService::createData(
             'block04',
             ['icon' => '<i class="fas fa-tag"></i>', 'page_setting_id' => $page->id],
@@ -580,44 +596,51 @@ class Layout01 extends Land
             [
                 'menu_id' => $menuId,
                 'name' => 'block05',
-                'display_name' => 'Dự án hoàn thành',
+                'display_name' => 'Thống kê',
                 'block_type' => 'block05',
                 'table_data' => 'block05',
                 'table_edit' => 'block05',
                 'sort_order' => $sortOrder,
             ],
             [
-                'name_data' => ['DỰ ÁN HOÀN THÀNH', 'Project Completed', '完成的项目'],
-                'description' => ['Các dự án đã hoàn thành', 'Completed projects', '已完成的项目'],
-                'content' => ['Nội dung dự án hoàn thành', 'Content of completed projects', '已完成项目的内容']
+                'name_data' => ['Thống kê', 'Statistics', '统计'],
             ]
         );
 
         MigrateService::createData(
             'block05',
-            ['note' => 1888, 'page_setting_id' => $page->id],
-            ['name_data' => ['DỰ ÁN HOÀN THÀNH', 'Project Completed', '完成的项目']],
+            ['page_setting_id' => $page->id],
+            [
+                'name_data' => ['Sản lượng xuất khẩu', 'Export Output', '出口产量'],
+                'description' => ['10.000 tấn/năm', '10,000 tons/year', '10,000吨/年']
+            ],
         );
         MigrateService::createData(
             'block05',
-            ['note' => 1888, 'page_setting_id' => $page->id],
-            ['name_data' => ['KHÁCH HÀNG', 'CUSTOMER', '客户']],
+            [ 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Số lượng khách hàng', 'Number of Customers', '客户数量'],
+                'description' => ['368 Khách hàng', '368 Customers', '368客户']
+            ]
         );
         MigrateService::createData(
             'block05',
-            ['note' => 1888, 'page_setting_id' => $page->id],
-            ['name_data' => ['ĐỐI TÁC UY TÍN', 'PRESTIGIOUS PARTNER', '优质合作伙伴']],
+            [ 'page_setting_id' => $page->id],
+            [
+                'name_data' => ['Số Quốc gia đã xuất khẩu', 'Number of Exporting Countries', '出口国家数量'],
+                'description' => ['59 Quốc gia', '59 Countries', '59个国家']
+            ]
         );
-        MigrateService::createData(
-            'block05',
-            ['note' => 200, 'page_setting_id' => $page->id],
-            ['name_data' => ['Nhân sự', 'Human Resources', '人力资源']]
-        );
-        MigrateService::createData(
-            'block05',
-            ['note' => 1888, 'page_setting_id' => $page->id],
-            ['name_data' => ['Mẫu sản phẩm', 'Product Template', '产品模板']],
-        );
+        // MigrateService::createData(
+        //     'block05',
+        //     ['note' => 200, 'page_setting_id' => $page->id],
+        //     ['name_data' => ['Nhân sự', 'Human Resources', '人力资源']]
+        // );
+        // MigrateService::createData(
+        //     'block05',
+        //     ['note' => 1888, 'page_setting_id' => $page->id],
+        //     ['name_data' => ['Mẫu sản phẩm', 'Product Template', '产品模板']],
+        // );
     }
 
     static function block06($sortOrder = 0, $menuId = 0)

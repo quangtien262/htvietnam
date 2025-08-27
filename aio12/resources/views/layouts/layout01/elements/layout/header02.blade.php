@@ -56,8 +56,8 @@
                                     </div>
                                     </div>
                                     <div class="icon-box-text last-reset">
-                                    <h3>{{ $config->address }}</h3>
-                                    <p>{{ $config->address_description }}</p>
+                                    <h3>{{ $config->address_header }}</h3>
+                                    <p>{{ $config->address_header_description }}</p>
                                     </div>
                                 </div>
                             </div>

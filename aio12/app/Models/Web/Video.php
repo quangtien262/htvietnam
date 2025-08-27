@@ -12,7 +12,7 @@ class Video extends Model
     static function query($checkActive = true, $langId = null)
     {
         if (empty($langId)) {
-            $langId = UserService::getLang();
+            $langId = UserService::getLang()->id;
         }
 
         $query = self::select(
@@ -27,7 +27,8 @@ class Video extends Model
             'video.create_date as create_date',
             'video.updated_at as updated_at',
     
-            'video_data.name_data as name',
+            'video_data.name_data as name_data',
+            'video_data.video_lang as video_lang',
             'video_data.description as description',
             'video.is_active as is_active',
             'video_data.content as content',

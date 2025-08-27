@@ -52,7 +52,6 @@ class NewsController extends Controller
         
         $menu = UserService::getMenuDetail($news->menu_id);
         
-        // dd($menu);
         $newsLatest = News::query()->where('news.id', '!=', $newsId)->orderBy('news.create_date', 'desc')->limit(10)->get();
         
         $seo = [

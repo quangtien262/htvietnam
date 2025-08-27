@@ -26,24 +26,16 @@
 
     <link rel='stylesheet' href='/layouts/01/css/flatsome-shop.css?ver={{ env('APP_VERSION') }}' type='text/css'
         media='all' />
-
-    {{-- new --}}
-
-    {{-- <link rel='stylesheet' id='photoswipe-default-skin-css'
-        href='https://solar3.maugiaodien.com/wp-content/plugins/woocommerce/assets/css/photoswipe/default-skin/default-skin.min.css?ver=7.3.0'
-        type='text/css' media='all' /> --}}
-
-    {{-- <style id='woocommerce-inline-inline-css' type='text/css'>
-        .woocommerce form .form-row .required {
-            visibility: visible;
-        }
-    </style> --}}
     <link rel='stylesheet' href='/layouts/01/css/style.css?ver=3.0' type='text/css' media='all' />
     <link rel='stylesheet' href='/layouts/01/css/v4-shims.css' type='text/css' media='all' />
     <script src="/layouts/01/js/jquery.min.js?{{ env('APP_VERSION') }}" id="jquery-core-js"></script>
     <script src="/layouts/01/js/jquery-migrate.min.js?{{ env('APP_VERSION') }}" id="jquery-migrate-js"></script>
 
-</head>
+    <script>
+        var $jq = jQuery.noConflict();
+    </script>
+
+</head> 
 
 <body
     class="product-template-default single single-product postid-808 theme-flatsome woocommerce woocommerce-page woocommerce-no-js lightbox">
@@ -339,12 +331,13 @@
                                         </li>
 
 
-                                        {{-- <li class="reviews_tab " id="tab-title-reviews" role="presentation">
-                                            <a href="#tab-reviews" role="tab" aria-selected="false"
-                                                aria-controls="tab-reviews" tabindex="-1">
-                                                Reviews (0)
+                                        <li class="ux_global_tab_tab " id="tab-title-ux_global_tab"
+                                            role="presentation">
+                                            <a href="#tabDownloadTDS" role="tab" aria-selected="false"
+                                                aria-controls="tab-ux_global_tab" tabindex="-1">
+                                                 Download TDS
                                             </a>
-                                        </li> --}}
+                                        </li>
                                     </ul>
 
                                     <div class="tab-panels">
@@ -365,6 +358,15 @@
                                             {!! $product->content03 !!}
                                         </div>
 
+                                        <div id="tabDownloadTDS"
+                                            class="woocommerce-Tabs-panel woocommerce-Tabs-panel--ux_global_tab panel entry-content "
+                                            role="tabpanel" aria-labelledby="tab-title-ux_global_tab">
+                                            @if(empty($product->file))
+                                                <p>{{ __('user.file_is_updating') }}</p>
+                                            @else
+                                                @include('layouts.layout01.product.form_download')
+                                            @endif
+                                        </div>
 
                                     </div>
                                 </div>

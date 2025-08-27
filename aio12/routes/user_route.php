@@ -129,3 +129,4 @@ Route::post('gui-tuyen-sinh', [PhanboichauController::class, 'sendTuyensinh'])->
 Route::get('tim-kiem-New.html', [PhanboichauController::class, 'search_pbc'])->name('search_phc');
 
 
+Route::get('productdownload/{id}', [ProductController::class, 'download'])->name('product.download');

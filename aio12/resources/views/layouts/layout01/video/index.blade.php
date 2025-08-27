@@ -14,7 +14,7 @@
                         <div class="col-inner">
                             <div class="tieu-de">
                                 <h1 class="page-title is-large uppercase">
-                                    <span>Tin tức</span>
+                                    <span>{{ $menu['menu']->name }}</span>
                                 </h1>
                             </div>
                         </div>
@@ -22,7 +22,7 @@
                     <div id="col-526786999" class="col medium-6 small-12 large-6">
                         <div class="col-inner text-right">
                             <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
-                                <p><a href="/">Trang chủ</a><span class="separator">  - </span><span class="last">Tin tức</span></p>
+                                <p><a href="/">Trang chủ</a><span class="separator"> - </span><span class="last">{{ $menu['menu']->name }}</span></p>
                             </nav>
                         </div>
                     </div>
@@ -56,13 +56,14 @@
         <div class="row align-center">
             <div class="large-12 col">
                 <div class="row large-columns-3 medium-columns- small-columns-1">
-                    @foreach ($news as $n)
+                    @foreach ($videos as $n)
                         @php
-                            $link = app('Helper')->getLinkNews($n);
+                            $link = app('Helper')->getLinkVideo($n);
                         @endphp
                         <div class="col post-item">
                             <div class="col-inner">
                                 <a href="{{ $link }}" class="plain">
+                                    <span class="icon-video"><i class="fas fa-video"></i></span>
                                     <div class="box box-text-bottom box-blog-post has-hover">
                                         <div class="box-image">
                                             <div class="image-cover" style="padding-top:56%;">
@@ -75,25 +76,13 @@
                                             </div>
                                         </div>
                                         <div class="box-text text-left">
-                                            <div class="box-text-inner blog-post-inner">
+                                        <div class="box-text-inner blog-post-inner">
                                                 <h5 class="post-title is-large ">{{$n->name_data}}</h5>
                                                 <div class="is-divider"></div>
                                                 <p class="from_the_blog_excerpt">{{ $n->description }}</p>
                                             </div>
                                         </div>
-                                        <div class="badge absolute top post-date badge-square">
-                                            <div class="badge-inner">
-                                                @if (!empty($n->updated_at))
-                                                    <span class="post-date-day">{{ $n->updated_at->format('d/m') }}</span><br>
-                                                    <span
-                                                        class="post-date-month is-xsmall">{{ $n->updated_at->format('Y') }}</span>
-                                                @else
-                                                    <span class="post-date-day">{{ $n->created_at->format('d/m') }}</span><br>
-                                                    <span
-                                                        class="post-date-month is-xsmall">{{ $n->created_at->format('Y') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
+                                        
                                     </div>
                                 </a>
                             </div>
