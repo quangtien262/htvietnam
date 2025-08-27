@@ -35,7 +35,7 @@
                     <div class="col-inner text-center">
                         <p>
                             <span class="display-4">
-                                {{ app('Helper')->getTotalViews() }} truy cập
+                                {{ app('Helper')->getTotalViews() }}
                             </span>
                         </p>
                         <div class="item-text">
