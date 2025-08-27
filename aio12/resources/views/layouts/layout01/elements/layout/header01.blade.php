@@ -32,7 +32,7 @@
                                 &nbsp;&nbsp;&nbsp;
                                 <a href="{{ route('change_language', [$lang->code]) }}" class=""
                                     title="{{ $lang->name }}">
-                                    <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="height:25px;">
+                                    <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="height:20px;">
                                 </a>
                         @endforeach
                 
