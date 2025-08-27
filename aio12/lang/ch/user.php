@@ -124,4 +124,7 @@ return [
     'request_download_success' => '请求下载成功，感谢您的请求！',
     'file_is_updating' => '文件正在更新',
     'latest_video' => '最新视频',
+    'application' => '应用',
+    'product_description' => '产品描述',
+    'technical_specifications' => '技术规格',
 ];

@@ -311,7 +311,7 @@
                                             role="presentation">
                                             <a href="#tab-description" role="tab" aria-selected="true"
                                                 aria-controls="tab-description">
-                                                Ứng dụng
+                                                {{ __('user.application') }}
                                             </a>
                                         </li>
                                         <li class="additional_information_tab " id="tab-title-additional_information"
@@ -319,14 +319,14 @@
                                             <a href="#tabContent02" role="tab"
                                                 aria-selected="false" aria-controls="tab-additional_information"
                                                 tabindex="-1">
-                                                Mô tả sản phẩm
+                                                {{ __('user.product_description') }}
                                             </a>
                                         </li>
                                         <li class="ux_global_tab_tab " id="tab-title-ux_global_tab"
                                             role="presentation">
                                             <a href="#tabContent03" role="tab" aria-selected="false"
                                                 aria-controls="tab-ux_global_tab" tabindex="-1">
-                                                thống số kỹ thuật
+                                                {{ __('user.technical_specifications') }}
                                             </a>
                                         </li>
 

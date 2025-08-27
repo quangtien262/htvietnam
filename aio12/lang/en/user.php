@@ -125,4 +125,7 @@ return [
     'request_download_success' => 'Request download successfully, thank you for your request!',
     'file_is_updating' => 'File is updating',
     'latest_video' => 'Latest video',
+    'application' => 'Application',
+    'product_description' => 'Product description',
+    'technical_specifications' => 'Technical specifications',
 ];

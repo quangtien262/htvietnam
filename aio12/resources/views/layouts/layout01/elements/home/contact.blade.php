@@ -123,7 +123,7 @@
                                                 <select id="area" class="wpcf7-form-control wpcf7-text"
                                                     name="contact[area]">
                                                     <option value="">{{ __('user.select_area') }}</option>
-                                                    <option value="1">{{ __('user.vietnam') }}</option>
+                                                    <option value="1" selected>{{ __('user.vietnam') }}</option>
                                                     <option value="2">{{ __('user.english') }}</option>
                                                     <option value="3">{{ __('user.china') }}</option>
                                                     <option value="4">{{ __('user.other') }}</option>

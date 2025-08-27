@@ -119,4 +119,7 @@ return [
     'request_download_success' => 'Yêu cầu tải xuống thành công, cảm ơn bạn đã gửi yêu cầu!',
     'file_is_updating' => 'Tài liệu đang được cập nhật',
     'latest_video' => 'Video mới nhất',
+    'application' => 'Ứng dụng',
+    'product_description' => 'Mô tả sản phẩm',
+    'technical_specifications' => 'Thông số kỹ thuật',
 ];
