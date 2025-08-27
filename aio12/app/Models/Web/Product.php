@@ -24,6 +24,7 @@ class Product extends Model {
             'products.is_active as is_active',
             'products.created_at as created_at',
             'products.updated_at as updated_at',
+            'products.file as file',
 
             'products_data.name_data as name_data',
             'products_data.description as description',

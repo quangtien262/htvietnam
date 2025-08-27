@@ -265,15 +265,16 @@
                                         <h1 class="product-title product_title entry-title">{{ $product->name_data }}
                                         </h1>
 
-                                        <div class="price-wrapper">
+                                        {{-- <div class="price-wrapper">
                                             <p class="price product-page-price ">
                                                 <span class="woocommerce-Price-amount amount">
-                                                    <bdi><span
-                                                            class="woocommerce-Price-currencySymbol">&#8363;</span>{{ number_format($product->gia_ban) }}
+                                                    <bdi>
+                                                        <span class="woocommerce-Price-currencySymbol">&#8363;</span>
+                                                        {{ number_format($product->gia_ban) }}
                                                     </bdi>
                                                 </span>
                                             </p>
-                                        </div>
+                                        </div> --}}
                                         <div class="product-short-description">
                                             <p>{{ !empty($product->description) ? nl2br($product->description) : '' }}
                                             </p>
@@ -293,9 +294,6 @@
                                                 class="single_add_to_cart_button button alt wp-element-button">Add to
                                                 cart</button>
                                         </form> --}}
-                                        <div class="product_meta">
-                                            <span class="posted_in">Category: <a href="" rel="tag">Chưa phân loại</a></span>
-                                        </div>
 
                                         {{-- share --}}
                                         @include('layouts.layout01.elements.common.share', ['data' => $product])
@@ -363,6 +361,7 @@
                                             role="tabpanel" aria-labelledby="tab-title-ux_global_tab">
                                             @if(empty($product->file))
                                                 <p>{{ __('user.file_is_updating') }}</p>
+                                                {{ $product->file }}
                                             @else
                                                 @include('layouts.layout01.product.form_download')
                                             @endif
