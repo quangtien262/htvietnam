@@ -58,7 +58,7 @@
 
                 <div id="col-1994144840" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
-                        <h3 class="title-footer">{{__('user.title_contact_footer')}}</h3>
+                        <h3 class="title">{{__('user.title_contact_footer')}}</h3>
                         <div class="icon-box featured-box icon-box-left text-left">
                             <div class="icon-box-img" style="width: 20px">
                                 <div class="icon">
@@ -111,7 +111,7 @@
 
                 <div id="col-1439219474" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
-                        <h3 class="title-footer">{{__('user.title_office_footer')}}</h3>
+                        <h3 class="title">{{__('user.title_office_footer')}}</h3>
                         <p class="address-footer">{!! !empty($config->office) ? nl2br($config->office) : '' !!}</p>
                         <div>
                             {!! !empty($config->code_gg_map_office) ? nl2br($config->code_gg_map_office) : '' !!}
@@ -121,7 +121,7 @@
 
                 <div id="col-389608184" class="col medium-3 small-6 large-3">
                     <div class="col-inner">
-                        <h3 class="title-footer">{{__('user.title_factory_footer')}}</h3>
+                        <h3 class="title">{{__('user.title_factory_footer')}}</h3>
                         <p class="address-footer">{!! !empty($config->factory) ? nl2br($config->factory) : '' !!}</p>
                         <div>
                             {!! !empty($config->code_gg_map_factory) ? nl2br($config->code_gg_map_factory) : '' !!}
