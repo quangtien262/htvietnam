@@ -8,6 +8,11 @@ use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\PagesController;
 
+use UniSharp\LaravelFilemanager\Lfm;
+Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+    Lfm::routes();
+});
+
 // auth
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postLogin']);

@@ -616,7 +616,7 @@ class DataController extends Controller
             $viewData['admin_users'] = $uSelect;
             return Inertia::render('Admin/Himalaya/form_himalaya', $viewData);
         }
-
+        die;
         return Inertia::render('Admin/Data/form', $viewData);
     }
 

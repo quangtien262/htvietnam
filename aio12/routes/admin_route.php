@@ -158,7 +158,7 @@ Route::get('nhat-ky-thu-tien', [HimalayaController::class, 'phieuThu'])->name('h
 
 
 // files
-Route::group(['prefix' => 'file'], function () {
+Route::group(['prefix' => 'files'], function () {
     Route::get('/', [FileController::class, 'index'])->name('file.index');
     Route::post('upload', [FileController::class, 'upload'])->name('file.upload');
     Route::get('download/{id}', [FileController::class, 'download'])->name('file.download');

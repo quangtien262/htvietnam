@@ -117,11 +117,11 @@ export default function Admin({
                 key: key++
             },
             {
-                label: <a href="/" className="menu-item-active">Trang chủ</a>,
+                label: <a href="/" className="menu-item-active" target="new"><HomeOutlined /> Website</a>,
                 key: key++
             },
             {
-                label: <a href="/">Cài đặt</a>,
+                label: <Link href={route("dashboard")}><DashboardOutlined /> Admin</Link>,
                 key: key++
             },
 

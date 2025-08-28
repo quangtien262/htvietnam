@@ -18,7 +18,7 @@ import {
 import {
     FormOutlined, CopyOutlined,
     UploadOutlined,
-    EditOutlined, RollbackOutlined
+    DownloadOutlined, RollbackOutlined
 
 } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
@@ -182,35 +182,39 @@ export default function Dashboard(props) {
     // }
     function formatValueForm(columns: any, values: { [x: string]: string; }) {
         for (const [key, col] of Object.entries(columns)) {
-            if (col.edit !== 1) {
-                values[col.name] = '';
+            // Add type guard to ensure col is an object
+            if (typeof col !== 'object' || col === null) {
                 continue;
             }
-            if (col.type_edit === "tiny" && editor.current[col.name]) {
-                values[col.name] = editor.current[col.name].getContents();
+            if ((col as any).edit !== 1) {
+                values[(col as any).name] = '';
+                continue;
             }
-            if (col.type_edit === "permission_list") {
-                values[col.name] = isCheckAllPermission
+            if ((col as any).type_edit === "tiny" && editor.current[(col as any).name]) {
+                values[(col as any).name] = editor.current[(col as any).name].getContents();
+            }
+            if ((col as any).type_edit === "permission_list") {
+                values[(col as any).name] = isCheckAllPermission
                     ? props.permissionList_all
                     : permissionList;
             }
-            if (col.type_edit === "date") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_FORMAT);
+            if ((col as any).type_edit === "date") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(DATE_FORMAT);
             }
-            if (col.type_edit === "datetime") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_TIME_FORMAT);
+            if ((col as any).type_edit === "datetime") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(DATE_TIME_FORMAT);
             }
-            if (col.type_edit === "time") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(TIME_FORMAT);
+            if ((col as any).type_edit === "time") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(TIME_FORMAT);
             }
-            if (col.type_edit === "selects_table") {
-                values[col.name] = dataSourceSelectTbl[col.name].datas.dataSource;
+            if ((col as any).type_edit === "selects_table") {
+                values[(col as any).name] = dataSourceSelectTbl[(col as any).name].datas.dataSource;
             }
-            if (col.type_edit === "color") {
-                values[col.name] = values[col.name].toHexString();
+            if ((col as any).type_edit === "color") {
+                values[(col as any).name] = values[(col as any).name].toHexString();
             }
 
-            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
+            if (['images', 'image', 'image_crop', 'images_crop'].includes((col as any).type_edit)) {
                 if (fileList && fileList.length > 0) {
                     let images = fileList.map((file) => {
                         if (!file.status) {
@@ -238,10 +242,10 @@ export default function Dashboard(props) {
                     });
 
                     // values.images = JSON.stringify(images);
-                    values[col.name] = images;
+                    values[(col as any).name] = images;
                 } else {
-                    values[col.name] = "";
-                    values[col.name] = "";
+                    values[(col as any).name] = "";
+                    values[(col as any).name] = "";
                 }
             }
 
@@ -407,15 +411,6 @@ export default function Dashboard(props) {
     };
 
     const imageItems = props.columns.map((col) => {
-
-        if (["file"].includes(col.type_edit)) {
-            // form upload
-            console.log('xxxx');
-
-            return <Col span={24}>
-                xxxxxxxxxxxxxxxxxxxx
-            </Col>;
-        }
 
         if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
             if (checkConfig(col)) {
@@ -667,16 +662,16 @@ export default function Dashboard(props) {
         </div>;
     }
 
-    function handleImageUpload(targetImgElement, index, state, imageInfo, remainingFilesCount) {
+    function handleImageUpload(targetImgElement: any, index: any, state: any, imageInfo: any, remainingFilesCount: any) {
         console.log(targetImgElement, index, state, imageInfo, remainingFilesCount)
     }
-    function handleImageUploadError(errorMessage, result) {
+    function handleImageUploadError(errorMessage: any, result: any) {
         console.log(errorMessage, result)
     }
-    function handleOnResizeEditor(height, prevHeight) {
+    function handleOnResizeEditor(height: any, prevHeight: any) {
         console.log(height, prevHeight)
     }
-    function imageUploadHandler(xmlHttpRequest, info, core, colName) {
+    function imageUploadHandler(xmlHttpRequest: { response: any; }, info: any, core: any, colName: string) {
         const result = parseJson(xmlHttpRequest.response);
         for (const [key, val] of Object.entries(result.data)) {
             editor.current[colName].insertHTML('<img key="' + key + '" src="' + val.url + '">', true, true);
@@ -851,6 +846,7 @@ export default function Dashboard(props) {
     }
 
     function checkShowData() {
+        
         if (props.tabs.length > 0) {
             return <Tabs defaultActiveKey="1" items={tabData()} />
         }
@@ -948,6 +944,72 @@ export default function Dashboard(props) {
 
     }
 
+    function showDataFile(col) {
+    if (!checkConfig(col)) {
+        return false;
+    }
+    const data = props.data;
+    if (col.edit !== 1) {
+        return false;
+    }
+
+    // State cho file upload
+    const [fileListFile, setFileListFile] = useState(
+        data[col.name]
+            ? [
+                  {
+                      uid: '-1',
+                      name: data[col.name].split('/').pop(),
+                      status: 'done',
+                      url: data[col.name],
+                  },
+              ]
+            : []
+    );
+
+    // Xử lý khi upload file thay đổi
+    const onChangeFile = ({ file, fileList }) => {
+        setFileListFile(fileList);
+        if (file.status === 'done' && file.response?.data?.filePath) {
+            // Lưu đường dẫn file vào form
+            formData.setFieldValue(col.name, file.response.data.filePath);
+        }
+    };
+
+    return (
+        <Col span={24} key={col.id}>
+            <Form.Item
+                name={col.name}
+                rules={checkRule(col)}
+                label={col.display_name}
+                valuePropName="fileList"
+                getValueFromEvent={e => (Array.isArray(e) ? e : e && e.fileList)}
+            >
+                <Upload
+                    action={route("data.upload_file")}
+                    fileList={fileListFile}
+                    onChange={onChangeFile}
+                    maxCount={1}
+                    headers={{
+                        'X-CSRF-TOKEN': props.token,
+                    }}
+                >
+                    <Button icon={<UploadOutlined />}>Chọn file</Button>
+                </Upload>
+            </Form.Item>
+            {formData.getFieldValue(col.name) && (
+                <a
+                    href={formData.getFieldValue(col.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <DownloadOutlined /> Download
+                </a>
+            )}
+        </Col>
+    );
+}
+
     function contentBlock(block) {
         let content = [],
             contentImage = [],
@@ -960,7 +1022,7 @@ export default function Dashboard(props) {
             // check config_show_data
 
             if (["block_basic"].includes(col.block_type)) {
-                const content = props.columns.map((subCol) => {
+                content = props.columns.map((subCol) => {
                     if (subCol.parent_id === col.id) {
                         return showData(subCol, props);
                     }
@@ -975,6 +1037,11 @@ export default function Dashboard(props) {
 
             if (["tiny", "calendar_cham_cong", "permission_list", "selects_table"].includes(col.type_edit)) {
                 contentLong.push(showItemsLg(col));
+                continue;
+            }
+
+            if (["file"].includes(col.type_edit)) {
+                content.push(showDataFile(col));
                 continue;
             }
 

@@ -51,11 +51,11 @@ class AdminUserTableSeeder extends Seeder
         ]);
         AdminUser::create([
             'code' => 'NV00004',
-            'username' => 'tienlq',
+            'username' => 'thont',
             // 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'password' => '$2y$10$AgayGUGyViJqcEB4eaDGVOWKbjHPNdW4SPuHLAv.GsFzuLLuTwKve', // abcd@1234
-            'name' => 'TienLQ',
-            'email' => 'tienlq@htvietnam.vn',
+            'name' => 'ThoNT',
+            'email' => 'thont@htvietnam.vn',
             'permission_group_id' => 1,
             'chi_nhanh_id' => 1
         ]);

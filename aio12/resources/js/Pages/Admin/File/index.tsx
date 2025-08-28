@@ -2,24 +2,13 @@ import { useState } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
 import {
     Select,
-    Descriptions,
     Card,
     Button,
     Input,
-    InputNumber,
     Form,
-    Space,
-    DatePicker,
     Upload,
     message,
-    Tabs,
-    Calendar,
-    Modal,
-    Checkbox,
     Popover,
-    Divider,
-    Table,
-    Spin,
     Row,
     Image,
     Radio,
@@ -27,23 +16,13 @@ import {
     Breadcrumb,
 } from "antd";
 import {
-    FormOutlined,
-    CopyOutlined,
-    UploadOutlined,
-    CloseSquareOutlined,
-    EditOutlined,
     FolderOpenTwoTone,
     FileZipTwoTone,
     FileWordTwoTone,
-    FolderAddTwoTone,
     FileUnknownTwoTone,
     FilePptTwoTone,
     FilePdfTwoTone,
-    FileImageTwoTone,
-    FileExcelTwoTone,
     FileTwoTone,
-    VideoCameraTwoTone,
-    DeleteTwoTone,
     InboxOutlined,
     RightCircleTwoTone,
     DeleteFilled,
@@ -56,9 +35,8 @@ import {
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import cloneDeep from "lodash/cloneDeep";
-import { inArray } from "../../../Function/common";
 import "../../../../css/file.css";
-
+import { itemMenu } from "../../../Function/config_route";
 const { Dragger } = Upload;
 
 export default function Dashboard(props) {
@@ -292,10 +270,14 @@ export default function Dashboard(props) {
                         .toLowerCase()
                         .includes(input.toLowerCase())
                 }
-                options={props.adminUser}
+                options={props.adminUser.map((user) => ({
+                    label: user.code +' - '+ user.name,
+                    value: user.id,
+                }))}
             />
         );
     }
+
 
     function fileInfo(data) {
         return (
@@ -312,9 +294,7 @@ export default function Dashboard(props) {
                             </a>
                         ) : (
                             <a
-                                onClick={() => {
-                                    openFile(data);
-                                }}
+                                href={route("file.download", { id: data.id })}
                             >
                                 <RightCircleTwoTone /> Download
                             </a>
@@ -381,7 +361,9 @@ export default function Dashboard(props) {
     }
 
     function showData() {
-        return datas.map((data) => {
+        console.log('datas', datas);
+
+        return datas.map((data: any) => {
             return (
                 <Col
                     key={data.id}
@@ -579,7 +561,7 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header="Trang chủ"
-            tables={props.tables}
+            tables={itemMenu(props.tables)}
             current={props.table}
             content={
                 <div>
