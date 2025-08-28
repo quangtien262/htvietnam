@@ -846,7 +846,7 @@ export default function Dashboard(props) {
     }
 
     function checkShowData() {
-        
+
         if (props.tabs.length > 0) {
             return <Tabs defaultActiveKey="1" items={tabData()} />
         }
@@ -944,71 +944,71 @@ export default function Dashboard(props) {
 
     }
 
-    function showDataFile(col) {
-    if (!checkConfig(col)) {
-        return false;
-    }
-    const data = props.data;
-    if (col.edit !== 1) {
-        return false;
-    }
+    // function showDataFile(col) {
+    //     if (!checkConfig(col)) {
+    //         return false;
+    //     }
+    //     const data = props.data;
+    //     if (col.edit !== 1) {
+    //         return false;
+    //     }
 
-    // State cho file upload
-    const [fileListFile, setFileListFile] = useState(
-        data[col.name]
-            ? [
-                  {
-                      uid: '-1',
-                      name: data[col.name].split('/').pop(),
-                      status: 'done',
-                      url: data[col.name],
-                  },
-              ]
-            : []
-    );
+    //     // State cho file upload
+    //     const [fileListFile, setFileListFile] = useState(
+    //         data[col.name]
+    //             ? [
+    //                 {
+    //                     uid: '-1',
+    //                     name: data[col.name].split('/').pop(),
+    //                     status: 'done',
+    //                     url: data[col.name],
+    //                 },
+    //             ]
+    //             : []
+    //     );
 
-    // Xử lý khi upload file thay đổi
-    const onChangeFile = ({ file, fileList }) => {
-        setFileListFile(fileList);
-        if (file.status === 'done' && file.response?.data?.filePath) {
-            // Lưu đường dẫn file vào form
-            formData.setFieldValue(col.name, file.response.data.filePath);
-        }
-    };
+    //     // Xử lý khi upload file thay đổi
+    //     const onChangeFile = ({ file, fileList }) => {
+    //         setFileListFile(fileList);
+    //         if (file.status === 'done' && file.response?.data?.filePath) {
+    //             // Lưu đường dẫn file vào form
+    //             formData.setFieldValue(col.name, file.response.data.filePath);
+    //         }
+    //     };
 
-    return (
-        <Col span={24} key={col.id}>
-            <Form.Item
-                name={col.name}
-                rules={checkRule(col)}
-                label={col.display_name}
-                valuePropName="fileList"
-                getValueFromEvent={e => (Array.isArray(e) ? e : e && e.fileList)}
-            >
-                <Upload
-                    action={route("data.upload_file")}
-                    fileList={fileListFile}
-                    onChange={onChangeFile}
-                    maxCount={1}
-                    headers={{
-                        'X-CSRF-TOKEN': props.token,
-                    }}
-                >
-                    <Button icon={<UploadOutlined />}>Chọn file</Button>
-                </Upload>
-            </Form.Item>
-            {formData.getFieldValue(col.name) && (
-                <a
-                    href={formData.getFieldValue(col.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <DownloadOutlined /> Download
-                </a>
-            )}
-        </Col>
-    );
-}
+    //     return (
+    //         <Col span={24} key={col.id}>
+    //             <Form.Item
+    //                 name={col.name}
+    //                 rules={checkRule(col)}
+    //                 label={col.display_name}
+    //                 valuePropName="fileList"
+    //                 getValueFromEvent={e => (Array.isArray(e) ? e : e && e.fileList)}
+    //             >
+    //                 <Upload
+    //                     action={route("data.upload_file")}
+    //                     fileList={fileListFile}
+    //                     onChange={onChangeFile}
+    //                     maxCount={1}
+    //                     headers={{
+    //                         'X-CSRF-TOKEN': props.token,
+    //                     }}
+    //                 >
+    //                     <Button icon={<UploadOutlined />}>Chọn file</Button>
+    //                 </Upload>
+    //             </Form.Item>
+    //             {formData.getFieldValue(col.name) && (
+    //                 <a
+    //                     href={formData.getFieldValue(col.name)}
+    //                     target="_blank"
+    //                     rel="noopener noreferrer"
+    //                 >
+    //                     <DownloadOutlined /> Download
+    //                 </a>
+    //             )}
+    //         </Col>
+    //     );
+    // }
 
     function contentBlock(block) {
         let content = [],
@@ -1041,7 +1041,7 @@ export default function Dashboard(props) {
             }
 
             if (["file"].includes(col.type_edit)) {
-                content.push(showDataFile(col));
+                // content.push(showDataFile(col));
                 continue;
             }
 
