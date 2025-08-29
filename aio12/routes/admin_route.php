@@ -368,3 +368,5 @@ Route::group(['prefix' => 'web'], function () {
 
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
 Route::post('/data/delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');
+
+Route::post('/data/upload-file', [DataController::class, 'uploadFile'])->name('data.upload_file');

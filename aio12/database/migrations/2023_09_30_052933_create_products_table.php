@@ -240,10 +240,10 @@ return new class extends Migration
 
         MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
-        MigrateService::createColumn02($tableId, 'file', 'File download', 'text', 'file', $order_col++, 
+        MigrateService::createColumn02($tableId, 'file', 'File tài liệu', 'text', 'file', $order_col++, 
         ['parent_id' => $hh->id, 'col' => 24]);
 
-        MigrateService::createColumn02($tableId, 'images', 'Ảnh', 'text', 'images', $order_col++, 
+        MigrateService::createColumn02($tableId, 'images', 'Ảnh sản phẩm', 'text', 'images', $order_col++, 
         ['parent_id' => $hh->id, 'col' => 24]);
         
         MigrateService::baseColumn($tbl);

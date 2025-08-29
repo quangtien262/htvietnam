@@ -47,6 +47,7 @@ import weekday from "dayjs/plugin/weekday";
 import localeData from "dayjs/plugin/localeData";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { Label } from 'recharts';
 
 
 dayjs.extend(weekday);
@@ -214,46 +215,76 @@ export default function Dashboard(props) {
                 values[(col as any).name] = values[(col as any).name].toHexString();
             }
 
+            // images
             if (['images', 'image', 'image_crop', 'images_crop'].includes((col as any).type_edit)) {
                 if (fileList && fileList.length > 0) {
-                    let images = fileList.map((file) => {
-                        if (!file.status) {
-                            return false;
-                        }
-                        if (file.status === "uploading") {
-                            setIsStopSubmit(true);
-                            return false;
-                        }
-
-                        if (file.status === "OK") {
-                            return {
-                                name: file.name,
-                                status: file.status,
-                                url: file.url,
-                            };
-                        }
-                        if (file.status === "done") {
-                            return {
-                                name: file.response.data.fileName,
-                                status: file.status,
-                                url: file.response.data.filePath,
-                            };
-                        }
-                    });
-
-                    // values.images = JSON.stringify(images);
-                    values[(col as any).name] = images;
+                    values[(col as any).name] = formatFiles(fileList);
                 } else {
-                    values[(col as any).name] = "";
                     values[(col as any).name] = "";
                 }
             }
 
+            // files
+            if (['file', 'files'].includes((col as any).type_edit)) {
+                
+                if (fileDocument && fileDocument.length > 0) {
+                    values[(col as any).name] = formatFiles(fileDocument);
+                } else {
+                    values[(col as any).name] = "";
+                }
+            }
         }
         return values;
     }
 
     const onFinishFailed = (errorInfo) => { };
+
+    function formatFiles(files: any) {
+        interface FileResponseData {
+            fileName: string;
+            filePath: string;
+        }
+
+        interface UploadFile {
+            name: string;
+            status?: string;
+            url?: string;
+            response?: {
+                data: FileResponseData;
+            };
+        }
+
+        interface FormattedFile {
+            name: string;
+            status: string;
+            url: string;
+        }
+
+        return files.map((file: UploadFile): FormattedFile | false | undefined => {
+            if (!file.status) {
+                return false;
+            }
+            if (file.status === "uploading") {
+                setIsStopSubmit(true);
+                return false;
+            }
+
+            if (file.status === "OK") {
+                return {
+                    name: file.name,
+                    status: file.status,
+                    url: file.url!,
+                };
+            }
+            if (file.status === "done") {
+                return {
+                    name: file.response!.data.fileName,
+                    status: file.status,
+                    url: file.response!.data.filePath,
+                };
+            }
+        });
+    }
 
     // even image
     const onChangeImage = ({ fileList: newFileList }) => {
@@ -304,6 +335,15 @@ export default function Dashboard(props) {
         setFileList(newFileList);
     };
 
+    // Chỉ cho phép file ảnh
+    const beforeUpload = (file) => {
+        const isImage = file.type.startsWith('image/');
+        if (!isImage) {
+            message.error('Chỉ được upload file hình ảnh!');
+        }
+        return isImage;
+    };
+
 
 
     function showDataImages(col) {
@@ -319,6 +359,7 @@ export default function Dashboard(props) {
                 result = (
                     <Row>
                         <Col key={col.name}>
+                            <Label>{col.display_name}</Label>
                             <Form.Item
                                 name={col.name}
                                 rules={checkRule(col)}
@@ -338,7 +379,9 @@ export default function Dashboard(props) {
                                                 action={route("data.upload_image")}
                                                 listType="picture-card" // picture-card
                                                 fileList={fileList}
+                                                accept="image/*"
                                                 maxCount={+col.conditions}
+                                                beforeUpload={beforeUpload}
                                                 onChange={onChange}
                                                 itemRender={(originNode, file) => (
                                                     <DraggableUploadListItem originNode={originNode} file={file} />
@@ -362,22 +405,32 @@ export default function Dashboard(props) {
             case "image":
             case "images":
                 result = (
-                    <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                        <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                            <Upload multiple
-                                action={route("data.upload_image")}
-                                listType="picture-card" // picture-card
-                                fileList={fileList}
-                                maxCount={props.countImage}
-                                onChange={onChange}
-                                itemRender={(originNode, file) => (
-                                    <DraggableUploadListItem originNode={originNode} file={file} />
-                                )}
-                            >
-                                <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
-                            </Upload>
-                        </SortableContext>{col.conditions}
-                    </DndContext>
+                    <Row>
+                        <Divider orientation='left'>{col.display_name}</Divider>
+                        <Col key={col.name}>
+                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                    <Upload multiple
+                                        action={route("data.upload_image")}
+                                        listType="picture-card" // picture-card
+                                        fileList={fileList}
+                                        maxCount={props.countImage}
+                                        onChange={onChange}
+                                        accept="image/*"
+                                        beforeUpload={beforeUpload}
+                                        itemRender={(originNode, file) => (
+                                            <DraggableUploadListItem originNode={originNode} file={file} />
+                                        )}
+                                        headers={{
+                                            'X-CSRF-TOKEN': props.token,
+                                        }}
+                                    >
+                                        <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
+                                    </Upload>
+                                </SortableContext>
+                            </DndContext>
+                        </Col>
+                    </Row>
                 );
                 break;
         }
@@ -944,71 +997,45 @@ export default function Dashboard(props) {
 
     }
 
-    // function showDataFile(col) {
-    //     if (!checkConfig(col)) {
-    //         return false;
-    //     }
-    //     const data = props.data;
-    //     if (col.edit !== 1) {
-    //         return false;
-    //     }
+    function showDataFile(col) {
+        if (!checkConfig(col)) {
+            return false;
+        }
+        if (col.edit !== 1) {
+            return false;
+        }
 
-    //     // State cho file upload
-    //     const [fileListFile, setFileListFile] = useState(
-    //         data[col.name]
-    //             ? [
-    //                 {
-    //                     uid: '-1',
-    //                     name: data[col.name].split('/').pop(),
-    //                     status: 'done',
-    //                     url: data[col.name],
-    //                 },
-    //             ]
-    //             : []
-    //     );
 
-    //     // Xử lý khi upload file thay đổi
-    //     const onChangeFile = ({ file, fileList }) => {
-    //         setFileListFile(fileList);
-    //         if (file.status === 'done' && file.response?.data?.filePath) {
-    //             // Lưu đường dẫn file vào form
-    //             formData.setFieldValue(col.name, file.response.data.filePath);
-    //         }
-    //     };
+        // Xử lý khi upload file thay đổi
+        const onChangeFile = ({ fileList: newFileList }) => {
+            setFileDocument(newFileList);
+        };
 
-    //     return (
-    //         <Col span={24} key={col.id}>
-    //             <Form.Item
-    //                 name={col.name}
-    //                 rules={checkRule(col)}
-    //                 label={col.display_name}
-    //                 valuePropName="fileList"
-    //                 getValueFromEvent={e => (Array.isArray(e) ? e : e && e.fileList)}
-    //             >
-    //                 <Upload
-    //                     action={route("data.upload_file")}
-    //                     fileList={fileListFile}
-    //                     onChange={onChangeFile}
-    //                     maxCount={1}
-    //                     headers={{
-    //                         'X-CSRF-TOKEN': props.token,
-    //                     }}
-    //                 >
-    //                     <Button icon={<UploadOutlined />}>Chọn file</Button>
-    //                 </Upload>
-    //             </Form.Item>
-    //             {formData.getFieldValue(col.name) && (
-    //                 <a
-    //                     href={formData.getFieldValue(col.name)}
-    //                     target="_blank"
-    //                     rel="noopener noreferrer"
-    //                 >
-    //                     <DownloadOutlined /> Download
-    //                 </a>
-    //             )}
-    //         </Col>
-    //     );
-    // }
+        return (
+            <Col span={24} key={col.id}>
+
+                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                    <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                        <Upload multiple
+                            action={route("data.upload_file")}
+                            listType="picture-card" // picture-card
+                            fileList={fileDocument}
+                            maxCount={1}
+                            onChange={onChangeFile}
+                            itemRender={(originNode, file) => (
+                                <DraggableUploadListItem originNode={originNode} file={file} />
+                            )}
+                            headers={{
+                                'X-CSRF-TOKEN': props.token,
+                            }}
+                        >
+                            <Button icon={<UploadOutlined />}>Upload </Button>
+                        </Upload>
+                    </SortableContext>
+                </DndContext>
+            </Col>
+        );
+    }
 
     function contentBlock(block) {
         let content = [],
@@ -1041,7 +1068,7 @@ export default function Dashboard(props) {
             }
 
             if (["file"].includes(col.type_edit)) {
-                // content.push(showDataFile(col));
+                content.push(showDataFile(col));
                 continue;
             }
 

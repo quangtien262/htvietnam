@@ -221,7 +221,7 @@ class TblService extends Service
         return $selects;
     }
 
-    protected function getDatas($table, $columns, $request, $limit = 30, $conditions = [], $isRecycleBin =  0, $isSearchTime = false)
+    protected function getDatas($table, $columns, $request, $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
     {
         $per = self::getPermission();
         //select table
@@ -258,7 +258,7 @@ class TblService extends Service
             $data = $data->where(function ($query) use ($request, $columns) {
                 $query->where('name', $request['sm_keyword']);
                 $searchSM = ['text', 'textarea'];
-                foreach ($columns as  $col) {
+                foreach ($columns as $col) {
                     if (!empty($col->type_edit) && in_array($col->type_edit, $searchSM)) {
                         $query->orWhere($col->name, 'like', '%' . $request['sm_keyword'] . '%');
                     }
@@ -306,7 +306,7 @@ class TblService extends Service
             }
             if (in_array($col->type_edit, ['selects', 'tags'])) {
                 $searchData[$col->name] = intval($request[$col->name]);
-                $data = $data->whereJsonContains($col->name,  intval($request[$col->name]));
+                $data = $data->whereJsonContains($col->name, intval($request[$col->name]));
                 continue;
             }
             switch ($col->search_type) {
@@ -363,7 +363,7 @@ class TblService extends Service
         ];
     }
 
-    protected function getQuery($tableName, $request, $conditions = [], $isRecycleBin =  0, $isSearchTime = false)
+    protected function getQuery($tableName, $request, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
     {
         $table = Table::where('name', $tableName)->first();
         $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get();
@@ -402,7 +402,7 @@ class TblService extends Service
             $data = $data->where(function ($query) use ($request, $columns) {
                 $query->where('name', $request['sm_keyword']);
                 $searchSM = ['text', 'textarea'];
-                foreach ($columns as  $col) {
+                foreach ($columns as $col) {
                     if (!empty($col->type_edit) && in_array($col->type_edit, $searchSM)) {
                         $query->orWhere($col->name, 'like', '%' . $request['sm_keyword'] . '%');
                     }
@@ -450,7 +450,7 @@ class TblService extends Service
             }
             if (in_array($col->type_edit, ['selects', 'tags'])) {
                 $searchData[$col->name] = intval($request[$col->name]);
-                $data = $data->whereJsonContains($col->name,  intval($request[$col->name]));
+                $data = $data->whereJsonContains($col->name, intval($request[$col->name]));
                 continue;
             }
             switch ($col->search_type) {
@@ -586,6 +586,12 @@ class TblService extends Service
         $is_uploadImage = false;
         $is_uploadImages = false;
         $colImage = '';
+        $colImages = '';
+
+        $is_uploadFiles = false;
+        $is_uploadFile = false;
+        $colFile = '';
+        $colFiles = '';
         if (empty($dataId)) {
             $data->create_by = \Auth::guard('admin_users')->user()->id;
         }
@@ -722,11 +728,38 @@ class TblService extends Service
             }
 
             //images
-            if (in_array($column->type_edit, ['images_crop', 'images', 'image_crop', 'image'])) {
+            if (in_array($column->type_edit, ['image_crop', 'image'])) {
+                $data->{$column->name} = '';
+                if (!empty($post[$column->name])) {
+                    $is_uploadImage = true;
+                    $colImage = $column;
+                }
+                continue;
+            }
+
+            if (in_array($column->type_edit, ['images_crop', 'images'])) {
                 $data->{$column->name} = '';
                 if (!empty($post[$column->name])) {
                     $is_uploadImages = true;
-                    $colImage = $column;
+                    $colImages = $column;
+                }
+                continue;
+            }
+
+            if (in_array($column->type_edit, ['file'])) {
+                $data->{$column->name} = '';
+                if (!empty($post[$column->name])) {
+                    $is_uploadFile = true;
+                    $colFile = $column;
+                }
+                continue;
+            }
+
+            if (in_array($column->type_edit, ['files'])) {
+                $data->{$column->name} = '';
+                if (!empty($post[$column->name])) {
+                    $is_uploadFiles = true;
+                    $colFiles = $column;
                 }
                 continue;
             }
@@ -856,11 +889,19 @@ class TblService extends Service
 
         if ($is_uploadImages == true) {
             //$this->uploadImages2S3($post, $colImage, $dataId, $table);
-            $this->uploadImages($post, $colImage, $dataId, $table);
+            $this->uploadImages($post, $colImages, $dataId, $table);
         }
 
         if ($is_uploadImage == true) {
-            $this->uploadImage($post, $colImage, $dataId, $table);
+            $this->uploadImages($post, $colImage, $dataId, $table);
+        }
+
+        if ($is_uploadFile == true) {
+            $this->uploadFiles($post, $colFile, $dataId, $table);
+        }
+
+        if ($is_uploadFiles == true) {
+            $this->uploadFiles($post, $colFiles, $dataId, $table);
         }
 
         $dataUpdate = [];
@@ -872,7 +913,7 @@ class TblService extends Service
 
         // insert lang
         if ($table->is_multiple_language == 1) {
-            $languageFirst = Language::where( 'is_key',  1)->first();
+            $languageFirst = Language::where('is_key', 1)->first();
             if (empty($languageFirst)) {
                 $languageFirst = Language::first();
             }
@@ -890,7 +931,7 @@ class TblService extends Service
         }
 
         if (!empty($dataUpdate)) {
-            $this->updateData($table->name, $dataId,  $dataUpdate);
+            $this->updateData($table->name, $dataId, $dataUpdate);
         }
 
         return $data;
@@ -919,7 +960,7 @@ class TblService extends Service
 
         if ($table->name == 'product_nhap_hang') {
             $product = Product::find($post['product_id']);
-            $tonKho = $post['so_luong']  + intval($product->ton_kho);
+            $tonKho = $post['so_luong'] + intval($product->ton_kho);
             $giamGia = !empty($post['giam_gia']) ? intval($post['giam_gia']) : 0;
             $data->ton_kho = $tonKho;
             $data->thanh_tien = intval($post['gia_nhap']) * intval($post['so_luong']) - $giamGia;
@@ -1318,6 +1359,52 @@ class TblService extends Service
         $this->updateData($table->name, $dataId, $dataInsert);
     }
 
+    protected function uploadFiles($post, $column, $dataId, $table)
+    {
+        $files = [];
+        if (!file_exists('files/datas')) {
+            mkdir('files/datas', 0777, true);
+        }
+        if (in_array($column->type_edit, ['file'])) {
+            $url = '';
+            if (!isset($post[$column->name][0])) {
+                return false;
+            }
+            $file = $post[$column->name][0];
+            $url = $file['url'];
+            if ($file['status'] == 'done') {
+                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
+                $url = '/files/datas/' . $table->id . '/' . $file['name'];
+            }
+            $this->updateData($table->name, $dataId, [$column->name => $url]);
+            return true;
+        }
+
+        // multiple files
+        foreach ($post[$column->name] as $idx => $file) {
+            $url = $file['url'];
+            if ($file['status'] == 'OK') {
+                $url = $file['url'];
+            }
+
+            if ($file['status'] == 'done') {
+                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
+                $url = '/files/datas/' . $table->id . '/' . $file['name'];
+            }
+            $files[] = $url;
+        }
+
+        $dataInsert = '';
+        if (!empty($files)) {
+            $dataInsert = [
+                $column->name => json_encode($files)
+            ];
+        }
+        $this->updateData($table->name, $dataId, $dataInsert);
+    }
+
+
+
     /*
      * insert
      * $tblName: table name
@@ -1419,7 +1506,7 @@ class TblService extends Service
                 'children' => $this->getDataDragDrop($tableId, $data->id, $conditions),
             ];
         }
-        
+
         return $result;
     }
 
