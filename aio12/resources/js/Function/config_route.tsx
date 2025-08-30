@@ -1,17 +1,17 @@
 let key = 1;
 
-// export const tblKhoHang = ['kho_hang', 'nha_cung_cap_status'];
-// export const tblSale = ['data_telesales', 'dat_lich', 'users'];
-// export const tblNhanSu = ['permission_group', 'admin_user', 'khoa_hoc'];
-// export const tblTask = [];
-// export const tblSetting = [];
-// export const tblTaiChinh = ['hoa_don'];
-// export const tblReport = [];
-// export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
-// export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
-//     'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-//     'admin_user.change_password','web_config','video'
-// ];
+export const tblKhoHang = ['kho_hang', 'nha_cung_cap_status'];
+export const tblSale = ['data_telesales', 'dat_lich', 'users'];
+export const tblNhanSu = ['permission_group', 'admin_user', 'khoa_hoc'];
+export const tblTask = [];
+export const tblSetting = [];
+export const tblTaiChinh = ['hoa_don'];
+export const tblReport = [];
+export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
+export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
+    'products', 'menus', 'admin_user.edit', 'admin_user.index', 
+    'admin_user.change_password','web_config','video'
+];
 
 // export const tblConfig = {
 //     tblWeb: {
