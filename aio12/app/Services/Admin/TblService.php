@@ -127,7 +127,15 @@ class TblService extends Service
             $per = $permission->permission;
         }
         $result = [];
-        $tables = Table::where('parent_id', 0)->where('show_in_menu', 1)->orderBy('sort_order', 'asc')->get();
+        // $tables = Table::where('parent_id', 0)->where('show_in_menu', 1)->orderBy('sort_order', 'asc')->get();
+         $currentTblNamePermission = [
+                'permission_group', 'product', 'categories', 
+                'admin_users', 'news', 'users', 'orders',
+                 'contact', 'file_manager','doi_tac', 'products',
+                 'menus', 'web_config','video', 'block01',
+                 'page_setting',
+            ];
+        $tables = Table::whereIn('name', $currentTblNamePermission)->orderBy('sort_order', 'asc')->get();
         foreach ($tables as $table) {
             // check ẩn cài đặt
             if ($table->is_edit == 0) {

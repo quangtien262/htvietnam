@@ -44,7 +44,7 @@ class DataController extends Controller
         'cong_no' => 'congNo',
 
         'nha_cung_cap' => 'ncc.index',
-        'tasks' => 'task.list'
+        'tasks' => 'task.list',
     ];
 
     public function getDataCalendar(Request $request)
@@ -618,7 +618,11 @@ class DataController extends Controller
             $viewData['admin_users'] = $uSelect;
             return Inertia::render('Admin/Himalaya/form_himalaya', $viewData);
         }
-        die;
+
+        if (!empty(in_array($table->name, ['permission_group']))) {
+            return Inertia::render('Admin/Data/form_permission_group', $viewData);
+        }
+        
         return Inertia::render('Admin/Data/form', $viewData);
     }
 

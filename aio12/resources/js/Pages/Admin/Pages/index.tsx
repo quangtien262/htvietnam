@@ -192,17 +192,9 @@ export default function Dashboard(props) {
                                     THÔNG BÁO
                                 </h3>
                                 <List
-                                    dataSource={[
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa thêm mới sản phẩm <a>SP000123</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        }
-                                    ]}
+                                    dataSource={props.logs.map(log => ({
+                                        title: <div>{log.name}</div>,
+                                    }))}
                                     renderItem={(item, index) => (
                                         <List.Item>
                                             <List.Item.Meta

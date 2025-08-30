@@ -224,7 +224,6 @@ return new class extends Migration
         $per = Table::where('name', 'permission_group')->first();
         MigrateService::createColumn02($tableId, 'permission_group_id', 'Nhóm quyền', 'INT', 'select', $order_col++, [
             'select_table_id' => $per->id,
-            
         ]);
 
         $nganHang = Table::where('name', 'ngan_hang')->first();

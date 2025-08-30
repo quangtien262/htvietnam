@@ -1,17 +1,101 @@
 let key = 1;
 
-export const tblKhoHang = ['kho_hang', 'nha_cung_cap_status'];
-export const tblSale = ['data_telesales', 'dat_lich', 'users'];
-export const tblNhanSu = [];
-export const tblTask = [];
-export const tblSetting = [];
-export const tblTaiChinh = ['hoa_don'];
-export const tblReport = [];
-export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
-export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
-    'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-    'admin_user.change_password','web_config','video'
-];
+// export const tblKhoHang = ['kho_hang', 'nha_cung_cap_status'];
+// export const tblSale = ['data_telesales', 'dat_lich', 'users'];
+// export const tblNhanSu = ['permission_group', 'admin_user', 'khoa_hoc'];
+// export const tblTask = [];
+// export const tblSetting = [];
+// export const tblTaiChinh = ['hoa_don'];
+// export const tblReport = [];
+// export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
+// export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
+//     'products', 'menus', 'admin_user.edit', 'admin_user.index', 
+//     'admin_user.change_password','web_config','video'
+// ];
+
+// export const tblConfig = {
+//     tblWeb: {
+//         name: 'Quản lý website',
+//         data:['images', 'contact', 'orders', 'news', 'doi_tac', 
+//             'products', 'menus', 'admin_user.edit', 'admin_user.index', 
+//             'admin_user.change_password','web_config','video']
+//     },
+//     tblNhanSu: {
+//         name: 'Quản lý nhân sự',
+//         data:['permission_group', 'admin_user', 'khoa_hoc']
+//     },
+//     tblKhoHang: {
+//         name: 'Quản lý kho hàng',
+//         data:['kho_hang', 'nha_cung_cap_status']
+//     },
+//     tblSale: {
+//         name: 'Quản lý bán hàng',
+//         data:['data_telesales', 'dat_lich', 'users']
+//     },
+//     tblTaiChinh: {
+//         name: 'Quản lý tài chính',
+//         data:['hoa_don']
+//     },
+//     tblReport: {
+//         name: 'Báo cáo',
+//         data:[]
+//     },
+//     tblTaiSan: {
+//         name: 'Quản lý tài sản',
+//         data:['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
+//     },
+//     tblTask: {
+//         name: 'Quản lý công việc',
+//         data:[]
+//     },
+// };
+
+export const tblConfig = {
+    tblWeb: {
+        name: 'Quản lý website',
+        active: true,
+        data:['images', 'contact', 'orders', 'news', 'doi_tac', 
+            'products', 'menus', 'admin_user.edit', 'admin_user.index', 
+            'admin_user.change_password','web_config','video']
+            
+    },
+    tblNhanSu: {
+        name: 'Quản lý nhân sự',
+        active: true,
+        data:['permission_group', 'admin_user', 'khoa_hoc', 'chi_nhanh']
+    },
+    tblKhoHang: {
+        name: 'Quản lý kho hàng',
+        active: false,
+        data:['kho_hang', 'nha_cung_cap_status']
+    },
+    tblSale: {
+        name: 'Quản lý bán hàng',
+        active: false,
+        data:['data_telesales', 'dat_lich', 'users']
+    },
+    tblTaiChinh: {
+        name: 'Quản lý tài chính',
+        active: false,
+        data:['hoa_don']
+    },
+    tblReport: {
+        name: 'Báo cáo',
+        active: false,
+        data:[]
+    },
+    tblTaiSan: {
+        name: 'Quản lý tài sản',
+        active: false,
+        data:['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
+    },
+    tblTask: {
+        name: 'Quản lý công việc',
+        active: false,
+        data:[]
+    },
+};
+
 
 export const routeHome = [];
 
@@ -144,14 +228,14 @@ export const routeSales = [
 ];
 
 export const routeNhanSu = [
-    {
-        parent: {
-            link: route('nhanSu.dashboard'),
-            display_name: 'Báo cáo',
-            key: key++
-        },
-        sub: []
-    },
+    // {
+    //     parent: {
+    //         link: route('nhanSu.dashboard'),
+    //         display_name: 'Báo cáo',
+    //         key: key++
+    //     },
+    //     sub: []
+    // },
     {
         parent: {
             link: route('nhanVien.index'),
@@ -162,20 +246,28 @@ export const routeNhanSu = [
     },
     {
         parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Bảng lương',
+            link: route('data.tblName', ['permission_group']),
+            display_name: 'Nhóm quyền quyền',
             key: key++
         },
         sub: []
     },
     {
         parent: {
-            link: route('data.tblName', ['data_telesales']),
-            display_name: 'Cài đặt',
+            link: route('data.tblName', ['chi_nhanh']),
+            display_name: 'Chi nhánh',
             key: key++
         },
         sub: []
     },
+    // {
+    //     parent: {
+    //         link: route('hoaDon.index'),
+    //         display_name: 'Bảng lương',
+    //         key: key++
+    //     },
+    //     sub: []
+    // },
 
 ];
 
@@ -422,34 +514,29 @@ export const routeWeb = [
         },
         sub: []
     },
-    // {
-    //     parent: {
-    //         link: route('data.tblName', ['web_config']),
-    //         display_name: 'Cài đặt website',
-    //         key: key++
-    //     },
-    //     sub: []
-    // }
 ];
 
 export function itemMenu(tableName: string) {
-    if (tblKhoHang.includes(tableName)) {
+
+    if (tblConfig.tblKhoHang.data.includes(tableName)) {
         return routeQLKho;
     }
-    if (tblSale.includes(tableName)) {
+    if (tblConfig.tblSale.data.includes(tableName)) {
         return routeSales;
     }
-    if (tblKhoHang.includes(tableName)) {
-        return routeQLKho;
-    }
-    if (tblTaiChinh.includes(tableName)) {
+    if (tblConfig.tblTaiChinh.data.includes(tableName)) {
         return routeTaiChinh;
     }
-    if (tblTaiSan.includes(tableName)) {
+    if (tblConfig.tblTaiSan.data.includes(tableName)) {
         return routeTaiSan;
     }
-    if (tblWeb.includes(tableName)) {
+    if (tblConfig.tblWeb.data.includes(tableName)) {
         return routeWeb;
     }
+    if (tblConfig.tblNhanSu.data.includes(tableName)) {
+        return routeNhanSu;
+    }
+    
     return false;
 }
+

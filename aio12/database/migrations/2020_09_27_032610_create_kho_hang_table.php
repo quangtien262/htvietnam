@@ -27,7 +27,7 @@ return new class extends Migration
             'sort_order' => 0,
             'type_show' => config('constant.type_show.basic'),
             'count_item_of_page' => 30,
-            'is_edit' => 1,
+            'is_edit' => 0,
             'form_data_type' => 2, //1: new page, 2: popup
             'expandable' => 1,
             'have_delete' => 1,

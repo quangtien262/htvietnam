@@ -12,7 +12,7 @@ import {
     ShoppingFilled,
     MailFilled,
     SoundOutlined,
-    MessageOutlined,FundFilled
+    MessageOutlined, FundFilled
 } from "@ant-design/icons";
 
 import {
@@ -38,7 +38,7 @@ export default function Dashboard(props: any) {
                     <Row className='main-home'>
                         <Col span={18}>
 
-                            
+
                             <Row>
                                 {/* Liện hệ gần đây */}
                                 <Col span={24} className='item-home'>
@@ -105,7 +105,7 @@ export default function Dashboard(props: any) {
 
                                 </Col>
 
-                                
+
                             </Row>
                         </Col>
 
@@ -114,20 +114,12 @@ export default function Dashboard(props: any) {
                             <div className='sub-item-home'>
                                 <h3>
                                     <SoundOutlined />
-                                    Thông báo
+                                    THÔNG BÁO
                                 </h3>
                                 <List
-                                    dataSource={[
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa thêm mới sản phẩm <a>SP000123</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        }
-                                    ]}
+                                    dataSource={props.logs.map(log => ({
+                                        title: <em>{log.name}</em>,
+                                    }))}
                                     renderItem={(item, index) => (
                                         <List.Item>
                                             <List.Item.Meta
@@ -139,7 +131,7 @@ export default function Dashboard(props: any) {
                                 />
                             </div>
                         </Col>
-                        
+
                     </Row>
                 </div>
             }

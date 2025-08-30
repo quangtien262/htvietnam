@@ -309,10 +309,46 @@ ul.ant-menu-sub {
 }
 
 .thead-permission th {
-    border-bottom: 1px #448cc5 solid !important;
+    border-bottom: 1px #bfe1ff solid !important;
 }
 
 
+/* main table permission */
+
+
+.main-table-permission {
+    width: 100%;
+}
+
+.main-table-permission table {
+    width: 100%;
+}
+
+.main-table-permission table tr th {
+    line-height: 35px;
+}
+
+.main-table-permission table tr th:first-child {
+    padding-left: 5px;
+}
+
+.main-table-permission table tr td {
+    line-height: 40px;
+    border-bottom: 1px #eeeeee solid;
+}
+
+.main-table-permission table tr:hover {
+    background: #f6fafd;
+}
+
+.main-table-permission table tr td:first-child {
+    padding-left: 5px;
+}
+
+.main-table-permission table {
+    border-spacing: 0px;
+    border: 0px
+}
 
 .main-table-permission table tr th,
 .main-table-permission table tr td {
@@ -324,15 +360,37 @@ ul.ant-menu-sub {
     text-align: left;
     font-weight: bold;
     width: 200px;
-    background-color: #d7dfe6;
+    border: 1px #ecebeb solid;
+    line-height: 40px;
 }
 
+.main-table-permission table tr th:first-child,
+.main-table-permission table tr td:first-child,
 .main-table-permission table tr th {
-    background-color: #d7dfe6 !important;
+    background-color: #ebf4fc !important;
 }
 
 .main-table-permission table tr td.td-parent {
     text-align: center;
+}
+
+/* sub table permission */
+table.sub-table-permission tr th,
+table.sub-table-permission tr th:first-child,
+table.sub-table-permission tr td:first-child {
+    background-color: #d7ecff !important;
+    line-height: 50px;
+}
+
+table.sub-table-permission tr th:first-child,
+table.sub-table-permission tr td:first-child {
+    text-align: left;
+    font-weight: bold;
+    width: 200px;
+}
+
+table.sub-table-permission tr:hover {
+    background: #e6f1fa;
 }
 
 /* 02 */

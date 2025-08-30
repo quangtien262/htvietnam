@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Column;
+use App\Models\Admin\Log;
 use App\Models\Admin\Product;
 use App\Models\Admin\Table;
 use App\Models\AdminUser;
@@ -31,10 +32,14 @@ class AdminController extends Controller
             ];
         }
 
+        // get 20 log mới nhất
+        $logs = Log::orderBy('id', 'desc')->limit(20)->get();
+
         $param = [
             'tables' => $tables,
             'tablesSelects' => $tablesSelects,
-            'banChay' => $banchay
+            'banChay' => $banchay,
+            'logs' => $logs
         ];
         return Inertia::render('Admin/Pages/index', $param);
     }
@@ -59,12 +64,16 @@ class AdminController extends Controller
             ->orderByDesc('created_at')
             ->limit(10)
             ->get();
-
+        
+        // get 20 log mới nhất
+        $logs = Log::orderBy('id', 'desc')->limit(20)->get();
+        
         $param = [
             'viewStats' => $viewStats,
             // 'viewStatsIp' => $viewStatsIp,
             'contacts' => $contacts,
-            'orders' => $orders
+            'orders' => $orders,
+            'logs' => $logs
         ];
         // dd($param);
         return Inertia::render('Admin/Dashboard/web', $param);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AdminLayout from '@/layouts/AdminLayout';
-import { Select, Col, Row, Card,Modal, Button  } from 'antd';
+import { Select, Col, Row, Card, Modal, Button } from 'antd';
 import { Link, router } from "@inertiajs/react";
 
 import {
@@ -11,7 +11,7 @@ import {
     IdcardFilled, SolutionOutlined, InsertRowAboveOutlined, LaptopOutlined, RiseOutlined, SlidersFilled,
     PieChartFilled, SettingFilled, ProjectOutlined, FlagOutlined, DiffOutlined, ColumnWidthOutlined,
     GoldFilled, CalendarOutlined, ReadFilled, UserSwitchOutlined, UndoOutlined, InfoCircleFilled,
-    HddFilled, CalendarFilled, TeamOutlined, UngroupOutlined, InsertRowRightOutlined,  AccountBookOutlined,
+    HddFilled, CalendarFilled, TeamOutlined, UngroupOutlined, InsertRowRightOutlined, AccountBookOutlined,
     BookOutlined, BranchesOutlined, ArrowDownOutlined, ClusterOutlined, AppstoreOutlined,
     MailOutlined
 } from "@ant-design/icons";
@@ -19,7 +19,7 @@ import {
 import "../../../../css/home.css";
 import { routeHome } from "../../../Function/config_route";
 
-export default function Dashboard(props:any) {
+export default function Dashboard(props: any) {
     const [isOpenModalConfirm, setIsOpenModalConfirm] = useState(false);
 
     const changeMenu = (id: unknown) => {
@@ -32,7 +32,7 @@ export default function Dashboard(props:any) {
             tables={routeHome}
             content={
                 <div>
-                  
+
 
                     <Card type="inner" title='Điều hướng nhanh'>
                         <Select placeholder="Nhập để điều hướng quản trị nhanh đến chức năng tương ứng"
@@ -56,7 +56,7 @@ export default function Dashboard(props:any) {
                                             <DribbbleSquareOutlined /> QUẢN TRỊ WEBSITE
                                         </Link>
                                     </div>
-                                    
+
                                     <div className="ant-statistic-content" >
                                         <div className="ant-statistic-content-prefix">
                                             <DribbbleSquareOutlined />
@@ -107,9 +107,36 @@ export default function Dashboard(props:any) {
                             </Card>
                         </Col>
 
-                        
-                        
-                        
+                        <Col sm={6} className='item-home'>
+                            <Card variant="borderless" className='item-dashboard'>
+
+                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                                    <div className="ant-statistic-title">
+                                        <Link href={route('nhanSu.dashboard')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link>
+                                    </div>
+                                    <div className="ant-statistic-content" >
+                                        <div className="ant-statistic-content-prefix">
+                                            <IdcardFilled />
+                                        </div>
+                                        <div className="ant-statistic-content-value">
+                                            <div>
+                                                <ul className="dashboard-list-item">
+                                                    <li><TeamOutlined /> Quản lý nhân viên</li>
+                                                    <li><ProjectOutlined /> Quản lý phòng ban</li>
+                                                    <li><SolutionOutlined /> Quản lý bảng lương</li>
+                                                    <li><NodeExpandOutlined /> Phân quyền quản trị</li>
+                                                    <li><InsertRowAboveOutlined /> Báo cáo doanh số, hoa hồng</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+
+
+
+
                     </Row>
 
                     <Modal

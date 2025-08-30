@@ -46,6 +46,7 @@ Route::get('page-not-found', [AdminController::class, 'pageNotFound'])->name('ad
 
 // data
 Route::group(['prefix' => 'data'], function () {
+
     Route::get('tbl/{tblName}', [DataController::class, 'tblName'])->name('data.tblName');
     Route::get('list/{tableId}', [DataController::class, 'index'])->name('data.index');
     Route::get('detail/{tableId}/{dataId}', [DataController::class, 'detail'])->name('data.detail');
