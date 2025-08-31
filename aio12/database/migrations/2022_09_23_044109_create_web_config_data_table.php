@@ -33,6 +33,7 @@ return new class extends Migration
             $table->text('office')->nullable();
             $table->text('factory')->nullable(); // nhà máy
             $table->text('phone_language')->nullable();
+            $table->text('email_language')->nullable();
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
@@ -51,7 +52,8 @@ return new class extends Migration
         MigrateService::createColumn02($data->id, 'company_name', 'Tên công ty', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'office', 'Địa chỉ văn phòng', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'factory', 'Nhà máy', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'phone_language', 'Số điện thoại theo ngôn ngữ', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'phone_language', 'Số điện thoại theo khu vực', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'email_language', 'Email theo khu vực', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'address_description', 'Địa chỉ (mô tả)', 'TEXT', 'textarea', $order++, ['edit'=> 0]);
         MigrateService::createColumn02($data->id, 'address_header', 'Địa chỉ (Header)', 'TEXT', 'textarea', $order++);

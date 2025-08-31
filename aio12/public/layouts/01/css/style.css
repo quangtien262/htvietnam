@@ -10,7 +10,9 @@
     --wp-block-synced-color--rgb: 122, 0, 223;
     --wp-bound-block-color: var(--wp-block-synced-color)
 }
-
+body, p,h1,h2,h3,h4,h5,h6,em,span,strong,a,ul li {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
 @media (min-resolution:192dpi) {
     :root {
         --wp-admin-border-width-focus: 1.5px
@@ -714,7 +716,6 @@ button[type="submit"]:focus-visible {
 
 body {
     color: #333333;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 h1,
@@ -738,20 +739,8 @@ body {
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
     font-weight: 400;
     font-style: normal;
-}
-
-.nav>li>a {
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-.mobile-sidebar-levels-2 .nav>li>ul>li>a {
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .nav>li>a,
@@ -784,9 +773,6 @@ h6,
     font-style: normal;
 }
 
-.alt-font {
-    font-family: Arial, Helvetica, sans-serif;
-}
 
 .alt-font {
     font-weight: 500 !important;
@@ -2265,7 +2251,6 @@ ul.sub-menu-mobile li:hover ul li ul {
     font-size: 20px;
     font-weight: bold;
     color: black;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .product-name:hover {
@@ -2339,13 +2324,8 @@ a:hover {
     background-color: #c5c5c5;
 }
 
-#header-contact li a {
-    font-family: Arial, Helvetica, sans-serif;
-}
-
 .header-bottom-nav li a {
     font-weight: bold !important;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .modal-content {
@@ -2432,6 +2412,19 @@ h6,
 }
 .last-reset {
     text-align: justify;
+}
+.col-inner p {
+    text-align: justify;
+}
+.icon-box-text {
+    text-align: justify;
+}
+p {
+    text-align: justify;
+}
+.button.icon {
+    margin-bottom: 90px;
+    margin-right: 17px;
 }
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/

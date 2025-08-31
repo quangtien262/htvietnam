@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(TablesTableSeeder::class);
         $this->call(DefaultSeeder::class);
         $this->call(AdminUserTableSeeder::class);
+        $this->call(CountriesTableSeeder::class);
 
         // $this->call(HimalayaSeeder::class);
         $this->call(StatusSeeder::class);
@@ -23,4 +24,4 @@ class DatabaseSeeder extends Seeder
         }
 
     }
-}
+};
