@@ -158,6 +158,8 @@ class PagesController extends Controller
 
     public function landingpage(Request $request, $sluggable, $menuId = 0)
     {
+        // $xx = $this->getLocation();
+        // dd($xx);
         $config = WebConfig::query()->find(1);
         $pageSetting = PageSetting::query()
             ->where('page_setting.menu_id', $menuId)
@@ -222,6 +224,20 @@ class PagesController extends Controller
     }
 
     public function qaDetail(Request $request, $sluggable, $qaId)
+    {
+        $config = WebConfig::query()->find(1);
+        $langId = UserService::getLang();
+        $qa = QA::query()->find($qaId);
+        $seo = [
+            'title' => $qa->name,
+            'keywords' => $qa->meta_keyword,
+            'description' => $qa->meta_description,
+        ];
+
+        return View('layouts.layout' . $config->layout . '.qa.detail', compact('config', 'qa', 'seo'));
+    }
+
+    public function updateLocation(Request $request, $sluggable, $qaId)
     {
         $config = WebConfig::query()->find(1);
         $langId = UserService::getLang();

@@ -35,4 +35,15 @@ abstract class Controller
             'data' => $data,
         ]);
     }
+
+    protected function getLocation($data = null, $message = '', $code = 200)
+    {
+        $ip = request()->ip(); // Lấy IP user
+        $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,query");
+        $location = $response ? json_decode($response, true) : null;
+        return [
+            'ip' => $ip,
+            'location' => $location,
+        ];
+    }
 }
