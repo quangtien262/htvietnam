@@ -9,12 +9,14 @@ use App\Models\Web\WebConfig;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Models\Web\BDS;
+use App\Models\Web\Countries;
 use App\Models\Web\Image;
 use App\Models\Web\Languages;
 use App\Models\Web\LinkFooter;
 use App\Models\Web\PageSetting;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Constraint\Count;
 use PSpell\Config;
 
 class Helper
@@ -216,7 +218,7 @@ class Helper
                 # code...
                 break;
         }
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -230,7 +232,7 @@ class Helper
             $sluggable = self::formatText($news->name_data);
         }
         $link = route('news.detail', [$sluggable, $news->id]);
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -243,7 +245,7 @@ class Helper
             $sluggable = self::formatText($video->name_data);
         }
         $link = route('video.detail', [$sluggable, $video->id]);
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -256,7 +258,7 @@ class Helper
             $sluggable = self::formatText($tags->name_data);
         }
         $link = route('news.tags', [$sluggable, $tags->id]);
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -270,7 +272,7 @@ class Helper
             $sluggable = self::formatText($product->name_data);
         }
         $link = route('product.detail', [$sluggable, $product->id]);
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -280,7 +282,7 @@ class Helper
     {
         $sluggable = self::formatText($bds->name);
         $link = route('bds.detail', [$sluggable, $bds->id]);
-        if(!empty($_GET['mod'])) {
+        if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }
         return $link;
@@ -790,7 +792,8 @@ class Helper
         return $result;
     }
 
-    public function getTotalViews() {
+    public function getTotalViews()
+    {
         return AnalyticService::getTotalViews();
     }
 
@@ -804,14 +807,14 @@ class Helper
             $dropdown = '';
             $subHtml = '';
             $subMenus = app('DataService')->getMenuByConditions(['menus.parent_id' => $menu->id]);
-            if($subMenus && count($subMenus) > 0) {
+            if ($subMenus && count($subMenus) > 0) {
                 $dropdown = 'has-dropdown';
                 $subHtml = $this->subMenuLayout01($subMenus);
             }
             $link = app('Helper')->getLinkMenu($menu);
             $result .= '<li id="menu-item-' . $menu->id . '"
                         class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-' . $menu->id . ' menu-item-design-default ' . $dropdown . '">
-                            <a class="nav-link" href="' . $link . '">' . $menu->name_data .  '</a>
+                            <a class="nav-link" href="' . $link . '">' . $menu->name_data . '</a>
                             ' . $subHtml . '
                         </li>';
         }
@@ -820,12 +823,13 @@ class Helper
         return $result;
     }
 
-    private function subMenuLayout01($subMenus) {
+    private function subMenuLayout01($subMenus)
+    {
         $result = '<ul class="sub-menu nav-dropdown nav-dropdown-simple sub-menu-pc">';
         foreach ($subMenus as $subMenu) {
             $subHtml = '';
             $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
-            if($subMenusxx && count($subMenusxx) > 0) {
+            if ($subMenusxx && count($subMenusxx) > 0) {
                 $subHtml = $this->subMenuLayout01($subMenusxx);
             }
             $result .= '<li class="nav-item">
@@ -838,12 +842,13 @@ class Helper
         return $result;
     }
 
-     public function subMenuLayout01_mobile($subMenus) {
+    public function subMenuLayout01_mobile($subMenus)
+    {
         $result = '<ul class="sub-menu nav-sidebar-ul children sub-menu-mobile">';
         foreach ($subMenus as $subMenu) {
             $subHtml = '';
             $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
-            if($subMenusxx && count($subMenusxx) > 0) {
+            if ($subMenusxx && count($subMenusxx) > 0) {
                 $subHtml = $this->subMenuLayout01_mobile($subMenusxx);
             }
             $result .= '<li class="menu-item menu-item-type-custom menu-item-object-custom">
@@ -853,6 +858,27 @@ class Helper
         }
 
         $result .= '</ul>';
+        return $result;
+    }
+
+    public function getLocation()
+    {
+        // check session location
+        $result = session()->get('location');
+        if (!$result) {
+            $ip = request()->ip(); // Lấy IP user
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,query");
+            $location = $response ? json_decode($response, true) : null;
+            if (!empty($location['country'])) {
+                $country = Countries::where('name', $location['country'])->first();
+            } else {
+                $country = Countries::where('name', 'Vietnam')->first();
+            }
+
+            $result = ['country' => $country, 'location' => $location];
+            session()->put('location', $result);
+        }
+
         return $result;
     }
 

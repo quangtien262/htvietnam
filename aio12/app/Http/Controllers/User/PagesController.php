@@ -35,6 +35,9 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
+        $config = WebConfig::query()->find(1);
+
+        // lượt truy cập
         AnalyticService::addView();      // Tổng lượt view theo ngày
         // AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
 
@@ -42,7 +45,7 @@ class PagesController extends Controller
             ->where('page_setting.menu_id', 0)
             ->orderBy('page_setting.sort_order', 'asc')
             ->get();
-        $config = WebConfig::query()->find(1);
+       
         $param = [
             'config' => $config,
             'langId' => UserService::getLang(),
@@ -51,7 +54,7 @@ class PagesController extends Controller
                 'title' => $config->title,
                 'keywords' => $config->meta_keyword,
                 'description' => $config->meta_description,
-            ]
+            ],
         ];
         return View('layouts.layout' . $config->layout . '.pages.index', $param);
     }
@@ -158,8 +161,6 @@ class PagesController extends Controller
 
     public function landingpage(Request $request, $sluggable, $menuId = 0)
     {
-        // $xx = $this->getLocation();
-        // dd($xx);
         $config = WebConfig::query()->find(1);
         $pageSetting = PageSetting::query()
             ->where('page_setting.menu_id', $menuId)

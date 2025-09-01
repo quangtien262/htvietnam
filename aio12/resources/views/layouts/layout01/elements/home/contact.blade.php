@@ -19,6 +19,10 @@
             ['block_contact02.sort_order' => 'asc'],
             1,
         );
+
+        // get session location
+        $location = app('Helper')->getLocation();
+        // dd($location['country']->id);
     @endphp
 
     <section class="section section8" id="section_2131306808">
@@ -130,7 +134,7 @@
                                                 <select id="area" class="wpcf7-form-control wpcf7-text"
                                                     name="contact[area]">
                                                     @foreach ($countries as $country)
-                                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                                        <option value="{{ $country->id }}" {{ !empty($location['country']) && $country->id == $location['country']->id ? ' selected' : '' }}>{{ $country->name }}</option>
                                                     @endforeach
                                                 </select>
                                                 <label class="error area_error _red" id="area_error"
