@@ -1,6 +1,13 @@
 @if ($page->block_type == 'contact')
 
     @php
+
+        $countries = app('Helper')->getDataByConditions(
+            'countries',
+            [], 
+            ['sort_order' => 'asc']
+        );
+
         $blockContact01 = app('Helper')->getDataLang(
             'block_contact01',
             ['block_contact01.page_setting_id' => $page->data_id],
@@ -122,11 +129,9 @@
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
                                                 <select id="area" class="wpcf7-form-control wpcf7-text"
                                                     name="contact[area]">
-                                                    <option value="">{{ __('user.select_area') }}</option>
-                                                    <option value="1" selected>{{ __('user.vietnam') }}</option>
-                                                    <option value="2">{{ __('user.english') }}</option>
-                                                    <option value="3">{{ __('user.china') }}</option>
-                                                    <option value="4">{{ __('user.other') }}</option>
+                                                    @foreach ($countries as $country)
+                                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                                    @endforeach
                                                 </select>
                                                 <label class="error area_error _red" id="area_error"
                                                     for="area"></label>
