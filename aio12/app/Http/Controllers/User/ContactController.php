@@ -67,7 +67,7 @@ class ContactController extends Controller
             return $this->sendErrorResponse(' .content_error', __('validation.content_is_empty'));
         }
 
-        if ( empty($request->contact['title'])) {
+        if (empty($request->contact['title'])) {
             return $this->sendErrorResponse(' .title_error', __('validation.title_is_empty'));
         }
 
@@ -81,8 +81,19 @@ class ContactController extends Controller
         if (!empty($config->email)) {
             $title = $post['name'];
             $email = $config->email;
-            Mail::send('mail.send_mail', ['post' => $post], function ($message) use ($title, $email) {
-                $message->to($email)->subject($title);
+            $ccEmails = [];
+            if (!empty($config->email02)) {
+                $ccEmails[] = $config->email02;
+            }
+            if (!empty($config->email_language)) {
+                $ccEmails[] = $config->email_language;
+            }
+            Mail::send('mail.send_mail', ['post' => $post], function ($message) use ($title, $email, $ccEmails) {
+                $message->to($email);
+                if (!empty($ccEmails)) {
+                    $message->cc($ccEmails);
+                }
+                $message->subject($title);
             });
         }
 
