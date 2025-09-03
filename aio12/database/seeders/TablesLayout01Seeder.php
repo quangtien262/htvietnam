@@ -102,6 +102,31 @@ class TablesLayout01Seeder extends Seeder
             ]
         );
 
+        //product_type
+        MigrateService::createData('product_type', [], [
+            'name_data' => ['Loai 01', 'Loai 01', 'Loai 01']
+        ]);
+        MigrateService::createData('product_type', [], [
+            'name_data' => ['Loai 02', 'Loai 02', 'Loai 02']
+        ]);
+
+        // ứng dụng
+        DB::table('product_application')->truncate();
+        MigrateService::createData(
+            'product_application',
+            [],
+            [
+                'name_data' => ['Ép phun', 'Ép phun', 'Ép phun']
+            ]
+        );
+        MigrateService::createData(
+            'product_application',
+            [],
+            [
+                'name_data' => ['Vải không dệt', 'Vải không dệt', 'Vải không dệt']
+            ]
+        );
+
         //menu
         $this->createDataMenu();
 
@@ -153,7 +178,7 @@ class TablesLayout01Seeder extends Seeder
             12000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 3, 'file' => $file],
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1],
             ['name_data' => ['Hạt nhựa màu', 'Color Masterbatch', '塑料粒颗颜色']]
         );
         MigrateService::createProduct(
@@ -161,21 +186,21 @@ class TablesLayout01Seeder extends Seeder
             13000,
             ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3, 'file' => $file]
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3, 'file' => $file]
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
         MigrateService::createProduct(
             ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
             ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             [],
-            ['menu_id' => 3, 'file' => $file]
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
     }
 
@@ -347,7 +372,7 @@ class TablesLayout01Seeder extends Seeder
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
-                'video_lang' => [$video,$video,$video],
+                'video_lang' => [$video, $video, $video],
                 'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
             ]
         );
@@ -360,7 +385,7 @@ class TablesLayout01Seeder extends Seeder
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
-                'video_lang' => [$video,$video,$video],
+                'video_lang' => [$video, $video, $video],
                 'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
             ]
         );
@@ -373,7 +398,7 @@ class TablesLayout01Seeder extends Seeder
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
-                'video_lang' => [$video,$video,$video],
+                'video_lang' => [$video, $video, $video],
                 'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
             ]
         );

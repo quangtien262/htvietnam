@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('name')->nullable();
 
-            $table->integer('product_type_id')->default(1)->nullable(); // là loại sp: HH, dich vu, gói, thẻ
+            $table->integer('product_type_id')->default(0)->nullable(); // là loại sp: HH, dich vu, gói, thẻ
+            $table->integer('product_application_id')->default(0)->nullable();
             // $table->text('product_type_ids_apply')->nullable();
             $table->integer('thoi_luong')->default(0)->nullable(); // dich vu
             $table->integer('product_group_id')->default(0)->nullable(); // HH, dich vu, gói, 

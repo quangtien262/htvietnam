@@ -128,4 +128,6 @@ return [
     'product_description' => '产品描述',
     'technical_specifications' => '技术规格',
     'search_product' => '搜索产品',
+    'search_result' => '找到 <b>:count</b> 个产品',
+    'keyword' => '关键词',
 ];

@@ -80,7 +80,15 @@ class ProductController extends Controller
         $products = Product::query();
 
         if (!empty($request->keyword)) {
-            $products = $products->where('name', 'like', '%' . $request->keyword . '%');
+            $products = $products->where('products.name', 'like', '%' . $request->keyword . '%');
+        }
+
+        if (!empty($request->type)) {
+            $products = $products->where('products.product_type_id', $request->type);
+        }
+
+        if (!empty($request->application)) {
+            $products = $products->where('products.product_application_id', $request->application);
         }
 
         $products = $products->paginate(config('constant.paginate'));
@@ -93,7 +101,7 @@ class ProductController extends Controller
         $viewData['seo'] = $seo;
         $viewData['products'] = $products;
 
-        return View('layouts.layout' . $config->layout . '.product.index', $viewData);
+        return View('layouts.layout' . $config->layout . '.product.search', $viewData);
     }
 
     public function all(Request $request)

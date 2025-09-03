@@ -129,4 +129,6 @@ return [
     'product_description' => 'Product description',
     'technical_specifications' => 'Technical specifications',
     'search_product' => 'Search product',
+    'search_result' => 'Found <b>:count</b> products',
+    'keyword' => 'Keyword',
 ];

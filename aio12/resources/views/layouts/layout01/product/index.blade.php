@@ -1,6 +1,9 @@
 @extends('layouts.layout01.lay01')
 
 @section('content')
+
+ 
+
     <main id="main" class="">
         <section class="section dau-trang-section dark has-parallax" id="section_320154646">
             <div class="bg section-bg fill bg-fill parallax-active bg-loaded" data-parallax-container=".section"
@@ -116,34 +119,6 @@
                 <div id="shop-sidebar" class="sidebar-inner">
 
                     @include('layouts.layout01.product.form_search')
-
-
-                    <aside id="woocommerce_layered_nav-2"
-                        class="widget woocommerce widget_layered_nav woocommerce-widget-layered-nav">
-                        <span class="widget-title shop-sidebar">Loại nhựa nền</span>
-                        <div class="is-divider small"></div>
-                        <ul class="woocommerce-widget-layered-nav-list">
-                            <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="#">Loại 01</a> <span class="count">(0)</span></li>
-                            <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="#">Loại 02</a> <span class="count">(0)</span></li>
-                        </ul>
-                    </aside>
-                    <aside id="woocommerce_layered_nav-3"
-                        class="widget woocommerce widget_layered_nav woocommerce-widget-layered-nav">
-                        <span class="widget-title shop-sidebar">Ứng dụng</span>
-                        <div class="is-divider small"></div>
-                        <ul class="woocommerce-widget-layered-nav-list">
-                            <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="#">Ép phun</a>
-                                <span class="count">(0)</span>
-                            </li>
-                            <li class="woocommerce-widget-layered-nav-list__item wc-layered-nav-term "><a rel="nofollow"
-                                    href="#">Vải không dệt</a>
-                                <span class="count">(0)</span>
-                            </li>
-                        </ul>
-                    </aside>
 
                     {{-- sản phẩm mới --}}
                     <aside id="woocommerce_products-2" class="widget woocommerce widget_products">
