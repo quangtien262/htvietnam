@@ -127,4 +127,5 @@ return [
     'application' => '应用',
     'product_description' => '产品描述',
     'technical_specifications' => '技术规格',
+    'search_product' => '搜索产品',
 ];

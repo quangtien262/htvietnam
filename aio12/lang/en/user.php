@@ -128,4 +128,5 @@ return [
     'application' => 'Application',
     'product_description' => 'Product description',
     'technical_specifications' => 'Technical specifications',
+    'search_product' => 'Search product',
 ];

@@ -75,16 +75,25 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $config = WebConfig::query()->find(1);
+
         $viewData['config'] = $config;
-        $viewData['products'] = ProductService::getDataSearch($request, $viewData);
+        $products = Product::query();
+
+        if (!empty($request->keyword)) {
+            $products = $products->where('name', 'like', '%' . $request->keyword . '%');
+        }
+
+        $products = $products->paginate(config('constant.paginate'));
+
         $seo = [
             'title' => !empty($request->keyword) ? $request->keyword : $config->title,
             'keywords' => $config->meta_keyword,
             'description' => $config->meta_description,
         ];
         $viewData['seo'] = $seo;
+        $viewData['products'] = $products;
 
-        return View('layouts.layout' . $config->layout . '.product.search', $viewData);
+        return View('layouts.layout' . $config->layout . '.product.index', $viewData);
     }
 
     public function all(Request $request)

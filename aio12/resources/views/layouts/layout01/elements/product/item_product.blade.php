@@ -10,10 +10,4 @@
             srcset="{{ $avatar }} 100w, {{ $avatar }} 300w, {{ $avatar }} 150w, {{ $avatar }} 768w, {{ $avatar }} 600w, {{ $avatar }} 800w"
             sizes="(max-width: 100px) 100vw, 100px"> <span class="product-title">{{ $product->name_data }}</span>
     </a>
-    {{-- <span class="woocommerce-Price-amount amount">
-        <bdi>
-            <span class="woocommerce-Price-currencySymbol"></span>
-            {{ number_format($product->gia_ban) }}
-        </bdi>
-    </span> --}}
 </li>

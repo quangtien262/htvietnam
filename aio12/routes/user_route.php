@@ -29,7 +29,7 @@ Route::get('lang/{locale}', function ($locale) {
 
 //news
 Route::get('{sluggable}/n{menuId}.html', [NewsController::class, 'index'])->name('news');
-Route::get('{sluggableNews}/s{newsId}.html', [NewsController::class, 'detail'])->name('news.detail');
+Route::get('{sluggableNews}/k{newsId}.html', [NewsController::class, 'detail'])->name('news.detail');
 // Route::get('{sluggableNews}/o{menuId}.html', [NewsController::class, 'recruitment_detail'])->name('recruitment.detail');
 Route::get('tags/{sluggable}/tg{tagId}.html', [NewsController::class, 'tags'])->name('news.tags');
 
@@ -47,6 +47,7 @@ Route::get('{sluggable}/i{menuId}.html', [PagesController::class, 'qaDetail'])->
 // product
 Route::get('{sluggable}/p{menuId}.html', [ProductController::class, 'index'])->name('product');
 Route::get('{sluggable}/l{productId}.html', [ProductController::class, 'detail'])->name('product.detail');
+Route::get('products/search.html', [ProductController::class, 'search'])->name('searchProduct');
 
 Route::get('product-new.html', [ProductController::class, 'productLatest'])->name('product.latest');
 Route::get('product-promo.html', [ProductController::class, 'promotion'])->name('product.promo');
@@ -64,7 +65,6 @@ Route::post('{sluggable}/l{productId}.html', [CartController::class, 'add2cart']
 
 // search
 Route::get('tim-kiem.html', [PagesController::class, 'search'])->name('search');
-Route::get('tim-kiem-san-pham.html', [PagesController::class, 'search'])->name('search');
 
 // contact
 Route::get('contact.html', [ContactController::class, 'index'])->name('contact');

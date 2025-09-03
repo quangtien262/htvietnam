@@ -122,4 +122,5 @@ return [
     'application' => 'Ứng dụng',
     'product_description' => 'Mô tả sản phẩm',
     'technical_specifications' => 'Thông số kỹ thuật',
+    'search_product' => 'Tìm kiếm sản phẩm'
 ];
