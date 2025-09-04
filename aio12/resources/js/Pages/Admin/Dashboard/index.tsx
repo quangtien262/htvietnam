@@ -112,7 +112,8 @@ export default function Dashboard(props: any) {
 
                                 <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                                     <div className="ant-statistic-title">
-                                        <Link href={route('nhanSu.dashboard')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link>
+                                        <Link href={route('nhanVien.index')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link>
+                                        {/* <Link href={route('nhanSu.dashboard')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link> */}
                                     </div>
                                     <div className="ant-statistic-content" >
                                         <div className="ant-statistic-content-prefix">
