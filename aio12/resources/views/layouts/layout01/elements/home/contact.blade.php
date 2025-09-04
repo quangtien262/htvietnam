@@ -98,6 +98,9 @@
                                 <p role="status" aria-live="polite" aria-atomic="true"></p>
                                 <ul></ul>
                             </div>
+
+                            <p id="success" class="_success" style="text-align: center"></p>
+
                             <form id="contactForm" action="{{ route('contact') }}" method="post"
                                 class="wpcf7-form init" aria-label="Contact form" data-status="init">
                                 @csrf
@@ -105,7 +108,7 @@
                                     <div class="col large-6">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="text-981">
-                                                <input size="40"
+                                                <input size="40" id="name"
                                                     class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
                                                     aria-required="true" aria-invalid="false"
                                                     placeholder="{{ __('user.enter_your_name') }}" value=""
@@ -119,7 +122,7 @@
                                     <div class="col large-6">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                                <input size="40"
+                                                <input size="40" id="email"
                                                     class="wpcf7-form-control wpcf7-text wpcf7-email wpcf7-validates-as-email"
                                                     aria-invalid="false" placeholder="{{ __('user.enter_your_email') }}"
                                                     value="" type="email" name="contact[email]" />
@@ -145,7 +148,7 @@
                                     <div class="col large-6">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                                <input size="40" class="wpcf7-form-control wpcf7-text"
+                                                <input id="phone" size="40" class="wpcf7-form-control wpcf7-text"
                                                     aria-invalid="false" placeholder="{{ __('user.phone') }}"
                                                     value="" type="text" name="contact[phone]" />
                                                 <label class="error phone_error _red" id="phone_error"
@@ -157,7 +160,7 @@
                                     <div class="col large-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="title">
-                                                <input size="40" class="wpcf7-form-control wpcf7-text"
+                                                <input id="title" size="40" class="wpcf7-form-control wpcf7-text"
                                                     aria-invalid="false" placeholder="{{ __('user.title') }}"
                                                     value="" type="text" name="contact[title]" />
                                                 <label class="error title_error _red" id="title_error"
@@ -168,14 +171,15 @@
                                     <div class="col large-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="content">
-                                                <textarea cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea" aria-invalid="false"
+                                                <textarea id="content" cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea" aria-invalid="false"
                                                     placeholder="{{ __('user.enter_your_message') }}" name="contact[content]"></textarea>
                                                 <label class="error content_error _red" id="content_error"
                                                     for="content"></label>
                                             </span>
                                             <br />
                                         <p id="result" class="_success"></p>
-                                        <input class="wpcf7-form-control has-spinner wpcf7-submit btn-submit"
+                                        {{-- wpcf7-submit --}}
+                                        <input class="wpcf7-form-control has-spinner btn-submit"
                                             type="button" onclick="sendContact('#contactForm')"
                                             data-wait="{{ __('user.sending') }}" data-id="contact01"
                                             id="btnContact01" value="{{ __('user.send_message') }}" />
@@ -196,9 +200,15 @@
 
         function sendContact(formID) {
             var $jq = jQuery.noConflict();
-            $jq('#result').html('<img width="20px" src="/images/loading/loader.big.black.gif"/>Đang gửi yêu cầu.... ');
 
-            validationFormContact(formID);
+            var validationForm = validationFormContact(formID);
+            console.log('validationForm', validationForm);
+            
+            if(!validationForm) {
+                return validationForm;
+            }
+            
+            $jq('#result').html('<img width="20px" src="/images/loading/loader.big.black.gif"/>Đang gửi yêu cầu.... ');
 
             var form = $jq(formID);
 
@@ -209,6 +219,8 @@
             }, {});
             console.log(formData);
             console.log('datazzzx', formData);
+
+
 
             $jq.ajax({
                 type: "POST",
@@ -224,8 +236,9 @@
                     if (response.status_code === 200) {
                         // disable button btn-submit
                         $jq('#btnContact01').prop('disabled', true);
+                        $jq(formID).addClass('_hidden');
                         // ket qua
-                        $jq('#result').html('{{ __('user.send_contact_success') }}')
+                        $jq('#success').html('{{ __('user.send_contact_success') }}')
                     }
                 },
                 error: function(error) {
@@ -244,6 +257,44 @@
             $jq(formID + '  .content_error').text('');
             $jq(formID + '  .title_error').text('');
             $jq(formID + '  .area_error').text('');
+            $jq(formID + '  .name_error').text('');
+
+            result = true;
+
+            if ($jq('#name').val() == '') {
+                $jq('#name_error').text('{{ __('validation.full_name_is_empty') }}');
+                result = false;
+            }
+
+            if ($jq('#email').val() == '') {
+                $jq('#email_error').text('{{ __('validation.email_is_empty') }}');
+                result = false;
+            } else {
+                // check email
+                var email = $jq('#email').val();
+                var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!regex.test(email)) {
+                    $jq('#email_error').text('{{ __('validation.email_invalid') }}');
+                    result = false;
+                }
+            }
+
+            if ($jq('#phone').val() == '') {
+                $jq('#phone_error').text('{{ __('validation.phone_is_empty') }}');
+                result = false;
+            }
+
+            if ($jq('#title').val() == '') {
+                $jq('#title_error').text('{{ __('validation.title_is_empty') }}');
+                result = false;
+            }
+
+            if ($jq('#content').text() == '') {
+                $jq('#content_error').text('{{ __('validation.content_is_empty') }}');
+                result = false;
+            }
+
+            return result;
         }
     </script>
 @endif

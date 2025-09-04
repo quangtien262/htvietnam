@@ -1365,7 +1365,9 @@ html {
     padding: 0;
     background-image: none;
 }
-
+.form-confirm {
+    text-align: center;
+}
 .form-lien-he input,
 .form-lien-he textarea {
     box-shadow: none;
@@ -2425,6 +2427,9 @@ p {
 .button.icon {
     margin-bottom: 90px;
     margin-right: 17px;
+}
+.text-center {
+    text-align: center !important;
 }
 @media only screen and (max-width: 48em) {
     /*************** ADD MOBILE ONLY CSS HERE  ***************/

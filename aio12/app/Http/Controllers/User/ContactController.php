@@ -94,10 +94,57 @@ class ContactController extends Controller
                     $message->cc($ccEmails);
                 }
                 $message->subject($title);
+                
             });
         }
 
         return $this->sendSuccessResponse('success');
+    }
+
+    public function downloadTDS(Request $request)
+    {
+        $config = WebConfig::query()->find(1);
+        if (empty($request->contact['name'])) {
+            return $this->sendErrorResponse(' .name_error', __('validation.full_name_is_empty'));
+        }
+        if (empty($request->contact['email'])) {
+            return $this->sendErrorResponse(' .email_error', __('validation.email_is_empty'));
+        }
+
+        $email = $request->contact['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendErrorResponse(' .email_error', __('validation.email_format'));
+        }
+
+        if (empty($request->contact['phone'])) {
+            return $this->sendErrorResponse(' .phone_error', __('validation.phone_is_empty'));
+        }
+        if (empty($request->contact['content'])) {
+            return $this->sendErrorResponse(' .content_error', __('validation.content_is_empty'));
+        }
+
+        if (empty($request->contact['title'])) {
+            return $this->sendErrorResponse(' .title_error', __('validation.title_is_empty'));
+        }
+
+        if (empty($request->contact['area'])) {
+            return $this->sendErrorResponse(' .area_error', __('validation.area_is_empty'));
+        }
+
+        $post = $request->contact;
+        Contact::create($post);
+        $code = rand(100000, 999999);
+        
+        if (!empty($config->email)) {
+            Mail::send('mail.code_confirm', ['post' => $post, 'code' => $code], function ($message) use ( $email) {
+                $message->to($email);
+                $message->subject('Mã xác nhận download TDS');
+            });
+        }
+
+
+
+        return $this->sendSuccessResponse($code, 'success');
     }
 
     public function result(Request $request)

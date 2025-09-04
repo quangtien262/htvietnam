@@ -155,12 +155,15 @@ return [
 
     'full_name_is_empty' => 'Vui lòng nhập họ và tên.',
     'email_is_empty' => 'Vui lòng nhập địa chỉ email.',
+    'email_invalid' => 'Địa chỉ email không hợp lệ.',
     'phone_is_empty' => 'Vui lòng nhập số điện thoại.',
     'address_is_empty' => 'Vui lòng nhập địa chỉ.',
     'email_format' => 'Địa chỉ email không hợp lệ.',
     'title_is_empty' => 'Vui lòng nhập tiêu đề.',
     'content_is_empty' => 'Vui lòng nhập nội dung.',
     'area_is_empty' => 'Vui lòng nhập khu vực.',
+    'code_is_empty' => 'Vui lòng nhập mã xác nhận.',
+    'code_is_not_match' => 'Mã xác nhận không đúng.',
 
     /*
     |--------------------------------------------------------------------------

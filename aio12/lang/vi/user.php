@@ -124,5 +124,10 @@ return [
     'technical_specifications' => 'Thông số kỹ thuật',
     'search_product' => 'Tìm kiếm sản phẩm',
     'search_result' => 'Tìm thấy <b>:count</b> sản phẩm',
-    'keyword' => 'Từ khóa'
+    'keyword' => 'Từ khóa',
+
+    // gửi mail download
+    'shared_information' => 'Thông tin bạn đã chia sẻ',
+    'download_code' => 'Mã tải xuống: ',
+    'request_download' => 'Yêu cầu download tài liệu TDS',
 ];

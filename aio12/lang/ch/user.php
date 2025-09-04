@@ -130,4 +130,8 @@ return [
     'search_product' => '搜索产品',
     'search_result' => '找到 <b>:count</b> 个产品',
     'keyword' => '关键词',
+
+    'shared_information' => '您共享的信息',
+    'download_code' => '下载代码：',
+    'request_download' => '请求下载TDS文档',
 ];

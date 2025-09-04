@@ -155,12 +155,15 @@ return [
 
     'full_name_is_empty' => 'Full name is required.',
     'email_is_empty' => 'Email address is required.',
+    'email_invalid' => 'Email address is invalid.',
     'phone_is_empty' => 'Phone number is required.',
     'address_is_empty' => 'Address is required.',
     'email_format' => 'Invalid email address format.',
     'title_is_empty' => 'Title is required.',
     'content_is_empty' => 'Content is required.',
     'area_is_empty' => 'Area is required.',
+    'code_is_empty' => 'Code is required.',
+    'code_is_not_match' => 'Code is not match.',
 
     /*
     |--------------------------------------------------------------------------

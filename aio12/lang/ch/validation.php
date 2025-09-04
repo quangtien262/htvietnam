@@ -156,12 +156,15 @@ return [
     // Custom validation messages tiếng trung quốc
     'full_name_is_empty' => '请填写全名。',
     'email_is_empty' => '电子邮件地址是必填项。',
+    'email_invalid' => '电子邮件地址无效。',
     'phone_is_empty' => '电话号码是必填项。',
     'address_is_empty' => '地址是必填项。',
     'email_format' => '电子邮件地址格式无效。',
     'title_is_empty' => '标题是必填项。',
     'content_is_empty' => '内容是必填项。',
     'area_is_empty' => '区域是必填项。',
+    'code_is_empty' => '验证码是必填项。',
+    'code_is_not_match' => '验证码不正确。',
 
     /*
     |--------------------------------------------------------------------------

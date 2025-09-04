@@ -131,4 +131,9 @@ return [
     'search_product' => 'Search product',
     'search_result' => 'Found <b>:count</b> products',
     'keyword' => 'Keyword',
+
+    // gửi mail download tiến anh
+    'shared_information' => 'Shared information',
+    'download_code' => 'Download code: ',
+    'request_download' => 'Request download TDS document',
 ];

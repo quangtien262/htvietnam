@@ -73,6 +73,9 @@ Route::post('gui-lien-he.html', [ContactController::class, 'sendContact02'])->na
 Route::get('send-contact.html', [ContactController::class, 'result'])->name('contact.result');
 Route::post('sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
 
+// layout01
+Route::post('download-tds.html', [ContactController::class, 'downloadTDS'])->name('downloadTDS');
+
 // send info
 Route::post('contact/send-info', [OrdersController::class, 'sendOrdersBDS'])->name('orders.bds');
 
