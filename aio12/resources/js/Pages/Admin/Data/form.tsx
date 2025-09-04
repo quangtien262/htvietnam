@@ -74,7 +74,14 @@ export default function Dashboard(props) {
     }
     ));
 
-    const [fileDocument, setFileDocument] = useState([]);
+    const [fileDocument, setFileDocument] = useState(props.filesData.length == 0 ? [] : props.filesData.map((item) => {
+        return {
+            name: item.name,
+            status: item.status,
+            url: item.url
+        }
+    }
+    ));
 
     //permission
     const [permissionList, setPermissionList] = useState(props.userPermission);

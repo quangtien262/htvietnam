@@ -1718,6 +1718,7 @@ class TblService extends Service
         $selectsData = [];
         $ckeditorData = [];
         $imagesData = [];
+        $filesData = [];
         $avatar = [];
         $tabs = [];
         $blocks = [];
@@ -1849,6 +1850,33 @@ class TblService extends Service
                         $data[$col->name] = '';
                     }
                 }
+
+                if (in_array($col->type_edit, ['file', 'files']) && !empty($data[$col->name])) {
+                    $jsonFile = CommonService::isJson($data[$col->name]);
+                    if (!$jsonFile) {
+                        if (!empty($data[$col->name])) {
+                            $filesData[] = [
+                                'name' => $data[$col->name],
+                                'status' => 'OK',
+                                'url' => $data[$col->name]
+                            ];
+                            $avatar = $data[$col->name];
+                        }
+                    } else {
+                        foreach ($jsonFile as $k => $img) {
+                            $filesData[] = [
+                                'name' => 'file-' . $k,
+                                'status' => 'OK',
+                                'url' => $img
+                            ];
+                        }
+                    }
+
+                    //
+                    if (in_array($col->type_edit, ['encryption'])) {
+                        $data[$col->name] = '';
+                    }
+                }
             }
         }
 
@@ -1879,6 +1907,7 @@ class TblService extends Service
             'selectsData' => $selectsData,
             'ckeditorData' => $ckeditorData,
             'imagesData' => $imagesData,
+            'filesData' => $filesData,
             'avatar' => $avatar,
             'countImage' => $countImage,
             'userPermission' => $userPermission,
