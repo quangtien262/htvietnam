@@ -893,7 +893,7 @@ MigrateService
             'TEXT',
             'textarea',
             $order++,
-            ['col' => 12, 'require' => 1]
+            ['col' => 12, 'require' => 0]
         );
         self::createColumn02(
             $table->id,
@@ -902,7 +902,7 @@ MigrateService
             'TEXT',
             'textarea',
             $order++,
-            ['col' => 12, 'require' => 1]
+            ['col' => 12, 'require' => 0]
         );
     }
 

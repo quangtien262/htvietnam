@@ -35,7 +35,8 @@ return new class extends Migration
         ['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
         MigrateService::createColumn02($tbl->id, 'code', 'Mã Quyền', 'VARCHAR', 'text', $order_col++, 
         ['edit' => 0,'auto_generate_code' => '{"edit":0, "prefix":"PER", "length":5}']);
-        MigrateService::createColumn02($tbl->id, 'description', 'Mô tả', 'TEXT', 'textarea', $order_col++);
+        MigrateService::createColumn02($tbl->id, 'description', 'Mô tả', 'TEXT', 'textarea', $order_col++, 
+        ['show_in_list' => 1, 'fast_edit' => 1]);
         MigrateService::createColumn02($tbl->id,'permission', 'Chọn quyền', 'longtext', 'permission_list', $order_col++);
 
         MigrateService::baseColumn($tbl);

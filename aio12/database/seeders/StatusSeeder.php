@@ -351,5 +351,10 @@ class StatusSeeder extends Seeder
             ['name' => 'Hoa Kỳ'],
             ['name' => 'Trung Quốc'],
         ]);
+
+        DB::table('status_product')->insert([
+            ['name' => 'Hiển thị trên web'],
+            ['name' => 'Tạm ẩn'],
+        ]);
     }
 }

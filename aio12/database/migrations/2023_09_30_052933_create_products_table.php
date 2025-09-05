@@ -77,7 +77,7 @@ return new class extends Migration
             $table->integer('dinh_muc_ton_it_nhat')->default(0)->nullable();
             $table->integer('dinh_muc_ton_nhieu_nhat')->default(0)->nullable();
 
-            $table->integer('status_product_id')->default(0)->nullable();
+            $table->integer('status_product_id')->default(1)->nullable();
 
             // ck
             $table->integer('ck_nv_tu_van')->nullable();
@@ -94,7 +94,6 @@ return new class extends Migration
             $table->text(column: 'is_ck_percen')->nullable();
 
             $table->integer('thoi_gian_khau_hao')->nullable();
-            // $table->integer('status_product_id')->nullable();
             $table->text('images')->nullable();
             $table->integer('ton_kho_toi_thieu')->default(1)->nullable();
             $table->integer('ton_kho_toi_da')->default(99999)->nullable();
@@ -167,7 +166,7 @@ return new class extends Migration
             'VARCHAR',
             'text',
             $order_col++,
-            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 0, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
+            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 1, 'require' => 1,'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
         );
 
         MigrateService::createColumn02(
@@ -192,7 +191,8 @@ return new class extends Migration
         );
 
         $trangThai = Table::where('name', 'status_product')->first();
-        MigrateService::createColumn02($tableId, 'status_product_id', 'Trạng thái', 'INT', 'select', $order_col++, ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1]);
+        MigrateService::createColumn02($tableId, 'status_product_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+        ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1, 'fast_edit' => 1]);
 
 
         
