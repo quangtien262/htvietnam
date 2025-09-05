@@ -165,7 +165,7 @@ class ProductController extends Controller
     }
 
     public function download(Request $request, $id = 0)
-    {
+    {        
         if(empty($id)) {
             return $this->sendErrorResponse('Sản phẩm không tồn tại');
         }
@@ -176,7 +176,6 @@ class ProductController extends Controller
         if(empty($product->file)) {
             return $this->sendErrorResponse('Sản phẩm không có file để tải về');
         }
-
         // code download file
         return response()->download(public_path($product->file));
     }

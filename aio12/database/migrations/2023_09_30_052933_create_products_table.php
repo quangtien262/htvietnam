@@ -206,7 +206,7 @@ return new class extends Migration
             'INT',
             'number',
             $order_col++,
-            ['parent_id' => $tt_khac->id]
+            ['parent_id' => $tt_khac->id, 'edit' => 0]
         );
         MigrateService::createColumn02(
             $tableId,
@@ -215,7 +215,7 @@ return new class extends Migration
             'INT',
             'number',
             $order_col++,
-            ['parent_id' => $tt_khac->id]
+            ['parent_id' => $tt_khac->id, 'edit' => 0]
         );
 
         // MigrateService::createColumn02(
@@ -239,7 +239,8 @@ return new class extends Migration
         //     ['select_table_id' => $qd->id, 'add_express' => 1, 'parent_id' => $tt_khac->id]
         // );
 
-        MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
+        MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, 
+        ['parent_id' => $hh->id, 'edit' => 0]);
 
         MigrateService::createColumn02($tableId, 'file', 'File tài liệu', 'text', 'file', $order_col++, 
         ['parent_id' => $hh->id, 'col' => 24]);

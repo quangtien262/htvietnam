@@ -1020,7 +1020,7 @@ export default function Dashboard(props) {
 
         return (
             <Col span={24} key={col.id}>
-
+                <Divider orientation="left">{col.display_name}</Divider>
                 <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
                     <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
                         <Upload multiple

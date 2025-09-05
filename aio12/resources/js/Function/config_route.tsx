@@ -490,14 +490,7 @@ export const routeWeb = [
         },
         sub: []
     },
-    {
-        parent: {
-            link: route('data.tblName', ['orders']),
-            display_name: 'Đơn đặt hàng',
-            key: key++
-        },
-        sub: []
-    },
+    
     {
         parent: {
             link: route('data.tblName', ['contact']),
