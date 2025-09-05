@@ -52,7 +52,7 @@
                         <div class="row" id="row-1920657609">
 
                             @foreach ($blockContact01 as $block1)
-                                <div id="col-{{ $block1->id }}" class="col medium-4 small-12 large-4">
+                                <div id="col-{{ $block1->id }}" class="col medium-12 small-12 large-4 col-sm-12">
                                     <div class="col-inner">
                                         <div class="icon-box featured-box icon-box-left text-left">
                                             <div class="icon-box-img" style="width: 40px">
@@ -105,7 +105,7 @@
                                 class="wpcf7-form init" aria-label="Contact form" data-status="init">
                                 @csrf
                                 <div class="form-lien-he row">
-                                    <div class="col large-6">
+                                    <div class="col large-6 col-sm-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="text-981">
                                                 <input size="40" id="name"
@@ -119,7 +119,7 @@
 
                                         </p>
                                     </div>
-                                    <div class="col large-6">
+                                    <div class="col large-6 col-sm-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
                                                 <input size="40" id="email"
@@ -131,7 +131,7 @@
                                             </span>
                                         </p>
                                     </div>
-                                    <div class="col large-6">
+                                    <div class="col large-6 col-sm-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
                                                 <select id="area" class="wpcf7-form-control wpcf7-text"
@@ -145,7 +145,7 @@
                                             </span>
                                         </p>
                                     </div>
-                                    <div class="col large-6">
+                                    <div class="col large-6 col-sm-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="email-745">
                                                 <input id="phone" size="40" class="wpcf7-form-control wpcf7-text"
@@ -157,7 +157,7 @@
                                         </p>
                                     </div>
 
-                                    <div class="col large-12">
+                                    <div class="col-12 large-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="title">
                                                 <input id="title" size="40" class="wpcf7-form-control wpcf7-text"
@@ -168,7 +168,7 @@
                                             </span>
                                         </p>
                                     </div>
-                                    <div class="col large-12">
+                                    <div class="col-12 large-12">
                                         <p>
                                             <span class="wpcf7-form-control-wrap" data-name="content">
                                                 <textarea id="content" cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea" aria-invalid="false"

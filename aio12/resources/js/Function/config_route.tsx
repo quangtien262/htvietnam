@@ -8,9 +8,9 @@ export const tblSetting = [];
 export const tblTaiChinh = ['hoa_don'];
 export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
-export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac', 
-    'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-    'admin_user.change_password','web_config','video'
+export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
+    'products', 'menus', 'admin_user.edit', 'admin_user.index',
+    'admin_user.change_password', 'web_config', 'video','emails', 'countries','library'
 ];
 
 // export const tblConfig = {
@@ -54,45 +54,45 @@ export const tblConfig = {
     tblWeb: {
         name: 'Quản lý website',
         active: true,
-        data:['images', 'contact', 'orders', 'news', 'doi_tac', 
-            'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-            'admin_user.change_password','web_config','video']
-            
+        data: ['images', 'contact', 'orders', 'news', 'doi_tac',
+            'products', 'menus', 'admin_user.edit', 'admin_user.index',
+            'admin_user.change_password', 'web_config', 'video','emails', 'countries','library']
+
     },
     tblNhanSu: {
         name: 'Quản lý nhân sự',
         active: true,
-        data:['permission_group', 'admin_user', 'khoa_hoc', 'chi_nhanh']
+        data: ['permission_group', 'admin_user', 'khoa_hoc', 'chi_nhanh']
     },
     tblKhoHang: {
         name: 'Quản lý kho hàng',
         active: false,
-        data:['kho_hang', 'nha_cung_cap_status']
+        data: ['kho_hang', 'nha_cung_cap_status']
     },
     tblSale: {
         name: 'Quản lý bán hàng',
         active: false,
-        data:['data_telesales', 'dat_lich', 'users']
+        data: ['data_telesales', 'dat_lich', 'users']
     },
     tblTaiChinh: {
         name: 'Quản lý tài chính',
         active: false,
-        data:['hoa_don']
+        data: ['hoa_don']
     },
     tblReport: {
         name: 'Báo cáo',
         active: false,
-        data:[]
+        data: []
     },
     tblTaiSan: {
         name: 'Quản lý tài sản',
         active: false,
-        data:['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
+        data: ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
     },
     tblTask: {
         name: 'Quản lý công việc',
         active: false,
-        data:[]
+        data: []
     },
 };
 
@@ -247,7 +247,7 @@ export const routeNhanSu = [
     {
         parent: {
             link: route('data.tblName', ['permission_group']),
-            display_name: 'Nhóm quyền quyền',
+            display_name: 'Nhóm quyền',
             key: key++
         },
         sub: []
@@ -452,6 +452,14 @@ export const routeWeb = [
     },
     {
         parent: {
+            link: route('data.tblName', ['menus']),
+            display_name: 'Menu',
+            key: key++
+        },
+        sub: []
+    },
+    {
+        parent: {
             link: route('data.tblName', ['news']),
             display_name: 'Tin tức',
             key: key++
@@ -469,18 +477,21 @@ export const routeWeb = [
     {
         parent: {
             link: route('data.tblName', ['video']),
-            display_name: 'Video',
+            display_name: 'Media',
             key: key++
         },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('data.tblName', ['menus']),
-            display_name: 'Menu',
-            key: key++
-        },
-        sub: []
+        sub: [
+            {
+                link: route('data.tblName', ['video']),
+                display_name: 'Video',
+                key: key++
+            },
+            {
+                link: route('data.tblName', ['library']),
+                display_name: 'Thư viện ảnh',
+                key: key++
+            }
+        ]
     },
     {
         parent: {
@@ -490,7 +501,7 @@ export const routeWeb = [
         },
         sub: []
     },
-    
+
     {
         parent: {
             link: route('data.tblName', ['contact']),
@@ -502,10 +513,26 @@ export const routeWeb = [
     {
         parent: {
             link: route('data.tblName', ['web_config']),
-            display_name: 'Cấu hình web',
+            display_name: 'Cài đặt',
             key: key++
         },
-        sub: []
+        sub: [
+            {
+                link: route('data.tblName', ['web_config']),
+                display_name: 'Cấu hình web',
+                key: key++
+            },
+            {
+                link: route('data.tblName', ['emails']),
+                display_name: 'Email',
+                key: key++
+            },
+            {
+                link: route('data.tblName', ['countries']),
+                display_name: 'Quốc gia',
+                key: key++
+            }
+        ]
     },
 ];
 
@@ -529,7 +556,7 @@ export function itemMenu(tableName: string) {
     if (tblConfig.tblNhanSu.data.includes(tableName)) {
         return routeNhanSu;
     }
-    
+
     return false;
 }
 

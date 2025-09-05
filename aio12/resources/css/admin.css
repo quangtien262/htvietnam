@@ -1237,8 +1237,8 @@ ul.menu-header li:first-child {
 
 .ant-divider-horizontal.ant-divider-with-text::before,
 .ant-divider-horizontal.ant-divider-with-text::after {
-    border-block-start: 1px solid #515151;
-    border-block-start-color: #b1b1b188;
+    border-block-start: 1px solid #515151 ;
+    border-block-start-color: #b1b1b188 ;
 }
 .ant-divider-inner-text {
     text-transform: uppercase;

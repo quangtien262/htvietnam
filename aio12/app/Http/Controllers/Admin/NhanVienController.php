@@ -19,8 +19,12 @@ class NhanVienController extends Controller
 {
     public function index(Request $request)
     {
+        $per = TblService::getPermission();
         $tables = TblService::getAdminMenu(0);
-        $table = Table::find(236);
+        $table = Table::where('name', 'admin_users')->first();
+        if (!in_array($table->id, $per['table_view']) && \Auth::guard('admin_users')->user()->id != 1) {
+            return to_route('admin.permission_denied');
+        }
         $users = AdminUser::select(
                 'admin_users.*','admin_users.id as key',
                 'gioi_tinh.name as gioi_tinh_name',

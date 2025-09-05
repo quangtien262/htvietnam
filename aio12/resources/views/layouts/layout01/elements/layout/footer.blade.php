@@ -4,7 +4,7 @@
         </div>
         <div class="section-content relative">
             <div class="row" id="row-313125092">
-                <div id="col-1266985964" class="col medium-3 small-6 large-3">
+                <div id="col-1266985964" class="col medium-12 small-12 large-3  col-sm-12">
                     <div class="col-inner">
                         <div class="icon-box featured-box icon-box-top text-left">
                             <div class="icon-box-img" style="width: 142px">
@@ -17,11 +17,9 @@
                                 </div>
                             </div>
                             <div class="icon-box-text last-reset">
-                                <h3><a href="/" class="title">{{ $config->company_name }}</a></h3>
+                                <h3 class="title">{{ $config->company_name }}</h3>
                                 <p>
-                                    <span style="font-size: 90%; color: #c0c0c0;">
-                                        {{ !empty($config->footer) ? nl2br(e($config->footer)) : '' }}
-                                    </span>
+                                    {{ !empty($config->footer) ? nl2br(e($config->footer)) : '' }}
                                 </p>
                             </div>
                         </div>
@@ -42,23 +40,25 @@
                                     class="icon-youtube"></i></a>
 
                             @if (!empty($config->tiktok))
-                                <a href="{{ $config->tiktok }}" target="_blank" rel="noopener noreferrer nofollow" data-label="TikTok"
-                                    class="icon primary button circle tiktok tooltip" title="Follow on TikTok"
-                                    aria-label="Follow on TikTok"><i class="icon-tiktok"></i></a>
+                                <a href="{{ $config->tiktok }}" target="_blank" rel="noopener noreferrer nofollow"
+                                    data-label="TikTok" class="icon primary button circle tiktok tooltip"
+                                    title="Follow on TikTok" aria-label="Follow on TikTok"><i
+                                        class="icon-tiktok"></i></a>
                             @endif
 
                             @if (!empty($config->pinterest))
-                                <a href="{{ $config->pinterest }}" target="_blank" rel="noopener noreferrer nofollow" data-label="Pinterest"
-                                    class="icon primary button circle  pinterest tooltip" title="Follow on Pinterest"
-                                    aria-label="Follow on Pinterest"><i class="icon-pinterest"></i></a>
+                                <a href="{{ $config->pinterest }}" target="_blank" rel="noopener noreferrer nofollow"
+                                    data-label="Pinterest" class="icon primary button circle  pinterest tooltip"
+                                    title="Follow on Pinterest" aria-label="Follow on Pinterest"><i
+                                        class="icon-pinterest"></i></a>
                             @endif
                         </div>
                     </div>
                 </div>
 
-                <div id="col-1994144840" class="col medium-3 small-6 large-3">
+                <div id="col-1994144840" class="col medium-12 small-12 large-3 col-sm-12">
                     <div class="col-inner">
-                        <h3 class="title">{{__('user.title_contact_footer')}}</h3>
+                        <h3 class="title">{{ __('user.title_contact_footer') }}</h3>
                         <div class="icon-box featured-box icon-box-left text-left">
                             <div class="icon-box-img" style="width: 20px">
                                 <div class="icon">
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
                             <div class="icon-box-text last-reset">
-                                <p>
+                                <p>`
                                     {{ $config->phone }}
                                 </p>
                             </div>
@@ -109,9 +109,9 @@
                     </div>
                 </div>
 
-                <div id="col-1439219474" class="col medium-3 small-6 large-3">
-                    <div class="col-inner">
-                        <h3 class="title">{{__('user.title_office_footer')}}</h3>
+                <div id="col-1439219474" class="col medium-6 small-12 large-3 col-sm-12">
+                    <div class="col-inner icon-box-text last-reset">
+                        <h3 class="title">{{ __('user.title_office_footer') }}</h3>
                         <p class="address-footer">{!! !empty($config->office) ? nl2br($config->office) : '' !!}</p>
                         <div>
                             {!! !empty($config->code_gg_map_office) ? nl2br($config->code_gg_map_office) : '' !!}
@@ -119,9 +119,9 @@
                     </div>
                 </div>
 
-                <div id="col-389608184" class="col medium-3 small-6 large-3">
-                    <div class="col-inner">
-                        <h3 class="title">{{__('user.title_factory_footer')}}</h3>
+                <div id="col-389608184" class="col medium-6 small-12 large-3 col-sm-12">
+                    <div class="col-inner icon-box-text last-reset">
+                        <h3 class="title">{{ __('user.title_factory_footer') }}</h3>
                         <p class="address-footer">{!! !empty($config->factory) ? nl2br($config->factory) : '' !!}</p>
                         <div>
                             {!! !empty($config->code_gg_map_factory) ? nl2br($config->code_gg_map_factory) : '' !!}

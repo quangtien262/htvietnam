@@ -9,6 +9,7 @@ use App\Http\Controllers\User\OrdersController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\FooterController;
+use App\Http\Controllers\User\LibsController;
 use App\Http\Controllers\User\NewsletterController;
 use App\Http\Controllers\User\TuyendungController;
 use App\Http\Controllers\User\UserController;
@@ -59,6 +60,10 @@ Route::get('san-pham-noi-bat.html', [ProductController::class, 'productHot'])->n
 //video
 Route::get('{sluggable}/v{menuId}.html', [VideoController::class, 'index'])->name('video');
 Route::get('{sluggable}/b{productId}.html', [VideoController::class, 'detail'])->name('video.detail');
+
+//libs
+Route::get('{sluggable}/s{menuId}.html', [LibsController::class, 'index'])->name('libs');
+Route::get('{sluggable}/j{productId}.html', [LibsController::class, 'detail'])->name('libs.detail');
 
 // add2cart
 Route::post('{sluggable}/l{productId}.html', [CartController::class, 'add2cart']);

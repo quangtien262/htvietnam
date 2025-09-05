@@ -33,7 +33,7 @@ return new class extends Migration
             $table->integer('count_item_of_page')->default(30)->nullable();
             $table->integer('is_edit')->default(1)->nullable();
             $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('form_data_type')->default(2)->nullable();
+            $table->integer('form_data_type')->default(2)->nullable(); //1: new page, 2: popup
             $table->integer('import')->default(0)->nullable();
             $table->integer('export')->default(0)->nullable();
             $table->integer('have_delete')->default(1)->nullable();

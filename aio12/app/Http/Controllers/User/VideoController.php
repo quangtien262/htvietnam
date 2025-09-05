@@ -7,6 +7,7 @@ use App\Models\Web\Menu;
 use App\Models\Web\News;
 use App\Models\Web\Product;
 use App\Models\Web\Video;
+use App\Models\Web\WebConfig;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class VideoController extends Controller
 {
     public function index(Request $request, $sluggable, $menuId)
     {
-        $config = app('Helper')->getConfig();
+        $config = WebConfig::query()->find(1);
         $menu = UserService::getMenuDetail($menuId);
         $parent = $menu['parent'];
         
@@ -44,7 +45,7 @@ class VideoController extends Controller
     }
     public function detail($sluggable, $VideoId)
     {
-        $config = app('Helper')->getConfig();
+        $config = WebConfig::query()->find(1);
         
         $video = Video::query(false)->where('video.id', $VideoId)->first();
         $menu = UserService::getMenuDetail($video->menu_id);

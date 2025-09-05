@@ -127,6 +127,25 @@ class TablesLayout01Seeder extends Seeder
             ]
         );
 
+        // libs
+        $images = [
+            'avatar' => '/layouts/01/images/slide01.jpg',
+            'images' => ['/layouts/01/images/slide01.jpg', '/layouts/01/images/slide02.jpg', '/layouts/01/images/slide03.jpg']
+        ];
+        $images_str = json_encode($images);
+        for ($i = 1; $i < 5; $i++) {
+            MigrateService::createData(
+                'library',
+                [
+                    'menu_id' => 6,
+                    'images' => $images_str,
+                ],
+                [
+                    'name_data' => ['Library 0' . $i, 'Library 0' . $i, 'Library 0' . $i],
+                ]
+            );
+        }
+
         //menu
         $this->createDataMenu();
 
@@ -143,7 +162,7 @@ class TablesLayout01Seeder extends Seeder
         Layout01::createBlocks();
 
         // menu lien he
-        Layout01::contact(1, 6);
+        Layout01::contact(1, 8);
         // block about
         $sort_order = 1;
         $aboutId = 2;
@@ -237,8 +256,15 @@ class TablesLayout01Seeder extends Seeder
             ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout, $desAbout, $desAbout]]
         );
         $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
-        MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        $media = MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+
+        MigrateService::createMenu(['Video', 'Video', '视频'], 'video', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Thư viện ảnh', 'Librarys', '图书馆'], 'libs', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+
+
         MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+
+
         MigrateService::createMenu(
             ['Liên Hệ', 'Contact', '联系'],
             'landingpage',
@@ -301,7 +327,7 @@ class TablesLayout01Seeder extends Seeder
             ['Cách chà ron gạch lát nền và ốp tường nhà hiệu quả'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron gạch lát nền là công đoạn cuối cùng khá quan trọng trong lát nền', 'description en']]
         );
 
@@ -309,7 +335,7 @@ class TablesLayout01Seeder extends Seeder
             ['Vì sao nên sử dụng keo chà ron khi lát gạc', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Keo chà ron hiện nay được xem là sản phẩm được khá nhiều người ưa', 'description en']]
         );
 
@@ -317,7 +343,7 @@ class TablesLayout01Seeder extends Seeder
             ['Keo chà ron cho nhà tắm, hồ bơi', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
         );
 
@@ -325,7 +351,7 @@ class TablesLayout01Seeder extends Seeder
             ['bí quyết chống thấm hoàn hảo', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
         );
     }
@@ -367,7 +393,7 @@ class TablesLayout01Seeder extends Seeder
         MigrateService::createData(
             'video',
             [
-                'menu_id' => 4,
+                'menu_id' => 5,
                 'image' => '/layouts/01/product-test/3.png'
             ],
             [
@@ -380,7 +406,7 @@ class TablesLayout01Seeder extends Seeder
         MigrateService::createData(
             'video',
             [
-                'menu_id' => 4,
+                'menu_id' => 5,
                 'image' => '/layouts/01/product-test/3.png'
             ],
             [
@@ -393,7 +419,7 @@ class TablesLayout01Seeder extends Seeder
         MigrateService::createData(
             'video',
             [
-                'menu_id' => 4,
+                'menu_id' => 5,
                 'image' => '/layouts/01/product-test/3.png'
             ],
             [

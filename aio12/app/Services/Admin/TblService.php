@@ -129,11 +129,11 @@ class TblService extends Service
         $result = [];
         // $tables = Table::where('parent_id', 0)->where('show_in_menu', 1)->orderBy('sort_order', 'asc')->get();
          $currentTblNamePermission = [
-                'permission_group', 'product', 'categories', 
+                'permission_group', 'categories', 
                 'admin_users', 'news', 'users', 'orders',
                  'contact', 'file_manager','doi_tac', 'products',
-                 'menus', 'web_config','video', 'block01',
-                 'page_setting',
+                 'menus', 'web_config','video', 
+                 'page_setting','library','countries'
             ];
         $tables = Table::whereIn('name', $currentTblNamePermission)->orderBy('sort_order', 'asc')->get();
         foreach ($tables as $table) {

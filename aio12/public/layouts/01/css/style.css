@@ -10,9 +10,23 @@
     --wp-block-synced-color--rgb: 122, 0, 223;
     --wp-bound-block-color: var(--wp-block-synced-color)
 }
-body, p,h1,h2,h3,h4,h5,h6,em,span,strong,a,ul li {
+
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+em,
+span,
+strong,
+a,
+ul li {
     font-family: Arial, Helvetica, sans-serif !important;
 }
+
 @media (min-resolution:192dpi) {
     :root {
         --wp-admin-border-width-focus: 1.5px
@@ -864,6 +878,7 @@ html {
     color: white;
     font-size: 15px;
 }
+
 .icon-video {
     color: red;
     position: absolute;
@@ -871,12 +886,17 @@ html {
     top: 25%;
     z-index: 2;
     font-size: 38px;
-    box-shadow: 0 25px 20px 0 rgba(51,51,51,0.25); /* Thêm bóng đổ */
-    border-radius: 50%; /* Nếu muốn bóng tròn */
-    background: #fff;   /* Nếu muốn có nền trắng phía sau icon */
-    padding: 13px;      /* Tùy chỉnh padding cho đẹp */
+    box-shadow: 0 25px 20px 0 rgba(51, 51, 51, 0.25);
+    /* Thêm bóng đổ */
+    border-radius: 50%;
+    /* Nếu muốn bóng tròn */
+    background: #fff;
+    /* Nếu muốn có nền trắng phía sau icon */
+    padding: 13px;
+    /* Tùy chỉnh padding cho đẹp */
 }
-.icon-video:hover  {
+
+.icon-video:hover {
     color: red;
 }
 
@@ -1365,9 +1385,11 @@ html {
     padding: 0;
     background-image: none;
 }
+
 .form-confirm {
     text-align: center;
 }
+
 .form-lien-he input,
 .form-lien-he textarea {
     box-shadow: none;
@@ -1514,11 +1536,6 @@ a.back-to-top {
     box-shadow: 2px 2px 20px #00000038;
 }
 
-.footer-section .icon-box .icon-box-text p {
-    font-size: 14px;
-    color: #c5c5c5;
-}
-
 .footer-section .icon-box {
     margin-bottom: 10px;
 }
@@ -1572,7 +1589,7 @@ a.back-to-top {
 }
 
 .footer-section h3 {
-    font-size: 16px;
+    font-size: 15px;
     width: 300px;
 }
 
@@ -2412,27 +2429,51 @@ h6,
     line-height: 28px;
     font-size: 16px;
 }
+
 .last-reset {
     text-align: justify;
 }
+
 .col-inner p {
     text-align: justify;
 }
+
 .icon-box-text {
     text-align: justify;
 }
+
 p {
     text-align: justify;
 }
+
 .button.icon {
     margin-bottom: 90px;
     margin-right: 17px;
 }
+
 .text-center {
     text-align: center !important;
 }
-@media only screen and (max-width: 48em) {
-    /*************** ADD MOBILE ONLY CSS HERE  ***************/
 
+.item-lib img {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    border-radius: 8px;
+    transition: box-shadow 0.2s;
+}
+
+.item-lib img:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+@media only screen and (max-width: 48em) {
+
+    /*************** ADD MOBILE ONLY CSS HERE  ***************/
+    .form-lien-he {
+        display: flex;
+        flex-flow: row wrap;
+        width: 100%;
+        flex-direction: column;
+    }
 
 }

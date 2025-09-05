@@ -18,7 +18,7 @@ import {
 import {
     FormOutlined, CopyOutlined,
     UploadOutlined,
-    DownloadOutlined, RollbackOutlined
+    PlusCircleOutlined, RollbackOutlined
 
 } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
@@ -65,6 +65,11 @@ export default function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [loadingBtn, setLoadingBtn] = useState(false);
     const [isStopSubmit, setIsStopSubmit] = useState(false);
+
+    // add current file
+    const [currentFile, setCurrentFile] = useState('');
+
+    // file images
     const [fileList, setFileList] = useState(props.imagesData.length == 0 ? [] : props.imagesData.map((item) => {
         return {
             name: item.name,
@@ -74,6 +79,7 @@ export default function Dashboard(props) {
     }
     ));
 
+    // file other
     const [fileDocument, setFileDocument] = useState(props.filesData.length == 0 ? [] : props.filesData.map((item) => {
         return {
             name: item.name,
@@ -233,7 +239,7 @@ export default function Dashboard(props) {
 
             // files
             if (['file', 'files'].includes((col as any).type_edit)) {
-                
+
                 if (fileDocument && fileDocument.length > 0) {
                     values[(col as any).name] = formatFiles(fileDocument);
                 } else {
@@ -353,6 +359,26 @@ export default function Dashboard(props) {
 
 
 
+    function handleAddImage(col) {
+        const name = Date.now();
+        let imageItem = {
+            uid: name,
+            name: name,
+            status: 'OK',
+            url: currentFile
+        };
+        let newFileList = [...fileList];
+        if (col.conditions && +col.conditions > 0) {
+            if (newFileList.length >= +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " hình ảnh");
+                return false;
+            }
+        }
+        newFileList = [...newFileList, imageItem];
+        setFileList(newFileList);
+        setCurrentFile('');
+    }
+
     function showDataImages(col) {
         const data = props.data;
         let result;
@@ -366,45 +392,53 @@ export default function Dashboard(props) {
                 result = (
                     <Row>
                         <Col key={col.name}>
-                            <Label>{col.display_name}</Label>
-                            <Form.Item
-                                name={col.name}
-                                rules={checkRule(col)}
-                                label={col.display_name}
-                            >
-
-                                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                    <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                                        <ImgCrop
-                                            aspect={col.ratio_crop}
-                                            aspectSlider={true}
-                                            rotationSlider={true}
-                                            showGrid={true}
-                                            showReset={true}
+                            <Divider orientation='left'>
+                                {col.display_name}
+                                <span> | </span>
+                                <Popconfirm
+                                    title={
+                                        <div>
+                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                                        </div>
+                                    }
+                                    onConfirm={() => handleAddImage(col)}
+                                    okText="Thêm ảnh"
+                                    cancelText="Hủy"
+                                >
+                                    <a><PlusCircleOutlined /></a>
+                                </Popconfirm>
+                            </Divider>
+                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                    <ImgCrop
+                                        aspect={col.ratio_crop}
+                                        aspectSlider={true}
+                                        rotationSlider={true}
+                                        showGrid={true}
+                                        showReset={true}
+                                    >
+                                        <Upload multiple
+                                            action={route("data.upload_image")}
+                                            listType="picture-card" // picture-card
+                                            fileList={fileList}
+                                            accept="image/*"
+                                            maxCount={+col.conditions}
+                                            beforeUpload={beforeUpload}
+                                            onChange={onChange}
+                                            itemRender={(originNode, file) => (
+                                                <DraggableUploadListItem originNode={originNode} file={file} />
+                                            )}
+                                            headers={{
+                                                'X-CSRF-TOKEN': props.token,
+                                            }}
                                         >
-                                            <Upload multiple
-                                                action={route("data.upload_image")}
-                                                listType="picture-card" // picture-card
-                                                fileList={fileList}
-                                                accept="image/*"
-                                                maxCount={+col.conditions}
-                                                beforeUpload={beforeUpload}
-                                                onChange={onChange}
-                                                itemRender={(originNode, file) => (
-                                                    <DraggableUploadListItem originNode={originNode} file={file} />
-                                                )}
-                                                headers={{
-                                                    'X-CSRF-TOKEN': props.token,
-                                                }}
-                                            >
 
-                                                <Button icon={<UploadOutlined />}>Upload({+col.conditions})</Button>
-                                            </Upload>
-                                        </ImgCrop>
-                                    </SortableContext>
-                                </DndContext>
-
-                            </Form.Item>
+                                            <Button icon={<UploadOutlined />}>Upload({+col.conditions})</Button>
+                                        </Upload>
+                                    </ImgCrop>
+                                </SortableContext>
+                            </DndContext>
                         </Col>
                     </Row>
                 );
@@ -415,6 +449,23 @@ export default function Dashboard(props) {
                     <Row>
                         <Divider orientation='left'>{col.display_name}</Divider>
                         <Col key={col.name}>
+                            <Divider orientation='left'>
+                                {col.display_name}
+                                <span> | </span>
+                                <Popconfirm
+                                    title={
+                                        <div>
+                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                                        </div>
+                                    }
+                                    onConfirm={() => handleAddImage(col)}
+                                    okText="Thêm ảnh"
+                                    cancelText="Hủy"
+                                >
+                                    <a><PlusCircleOutlined /></a>
+                                </Popconfirm>
+                            </Divider>
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
                                 <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
                                     <Upload multiple
@@ -1004,6 +1055,27 @@ export default function Dashboard(props) {
 
     }
 
+    function handleAddDocument(col) {
+        // Handle adding document logic here
+        const name = Date.now();
+        let imageItem = {
+            uid: name,
+            name: name,
+            status: 'OK',
+            url: currentFile
+        };
+        let newFileDocument = [...fileDocument];
+        if (col.conditions && +col.conditions > 0) {
+            if (newFileDocument.length >= +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " tài liệu");
+                return false;
+            }
+        }
+        newFileDocument = [...newFileDocument, imageItem];
+        setFileDocument(newFileDocument);
+        setCurrentFile('');
+    }
+
     function showDataFile(col) {
         if (!checkConfig(col)) {
             return false;
@@ -1020,7 +1092,23 @@ export default function Dashboard(props) {
 
         return (
             <Col span={24} key={col.id}>
-                <Divider orientation="left">{col.display_name}</Divider>
+                <Divider orientation='left'>
+                    {col.display_name}
+                    <span> | </span>
+                    <Popconfirm
+                        title={
+                            <div>
+                                <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                            </div>
+                        }
+                        onConfirm={() => handleAddDocument(col)}
+                        okText="Thêm ảnh"
+                        cancelText="Hủy"
+                    >
+                        <a><PlusCircleOutlined /></a>
+                    </Popconfirm>
+                </Divider>
                 <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
                     <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
                         <Upload multiple

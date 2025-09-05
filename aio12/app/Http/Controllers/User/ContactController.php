@@ -9,9 +9,12 @@ use App\Services\CommonService;
 use App\Models\Web\WebConfig;
 use App\Models\Web\Contact;
 use App\Http\Requests\User\ContactRequest;
+use App\Models\Web\Emails;
 use App\Models\Web\Landingpage;
 use App\Models\Web\Menu;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Constraint\Count;
 
 class ContactController extends Controller
 {
@@ -85,16 +88,26 @@ class ContactController extends Controller
             if (!empty($config->email02)) {
                 $ccEmails[] = $config->email02;
             }
+            // get mail cc theo lang
             if (!empty($config->email_language)) {
-                $ccEmails[] = $config->email_language;
+                $mailLang = implode(',', $config->email_language);
+                $ccEmails[] = $mailLang;
             }
+
+            // get mail cc theo quốc gia
+            $mailCountry =  Emails::get();
+            foreach ($mailCountry as $item) {
+                if(in_array($post['area'], $item->country_id)) {
+                    $ccEmails[] = $item->name;
+                }
+            }
+
             Mail::send('mail.send_mail', ['post' => $post], function ($message) use ($title, $email, $ccEmails) {
                 $message->to($email);
                 if (!empty($ccEmails)) {
                     $message->cc($ccEmails);
                 }
                 $message->subject($title);
-                
             });
         }
 
@@ -134,7 +147,7 @@ class ContactController extends Controller
         $post = $request->contact;
         Contact::create($post);
         $code = rand(100000, 999999);
-        
+
         if (!empty($config->email)) {
             Mail::send('mail.code_confirm', ['post' => $post, 'code' => $code], function ($message) use ( $email) {
                 $message->to($email);

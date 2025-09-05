@@ -586,7 +586,8 @@ export default function Dashboard(props: any) {
                         }
 
                         if (['selects'].includes(col.type_edit)) {
-                            return <div className="main-selects">{showSelects(record[col.name])} {fastEdit(col, record)} </div>;
+                            // return <div className="main-selects">{showSelects(record[col.name])} {fastEdit(col, record)} </div>;
+                            return <div className="main-selects">{showSelects(record, col)}  </div>;
                         }
 
                         if (['date'].includes(col.type_edit)) {

@@ -207,6 +207,7 @@ class Helper
             case 'single_page':
             case 'news':
             case 'video':
+            case 'libs':
                 $link = route($displayType, [$sluggable, $menu->id]);
                 break;
             case 'contact':
@@ -245,6 +246,19 @@ class Helper
             $sluggable = self::formatText($video->name_data);
         }
         $link = route('video.detail', [$sluggable, $video->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
+    }
+    public function getLinkLibs($lib)
+    {
+        $lang = UserService::getLang();
+        $sluggable = 'video';
+        if (!empty($lib->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($lib->name_data);
+        }
+        $link = route('libs.detail', [$sluggable, $lib->id]);
         if (!empty($_GET['mod'])) {
             $link .= '?mod=' . $_GET['mod'];
         }

@@ -25,8 +25,12 @@
             <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
                 <div class="pswp__share-tooltip"></div>
             </div>
-            <button class="pswp__button--arrow--left" aria-label="Previous (arrow left)"></button>
-            <button class="pswp__button--arrow--right" aria-label="Next (arrow right)"></button>
+            <button class="pswp__button--arrow--left" aria-label="Previous (arrow left)">
+                <i class="fas fa-chevron-left" style="font-size: 50px"></i>
+            </button>
+            <button class="pswp__button--arrow--right" aria-label="Next (arrow right)">
+                <i class="fas fa-chevron-right" style="font-size: 50px; margin-right: 30px;"></i>
+            </button>
             <div class="pswp__caption">
                 <div class="pswp__caption__center"></div>
             </div>

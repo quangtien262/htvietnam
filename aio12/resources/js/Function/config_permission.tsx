@@ -14,11 +14,11 @@ export const perConfig = [
                active: true,
                code: 'contact'
            },
-           {
-               name: 'Quản lý đơn hàng',
-               active: true,
-               code: 'orders'
-           },
+        //    {
+        //        name: 'Quản lý đơn hàng',
+        //        active: true,
+        //        code: 'orders'
+        //    },
            {
                name: 'Quản lý tin tức',
                active: true,
@@ -53,6 +53,16 @@ export const perConfig = [
                name: 'Quản lý video',
                active: true,
                code: 'video'
+           },
+           {
+               name: 'Thư viện ảnh',
+               active: true,
+               code: 'library'
+           },
+           {
+               name: 'Quốc gia',
+               active: true,
+               code: 'countries'
            }
        ]
     },

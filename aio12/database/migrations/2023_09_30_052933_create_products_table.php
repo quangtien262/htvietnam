@@ -179,6 +179,17 @@ return new class extends Migration
             ['parent_id' => $hh->id, 'show_in_list' => 1, 'is_view_detail' => 1]
         );
 
+        $menu = Table::where('name', 'menus')->first();
+        MigrateService::createColumn02(
+            $tableId,
+            'menu_id',
+            'Menu',
+            'INT',
+            'select',
+            $order_col++,
+            ['select_table_id' => $menu->id, 'add_express' => 1, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1]
+        );
+
         $nhomHangHoa = Table::where('name', 'product_group')->first();
         MigrateService::createColumn02(
             $tableId,

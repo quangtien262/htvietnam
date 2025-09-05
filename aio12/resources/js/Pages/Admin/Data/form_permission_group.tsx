@@ -704,7 +704,7 @@ export default function Dashboard(props) {
                                 <th className="ant-table-cell" scope="col">Sửa</th>
                                 <th className="ant-table-cell" scope="col">Xem</th>
                                 <th className="ant-table-cell" scope="col">Xóa</th>
-                                <th className="ant-table-cell" scope="col">User</th>
+                                <th className="ant-table-cell" scope="col">Owner only</th>
                                 {/* <th className="ant-table-cell" scope="col">Share</th> */}
                             </tr>
                         </thead>

@@ -114,7 +114,7 @@ export function HTSelect(col, prop, langId = 0) {
 
     };
 
-    const onFinishFailed = (errorInfo:any) => { };
+    const onFinishFailed = (errorInfo: any) => { };
     //onOK
     const onOk = () => {
         formData.submit();
@@ -254,7 +254,11 @@ export function HTSelectsNormal(col, prop, langId = 0) {
 
 export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
     const [colData, setColData] = useState(col);
-    const [optionsData, setOptionsData] = useState(prop.selectData[col.name]);
+
+    console.log('prop.selectData[col.name]', prop.selectsData[col.name]);
+
+    const [optionsData, setOptionsData] = useState(prop.selectsData[col.name]);
+
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [loadingBtnAdd, setLoadingBtnAdd] = useState(false);
     const [formData] = Form.useForm();
@@ -371,7 +375,7 @@ export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
                 placeholder={col.placeholder ?? 'Search to Select'}
                 optionFilterProp="children"
                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                options={optionsData}
+                options={optionsData.selectbox}
                 allowClear={true}
             />
         </Form.Item>
@@ -427,7 +431,7 @@ export function HTTags(col: any, options: any, mode = 'tags', langId = 0) {
 // Không lặp lại các keyword tránh tình trạng Google phạt lỗi Duplicate Contens
 // Tối thiểu phải từ 2 - 5 từ khóa trở lên
 // Hạn chế sử dụng từ khóa dài.
-export function HTTextarea(col:any, langId = 0) {
+export function HTTextarea(col: any, langId = 0) {
     const keyword_tmp = <div><p>(<b>Ghi chú: </b><em>Từ khóa nên chứa từ khóa chính, từ khóa phụ và từ khóa liên quan tới thương hiệu, dịch vụ)</em></p></div>;
     const description_tmp = <div><p><b>Ghi chú: </b> <b>[SEO] Mô tả là</b><em> Mô tả ngắn gọn về bài viết này</em></p></div>;
     const [seo, setSeo] = useState({ meta_keyword: keyword_tmp, meta_description: description_tmp });
@@ -441,7 +445,7 @@ export function HTTextarea(col:any, langId = 0) {
 
 
         if (col.name.search("meta_description") >= 0) {
-            let checkLength =  <></>;
+            let checkLength = <></>;
             if (val.length > 300) {
                 checkLength = <li className='_error'><CloseCircleOutlined /> Nội dung quá dài, vượi quá 300 ký tự, số lượng hiện tại <b>{val.length}</b> ký tự</li>;
             }
@@ -595,7 +599,7 @@ export function HTPassword(col, langId = 0) {
 }
 
 
-export function HTInput(col:any, langId = 0) {
+export function HTInput(col: any, langId = 0) {
     let name = col.name;
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
@@ -616,7 +620,7 @@ export function HTInput(col:any, langId = 0) {
         {note}
     </Col>
 }
-export function smartSearch(table:any) {
+export function smartSearch(table: any) {
     if (table.smart_search === 1) {
         return <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: 6 }} >
             <Form.Item name='sm_keyword' label='Từ khoá'>

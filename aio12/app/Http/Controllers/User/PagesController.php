@@ -35,11 +35,6 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-        
-        $link = 'https://gccgroupvn-my.sharepoint.com/:i:/g/personal/daniel_gccgroup_vn/EQMNaDOIS7xNpO2Aco4a70YBSRU7XE8Qol3YnyzzidKzUQ?e=QVHuQb';
-        
-        return response()->download($link);
-
         $config = WebConfig::query()->find(1);
 
         // lượt truy cập
