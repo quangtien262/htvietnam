@@ -22,7 +22,7 @@ export function showSelects(record, col) {
     if(record[col.name] && record[col.name].info) {
         const item = record[col.name];
         for(const [key, val] of Object.entries(item.info)) {
-            result.push(<Tag style={{ color: color }} key={key} style={{ color: record[col.name].info.color }}>{val.label}</Tag>);
+            result.push(<Tag style={{ color: color }} key={key}>{val.label}</Tag>);
         }
     }
     return result;

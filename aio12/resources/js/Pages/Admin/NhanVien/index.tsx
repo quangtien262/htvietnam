@@ -235,7 +235,6 @@ export default function Dashboard(props) {
             address:'',
             cmnd:'',
             noi_cap:'',
-            ngay_cap:'',
             chi_nhanh_id:null,
             admin_user_status_id:null,
             permission_group_id:null,
@@ -249,7 +248,6 @@ export default function Dashboard(props) {
             is_setting_salary_nang_cao:false,
 
             // cai dat luong nang cao
-            is_setting_salary_lam_them_gio:false,
             luong_chinh_thu7:100,
             luong_chinh_cn:100,
             luong_chinh_ngay_nghi:100,

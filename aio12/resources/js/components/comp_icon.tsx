@@ -36,8 +36,6 @@ export const icon =
         MoneyCollectFilled: <MoneyCollectFilled />,
         StepForwardOutlined: <StepForwardOutlined />,
         RightOutlined: <RightOutlined />,
-        CaretUpOutlined: <CaretUpOutlined />,
-        CaretDownOutlined: <CaretDownOutlined />,
         UpCircleOutlined: <UpCircleOutlined />,
         DownCircleOutlined: <DownCircleOutlined />,
         LeftCircleOutlined: <LeftCircleOutlined />,

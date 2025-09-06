@@ -524,7 +524,7 @@ export function HTTextarea(col: any, langId = 0) {
     }
 
     let seoName = col.name;
-    return <Col key={col.id} onBlur={(value) => { blurTextArea(value, col); }} key={col.id} xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+    return <Col key={col.id} onBlur={(value) => { blurTextArea(value, col); }} xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
         <Form.Item name={name} rules={checkRule(col)} label={col.display_name}>
             <TextArea placeholder={col.placeholder ?? ''} />
         </Form.Item>

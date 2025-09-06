@@ -424,7 +424,6 @@ export default function Dashboard(props: any) {
                     </Form.Item>
                 );
             case "tags":
-            case "tags":
                 return (
                     <Form.Item
                         label={col.display_name}
@@ -735,7 +734,7 @@ export default function Dashboard(props: any) {
             return '';
         }
         const result = props.statistical.map((item) => {
-            return <Link href="?{props.statistical_select}={item.id}" href={'?' + props.table.statistical_select + '=' + item.id}><Button className="btn-statistical">{item.name} <b> ({item.count}</b>)</Button></Link>
+            return <Link href={'?' + props.table.statistical_select + '=' + item.id}><Button className="btn-statistical">{item.name} <b> ({item.count}</b>)</Button></Link>
         });
         return <div>{result} <hr /></div>
     }
