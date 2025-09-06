@@ -179,6 +179,7 @@ return new class extends Migration {
         );
 
         $menu = Table::where('name', 'menus')->first();
+        $conditions = ['display_type' => 'product'];
         MigrateService::createColumn02(
             $tableId,
             'menu_id',
@@ -186,7 +187,7 @@ return new class extends Migration {
             'INT',
             'select',
             $order_col++,
-            ['select_table_id' => $menu->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1]
+            ['select_table_id' => $menu->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions)]
         );
 
         $nhomHangHoa = Table::where('name', 'product_group')->first();

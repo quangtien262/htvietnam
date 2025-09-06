@@ -43,6 +43,18 @@ return new class extends Migration
 
         MigrateService::createColumn02($lib->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($lib->id, 'name', 'Tiêu đề', 'TEXT', 'text', $order++, ['show_in_list' => 1, 'edit' => 0]);
+
+        $menu = Table::where('name', 'menus')->first();
+        $conditions = ['display_type' => 'libs'];
+        MigrateService::createColumn02(
+            $lib->id,
+            'menu_id',
+            'Menu',
+            'INT',
+            'select',
+            $order++,
+            ['select_table_id' => $menu->id, 'add_express' => 0, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions)]
+        );
         
         MigrateService::createColumn02(
             $lib->id,
@@ -66,7 +78,7 @@ return new class extends Migration
             $order++,
             ['select_table_id' => $user->id, 'edit' => 0]
         );
-        
+
         MigrateService::createColumn02(
             $lib->id,
             'created_at',

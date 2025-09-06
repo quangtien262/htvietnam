@@ -33,14 +33,24 @@ return new class extends Migration
 
         $order = 1;
         $user = Table::where('name', 'admin_users')->first();
-        $menus = Table::where('name', 'menus')->first();
         $videos = MigrateService::createTable02('Video', 'Video', ['is_multiple_language' => 1, 'table_data' => 'video_data', 'parent_id' => 0, 'is_edit' => 1]);
         MigrateService::createColumn02($videos->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($videos->id, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order++, ['show_in_list' => 1, 'is_view_detail' => 1]);
         MigrateService::createColumn02($videos->id, 'image', 'Ảnh đại diện', 'text', 'images_crop', $order++, ['show_in_list' => 1]);
         MigrateService::createColumn02($videos->id, 'link', 'Đường dẫn', 'VARCHAR', 'text', $order++, ['show_in_list' => 1]);
-        MigrateService::createColumn02($videos->id, 'menu_id', 'Menu', 'TEXT', 'select', 5, 
-        ['select_table_id' => $menus->id, 'show_in_list' => 1]);
+        
+        $menu = Table::where('name', 'menus')->first();
+        $conditions = ['display_type' => 'video'];
+        MigrateService::createColumn02(
+            $videos->id,
+            'menu_id',
+            'Menu',
+            'INT',
+            'select',
+            $order++,
+            ['select_table_id' => $menu->id, 'add_express' => 0, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions)]
+        );
+
         MigrateService::createColumn02($videos->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order++, ['select_table_id' => $user->id, 'edit' => 0]);
         MigrateService::createColumn02($videos->id, 'created_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
         MigrateService::createColumn02($videos->id, 'updated_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);

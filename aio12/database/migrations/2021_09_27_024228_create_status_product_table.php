@@ -46,7 +46,7 @@ return new class extends Migration
         MigrateService::createColumn02($tbl->id, 'name', 'Trạng thái hàng hóa', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
         MigrateService::createColumn02($tbl->id, 'color', 'Màu đánh dấu', 'VARCHAR', 
         'color', $order_col++,
-        ['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+        ['require' => 0,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
         MigrateService::baseColumn($tbl);
     }
 

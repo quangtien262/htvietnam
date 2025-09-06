@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable(); // tên menu
             $table->text('images')->nullable(); // hình ảnh (nếu có))
-            $table->string('display_type')->nullable(); // kiểu hiển thị
+            $table->string('display_type')->nullable(); // kiểu hiển thị, là tên router
             $table->integer('position')->default(0)->nullable(); // 1 is MenuTop 0 is MenuLeft
             $table->integer('parent_id')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
