@@ -33,7 +33,7 @@ return new class extends Migration
 
         $order = 1;
         $user = Table::where('name', 'admin_users')->first();
-        $videos = MigrateService::createTable02('Video', 'Video', ['is_multiple_language' => 1, 'table_data' => 'video_data', 'parent_id' => 0, 'is_edit' => 1]);
+        $videos = MigrateService::createTable02('video', 'Video', ['is_multiple_language' => 1, 'table_data' => 'video_data', 'parent_id' => 0, 'is_edit' => 1]);
         MigrateService::createColumn02($videos->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($videos->id, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order++, ['show_in_list' => 1, 'is_view_detail' => 1]);
         MigrateService::createColumn02($videos->id, 'image', 'Ảnh đại diện', 'text', 'images_crop', $order++, ['show_in_list' => 1]);
