@@ -7,8 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -77,7 +76,7 @@ return new class extends Migration
             $table->integer('dinh_muc_ton_it_nhat')->default(0)->nullable();
             $table->integer('dinh_muc_ton_nhieu_nhat')->default(0)->nullable();
 
-            $table->integer('status_product_id')->default(1)->nullable();
+            $table->integer('product_status_id')->default(1)->nullable();
 
             // ck
             $table->integer('ck_nv_tu_van')->nullable();
@@ -111,7 +110,7 @@ return new class extends Migration
             $table->integer('category_id')->default(0)->nullable();
             $table->text('product_color_ids')->nullable();
             $table->text('product_size_ids')->nullable();
-            
+
             $table->string('file')->nullable();
 
             $table->integer('is_parent')->default(0)->nullable(); // 
@@ -166,7 +165,7 @@ return new class extends Migration
             'VARCHAR',
             'text',
             $order_col++,
-            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 1, 'require' => 1,'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
+            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 1, 'require' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
         );
 
         MigrateService::createColumn02(
@@ -187,7 +186,7 @@ return new class extends Migration
             'INT',
             'select',
             $order_col++,
-            ['select_table_id' => $menu->id, 'add_express' => 1, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1]
+            ['select_table_id' => $menu->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1]
         );
 
         $nhomHangHoa = Table::where('name', 'product_group')->first();
@@ -201,12 +200,28 @@ return new class extends Migration
             ['select_table_id' => $nhomHangHoa->id, 'add_express' => 1, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1]
         );
 
-        $trangThai = Table::where('name', 'status_product')->first();
-        MigrateService::createColumn02($tableId, 'status_product_id', 'Trạng thái', 'INT', 'select', $order_col++, 
-        ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1, 'fast_edit' => 1]);
+        $app = Table::where('name', 'product_application')->first();
+        MigrateService::createColumn02(
+            $tableId,
+            'product_application_id',
+            'Ứng dụng',
+            'INT',
+            'select',
+            $order_col++,
+            ['select_table_id' => $app->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'fast_edit' => 1, 'add2search' => 1]
+        );
 
+        $trangThai = Table::where('name', 'product_status')->first();
+        MigrateService::createColumn02(
+            $tableId,
+            'product_status_id',
+            'Trạng thái',
+            'INT',
+            'select',
+            $order_col++,
+            ['select_table_id' => $trangThai->id, 'add_express' => 1, 'parent_id' => $hh->id, 'add2search' => 1, 'show_in_list' => 1, 'fast_edit' => 1]
+        );
 
-        
         // MigrateService::createColumn02($tableId, 'capital_price', 'Giá vốn', 'INT', 'number', $order_col++, ['require' => 1, 'parent_id' => $hh->id]);
         // MigrateService::createColumn02($tableId, 'thoi_gian_khau_hao', 'Thời gian khấu hao(Tháng)', 'INT', 'number', $order_col++, ['parent_id' => $hh->id]);
 
@@ -250,15 +265,36 @@ return new class extends Migration
         //     ['select_table_id' => $qd->id, 'add_express' => 1, 'parent_id' => $tt_khac->id]
         // );
 
-        MigrateService::createColumn02($tableId, 'gia_ban', 'Giá niêm yết(Giá bán)', 'INT', 'number', $order_col++, 
-        ['parent_id' => $hh->id, 'edit' => 0]);
+        MigrateService::createColumn02(
+            $tableId,
+            'gia_ban',
+            'Giá niêm yết(Giá bán)',
+            'INT',
+            'number',
+            $order_col++,
+            ['parent_id' => $hh->id, 'edit' => 0]
+        );
 
-        MigrateService::createColumn02($tableId, 'file', 'File tài liệu', 'text', 'file', $order_col++, 
-        ['parent_id' => $hh->id, 'col' => 24]);
+        MigrateService::createColumn02(
+            $tableId,
+            'file',
+            'File tài liệu',
+            'text',
+            'file',
+            $order_col++,
+            ['parent_id' => $hh->id, 'col' => 24]
+        );
 
-        MigrateService::createColumn02($tableId, 'images', 'Ảnh sản phẩm', 'text', 'images', $order_col++, 
-        ['parent_id' => $hh->id, 'col' => 24]);
-        
+        MigrateService::createColumn02(
+            $tableId,
+            'images',
+            'Ảnh sản phẩm',
+            'text',
+            'images',
+            $order_col++,
+            ['parent_id' => $hh->id, 'col' => 24]
+        );
+
         MigrateService::baseColumn($tbl);
     }
 

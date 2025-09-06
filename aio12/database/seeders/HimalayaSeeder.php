@@ -181,7 +181,8 @@ class HimalayaSeeder extends Seeder
         $system = new Table();
         $system->name = 'label_QL_tai_san';
         $system->display_name = 'QL Tài Sản';
-        $system->sort_order = $sortOrder++;;
+        $system->sort_order = $sortOrder++;
+        ;
         $system->is_label = 1;
         $system->parent_id = 0;
         $system->is_edit = 1;
@@ -331,7 +332,7 @@ class HimalayaSeeder extends Seeder
         //     ]
         // ]);
 
-       
+
 
         // product
         DB::table('products')->truncate();
@@ -438,39 +439,51 @@ class HimalayaSeeder extends Seeder
 
         $nv = MigrateService::createLabel('label_task', 'Công việc', $sortOrder = $sortOrder++);
         MigrateService::setParent($nv->id, 'tasks', $sortOrder++);
+
+        // nhom sp
+        DB::table('product_group')->truncate();
+        DB::table('product_group')->insert([
+            ['name' => 'Hàng hóa bán ra'],
+            ['name' => 'Nguyên vật liệu tiêu hao'],
+            ['name' => 'Vật tư tiêu hao nội bộ'],
+            ['name' => 'Công cụ dụng cụ'],
+            ['name' => 'Tài sản cố định'],
+            ['name' => 'Hàng khuyến mãi/ tặng kèm'],
+            ['name' => 'Hàng dùng thử/ demo'],
+        ]);
     }
 }
 
 
 
 
-    // telesale
-    // DB::table('data_telesales')->truncate();
-    // $khachHang = [
-    //     1=>'Lưu Hương Giang',
-    //     2=>'Trần Đại Nghĩa',
-    //     3=>'Nguyễn Thưởng',
-    //     4=>'Nguyễn Minh Quang',
-    //     5=>'Trần Anh Quân',
-    //     6=>'Nguyễn Thúy Hằng',
-    //     7=>'Nguyễn Thị Khuyên',
-    //     8=>'Nguyễn Văn Quyết',
-    //     9=>'Nguyễn Thị Nga',
-    //     10=>'Nguyễn Hưởng',
-    // ];
-    // $nvid = 2;
-    // for($i=1; $i<10; $i++){
-    //     $tele = new DataTelesales();
-    //     $tele->name = $khachHang[$i];
-    //     $tele->code = 'TELE0000' . $i;
-    //     $tele->phone = '0977115426';
-    //     $tele->nhan_vien_id = $nvid++;
-    //     $tele->product_id = $i;
-    //     $tele->status_id = 2;
-    //     $tele->ngay = '2025-07-01';
-    //     $tele->created_at = '2025-07-01';
-    //     $tele->save();
-    //     if($nvid === 4) {
-    //         $nvid = 2;
-    //     }
-    // }
+// telesale
+// DB::table('data_telesales')->truncate();
+// $khachHang = [
+//     1=>'Lưu Hương Giang',
+//     2=>'Trần Đại Nghĩa',
+//     3=>'Nguyễn Thưởng',
+//     4=>'Nguyễn Minh Quang',
+//     5=>'Trần Anh Quân',
+//     6=>'Nguyễn Thúy Hằng',
+//     7=>'Nguyễn Thị Khuyên',
+//     8=>'Nguyễn Văn Quyết',
+//     9=>'Nguyễn Thị Nga',
+//     10=>'Nguyễn Hưởng',
+// ];
+// $nvid = 2;
+// for($i=1; $i<10; $i++){
+//     $tele = new DataTelesales();
+//     $tele->name = $khachHang[$i];
+//     $tele->code = 'TELE0000' . $i;
+//     $tele->phone = '0977115426';
+//     $tele->nhan_vien_id = $nvid++;
+//     $tele->product_id = $i;
+//     $tele->status_id = 2;
+//     $tele->ngay = '2025-07-01';
+//     $tele->created_at = '2025-07-01';
+//     $tele->save();
+//     if($nvid === 4) {
+//         $nvid = 2;
+//     }
+// }

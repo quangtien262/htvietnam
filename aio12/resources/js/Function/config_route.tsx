@@ -54,9 +54,9 @@ export const tblConfig = {
     tblWeb: {
         name: 'Quản lý website',
         active: true,
-        data: ['images', 'contact', 'orders', 'news', 'doi_tac',
-            'products', 'menus', 'admin_user.edit', 'admin_user.index',
-            'admin_user.change_password', 'web_config', 'video','emails', 'countries','library']
+        data: ['images', 'contact', 'orders', 'news', 'doi_tac', 'product_application',
+            'products', 'menus', 'admin_user.edit', 'admin_user.index', 'product_group', 'product_status',
+            'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library']
 
     },
     tblNhanSu: {

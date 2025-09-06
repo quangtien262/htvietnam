@@ -453,7 +453,7 @@ class Product extends Model
 
     static function setDataProduct($product, $rq)
     {
-        $product->status_product_id = 1;
+        $product->product_status_id = 1;
         $product->ngung_kinh_doanh = 0;
         $product->is_draft = 0;
         $product->product_type_id = $rq->type;
@@ -464,7 +464,7 @@ class Product extends Model
         $product->product_group_id = isset($rq->product_group_id) ? $rq->product_group_id : 0;
         $product->thuong_hieu_id = isset($rq->thuong_hieu_id) ? $rq->thuong_hieu_id : 0;
         $product->vi_tri_id = isset($rq->vi_tri_id) ? $rq->vi_tri_id : 0;
-        $product->status_product_id = isset($rq->status_product_id) ? $rq->status_product_id : 0;
+        $product->product_status_id = isset($rq->product_status_id) ? $rq->product_status_id : 0;
         $product->gia_von = intval($rq->gia_von);
         $product->gia_ban = intval($rq->gia_ban);
         $product->menh_gia = intval($rq->menh_gia);

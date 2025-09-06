@@ -276,10 +276,6 @@ class StatusSeeder extends Seeder
             ['name' => 'Hàng hóa bán ra'],
             ['name' => 'Nguyên vật liệu tiêu hao'],
             ['name' => 'Vật tư tiêu hao nội bộ'],
-            ['name' => 'Công cụ dụng cụ'],
-            ['name' => 'Tài sản cố định'],
-            ['name' => 'Hàng khuyến mãi/ tặng kèm'],
-            ['name' => 'Hàng dùng thử/ demo'],
         ]);
 
 
@@ -353,7 +349,7 @@ class StatusSeeder extends Seeder
             ['name' => 'Trung Quốc'],
         ]);
 
-        DB::table('status_product')->insert([
+        DB::table('product_status')->insert([
             ['name' => 'Hiển thị trên web'],
             ['name' => 'Tạm ẩn'],
         ]);
