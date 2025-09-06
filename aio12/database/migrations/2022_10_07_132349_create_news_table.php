@@ -52,7 +52,7 @@ return new class extends Migration
             'INT',
             'select',
             $order_col++,
-            ['select_table_id' => $menu->id, 'add_express' => 0, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions)]
+            ['select_table_id' => $menu->id, 'add_express' => 0, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions), 'require' => 1]
         );
         
         MigrateService::createColumn02($news->id, 'tags_id', 'Tags', 'TEXT', 'tags', $order_col++, ['edit' => 0]);
