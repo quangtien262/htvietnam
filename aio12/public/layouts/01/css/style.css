@@ -2467,7 +2467,9 @@ p {
 .item-lib img:hover {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
 }
-
+.img-thumbnail {
+    border: 0px #ccc solid;
+}
 @media only screen and (max-width: 48em) {
 
     /*************** ADD MOBILE ONLY CSS HERE  ***************/

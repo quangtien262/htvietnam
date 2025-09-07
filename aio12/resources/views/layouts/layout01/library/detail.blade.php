@@ -63,7 +63,7 @@
                 <div class=" woocommerce-product-gallery row">
                     @foreach ($images as $image)
                         <div data-thumb="{{ $image }}" data-thumb-alt=""
-                            class="woocommerce-product-gallery__image slide img-thumbnail col-3 item-lib">
+                            class="woocommerce-product-gallery__image slide img-thumbnail item-lib  col-3 col medium-6 small-12 large-3 col-sm-12">
                             <a href="{{ $image }}">
                                 <img width="600" height="600" class="wp-post-image skip-lazy" src="{{ $image }}"
                                     data-src="{{ $image }}" data-large_image="{{ $image }}"
