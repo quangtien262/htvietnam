@@ -130,10 +130,19 @@ class TablesLayout01Seeder extends Seeder
         // libs
         $images = [
             'avatar' => '/layouts/01/images/slide01.jpg',
-            'images' => ['/layouts/01/images/slide01.jpg', '/layouts/01/images/slide02.jpg', '/layouts/01/images/slide03.jpg']
+            'images' => [
+                '/layouts/01/images/libs/1.jpg',
+                '/layouts/01/images/libs/2.jpg',
+                '/layouts/01/images/libs/3.jpg',
+                '/layouts/01/images/libs/4.jpg',
+                '/layouts/01/images/libs/5.jpg',
+                '/layouts/01/images/libs/6.jpg',
+                '/layouts/01/images/libs/7.jpg',
+                '/layouts/01/images/libs/8.jpg',
+            ]
         ];
         $images_str = json_encode($images);
-        for ($i = 1; $i < 5; $i++) {
+        for ($i = 1; $i < 4; $i++) {
             MigrateService::createData(
                 'library',
                 [
