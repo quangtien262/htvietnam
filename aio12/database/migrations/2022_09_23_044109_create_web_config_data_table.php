@@ -26,6 +26,7 @@ return new class extends Migration
             $table->text('meta_description')->nullable();
             $table->text('slogan')->nullable();
             $table->text('footer')->nullable();
+            $table->text('copyright')->nullable();
             $table->text('address')->nullable();
             $table->text('address_description')->nullable();
             $table->text('address_header')->nullable();
@@ -57,8 +58,8 @@ return new class extends Migration
         MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'address_description', 'Địa chỉ (mô tả)', 'TEXT', 'textarea', $order++, ['edit'=> 0]);
         MigrateService::createColumn02($data->id, 'address_header', 'Địa chỉ (Header)', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'address_header_description', 'Địa chỉ (Header mô tả)', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'footer', 'Nội dung footer', 'TEXT', 'textarea', $order++, ['edit', 0]);
+        MigrateService::createColumn02($data->id, 'address_header_description', 'Địa chỉ (Header mô tả)', 'TEXT', 'textarea', $order++, ['edit', 0]);
+        MigrateService::createColumn02($data->id, 'copyright', 'Nội dung copyright', 'TEXT', 'textarea', $order++, ['edit', 1]);
 
         // SEO
         MigrateService::createColumn02($data->id, 'meta_title', '[SEO] Tiêu đề', 'TEXT', 'textarea', $order++);

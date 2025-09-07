@@ -94,10 +94,10 @@ class TablesLayout01Seeder extends Seeder
                     'GCC PLASTIC JOINT STOCK COMPANY',
                     'GCC PLASTIC JOINT STOCK COMPANY'
                 ],
-                'footer' => [
-                    'Tự hào là một trong những doanh nghiệp hàng đầu trong khai thác, chế biến đá vôi trắng, sản xuất bột đá siêu mịn, filler masterbatch và nguyên liệu nhựa chất lượng cao, chúng tôi luôn nỗ lực không để đáp ứng kịp thời nhu cầu của khách hàng trong nước và quốc tế.',
-                    'We are proud to be one of the leading companies in exploiting, processing white limestone, producing super fine stone powder, filler masterbatch and high quality plastic materials, we always strive to meet the needs of domestic and international customers in a timely manner.',
-                    '我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。'
+                'copyright' => [
+                    '<p class="copyright-text">© 2025 <a href="/" target="_blank" rel="noopener noreferrer nofollow">GCC Group</a>. All rights reserved.</p>',
+                    '<p>我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。</p>',
+                    '<p>We are proud to be one of the leading companies in exploiting, processing white limestone, producing super fine stone powder, filler masterbatch and high quality plastic materials, we always strive to meet the needs of domestic and international customers in a timely manner.</p>'
                 ]
             ]
         );

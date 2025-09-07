@@ -355,14 +355,12 @@ export default function Dashboard(props: any) {
     };
 
     function fastEditText(col, record) {
-        let rule = "";
+        let rule = [];
         if (col.require === 1) {
-            rule = [
-                {
+            rule.push({
                     required: true,
                     message: '"' + col.display_name + '" Không được bỏ trống',
-                },
-            ];
+                })
         }
         const type = col.type_edit;
         switch (type) {
@@ -557,7 +555,7 @@ export default function Dashboard(props: any) {
                 />
             }
             cancelText="Hủy"
-            okText={""}
+            okText=""
         >
             <a className="icon-fast-edit">
                 <FormOutlined />

@@ -1,7 +1,10 @@
 @if ($page->block_type == 'products')
 
 @php
-   $products = app('Helper')->getProducts();
+   $products = app('Helper')->getProducts(['products.is_hot' => 1]);
+   if(count($products) < 1){
+      $products = app('Helper')->getProducts();
+   }
 @endphp
 
 <section class="section section1" id="section_800775673">

@@ -2394,7 +2394,7 @@ h6,
 }
 
 .title {
-    color: #fcca03 !important;
+    color: #d0a608 !important;
     font-size: 15px;
     text-transform: uppercase;
 }
@@ -2454,7 +2454,9 @@ p {
 .text-center {
     text-align: center !important;
 }
-
+.text-center p {
+    text-align: center !important;
+}
 .item-lib img {
     margin-bottom: 20px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);

@@ -190,17 +190,6 @@ return new class extends Migration {
             ['select_table_id' => $menu->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1, 'conditions' => json_encode($conditions), 'require' => 1]
         );
 
-        $confirm = Table::where('name', 'confirm')->first();
-        MigrateService::createColumn02(
-            $tableId,
-            'is_hot',
-            'Sản phẩm nổi bật',
-            'INT',
-            'select',
-            $order_col++,
-            ['select_table_id' => $confirm->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1, 'require' => 1, 'fast_edit' => 1]
-        );
-
         $nhomHangHoa = Table::where('name', 'product_group')->first();
         MigrateService::createColumn02(
             $tableId,
@@ -221,6 +210,17 @@ return new class extends Migration {
             'select',
             $order_col++,
             ['select_table_id' => $app->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'fast_edit' => 1, 'add2search' => 1]
+        );
+
+        $confirm = Table::where('name', 'confirm')->first();
+        MigrateService::createColumn02(
+            $tableId,
+            'is_hot',
+            'Sản phẩm nổi bật',
+            'INT',
+            'select',
+            $order_col++,
+            ['select_table_id' => $confirm->id, 'add_express' => 0, 'parent_id' => $hh->id, 'show_in_list' => 1, 'add2search' => 1, 'require' => 1, 'fast_edit' => 1]
         );
 
         $trangThai = Table::where('name', 'product_status')->first();
