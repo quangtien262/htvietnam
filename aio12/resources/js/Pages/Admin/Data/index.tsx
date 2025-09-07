@@ -37,6 +37,7 @@ import {
     CaretRightOutlined, SettingOutlined
 } from "@ant-design/icons";
 import "../../../../css/form.css";
+import "../../../../css/popconfirm_hidden_btn.css";
 import { itemMenu } from "../../../Function/config_route";
 import { inArray, parseJson, numberFormat, showsettingMenu, formatGdata_column, onDrop } from "../../../Function/common";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../../Function/constant';
@@ -545,7 +546,7 @@ export default function Dashboard(props: any) {
         if (col.fast_edit !== 1) {
             return '';
         }
-        return <Popconfirm
+        return <Popconfirm className="popconfirm-fast-edit"
             title={fastEditContent(col, record)}
             onConfirm={fastEditOK}
             onCancel={fastEditCancel}
@@ -554,8 +555,6 @@ export default function Dashboard(props: any) {
                     style={{ color: "#1890ff" }}
                 />
             }
-            cancelText="Hủy"
-            okText=""
         >
             <a className="icon-fast-edit">
                 <FormOutlined />

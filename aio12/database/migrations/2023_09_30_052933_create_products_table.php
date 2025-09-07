@@ -33,7 +33,7 @@ return new class extends Migration {
             $table->integer('gia_khuyen_mai')->default(0)->nullable();
 
             $table->integer('best_saler')->default(0)->nullable();
-            $table->integer('is_hot')->default(0)->nullable();
+            $table->integer('is_hot')->default(2)->nullable();
 
             $table->integer('menh_gia')->default(0)->nullable(); // thẻ: nhập số tiền mệnh giá
             $table->integer('trong_luong')->default(0)->nullable(); // HH,
