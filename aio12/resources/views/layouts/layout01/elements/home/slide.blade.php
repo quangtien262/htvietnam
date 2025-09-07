@@ -44,7 +44,7 @@
                                                     style="font-size: 120%;">{{ $img->description }}</span></p>
                                             <h2 style="text-align: center;"><span
                                                     style="font-size: 130%;">{{ $img->name_data }}</span></h2>
-                                            <p style="text-align: center;">{{ $img->content }}</p>
+                                            <p style="text-align: center;">{!! $img->content !!}</p>
                                             @if (!empty($img->link))
                                                 <a href="{{ $img->link }}" target="_self"
                                                     class="button primary lowercase nut-xem-them">
