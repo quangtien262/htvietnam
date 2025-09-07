@@ -16,7 +16,7 @@
             <div class="pswp__top-bar">
                 <!--  Controls are self-explanatory. Order can be changed. -->
                 <div class="pswp__counter"></div>
-                <button class="pswp__button pswp__button--close" aria-label="Close (Esc)"><span style="font-size: 20px">X</span></button>
+                <button class="pswp__button pswp__button--close" aria-label="Close (Esc)"><span style="font-weight: bold;">X</span></button>
                 <button class="pswp__button pswp__button--zoom" aria-label="Zoom in/out"></button>
                 <div class="pswp__preloader">
                     <div class="loading-spin"></div>
