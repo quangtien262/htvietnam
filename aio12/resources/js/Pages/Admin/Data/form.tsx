@@ -15,13 +15,17 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { FormOutlined, CopyOutlined, UploadOutlined, PlusSquareOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
+import {
+    FormOutlined, CopyOutlined,
+    UploadOutlined,
+    PlusCircleOutlined, RollbackOutlined
+
+} from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
-import { useForm, router, Link } from '@inertiajs/react';
-import { routeQLKho } from "../../../Function/config_route";
+import { router, Link } from '@inertiajs/react';
+import { itemMenu } from "../../../Function/config_route";
 import ImgCrop from 'antd-img-crop';
 
-import '../../../../css/form.css';
 import { checkRule, showData, showDataSelectTable } from '../../../Function/data';
 
 import { parseJson, numberFormat02 } from '../../../Function/common';
@@ -43,6 +47,7 @@ import weekday from "dayjs/plugin/weekday";
 import localeData from "dayjs/plugin/localeData";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { Label } from 'recharts';
 
 
 dayjs.extend(weekday);
@@ -54,12 +59,17 @@ dayjs.extend(timezone);
 const { TextArea } = Input;
 
 export default function Dashboard(props) {
-
+    console.log('fileList', props);
     const [data, setData] = useState(props.data);
     const [submitRedirect, setSubmitRedirect] = useState("detail"); // detail, list
     const [loading, setLoading] = useState(false);
     const [loadingBtn, setLoadingBtn] = useState(false);
     const [isStopSubmit, setIsStopSubmit] = useState(false);
+
+    // add current file
+    const [currentFile, setCurrentFile] = useState('');
+
+    // file images
     const [fileList, setFileList] = useState(props.imagesData.length == 0 ? [] : props.imagesData.map((item) => {
         return {
             name: item.name,
@@ -68,7 +78,16 @@ export default function Dashboard(props) {
         }
     }
     ));
-    const [fileListExpress, setFileListExpress] = useState([]);
+
+    // file other
+    const [fileDocument, setFileDocument] = useState(props.filesData.length == 0 ? [] : props.filesData.map((item) => {
+        return {
+            name: item.name,
+            status: item.status,
+            url: item.url
+        }
+    }
+    ));
 
     //permission
     const [permissionList, setPermissionList] = useState(props.userPermission);
@@ -170,76 +189,115 @@ export default function Dashboard(props) {
         }
     };
 
-    function formatValueForm(columns, values) {
+    // interface Column {
+    //     name: string;
+    //     edit?: number;
+    //     type_edit?: string;
+    // }
+    function formatValueForm(columns: any, values: { [x: string]: string; }) {
         for (const [key, col] of Object.entries(columns)) {
-            if (col.edit !== 1) {
-                values[col.name] = '';
+            // Add type guard to ensure col is an object
+            if (typeof col !== 'object' || col === null) {
                 continue;
             }
-            if (col.type_edit === "tiny" && editor.current[col.name]) {
-                values[col.name] = editor.current[col.name].getContents();
+            if ((col as any).edit !== 1) {
+                values[(col as any).name] = '';
+                continue;
             }
-            if (col.type_edit === "permission_list") {
-                values[col.name] = isCheckAllPermission
+            if ((col as any).type_edit === "tiny" && editor.current[(col as any).name]) {
+                values[(col as any).name] = editor.current[(col as any).name].getContents();
+            }
+            if ((col as any).type_edit === "permission_list") {
+                values[(col as any).name] = isCheckAllPermission
                     ? props.permissionList_all
                     : permissionList;
             }
-            if (col.type_edit === "date") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_FORMAT);
+            if ((col as any).type_edit === "date") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(DATE_FORMAT);
             }
-            if (col.type_edit === "datetime") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_TIME_FORMAT);
+            if ((col as any).type_edit === "datetime") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(DATE_TIME_FORMAT);
             }
-            if (col.type_edit === "time") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(TIME_FORMAT);
+            if ((col as any).type_edit === "time") {
+                values[(col as any).name] = !values[(col as any).name] ? '' : values[(col as any).name].format(TIME_FORMAT);
             }
-            if (col.type_edit === "selects_table") {
-                values[col.name] = dataSourceSelectTbl[col.name].datas.dataSource;
+            if ((col as any).type_edit === "selects_table") {
+                values[(col as any).name] = dataSourceSelectTbl[(col as any).name].datas.dataSource;
             }
-            if (col.type_edit === "color") {
-                values[col.name] = values[col.name].toHexString();
+            if ((col as any).type_edit === "color") {
+                values[(col as any).name] = values[(col as any).name].toHexString();
             }
 
-            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
+            // images
+            if (['images', 'image', 'image_crop', 'images_crop'].includes((col as any).type_edit)) {
                 if (fileList && fileList.length > 0) {
-                    let images = fileList.map((file) => {
-                        if (!file.status) {
-                            return false;
-                        }
-                        if (file.status === "uploading") {
-                            setIsStopSubmit(true);
-                            return false;
-                        }
-
-                        if (file.status === "OK") {
-                            return {
-                                name: file.name,
-                                status: file.status,
-                                url: file.url,
-                            };
-                        }
-                        if (file.status === "done") {
-                            return {
-                                name: file.response.data.fileName,
-                                status: file.status,
-                                url: file.response.data.filePath,
-                            };
-                        }
-                    });
-
-                    // values.images = JSON.stringify(images);
-                    values[col.name] = images;
+                    values[(col as any).name] = formatFiles(fileList);
                 } else {
-                    values[col.name] = "";
-                    values[col.name] = "";
+                    values[(col as any).name] = "";
                 }
             }
 
+            // files
+            if (['file', 'files'].includes((col as any).type_edit)) {
+
+                if (fileDocument && fileDocument.length > 0) {
+                    values[(col as any).name] = formatFiles(fileDocument);
+                } else {
+                    values[(col as any).name] = "";
+                }
+            }
         }
         return values;
     }
 
     const onFinishFailed = (errorInfo) => { };
+
+    function formatFiles(files: any) {
+        interface FileResponseData {
+            fileName: string;
+            filePath: string;
+        }
+
+        interface UploadFile {
+            name: string;
+            status?: string;
+            url?: string;
+            response?: {
+                data: FileResponseData;
+            };
+        }
+
+        interface FormattedFile {
+            name: string;
+            status: string;
+            url: string;
+        }
+
+        return files.map((file: UploadFile): FormattedFile | false | undefined => {
+            if (!file.status) {
+                return false;
+            }
+            if (file.status === "uploading") {
+                setIsStopSubmit(true);
+                return false;
+            }
+
+            if (file.status === "OK") {
+                return {
+                    name: file.name,
+                    status: file.status,
+                    url: file.url!,
+                };
+            }
+            if (file.status === "done") {
+                return {
+                    name: file.response!.data.fileName,
+                    status: file.status,
+                    url: file.response!.data.filePath,
+                };
+            }
+        });
+    }
 
     // even image
     const onChangeImage = ({ fileList: newFileList }) => {
@@ -289,7 +347,38 @@ export default function Dashboard(props) {
     const onChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
     };
-    
+
+    // Chỉ cho phép file ảnh
+    const beforeUpload = (file) => {
+        const isImage = file.type.startsWith('image/');
+        if (!isImage) {
+            message.error('Chỉ được upload file hình ảnh!');
+        }
+        return isImage;
+    };
+
+
+
+    function handleAddImage(col) {
+        const name = Date.now();
+        let imageItem = {
+            uid: name,
+            name: name,
+            status: 'OK',
+            url: currentFile
+        };
+        let newFileList = [...fileList];
+        if (col.conditions && +col.conditions > 0) {
+            if (newFileList.length >= +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " hình ảnh");
+                return false;
+            }
+        }
+        newFileList = [...newFileList, imageItem];
+        setFileList(newFileList);
+        setCurrentFile('');
+    }
+
     function showDataImages(col) {
         const data = props.data;
         let result;
@@ -303,42 +392,53 @@ export default function Dashboard(props) {
                 result = (
                     <Row>
                         <Col key={col.name}>
-                            <Form.Item
-                                name={col.name}
-                                rules={checkRule(col)}
-                                label={col.display_name}
-                            >
-
-                                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                    <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                                        <ImgCrop
-                                            aspect={col.ratio_crop}
-                                            aspectSlider={true}
-                                            rotationSlider={true}
-                                            showGrid={true}
-                                            showReset={true}
+                            <Divider orientation='left'>
+                                {col.display_name}
+                                <span> | </span>
+                                <Popconfirm
+                                    title={
+                                        <div>
+                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                                        </div>
+                                    }
+                                    onConfirm={() => handleAddImage(col)}
+                                    okText="Thêm ảnh"
+                                    cancelText="Hủy"
+                                >
+                                    <a><PlusCircleOutlined /></a>
+                                </Popconfirm>
+                            </Divider>
+                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                    <ImgCrop
+                                        aspect={col.ratio_crop}
+                                        aspectSlider={true}
+                                        rotationSlider={true}
+                                        showGrid={true}
+                                        showReset={true}
+                                    >
+                                        <Upload multiple
+                                            action={route("data.upload_image")}
+                                            listType="picture-card" // picture-card
+                                            fileList={fileList}
+                                            accept="image/*"
+                                            maxCount={+col.conditions}
+                                            beforeUpload={beforeUpload}
+                                            onChange={onChange}
+                                            itemRender={(originNode, file) => (
+                                                <DraggableUploadListItem originNode={originNode} file={file} />
+                                            )}
+                                            headers={{
+                                                'X-CSRF-TOKEN': props.token,
+                                            }}
                                         >
-                                            <Upload multiple
-                                                action={route("data.upload_image")}
-                                                listType="picture-card" // picture-card
-                                                fileList={fileList}
-                                                maxCount={+col.conditions}
-                                                onChange={onChange}
-                                                itemRender={(originNode, file) => (
-                                                    <DraggableUploadListItem originNode={originNode} file={file} />
-                                                )}
-                                                headers={{
-                                                    'X-CSRF-TOKEN': props.token,
-                                                }}
-                                            >
 
-                                                <Button icon={<UploadOutlined />}>Upload({+col.conditions})</Button>
-                                            </Upload>
-                                        </ImgCrop>
-                                    </SortableContext>
-                                </DndContext>
-
-                            </Form.Item>
+                                            <Button icon={<UploadOutlined />}>Upload({+col.conditions})</Button>
+                                        </Upload>
+                                    </ImgCrop>
+                                </SortableContext>
+                            </DndContext>
                         </Col>
                     </Row>
                 );
@@ -346,22 +446,49 @@ export default function Dashboard(props) {
             case "image":
             case "images":
                 result = (
-                    <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                        <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                            <Upload multiple
-                                action={route("data.upload_image")}
-                                listType="picture-card" // picture-card
-                                fileList={fileList}
-                                maxCount={props.countImage}
-                                onChange={onChange}
-                                itemRender={(originNode, file) => (
-                                    <DraggableUploadListItem originNode={originNode} file={file} />
-                                )}
-                            >
-                                <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
-                            </Upload>
-                        </SortableContext>{col.conditions}
-                    </DndContext>
+                    <Row>
+                        <Divider orientation='left'>{col.display_name}</Divider>
+                        <Col key={col.name}>
+                            <Divider orientation='left'>
+                                {col.display_name}
+                                <span> | </span>
+                                <Popconfirm
+                                    title={
+                                        <div>
+                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                                        </div>
+                                    }
+                                    onConfirm={() => handleAddImage(col)}
+                                    okText="Thêm ảnh"
+                                    cancelText="Hủy"
+                                >
+                                    <a><PlusCircleOutlined /></a>
+                                </Popconfirm>
+                            </Divider>
+                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                    <Upload multiple
+                                        action={route("data.upload_image")}
+                                        listType="picture-card" // picture-card
+                                        fileList={fileList}
+                                        maxCount={props.countImage}
+                                        onChange={onChange}
+                                        accept="image/*"
+                                        beforeUpload={beforeUpload}
+                                        itemRender={(originNode, file) => (
+                                            <DraggableUploadListItem originNode={originNode} file={file} />
+                                        )}
+                                        headers={{
+                                            'X-CSRF-TOKEN': props.token,
+                                        }}
+                                    >
+                                        <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
+                                    </Upload>
+                                </SortableContext>
+                            </DndContext>
+                        </Col>
+                    </Row>
                 );
                 break;
         }
@@ -385,12 +512,23 @@ export default function Dashboard(props) {
         }
     });
 
+    const uploadRef = useRef();
+    const handleClick = () => {
+        // Truy cập input file ẩn và click
+        if (uploadRef.current) {
+            const input = uploadRef.current.querySelector('input[type="file"]');
+            if (input) input.click();
+        }
+    };
+
     const imageItems = props.columns.map((col) => {
+
         if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
             if (checkConfig(col)) {
                 return showDataImages(col);
             }
         }
+
     });
 
     const cellRender = (current) => {
@@ -635,16 +773,16 @@ export default function Dashboard(props) {
         </div>;
     }
 
-    function handleImageUpload(targetImgElement, index, state, imageInfo, remainingFilesCount) {
+    function handleImageUpload(targetImgElement: any, index: any, state: any, imageInfo: any, remainingFilesCount: any) {
         console.log(targetImgElement, index, state, imageInfo, remainingFilesCount)
     }
-    function handleImageUploadError(errorMessage, result) {
+    function handleImageUploadError(errorMessage: any, result: any) {
         console.log(errorMessage, result)
     }
-    function handleOnResizeEditor(height, prevHeight) {
+    function handleOnResizeEditor(height: any, prevHeight: any) {
         console.log(height, prevHeight)
     }
-    function imageUploadHandler(xmlHttpRequest, info, core, colName) {
+    function imageUploadHandler(xmlHttpRequest: { response: any; }, info: any, core: any, colName: string) {
         const result = parseJson(xmlHttpRequest.response);
         for (const [key, val] of Object.entries(result.data)) {
             editor.current[colName].insertHTML('<img key="' + key + '" src="' + val.url + '">', true, true);
@@ -819,6 +957,7 @@ export default function Dashboard(props) {
     }
 
     function checkShowData() {
+
         if (props.tabs.length > 0) {
             return <Tabs defaultActiveKey="1" items={tabData()} />
         }
@@ -904,6 +1043,7 @@ export default function Dashboard(props) {
                 );
                 continue;
             }
+
             content.push(showData(col, props.dataLanguage, lang.id));
         }
 
@@ -913,6 +1053,83 @@ export default function Dashboard(props) {
             {contentLong}
         </Row>
 
+    }
+
+    function handleAddDocument(col) {
+        // Handle adding document logic here
+        const name = Date.now();
+        let imageItem = {
+            uid: name,
+            name: name,
+            status: 'OK',
+            url: currentFile
+        };
+        let newFileDocument = [...fileDocument];
+        if (col.conditions && +col.conditions > 0) {
+            if (newFileDocument.length >= +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " tài liệu");
+                return false;
+            }
+        }
+        newFileDocument = [...newFileDocument, imageItem];
+        setFileDocument(newFileDocument);
+        setCurrentFile('');
+    }
+
+    function showDataFile(col) {
+        if (!checkConfig(col)) {
+            return false;
+        }
+        if (col.edit !== 1) {
+            return false;
+        }
+
+
+        // Xử lý khi upload file thay đổi
+        const onChangeFile = ({ fileList: newFileList }) => {
+            setFileDocument(newFileList);
+        };
+
+        return (
+            <Col span={24} key={col.id}>
+                <Divider orientation='left'>
+                    {col.display_name}
+                    <span> | </span>
+                    <Popconfirm
+                        title={
+                            <div>
+                                <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                            </div>
+                        }
+                        onConfirm={() => handleAddDocument(col)}
+                        okText="Thêm ảnh"
+                        cancelText="Hủy"
+                    >
+                        <a><PlusCircleOutlined /></a>
+                    </Popconfirm>
+                </Divider>
+                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                    <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                        <Upload multiple
+                            action={route("data.upload_file")}
+                            listType="picture-card" // picture-card
+                            fileList={fileDocument}
+                            maxCount={1}
+                            onChange={onChangeFile}
+                            itemRender={(originNode, file) => (
+                                <DraggableUploadListItem originNode={originNode} file={file} />
+                            )}
+                            headers={{
+                                'X-CSRF-TOKEN': props.token,
+                            }}
+                        >
+                            <Button icon={<UploadOutlined />}>Upload </Button>
+                        </Upload>
+                    </SortableContext>
+                </DndContext>
+            </Col>
+        );
     }
 
     function contentBlock(block) {
@@ -927,7 +1144,7 @@ export default function Dashboard(props) {
             // check config_show_data
 
             if (["block_basic"].includes(col.block_type)) {
-                const content = props.columns.map((subCol) => {
+                content = props.columns.map((subCol) => {
                     if (subCol.parent_id === col.id) {
                         return showData(subCol, props);
                     }
@@ -942,6 +1159,11 @@ export default function Dashboard(props) {
 
             if (["tiny", "calendar_cham_cong", "permission_list", "selects_table"].includes(col.type_edit)) {
                 contentLong.push(showItemsLg(col));
+                continue;
+            }
+
+            if (["file"].includes(col.type_edit)) {
+                content.push(showDataFile(col));
                 continue;
             }
 
@@ -968,7 +1190,7 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <Spin spinning={loading} size="large">
@@ -994,6 +1216,7 @@ export default function Dashboard(props) {
 
                             {/* language */}
                             {checkShowDataLanguage()}
+
                             <div>
                                 <br />
                                 <Space>

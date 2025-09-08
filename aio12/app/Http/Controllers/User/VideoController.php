@@ -7,6 +7,7 @@ use App\Models\Web\Menu;
 use App\Models\Web\News;
 use App\Models\Web\Product;
 use App\Models\Web\Video;
+use App\Models\Web\WebConfig;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 
@@ -14,20 +15,19 @@ class VideoController extends Controller
 {
     public function index(Request $request, $sluggable, $menuId)
     {
-        $config = app('Helper')->getConfig();
+        $config = WebConfig::query()->find(1);
         $menu = UserService::getMenuDetail($menuId);
         $parent = $menu['parent'];
         
         if(empty($menu['parent'])){
             $parent = $menu['menu'];
             $subMenu = $menu['subMenu'];
-        } else{
+        } else {
             $subMenu = Menu::query()->where('menus.parent_id', $parent->id)->get(); 
-          
         }
         $videos = Video::query()
         ->whereIn('video.menu_id', $menu['subMenuId'])
-        ->orderBy('video.create_date', 'desc')
+        ->orderBy('video.id', 'desc')
         ->paginate(config('constant.paginate'));
 
         if ($config->layout == 89 && count($videos) == 1) {
@@ -45,7 +45,7 @@ class VideoController extends Controller
     }
     public function detail($sluggable, $VideoId)
     {
-        $config = app('Helper')->getConfig();
+        $config = WebConfig::query()->find(1);
         
         $video = Video::query(false)->where('video.id', $VideoId)->first();
         $menu = UserService::getMenuDetail($video->menu_id);
@@ -59,8 +59,8 @@ class VideoController extends Controller
         }
         $fullUrl = \URL::current();
         $images = $video->images;
-        $video_lienquan = Video::query()->where('video.id', '!=', $VideoId)->orderBy('video.create_date', 'desc')->paginate(9);;
-        $videoLatest = Video::orderBy('id', 'desc')->offset(0)->limit(3)->get();
+        $video_lienquan = Video::query()->where('video.id', '!=', $VideoId)->orderBy('video.create_date', 'desc')->paginate(9);
+        $videoLatest = Video::query()->orderBy('id', 'desc')->offset(0)->limit(10)->get();
 
         $seo = [
             'title' => $video->name,

@@ -16,14 +16,16 @@ return new class extends Migration
         Schema::create('block', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('block_type_id')->nullable();
-            $table->string('image')->nullable();
+            $table->text('note')->nullable();
+            $table->text('link')->nullable();
+            $table->string('icon')->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('active')->default(1)->nullable();
             $table->longText('images')->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('block_info_id')->default(0)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->timestamps();
+            $table->text('image')->nullable();
+
+            MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
@@ -69,7 +71,7 @@ return new class extends Migration
         MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', 'select', $order++, ['edit' => 0]);
         MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
+        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày cập nhật', 'INT', 'datetime', $order++, ['edit' => 0]);
     }
 
     /**

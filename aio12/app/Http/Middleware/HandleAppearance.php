@@ -5,7 +5,9 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\App;
 
 class HandleAppearance
 {
@@ -16,8 +18,12 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        // check lang
+        $locale = Session::get('locale', config('app.locale'));
+        App::setLocale($locale);
 
+        // base
+        View::share('appearance', $request->cookie('appearance') ?? 'system');
         return $next($request);
     }
 }

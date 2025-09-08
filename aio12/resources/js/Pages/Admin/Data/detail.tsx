@@ -32,7 +32,7 @@ import {toLowerCaseNonAccentVietnamese, inArray } from '../../../Function/common
 import { checkShowData } from '../../../Function/detail';
 import { showDataRelated } from '../../../Function/data';
 import { showLog, loadDataLanguage } from '../../../Function/auto_load';
-
+import {itemMenu} from "../../../Function/config_route";
 
 
 export default function Dashboard(props) {
@@ -85,7 +85,7 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <Spin spinning={loading} size="large">

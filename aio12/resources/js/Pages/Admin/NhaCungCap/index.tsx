@@ -447,7 +447,6 @@ export default function Dashboard(props) {
                     </Form.Item>
                 );
             case "tags":
-            case "tags":
                 return (
                     <Form.Item
                         label={col.display_name}

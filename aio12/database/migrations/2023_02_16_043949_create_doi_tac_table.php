@@ -18,24 +18,34 @@ return new class extends Migration
         Schema::create('doi_tac', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('image')->nullable();
-            $table->string('link')->nullable();
-            $table->string('sort_order')->default(0)->nullable();
-            $table->string('parent_id')->default(0)->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->timestamps();
+            $table->string('icon')->nullable();
+            $table->text('image')->nullable();
+            $table->text('images')->nullable();
+            $table->text('note')->nullable();
+            $table->text('link')->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
+            $table->integer('active')->default(1)->nullable();
+
+            MigrateService::createBaseColumn($table);
         });
         $order_col = 1;
-        $doiTac =  MigrateService::createTable02('doi_tac', 'Đối tác', ['parent_id' => 0, 'is_edit' => 0]);
+        $doiTac =  MigrateService::createTable02(
+            'doi_tac',
+            'Đối tác',
+            ['parent_id' => 0, 'is_edit' => 0, 'type_show' =>0]
+        );
         MigrateService::createColumn02($doiTac->id, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
         MigrateService::createColumn02($doiTac->id, 'name', 'Tên', 'TEXT', 'text', $order_col++, ['show_in_list' => 1, 'is_view_detail' => 1]);
-        MigrateService::createColumn02($doiTac->id, 'link', 'Đường dẫn', 'TEXT', 'text', $order_col++, ['show_in_list' => 1]);
-        MigrateService::createColumn02($doiTac->id, 'image', 'Ảnh đối tác', 'TEXT', 'image', $order_col++, ['show_in_list' => 1]);
-        
+        MigrateService::createColumn02($doiTac->id, 'link', 'Đường dẫn', 'TEXT', 'text', $order_col++, 
+        ['show_in_list' => 1, 'edit' => 0]);
+        MigrateService::createColumn02($doiTac->id, 'images', 'Ảnh đối tác', 'TEXT', 'images_crop', $order_col++, 
+        ['show_in_list' => 1]);
+
         $adminUser = Table::where('name', 'admin_users')->first();
         MigrateService::createColumn02($doiTac->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order_col++, ['select_table_id' => $adminUser->id, 'edit' => 0]);
         MigrateService::createColumn02($doiTac->id, 'created_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order_col++, ['edit' => 0]);
-        MigrateService::createColumn02($doiTac->id, 'updated_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order_col++, ['edit' => 0]);
+        MigrateService::createColumn02($doiTac->id, 'updated_at', 'Ngày sửa', 'DATETIME', config('constant.config_table.type_edit.date'), $order_col++, ['edit' => 0]);
     }
 
     /**

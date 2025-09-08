@@ -20,7 +20,9 @@ use App\Models\Web\About;
 use App\Models\Web\Address;
 use App\Models\Web\Landingpage;
 use App\Models\Web\Page;
+use App\Models\Web\PageSetting;
 use App\Models\Web\QA;
+use App\Services\AnalyticService;
 use App\Services\User\NewsService;
 use App\Services\User\VideoService;
 
@@ -33,13 +35,21 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-        $news = app('DataService')->getNewsByConditions([],[],4);
-        dd($news);
-        
         $config = WebConfig::query()->find(1);
+
+        // lượt truy cập
+        AnalyticService::addView();      // Tổng lượt view theo ngày
+        // AnalyticService::addViewByIp();  // Lượt view theo IP/ngày
+
+        $pageSetting = PageSetting::query()
+            ->where('page_setting.menu_id', 0)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
+       
         $param = [
             'config' => $config,
             'langId' => UserService::getLang(),
+            'pageSetting' => $pageSetting,
             'seo' => [
                 'title' => $config->title,
                 'keywords' => $config->meta_keyword,
@@ -53,21 +63,24 @@ class PagesController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $langId = UserService::getLang();
-        $menu = UserService::getMenuDetail($menuId);
+        $menuInfo = UserService::getMenuDetail($menuId);
         $seo = [
-            'title' => $menu['menu']->name,
-            'keywords' => $menu['menu']->meta_keyword,
-            'description' => $menu['menu']->meta_description,
+            'title' => $menuInfo['menu']->name,
+            'keywords' => $menuInfo['menu']->meta_keyword,
+            'description' => $menuInfo['menu']->meta_description,
         ];
 
-        if (count($menu['subMenuId']) > 1) {
-            unset($menu['subMenuId'][0]);
-            $menuData = Menu::query()->whereIn('menus.id', $menu['subMenuId'])->get();
-            return View('layouts.layout' . $config->layout . '.pages.list', compact('menu','langId', 'config', 'seo','menuData'));
+        if (count($menuInfo['subMenuId']) > 1) {
+            unset($menuInfo['subMenuId'][0]);
+            $menuData = Menu::query()->whereIn('menus.id', $menuInfo['subMenuId'])->get();
+            return View('layouts.layout' . $config->layout . '.pages.list', compact('menu', 'langId', 'config', 'seo', 'menuData'));
         }
 
-        $menu = $menu['menu'];
-        return View('layouts.layout' . $config->layout . '.pages.single_page', compact('config', 'menu', 'seo'));
+        $newsLatest = News::query()->orderBy('news.create_date', 'desc')->limit(10)->get();
+
+        $menu = Menu::query()->find($menuId);
+        // dd($menu);
+        return View('layouts.layout' . $config->layout . '.pages.single_page', compact('config', 'menu', 'seo', 'newsLatest', 'menuInfo'));
     }
 
     public function pageList($menuId)
@@ -142,15 +155,31 @@ class PagesController extends Controller
             'keywords' => $config->meta_keyword,
             'description' => $config->meta_description,
         ];
-        return View('layouts.layout' . $config->layout . '.pages.search', compact('config',  'products', 'seo', 'bds','videos'));
+        return View('layouts.layout' . $config->layout . '.pages.search', compact('config', 'products', 'seo', 'bds', 'videos'));
     }
 
 
     public function landingpage(Request $request, $sluggable, $menuId = 0)
     {
         $config = WebConfig::query()->find(1);
-        $landingPage = Landingpage::query()->where('menu_id', $menuId)->orderBy('sort_order', 'asc')->get();
-        return View('layouts.layout' . $config->layout . '.landingpage.index', compact('config', 'landingPage', 'menuId'));
+        $pageSetting = PageSetting::query()
+            ->where('page_setting.menu_id', $menuId)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
+        
+        $menu = UserService::getMenuDetail($menuId);
+        $param = [
+            'config' => $config,
+            'pageSetting' => $pageSetting,
+            'menu' => $menu,
+            'menuId' => $menuId,
+            'seo' => [
+                'title' => $config->title,
+                'keywords' => $config->meta_keyword,
+                'description' => $config->meta_description,
+            ],
+        ];
+        return View('layouts.layout' . $config->layout . '.landingpage.index', $param);
     }
 
     public function address(Request $request, $sluggable, $menuId)
@@ -196,6 +225,20 @@ class PagesController extends Controller
     }
 
     public function qaDetail(Request $request, $sluggable, $qaId)
+    {
+        $config = WebConfig::query()->find(1);
+        $langId = UserService::getLang();
+        $qa = QA::query()->find($qaId);
+        $seo = [
+            'title' => $qa->name,
+            'keywords' => $qa->meta_keyword,
+            'description' => $qa->meta_description,
+        ];
+
+        return View('layouts.layout' . $config->layout . '.qa.detail', compact('config', 'qa', 'seo'));
+    }
+
+    public function updateLocation(Request $request, $sluggable, $qaId)
     {
         $config = WebConfig::query()->find(1);
         $langId = UserService::getLang();

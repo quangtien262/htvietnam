@@ -8,6 +8,11 @@ use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\PagesController;
 
+use UniSharp\LaravelFilemanager\Lfm;
+Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+    Lfm::routes();
+});
+
 // auth
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postLogin']);
@@ -23,6 +28,7 @@ Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [AdminController::class, 'index'])->name('home');
     Route::group(['prefix' => 'adm'], function () {
             require __DIR__ . '/admin_route.php';
+            require __DIR__ . '/admin_web_route.php';
     });
     require __DIR__ . '/himalaya_route.php';
 });

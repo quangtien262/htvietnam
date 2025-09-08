@@ -1,0 +1,23 @@
+.btn-setting {
+    background-color: #a73102;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.main-btn-edit {
+    left: 5%;
+    top: 5px;
+    position: absolute;
+    font-weight: bold;
+    z-index: 10;
+}
+.btn-fast-edit {
+    background-color: #a73102;
+    color: #fff;
+    border-radius: 5px;
+    min-width: 200px;
+    cursor: pointer;
+}
+.btn-fast-edit:hover, .btn-setting:hover {
+    color: #ccc;
+}

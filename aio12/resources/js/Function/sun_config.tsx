@@ -3,7 +3,6 @@ import SunEditor, { buttonList } from "suneditor-react";
 
 export const optionSunEditor = {
     showPathLabel: false,
-    buttonList: buttonList.formatting,
     minHeight: "300px",
     maxHeight: "5000px",
     placeholder: "Enter your text here!!!",
@@ -43,19 +42,6 @@ export const optionSunEditor = {
         ['save', 'template'],
         /** ['dir', 'dir_ltr', 'dir_rtl'] */ // "dir": Toggle text direction, "dir_ltr": Right to Left, "dir_rtl": Left to Right
     ],
-    // buttonList: [
-    //     ["undo", "redo"],
-    //     ["font", "fontSize", "formatBlock"],
-    //     ["paragraphStyle"],
-    //     ["bold", "underline", "italic", "strike", "subscript", "superscript"],
-    //     ["fontColor", "hiliteColor"],
-    //     ["removeFormat"],
-    //     "/", // Line break
-    //     ["outdent", "indent"],
-    //     ["align", "horizontalRule", "list", "lineHeight"],
-    //     ["table", "link", "image"],
-    //     ["imageGallery"],
-    // ],
     formats: ["p", "div", "h1", "h2", "h3", "h4", "h5", "h6"],
     font: [
         "Arial",

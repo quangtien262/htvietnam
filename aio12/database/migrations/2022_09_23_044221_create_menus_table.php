@@ -17,12 +17,10 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->text('image')->nullable();
-            $table->string('display_name')->nullable();
-            $table->string('display_type')->nullable();
+            $table->string('name')->nullable(); // tên menu
+            $table->text('images')->nullable(); // hình ảnh (nếu có))
+            $table->string('display_type')->nullable(); // kiểu hiển thị, là tên router
             $table->integer('position')->default(0)->nullable(); // 1 is MenuTop 0 is MenuLeft
-            $table->string('meta_title')->nullable();
             $table->integer('parent_id')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
             $table->string('type_sub_menu')->default(0)->nullable();
@@ -31,6 +29,9 @@ return new class extends Migration
             $table->string('is_register')->default(0)->nullable();
             $table->string('icon')->default(0)->nullable();
             $table->integer('is_active')->default(1)->nullable();
+
+            
+
             $table->integer('create_by')->default(0)->nullable();
             $table->integer('is_recycle_bin')->default(0)->nullable();
             $table->timestamps();
@@ -59,8 +60,8 @@ return new class extends Migration
             ['show_in_list' => 1, 'edit' => 0]
         );
 
-        MigrateService::createColumn02($data->id, 'image', 'Ảnh đại diện', 'text', 'image_crop', $order++,
-        ['edit' => 0]);
+        MigrateService::createColumn02($data->id, 'images', 'Ảnh nền', 'text', 'images_crop', $order++,
+        ['edit' => 1, 'conditions' => 1, 'show_in_list' => 1]);
 
         $confirm = Table::where('name', 'confirm')->first();
         MigrateService::createColumn02($data->id, 'is_active', 'Hiển thị', 'INT', 'select', $order++, 

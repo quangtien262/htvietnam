@@ -6,12 +6,14 @@ use App\Services\User\UserService;
 use Illuminate\Database\Eloquent\Model;
 
 class News extends Model {
-
-    //
     protected $table = 'news';
 
     static function query($checkActive = true, $langId = null) {
-        $lang = UserService::getLang();        
+        if(empty($langId)) {
+            $lang = UserService::getLang();
+            $langId = $lang->id;
+        }
+        
         $query = self::select(
             'news.id as id',
             'news.menu_id as menu_id',
@@ -23,7 +25,7 @@ class News extends Model {
             'news.created_at as created_at',
             'news.updated_at as updated_at',
 
-            'news_data.name_data as name',
+            'news_data.name_data as name_data',
             'news_data.description as description',
             'news.is_active as is_active',
             'news_data.content as content',
@@ -32,10 +34,12 @@ class News extends Model {
             'news_data.meta_description as meta_description',
             'news_data.id as data_lang_id',
             'news_data.languages_id as languages_id',
+
+            'news_data.embed_code as embed_code',
             // 'news_data.meta_title as meta_title',
         )
         ->leftJoin('news_data', 'news_data.data_id', '=', 'news.id')
-        ->where('news_data.languages_id', app()->getLocale());
+        ->where('news_data.languages_id', $langId);
         if($checkActive == true) {
             $query = $query->where('news.is_active', 1);
         }

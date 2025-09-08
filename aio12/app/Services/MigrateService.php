@@ -22,7 +22,8 @@ use App\Models\Web\ProductSetting;
 use App\Models\Web\WebConfigData;
 
 
-class MigrateService
+class 
+MigrateService
 {
 
     static function createTable02(
@@ -217,6 +218,7 @@ class MigrateService
         foreach ($config as $key => $val) {
             $conf[$key] = $val;
         }
+
         WebConfig::create($conf);
 
         $languages = Language::get();
@@ -251,7 +253,6 @@ class MigrateService
             'name' => $name[0],
             'display_type' => $displayType, // bài viết đơn theo menu
             'parent_id' => 0,
-            'image' => '',
             'is_active' => 1
         ];
         $menu = new Menu();
@@ -823,8 +824,8 @@ class MigrateService
      * $datas = ['name' => 'name']
      * $datasLang = ['column_name' => ['lang01','lang02']]
      */
-    static function createData($tblName, $datas = [], $datasLang = [])
-    {
+    static function createData($tblName, $datas = [], $datasLang = []){
+
         $dataInsert = [];
 
         foreach ($datas as $key => $val) {
@@ -837,6 +838,8 @@ class MigrateService
 
         $dataId = DB::table($tblName)->insertGetId($dataInsert);
         $data = DB::table($tblName)->where('id', $dataId)->first();
+
+        if(!$datasLang) return;
 
         // save by language
         $tableData = $tblName . '_data';
@@ -890,7 +893,7 @@ class MigrateService
             'TEXT',
             'textarea',
             $order++,
-            ['col' => 12, 'require' => 1]
+            ['col' => 12, 'require' => 0]
         );
         self::createColumn02(
             $table->id,
@@ -899,7 +902,7 @@ class MigrateService
             'TEXT',
             'textarea',
             $order++,
-            ['col' => 12, 'require' => 1]
+            ['col' => 12, 'require' => 0]
         );
     }
 
@@ -1116,12 +1119,12 @@ class MigrateService
         $data->save();
     }
 
-    static function createLanguage($langName, $langCode, $isDefault = 0, $icon= '')
+    static function createLanguage($langName, $langCode, $is_key = 0, $icon= '')
     {
         $language = new Language();
         $language->name = $langName;
         $language->code = $langCode;
-        $language->is_default = $isDefault;
+        $language->is_key = $is_key;
         $language->icon = $icon;
         $language->save();
         return $language;

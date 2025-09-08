@@ -1,23 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\AdmApiController;
+use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\GmailController;
-use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Admin\DownloadController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\CrawlController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\GoogleController;
-use App\Http\Controllers\Admin\SunController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\LuckyController;
 use App\Http\Controllers\Admin\HimalayaController;
@@ -50,6 +46,7 @@ Route::get('page-not-found', [AdminController::class, 'pageNotFound'])->name('ad
 
 // data
 Route::group(['prefix' => 'data'], function () {
+
     Route::get('tbl/{tblName}', [DataController::class, 'tblName'])->name('data.tblName');
     Route::get('list/{tableId}', [DataController::class, 'index'])->name('data.index');
     Route::get('detail/{tableId}/{dataId}', [DataController::class, 'detail'])->name('data.detail');
@@ -107,20 +104,6 @@ Route::group(['prefix' => 'configtbl'], function () {
     Route::post('column/update-sort-order', [TblController::class, 'updateSortOrderColumn'])->name('column.update_sort_order');
 });
 
-// landingpage
-Route::group(['prefix' => 'landingpage'], function () {
-    Route::get('edit/{id}', [LandingPageController::class, 'formBasic'])->name('land.form');
-    Route::post('update', [LandingPageController::class, 'update'])->name('land.update');
-    Route::get('sort-order/{menuId}', [LandingPageController::class, 'sortOrder'])->name('land.sort_order');
-    Route::post('sort-order', [LandingPageController::class, 'updateSortOrder']);
-    Route::get('create/{menuId}', [LandingPageController::class, 'listLandingpageDefault'])->name('land.create');
-    Route::post('create', [LandingPageController::class, 'createLandingpage']);
-    Route::post('active', [LandingPageController::class, 'activeLand'])->name('land.active');
-    Route::post('show-in-menu', [LandingPageController::class, 'showInMenu'])->name('land.show_in_menu');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
-    Route::post('delete', [LandingPageController::class, 'delete'])->name('land.delete');
-});
-
 //gmail
 Route::group(['prefix' => 'gmail'], function () {
     Route::get('/', [GmailController::class, 'index'])->name('gmail');
@@ -176,7 +159,7 @@ Route::get('nhat-ky-thu-tien', [HimalayaController::class, 'phieuThu'])->name('h
 
 
 // files
-Route::group(['prefix' => 'file'], function () {
+Route::group(['prefix' => 'files'], function () {
     Route::get('/', [FileController::class, 'index'])->name('file.index');
     Route::post('upload', [FileController::class, 'upload'])->name('file.upload');
     Route::get('download/{id}', [FileController::class, 'download'])->name('file.download');
@@ -377,5 +360,14 @@ Route::group(['prefix' => 'report'], function () {
 });
 
 
+Route::group(['prefix' => 'web'], function () {
+    Route::get('/', [AdminController::class, 'dashboardWeb'])->name('web.dashboard');
+
+    Route::get('/landing-page', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
+    Route::get('/landing-page/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
+});
+
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
 Route::post('/data/delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');
+
+Route::post('/data/upload-file', [DataController::class, 'uploadFile'])->name('data.upload_file');

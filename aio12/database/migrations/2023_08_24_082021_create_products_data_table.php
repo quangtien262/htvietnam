@@ -18,7 +18,12 @@ return new class extends Migration
             $table->integer('languages_id')->nullable();
             $table->integer('data_id')->nullable();
             $table->longtext('description')->nullable();
+            $table->longtext('description02')->nullable();
             $table->longtext('content')->nullable();
+            $table->longtext('content02')->nullable();
+            $table->longtext('content03')->nullable();
+
+
             $table->text('meta_title')->nullable();
             $table->text('meta_keyword')->nullable();
             $table->text('meta_description')->nullable();
@@ -50,15 +55,6 @@ return new class extends Migration
             $order++,
             ['show_in_list' => 1, 'col' => 24]
         );
-        MigrateService::createColumn02(
-            $productData->id,
-            'content',
-            'Nội dung',
-            'LONGTEXT',
-            'tiny',
-            $order++,
-            ['show_in_list' => 0, 'col' => 24]
-        );
 
         MigrateService::createColumn02(
             $productData->id,
@@ -68,6 +64,35 @@ return new class extends Migration
             'text',
             $order++,
             ['col' => 24, 'require' => 0]
+        );
+
+        
+        MigrateService::createColumn02(
+            $productData->id,
+            'content',
+            'Ứng dụng',
+            'LONGTEXT',
+            'tiny',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24]
+        );
+        MigrateService::createColumn02(
+            $productData->id,
+            'content02',
+            'Mô tả sản phẩm',
+            'LONGTEXT',
+            'tiny',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24]
+        );
+        MigrateService::createColumn02(
+            $productData->id,
+            'content03',
+            'Thông số kỹ thuật',
+            'LONGTEXT',
+            'tiny',
+            $order++,
+            ['show_in_list' => 0, 'col' => 24]
         );
         
         MigrateService::columnSEO($productData, $order++);

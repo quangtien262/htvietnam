@@ -7,7 +7,7 @@ import axios from 'axios';
 import '../../../../css/form.css';
 import { showData } from '../../../Function/data';
 import dayjs from "dayjs";
-
+import { itemMenu } from "../../../Function/config_route";
 export default function changePassword(props) {
     const [data, setData] = useState(props.data);
 
@@ -200,7 +200,7 @@ export default function changePassword(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <div>

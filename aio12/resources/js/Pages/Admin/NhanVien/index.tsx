@@ -235,7 +235,6 @@ export default function Dashboard(props) {
             address:'',
             cmnd:'',
             noi_cap:'',
-            ngay_cap:'',
             chi_nhanh_id:null,
             admin_user_status_id:null,
             permission_group_id:null,
@@ -249,7 +248,6 @@ export default function Dashboard(props) {
             is_setting_salary_nang_cao:false,
 
             // cai dat luong nang cao
-            is_setting_salary_lam_them_gio:false,
             luong_chinh_thu7:100,
             luong_chinh_cn:100,
             luong_chinh_ngay_nghi:100,
@@ -957,10 +955,34 @@ export default function Dashboard(props) {
         formSearch.submit();
     }
 
-    const contentTabInfo = <Row>  
+    const contentTabInfo = <Row> 
+
+            {/* Tài khoản */}
+            <Col md={{ span: 24 }} sm={{ span: 24 }}>
+                <p className="title02">Thông tin tài khoản </p>
+                <hr/>
+            </Col>    
+            
+            <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                <Form.Item name='username' label='Tên đăng nhập' rules={[{ required: true,message: 'Vui lòng nhập tên đăng nhập',}]}>
+                    <Input />
+                </Form.Item>
+            </Col> 
+            <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                <Form.Item name='permission_group_id' label={<p>Nhóm quyền</p>} rules={[{ required: true,message: 'Vui lòng chọn nhóm quyền',}]}>
+                    <Select
+                        placeholder="Chọn nhóm quyền"
+                        optionFilterProp="children"
+                        options={props.permissionGroup.map((g)=>{
+                            return { label: g.name, value: g.id }
+                        })}
+                    />
+                </Form.Item>
+            </Col>
+
             {/* Khởi tạo */}
             <Col md={{ span: 24 }} sm={{ span: 24 }}>
-                <p className="title02">Thông tin khởi tạo </p>
+                <p className="title02">Thông tin cá nhân </p>
                 <hr/>
             </Col>      
             <Col md={{ span: 12 }} sm={{ span: 24 }}>
@@ -970,11 +992,7 @@ export default function Dashboard(props) {
                 </Form.Item>
             </Col>
             
-            <Col md={{ span: 12 }} sm={{ span: 24 }}>
-                <Form.Item name='username' label='Tên đăng nhập' rules={[{ required: true,message: 'Vui lòng nhập tên đăng nhập',}]}>
-                    <Input />
-                </Form.Item>
-            </Col>
+            
             <Col md={{ span: 12 }} sm={{ span: 24 }}>
                 <Form.Item name='gioi_tinh_id' label={<p>Giới tính</p>} rules={[{ required: true,message: 'Vui lòng chọn giới tính',}]}>
                     <Select
@@ -1056,9 +1074,9 @@ export default function Dashboard(props) {
         </Row>
     
     {/* cong ty */}
-    const contentHimalaya = <Row>
+    const contentCompany = <Row>
         <Col md={{ span: 24 }}>
-            <p className="title02">Thông tin ở Himalaya </p><hr/>
+            <p className="title02">Thông tin ở công ty </p><hr/>
         </Col>
 
         
@@ -1683,8 +1701,8 @@ export default function Dashboard(props) {
         },
         {
           key: '2',
-          label: 'Himalaya',
-          children: contentHimalaya,
+          label: 'Công ty',
+          children: contentCompany,
         },
         {
           key: '3',

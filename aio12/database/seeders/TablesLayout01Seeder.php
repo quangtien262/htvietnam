@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\LandingpageData\Layout01;
 use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
@@ -27,133 +27,210 @@ class TablesLayout01Seeder extends Seeder
         DB::table('about')->truncate();
         DB::table('languages')->truncate();
 
+        // create languages
+        MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vi.png');
+        MigrateService::createLanguage('English', 'en', 0, '/images/languages/en.png');
+        MigrateService::createLanguage('Chinese', 'ch', 0, '/images/languages/ch.png');
+
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
-        MigrateService::webconfig();
+        MigrateService::webconfig(
+            '01',
+            [
+                'logo' => '/layouts/01/images/logo.png',
+                'phone' => '(84) 24 665 72208',
+                'email' => 'contact@gccgroup.vn',
+                'email02' => 'sales@gccgroup.vn',
+                'website' => 'www.gccgroup.vn',
+                'mst' => '5200886602',
+                'code_gg_map_factory' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7454.60715070508!2d106.1241353!3d20.9001027!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135a344312efcd9%3A0x2addc6e2ee7a6b83!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24gR0NDIFBMQVNUSUM!5e0!3m2!1svi!2s!4v1755735897811!5m2!1svi!2s" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+                'code_gg_map_office' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d232.75097609136785!2d105.7463238!3d21.0320611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455df256e0ec5%3A0x183863e6b7216ec7!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24ga2hvw6FuZyBz4bqjbiBHQ0M!5e0!3m2!1svi!2s!4v1755735862704!5m2!1svi!2s"  style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+                'boxchat' => '<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="c5ca3664-9fb9-49ab-b905-0caa31a07c16";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>',
+            ],
+            [
+                'office' => [
+                    'LK14, Hateco Green City, Foresa 4, phường Xuân Phương, TP. Hà Nội, Việt Nam',
+                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
+                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
+                ],
+                'address' => [
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
+                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
+                ],
+                'address_header' => [
+                    'LK14, KĐT Hateco Green City',
+                    'LK14, KĐT Hateco Green City',
+                    'LK14, KĐT Hateco Green City'
+                ],
+                'address_header_description' => [
+                    'Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
+                    'Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
+                    'Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
+                ],
+                'factory' => [
+                    'Thôn Nho Lâm, phường Đường Hào, tỉnh Hưng Yên, Việt Nam',
+                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam',
+                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam'
+                ],
+                'phone_language' => [
+                    '(84) 24 665 72208 ',
+                    '(84) 24 665 72208 ',
+                    '(84) 24 665 72208 '
+                ],
+                'title' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
+                'name_data' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
+                'company_name' => [
+                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
+                    'GCC PLASTIC JOINT STOCK COMPANY',
+                    'GCC PLASTIC JOINT STOCK COMPANY'
+                ],
+                'copyright' => [
+                    '<p class="copyright-text">© 2025 <a href="/" target="_blank" rel="noopener noreferrer nofollow">GCC Group</a>. All rights reserved.</p>',
+                    '<p>我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。</p>',
+                    '<p>We are proud to be one of the leading companies in exploiting, processing white limestone, producing super fine stone powder, filler masterbatch and high quality plastic materials, we always strive to meet the needs of domestic and international customers in a timely manner.</p>'
+                ]
+            ]
+        );
 
-        // create languages
-        MigrateService::createLanguage('Tiếng Việt','vi',1,'/imgs/flags/vn.png');
-        MigrateService::createLanguage('English','vi',1,'/imgs/flags/vn.png');
+        //product_type
+        MigrateService::createData('product_type', [], [
+            'name_data' => ['Loai 01', 'Loai 01', 'Loai 01']
+        ]);
+        MigrateService::createData('product_type', [], [
+            'name_data' => ['Loai 02', 'Loai 02', 'Loai 02']
+        ]);
+
+        // ứng dụng
+        DB::table('product_application')->truncate();
+        MigrateService::createData(
+            'product_application',
+            [],
+            [
+                'name_data' => ['Ép phun', 'Ép phun', 'Ép phun']
+            ]
+        );
+        MigrateService::createData(
+            'product_application',
+            [],
+            [
+                'name_data' => ['Vải không dệt', 'Vải không dệt', 'Vải không dệt']
+            ]
+        );
+
+        // libs
+
+        for ($i = 1; $i < 4; $i++) {
+            $images = [
+                'avatar' => '/layouts/01/images/libs/'.$i.'.jpg',
+                'images' => [
+                    '/layouts/01/images/libs/1.jpg',
+                    '/layouts/01/images/libs/2.jpg',
+                    '/layouts/01/images/libs/3.jpg',
+                    '/layouts/01/images/libs/4.jpg',
+                    '/layouts/01/images/libs/5.jpg',
+                    '/layouts/01/images/libs/6.jpg',
+                    '/layouts/01/images/libs/7.jpg',
+                    '/layouts/01/images/libs/8.jpg',
+                ]
+            ];
+            $images_str = json_encode($images);
+            MigrateService::createData(
+                'library',
+                [
+                    'menu_id' => 6,
+                    'images' => $images_str,
+                ],
+                [
+                    'name_data' => ['Library 0' . $i, 'Library 0' . $i, 'Library 0' . $i],
+                ]
+            );
+        }
+
         //menu
         $this->createDataMenu();
 
         // product
         $this->createDataProduct();
 
-        // slide
-        $this->createSlide();
-
         //news
         $this->createNews();
 
-        //doi_tac
-        // $this->createDoiTac($this);
+        // video
+        $this->createVideo();
+
+        // list block landing page
+        Layout01::createBlocks();
+
+        // menu lien he
+        Layout01::contact(1, 8);
+        // block about
+        $sort_order = 1;
+        $aboutId = 2;
+        // giới thiệu
+        // Layout01::block07($sort_order++, $aboutId);
+
+        // tầm nhìn
+        Layout01::block08($sort_order++, $aboutId);
+        // sứ mệnh
+        Layout01::block09($sort_order++, $aboutId);
+        // giá trị cốt lõi
+        Layout01::block08_02($sort_order++, $aboutId);
 
 
-        // $this->command->info('migrate About');
-        // MigrateService::createAbout(
-        //     ['Giới thiệu'],
-        //     '/layouts/layout04/images/news/03.jpg',
-        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>'],
-        //     ['<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br>keo chà ron, phụ gia và hóa chất xây dựng</p>']
-        // );
-
-        // block info
-        // $this->command->info('Migrate block info');
-        // MigrateService::createBlockInfo(['Giới thiệu'], '', [], ['description' => ['HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch, keo chà ron, phụ gia và hóa chất xây dựng']]);
-
-        // block
-        // $this->createBlock();
-
-        // product info
-        // $this->command->info('Migrate product info');
-        // MigrateService::createProductInfo(['Giao hàng toàn quốc'], '/layouts/layout04/images/policy-product-1.png');
-        // MigrateService::createProductInfo(['Tích điểm tất cả sản phẩm'], '/layouts/layout04/images/policy-product-2.png');
-        // MigrateService::createProductInfo(['Thời gian chuẩn bị hàng nhanh'], '/layouts/layout04/images/policy-product-3.png');
-        // MigrateService::createProductInfo(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
-
-        // $this->command->info('Migrate link_footer');
-        // MigrateService::createLinkFooter(['Cam kết chính hãng'], '/layouts/layout04/images/policy-product-4.png');
-
-        // MigrateService::createData('colors',  [],['name_data' => ['Đỏ','red']]);
-        // MigrateService::createData('colors',  [],['name_data' => ['Xanh','Blue']]);
-
-        // MigrateService::createData('size',  [],['name_data' => ['XL','XL']]);
-        // MigrateService::createData('size',  [],['name_data' => ['XXL','XXL']]);
-
-        // DB::table('product_colors')->insert(['name' => 1, 'price_up' => 0]);
-        // DB::table('product_colors')->insert(['name' => 2, 'price_up' => 0]);
-
-        // DB::table('product_size')->insert(['name' => 1, 'price_up' => 0]);
-        // DB::table('product_size')->insert(['name' => 2, 'price_up' => 0]);
-
-        // MigrateService::createData('categorys',  [],['name_data' => ['XXL','XXL']]);
+        // block home
+        $this->settingHome();
     }
 
     private function createDataProduct()
     {
         $this->command->info('migrate Product');
         $imgs = [
-            '/layouts/layout04/images/product-test/01.jpg',
-            '/layouts/layout04/images/product-test/02.jpg',
-            '/layouts/layout04/images/product-test/03.jpg',
-            '/layouts/layout04/images/product-test/04.jpg',
-            '/layouts/layout04/images/product-test/05.jpg',
-            '/layouts/layout04/images/product-test/06.jpg',
-            '/layouts/layout04/images/product-test/07.jpg',
-            '/layouts/layout04/images/product-test/08.jpg',
-            '/layouts/layout04/images/product-test/09.jpg',
-            '/layouts/layout04/images/product-test/10.jpg'
-        ];
-        $images = [
-            'avatar' => $imgs[array_rand($imgs)],
-            'images' => $imgs
+            '/layouts/01/product-test/1.png',
+            '/layouts/01/product-test/2.png',
+            '/layouts/01/product-test/3.png',
         ];
 
+        $file = 'layouts/01/product-test/3.png';
+
         MigrateService::createProduct(
-            ['Sơn beger'],
+            ['HẠT NHỰA MÀU', 'Color Masterbatch', '塑料粒颗颜色'],
             12000,
-            ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs],
+            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
             ['content 01'],
-            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2], 'category_id' => 1]
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1],
+            ['name_data' => ['Hạt nhựa màu', 'Color Masterbatch', '塑料粒颗颜色']]
         );
         MigrateService::createProduct(
-            ['Sơn ngoại thất'],
+            ['HẠT CHỐNG ẨM', 'Color Masterbatch', '塑料粒颗颜色'],
             13000,
-            ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs],
+            ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
             [],
-            ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
-        MigrateService::createProduct(['Sản phẩm'], 14000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Chống Thấm'], 15000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Phụ Gia'], 16000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu cho sàn'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu khác'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liêu sửa chữa'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 6, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Vật liệu trám'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Màu sơn'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Gạch men'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Dung dịch tẩy rửa'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Keo chà ron'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Keo dán gạch'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Sơn lót'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs]);
-        MigrateService::createProduct(['Sơn ngoại thất'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
-        MigrateService::createProduct(['Sơn nội thất'], 10000, ['avatar' => $imgs[array_rand($imgs)], 'images' => $imgs], [], 
-        ['menu_id' => 7, 'product_color_ids' => [1,2], 'product_size_ids' => [1,2]]);
+        MigrateService::createProduct(
+            ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
+            13000,
+            ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
+            [],
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
+        );
+        MigrateService::createProduct(
+            ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
+            13000,
+            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
+            [],
+            ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
+        );
     }
 
 
@@ -169,61 +246,49 @@ class TablesLayout01Seeder extends Seeder
             </div>';
 
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
+        $imgs = [
+            'avatar' => '/layouts/01/images/bg/img3.jpg',
+            'images' => ['/layouts/01/images/bg/img3.jpg']
+        ];
+        $images = json_encode($imgs);
+        MigrateService::createMenu(
+            ['Trang chủ', 'Home', '首页'],
+            'home',
+            ['parent_id' => 0, 'sort_order' => $sortOrder++],
+            [
+                'content' => ['', '', '']
+            ]
+        );
+        MigrateService::createMenu(
+            ['Giới thiệu', 'About', '关于'],
+            'landingpage',
+            ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images],
+            ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout, $desAbout, $desAbout]]
+        );
+        $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        $media = MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+
+        MigrateService::createMenu(['Video', 'Video', '视频'], 'video', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Thư viện ảnh', 'Librarys', '图书馆'], 'libs', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
 
 
-        MigrateService::createMenu(['Giới thiệu', 'About'], 'single_page', ['parent_id' => 0], ['content' => [$contentAbout,$contentAbout], 'description' => [$desAbout]]);
-        $product = MigrateService::createMenu(['Sản Phẩm', 'Products'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Tuyển dụng', 'Job'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Tin Tức', 'News'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Liên Hệ', 'Contact'], 'contact', ['parent_id' => 0, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(
-            ['Công thức sửa chữa tiên tiến','Công thức sửa chữa tiên tiến'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
-        );
-        MigrateService::createMenu(
-            ['Đột phá tuyệt vời về màu sơn','Đột phá tuyệt vời về màu sơn'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
-        );
-        $gachMen = MigrateService::createMenu(
-            ['Gạch men', 'Gạch men'],
-            'product',
-            ['parent_id' => $product->id, 'sort_order' => $sortOrder++, 'is_front' => 1]
-        );
-        MigrateService::createMenu(['Bột trét tường'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Chống thấm'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(['Phụ gia'], 'product', ['parent_id' => $gachMen->id, 'sort_order' => $sortOrder++]);
-        $xd = MigrateService::createMenu(['Vật liệu xây dựng cho sàn'], 'product', ['parent_id' => $product->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn2'],
-            'product',
-            ['parent_id' =>  $xd->id, 'sort_order' => $sortOrder++]
-        );
-       $me=  MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn3'],
-            'product',
-            ['parent_id' =>  $xd->id, 'sort_order' => $sortOrder++]
-          
-        );
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn4'],
-            'product',
-            ['parent_id' =>  $me->id, 'sort_order' => $sortOrder++]);
-        MigrateService::createMenu(
-            ['Vật liệu xây dựng cho sàn4'],
-            'product',
-            ['parent_id' =>  $me->id, 'sort_order' => $sortOrder++]);
-    }
+        MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
 
 
-    private function createSlide()
-    {
-        $this->command->info('migrate slide');
-        // slide
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide01.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide02.jpg', 1);
-        MigrateService::createImages(['slide', 'slide'], '/layouts/01/images/slide03.jpg', 1);
+        MigrateService::createMenu(
+            ['Liên Hệ', 'Contact', '联系'],
+            'landingpage',
+            [
+                'parent_id' => 0,
+                'sort_order' => $sortOrder++,
+                'images' => $images
+            ],
+            [
+                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+            ]
+        );
+
     }
 
     private function createNews()
@@ -272,7 +337,7 @@ class TablesLayout01Seeder extends Seeder
             ['Cách chà ron gạch lát nền và ốp tường nhà hiệu quả'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron gạch lát nền là công đoạn cuối cùng khá quan trọng trong lát nền', 'description en']]
         );
 
@@ -280,7 +345,7 @@ class TablesLayout01Seeder extends Seeder
             ['Vì sao nên sử dụng keo chà ron khi lát gạc', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Keo chà ron hiện nay được xem là sản phẩm được khá nhiều người ưa', 'description en']]
         );
 
@@ -288,7 +353,7 @@ class TablesLayout01Seeder extends Seeder
             ['Keo chà ron cho nhà tắm, hồ bơi', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
         );
 
@@ -296,125 +361,82 @@ class TablesLayout01Seeder extends Seeder
             ['bí quyết chống thấm hoàn hảo', 'description en'],
             '/layouts/01/images/new-1.jpg',
             [$content, $content],
-            ['menu_id' => 4],
+            ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
         );
     }
 
-    private function createDoiTac()
+    private function settingHome()
     {
-        $this->command->info('migrate block info');
+        $sort_order = 1;
+        // slide
+        Layout01::images($sort_order++);
 
-        $sortOrder = 1;
-        DB::table('doi_tac')->insert([
-            'name' => 'OHUI',
-            'image' => '/layouts/layout05/images/brand/brand-1.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'SulWhaSoo',
-            'image' => '/layouts/layout05/images/brand/brand-2.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Laneige',
-            'image' => '/layouts/layout05/images/brand/brand-3.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'VIB',
-            'image' => '/layouts/layout05/images/brand/brand-4.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 01',
-            'image' => '/layouts/layout05/images/brand/brand-5.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-6.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-7.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-6.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-5.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-4.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
-        DB::table('doi_tac')->insert([
-            'name' => 'Đối tác 02',
-            'image' => '/layouts/layout05/images/brand/brand-3.jpg',
-            'link' => '#',
-            'parent_id' => '0',
-            'sort_order' => $sortOrder++,
-        ]);
+        // product
+        Layout01::products($sort_order++);
+
+        // Why Choose Us
+        Layout01::block03($sort_order++);
+
+        // ứng dụng thực tế
+        Layout01::block04($sort_order++);
+
+        // thông kê
+        Layout01::block05($sort_order++);
+
+        // dự án đã làm
+        Layout01::block06($sort_order++);
+
+        // news
+        Layout01::news($sort_order++);
+
+        // contact
+        Layout01::contact($sort_order++);
+
+        Layout01::doiTac($sort_order++);
     }
 
-    private function createBlock()
+    private function createVideo()
     {
-        $this->command->info('migrate block');
-        $this->command->info('Migrate block');
-        MigrateService::createBlock(
-            ['Giải pháp hoàn chỉnh'],
-            '/layouts/layout04/images/service/service-1.png',
-            [],
-            ['description' => ['HTVN cung cấp sản phẩm trọn gói từ keo chà ron, keo dán gạch, phụ gia và hóa chất xây dựng', 'HTVN cung cấp sản phẩm trọn gói từ keo chà ron, keo dán gạch, phụ gia và hóa chất xây dựng']]
+        $video = '<iframe width="1480" height="833" src="https://www.youtube.com/embed/5jpgmX2GK9Q" title="GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+        $this->command->info('migrate Video');
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 5,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video, $video, $video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
         );
 
-        MigrateService::createBlock(
-            ['Công nghệ dẫn đầu'],
-            '/layouts/layout04/images/service/service-2.png',
-            [],
-            ['description' => ['Chúng tôi chưa bao giờ ngừng phát triển, nghiên cứu, thử nghiệm và cải tiến chất lượng sản phẩm', 'Chúng tôi chưa bao giờ ngừng phát triển, nghiên cứu, thử nghiệm và cải tiến chất lượng sản phẩm']]
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 5,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video, $video, $video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
         );
 
-        MigrateService::createBlock(
-            ['Triết lý kinh doanh'],
-            '/layouts/layout04/images/service/service-3.png',
-            [],
-            ['description' => ['“ Creating Happiness for You and Your Family – Tạo ra hạnh phúc cho bạn và gia đình bạn”', '“ Creating Happiness for You and Your Family – Tạo ra hạnh phúc cho bạn và gia đình bạn”']]
-        );
-
-        MigrateService::createBlock(
-            ['Đội ngũ kỹ thuật'],
-            '/layouts/layout04/images/service/service-4.png',
-            [],
-            ['description' => ['Chuyên nghiệp cung cấp giải pháp ốp lát tiết kiệm chi phí tối đa.', 'Chuyên nghiệp cung cấp giải pháp ốp lát tiết kiệm chi phí tối đa.']]
+        MigrateService::createData(
+            'video',
+            [
+                'menu_id' => 5,
+                'image' => '/layouts/01/product-test/3.png'
+            ],
+            [
+                'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
+                'video_lang' => [$video, $video, $video],
+                'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
+            ]
         );
     }
 }

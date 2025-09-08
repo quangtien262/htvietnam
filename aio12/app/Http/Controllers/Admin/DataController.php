@@ -28,7 +28,7 @@ use App\Services\Admin\TblModel;
 class DataController extends Controller
 {
     const CHECK_REDIRECT_TABLE = [
-        'products' => 'product.list',
+        // 'products' => 'product.list',
         'users' => 'customer.index',
         'admin_users' => 'nhanVien.index',
         'hoa_don' => 'hoaDon.index',
@@ -44,7 +44,7 @@ class DataController extends Controller
         'cong_no' => 'congNo',
 
         'nha_cung_cap' => 'ncc.index',
-        'tasks' => 'task.list'
+        'tasks' => 'task.list',
     ];
 
     public function getDataCalendar(Request $request)
@@ -90,7 +90,7 @@ class DataController extends Controller
                 return to_route('data.index', [$table->id, $table->tab_table_name => 'all']);
             }
             if ($request->{$table->tab_table_name} != 'all') {
-                $conditions = [$table->tab_table_name  => $request->{$table->tab_table_name}];
+                $conditions = [$table->tab_table_name => $request->{$table->tab_table_name}];
             }
         }
 
@@ -123,17 +123,18 @@ class DataController extends Controller
                 $admUser[] = [
                     'value' => $u->id,
                     'label' => $u->code . ' - ' . $u->name,
-                ];;
+                ];
+                ;
             }
 
             $props = [
-                    'tables' => $tables,
-                    'table' => $table,
-                    'datas' => $datas,
-                    'token' => csrf_token(),
-                    'ids' => $ids,
-                    'parent' => [],
-                    'adminUser' => $admUser
+                'tables' => $tables,
+                'table' => $table,
+                'datas' => $datas,
+                'token' => csrf_token(),
+                'ids' => $ids,
+                'parent' => [],
+                'adminUser' => $admUser
             ];
 
             return Inertia::render(
@@ -175,6 +176,7 @@ class DataController extends Controller
             'request' => $_GET,
             'searchData' => $datas['searchData']
         ];
+
         // drag and drop
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
@@ -273,7 +275,7 @@ class DataController extends Controller
                 return to_route('data.index', [$table->id, $table->tab_table_name => 'all']);
             }
             if ($request->{$table->tab_table_name} != 'all') {
-                $conditions = [$table->tab_table_name  => $request->{$table->tab_table_name}];
+                $conditions = [$table->tab_table_name => $request->{$table->tab_table_name}];
             }
         }
 
@@ -306,17 +308,18 @@ class DataController extends Controller
                 $admUser[] = [
                     'value' => $u->id,
                     'label' => $u->code . ' - ' . $u->name,
-                ];;
+                ];
+                ;
             }
 
             $props = [
-                    'tables' => $tables,
-                    'table' => $table,
-                    'datas' => $datas,
-                    'token' => csrf_token(),
-                    'ids' => $ids,
-                    'parent' => [],
-                    'adminUser' => $admUser
+                'tables' => $tables,
+                'table' => $table,
+                'datas' => $datas,
+                'token' => csrf_token(),
+                'ids' => $ids,
+                'parent' => [],
+                'adminUser' => $admUser
             ];
 
             return Inertia::render(
@@ -362,6 +365,8 @@ class DataController extends Controller
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
             $props['dataSource'] = $dataSource;
+
+            // dd($dataSource);
             return Inertia::render('Admin/Data/index_drag_drop', $props);
         }
 
@@ -470,9 +475,9 @@ class DataController extends Controller
         $per = TblService::getPermission();
         $table = Table::find($tableId);
 
-        if ($table->name == 'products') {
-            return to_route('product.add');
-        }
+        // if ($table->name == 'products') {
+        //     return to_route('product.add');
+        // }
 
         if (!in_array($table->id, $per['table_add']) && \Auth::guard('admin_users')->user()->id != 1) {
             return to_route('admin.permission_denied');
@@ -614,6 +619,10 @@ class DataController extends Controller
             return Inertia::render('Admin/Himalaya/form_himalaya', $viewData);
         }
 
+        if (!empty(in_array($table->name, ['permission_group']))) {
+            return Inertia::render('Admin/Data/form_permission_group', $viewData);
+        }
+        
         return Inertia::render('Admin/Data/form', $viewData);
     }
 
@@ -678,6 +687,23 @@ class DataController extends Controller
         return $this->sendSuccessResponse('success', 'Update successfully', 200);
     }
 
+
+    public function uploadFile(Request $request)
+    {
+        $file = $request->file;
+        $directoryUpload = 'tmp';
+
+        $nameRandom = app('Helper')->generateRandomString(4);
+        $extension = $file->getClientOriginalExtension();
+        if (!$extension) {
+            $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+        }
+        $fileName = $nameRandom . '_' . time() . '.' . $extension;
+
+        $newFile = $file->storeAs($directoryUpload, $fileName, 'public');
+
+        return $this->sendSuccessResponse(['filePath' => $newFile, 'fileName' => $fileName], 'Update successfully', 200);
+    }
     public function uploadImage(Request $request)
     {
         $file = $request->file;
@@ -783,7 +809,7 @@ class DataController extends Controller
         $data->save();
 
         $pageSize = !empty($request->limit) ? $request->limit : $table->count_item_of_page;
-        $datas = TblService::getDatas($table, $columns,  $request->search, $pageSize);
+        $datas = TblService::getDatas($table, $columns, $request->search, $pageSize);
         $dataSource = TblService::getDataSource($datas['data'], $columns);
         return $this->sendSuccessResponse($dataSource['dataSource'], 'Update successfully', 200);
     }
@@ -822,7 +848,7 @@ class DataController extends Controller
         return $this->sendSuccessResponse($dataSource, 'Delete successfully', $code = 200);
     }
 
-    public function exportExcel(Request $request,  $tableId)
+    public function exportExcel(Request $request, $tableId)
     {
         $table = Table::find($tableId);
         $file_name = $table->display_name . date('Y_m_d_H_i_s') . '.xlsx';

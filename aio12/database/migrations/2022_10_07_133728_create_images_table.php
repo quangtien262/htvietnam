@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Admin\Table;
+use App\Services\MigrateService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,15 +20,74 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('type')->nullable(); // slide, banner, ,,,,
             $table->text('image')->nullable();
+            $table->text('images')->nullable();
             $table->text('link')->nullable();
-            $table->text('description')->nullable();
-            $table->text('meta_keyword')->nullable();
-            $table->text('meta_description')->nullable();
-            $table->text('sort_order')->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->integer('is_recycle_bin')->default(0)->nullable();
-            $table->timestamps();
+            $table->text('note')->nullable();
+            $table->text('icon')->nullable();
+            $table->integer('page_setting_id')->default(0)->nullable();
+            $table->integer('menu_id')->default(0)->nullable();
+            $table->integer('active')->default(0)->nullable();
+
+            MigrateService::createBaseColumn($table);
         });
+
+        $order = 0;
+        $user = Table::where('name', 'admin_users')->first();
+
+        $images =  MigrateService::createTable02(
+            'images',
+            'Hình ảnh banner',
+            ['parent_id' => 0, 'is_edit' => 0, 'is_multiple_language' => 1, 'type_show' => 0, 'table_data' => 'images_data']
+        );
+
+
+
+        MigrateService::createColumn02($images->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
+        MigrateService::createColumn02($images->id, 'name', 'Tiêu đề', 'TEXT', 'text', $order++, ['show_in_list' => 1, 'edit' => 0]);
+        
+        MigrateService::createColumn02($images->id, 'image', 'Hình Ảnh', 'TEXT', 'image_crop', $order++, ['conditions' => 1, 'edit' => 1]);
+
+        MigrateService::createColumn02(
+            $images->id,
+            'images',
+            'Hình ảnh',
+            'TEXT',
+            'images_crop',
+            $order++,
+            ['show_in_list' => 0, 'ratio_crop' => 1, 'edit' => 0]
+        );
+        MigrateService::createColumn02($images->id, 'link', 'Đường dẫn', 'TEXT', 'text', $order++);
+
+        MigrateService::createColumn02($images->id, 'sort_order', 'Thứ tự', 'INT', 'number', $order++, 
+        ['edit' => 0, 'show_in_list' => 0]);
+        MigrateService::createColumn02($images->id, 'parent_id', 'parent_id', 'INT', 'number', $order++);
+        MigrateService::createColumn02(
+            $images->id,
+            'create_by',
+            'Tạo bởi',
+            'INT',
+            'select',
+            $order++,
+            ['select_table_id' => $user->id, 'edit' => 0]
+        );
+        MigrateService::createColumn02(
+            $images->id,
+            'created_at',
+            'Ngày tạo',
+            'DATETIME',
+            'datetime',
+            $order++,
+            ['edit' => 0]
+        );
+        MigrateService::createColumn02(
+            $images->id,
+            'updated_at',
+            'Ngày tạo',
+            'DATETIME',
+            'datetime',
+            $order++,
+            ['edit' => 0]
+        );
     }
 
     /**

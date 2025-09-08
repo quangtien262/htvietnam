@@ -599,6 +599,7 @@ export function showData(col, prop, langId = 0) {
         case "images":
         case "permission_list":
         case "selects_table":
+        case "file":
             break;
         case "textarea":
             result = HTTextarea(col, langId);

@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,19 +15,21 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('display_name')->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('create_by')->default(0)->nullable();
-            $table->timestamps();
+
+            MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
-        $route = MigrateService::createTable02('route', 'Kiểu hiển thị', ['is_edit' => 0]);
-        MigrateService::createColumn02($route->id, 'id', 'id', 'INT', 'number', $order++,);
+        $route = MigrateService::createTable02(
+            'route',
+            'Kiểu hiển thị',
+            ['is_edit' => 0, 'is_show_btn_edit' => 0, 'have_add_new' => 0, 'is_show_btn_detail' => 0, 'type_show' => 0]
+        );
+        MigrateService::createColumn02($route->id, 'id', 'id', 'INT', 'number', $order++, );
         MigrateService::createColumn02($route->id, 'name', 'Tên route', 'TEXT', 'text', $order++);
         MigrateService::createColumn02($route->id, 'display_name', 'Tên hiển thị', 'TEXT', 'text', $order++);
-        MigrateService::createColumn02($route->id, 'parent_id', 'Danh mục cha', 'INT', 'select', $order++,);
-        MigrateService::createColumn02($route->id, 'sort_order', 'sort_order', 'INT', 'number', $order++,);
+        MigrateService::createColumn02($route->id, 'parent_id', 'Danh mục cha', 'INT', 'select', $order++, );
+        MigrateService::createColumn02($route->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, );
         MigrateService::createColumn02($route->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order++, ['edit' => 0]);
         MigrateService::createColumn02($route->id, 'created_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
         MigrateService::createColumn02($route->id, 'updated_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);

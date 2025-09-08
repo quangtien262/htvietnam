@@ -9,6 +9,7 @@ use App\Http\Controllers\User\OrdersController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\FooterController;
+use App\Http\Controllers\User\LibsController;
 use App\Http\Controllers\User\NewsletterController;
 use App\Http\Controllers\User\TuyendungController;
 use App\Http\Controllers\User\UserController;
@@ -19,10 +20,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PagesController::class, 'index'])->name('home');
 
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['vi', 'en', 'ch'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+    }
+    return redirect()->back();
+})->name('change_language');
 
 //news
 Route::get('{sluggable}/n{menuId}.html', [NewsController::class, 'index'])->name('news');
-Route::get('{sluggableNews}/s{newsId}.html', [NewsController::class, 'detail'])->name('news.detail');
+Route::get('{sluggableNews}/k{newsId}.html', [NewsController::class, 'detail'])->name('news.detail');
 // Route::get('{sluggableNews}/o{menuId}.html', [NewsController::class, 'recruitment_detail'])->name('recruitment.detail');
 Route::get('tags/{sluggable}/tg{tagId}.html', [NewsController::class, 'tags'])->name('news.tags');
 
@@ -40,6 +48,7 @@ Route::get('{sluggable}/i{menuId}.html', [PagesController::class, 'qaDetail'])->
 // product
 Route::get('{sluggable}/p{menuId}.html', [ProductController::class, 'index'])->name('product');
 Route::get('{sluggable}/l{productId}.html', [ProductController::class, 'detail'])->name('product.detail');
+Route::get('products/search.html', [ProductController::class, 'search'])->name('searchProduct');
 
 Route::get('product-new.html', [ProductController::class, 'productLatest'])->name('product.latest');
 Route::get('product-promo.html', [ProductController::class, 'promotion'])->name('product.promo');
@@ -52,6 +61,10 @@ Route::get('san-pham-noi-bat.html', [ProductController::class, 'productHot'])->n
 Route::get('{sluggable}/v{menuId}.html', [VideoController::class, 'index'])->name('video');
 Route::get('{sluggable}/b{productId}.html', [VideoController::class, 'detail'])->name('video.detail');
 
+//libs
+Route::get('{sluggable}/s{menuId}.html', [LibsController::class, 'index'])->name('libs');
+Route::get('{sluggable}/j{productId}.html', [LibsController::class, 'detail'])->name('libs.detail');
+
 // add2cart
 Route::post('{sluggable}/l{productId}.html', [CartController::class, 'add2cart']);
 
@@ -61,11 +74,17 @@ Route::get('tim-kiem.html', [PagesController::class, 'search'])->name('search');
 // contact
 Route::get('contact.html', [ContactController::class, 'index'])->name('contact');
 Route::post('contact.html', [ContactController::class, 'sendContact']);
+Route::post('gui-lien-he.html', [ContactController::class, 'sendContact02'])->name('sendContact02');
 Route::get('send-contact.html', [ContactController::class, 'result'])->name('contact.result');
-Route::post( 'sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
+Route::post('sendMail', [ContactController::class, 'sendMail'])->name('sendMail');
+
+// layout01
+Route::post('download-tds.html', [ContactController::class, 'downloadTDS'])->name('downloadTDS');
 
 // send info
 Route::post('contact/send-info', [OrdersController::class, 'sendOrdersBDS'])->name('orders.bds');
+
+Route::get('{sluggable}/h{menuId}.html', [PagesController::class, 'about'])->name('about');
 
 //singlepage
 Route::get('{sluggable}/a{menuId}.html', [PagesController::class, 'singlePage'])->name('single_page');
@@ -114,7 +133,8 @@ Route::post('/add-subcriber', [NewsletterController::class, 'addSubcriber'])->na
 // Phan boi chau
 Route::get('{sluggable}/x{menuId}.html', [PhanboichauController::class, 'giaoVien'])->name('giao_vien');
 Route::get('{sluggable}/m{menuId}.html', [PhanboichauController::class, 'review'])->name('review');
-Route::post( 'gui-tuyen-sinh', [PhanboichauController::class, 'sendTuyensinh'])->name('tuyen_sinh');
+Route::post('gui-tuyen-sinh', [PhanboichauController::class, 'sendTuyensinh'])->name('tuyen_sinh');
 Route::get('tim-kiem-New.html', [PhanboichauController::class, 'search_pbc'])->name('search_phc');
 
 
+Route::get('productdownload/{id}', [ProductController::class, 'download'])->name('product.download');

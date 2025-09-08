@@ -11,7 +11,7 @@ import {
     InputNumber,
     Popconfirm,
     Select,
-    Row,Col,
+    Row, Col,
     Space,
     Tree,
     notification,
@@ -34,13 +34,14 @@ import {
     CopyOutlined,
     CloseSquareOutlined,
     UploadOutlined,
-    CaretRightOutlined,SettingOutlined 
+    CaretRightOutlined, SettingOutlined
 } from "@ant-design/icons";
 import "../../../../css/form.css";
-import {itemMenu} from "../../../Function/config_route";
+import "../../../../css/popconfirm_hidden_btn.css";
+import { itemMenu } from "../../../Function/config_route";
 import { inArray, parseJson, numberFormat, showsettingMenu, formatGdata_column, onDrop } from "../../../Function/common";
-import {DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW} from '../../../Function/constant';
-
+import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../../Function/constant';
+import { showLog, loadDataLanguage } from '../../../Function/auto_load';
 const { TextArea } = Input;
 
 import {
@@ -52,13 +53,14 @@ import {
     HTDateTime,
     HTPassword,
     HTInput,
-    HTTime, HTColor, HTCascaderTable,smartSearch02, smartSearch, showDataSearch, showDataSearch02
+    HTTime, HTColor, HTCascaderTable, smartSearch02, smartSearch, showDataSearch, showDataSearch02
 } from "../../../Function/input";
 
-import { showSelects, showSelect} from '../../../Function/selects_table';
+import { showSelects, showSelect } from '../../../Function/selects_table';
 
 export default function Dashboard(props: any) {
     sessionStorage.clear();
+    const [dataLang, setDataLang] = useState([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
@@ -95,7 +97,7 @@ export default function Dashboard(props: any) {
             onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
     });
-    
+
     function setPagination(pagination) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),
@@ -282,15 +284,15 @@ export default function Dashboard(props: any) {
         value.column_name = col.name;
         value.id = record.id;
         value.search = props.request;
-        if(col.type_edit === 'date') {
+        if (col.type_edit === 'date') {
             value[col.name] = dayjs(value[col.name]).format(DATE_FORMAT);
         }
-        if(col.type_edit === 'datetime') {
+        if (col.type_edit === 'datetime') {
             value[col.name] = dayjs(value[col.name]).format(DATE_TIME_FORMAT);
         }
-        
+
         // set page
-        if(props.request.page) {
+        if (props.request.page) {
             value.page = props.request.page;
         }
         axios
@@ -354,14 +356,12 @@ export default function Dashboard(props: any) {
     };
 
     function fastEditText(col, record) {
-        let rule = "";
+        let rule = [];
         if (col.require === 1) {
-            rule = [
-                {
+            rule.push({
                     required: true,
                     message: '"' + col.display_name + '" Không được bỏ trống',
-                },
-            ];
+                })
         }
         const type = col.type_edit;
         switch (type) {
@@ -422,7 +422,6 @@ export default function Dashboard(props: any) {
                         />
                     </Form.Item>
                 );
-            case "tags":
             case "tags":
                 return (
                     <Form.Item
@@ -488,7 +487,7 @@ export default function Dashboard(props: any) {
     function fastEditContent(col, record) {
         let initialValues = [];
         initialValues[col.name] = record[col.name];
-        if(['date'].includes(col.type_edit))  {
+        if (['date'].includes(col.type_edit)) {
             initialValues[col.name] = dayjs(record[col.name]);
         }
         if (col.type_edit === "selects") {
@@ -517,7 +516,7 @@ export default function Dashboard(props: any) {
                     layout="vertical"
                     style={{ maxWidth: 600 }}
                     initialValues={initialValues}
-                    onFinish={(value) => {onFinishInputFastEdit(value, col, record)}}
+                    onFinish={(value) => { onFinishInputFastEdit(value, col, record) }}
                     onFinishFailed={onFinishFailedFastEdit}
                     autoComplete="off"
                 >
@@ -537,7 +536,7 @@ export default function Dashboard(props: any) {
         );
     }
 
-    const fastEditOK = (e) => {};
+    const fastEditOK = (e) => { };
 
     const fastEditCancel = (e) => {
         openNotification("success", "Đã hủy");
@@ -547,22 +546,20 @@ export default function Dashboard(props: any) {
         if (col.fast_edit !== 1) {
             return '';
         }
-        return <Popconfirm
-                    title={fastEditContent(col, record)}
-                    onConfirm={fastEditOK}
-                    onCancel={fastEditCancel}
-                    icon={
-                        <ArrowRightOutlined
-                            style={{ color: "#1890ff" }}
-                        />
-                    }
-                    cancelText="Hủy"
-                    okText={""}
-                >
-                    <a className="icon-fast-edit">
-                        <FormOutlined />
-                    </a>
-                </Popconfirm>;
+        return <Popconfirm className="popconfirm-fast-edit"
+            title={fastEditContent(col, record)}
+            onConfirm={fastEditOK}
+            onCancel={fastEditCancel}
+            icon={
+                <ArrowRightOutlined
+                    style={{ color: "#1890ff" }}
+                />
+            }
+        >
+            <a className="icon-fast-edit">
+                <FormOutlined />
+            </a>
+        </Popconfirm>;
 
     }
 
@@ -580,43 +577,44 @@ export default function Dashboard(props: any) {
                     dataIndex: col.name,
                     key: col.dataIndex,
                     render: (_, record) => {
-                        if(['select'].includes(col.type_edit)) {
+                        if (['select'].includes(col.type_edit)) {
                             return <div>{showSelect(col, record)} {fastEdit(col, record)}</div>
                         }
-            
-                        if(['selects'].includes(col.type_edit)) {
-                            return <div className="main-selects">{showSelects(record[col.name])} {fastEdit(col, record)} </div>;
+
+                        if (['selects'].includes(col.type_edit)) {
+                            // return <div className="main-selects">{showSelects(record[col.name])} {fastEdit(col, record)} </div>;
+                            return <div className="main-selects">{showSelects(record, col)}  </div>;
                         }
-        
-                        if(['date'].includes(col.type_edit)) {
+
+                        if (['date'].includes(col.type_edit)) {
                             return <div>{dayjs(record[col.name]).format(DATE_FORMAT)} {fastEdit(col, record)}</div>;
                         }
 
-                        if(['datetime'].includes(col.type_edit)) {
+                        if (['datetime'].includes(col.type_edit)) {
                             return dayjs(record[col.name]).format(DATE_TIME_FORMAT);
                         }
 
-                        if(['number'].includes(col.type_edit)) {
+                        if (['number'].includes(col.type_edit)) {
                             return record[col.name] ? <div>{numberFormat(record[col.name])} {fastEdit(col, record)}</div> : '';
                         };
 
-                        if(['text'].includes(col.type_edit)) {
+                        if (['text'].includes(col.type_edit)) {
                             return record[col.name] ? <div>{record[col.name]} {fastEdit(col, record)}</div> : '';
                         };
-                        
-                        if(['image', 'image_crop'].includes(col.type_edit)) {
+
+                        if (['image', 'image_crop'].includes(col.type_edit)) {
                             return <Image className="image-index" src={record[col.name]}></Image>;
                         }
-                        
-                        if(['images', 'images_crop'].includes(col.type_edit) && record[col.name] && record[col.name].avatar) {
+
+                        if (['images', 'images_crop'].includes(col.type_edit) && record[col.name] && record[col.name].avatar) {
                             return <Image className="image-index" src={record[col.name].avatar}></Image>;
                         }
 
-                        if(col.type_edit === 'color') {
-                            return record[col.name] ? <div style={{color:record[col.name]}}>{record[col.name]} {fastEdit(col, record)}</div> : '';
+                        if (col.type_edit === 'color') {
+                            return record[col.name] ? <div style={{ color: record[col.name] }}>{record[col.name]} {fastEdit(col, record)}</div> : '';
                         };
-                        
-                        if(['cascader'].includes(col.type_edit) && record[col.name]) {
+
+                        if (['cascader'].includes(col.type_edit) && record[col.name]) {
                             console.log('xxxxxx', record[record[col.name]]);
                             try {
                                 return record[record[col.name]].info.name;
@@ -637,7 +635,7 @@ export default function Dashboard(props: any) {
                 fixed: "right",
                 width: 50,
                 render: (_, record) => {
-                    if(record) {
+                    if (record) {
                         return (
                             <Divider>
                                 {checkShowBtnDetail(record)}
@@ -654,27 +652,27 @@ export default function Dashboard(props: any) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if(props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
             return;
         }
 
-        
+
 
         if (props.table.is_show_btn_edit === 1 && inArray(props.table.id, props.userPermission.table_edit)) {
-            if(props.table.form_data_type === 2) {
-                return <Button onClick={() => {editData(record)}} type="button" className="icon-edit"><EditOutlined /> </Button>
+            if (props.table.form_data_type === 2) {
+                return <Button onClick={() => { editData(record) }} type="button" className="icon-edit"><EditOutlined /> </Button>
             }
-            return <Link href={route("data.edit", [ props.tableId,record.index,])}>
-                    <Button type="button" className="icon-edit"><EditOutlined /> </Button>
-                </Link>
+            return <Link href={route("data.edit", [props.tableId, record.index,])}>
+                <Button type="button" className="icon-edit"><EditOutlined /> </Button>
+            </Link>
         }
     }
 
     function checkShowBtnDetail(record) {
         if (props.table.is_show_btn_detail === 1 && inArray(props.table.id, props.userPermission.table_view)) {
-            return <Link href={route("data.detail", [ props.tableId,record.index,])}>
-                        <Button type="button" className="icon-view"><EyeOutlined /> </Button>
-                    </Link>
+            return <Link href={route("data.detail", [props.tableId, record.index,])}>
+                <Button type="button" className="icon-view"><EyeOutlined /> </Button>
+            </Link>
         }
     }
 
@@ -716,7 +714,7 @@ export default function Dashboard(props: any) {
         if (props.table.export !== 1) {
             return '';
         }
-        return(
+        return (
             <Button
                 type="primary"
                 onClick={confirmExport}
@@ -733,9 +731,9 @@ export default function Dashboard(props: any) {
             return '';
         }
         const result = props.statistical.map((item) => {
-            return <Link href="?{props.statistical_select}={item.id}" href={'?' + props.table.statistical_select + '=' + item.id}><Button className="btn-statistical">{item.name} <b> ({item.count}</b>)</Button></Link>
+            return <Link href={'?' + props.table.statistical_select + '=' + item.id}><Button className="btn-statistical">{item.name} <b> ({item.count}</b>)</Button></Link>
         });
-        return <div>{result} <hr/></div>
+        return <div>{result} <hr /></div>
     }
 
     function checkShowBtnDelete() {
@@ -817,7 +815,7 @@ export default function Dashboard(props: any) {
                 <a
                     type="primary"
                     onClick={confirmAllExport}
-                    // loading={loadingBtnExport}
+                // loading={loadingBtnExport}
                 >
                     Xuất tất cả ra excel
                 </a>
@@ -829,7 +827,7 @@ export default function Dashboard(props: any) {
                 <a
                     type="primary"
                     onClick={confirmImport}
-                    // loading={loadingBtnExport}
+                // loading={loadingBtnExport}
                 >
                     Nhập dữ liệu từ excel
                 </a>
@@ -854,8 +852,8 @@ export default function Dashboard(props: any) {
     }
 
     function searchTop() {
-        if(props.table.search_position !== 2) {
-            return  '';
+        if (props.table.search_position !== 2) {
+            return '';
         }
 
         return <div>
@@ -867,7 +865,7 @@ export default function Dashboard(props: any) {
                 autoComplete="off"
                 form={formSearch}
                 initialValues={initialValueSearch()}
-                // initialValues={props.searchData}
+            // initialValues={props.searchData}
             >
                 <Row gutter={24}>
                     {smartSearch(props.table)}
@@ -887,8 +885,8 @@ export default function Dashboard(props: any) {
     }
 
     function searchLeft() {
-        if(props.table.search_position !== 1) {
-            return  '';
+        if (props.table.search_position !== 1) {
+            return '';
         }
 
         return <div>
@@ -900,7 +898,7 @@ export default function Dashboard(props: any) {
                 autoComplete="off"
                 form={formSearch}
                 initialValues={initialValueSearch()}
-                // initialValues={props.searchData}
+            // initialValues={props.searchData}
             >
                 <Row gutter={24} className="main-search-left">
                     {smartSearch02(props.table)}
@@ -920,64 +918,68 @@ export default function Dashboard(props: any) {
     }
 
     const expandedRowRender = (record, index) => {
-        console.log('index', index);
-        console.log('record', record);
-
         return checkShowData(record);
     };
-    
-    // state expandedRowRender
-    const [expandable, setExpandable] = useState(props.table.expandable === 0 ? false : {expandedRowRender,defaultExpandedRowKeys: ['1']} );
-    
 
-    function checkShowData(record) {
-        // console.log('col',props.columns);
-        // console.log('record',record);
-        
-        const content = props.columns.map((col02, key) => {
-            if(col02.show_in_detail !== 1) {
+    // state expandedRowRender
+    const [expandable, setExpandable] = useState(props.table.expandable === 0 ? false : { expandedRowRender, defaultExpandedRowKeys: ['1'] });
+
+
+    function checkShowData(record: any) {
+        const content = props.columns.map((col02: any, key) => {
+            if (col02.show_in_detail !== 1) {
                 return '';
             }
-            if(['select'].includes(col02.type_edit)) {
-                return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{showSelect(col02, record)} </Col>
+            if (['select_table'].includes(col02.type_edit)) {
+                return '';
             }
 
-            if(['selects'].includes(col02.type_edit)) {
-                return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{showSelects(record[col02.name])}  </Col>;
+            if (['select'].includes(col02.type_edit) && record[col02.name] && record[col02.name].info) {
+                return <Col key={col02.id} sm={{ span: 12 }}>{record[col02.name].info.name} {fastEdit(col02, record)}</Col>
             }
 
-            if(['date'].includes(col02.type_edit)) {
+            if (['selects'].includes(col02.type_edit)) {
+                console.log('selects record', record);
+                return <div className="main-selects">{showSelects(record[col02.name])} {fastEdit(col02, record)} </div>;
+            }
+
+
+            if (['date'].includes(col02.type_edit)) {
                 return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_SHOW)} </Col>;
             }
 
-            if(['datetime'].includes(col02.type_edit)) {
+            if (['datetime'].includes(col02.type_edit)) {
                 return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_TIME_SHOW)}</Col>;
             }
 
-            if(['number'].includes(col02.type_edit)) {
-                return record[col02.name] ? <Col sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{numberFormat(record[col02.name])} </Col> : '';
+            if (['number'].includes(col02.type_edit)) {
+                return record[col02.name] ? <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{numberFormat(record[col02.name])} </Col> : '';
             };
 
-            if(['text', 'textarea'].includes(col02.type_edit)) {                
+            if (['text', 'textarea'].includes(col02.type_edit)) {
                 return <Col key={col02.id} sm={{ span: 12 }}>
-                        <label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a>{col02.display_name}: </label>{record[col02.name]} 
-                    </Col>;
+                    <label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a>{col02.display_name}: </label>{record[col02.name]}
+                </Col>;
             };
 
-            
+
             // if(['image', 'image_crop'].includes(col02.type_edit)) {
             //     return <Image className="image-index" src={record[col02.name]}></Image>;
             // }
-            
+
             // if(['images', 'images_crop'].includes(col02.type_edit) && record[col02.name].avatar) {
             //     return <Image className="image-index" src={record[col02.name].avatar}></Image>;
             // }
         });
-        return <Row>{content}</Row>;
+
+        return <Row>
+            {content}
+            {/* code đa ngôn ngữ ở đây */}
+        </Row>;
     }
 
     function showData(col, langId = 0) {
-        
+
         let result;
         const typeEdit = col.type_edit;
         if (col.edit !== 1) {
@@ -1028,12 +1030,12 @@ export default function Dashboard(props: any) {
                 break;
             case "cascader_table":
                 result = HTCascaderTable(col, props);
-                break;   
+                break;
             default:
                 result = HTInput(col, langId);
                 break;
         }
-    
+
         return result;
     }
 
@@ -1045,7 +1047,7 @@ export default function Dashboard(props: any) {
         setIsStopSubmit(false);
         values.id = idAction;
         for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
-            if(!values[key]) {
+            if (!values[key]) {
                 values[key] = val;
             }
         }
@@ -1057,7 +1059,7 @@ export default function Dashboard(props: any) {
         }
 
         values = formatValueForm(props.columns, values);
-        
+
         console.log('va', values);
         // values.tiny_images = tinyImageName;
         values.submit_edirect = 'api';
@@ -1067,18 +1069,18 @@ export default function Dashboard(props: any) {
         } else {
             link = route("data.update", [props.table.id, idAction]);
         }
-        
+
         setLoadingTable(true);
         setIsOpenFormEdit(false);
         axios.post(link, values).then((response) => {
             console.log('res', response);
-            if(response.data.status_code === 200) {
+            if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
                 location.reload();
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
-            
+
             setLoadingTable(false);
         }).catch((error) => {
             message.error("Lưu dữ liệu thất bại");
@@ -1184,110 +1186,110 @@ export default function Dashboard(props: any) {
                     </Dropdown>
                 );
             }
-    
-            if(props.table.form_data_type === 1) {
+
+            if (props.table.form_data_type === 1) {
                 return (
-                        <Link href={route("data.create", props.table.id)}>
-                            <Button type="primary">
-                                <PlusCircleOutlined />
-                                Thêm mới
-                            </Button>
-                        </Link>
-                    );
-                }
+                    <Link href={route("data.create", props.table.id)}>
+                        <Button type="primary">
+                            <PlusCircleOutlined />
+                            Thêm mới
+                        </Button>
+                    </Link>
+                );
             }
-    
-            const listItems = props.columns.map((col) => {
-                return showData(col);
-            });
-    
-            const imageItems = props.columns.map((col) => {
-                if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
-                    // return showDataImages(col);
-                }
-            });
-    
-            return <div>
-                <Modal
-                    title={""}
-                    open={isOpenFormEdit}
-                    // onOk={formEdit}
-                    onCancel={cancelEdit}
-                    footer={[]}
-                    width={1000}
+        }
+
+        const listItems = props.columns.map((col) => {
+            return showData(col);
+        });
+
+        const imageItems = props.columns.map((col) => {
+            if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
+                // return showDataImages(col);
+            }
+        });
+
+        return <div>
+            <Modal
+                title={""}
+                open={isOpenFormEdit}
+                // onOk={formEdit}
+                onCancel={cancelEdit}
+                footer={[]}
+                width={1000}
+            >
+                <Form
+                    name="basic"
+                    layout="vertical"
+                    form={formEdit}
+                    onFinish={onFinishFormEdit}
+                    autoComplete="off"
+                // initialValues={formChamCong}
                 >
-                    <Form
-                        name="basic"
-                        layout="vertical"
-                        form={formEdit}
-                        onFinish={onFinishFormEdit}
-                        autoComplete="off"
-                        // initialValues={formChamCong}
-                    >
-                        <Row>
-                            
+                    <Row>
+
                         <Row>
                             {listItems}
                             {/* {imageItems}
                             {listItemsLg} */}
                         </Row>
-    
-                            <Col span={24} className="main-btn-popup">
-                                <Button  className="btn-popup" onClick={cancelEdit}>
-                                    <CloseSquareOutlined/>
-                                    Hủy
-                                </Button>
-                                <span> </span>
-                                <Button  className="btn-popup" type="primary" htmlType="submit">
-                                    <CopyOutlined/>
-                                    Lưu
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Modal>
-                <Button type="primary" onClick={() => addNewData()}>
-                    <PlusCircleOutlined />
-                    Thêm mới
-                </Button>
-            </div>
+
+                        <Col span={24} className="main-btn-popup">
+                            <Button className="btn-popup" onClick={cancelEdit}>
+                                <CloseSquareOutlined />
+                                Hủy
+                            </Button>
+                            <span> </span>
+                            <Button className="btn-popup" type="primary" htmlType="submit">
+                                <CopyOutlined />
+                                Lưu
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
+            <Button type="primary" onClick={() => addNewData()}>
+                <PlusCircleOutlined />
+                Thêm mới
+            </Button>
+        </div>
     }
 
     function addNewData() {
-        setIsOpenFormEdit(true); 
+        setIsOpenFormEdit(true);
         setIdAction(0);
         formEdit.resetFields();
     }
 
     function editData(record) {
         setIsOpenFormEdit(true);
-         
+
         setIdAction(record.key);
         formEdit.resetFields();
         props.columns.forEach((val, key) => {
 
-            if(['date', 'datetime'].includes(val.type_edit)) {
+            if (['date', 'datetime'].includes(val.type_edit)) {
                 formEdit.setFieldValue(val.name, dayjs(record[val.name]));
             }
-            if(['select','selects','selects_normal'].includes(val.type_edit)) {
-                if(val.show_in_list === 1) {
+            if (['select', 'selects', 'selects_normal'].includes(val.type_edit)) {
+                if (val.show_in_list === 1) {
                     formEdit.setFieldValue(val.name, record[val.name].id);
                 } else {
                     formEdit.setFieldValue(val.name, record[val.name]);
                 }
-                
-            } 
-            
-            if(['text', 'textarea','number','tiny','hidden','invisible','color'].includes(val.type_edit)) {
+
+            }
+
+            if (['text', 'textarea', 'number', 'tiny', 'hidden', 'invisible', 'color'].includes(val.type_edit)) {
                 formEdit.setFieldValue(val.name, record[val.name]);
             }
-            
+
         });
     }
 
     function btnIndex(id = 0) {
         const [loadingBtn, setLoadingBtn] = useState(false);
-    
+
 
         function btnFromRoute() {
             let result;
@@ -1300,7 +1302,7 @@ export default function Dashboard(props: any) {
                 if (!routes) {
                     return "";
                 }
-    
+
                 result = Object.values(routes).map((rt) => {
                     return (
                         <Link href={route(rt.name)}>
@@ -1318,19 +1320,19 @@ export default function Dashboard(props: any) {
             }
             return result;
         }
-    
+
         function btnSetting() {
             const [openSetting, setOpenSetting] = useState(false);
             const [isLoadOK, setIsLoadOK] = useState(false);
             const [gData, setGData] = useState(props.columnData);
-    
+
             const setting = (e) => {
                 setOpenSetting(true);
             };
             const cancelSetting = () => {
                 setOpenSetting(false);
             };
-    
+
             function loadData() {
                 setOpenSetting(true);
             }
@@ -1349,11 +1351,11 @@ export default function Dashboard(props: any) {
                         message.error("Cập nhật thứ tự thất bại");
                     });
             }
-    
+
             return (
                 <div>
                     <Modal
-                        title={<div>Cài đặt <hr/>{showsettingMenu(props.tableSetting)}<hr/></div>}
+                        title={<div>Cài đặt <hr />{showsettingMenu(props.tableSetting)}<hr /></div>}
                         open={openSetting}
                         onOk={setting}
                         onCancel={cancelSetting}
@@ -1378,22 +1380,22 @@ export default function Dashboard(props: any) {
                 </div>
             )
         }
-    
+
         return (
             <Space className="_right">
-    
+
                 {btnFromRoute()}
 
                 {btnAddNew()}
-    
-                { props.table.setting_shotcut === 1 ? btnSetting() : ''}
+
+                {props.table.setting_shotcut === 1 ? btnSetting() : ''}
             </Space>
         );
     }
 
     const pageContent = (
         <div>
-            
+
             {searchTop()}
 
             <Form form={form} component={false}>
@@ -1472,13 +1474,13 @@ export default function Dashboard(props: any) {
                         </Button>
                         <Button onClick={handleCancelImport}>Hủy</Button>
                     </Modal>
-                    
+
                     <Row>
                         {checkShowStatistical()}
                     </Row>
 
                     <Space>
-                        
+
 
                         {checkShowBtnImport()}
 
@@ -1493,10 +1495,10 @@ export default function Dashboard(props: any) {
 
                         {checkShowBtnExcel()}
                     </Space>
-                    
+
                     {/* page name */}
                     <b className="title-page">{props.table.display_name}.</b>
-                    
+
                     {/* Show số lượng item/page */}
                     <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
                         {props.pageConfig.count}/{props.pageConfig.total} )

@@ -35,4 +35,5 @@ abstract class Controller
             'data' => $data,
         ]);
     }
+
 }

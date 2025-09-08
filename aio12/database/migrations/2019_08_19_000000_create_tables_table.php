@@ -17,17 +17,23 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name')->nullable(); // tên bảng, dùng để tạo database
+            $table->string('display_name')->nullable(); // tên hiển thị, dùng để hiển thị ở table list, form add/edit
+
+            // Phần này dành cho web
             $table->text('title')->nullable();
+            $table->text('title_desc')->nullable();
             $table->text('description')->nullable();
-            $table->string('display_name')->nullable();
+            $table->text('content')->nullable();
+
+            // config table
             $table->integer('sort_order')->default(0)->nullable();
             $table->integer('type_show')->default(0)->nullable();
             $table->string('model_name')->nullable();
             $table->integer('count_item_of_page')->default(30)->nullable();
             $table->integer('is_edit')->default(1)->nullable();
             $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('form_data_type')->default(2)->nullable();
+            $table->integer('form_data_type')->default(2)->nullable(); //1: new page, 2: popup
             $table->integer('import')->default(0)->nullable();
             $table->integer('export')->default(0)->nullable();
             $table->integer('have_delete')->default(1)->nullable();

@@ -311,13 +311,14 @@ export default function formTable(props) {
                                         filterOption={(input, option) => (option?.label ?? '').includes(input)}
                                         filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())}
                                         options={[
-                                            {value: '0', label: 'Table basic'},
-                                            {value: '1', label: 'Kiểu kéo thả '},
-                                            {value: '5', label: 'Chỉ có 1 data master'},
-                                            {value: '3', label: 'Landingpage'},
-                                            {value: '4', label: 'Block for Landingpage'},
-                                            {value: '6', label: 'Lịch hẹn'},
-                                            {value: '7', label: 'File Manager'},
+                                            {value: 0, label: 'Table basic'},
+                                            {value: 1, label: 'Kiểu kéo thả đa cấp'},
+                                            {value: 5, label: 'Chỉ có 1 data master'},
+                                            {value: 3, label: 'Landingpage'},
+                                            {value: 4, label: 'Block for Landingpage'},
+                                            {value: 6, label: 'Lịch hẹn'},
+                                            {value: 7, label: 'File Manager'},
+                                            {value: 8, label: 'Kéo thả bảng'},
                                         ]}
                                     />
                                     </Form.Item>

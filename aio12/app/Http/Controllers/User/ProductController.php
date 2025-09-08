@@ -23,18 +23,19 @@ class ProductController extends Controller
     {
         $config = WebConfig::query()->find(1);
         $menu = UserService::getMenuDetail($menuId);
-        $subMenu = $menu['subMenu'];
-
         $products = Product::getProduct($menu, $request);
-        
-        $news = News::query()->get();
         $seo = [
             'title' => $menu['menu']->name,
             'keywords' => $menu['menu']->meta_keyword,
             'description' => $menu['menu']->meta_description,
         ];
-
-        return View('layouts.layout' . $config->layout . '.product.index', compact('menu', 'products', 'config', 'news', 'seo','subMenu'));
+        $param = [
+            'products' => $products,
+            'menu' => $menu,
+            'config' => $config,
+            'seo' => $seo,
+        ];
+        return View('layouts.layout' . $config->layout . '.product.index', $param);
     }
 
 
@@ -44,30 +45,61 @@ class ProductController extends Controller
         $product = Product::query(false)->where('products.id', $productId)->first();
         $menu = UserService::getMenuDetail($product->menu_id);
         $subMenu = $menu['subMenu'];
-        $fullUrl = \URL::current();
-        $images = $product->images;
-        $product_lienquan = Product::query()->where('products.id', '!=', $productId)->orderBy('products.create_date', 'desc')->paginate(9);
+        $images = [];
+        if (!empty($product->images) && !empty($product->images['images'])) {
+            $images = $product->images['images'];
+        }
+        $product_lienquan = Product::query()->where('products.id', '!=', $productId)
+            ->orderBy('products.updated_at', 'desc')
+            ->paginate(9);
         $productLatest = Product::query()->limit(10)->get();
 
-        $seo = [
-            'title' => $product->name,
-            'keywords' => $product->meta_keyword,
-            'description' => $product->meta_description,
-        ];
-        return View('layouts.layout' . $config->layout . '.product.detail', compact('fullUrl','config', 'product', 'menu','subMenu', 'images', 'product_lienquan', 'productLatest', 'seo'));
+        $seo =
+            $param = [
+                'config' => $config,
+                'product' => $product,
+                'menu' => $menu,
+                'subMenu' => $subMenu,
+                'images' => $images,
+                'product_lienquan' => $product_lienquan,
+                'productLatest' => $productLatest,
+                'seo' => [
+                    'title' => $product->name,
+                    'keywords' => $product->meta_keyword,
+                    'description' => $product->meta_description,
+                ]
+            ];
+        return View('layouts.layout' . $config->layout . '.product.detail', $param);
     }
 
     public function search(Request $request)
     {
         $config = WebConfig::query()->find(1);
+
         $viewData['config'] = $config;
-        $viewData['products'] = ProductService::getDataSearch($request, $viewData);
+        $products = Product::query();
+
+        if (!empty($request->keyword)) {
+            $products = $products->where('products.name', 'like', '%' . $request->keyword . '%');
+        }
+
+        if (!empty($request->type)) {
+            $products = $products->where('products.product_type_id', $request->type);
+        }
+
+        if (!empty($request->application)) {
+            $products = $products->where('products.product_application_id', $request->application);
+        }
+
+        $products = $products->paginate(config('constant.paginate'));
+
         $seo = [
             'title' => !empty($request->keyword) ? $request->keyword : $config->title,
             'keywords' => $config->meta_keyword,
             'description' => $config->meta_description,
         ];
         $viewData['seo'] = $seo;
+        $viewData['products'] = $products;
 
         return View('layouts.layout' . $config->layout . '.product.search', $viewData);
     }
@@ -130,5 +162,21 @@ class ProductController extends Controller
         $viewData['seo'] = $seo;
 
         return View('layouts.layout' . $config->layout . '.product.all', $viewData);
+    }
+
+    public function download(Request $request, $id = 0)
+    {        
+        if(empty($id)) {
+            return $this->sendErrorResponse('Sản phẩm không tồn tại');
+        }
+        $product = Product::find($id);
+        if (!$product) {
+            return $this->sendErrorResponse('Sản phẩm không có file để tải về');
+        }
+        if(empty($product->file)) {
+            return $this->sendErrorResponse('Sản phẩm không có file để tải về');
+        }
+        // code download file
+        return response()->download(public_path($product->file));
     }
 }

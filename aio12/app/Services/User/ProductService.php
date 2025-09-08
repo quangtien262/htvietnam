@@ -41,9 +41,6 @@ class ProductService extends Service
         $products = $products->paginate(8);
         $data['products'] = $products;
         $data['news'] = News::orderBy('id', 'desc')->paginate(10);
-
-
-
         return $products;
     }
 }

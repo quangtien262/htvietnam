@@ -9,10 +9,14 @@ use App\Models\Web\WebConfig;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Models\Web\BDS;
+use App\Models\Web\Countries;
+use App\Models\Web\Image;
 use App\Models\Web\Languages;
 use App\Models\Web\LinkFooter;
+use App\Models\Web\PageSetting;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Constraint\Count;
 use PSpell\Config;
 
 class Helper
@@ -22,16 +26,58 @@ class Helper
     {
         return WebConfig::find(1);
     }
-    public function getCurrentLang()
+    public function getCurrentLanguage()
     {
         return UserService::getLang();
     }
+    public function getLinkLanguage($lang)
+    {
+        // return route('lang.switch', ['lang' => $lang]);
+        return '';
+    }
+
+    public function getDataLang($table, $conditions = [], $orderBy = [], $limit = 0)
+    {
+        $tableLang = $table . '_data';
+        $data = DB::table($table)->select(
+            $table . '.*',
+            $table . '.id as id',
+            $tableLang . '.name_data as name_data',
+            $tableLang . '.languages_id as languages_id',
+            $tableLang . '.*',
+        )
+            ->leftJoin($tableLang, $tableLang . '.data_id', '=', $table . '.id')
+            ->where($tableLang . '.languages_id', UserService::getLang()->id);
+
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $data = $data->where($key, $val);
+            }
+        }
+
+        if (!empty($orderBy)) {
+            foreach ($orderBy as $key => $val) {
+                $data = $data->orderBy($key, $val);
+            }
+        }
+
+        if ($limit == 0) {
+            $data = $data->get();
+        } else if ($limit == 1) {
+            $data = $data->first();
+        } else {
+            $data = $data->paginate($limit);
+        }
+
+        return $data;
+    }
+
     /**
      * condition = ['column_name' => 'value']
      * orderBy = ['column_name' => 'desc/asc']
      * limit: 0: get all; 1: get first; >1: get by limit
      */
-    public function getDataByConditions($table, $conditions = null, $orderBy = ['sort_order' => 'asc'], $limit = 0)
+    public function getDataByConditions($table, $conditions = [], $orderBy = ['id' => 'desc'], $limit = 0)
     {
         $data = DB::table($table);
         if (!empty($conditions)) {
@@ -125,21 +171,6 @@ class Helper
         return $menu;
     }
 
-    /**
-     * parentID: menu id
-     * condition = ['column_name' => 'value']
-     */
-    // public function getLinkFooter($conditions = []) {
-    //     $linkFooter = LinkFooter::orderBy('sort_order', 'asc');
-    //     if(!empty($conditions)) {
-    //         foreach($conditions as $key => $val) {
-    //             $linkFooter = $linkFooter->where($key, $val);
-    //         }
-    //     }
-    //     $linkFooter = $linkFooter->get();
-    //     return $linkFooter;
-    // }
-
     public function getBDSByMenu($menu, $limit)
     {
         $menuIds = UserService::getSubmenuId($menu);
@@ -155,15 +186,18 @@ class Helper
     }
     public function getLinkMenu($menu)
     {
-        if(empty($menu)) {
+        if (empty($menu)) {
             return '';
+        }
+        if (!empty($menu->current_link)) {
+            return $menu->current_link;
         }
         $sluggable = 'data';
         $link = '';
-        if(!empty($menu->name)) {
-            $sluggable = self::formatText($menu->name);
+        $lang = UserService::getLang();
+        if (!empty($menu->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($menu->name_data);
         }
-
         $displayType = $menu->display_type;
 
         switch ($displayType) {
@@ -172,46 +206,129 @@ class Helper
             case 'bds':
             case 'single_page':
             case 'news':
+            case 'video':
+            case 'libs':
                 $link = route($displayType, [$sluggable, $menu->id]);
                 break;
             case 'contact':
-                $link = route('contact');
-                break;
+            case 'home':
             case 'about':
-                $link = route('about');
+                $link = route($displayType);
                 break;
             default:
                 # code...
                 break;
         }
-
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
         return $link;
     }
 
     public function getLinkNews($news)
     {
-        $sluggable = self::formatText($news->name);
-        return route('news.detail', [$sluggable, $news->id]);
+        $lang = UserService::getLang();
+        $sluggable = 'news';
+        if (!empty($news->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($news->name_data);
+        }
+        $link = route('news.detail', [$sluggable, $news->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
-
+    public function getLinkVideo($video)
+    {
+        $lang = UserService::getLang();
+        $sluggable = 'video';
+        if (!empty($video->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($video->name_data);
+        }
+        $link = route('video.detail', [$sluggable, $video->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
+    }
+    public function getLinkLibs($lib)
+    {
+        $lang = UserService::getLang();
+        $sluggable = 'video';
+        if (!empty($lib->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($lib->name_data);
+        }
+        $link = route('libs.detail', [$sluggable, $lib->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
+    }
     public function getLinkTags($tags)
     {
-        $sluggable = self::formatText($tags->name);
-        return route('news.tags', [$sluggable, $tags->id]);
+        $lang = UserService::getLang();
+        $sluggable = 'tags';
+        if (!empty($tags->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($tags->name_data);
+        }
+        $link = route('news.tags', [$sluggable, $tags->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
     public function getLinkProduct($product)
     {
-        $sluggable = self::formatText($product->name);
-        return route('product.detail', [$sluggable, $product->id]);
+        $lang = UserService::getLang();
+        $sluggable = 'product';
+        if (!empty($product->name_data) && $lang->code != 'ch') {
+            $sluggable = self::formatText($product->name_data);
+        }
+        $link = route('product.detail', [$sluggable, $product->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
     public function getLinkBDS($bds)
     {
         $sluggable = self::formatText($bds->name);
-        return route('bds.detail', [$sluggable, $bds->id]);
+        $link = route('bds.detail', [$sluggable, $bds->id]);
+        if (!empty($_GET['mod'])) {
+            $link .= '?mod=' . $_GET['mod'];
+        }
+        return $link;
     }
 
+
+    public function getProducts($conditions = [], $orderBy = ['id' => 'desc'], $limit = 0)
+    {
+        $data = Product::query();
+
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $data = $data->where($key, $val);
+            }
+        }
+
+        if (!empty($orderBy)) {
+            foreach ($orderBy as $key => $val) {
+                $data = $data->orderBy($key, $val);
+            }
+        }
+
+        if ($limit == 0) {
+            $data = $data->get();
+        } else if ($limit == 1) {
+            $data = $data->first();
+        } else {
+            $data = $data->limit($limit)->get();
+        }
+
+        return $data;
+    }
     public function getProduct($id)
     {
         return Product::find($id);
@@ -241,7 +358,7 @@ class Helper
 
     public function getMenuById($menuId)
     {
-        return  Menu::find($menuId);
+        return Menu::find($menuId);
     }
 
     /**
@@ -407,7 +524,7 @@ class Helper
         $html = '<div class="collapse navbar-collapse" id="myNavbar"><ul class="nav navbar-nav">';
         $menu = Menu::orderBy('sort_order', 'asc')->get();
         foreach ($menu as $idx => $m) {
-            $link =  $this->getLinkByRoute($m->display_type, $m->id);
+            $link = $this->getLinkByRoute($m->display_type, $m->id);
             $active = '';
             if ($route == $m->display_type) {
                 // check active guild
@@ -511,7 +628,18 @@ class Helper
             return '<span class="' . $classPromoPrice . '">' . number_format(intval($product->price), 0, '.', '.') . '₫</span>
             <span class="' . $classPrice . '">' . number_format(intval($product->promo_price), 0, '.', '.') . '₫</span>';
         }
-        return '<span class="' . $classPrice . '">' . number_format(intval($product->price), 0, '.', '.')  . '₫</span>';
+        return '<span class="' . $classPrice . '">' . number_format(intval($product->price), 0, '.', '.') . '₫</span>';
+    }
+
+    public function getAvatarProduct($product, $isShowNoImage = true)
+    {
+        $img = '';
+        if (!empty($product) && !empty($product->images) && !empty($product->images['avatar'])) {
+            $img = $product->images['avatar'];
+        } else if ($isShowNoImage) {
+            $img = '/images/no-image.jpg';
+        }
+        return $img;
     }
 
     public function showProductAvatar($product, $class = '', $id = '', $attr = '')
@@ -566,7 +694,206 @@ class Helper
         }
     }
 
-    public function getLinkFooter() {
+    public function getLinkFooter()
+    {
         return LinkFooter::query()->orderBy('sort_order', 'asc')->get();
     }
+
+    public function getPageSeting($menuId = 0)
+    {
+        return PageSetting::query()
+            ->where('page_setting.menu_id', $menuId)
+            ->orderBy('page_setting.sort_order', 'asc')
+            ->get();
+    }
+
+    public function editTitle($page, $isMain = true, $txtButton = 'Sửa tiêu đề')
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+
+        $result = '';
+
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.edit', ['tblName' => 'page_setting', 'id' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                <i class="fa-solid fa-pen"></i> ' . $txtButton . '
+                </button>';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
+    }
+
+    /**
+     * Edit content button
+     * @param $page
+     * @param string $tblName
+     * @param bool $isMain: có bo khung riêng không
+     * @param string $txtButton
+     * @return string
+     */
+    public function editContent($page, $tblName = 'block04', $isMain = true, $txtButton = 'Sửa nội dung')
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+        $result = '';
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.listBlock', ['tblName' => $tblName, 'pageId' => $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                     <i class="fa-solid fa-comments"></i> ' . $txtButton . '
+                </button>';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
+    }
+
+    /**
+     * Edit content button
+     * @param $page
+     * @param string $tblName
+     * @param bool $isMain: có bo khung riêng không
+     * @param string $txtButton
+     * @return string
+     */
+    public function editBlock($page, $tblName = 'block04', $blockId, $isMain = true, $txtButton = 'Sửa nội dung')
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+        $result = '';
+        if ($isMain) {
+            $result .= '<div class="main-btn-edit">';
+        }
+
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<button class="btn btn-fast-edit" onclick="ajaxLoadUrl(\'' . route('pageSetting.editBlock', [$tblName, $blockId, $page->data_id]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                     <i class="fa-solid fa-comments"></i> ' . $txtButton . '
+                </button>';
+        }
+        if ($isMain) {
+            $result .= '</div>';
+        }
+        return $result;
+    }
+
+    public function settingLandingPage($menuId, $txtButton = 'Cài đặt')
+    {
+        if (!isset($_GET['mod'])) {
+            return '';
+        }
+
+        $result = '';
+        if (auth()->guard('admin_users')->check() && $_GET['mod'] == 'admin') {
+            $result .= '<div style="position: fixed; top: 50%; right: 0px; z-index: 1000;">
+                            <button class="btn btn-setting" 
+                                onclick="ajaxLoadUrl(\'' . route('pageSetting.sort_order', [$menuId]) . '\', \'#modalXLContent\')" data-toggle="modal" data-target="#modal-xl">
+                                ' . $txtButton . '
+                            </button>
+                        </div>';
+        }
+        return $result;
+    }
+
+    public function getTotalViews()
+    {
+        return AnalyticService::getTotalViews();
+    }
+
+
+    public function menuLayout01()
+    {
+        $menus = app('DataService')->getMenuByConditions(['menus.parent_id' => 0]);
+        $result = '<ul class="nav header-nav header-bottom-nav nav-left  nav-size-medium nav-spacing-xlarge nav-uppercase">';
+
+        foreach ($menus as $menu) {
+            $dropdown = '';
+            $subHtml = '';
+            $subMenus = app('DataService')->getMenuByConditions(['menus.parent_id' => $menu->id]);
+            if ($subMenus && count($subMenus) > 0) {
+                $dropdown = 'has-dropdown';
+                $subHtml = $this->subMenuLayout01($subMenus);
+            }
+            $link = app('Helper')->getLinkMenu($menu);
+            $result .= '<li id="menu-item-' . $menu->id . '"
+                        class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-' . $menu->id . ' menu-item-design-default ' . $dropdown . '">
+                            <a class="nav-link" href="' . $link . '">' . $menu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
+        return $result;
+    }
+
+    private function subMenuLayout01($subMenus)
+    {
+        $result = '<ul class="sub-menu nav-dropdown nav-dropdown-simple sub-menu-pc">';
+        foreach ($subMenus as $subMenu) {
+            $subHtml = '';
+            $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
+            if ($subMenusxx && count($subMenusxx) > 0) {
+                $subHtml = $this->subMenuLayout01($subMenusxx);
+            }
+            $result .= '<li class="nav-item">
+                            <a class="nav-link" href="' . app('Helper')->getLinkMenu($subMenu) . '">' . $subMenu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
+        return $result;
+    }
+
+    public function subMenuLayout01_mobile($subMenus)
+    {
+        $result = '<ul class="sub-menu nav-sidebar-ul children sub-menu-mobile">';
+        foreach ($subMenus as $subMenu) {
+            $subHtml = '';
+            $subMenusxx = app('DataService')->getMenuByConditions(['menus.parent_id' => $subMenu->id]);
+            if ($subMenusxx && count($subMenusxx) > 0) {
+                $subHtml = $this->subMenuLayout01_mobile($subMenusxx);
+            }
+            $result .= '<li class="menu-item menu-item-type-custom menu-item-object-custom">
+                            <a href="' . app('Helper')->getLinkMenu($subMenu) . '">' . $subMenu->name_data . '</a>
+                            ' . $subHtml . '
+                        </li>';
+        }
+
+        $result .= '</ul>';
+        return $result;
+    }
+
+    public function getLocation()
+    {
+        // check session location
+        $result = session()->get('location');
+        if (!$result) {
+            $ip = request()->ip(); // Lấy IP user
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,query");
+            $location = $response ? json_decode($response, true) : null;
+            if (!empty($location['country'])) {
+                $country = Countries::where('name', $location['country'])->first();
+            } else {
+                $country = Countries::where('name', 'Vietnam')->first();
+            }
+
+            $result = ['country' => $country, 'location' => $location];
+            session()->put('location', $result);
+        }
+
+        return $result;
+    }
+
 }

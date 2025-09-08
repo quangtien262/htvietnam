@@ -21,6 +21,7 @@ import '../../../../css/detail.css';
 import '../../../../css/form.css';
 import { chamCongCellRender } from '../../../Function/calendar';
 import { numberFormat, numberFormat02 } from '../../../Function/common';
+import { itemMenu } from "../../../Function/config_route";
 
 export default function DetailUser(props) {
     const [chamCong, setChamCong] = useState(!props.data.cham_cong ? {}: JSON.parse(props.data.cham_cong));
@@ -160,7 +161,7 @@ export default function DetailUser(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
+            tables={itemMenu(props.table.name)}
             current={props.table}
             content={
                 <div>

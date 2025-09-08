@@ -16,12 +16,13 @@ export function showSelect(col, record) {
     return result;
 }
 
-export function showSelects(item) {
+export function showSelects(record, col) {
     let result = [];
     const color = record[col.name].info.color ? record[col.name].info.color : ''
-    if(item && item.info) {
+    if(record[col.name] && record[col.name].info) {
+        const item = record[col.name];
         for(const [key, val] of Object.entries(item.info)) {
-            result.push(<Tag style={{ color: color }} key={key} style={{ color: record[col.name].info.color }}>{val.label}</Tag>);
+            result.push(<Tag style={{ color: color }} key={key}>{val.label}</Tag>);
         }
     }
     return result;

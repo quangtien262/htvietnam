@@ -20,20 +20,25 @@ return new class extends Migration
             $table->text('data_id')->nullable();
             $table->text('languages_id')->nullable();
             $table->text('title')->nullable();
+            $table->text('company_name')->nullable();
             $table->text('meta_title')->nullable();
             $table->text('meta_keyword')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('slogan')->nullable();
             $table->text('footer')->nullable();
+            $table->text('copyright')->nullable();
             $table->text('address')->nullable();
+            $table->text('address_description')->nullable();
+            $table->text('address_header')->nullable();
+            $table->text('address_header_description')->nullable();
+            $table->text('office')->nullable();
+            $table->text('factory')->nullable(); // nhà máy
+            $table->text('phone_language')->nullable();
+            $table->text('email_language')->nullable();
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->integer('create_by')->default(1)->nullable();
-            $table->integer('sort_order')->default(0)->nullable();
-            $table->integer('parent_id')->default(0)->nullable();
-            $table->integer('is_recycle_bin')->default(0)->nullable();
-            $table->timestamps();
+            MigrateService::createBaseColumn($table);
         });
 
         $order = 1;
@@ -41,14 +46,29 @@ return new class extends Migration
         ['parent_id' => 0, 'type_show' => 0, 'is_edit' => 0]);
         MigrateService::baseColumn($data);
 
-        MigrateService::createColumn02($data->id, 'name_data', 'Tên công ty', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'title', 'Tiêu đề', 'TEXT', 'textarea', $order++);
+        // MigrateService::createColumn02($data->id, 'name_data', 'Tiêu đề web', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'title', 'Tiêu đề web', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'slogan', 'Slogan', 'TEXT', 'textarea', $order++);
+
+        MigrateService::createColumn02($data->id, 'company_name', 'Tên công ty', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'office', 'Địa chỉ văn phòng', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'factory', 'Nhà máy', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'phone_language', 'Số điện thoại theo khu vực', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'email_language', 'Email theo khu vực', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'address_description', 'Địa chỉ (mô tả)', 'TEXT', 'textarea', $order++, ['edit'=> 0]);
+        MigrateService::createColumn02($data->id, 'address_header', 'Địa chỉ (Header)', 'TEXT', 'textarea', $order++);
+        MigrateService::createColumn02($data->id, 'address_header_description', 'Địa chỉ (Header mô tả)', 'TEXT', 'textarea', $order++, ['edit', 0]);
+        MigrateService::createColumn02($data->id, 'copyright', 'Nội dung copyright', 'TEXT', 'textarea', $order++, ['edit', 1]);
+
+        // SEO
         MigrateService::createColumn02($data->id, 'meta_title', '[SEO] Tiêu đề', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'meta_keyword', '[SEO] Từ khóa', 'TEXT', 'textarea', $order++);
         MigrateService::createColumn02($data->id, 'meta_description', '[SEO] Mô tả', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'slogan', 'Slogan', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order++);
-        MigrateService::createColumn02($data->id, 'footer', 'Nội dung footer', 'TEXT', 'textarea', $order++, ['edit', 0]);
+        
+        
+        
+        
 
     }
 

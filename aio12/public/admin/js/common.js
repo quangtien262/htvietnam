@@ -194,7 +194,7 @@ function ajaxSubmitForm (
             data: addParam,
             success: function (result) {
                 if (urlReload) {
-                    location.reload()
+                    location.reload();
                     // reload(classReload, urlReload);
                 } else {
                     if (

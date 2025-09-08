@@ -22,7 +22,8 @@ return new class extends Migration
         });
 
         $order_col = 1;
-        $tbl = MigrateService::createTable(0, 'gioi_tinh', 'Giới Tính', 0, 1, 1, 0, 0);
+        $tbl = MigrateService::createTable(0, 'gioi_tinh', 'Giới Tính', 
+        0, 1, 0, 0, 0);
 
          MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
         MigrateService::createColumn02($tbl->id, 'name', 'Giới Tính', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);

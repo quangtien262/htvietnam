@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Column;
+use App\Models\Admin\Log;
 use App\Models\Admin\Product;
 use App\Models\Admin\Table;
 use App\Models\AdminUser;
 use App\Services\Admin\TblService;
+use App\Services\AnalyticService;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -29,14 +32,51 @@ class AdminController extends Controller
             ];
         }
 
-        return Inertia::render(
-            'Admin/Pages/index',
-            [
-                'tables' => $tables,
-                'tablesSelects' => $tablesSelects,
-                'banChay' => $banchay
-            ]
-        );
+        // get 20 log mới nhất
+        $logs = Log::orderBy('id', 'desc')->limit(20)->get();
+
+        $param = [
+            'tables' => $tables,
+            'tablesSelects' => $tablesSelects,
+            'banChay' => $banchay,
+            'logs' => $logs
+        ];
+        return Inertia::render('Admin/Pages/index', $param);
+    }
+
+    public function dashboardWeb()
+    {
+        // Lấy dữ liệu lượt view theo ngày
+        $viewStats = AnalyticService::getAll();
+        // Lấy dữ liệu lượt view theo IP
+        // $viewStatsIp = AnalyticService::getAllByIp();
+
+        // $today = date('Y-m-d');
+        $contacts = DB::table('contact')
+            // ->whereDate('created_at', $today)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->select('id', 'name', 'email', 'phone', 'created_at')
+            ->get();
+
+        $orders = DB::table('orders')
+            // ->whereDate('created_at', $today)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+        
+        // get 20 log mới nhất
+        $logs = Log::orderBy('id', 'desc')->limit(20)->get();
+        
+        $param = [
+            'viewStats' => $viewStats,
+            // 'viewStatsIp' => $viewStatsIp,
+            'contacts' => $contacts,
+            'orders' => $orders,
+            'logs' => $logs
+        ];
+        // dd($param);
+        return Inertia::render('Admin/Dashboard/web', $param);
     }
 
 

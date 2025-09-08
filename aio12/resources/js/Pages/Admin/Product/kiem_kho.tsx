@@ -57,9 +57,6 @@ import {
     HTDateTime,
     HTPassword,
     HTInput,
-    HTTags,
-    HTSelectModal,
-    HTSelectsModal,
     HTTime, HTColor, HTCascaderTable, smartSearch02, smartSearch, showDataSearch, showDataSearch02
 } from "../../../Function/input";
 
@@ -515,7 +512,6 @@ export default function Dashboard(props) {
                         />
                     </Form.Item>
                 );
-            case "tags":
             case "tags":
                 return (
                     <Form.Item

@@ -9,6 +9,7 @@ use App\Services\Admin\TblService;
 use App\Models\Admin\Table;
 use App\Models\Admin\Column;
 use App\Models\Admin\FileManager;
+use App\Models\AdminUser;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -26,13 +27,34 @@ class FileController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::guard('admin_users')->user();
+
+        $adminUser = AdminUser::where('id', '!=', $user->id)->get();
+        // dd($adminUser);
+
+        $files = FileManager::query()->where('file_manager.parent_id', 0);
+        $files = $files->where('file_manager.create_by', $user->id);
+        $files = $files->where('file_manager.is_recycle_bin', 0);
+
+        $datas = $files->get();
+
+        $ids = [];
+        foreach ($datas as $data) {
+            $ids[$data->id] = false;
+        }
+
+
         $tables = TblService::getAdminMenu(0);
-        return Inertia::render(
-            'Admin/File/index',
-            [
-                'tables' => $tables,
-            ]
-        );
+
+        $props = [
+            'tables' => $tables,
+            'datas' => $datas,
+            'ids' => $ids,
+            'token' => csrf_token(),
+            'adminUser' => $adminUser,
+            'user' => $user
+        ];
+        return Inertia::render('Admin/File/index', $props);
     }
 
 
@@ -125,6 +147,7 @@ class FileController extends Controller
     public function download($id)
     {
         $data = FileManager::find($id);
+        
         return Storage::download($data->path);
     }
 
@@ -136,7 +159,7 @@ class FileController extends Controller
 
         $user = Auth::guard('admin_users')->user();
         $folder = FileManager::find($request->id);
-        $datas =  FileManager::where('parent_id', $request->id);
+        $datas = FileManager::where('parent_id', $request->id);
 
         if ($request->uploadType == 'share') {
             // share current
@@ -158,7 +181,7 @@ class FileController extends Controller
         $datas = $datas->get();
 
         $parent = [];
-        if(!empty($folder)) {
+        if (!empty($folder)) {
             $parent = CommonService::getParentId('file_manager', $folder->id);
         }
         $ids = [];
@@ -208,16 +231,16 @@ class FileController extends Controller
 
         // check admin_users_id bị xóa
         $uidRemove = [];
-        foreach($sharePre as $pre) {
-            if(!in_array($pre, $request->user_ids)) {
+        foreach ($sharePre as $pre) {
+            if (!in_array($pre, $request->user_ids)) {
                 $uidRemove[] = $pre;
             }
         }
 
         // check admin_users_id được thêm vào
         $uidNew = [];
-        foreach($request->user_ids as $new) {
-            if(!in_array($new, $sharePre)) {
+        foreach ($request->user_ids as $new) {
+            if (!in_array($new, $sharePre)) {
                 $uidNew[] = $new;
             }
         }
@@ -228,10 +251,10 @@ class FileController extends Controller
 
         // is folder: share/unshare all sub
         if ($file->type == 'folder') {
-            if(!empty($uidNew)) {
+            if (!empty($uidNew)) {
                 $this->shareAllSub($file, $uidNew);
             }
-            if(!empty($uidRemove)) {
+            if (!empty($uidRemove)) {
                 $this->unShareAllSub($file, $uidRemove);
             }
         }
@@ -248,15 +271,15 @@ class FileController extends Controller
             }
             $sub = FileManager::find($f->id);
 
-            if(empty($sub->share)) {
+            if (empty($sub->share)) {
                 $sub->share = $userIds;
                 $sub->save();
                 continue;
             }
 
             $share = $sub->share;
-            foreach($userIds as $id) {
-                if(!in_array($id, $share)) {
+            foreach ($userIds as $id) {
+                if (!in_array($id, $share)) {
                     $share[] = $id;
                 }
             }
@@ -273,8 +296,8 @@ class FileController extends Controller
                 self::unShareAllSub($f, $userIds);
             }
             $sub = FileManager::find($f->id);
-            $share =$sub->share;
-            foreach($userIds as $id) {
+            $share = $sub->share;
+            foreach ($userIds as $id) {
                 $share = CommonService::unsetByValue($share, $id);
             }
             $sub->share = $share;
@@ -286,19 +309,19 @@ class FileController extends Controller
     {
         $parents = CommonService::getParentId('file_manager', $file->id);
         // dd($parents);
-        foreach($parents as $parent) {
+        foreach ($parents as $parent) {
             $item = FileManager::find($parent['id']);
             $share = $item->share;
             // add
-            foreach($uidNew as $new) {
-                if(!in_array($new, $share)) {
+            foreach ($uidNew as $new) {
+                if (!in_array($new, $share)) {
                     $share[] = $new;
                 }
             }
 
             // remove
-            foreach($uidRemove as $remove) {
-                if(in_array($remove, $share)) {
+            foreach ($uidRemove as $remove) {
+                if (in_array($remove, $share)) {
                     $sub = $this->removeUserOfSub($remove, $file);
 
                     // check & unset admin_users_id if exist in share
@@ -312,10 +335,11 @@ class FileController extends Controller
 
     }
 
-    private function isShareSub($remove, $file) {
+    private function isShareSub($remove, $file)
+    {
         $subs = FileManager::where('parent_id', $file->id)->get();
-        foreach($subs as $sub) {
-            if(in_array($remove, $sub->share)) {
+        foreach ($subs as $sub) {
+            if (in_array($remove, $sub->share)) {
                 return true;
             }
         }
@@ -345,26 +369,28 @@ class FileController extends Controller
         $parent = CommonService::getEditorFolder();
 
         $result = [];
-        foreach($request->all() as $file) {
+        foreach ($request->all() as $file) {
             $item = $this->saveFile($file, $directoryUpload, $parent->id);
             $result[] = [
                 "url" => $item->url,
-                "name"=> $item->name,
-                "size"=> $item->size
+                "name" => $item->name,
+                "size" => $item->size
             ];
         }
         return $this->sendSuccessResponse($result);
     }
 
-    public function getAllFile(){
+    public function getAllFile()
+    {
         $user = Auth::guard('admin_users')->user();
         $parent = CommonService::getEditorFolder();
         $files = FileManager::select(
-            'url as src', 
-            'url_thumb as thumbnail', 
+            'url as src',
+            'url_thumb as thumbnail',
             'name as name',
             'alt as alt',
-            'alt as tag')
+            'alt as tag'
+        )
             ->where('parent_id', $parent->id)->get();
         return [
             "result" => $files,
@@ -373,7 +399,8 @@ class FileController extends Controller
         ];
     }
 
-    private function saveFile($file, $directoryUpload, $parentId, $shareAll = 0) {
+    private function saveFile($file, $directoryUpload, $parentId, $shareAll = 0)
+    {
         $thumb = $directoryUpload . '/thumb';
         CommonService::createDir('documents');
         CommonService::createDir('editor');
@@ -390,15 +417,15 @@ class FileController extends Controller
         }
 
         $count = FileManager::where('parent_id', $parentId)
-                ->where('name', $clientOriginalName)
-                ->where('is_share_all', $shareAll)->count();
-        if($count > 0) {
+            ->where('name', $clientOriginalName)
+            ->where('is_share_all', $shareAll)->count();
+        if ($count > 0) {
             $clientOriginalName .= '_' . $count;
         }
 
         $alt = '';
         $parent = FileManager::find($parentId);
-        if(!empty($parent)) {
+        if (!empty($parent)) {
             $alt = $parent->name;
         }
 

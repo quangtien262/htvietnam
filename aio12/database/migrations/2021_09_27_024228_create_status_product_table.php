@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('status_product', function (Blueprint $table) {
+        Schema::create('product_status', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('color')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
 
         Table::create([
             //require
-            'name' => 'status_product',
+            'name' => 'product_status',
             'display_name' => 'Trạng thái hàng hóa',
             'parent_id' => 0,
             'sort_order' => 0,
@@ -40,11 +40,13 @@ return new class extends Migration
             'is_label' => 0,
         ]);
 
-        $tbl = Table::where('name', 'status_product')->first();
+        $tbl = Table::where('name', 'product_status')->first();
         
          MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
         MigrateService::createColumn02($tbl->id, 'name', 'Trạng thái hàng hóa', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
-        MigrateService::createColumn02($tbl->id, 'color', 'Màu đánh dấu', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+        MigrateService::createColumn02($tbl->id, 'color', 'Màu đánh dấu', 'VARCHAR', 
+        'color', $order_col++,
+        ['require' => 0,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
         MigrateService::baseColumn($tbl);
     }
 
@@ -53,6 +55,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('status_product');
+        Schema::dropIfExists('product_status');
     }
 };

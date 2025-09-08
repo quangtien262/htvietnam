@@ -2,15 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Admin\Table;
-use App\Models\Admin\Column;
-use App\Models\Admin\FileManager;
 use Illuminate\Support\Facades\DB;
 use App\Services\Admin\TblService;
 use App\Services\CommonService;
-use App\Services\MigrateService;
 
 class DefaultSeeder extends Seeder
 {

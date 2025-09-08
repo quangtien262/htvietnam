@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('code')->nullable();
             $table->text('icon')->nullable();
-            $table->integer('is_default')->default(0)->nullable();
+            $table->integer('is_key')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
             $table->integer('parent_id')->default(0)->nullable();
             $table->integer('create_by')->default(1)->nullable();
@@ -33,7 +33,7 @@ return new class extends Migration
         MigrateService::createColumn02( $languages->id, 'icon', 'Icon', 'TEXT', 'image', $order_col++, ['show_in_list'=>1]);
         
         $confirm = DB::table('tables')->where('name', 'confirm')->first();
-        MigrateService::createColumn02( $languages->id, 'is_default', 'Icon', 'TEXT', 'image', $order_col++, 
+        MigrateService::createColumn02( $languages->id, 'is_key', 'Icon', 'TEXT', 'image', $order_col++, 
         ['show_in_list'=>1, 'edit' => 0, 'select_table_id' => $confirm->id]);
         
         MigrateService::baseColumn($languages);
