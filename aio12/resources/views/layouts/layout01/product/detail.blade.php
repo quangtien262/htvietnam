@@ -75,7 +75,7 @@
                         <aside id="search-2" class="widget widget_search">
                             <span class="widget-title shop-sidebar">Tìm kiếm sản phẩm</span>
                             <div class="is-divider small"></div>
-                            <form method="get" class="searchform" action="" role="search">
+                            <form method="get" class="searchform" action="{{ route('searchProduct') }}" role="search">
                                 <div class="flex-row relative">
                                     <div class="flex-col flex-grow">
                                         <input type="search" class="search-field mb-0" name="s" value=""

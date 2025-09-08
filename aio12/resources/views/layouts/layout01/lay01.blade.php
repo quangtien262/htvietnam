@@ -139,7 +139,7 @@
         <script id="contact-form-7-js-extra">
             var wpcf7 = {
                 "api": {
-                    "root": "https:\/\/solar3.maugiaodien.com\/wp-json\/",
+                    "root": "/",
                     "namespace": "contact-form-7\/v1"
                 }
             };

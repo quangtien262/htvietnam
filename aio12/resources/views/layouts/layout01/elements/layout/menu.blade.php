@@ -13,7 +13,7 @@
                             <div class="header-search-form-wrapper">
                                 <div class="searchform-wrapper ux-search-box relative is-normal">
                                     <form role="search" method="get" class="searchform"
-                                        action="">
+                                        action="{{ route('searchProduct') }}">
                                         <div class="flex-row relative">
                                             <div class="flex-col flex-grow">
                                                 <label class="screen-reader-text"

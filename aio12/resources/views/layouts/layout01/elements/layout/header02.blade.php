@@ -69,15 +69,15 @@
         </div>
         <!-- Mobile Right Elements -->
         <div class="flex-col show-for-medium flex-right">
-        <ul class="mobile-nav nav nav-right ">
-            <li class="cart-item has-icon">
-                <a href="https://solar3.maugiaodien.com/gio-hang/" class="header-cart-link off-canvas-toggle nav-top-link is-small" data-open="#cart-popup" data-class="off-canvas-cart" title="Cart" data-pos="right">
-                <i class="icon-shopping-cart"
-                    data-icon-label="0">
-                </i>
-                </a>
-            </li>
-        </ul>
+            {{-- <ul class="mobile-nav nav nav-right ">
+                <li class="cart-item has-icon">
+                    <a href="https://solar3.maugiaodien.com/gio-hang/" class="header-cart-link off-canvas-toggle nav-top-link is-small" data-open="#cart-popup" data-class="off-canvas-cart" title="Cart" data-pos="right">
+                    <i class="icon-shopping-cart"
+                        data-icon-label="0">
+                    </i>
+                    </a>
+                </li>
+            </ul> --}}
         </div>
     </div>
 </div>
