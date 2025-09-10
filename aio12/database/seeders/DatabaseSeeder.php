@@ -16,8 +16,11 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserTableSeeder::class);
         $this->call(CountriesTableSeeder::class);
 
-        $this->call(HimalayaSeeder::class);
         $this->call(StatusSeeder::class);
+
+        $this->call(AdminMenuSeeder::class);
+
+        $this->call(HimalayaSeeder::class);
 
         // if(!empty(env('APP_LAYOUT'))) {
         //     $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');

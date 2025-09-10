@@ -6,6 +6,7 @@ use App\Models\Admin\ChiNhanh;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\AdminMenu;
 use App\Models\Admin\Column;
 use App\Models\Admin\Log;
 use App\Models\Admin\Product;
@@ -106,25 +107,14 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $tables = TblService::getAdminMenu(0);
-        $tablesSelects = TblService::getTableSelects();
 
-        $products = Product::orderBy('id', 'desc')->paginate(10);
-        $banchay = [];
-        foreach ($products as $pro) {
-            $banchay[] = [
-                'title' => $pro->name,
-                'gia_ban' => $pro->gia_ban
-            ];
-        }
-
-        return Inertia::render(
-            'Admin/Dashboard/index',
-            [
-                'tables' => $tables,
-                'tablesSelects' => $tablesSelects,
-                'banChay' => $banchay
-            ]
-        );
+        $datas = AdminMenu::orderBy('sort_order', 'asc')->where('parent_id', 0)->get();
+        // dd($datas);
+        $props = [
+            'tables' => $tables,
+            'datas' => $datas
+        ];
+        return Inertia::render('Admin/Dashboard/index', $props);
     }
 
     /**

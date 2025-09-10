@@ -7,15 +7,16 @@ import {
     ArrowsAltOutlined,ShrinkOutlined,
     StepBackwardOutlined,
     FastForwardOutlined,
-    FastBackwardOutlined,
+    FastBackwardOutlined,HddFilled,
     StepForwardOutlined,SyncOutlined,
     MoneyCollectFilled,LoadingOutlined,
     RightOutlined,EyeFilled,FileExclamationFilled,
-    InfoCircleFilled,ExclamationCircleFilled,
+    InfoCircleFilled,ExclamationCircleFilled,CalendarFilled,
     CaretDownOutlined,VerticalAlignTopOutlined,RollbackOutlined,
-    CaretRightOutlined,VerticalRightOutlined,ForwardOutlined,
+    CaretRightOutlined,VerticalRightOutlined,ForwardOutlined,SlidersFilled,
     UpCircleOutlined,DoubleRightOutlined,DoubleLeftOutlined,VerticalLeftOutlined,
-    DownCircleOutlined, LeftCircleOutlined,RightCircleOutlined,BulbFilled
+    DownCircleOutlined, LeftCircleOutlined,RightCircleOutlined,BulbFilled, ShopFilled,
+    AccountBookOutlined,PieChartFilled,IdcardFilled
 } from "@ant-design/icons";
 
 export const icon = 
@@ -58,6 +59,13 @@ export const icon =
         EyeFilled:<EyeFilled />,
         BulbFilled:<BulbFilled />,
         CheckCircleFilled:<CheckCircleFilled />,
-        FileExclamationFilled:<FileExclamationFilled />
-    
+        FileExclamationFilled:<FileExclamationFilled />,
+        ShopFilled:<ShopFilled />,
+        SlidersFilled:<SlidersFilled />,
+        CalendarFilled:<CalendarFilled />,
+        HddFilled:<HddFilled />,
+        AccountBookOutlined:<AccountBookOutlined />,
+        PieChartFilled:<PieChartFilled />,
+        IdcardFilled:<IdcardFilled />,
+
 }
