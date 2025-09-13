@@ -10,7 +10,7 @@ export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
 export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
     'products', 'menus', 'admin_user.edit', 'admin_user.index',
-    'admin_user.change_password', 'web_config', 'video','emails', 'countries','library'
+    'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library'
 ];
 
 // export const tblConfig = {
@@ -288,14 +288,6 @@ export const routeTask = [
         },
         sub: []
     },
-    // {
-    //     parent: {
-    //         link: route('data.tblName', ['task_milestones']),
-    //         display_name: 'Nhóm công việc',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
     {
         parent: {
             link: route('task.list'),
@@ -304,30 +296,30 @@ export const routeTask = [
         },
         sub: []
     },
-    // {
-    //     parent: {
-    //         link: route('task.list'),
-    //         display_name: 'Nhóm checklist',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
     {
         parent: {
-            link: route('data.tblName', ['task_milestones']),
-            display_name: 'Milestones',
+            link: route('data.tblName', ['data_telesales']),
+            display_name: 'Cài đặt',
             key: key++
         },
-        sub: []
+        sub: [
+            {
+                link: route('data.tblName', ['task_milestones']),
+                display_name: 'Milestones',
+                key: key++
+            },
+            {
+                link: route('data.tblName', ['task_prority']),
+                display_name: 'Độ ưu tiên',
+                key: key++
+            },
+            {
+                link: route('data.tblName', ['task_status']),
+                display_name: 'Trạng thái',
+                key: key++
+            },
+        ]
     },
-    // {
-    //     parent: {
-    //         link: route('data.tblName', ['data_telesales']),
-    //         display_name: 'Cài đặt',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
 
 ];
 export const routeTaiChinh = [
