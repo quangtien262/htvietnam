@@ -648,7 +648,7 @@ class HimalayaService
         if($param['typeSubmit'] == 'draft') {
           
             // draft: xử lý lưu vào db ở chế độ draft và chưa trừ tiền của khách trong thẻ GT
-            $hoaDon->status_hoa_don_id = 2;
+            $hoaDon->hoa_don_status_id = 2;
             $hoaDon->is_draft = 1;
             $hoaDon->save();
             if(!empty($hoaDonId)) {
@@ -677,7 +677,7 @@ class HimalayaService
         // submit
         if($param['typeSubmit'] == 'submit') {
             // submit: Lưu hóa đơn, hđơn chi tiết, lịch sử dùng thẻ, phiếu thu, phiếu thu chi tiết
-            $hoaDon->status_hoa_don_id = 1;
+            $hoaDon->hoa_don_status_id = 1;
             $hoaDon->is_draft = 0;
             $hoaDon->save();
 

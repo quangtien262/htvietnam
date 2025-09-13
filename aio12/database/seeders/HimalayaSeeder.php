@@ -238,8 +238,8 @@ class HimalayaSeeder extends Seeder
 
         DB::table('chi_nhanh')->truncate();
         DB::table('chi_nhanh')->insert([
-            ['name' => 'Vinhomes', 'code' => 'CN00001', 'sort_order' => 1],
-            ['name' => 'Phổ Quang', 'code' => 'CN00002', 'sort_order' => 2],
+            ['name' => 'Vinhomes', 'code' => 'CN00001', 'sort_order' => 1, 'chi_nhanh_status_id'=>1],
+            ['name' => 'Phổ Quang', 'code' => 'CN00002', 'sort_order' => 2, 'chi_nhanh_status_id'=>1],
         ]);
 
         DB::table('users')->truncate();

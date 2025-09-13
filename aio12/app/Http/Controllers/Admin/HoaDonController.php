@@ -136,7 +136,7 @@ class HoaDonController extends Controller
             $hoaDon->da_thanh_toan = $rq->da_thanh_toan;
             $hoaDon->cong_no = $rq->cong_no;
             $hoaDon->ngay_tat_toan = $rq->ngay_tat_toan;
-            $hoaDon->status_hoa_don_id = 2; // luu cong no
+            $hoaDon->hoa_don_status_id = 2; // luu cong no
 
             // lưu công nọ vào khách hàng
             $khachHang->tong_cong_no += $rq->cong_no;
@@ -164,7 +164,7 @@ class HoaDonController extends Controller
             $congNo->save();
 
         } else {
-            $hoaDon->status_hoa_don_id = 2; // da thanh toan
+            $hoaDon->hoa_don_status_id = 2; // da thanh toan
         }
         
         if($rq->hinh_thuc_thanh_toan_id == 2) {
@@ -326,7 +326,7 @@ class HoaDonController extends Controller
             $nhanVienThuNgan = $request->session()->get('nhan_vien_thu_ngan');
             $khoHangThuNgan = $request->session()->get('kho_hang');
         }
-
+        // dd($chiNhanhThuNgan);
         $caInfo = HoaDonService::getCaInfo($nhanVienThuNgan);
         // dd($caInfo);
         

@@ -126,7 +126,6 @@ export default function Dashboard(props: any) {
         if (item.name === 'parent_kho_hang') {
             return <Col sm={6} className='item-home'>
                 <Card variant="borderless" className='item-dashboard'>
-
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link href={route('sale.dashboard')}>
@@ -285,9 +284,9 @@ export default function Dashboard(props: any) {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <span onClick={() => setIsOpenModalConfirm(true)}>
-                                <a><ShopFilled /> QUẢN LÝ BÁN HÀNG</a>
-                            </span>
+                            <Link href={route('sale.dashboard')}>
+                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
+                            </Link>
                         </div>
                         <div className="ant-statistic-content" >
                             <div className="ant-statistic-content-prefix">

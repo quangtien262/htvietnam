@@ -51,6 +51,7 @@ export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
 // };
 
 export const tblConfig = {
+    // website
     tblWeb: {
         name: 'Quản lý website',
         active: true,
@@ -59,36 +60,43 @@ export const tblConfig = {
             'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library']
 
     },
+    // Quản lý nhân sự
     tblNhanSu: {
         name: 'Quản lý nhân sự',
         active: true,
         data: ['permission_group', 'admin_user', 'khoa_hoc', 'chi_nhanh']
     },
+    // Quản lý kho hàng
     tblKhoHang: {
         name: 'Quản lý kho hàng',
         active: false,
         data: ['kho_hang', 'nha_cung_cap_status']
     },
+    // Quản lý bán hàng
     tblSale: {
         name: 'Quản lý bán hàng',
         active: false,
         data: ['data_telesales', 'dat_lich', 'users']
     },
+    // Quản lý tài chính
     tblTaiChinh: {
         name: 'Quản lý tài chính',
         active: false,
         data: ['hoa_don']
     },
+    // Báo cáo
     tblReport: {
         name: 'Báo cáo',
         active: false,
         data: []
     },
+    // Quản lý tài sản
     tblTaiSan: {
         name: 'Quản lý tài sản',
         active: false,
         data: ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
     },
+    // Quản lý công việc
     tblTask: {
         name: 'Quản lý công việc',
         active: false,
@@ -228,14 +236,14 @@ export const routeSales = [
 ];
 
 export const routeNhanSu = [
-    // {
-    //     parent: {
-    //         link: route('nhanSu.dashboard'),
-    //         display_name: 'Báo cáo',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
+    {
+        parent: {
+            link: route('nhanSu.dashboard'),
+            display_name: 'Báo cáo',
+            key: key++
+        },
+        sub: []
+    },
     {
         parent: {
             link: route('nhanVien.index'),

@@ -196,7 +196,7 @@ export default function Dashboard(props) {
         values = formatValueForm(props.columns, values);
         // return '';
         if(props.table.name === 'hoa_don' && submitRedirect === 'thanh_toan') {
-            values.status_hoa_don_id = 1;
+            values.hoa_don_status_id = 1;
             console.log('values', values);
         }
         
@@ -647,7 +647,7 @@ export default function Dashboard(props) {
                     </Col>
                     {
                         // nếu là thẻ giá trị thì show ra bảng dịch vụ
-                        props.data.status_hoa_don_id !== 2 ? '':
+                        props.data.hoa_don_status_id !== 2 ? '':
                         <Col key={col.name} sm={{ span: 24 }} md={{ span: 24 }} lg={{ span: 24 }}>
                             <Table
                                 size="small"

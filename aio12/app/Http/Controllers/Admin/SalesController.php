@@ -2,38 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Admin\NhapHangDetail;
-use App\Models\Admin\Product;
-use App\Models\Admin\TraHangNCC;
-use App\Models\Admin\XuatHuy;
-use App\Models\Admin\XuatHuyDetail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\ChiNhanh;
-use App\Models\Admin\Column;
-use App\Models\Admin\CongNo;
 use App\Models\Admin\HoaDon;
-use App\Models\Admin\KhachTraHang;
-use App\Models\Admin\KhachTraHangDetail;
-use App\Models\Admin\KiemKho;
-use App\Models\Admin\KiemKhoDetail;
-use App\Models\Admin\NhaCungCap;
-use App\Models\Admin\NhapHang;
-use App\Models\Admin\PhieuChi;
-use App\Models\Admin\PhieuThu;
-use App\Models\Admin\SoQuy;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\DB;
-
-use App\Services\Admin\TblService;
-use App\Models\Admin\Table;
-use App\Models\Admin\TraHangNCCDetail;
 use App\Models\AdminUser;
 use App\Models\User;
-use App\Services\Admin\UserService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Services\Admin\TblService;
 
 class SalesController extends Controller
 {
@@ -41,10 +17,27 @@ class SalesController extends Controller
     {
         $soLuongSPTheoLoai = [];
         
-        $viewData = [
-            'soLuongSPTheoLoai' => $soLuongSPTheoLoai
+        
+        $chiNhanh = ChiNhanh::where('chi_nhanh_status_id', 1)->get();
+        $nhanVien = AdminUser::where('admin_user_status_id', 1)->get();
+        
+        // tính tổng doanh thu trong 7 ngày gần nhất
+        $doanhThu = HoaDon::where('hoa_don_status_id', '!=',4)
+            ->where('is_draft','!=',1)
+            ->where('is_recycle_bin','!=',1)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->sum('thanh_toan');
+        $slKhachHangMoi  = User::where('is_recycle_bin','!=',1)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+
+        $props = [
+            'soLuongSPTheoLoai' => $soLuongSPTheoLoai,
+            'chiNhanh' => $chiNhanh,
+            'nhanVien' => $nhanVien,
+            'doanhThu' => $doanhThu,
         ];
-        return Inertia::render('Admin/Dashboard/sales', $viewData);
+        return Inertia::render('Admin/Dashboard/sales', $props);
     }
 
     public function index(Request $request)

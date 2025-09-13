@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('code')->nullable();
-            $table->integer('chi_nhanh_status_id')->nullable();
+            $table->integer('chi_nhanh_status_id')->default(1)->nullable();
             $table->text('address')->nullable();
             $table->string('phone')->nullable();
             $table->date('ngay_thanh_lap')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
         });
         Table::create([
             'name' => 'chi_nhanh',
-            'display_name' => 'Chi nhánh phòng ban',
+            'display_name' => 'Chi nhánh',
             'sort_order' => 0,
             'type_show' => config('constant.type_show.basic'),
             'count_item_of_page' => 30,
@@ -65,7 +65,8 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'name', 'Tên chi nhánh', 'VARCHAR', 'text', $order_col++, ['require' => 1,'show_in_list' => 1,'is_view_detail' => 1]);
 
         $trangThai = Table::where('name', 'chi_nhanh_status')->first();
-        MigrateService::createColumn02($tableId, 'chi_nhanh_status_id', 'Trạng thái', 'INT', 'select', $order_col++, ['select_table_id' =>  $trangThai->id, 'require' => 1,'show_in_list' => 1,'add2search' => 1,'add_express' => 1]);
+        MigrateService::createColumn02($tableId, 'chi_nhanh_status_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+        ['select_table_id' =>  $trangThai->id, 'require' => 1,'show_in_list' => 1,'add2search' => 1,'add_express' => 1]);
 
         MigrateService::createColumn02($tableId, 'phone', 'Hotline', 'VARCHAR', 'text', $order_col++,['require' => 1]);
         MigrateService::createColumn02($tableId, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order_col++, ['require' => 1, 'add_express' => 1,'is_view_detail' => 1]);

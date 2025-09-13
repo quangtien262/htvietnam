@@ -29,7 +29,7 @@
 
                 $table->integer('kenh_ban_id')->nullable();
                 $table->integer('ghi_so_id')->nullable();
-                $table->integer('status_hoa_don_id')->default(2)->nullable(); // 2: chưa thanh toán
+                $table->integer('hoa_don_status_id')->default(2)->nullable(); // 2: chưa thanh toán
 
                 $table->text('hoa_don_chi_tiet_id')->nullable();
                 $table->text('nv_tu_van_id')->nullable();
@@ -83,9 +83,11 @@
                 // tiền tip, nghỉ lễ
                 $table->integer('tien_tip')->default(0)->nullable();
 
-                // thanh toán nhiều lần, công nợ,
+                // Số tiền đã thanh toán
                 $table->integer('da_thanh_toan')->default(0)->nullable();
+                // số tiền còn nợ
                 $table->integer('cong_no')->default(0)->nullable();
+                // ngày 
                 $table->date('ngay_tat_toan')->nullable();
                 $table->integer('ghi_chu_cong_no')->default(0)->nullable();
                 $table->integer('cong_no_status_id')->default(0)->nullable();
@@ -208,8 +210,8 @@
             // MigrateService::createColumn02($tableId, 'the_lan_id', 'Dịch vụ thẻ lần', 'TEXT', 'selects_table', $order_col++, 
             // ['select_table_id' => $dvtl->id, 'parent_id' => $blockPrice->id]);
 
-            $tt = Table::where('name', 'trang_thai_hoa_don')->first();
-            MigrateService::createColumn02($tableId, 'status_hoa_don_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+            $tt = Table::where('name', 'hoa_don_status')->first();
+            MigrateService::createColumn02($tableId, 'hoa_don_status_id', 'Trạng thái', 'INT', 'select', $order_col++, 
             ['select_table_id' => $tt->id, 'parent_id' => $blockPrice->id, 'show_in_list' => 1]);
 
             MigrateService::createColumn02($tableId, 'chiet_khau', 'Chiết khấu', 'INT', 'number', $order_col++, 

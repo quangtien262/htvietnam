@@ -132,7 +132,9 @@ export default function Dashboard(props) {
     function payment() {
 
         // validation
-        if(chiNhanhThuNgan.id || !nhanVienThuNgan.id  || !khoHangThuNgan.id) {
+        if(!chiNhanhThuNgan.id || !nhanVienThuNgan.id  || !khoHangThuNgan.id) {
+            console.log('xxx', chiNhanhThuNgan.id, nhanVienThuNgan.id, khoHangThuNgan.id);
+            
             setIsModalThuNganConfig(true);
             return;
         }

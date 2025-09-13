@@ -21,13 +21,13 @@ import {
 } from "@ant-design/icons";
 import {
     Tooltip, Cell, Pie, PieChart, ResponsiveContainer,
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
     LineChart, Line
 } from 'recharts';
 
 import "../../../../css/home.css";
 import { numberFormat } from "../../../Function/common";
-import { routeQLKho } from "../../../Function/config_route";
+import { routeSales } from "../../../Function/config_route";
 import { history } from "../../../Function/report";
 import type { GetProp, MenuProps } from 'antd';
 
@@ -164,13 +164,13 @@ export default function Dashboard(props: any) {
             title: "Revenue",
             dataIndex: "revenue",
             key: "revenue",
-            render: (val) => formatCurrency(val),
+            render: (val: number) => formatCurrency(val),
         },
     ];
 
     // Helper to format currency consistently
     function formatCurrency(amount = 0) {
-        return amount.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+    return amount.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
     }
 
     // Simple control handlers — using Inertia to request filtered data (server-side)
@@ -181,173 +181,158 @@ export default function Dashboard(props: any) {
     }
 
     return (
-        <AdminLayout
-            auth={props.auth}
-            header='Trang chủ'
-            tables={routeQLKho}
-            content={
-                <>
-                    <Row>
-                        {/* menu */}
-                        <Col sm={6}>
-                            <Menu className="menu-report"
-                                style={{ width: 256 }}
-                                defaultSelectedKeys={['1']}
-                                defaultOpenKeys={['1']}
-                                mode={'inline'}
-                                theme={'light'}
-                                items={items}
-                            />
-                        </Col>
-
-                        {/* content */}
-                        <Col sm={18}>
-                            <div style={{ padding: 20 }} className='content-home'>
-                                {/* Bảng nhập hàng */}
-                                <div className='sub-item-home'>
-                                    <h3>
-                                        <MonitorOutlined />
-                                        BC nhập hàng
-                                    </h3>
-                                
-                                    <div className="p-6">
-                                        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.36 }}>
-                                            {/* Filters row */}
-                                            <Card className="mb-6">
-                                                <Row gutter={[16, 16]} align="middle">
-                                                    <Col xs={24} md={10} lg={8}>
-                                                        <label className="block mb-1 text-sm text-gray-600">Date range</label>
-                                                        <DatePicker.RangePicker onChange={(dates, dateStrings) => onFilterChange({ from: dateStrings[0], to: dateStrings[1] })} />
+        <AdminLayout  
+                auth={props.auth}
+                header='Trang chủ'
+                tables={routeSales}
+                content={
+                    <>
+                        <Row>
+                            {/* menu */}
+                            <Col sm={6}>
+                                <Menu className="menu-report"
+                                    style={{ width: 256 }}
+                                    defaultSelectedKeys={['1']}
+                                    defaultOpenKeys={['1']}
+                                    mode={'inline'}
+                                    theme={'light'}
+                                    items={items}
+                                />
+                            </Col>
+                            {/* content */}
+                            <Col sm={18}>
+                                <div style={{ padding: 20 }} className='content-home'>
+                                    {/* Bảng nhập hàng */}
+                                    <div className='sub-item-home'>
+                                        <h3>
+                                            <MonitorOutlined />
+                                            Báo cáo tổng quan
+                                        </h3>
+                                        <div className="p-6">
+                                            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.36 }}>
+                                                {/* Filters row */}
+                                                <Card className="mb-6">
+                                                    <Row gutter={[16, 16]} align="middle">
+                                                        <Col xs={24} md={10} lg={8}>
+                                                            <label className="block mb-1 text-sm text-gray-600">Thời gian</label>
+                                                            <DatePicker.RangePicker onChange={(dates, dateStrings) => onFilterChange({ from: dateStrings[0], to: dateStrings[1] })} />
+                                                        </Col>
+                                                        <Col xs={24} md={8} lg={8}>
+                                                            <label className="block mb-1 text-sm text-gray-600">Nhân viên bán hàng</label>
+                                                            <Select allowClear={true}
+                                                                showSearch
+                                                                style={{ width: 200 }}
+                                                                placeholder="Search to Select"
+                                                                optionFilterProp="children"
+                                                                filterOption={(input: string, option: any) => typeof option?.label === 'string' && option.label.includes(input)}
+                                                                filterSort={(optionA: any, optionB: any) => {
+                                                                    const labelA = typeof optionA?.label === 'string' ? optionA.label.toLowerCase() : '';
+                                                                    const labelB = typeof optionB?.label === 'string' ? optionB.label.toLowerCase() : '';
+                                                                    return labelA.localeCompare(labelB);
+                                                                }}
+                                                                options={
+                                                                    props.nhanVien ? props.nhanVien.map((nv: any) => ({ label: nv.code + ' - ' + nv.name, value: nv.id })) : []
+                                                                }
+                                                                // onChange={(val: any) => onFilterChange({ branch: val })}
+                                                            />
+                                                        </Col>
+                                                        
+                                                    </Row>
+                                                </Card>
+                                                {/* KPI cards */}
+                                                <Row gutter={[16, 16]} className="mb-6">
+                                                    <Col xs={24} sm={12} md={6}>
+                                                        <Card className="rounded-2xl shadow-md p-4">
+                                                            <Statistic title="Tổng doanh thu" value={props.doanhThu} />
+                                                        </Card>
                                                     </Col>
-
-                                                    <Col xs={24} md={7} lg={6}>
-                                                        <label className="block mb-1 text-sm text-gray-600">Store / Branch</label>
-                                                        <Select defaultValue={"all"} onChange={(val) => onFilterChange({ branch: val })} style={{ width: "100%" }}>
-                                                            <Select.Option value="all">Tất cả chi nhánh</Select.Option>
-                                                            <Select.Option value="store-1">Store 1</Select.Option>
-                                                            <Select.Option value="store-2">Store 2</Select.Option>
-                                                        </Select>
+                                                    <Col xs={24} sm={12} md={6}>
+                                                        <Card className="rounded-2xl shadow-md p-4">
+                                                            <Statistic title="Tổng đơn hàng" value={data.totals.orders} />
+                                                        </Card>
                                                     </Col>
-
-                                                    <Col xs={24} md={7} lg={6}>
-                                                        <label className="block mb-1 text-sm text-gray-600">Salesperson</label>
-                                                        <Input.Search placeholder="Search seller" onSearch={(v) => onFilterChange({ salesperson: v })} />
+                                                    <Col xs={24} sm={12} md={6}>
+                                                        <Card className="rounded-2xl shadow-md p-4">
+                                                            <Statistic title="Tổng khách hàng" value={data.totals.customers} />
+                                                        </Card>
                                                     </Col>
-
-                                                    <Col xs={24} md={24} lg={4} className="flex justify-end">
-                                                        <Badge count={data.totals.orders} showZero>
-                                                            <div className="p-2">Orders</div>
-                                                        </Badge>
+                                                    <Col xs={24} sm={12} md={6}>
+                                                        <Card className="rounded-2xl shadow-md p-4">
+                                                            <Statistic title="Khách hàng mới" value={data.totals.profit} />
+                                                        </Card>
                                                     </Col>
                                                 </Row>
-                                            </Card>
-
-                                            {/* KPI cards */}
-                                            <Row gutter={[16, 16]} className="mb-6">
-                                                <Col xs={24} sm={12} md={6}>
-                                                    <Card className="rounded-2xl shadow-md p-4">
-                                                        <Statistic title="Revenue" value={formatCurrency(data.totals.revenue)} />
-                                                    </Card>
-                                                </Col>
-
-                                                <Col xs={24} sm={12} md={6}>
-                                                    <Card className="rounded-2xl shadow-md p-4">
-                                                        <Statistic title="Orders" value={data.totals.orders} />
-                                                    </Card>
-                                                </Col>
-
-                                                <Col xs={24} sm={12} md={6}>
-                                                    <Card className="rounded-2xl shadow-md p-4">
-                                                        <Statistic title="Customers" value={data.totals.customers} />
-                                                    </Card>
-                                                </Col>
-
-                                                <Col xs={24} sm={12} md={6}>
-                                                    <Card className="rounded-2xl shadow-md p-4">
-                                                        <Statistic title="Profit" value={formatCurrency(data.totals.profit)} />
-                                                    </Card>
-                                                </Col>
-                                            </Row>
-
-                                            {/* Charts and tables grid */}
-                                            <Row gutter={[16, 16]}>
-                                                <Col xs={24} lg={16}>
-                                                    <Card className="rounded-2xl shadow-md">
-                                                        <div className="flex items-center justify-between mb-3">
-                                                            <h3 className="text-lg font-medium">Doanh thu trong 7 ngày qua</h3>
-                                                            <div className="text-sm text-gray-500">Từ 25/07/2025 - 01/08/2025</div>
-                                                        </div>
-
-                                                        <div style={{ width: "100%", height: 300 }}>
-                                                            <ResponsiveContainer>
-                                                                <LineChart data={data.revenueSeries} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                                    <XAxis dataKey="date" />
-                                                                    <YAxis />
-                                                                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                                                                    <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} dot={{ r: 4 }} />
-                                                                </LineChart>
-                                                            </ResponsiveContainer>
-                                                        </div>
-                                                    </Card>
-
-                                                    <Card className="rounded-2xl shadow-md mt-4">
-                                                        <h3 className="text-lg font-medium mb-3">Top sản phẩm bán chạy nhất</h3>
-                                                        <Table dataSource={data.topProducts} columns={tableColumns} pagination={false} />
-                                                    </Card>
-                                                </Col>
-
-                                                <Col xs={24} lg={8}>
-                                                    <Card className="rounded-2xl shadow-md mb-4">
-                                                        <h3 className="text-lg font-medium mb-3">Phương thức thanh toán</h3>
-                                                        <div style={{ width: "100%", height: 240 }}>
-                                                            <ResponsiveContainer>
-                                                                <PieChart>
-                                                                    <Pie data={data.paymentBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                                                                        {data.paymentBreakdown.map((entry, index) => (
-                                                                            <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                                                                        ))}
-                                                                    </Pie>
-                                                                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                                                                </PieChart>
-                                                            </ResponsiveContainer>
-                                                        </div>
-                                                    </Card>
-
-                                                    <Card className="rounded-2xl shadow-md">
-                                                        <h3 className="text-lg font-medium mb-3">Khách hàng gần đây</h3>
-                                                        <div className="flex flex-col gap-2">
-                                                            <button
-                                                                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
-                                                                onClick={() => Inertia.get(route("orders.index"))}
-                                                            >
-                                                                View Orders
-                                                            </button>
-
-                                                            <button className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm" onClick={() => Inertia.get(route("products.index"))}>
-                                                                Manage Products
-                                                            </button>
-
-                                                            <button
-                                                                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
-                                                                onClick={() => Inertia.get(route("customers.index"))}
-                                                            >
-                                                                Customer List
-                                                            </button>
-                                                        </div>
-                                                    </Card>
-                                                </Col>
-                                            </Row>
-                                        </motion.div>
+                                                {/* Charts and tables grid */}
+                                                <Row gutter={[16, 16]}>
+                                                    <Col xs={24} lg={16}>
+                                                        <Card className="rounded-2xl shadow-md">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <h3 className="text-lg font-medium">Doanh thu trong 7 ngày qua</h3>
+                                                                <div className="text-sm text-gray-500">Từ 25/07/2025 - 01/08/2025</div>
+                                                            </div>
+                                                            <div style={{ width: "100%", height: 300 }}>
+                                                                <ResponsiveContainer>
+                                                                    <LineChart data={data.revenueSeries} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                                        <CartesianGrid strokeDasharray="3 3" />
+                                                                        <XAxis dataKey="date" />
+                                                                        <YAxis />
+                                                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                                                        <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} dot={{ r: 4 }} />
+                                                                    </LineChart>
+                                                                </ResponsiveContainer>
+                                                            </div>
+                                                        </Card>
+                                                        <Card className="rounded-2xl shadow-md mt-4">
+                                                            <h3 className="text-lg font-medium mb-3">Top sản phẩm bán chạy nhất</h3>
+                                                            <Table dataSource={data.topProducts} columns={tableColumns} pagination={false} />
+                                                        </Card>
+                                                    </Col>
+                                                    <Col xs={24} lg={8}>
+                                                        <Card className="rounded-2xl shadow-md mb-4">
+                                                            <h3 className="text-lg font-medium mb-3">Phương thức thanh toán</h3>
+                                                            <div style={{ width: "100%", height: 240 }}>
+                                                                <ResponsiveContainer>
+                                                                    <PieChart>
+                                                                        <Pie data={data.paymentBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                                                                            {data.paymentBreakdown.map((entry: any, index: number) => (
+                                                                                <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                                                                            ))}
+                                                                        </Pie>
+                                                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                                                    </PieChart>
+                                                                </ResponsiveContainer>
+                                                            </div>
+                                                        </Card>
+                                                        <Card className="rounded-2xl shadow-md">
+                                                            <h3 className="text-lg font-medium mb-3">Khách hàng mới</h3>
+                                                            <div className="flex flex-col gap-2">
+                                                                <button
+                                                                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
+                                                                    onClick={() => Inertia.get(route("orders.index"))}
+                                                                >
+                                                                    View Orders
+                                                                </button>
+                                                                <button className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm" onClick={() => Inertia.get(route("products.index"))}>
+                                                                    Manage Products
+                                                                </button>
+                                                                <button
+                                                                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
+                                                                    onClick={() => Inertia.get(route("customers.index"))}
+                                                                >
+                                                                    Customer List
+                                                                </button>
+                                                            </div>
+                                                        </Card>
+                                                    </Col>
+                                                </Row>
+                                            </motion.div>
+                                        </div>
                                     </div>
-
                                 </div>
-                            </div>
-                        </Col>
-                    </Row>
-
-                </>
-            }
-        />
+                            </Col>
+                        </Row>
+                    </>
+                }
+            />
     );
 }

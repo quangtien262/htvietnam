@@ -258,10 +258,12 @@ class StatusSeeder extends Seeder
 
 
         $sortOrder = 1;
-        DB::table('trang_thai_hoa_don')->truncate();
-        DB::table('trang_thai_hoa_don')->insert([
+        DB::table('hoa_don_status')->truncate();
+        DB::table('hoa_don_status')->insert([
             ['name' => 'Đã thanh toán', 'sort_order' => $sortOrder++],
             ['name' => 'Chưa thanh toán', 'sort_order' => $sortOrder++],
+            ['name' => 'Còn công nợ', 'sort_order' => $sortOrder++],
+            ['name' => 'Đã hủy', 'sort_order' => $sortOrder++],
         ]);
 
         DB::table('product_thuoc_tinh')->truncate();
