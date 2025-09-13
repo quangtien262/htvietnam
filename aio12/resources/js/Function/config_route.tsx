@@ -288,14 +288,14 @@ export const routeTask = [
         },
         sub: []
     },
-    {
-        parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Nhóm công việc',
-            key: key++
-        },
-        sub: []
-    },
+    // {
+    //     parent: {
+    //         link: route('data.tblName', ['task_milestones']),
+    //         display_name: 'Nhóm công việc',
+    //         key: key++
+    //     },
+    //     sub: []
+    // },
     {
         parent: {
             link: route('task.list'),
@@ -304,30 +304,30 @@ export const routeTask = [
         },
         sub: []
     },
+    // {
+    //     parent: {
+    //         link: route('task.list'),
+    //         display_name: 'Nhóm checklist',
+    //         key: key++
+    //     },
+    //     sub: []
+    // },
     {
         parent: {
-            link: route('task.list'),
-            display_name: 'Nhóm checklist',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('hoaDon.index'),
+            link: route('data.tblName', ['task_milestones']),
             display_name: 'Milestones',
             key: key++
         },
         sub: []
     },
-    {
-        parent: {
-            link: route('data.tblName', ['data_telesales']),
-            display_name: 'Cài đặt',
-            key: key++
-        },
-        sub: []
-    },
+    // {
+    //     parent: {
+    //         link: route('data.tblName', ['data_telesales']),
+    //         display_name: 'Cài đặt',
+    //         key: key++
+    //     },
+    //     sub: []
+    // },
 
 ];
 export const routeTaiChinh = [
@@ -398,7 +398,7 @@ export const routeReport = [
 export const routeTaiSan = [
     {
         parent: {
-            link: route('task.dashboard'),
+            link: route('taiSan.dashboard'),
             display_name: 'Báo cáo',
             key: key++
         },
