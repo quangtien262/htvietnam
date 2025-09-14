@@ -89,6 +89,8 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
+import { routeTaiChinh } from "../../../Function/config_route";
+
 export default function Dashboard(props) {
     sessionStorage.clear();
     const { RangePicker } = DatePicker;
@@ -1760,7 +1762,7 @@ export default function Dashboard(props) {
             <AdminLayout
                 auth={props.auth}
                 header={props.table.display_name}
-                tables={props.tables}
+                tables={routeTaiChinh}
                 current={props.table}
                 content={
                     <div>

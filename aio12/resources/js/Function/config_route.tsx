@@ -82,7 +82,7 @@ export const tblConfig = {
     tblTaiChinh: {
         name: 'Quản lý tài chính',
         active: false,
-        data: ['hoa_don']
+        data: ['soQuy']
     },
     // Báo cáo
     tblReport: {
@@ -333,23 +333,15 @@ export const routeTaiChinh = [
     },
     {
         parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Hóa Đơn',
+            link: route('soQuy'),
+            display_name: 'Sổ quỹ',
             key: key++
         },
         sub: []
     },
     {
         parent: {
-            link: route('task.list'),
-            display_name: 'Thu chi',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('hoaDon.index'),
+            link: route('congNo'),
             display_name: 'Công nợ',
             key: key++
         },
