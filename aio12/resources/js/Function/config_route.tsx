@@ -100,7 +100,7 @@ export const tblConfig = {
     tblTask: {
         name: 'Quản lý công việc',
         active: false,
-        data: []
+        data: ['task_status', 'task_prority', 'task_milestones', 'tasks']
     },
 };
 
@@ -298,7 +298,7 @@ export const routeTask = [
     },
     {
         parent: {
-            link: route('data.tblName', ['data_telesales']),
+            link: route('data.tblName', ['task_milestones']),
             display_name: 'Cài đặt',
             key: key++
         },
@@ -555,6 +555,9 @@ export function itemMenu(tableName: string) {
     }
     if (tblConfig.tblNhanSu.data.includes(tableName)) {
         return routeNhanSu;
+    }
+    if (tblConfig.tblTask.data.includes(tableName)) {
+        return routeTask;
     }
 
     return false;

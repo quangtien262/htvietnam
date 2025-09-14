@@ -61,12 +61,12 @@ class TaiSanController extends Controller
             $taiSan->code = 'TS' . $dataId;
             $taiSan->save();
 
-            $title = 'Đã nhân bản tài sản "' . $data->name . ' Từ tài sản có mã ' . $rq->ma_nhan_ban;
+            $title = 'Nhân bản tài sản "' . $data['name'] . '" từ tài sản có mã ' . $rq->ma_nhan_ban;
             $isNew = 1;
             $infoCapPhat = [
                 'titleLog' => $title
             ];
-            TblService::saveLogColumn('tai_san', $data->id, '', $infoCapPhat,  $isNew, 'log_tai_san');
+            TblService::saveLogColumn('tai_san', $data['id'], '', $infoCapPhat,  $isNew, 'log_tai_san');
         }
 
         return $this->sendSuccessResponse([], 'success');

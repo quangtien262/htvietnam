@@ -1467,11 +1467,11 @@ export default function Dashboard(props) {
                             onCancel={() => { setIsModalNhanBan(false); }}
                             width={{
                                 xs: '90%',
-                                sm: '80%',
-                                md: '70%',
-                                lg: '60%',
-                                xl: '50%',
-                                xxl: '40%',
+                                sm: '90%',
+                                md: '90%',
+                                lg: '90%',
+                                xl: '90%',
+                                xxl: '90%',
                             }}
                             onOk={async () => {
                                 // setLoadingModal(true);
@@ -1533,19 +1533,18 @@ export default function Dashboard(props) {
                             <table className="table-sub">
                                 <thead>
                                     <tr>
-                                        <th>Mã</th>
                                         <th>Tên tài sản</th>
                                         <th>Ngày mua</th>
                                         <th>Giá mua</th>
                                         <th>Trạng thái</th>
                                         <th>Loại tài sản</th>
+                                        <th>Kho TS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
                                         dataNhanBan.map((val, idx) => {
                                             return <tr key={idx}>
-                                                <td>Tự động</td>
                                                 <td>
                                                     <Input value={val.name}
                                                         onChange={(val) => {
@@ -1561,7 +1560,7 @@ export default function Dashboard(props) {
                                                     />
                                                 </td>
                                                 <td>
-                                                    <DatePicker placeholder="Ngày mua" value={dayjs(val.ngay_mua)} format={DATE_SHOW} />
+                                                    <DatePicker placeholder="Ngày mua" value={val.ngay_mua ? dayjs(val.ngay_mua) : null} format={DATE_SHOW} />
                                                 </td>
                                                 <td>
                                                     <InputNumber value={val.gia_mua}

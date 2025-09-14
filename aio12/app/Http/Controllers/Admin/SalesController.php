@@ -27,7 +27,16 @@ class SalesController extends Controller
             ->where('is_recycle_bin','!=',1)
             ->where('created_at', '>=', now()->subDays(7))
             ->sum('thanh_toan');
+        // khach hang mới
         $slKhachHangMoi  = User::where('is_recycle_bin','!=',1)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+        $khachHangMoi  = User::where('is_recycle_bin','!=',1)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->get();
+
+        // tổng đơn hàng mới
+        $slDonHangMoi = HoaDon::where('is_recycle_bin', '!=', 1)
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
 
@@ -36,8 +45,26 @@ class SalesController extends Controller
             'chiNhanh' => $chiNhanh,
             'nhanVien' => $nhanVien,
             'doanhThu' => $doanhThu,
+            'slKhachHangMoi' => $slKhachHangMoi,
+            'khachHangMoi' => $khachHangMoi,
+            'slDonHangMoi' => $slDonHangMoi,
         ];
         return Inertia::render('Admin/Dashboard/sales', $props);
+    }
+
+    function report_doanhThu(Request $request)
+    {
+        $dataDoanhThu = HoaDon::where('hoa_don_status_id', '!=',4)
+            ->where('is_draft','!=',1)
+            ->where('is_recycle_bin','!=',1)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('DATE(created_at) as date, SUM(thanh_toan) as revenue')
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->get()
+            ->toArray();
+
+        return $this->sendSuccessResponse($dataDoanhThu);
     }
 
     public function index(Request $request)

@@ -1243,3 +1243,9 @@ ul.menu-header li:first-child {
 .ant-divider-inner-text {
     text-transform: uppercase;
 }
+.sub-title {
+    color: #54a502;
+}
+.recharts-surface {
+    overflow: inherit;
+}

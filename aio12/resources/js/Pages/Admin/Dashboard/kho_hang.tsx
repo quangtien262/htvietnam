@@ -119,10 +119,7 @@ export default function Dashboard(props: any) {
             tables={routeQLKho}
             content={
                 <div>
-
                     <Tabs tabPosition="left" defaultActiveKey="1" items={items} />
-
-
                 </div>
             }
         />

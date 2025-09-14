@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->string('name')->nullable();
             $table->string('color')->default('todo')->nullable();
 
+            MigrateService::createBaseColumn($table);
+
             $order_col = 1;
             $tbl = MigrateService::createTable02('task_milestones', 'Milestones', ['is_edit' => 1]);
 

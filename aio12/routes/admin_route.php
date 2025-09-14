@@ -334,6 +334,7 @@ Route::group(['prefix' => 'wms'], function () {
 
 Route::group(['prefix' => 'sale'], function () {
     Route::get('/', [SalesController::class, 'dashboard'])->name('sale.dashboard');
+    Route::get('report-doanh-thu', [SalesController::class, 'report_doanhThu'])->name('sale.report_doanhThu');
 });
 
 Route::group(['prefix' => 'tai-san'], function () {
@@ -356,7 +357,7 @@ Route::group(['prefix' => 'setting'], function () {
     Route::get('/', [AdminController::class, 'dashboardSetting'])->name('setting.dashboard');
 });
 Route::group(['prefix' => 'report'], function () {
-    Route::get('/', [AdminController::class, 'dashboardReport'])->name('report.dashboard');
+    Route::get('/', [ReportController::class, 'index'])->name('report.dashboard');
 });
 
 
