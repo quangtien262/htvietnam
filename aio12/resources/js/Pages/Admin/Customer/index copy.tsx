@@ -24,6 +24,14 @@ import {
     Breadcrumb, Radio, List, Upload
 } from "antd";
 
+import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import ImgCrop from 'antd-img-crop';
 
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
@@ -39,7 +47,7 @@ import {
 import "../../../../css/form.css";
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 import { cloneDeep } from "lodash";
-import { khachHangInfo, formEditKhachHang } from "../../../components/comp_khach_hang";
+import { khachHangInfo } from "../../../components/comp_khach_hang";
 import { routeSales } from "../../../Function/config_route";
 
 export default function Dashboard(props) {
@@ -71,24 +79,21 @@ export default function Dashboard(props) {
 
 
     const [fileList, setFileList] = useState([]);
+    const sensor = useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 10,
+        },
+    });
 
-    const dataActionDefault = {
-        id: 0,
-        email: '',
-        name: '',
-        phone: '',
-        gioi_tinh_id: null,
-        ngay_sinh: null,
-        facebook: '',
-        address: '',
-        customer_group_id: null,
-        customer_status_id: 1
-    }
-    const [dataAction, setDataAction] = useState(dataActionDefault);
-
-
-
-
+    const onDragEnd = ({ active, over }) => {
+        if (active.id !== over?.id) {
+            setFileList((prev) => {
+                const activeIndex = prev.findIndex((i) => i.uid === active.id);
+                const overIndex = prev.findIndex((i) => i.uid === over?.id);
+                return arrayMove(prev, activeIndex, overIndex);
+            });
+        }
+    };
 
     function setPagination(pagination) {
         router.get(
@@ -96,8 +101,28 @@ export default function Dashboard(props) {
             pagination
         );
     }
+    const onChange = ({ fileList: newFileList }) => {
+        setFileList(newFileList);
+    };
 
-
+    const DraggableUploadListItem = ({ originNode, file }) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+            id: file.uid,
+        });
+        return (
+            <div
+                ref={setNodeRef}
+                // style={style}
+                // prevent preview event when drag end
+                className={isDragging ? 'is-dragging' : ''}
+                {...attributes}
+                {...listeners}
+            >
+                {/* hide error tooltip when dragging */}
+                {file.status === 'error' && isDragging ? originNode.props.children : originNode}
+            </div>
+        );
+    };
 
 
 
@@ -124,19 +149,116 @@ export default function Dashboard(props) {
         },
     ];
 
+    const onFinishCustomer = (values) => {
+        setLoadingTable(true);
+        values.id = idEdit;
+        axios.post(route("customer.edit"), values)
+            .then((response) => {
+                console.log('respons', response);
+                if (idEdit === 0) {
+                    location.reload();
+                }
+                if (response.data.status_code === 200) {
+                    let users_tmp = cloneDeep(users);
+                    users_tmp[indexEdit] = response.data.data;
+                    setUsers(users_tmp);
+                } else {
+                    message.error("Không lấy được thông tin dịch vụ");
+                }
+                setLoadingTable(false);
+                setIsModalEdit(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoadingTable(false);
+                setIsModalEdit(false);
+                message.error("Cập nhật thất bại");
+            }
+            );
+    }
+
+
+    function getLichSuMuaHang(id) {
+        if (lichSuMuaHang[id]) {
+            return;
+        }
+        setLoadingLichSuMuaHang(true);
+        axios.post(route("customer.lichSuMuaHang", [id]))
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    const lichSuMuaHang_tmp = cloneDeep(lichSuMuaHang);
+                    lichSuMuaHang_tmp[id] = response.data.data;
+                    setLichSuMuaHang(lichSuMuaHang_tmp);
+                    setLoadingLichSuMuaHang(false);
+                } else {
+                    message.error("Không lấy được thông tin dịch vụ");
+                    setLoadingLichSuMuaHang(false);
+                }
+            })
+            .catch((error) => {
+                message.error("Cập nhật thất bại");
+            }
+            );
+    }
+
+    function getGoiDichVu(id) {
+        if (goiDV[id]) {
+            return;
+        }
+        setLoadingLichSuMuaHang(true);
+        axios.post(route("customer.goiDichVu"), { users_id: id })
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    const goiDV_tmp = cloneDeep(goiDV);
+                    goiDV_tmp[id] = response.data.data;
+                    setGoiDV(goiDV_tmp);
+                    setLoadingLichSuMuaHang(false);
+                } else {
+                    message.error("Không lấy được thông tin dịch vụ");
+                    setLoadingLichSuMuaHang(false);
+                }
+            })
+            .catch((error) => {
+                message.error("Cập nhật thất bại");
+            }
+            );
+    }
+
+    function getCardGT(id) {
+        if (cardGT[id]) {
+            return;
+        }
+        setLoadingLichSuMuaHang(true);
+        axios.post(route("customer.cardGT"), { users_id: id })
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    const cardGT_tmp = cloneDeep(cardGT);
+                    cardGT_tmp[id] = response.data.data;
+                    setCardGT(cardGT_tmp);
+                    setLoadingLichSuMuaHang(false);
+                } else {
+                    message.error("Không lấy được thông tin thẻ giá trị");
+                    setLoadingLichSuMuaHang(false);
+                }
+            })
+            .catch((error) => {
+                message.error("Thất bại");
+            }
+            );
+    }
+
     function editCustomer(item, index) {
-        setDataAction(item);
         setIsModalEdit(true);
         setIdEdit(item.id);
         setIndexEdit(index);
-        // formCustomer.setFieldValue('name', item.name);
-        // formCustomer.setFieldValue('phone', item.phone);
-        // formCustomer.setFieldValue('gioi_tinh_id', item.gioi_tinh_id);
-        // formCustomer.setFieldValue('ngay_sinh', item.ngay_sinh);
-        // formCustomer.setFieldValue('facebook', item.facebook);
-        // formCustomer.setFieldValue('address', item.address);
-        // formCustomer.setFieldValue('customer_status_id', item.customer_status_id);
-        // formCustomer.setFieldValue('customer_group_id', item.customer_group_id);
+        formCustomer.setFieldValue('name', item.name);
+        formCustomer.setFieldValue('phone', item.phone);
+        formCustomer.setFieldValue('gioi_tinh_id', item.gioi_tinh_id);
+        formCustomer.setFieldValue('ngay_sinh', item.ngay_sinh);
+        formCustomer.setFieldValue('facebook', item.facebook);
+        formCustomer.setFieldValue('address', item.address);
+        formCustomer.setFieldValue('customer_status_id', item.customer_status_id);
+        formCustomer.setFieldValue('customer_group_id', item.customer_group_id);
     }
 
     const expandedRowRender = (record, index) => {
@@ -248,14 +370,27 @@ export default function Dashboard(props) {
             );
     }
 
+    const cancelEdit = () => {
+        setIsModalEdit(false);
+    }
 
-
+    function initialFormCustomer() {
+        return {
+            name: '',
+            phone: '',
+            gioi_tinh_id: null,
+            ngay_sinh: null,
+            facebook: '',
+            address: '',
+            customer_group_id: null,
+            customer_status_id: 1
+        };
+    }
 
     function addNewCustomer() {
         formCustomer.resetFields();
         setIsModalEdit(true);
         setIdEdit(0);
-        setDataAction(dataActionDefault);
     }
 
     return (
@@ -292,31 +427,147 @@ export default function Dashboard(props) {
                         {/* modal edit */}
                         <Modal title={<p className="title02">Thêm khách hàng <hr /></p>}
                             open={isModalEdit}
+                            onOk={() => { formCustomer.submit(); }}
+                            okText={<span className="btn-05">Lưu</span>}
+                            cancelText="Hủy"
                             width={1000}
-                            footer={[]}
-                            onCancel={()=>setIsModalEdit(false)}>
+                            onCancel={cancelEdit}>
 
-                            {
-                                formEditKhachHang(props, dataAction, (data: any) => {
-                                    setIsModalEdit(false);
-                                    if(data.close){
-                                        return;
-                                    }
-                                    if (idEdit == 0) {
-                                        // Thêm mới, update phần tử mới lên đầu mảng
-                                        let users_tmp = cloneDeep(users);
-                                        users_tmp.unshift(data);
-                                        setUsers(users_tmp);
-                                    } else {
-                                        // Cập nhật
-                                        let users_tmp = cloneDeep(users);
-                                        users_tmp[indexEdit] = data;
-                                        setUsers(users_tmp);
-                                    }
-                                    setLoadingTable(false);
-                                    setIsModalEdit(false);
-                                })
-                            }
+                            <Form
+                                name="basic"
+                                layout="horizontal"
+                                onFinish={onFinishCustomer}
+                                // onFinishFailed={onFinishSearchFailed}
+                                autoComplete="off"
+                                form={formCustomer}
+                                initialValues={initialFormCustomer()}
+                            >
+                                <Row>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='cong_ty' label='Tên công ty' >
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='mst' label='Mã số thuế'>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='name' label='Họ tên' rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng', }]}>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='phone' label='Điện thoại' rules={[{ required: true, message: 'Vui lòng nhập số điện thoại', }]}>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='gioi_tinh_id' label={<p>Giới tính</p>} rules={[{ required: true, message: 'Vui lòng chọn giới tính', }]}>
+                                            <Select
+                                                placeholder="Chọn gới tính"
+                                                optionFilterProp="children"
+                                                options={[
+                                                    { label: 'Nữ', value: 2 },
+                                                    { label: 'Nam', value: 1 },
+                                                ]}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='email' label='Email'>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='facebook' label='Facebook'>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='address' label='Địa chỉ'>
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='customer_status_id' label='Trạng thái'>
+                                            <Select defaultValue={1}
+                                                placeholder="Chọn trạng thái"
+                                                optionFilterProp="children"
+                                                options={[
+                                                    { value: 1, label: 'Đang Hoạt động' },
+                                                    { value: 2, label: 'Ngừng hoạt động' },
+                                                ]}
+                                            />
+
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='user_source_id' label='Nguồn khách hàng'>
+                                            <Select
+                                                placeholder="Nguồn khách hàng"
+                                                optionFilterProp="children"
+                                                options={props.userSource.map((g) => {
+                                                    return { label: g.name, value: g.id }
+                                                })}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='customer_group_id' label='Nhóm khách hàng'>
+                                            <Select
+                                                placeholder="Chọn nhóm khách hàng"
+                                                optionFilterProp="children"
+                                                options={props.customerGroup.map((g) => {
+                                                    return { label: g.name, value: g.id }
+                                                })}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col md={{ span: 12 }} sm={{ span: 24 }}>
+                                        <Form.Item name='note' label='Ghi chú'>
+                                            <TextArea rows={4} />
+                                        </Form.Item>
+                                    </Col>
+
+                                    <Col md={{ span: 24 }}>
+                                        <Form.Item
+                                            name='image'
+                                            label="Hình ảnh"
+                                        >
+
+                                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                                    <ImgCrop
+                                                        aspect={1}
+                                                        aspectSlider={true}
+                                                        rotationSlider={true}
+                                                        showGrid={true}
+                                                        showReset={true}
+                                                    >
+                                                        <Upload multiple
+                                                            action={route("data.upload_image")}
+                                                            listType="picture-card" // picture-card
+                                                            fileList={fileList}
+                                                            maxCount={1}
+                                                            onChange={onChange}
+                                                            itemRender={(originNode, file) => (
+                                                                <DraggableUploadListItem originNode={originNode} file={file} />
+                                                            )}
+                                                        >
+                                                            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                                                        </Upload>
+                                                    </ImgCrop>
+                                                </SortableContext>
+                                            </DndContext>
+
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                            </Form>
 
                         </Modal>
 

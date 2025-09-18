@@ -35,7 +35,6 @@ import dayjs from "dayjs";
 export function contentThuNganConfig(nhanVienThuNgan, nhanVienData, chiNhanhThuNgan, chiNhanhData, khoHang, khoHangData, onSuccess) {
     const [loaddingBtn, setLoaddingBtn] = useState(false);
     const [formConfig] = Form.useForm();
-    console.log('nhanVienThuNgan', nhanVienThuNgan);
     
     const onFinish = (values) => {
         setLoaddingBtn(true);

@@ -19,6 +19,7 @@ class AdminMenuSeeder extends Seeder
         //route
         $order = 1;
 
+        DB::table('admin_menu')->truncate();
         
         $banHang = DB::table('admin_menu')->insertGetId(
             [

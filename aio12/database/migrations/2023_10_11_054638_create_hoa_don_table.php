@@ -105,6 +105,7 @@
                 $table->integer('tien_quet_the')->default(0)->nullable();
                 $table->integer('phi_ca_the')->default(0)->nullable();
 
+                $table->date('ngay_tao')->default(now())->nullable();
 
                 MigrateService::createBaseColumn($table);
             });

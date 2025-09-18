@@ -16,6 +16,8 @@ import {
 } from 'recharts';
 import { numberFormat } from "./common";
 import axios from 'axios';
+import { searchByTime } from "../components/comp_common";
+import dayjs from "dayjs";
 
 export function history() {
     return <div className='sub-item-home'>
@@ -706,30 +708,42 @@ export function report_kho_congNo() {
     </div>
 }
 
-export function report_DoanhThu(props) {
+export function report_DoanhThu() {
+
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
 
     const [dataDoanhThu, setDataDoanhThu] = useState([]);
+    const [title, setTitle] = useState('');
 
+    const [slKhachHangMoi, setSlKhachHangMoi] = useState(0);
+    const [khachHangMoi, setKhachHangMoi] = useState(0);
+    const [slDonHangMoi, setSlDonHangMoi] = useState(0);
+    const [doanhThu, setDoanhThu] = useState(0);
 
-    // const dataDoanhThu = [
-    //     { date: '2025-09-01', revenue: 12000000 },
-    //     { date: '2025-09-02', revenue: 15000000 },
-    //     { date: '2025-09-03', revenue: 9000000 },
-    //     { date: '2025-09-04', revenue: 18000000 },
-    //     { date: '2025-09-05', revenue: 21000000 },
-    //     { date: '2025-09-06', revenue: 17000000 },
-    //     { date: '2025-09-07', revenue: 11000000 },
-    // ];
-
-    // call api to get dataDoanhThu vaf setDataDoanhThu
-    React.useEffect(() => {
-        axios.get(route('sale.report_doanhThu'))
+    function fetchDataDoanhThu(dateRange: any) {
+        axios.get(route('sale.report_doanhThu'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
             .then(response => {
-                setDataDoanhThu(response.data.data);
+                console.log('response', response);
+                setDataDoanhThu(response.data.data.dataDoanhThu);
+                setSlKhachHangMoi(response.data.data.slKhachHangMoi);
+                setSlDonHangMoi(response.data.data.slDonHangMoi);
+                setDoanhThu(response.data.data.doanhThu);
+                setKhachHangMoi(response.data.data.khachHangMoi);
+                setTitle(response.data.data.title);
             })
             .catch(error => {
                 console.error('Error fetching dataDoanhThu:', error);
             });
+    }
+
+    // call api to get dataDoanhThu vaf setDataDoanhThu
+    React.useEffect(() => {
+        fetchDataDoanhThu(khoangThoiGian);
     }, []);
 
     const columnsDoanhThu = [
@@ -741,25 +755,32 @@ export function report_DoanhThu(props) {
     ];
     return (
         <>
+            <Row>
+                <Col span={24} className="mb-4">
+                    {searchByTime(khoangThoiGian, (data) => {
+                        fetchDataDoanhThu(data.time);
+                    })}
+                </Col>
+            </Row>
             <Row gutter={[16, 16]} className="mb-6">
                 <Col xs={24} sm={12} md={8}>
                     <Card className="rounded-2xl shadow-md p-4">
-                        <Statistic title="Tổng doanh thu" value={props.doanhThu} />
+                        <Statistic title="Tổng doanh thu" value={doanhThu} />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
                     <Card className="rounded-2xl shadow-md p-4">
-                        <Statistic title="Tổng đơn hàng" value={props.slDonHangMoi} />
+                        <Statistic title="Tổng đơn hàng" value={slDonHangMoi} />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
                     <Card className="rounded-2xl shadow-md p-4">
-                        <Statistic title="Khách hàng mới" value={props.slKhachHangMoi} />
+                        <Statistic title="Khách hàng mới" value={slKhachHangMoi} />
                     </Card>
                 </Col>
             </Row>
             <Card className="rounded-2xl shadow-md p-4 mb-4">
-                <h3 className="text-lg font-medium mb-3">Biểu đồ doanh thu 7 ngày gần nhất</h3>
+                <h3 className="text-lg font-medium mb-3">Biểu đồ doanh thu</h3>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={dataDoanhThu} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -772,7 +793,6 @@ export function report_DoanhThu(props) {
                 </ResponsiveContainer>
             </Card>
             <Card className="rounded-2xl shadow-md p-4">
-                <h3 className="text-lg font-medium mb-3">Bảng doanh thu 7 ngày gần nhất</h3>
                 <Table
                     columns={columnsDoanhThu}
                     dataSource={dataDoanhThu}
@@ -785,21 +805,42 @@ export function report_DoanhThu(props) {
     );
 }
 
-export function report_DonHang(props) {
-    return <>
+export function report_DonHang() {
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const [datas, setDatas] = useState([]);
+    const [dataChart, setDataChart] = useState([]);
 
+    function fetchData(dateRange: any) {
+        axios.get(route('sale.report_DonHang'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
+            .then(response => {
+                setDatas(response.data.data.dataDonHang);
+                setDataChart(response.data.data.dataChart);
+            })
+            .catch(error => {
+                console.error('Error fetching dataDonHang:', error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
+
+    return <>
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
         <Card className="rounded-2xl shadow-md p-4 mb-4">
-            <h3 className="text-lg font-medium mb-3">Biểu đồ số lượng đơn hàng theo ngày</h3>
             <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={[
-                    { date: '2025-09-07', orders: 12 },
-                    { date: '2025-09-06', orders: 9 },
-                    { date: '2025-09-05', orders: 7 },
-                    { date: '2025-09-04', orders: 10 },
-                    { date: '2025-09-03', orders: 8 },
-                    { date: '2025-09-02', orders: 11 },
-                    { date: '2025-09-01', orders: 6 },
-                ]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <BarChart data={dataChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis allowDecimals={false} />
@@ -811,24 +852,27 @@ export function report_DonHang(props) {
         </Card>
 
         <Card className="rounded-2xl shadow-md p-4">
-            <h3 className="text-lg font-medium mb-3">Bảng đơn hàng 7 ngày gần nhất</h3>
             <Table
                 columns={[
-                    { title: 'Mã đơn', dataIndex: 'orderCode', key: 'orderCode' },
-                    { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
-                    { title: 'Ngày', dataIndex: 'date', key: 'date' },
-                    { title: 'Tổng tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString() + ' đ' },
-                    { title: 'Trạng thái', dataIndex: 'status', key: 'status' },
-                ]}
-                dataSource={[
-                    { orderCode: 'HD001', customer: 'Nguyễn Văn A', date: '2025-09-07', total: 1200000, status: <Tag color="green">Hoàn thành</Tag> },
-                    { orderCode: 'HD002', customer: 'Trần Thị B', date: '2025-09-07', total: 950000, status: <Tag color="orange">Đang xử lý</Tag> },
-                    { orderCode: 'HD003', customer: 'Lê Văn C', date: '2025-09-06', total: 2100000, status: <Tag color="green">Hoàn thành</Tag> },
-                    { orderCode: 'HD004', customer: 'Phạm Thị D', date: '2025-09-06', total: 1750000, status: <Tag color="red">Đã hủy</Tag> },
-                    { orderCode: 'HD005', customer: 'Ngô Văn E', date: '2025-09-05', total: 800000, status: <Tag color="green">Hoàn thành</Tag> },
-                    { orderCode: 'HD006', customer: 'Đỗ Thị F', date: '2025-09-05', total: 1350000, status: <Tag color="green">Hoàn thành</Tag> },
-                    { orderCode: 'HD007', customer: 'Bùi Văn G', date: '2025-09-04', total: 1100000, status: <Tag color="orange">Đang xử lý</Tag> },
-                ]}
+                    {
+                        title: 'Ngày',
+                        dataIndex: 'date',
+                        key: 'date',
+                    },
+                    {
+                        title: 'Tổng đơn hàng',
+                        dataIndex: 'total_orders',
+                        key: 'total_orders',
+                    },
+                    {
+                        title: 'Tổng thu trong ngày',
+                        dataIndex: 'total_revenue',
+                        key: 'total_revenue',
+                        render: (record) => {
+                            return <span>{numberFormat(record)}</span>
+                        }
+                    }]}
+                dataSource={datas}
                 pagination={false}
                 rowKey="orderCode"
                 rowClassName={(_, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
@@ -837,26 +881,58 @@ export function report_DonHang(props) {
     </>
 }
 
-export function report_sales_KhachHang(props) {
+export function report_sales_KhachHang() {
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const [datas, setDatas] = useState([]);
+    const [dataChart, setDataChart] = useState([]);
+
+    function fetchData(dateRange: any) {
+        axios.get(route('sale.report_khachHang'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
+            .then(response => {
+                console.log('dataDonHang', response.data.data);
+
+                setDatas(response.data.data.dataKhachHang);
+            })
+            .catch(error => {
+                console.error('Error fetching dataDonHang:', error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
+
+
     return <>
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
         <Card className="rounded-2xl shadow-md p-4 mb-4">
             <h3 className="text-lg font-medium mb-3">Biểu đồ số lượng mua theo khách hàng</h3>
             <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={[
-                    { name: 'Nguyễn Văn A', orders: 5 },
-                    { name: 'Trần Thị B', orders: 3 },
-                    { name: 'Lê Văn C', orders: 4 },
-                    { name: 'Phạm Thị D', orders: 2 },
-                    { name: 'Ngô Văn E', orders: 6 },
-                    { name: 'Đỗ Thị F', orders: 1 },
-                    { name: 'Bùi Văn G', orders: 2 },
-                ]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <BarChart
+                    data={datas}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="users_name" />
                     <YAxis allowDecimals={false} />
-                    <Tooltip formatter={value => value + ' đơn'} />
+                    <Tooltip formatter={(value, label, data) => {
+                        return <>
+                            <p>Tổng tiền: {numberFormat(value)} <sup>đ</sup></p>
+                            <p>Tổng đơn hàng: {numberFormat(data.payload.total_orders)} đơn</p>
+                        </>
+                    }} />
                     <Legend />
-                    <Bar dataKey="orders" fill="#8884d8" name="Số đơn hàng" />
+                    <Bar dataKey="thanh_toan" fill="#8884d8" name="Tổng tiền" />
                 </BarChart>
             </ResponsiveContainer>
         </Card>
@@ -864,21 +940,13 @@ export function report_sales_KhachHang(props) {
             <h3 className="text-lg font-medium mb-3">Bảng khách hàng mua hàng gần nhất</h3>
             <Table
                 columns={[
-                    { title: 'Khách hàng', dataIndex: 'name', key: 'name' },
-                    { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
-                    { title: 'Số đơn hàng', dataIndex: 'orders', key: 'orders' },
-                    { title: 'Tổng tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString() + ' đ' },
-                    { title: 'Hạng', dataIndex: 'rank', key: 'rank', render: (val: string) => <Tag color={val === 'VIP' ? 'gold' : 'blue'}>{val}</Tag> },
+                    { title: 'Khách hàng', dataIndex: 'users_name', key: 'users_name' },
+                    // { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
+                    { title: 'Số đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
+                    { title: 'Tổng tiền', dataIndex: 'thanh_toan', key: 'thanh_toan', render: (val: number) => val.toLocaleString() + ' đ' },
+
                 ]}
-                dataSource={[
-                    { name: 'Nguyễn Văn A', phone: '0901234567', orders: 5, total: 12000000, rank: 'VIP' },
-                    { name: 'Trần Thị B', phone: '0912345678', orders: 3, total: 9500000, rank: 'Thường' },
-                    { name: 'Lê Văn C', phone: '0923456789', orders: 4, total: 10500000, rank: 'VIP' },
-                    { name: 'Phạm Thị D', phone: '0934567890', orders: 2, total: 5000000, rank: 'Thường' },
-                    { name: 'Ngô Văn E', phone: '0945678901', orders: 6, total: 15000000, rank: 'VIP' },
-                    { name: 'Đỗ Thị F', phone: '0956789012', orders: 1, total: 2000000, rank: 'Thường' },
-                    { name: 'Bùi Văn G', phone: '0967890123', orders: 2, total: 3500000, rank: 'Thường' },
-                ]}
+                dataSource={datas}
                 pagination={false}
                 rowKey="name"
                 rowClassName={(_, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
@@ -887,26 +955,51 @@ export function report_sales_KhachHang(props) {
     </>
 }
 
-export function report_sales_NhanVien(props) {
+export function report_sales_NhanVienSale() {
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const [datas, setDatas] = useState([]);
+
+    function fetchData(dateRange: any) {
+        axios.get(route('sale.report_nhanVienSale'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
+            .then(response => {
+                setDatas(response.data.data.dataNhanVien);
+            })
+            .catch(error => {
+                console.error('Error fetching dataDonHang:', error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
     return <>
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
         <Card className="rounded-2xl shadow-md p-4 mb-4">
             <h3 className="text-lg font-medium mb-3">Biểu đồ doanh số theo nhân viên</h3>
             <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={[
-                    { name: 'Nguyễn Văn NV1', sales: 15 },
-                    { name: 'Trần Thị NV2', sales: 10 },
-                    { name: 'Lê Văn NV3', sales: 12 },
-                    { name: 'Phạm Thị NV4', sales: 8 },
-                    { name: 'Ngô Văn NV5', sales: 18 },
-                    { name: 'Đỗ Thị NV6', sales: 7 },
-                    { name: 'Bùi Văn NV7', sales: 9 },
-                ]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <BarChart data={datas} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="users_name" />
                     <YAxis allowDecimals={false} />
-                    <Tooltip formatter={value => value + ' đơn'} />
+                    <Tooltip formatter={(value, label, data) => {
+                        return <>
+                            <p>Tổng đơn hàng: {numberFormat(data.payload.total_orders)} đơn</p>
+                            <p>Tổng tiền: {numberFormat(data.payload.thanh_tien)} <sup>đ</sup></p>
+                        </>
+                    }} />
                     <Legend />
-                    <Bar dataKey="sales" fill="#82ca9d" name="Số đơn bán" />
+                    <Bar dataKey="thanh_tien" fill="#82ca9d" name="Doanh số" />
                 </BarChart>
             </ResponsiveContainer>
         </Card>
@@ -914,21 +1007,78 @@ export function report_sales_NhanVien(props) {
             <h3 className="text-lg font-medium mb-3">Bảng doanh số nhân viên</h3>
             <Table
                 columns={[
-                    { title: 'Nhân viên', dataIndex: 'name', key: 'name' },
-                    { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
-                    { title: 'Số đơn bán', dataIndex: 'sales', key: 'sales' },
-                    { title: 'Tổng doanh thu', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString() + ' đ' },
-                    { title: 'Xếp hạng', dataIndex: 'rank', key: 'rank', render: (val: string) => <Tag color={val === 'Xuất sắc' ? 'gold' : val === 'Khá' ? 'blue' : 'default'}>{val}</Tag> },
+                    { title: 'Nhân viên', dataIndex: 'users_name', key: 'users_name' },
+                    { title: 'SL đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
+                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => val.toLocaleString() + ' đ' },
                 ]}
-                dataSource={[
-                    { name: 'Nguyễn Văn NV1', phone: '0901111111', sales: 15, total: 25000000, rank: 'Xuất sắc' },
-                    { name: 'Trần Thị NV2', phone: '0902222222', sales: 10, total: 17000000, rank: 'Khá' },
-                    { name: 'Lê Văn NV3', phone: '0903333333', sales: 12, total: 19500000, rank: 'Khá' },
-                    { name: 'Phạm Thị NV4', phone: '0904444444', sales: 8, total: 12000000, rank: 'Trung bình' },
-                    { name: 'Ngô Văn NV5', phone: '0905555555', sales: 18, total: 30000000, rank: 'Xuất sắc' },
-                    { name: 'Đỗ Thị NV6', phone: '0906666666', sales: 7, total: 11000000, rank: 'Trung bình' },
-                    { name: 'Bùi Văn NV7', phone: '0907777777', sales: 9, total: 14000000, rank: 'Trung bình' },
+                dataSource={datas}
+                pagination={false}
+                rowKey="name"
+                rowClassName={(_, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+            />
+        </Card>
+    </>
+}
+
+export function report_sales_NhanVienLamDV() {
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const [datas, setDatas] = useState([]);
+
+    function fetchData(dateRange: any) {
+        axios.get(route('sale.report_nhanVienKT'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
+            .then(response => {
+                setDatas(response.data.data.dataNhanVien);
+            })
+            .catch(error => {
+                console.error('Error fetching dataDonHang:', error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
+
+
+    return <>
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
+        <Card className="rounded-2xl shadow-md p-4 mb-4">
+            <h3 className="text-lg font-medium mb-3">Biểu đồ doanh số theo nhân viên</h3>
+            <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={datas} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="users_name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip formatter={(value, label, data) => {
+                        return <>
+                            <p>Tổng đơn hàng: {numberFormat(data.payload.total_orders)} đơn</p>
+                            <p>Tổng tiền: {numberFormat(data.payload.thanh_tien)} <sup>đ</sup></p>
+                        </>
+                    }} />
+                    <Legend />
+                    <Bar dataKey="thanh_tien" fill="#82ca9d" name="Doanh số" />
+                </BarChart>
+            </ResponsiveContainer>
+        </Card>
+        <Card className="rounded-2xl shadow-md p-4">
+            <h3 className="text-lg font-medium mb-3">Bảng doanh số nhân viên</h3>
+            <Table
+                columns={[
+                    { title: 'Nhân viên', dataIndex: 'users_name', key: 'users_name' },
+                    { title: 'SL đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
+                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => val.toLocaleString() + ' đ' },
                 ]}
+                dataSource={datas}
                 pagination={false}
                 rowKey="name"
                 rowClassName={(_, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
@@ -938,19 +1088,36 @@ export function report_sales_NhanVien(props) {
 }
 
 export function report_sale_congNo() {
-    // Dữ liệu mẫu công nợ
-    const dataCongNo = [
-        { ten: 'Công ty A', no: 12000000, co: 8000000 },
-        { ten: 'Công ty B', no: 5000000, co: 2000000 },
-        { ten: 'Công ty C', no: 9000000, co: 10000000 },
-        { ten: 'Công ty D', no: 3000000, co: 0 },
-        { ten: 'Công ty E', no: 0, co: 4000000 },
-    ];
+    
+    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const [datas, setDatas] = useState([]);
+
+    function fetchData(dateRange: any) {
+        axios.get(route('sale.report_congNo'), {
+            params: {
+                startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+                endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+            }
+        })
+            .then(response => {
+                console.log('bbbbbb', response.data.data.dataCongNo);
+
+                setDatas(response.data.data.dataCongNo);
+            })
+            .catch(error => {
+                console.error('Error fetching dataDonHang:', error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
+    
     const columns = [
-        { title: 'Đối tượng', dataIndex: 'ten', key: 'ten' },
-        { title: 'Nợ', dataIndex: 'no', key: 'no', render: (v: number) => v.toLocaleString() },
-        { title: 'Có', dataIndex: 'co', key: 'co', render: (v: number) => v.toLocaleString() },
-        { title: 'Công nợ', key: 'congno', render: (_: any, r: any) => (r.no - r.co).toLocaleString() },
+        { title: 'Đối tượng', dataIndex: 'users_name', key: 'users_name' },
+        { title: 'Tổng nợ', dataIndex: 'thanh_toan', key: 'thanh_toan', render: (v: number) => numberFormat(v) },
+        { title: 'Đã thanh toán', dataIndex: 'da_thanh_toan', key: 'da_thanh_toan', render: (v: number) => numberFormat(v) },
+        { title: 'Công nợ', key: 'cong_no', render: (_: any, r: any) => numberFormat(r.cong_no) },
     ];
     return (
         <div>
@@ -958,14 +1125,15 @@ export function report_sale_congNo() {
                 <Col span={24}>
                     <Card title="Biểu đồ công nợ" style={{ marginBottom: 16 }}>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={dataCongNo} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                            <BarChart data={datas} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="ten" />
+                                <XAxis dataKey="users_name" />
                                 <YAxis />
-                                <Tooltip formatter={(value: number) => value.toLocaleString()} />
+                                <Tooltip formatter={(value: number) => numberFormat(value)} />
                                 <Legend />
-                                <Bar dataKey="no" name="Nợ" fill="#f5222d" />
-                                <Bar dataKey="co" name="Có" fill="#52c41a" />
+                                <Bar dataKey="cong_no" name="Công nợ" fill="#d11e06ff" />
+                                <Bar dataKey="da_thanh_toan" name="Đã thanh toán" fill="#04be0dff" />
+                                <Bar dataKey="thanh_toan" name="Tổng nợ" fill="#045fd4ff" />
                             </BarChart>
                         </ResponsiveContainer>
                     </Card>
@@ -975,7 +1143,7 @@ export function report_sale_congNo() {
                 <Col span={24}>
                     <Card title="Bảng công nợ">
                         <Table
-                            dataSource={dataCongNo}
+                            dataSource={datas}
                             columns={columns}
                             rowKey="ten"
                             pagination={false}

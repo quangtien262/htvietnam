@@ -334,7 +334,12 @@ Route::group(['prefix' => 'wms'], function () {
 
 Route::group(['prefix' => 'sale'], function () {
     Route::get('/', [SalesController::class, 'dashboard'])->name('sale.dashboard');
-    Route::get('report-doanh-thu', [SalesController::class, 'report_doanhThu'])->name('sale.report_doanhThu');
+    Route::get('report/doanh-thu', [SalesController::class, 'report_doanhThu'])->name('sale.report_doanhThu');
+    Route::get('report/don-hang', [SalesController::class, 'report_DonHang'])->name('sale.report_DonHang');
+    Route::get('report/khach-hang', [SalesController::class, 'report_khachHang'])->name('sale.report_khachHang');
+    Route::get('report/nhan-vien-sale', [SalesController::class, 'report_nhanVienSale'])->name('sale.report_nhanVienSale');
+    Route::get('report/nhan-vien-kt', [SalesController::class, 'report_nhanVienKT'])->name('sale.report_nhanVienKT');
+    Route::get('report/cong-no', [SalesController::class, 'report_congNo'])->name('sale.report_congNo');
 });
 
 Route::group(['prefix' => 'tai-san'], function () {

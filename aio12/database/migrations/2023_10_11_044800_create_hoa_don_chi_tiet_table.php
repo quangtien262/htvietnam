@@ -103,7 +103,7 @@ return new class extends Migration
         ['show_in_list' => 1, 'col' => 12]);
 
         MigrateService::createColumn02($tableId, 'thanh_tien', 'Thành tiền', 'INT', 'number', $order_col++, ['show_in_list' => 1]);
-        MigrateService::createColumn02($tableId, 'thanh_toan', 'Thanh toán', 'INT', 'number', $order_col++, ['show_in_list' => 1]);
+        
         MigrateService::createColumn02($tableId, 'ghi_chu', 'Ghi chú', 'TEXT', 'textarea', $order_col++, ['show_in_list' => 1, 'col' => 24]);
 
         $kh = Table::where('name', 'users')->first();

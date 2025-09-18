@@ -1249,3 +1249,11 @@ ul.menu-header li:first-child {
 .recharts-surface {
     overflow: inherit;
 }
+
+/* table05 */
+table.table05 {
+    min-width: 500px;
+}
+table.table05 tr th{
+    text-align: left;
+}

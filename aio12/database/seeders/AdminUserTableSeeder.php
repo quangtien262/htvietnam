@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\AdminUser;
+use Illuminate\Support\Facades\DB;
 
 class AdminUserTableSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class AdminUserTableSeeder extends Seeder
      */
     public function run()
     {
-        AdminUser::destroy(1);
+        DB::table('admin_users')->truncate();
         AdminUser::create([
             // 'id' => 1,
             'code' => 'NV00001',

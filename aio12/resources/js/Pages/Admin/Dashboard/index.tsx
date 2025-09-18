@@ -52,7 +52,7 @@ export default function Dashboard(props: any) {
                                         <li><BookOutlined /> Tài liệu chung</li>
                                         <li><BranchesOutlined /> Tài liệu được chia sẻ</li>
                                         <li><ArrowDownOutlined /> Download tài liệu</li>
-                                        <li><ClusterOutlined /> Cho phép upload nhiều loại định dạng file</li>
+                                        <li><ClusterOutlined /> Upload nhiều loại định dạng file</li>
                                     </ul>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@ export default function Dashboard(props: any) {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link href={route('khoHang.dashboard')}>
-                                <SlidersFilled /> QUẢN LÝ KHO HÀNG
+                                <SlidersFilled /> QUẢN LÝ HÀNG HÓA & DỊCH VỤ
                             </Link>
                         </div>
                         <div className="ant-statistic-content">
@@ -161,7 +161,7 @@ export default function Dashboard(props: any) {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link href={route('report.dashboard')}>
-                                <PieChartFilled /> BÁO CÁO - THỐNG KÊ
+                                <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >

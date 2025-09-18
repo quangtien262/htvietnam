@@ -9,21 +9,15 @@ use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\HoaDon;
 use App\Models\Admin\HoaDonChiTiet;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Services\Admin\TblService;
 use App\Models\Admin\Table;
 use App\Models\User;
 use App\Models\Admin\Card;
-use App\Models\Admin\Column;
-use App\Models\Admin\Log;
 use App\Models\Admin\NhanVienThucHien;
 use App\Models\Admin\NhanVienTuVan;
 use App\Models\Admin\PhieuThu;
-use App\Models\Admin\PhieuThuChiTiet;
 use App\Models\AdminUser;
-use App\Models\Admin\CardHistory;
 use App\Models\Admin\CardService;
 use App\Models\Admin\KhachTraHang;
 use App\Models\Admin\KhoHang;
@@ -328,8 +322,10 @@ class HoaDonController extends Controller
         }
         // dd($chiNhanhThuNgan);
         $caInfo = HoaDonService::getCaInfo($nhanVienThuNgan);
-        // dd($caInfo);
         
+        // data select dùng cho form khách hàng
+        $userSource = DB::table('user_source')->where('is_recycle_bin', 0)->orderBy('sort_order', 'asc')->get();
+        $customerGroup = DB::table('customer_group')->where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
         $viewData = [
             'tables' => $tables,
             'table' => $table,
@@ -349,6 +345,9 @@ class HoaDonController extends Controller
             'khoHang' => $khoHang,
             'khoHangThuNgan' => $khoHangThuNgan,
             'caInfo' => $caInfo,
+
+            'userSource' => $userSource,
+            'customerGroup' => $customerGroup,
         ];
         return Inertia::render('Admin/HoaDon/form_hoa_don_ban_le_02', $viewData);
     }

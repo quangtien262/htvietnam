@@ -54,7 +54,7 @@ import "../../../../css/form.css";
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 
 import { khachHangInfo } from "../../../components/comp_khach_hang";
-import { searchByTime } from "../../../components/comp_common";
+
 import { checkBtnActive } from "../../../components/hoa_don_info";
 
 import { cloneDeep } from "lodash";
@@ -463,6 +463,11 @@ export default function Dashboard(props) {
         router.get(route("hoaDon.index"),values);
     }
     
+    function searchByTime(type) {
+        setMocThoiGian(type);
+        setKhoangThoiGian([null, null]);
+        formSearch.submit();
+    }
 
     return (
         <div>
@@ -584,7 +589,53 @@ export default function Dashboard(props) {
                                         {/* thoi gian */}
                                         <Col sm={{ span: 24 }} className='item-search'>
                                             <h3 className="title-search02">Thời gian</h3>
-                                            {searchByTime(mocThoiGian)}
+
+                                            <label>Chọn nhanh</label>
+                                            <Popconfirm title="Chọn nhanh theo các mốc thời gian xác định" 
+                                                placement="right"
+                                                showCancel={false}
+                                                okText="Đóng"
+                                                onConfirm={()=>true}
+                                                description={<table className="table-sub">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Ngày/Tuần</th>
+                                                            <th>Tháng/Quý</th>
+                                                            <th>Theo năm</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><a onClick={()=>searchByTime('today')}>Hôm nay</a></td>
+                                                            <td><a onClick={()=>searchByTime('month')}>Tháng này</a></td>
+                                                            <td><a onClick={()=>searchByTime('year')}>Năm nay</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a onClick={()=>searchByTime('yesterday')}>Hôm qua</a></td>
+                                                            <td><a onClick={()=>searchByTime('lastMonth')}>Tháng trước</a></td>
+                                                            <td><a onClick={()=>searchByTime('lastYear')}>Năm trước</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a onClick={()=>searchByTime('thisWeek')}>Tuần này</a></td>
+                                                            <td><a onClick={()=>searchByTime('30day')}>30 ngày qua</a></td>
+                                                            <td><a onClick={()=>searchByTime('all')}>Toàn thời gian</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a onClick={()=>searchByTime('lastWeek')}>Tuần trước</a></td>
+                                                            <td><a onClick={()=>searchByTime('thisQuarter')}>Quý này</a></td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a onClick={()=>searchByTime('7day')}>07 ngày qua</a></td>
+                                                            <td><a onClick={()=>searchByTime('lastQuarter')}>Quý trước</a></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>}
+                                            >
+                                                <Input readOnly={true} value={MOC_THOI_GIAN[mocThoiGian]} />
+                                            </Popconfirm>
+                                            
                                             <br/><br/>
                                             
                                             <label>Tùy chọn khoảng thời gian</label>

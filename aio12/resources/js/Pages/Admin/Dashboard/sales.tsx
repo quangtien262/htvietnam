@@ -31,23 +31,18 @@ import { routeSales } from "../../../Function/config_route";
 import { history } from "../../../Function/report";
 import type { GetProp, MenuProps } from 'antd';
 
-import { report_DonHang, report_DoanhThu, report_sales_KhachHang, report_sales_NhanVien, report_sale_congNo } from "../../../Function/report";
+import {
+    report_DonHang, report_DoanhThu,
+    report_sales_KhachHang, report_sales_NhanVienSale,
+    report_sales_NhanVienLamDV, report_sale_congNo
+} from "../../../Function/report";
 
 // Báo cáo công nợ: bảng + biểu đồ
 
 
 export default function Dashboard(props: any) {
-    const [nhapHangData, setNhapHangData] = useState([]);
-    const [loadingTable, setLoadingTable] = useState(false);
-    const dataDoanhThu = [
-        { date: '2025-09-01', revenue: 12000000 },
-        { date: '2025-09-02', revenue: 15000000 },
-        { date: '2025-09-03', revenue: 9000000 },
-        { date: '2025-09-04', revenue: 18000000 },
-        { date: '2025-09-05', revenue: 21000000 },
-        { date: '2025-09-06', revenue: 17000000 },
-        { date: '2025-09-07', revenue: 11000000 },
-    ];
+    const [donHangData, setDonHangData] = useState<React.ReactNode>('');
+
 
     function history() {
         return <div className='sub-item-home'>
@@ -108,22 +103,27 @@ export default function Dashboard(props: any) {
         {
             key: '1',
             label: 'Báo cáo doanh thu',
-            children: report_DoanhThu(props),
+            children: report_DoanhThu(),
         },
         {
             key: '2',
             label: <span>Báo cáo đơn hàng</span>,
-            children: report_DonHang(props),
+            children: report_DonHang(),
         },
         {
             key: '3',
             label: 'Báo cáo khách hàng',
-            children: report_sales_KhachHang(props),
+            children: report_sales_KhachHang(),
         },
         {
             key: '4',
-            label: 'Báo cáo nhân viên',
-            children: report_sales_NhanVien(props),
+            label: 'Nhân viên sale',
+            children: report_sales_NhanVienSale(),
+        },
+        {
+            key: '6',
+            label: 'Nhân viên làm DV',
+            children: report_sales_NhanVienLamDV(),
         },
         {
             key: '5',
@@ -138,10 +138,7 @@ export default function Dashboard(props: any) {
             tables={routeSales}
             content={
                 <div>
-
                     <Tabs tabPosition="left" defaultActiveKey="1" items={items} />
-
-
                 </div>
             }
         />

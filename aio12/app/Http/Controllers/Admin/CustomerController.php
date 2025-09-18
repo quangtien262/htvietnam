@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Admin\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Card;
-use App\Models\Admin\CardService;
 use App\Models\Admin\HoaDon;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 
 use App\Services\Admin\TblService;
 use App\Models\Admin\Table;
-use App\Models\Auto\card as AutoCard;
 use App\Models\User;
 use App\Services\Admin\CardClass;
 use App\Services\Admin\HimalayaService;
@@ -27,7 +22,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $tables = TblService::getAdminMenu(0);
-        $table = Table::find(236);
+        $table = Table::where('name', 'users')->first();
         $users = User::select(
                 'users.*','users.id as key',
                 'gioi_tinh.name as gioi_tinh_name',
@@ -53,7 +48,7 @@ class CustomerController extends Controller
         } else {
             $users = $users->where('users.is_recycle_bin', 0);
         }
-        
+        $users = $users->orderBy('users.id', 'desc');
         $users = $users->paginate(20);
 
         $typeProduct = config('constant.type_product');

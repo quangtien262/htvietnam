@@ -42,11 +42,8 @@
                 
                 // chi tiet
                 $table->integer('hoa_don_id')->nullable();
-                
-                //
 
-                $table->string('lucky_id')->nullable();
-                $table->string('ID_ChungTu_lucky')->nullable(); //Phí cà thẻ
+                $table->date('ngay_tao')->default(now())->nullable();
 
                 $table->string('display_name')->nullable();
                 $table->integer('parent_id')->default(0)->nullable();

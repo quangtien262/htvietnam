@@ -27,7 +27,6 @@ import axios from "axios";
 import {
     InfoCircleOutlined,
     CaretRightOutlined,
-    PercentageOutlined,
     MinusCircleOutlined, SwapOutlined, ShopOutlined,
     SettingOutlined, PlusCircleOutlined,
     CheckOutlined, HomeOutlined,
@@ -44,7 +43,7 @@ import { contentThuNganConfig, contentDoiCa } from "../../../components/comp_hoa
 
 import { callApi } from "../../../Function/api";
 
-import { khachHangInfo } from "../../../components/khach_hang_info";
+import { khachHangInfo, formEditKhachHang } from "../../../components/comp_khach_hang";
 
 const { TextArea } = Input;
 
@@ -56,14 +55,14 @@ import { routeSales } from "../../../Function/config_route";
 
 export default function Dashboard(props) {
 
-    const [formGoiSP] = Form.useForm();
-
     const [isModalThuNganConfig, setIsModalThuNganConfig] = useState(props.checkThuNganConfig);
 
     // thu ngan setting
     const [nhanVienThuNgan, setNhanVienThuNgan] = useState(props.nhanVienThuNgan);
     const [chiNhanhThuNgan, setChiNhanhThuNgan] = useState(props.chiNhanhThuNgan);
     const [khoHangThuNgan, setKhoHangThuNgan] = useState(props.khoHangThuNgan);
+
+    const [users, setUsers] = useState(props.users);
 
     const [maskClosableConfirm, setMaskClosableConfirm] = useState(!props.checkThuNganConfig);
     const [isModalDoiCa, setIsModalDoiCa] = useState(false);
@@ -127,6 +126,8 @@ export default function Dashboard(props) {
     const [loadingBtn, setLoadingBtn] = useState(false);
 
     const [isOpenModalGoiDV, setIsOpenModalGoiDV] = useState(false);
+
+    const [modalAddKhachHang, setModalAddKhachHang] = useState(false);
 
     ///////////////////
     function payment() {
@@ -970,13 +971,37 @@ export default function Dashboard(props) {
     }
 
 
-    function changekhachHang(value, e) {
+    function changekhachHang(value: number, e: any) {
         setKhachHangId(value);
         setKhachHangDetail(e.data);
         setTongTienConLai(e.data.tien_con_lai);
-        // todo: update khach hang
+        // update khach hang
         axios.post(route('hoa_don.update_customer'), {
             khach_hang: value,
+            hoaDonId: idActive
+        })
+            .then((response) => {
+                if (response.data.status_code == 200) {
+                    const data = response.data.data;
+                    resetStateHoaDon(data.hoaDons[keyActive], data);
+                    message.success("Chọn khách hàng thành công");
+                } else {
+                    message.error("Lỗi tải thông tin khách hàng");
+                }
+
+            })
+            .catch((error) => {
+                message.error("Lỗi không tải được thông tin khách hàng");
+            });
+    }
+
+    function selectedKhachHang(user:any) {
+        setKhachHangId(user.id);
+        setKhachHangDetail(user);
+        setTongTienConLai(user.tien_con_lai);
+        // todo: update khach hang
+        axios.post(route('hoa_don.update_customer'), {
+            khach_hang: user.id,
             hoaDonId: idActive
         })
             .then((response) => {
@@ -1147,12 +1172,12 @@ export default function Dashboard(props) {
                         items={[
                             {
                                 label: 'Chọn gói dịch vụ',
-                                key: 1,
+                                key: '1',
                                 children: contentGoiDV(),
                             },
                             {
                                 label: 'Thông tin chi tiết',
-                                key: 2,
+                                key: '2',
                                 children: <Col>
                                     <Row colSpan={24}>
                                         {khachHangData ? khachHangInfo(khachHangData) : ''}
@@ -1168,8 +1193,13 @@ export default function Dashboard(props) {
                 {/* content left */}
                 <Divider orientation="left">
                     <Space>
-
-                        <Link className='divider-thoat' ><UserOutlined /></Link>
+                        Khách hàng
+                        <span className='space02'>|</span>
+                        <a className='divider-thoat' 
+                            onClick={() => setModalAddKhachHang(true)}
+                        >
+                            <PlusCircleOutlined />
+                        </a>
 
                         <Select
                             showSearch
@@ -1182,7 +1212,7 @@ export default function Dashboard(props) {
                             filterSort={
                                 (optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
-                            options={props.users.map((u) => {
+                            options={users.map((u) => {
                                 const label = u.name + ' - ' + u.phone;
                                 return {
                                     value: u.id,
@@ -1423,6 +1453,19 @@ export default function Dashboard(props) {
         }
     }
 
+    const dataFormKhachHang = {
+        id: 0,
+        email: '',
+        name: '',
+        phone: '',
+        gioi_tinh_id: null,
+        ngay_sinh: null,
+        facebook: '',
+        address: '',
+        customer_group_id: null,
+        customer_status_id: 1
+    }
+
     return (
         <div>
             <AdminLayout
@@ -1470,6 +1513,29 @@ export default function Dashboard(props) {
                                 setNhanVienThuNgan(data.nhanVien);
                                 setIsModalDoiCa(false);
                             })}
+                        </Modal>
+
+                        {/* modal add khách hàng */}
+                        <Modal title={<p className="title02">Thêm khách hàng <hr /></p>}
+                            open={modalAddKhachHang}
+                            width={1000}
+                            footer={[]}
+                            onCancel={() => setModalAddKhachHang(false)}>
+
+                            {
+                                formEditKhachHang(props, dataFormKhachHang, (data: any) => {
+                                    setModalAddKhachHang(false);
+                                    if (data.close) {
+                                        return;
+                                    }
+                                    let users_tmp = cloneDeep(users);
+                                    users_tmp.unshift(data);
+                                    setUsers(users_tmp);
+                                    setModalAddKhachHang(false);
+                                    selectedKhachHang(data)
+                                })
+                            }
+
                         </Modal>
 
                         <Row>
