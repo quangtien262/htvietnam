@@ -622,7 +622,7 @@ export default function Dashboard(props) {
 
     const deleteItem = () => {
         setLoadingTable(true);
-        axios.post(route("product.deleteUser"), { pid: pidAction })
+        axios.post(route("nhanVien.deleteUser"), { id: pidAction })
             .then((response) => {
                 // setLoadingTable(false);
                 // setPidAction(0);
@@ -1106,7 +1106,7 @@ export default function Dashboard(props) {
         <Col md={{ span: 12 }} sm={{ span: 24 }}>
             <Form.Item name='chuc_vu_id' label='Chức vụ'>
                 <Select
-                    placeholder="Chọn trạng thái"
+                    placeholder="Chọn Chức vụ"
                     optionFilterProp="children"
                     options={props.chucVu.map((g)=>{
                         return { label: g.name, value: g.id }
@@ -1933,7 +1933,7 @@ export default function Dashboard(props) {
                                             </Col>
 
                                             <Col sm={{ span: 24 }} className='item-search'>
-                                                <Form.Item name='is_recycle_bin' label='Trạng thái'>
+                                                <Form.Item name='admin_user_status_id' label='Trạng thái'>
                                                 <Radio.Group
                                                     style={{ display: 'flex',
                                                         flexDirection: 'column',
@@ -1942,8 +1942,8 @@ export default function Dashboard(props) {
                                                     defaultValue={1}
                                                     options={[
                                                         { value: 1, label: 'Đang Hoạt động' },
-                                                        { value: 2, label: 'Ngừng hoạt động' },
-                                                        { value: 3, label: 'Đã xóa' },
+                                                        { value: 2, label: 'Tạm nghỉ' },
+                                                        { value: 3, label: 'Đã nghỉ' },
                                                     ]}
                                                     />
                                                 </Form.Item>

@@ -245,6 +245,7 @@ Route::get('nhan-vien/danh-sach', [NhanVienController::class, 'index'])->name('n
 Route::post('nhan-vien/save', [NhanVienController::class, 'saveNhanVien'])->name('nhanVien.save');
 Route::post('nhan-vien/search', [NhanVienController::class, 'search'])->name('nhanVien.search');
 Route::post('nhan-vien/change-password', [NhanVienController::class, 'changePW'])->name('nhanVien.changePW');
+Route::post('nhan-vien/delete-user', [NhanVienController::class, 'deleteUser'])->name('nhanVien.deleteUser');
 
 // hóa đơn
 Route::get('hoa-don/danh-sach', [HoaDonController::class, 'index'])->name('hoaDon.index');

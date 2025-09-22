@@ -188,7 +188,26 @@ class NhanVienController extends Controller
         $user->password = bcrypt($rq->password);
         $user->save();
 
-        return $this->sendSuccessResponse('Change password successfully');
+        return $this->sendSuccessResponse([], 'Change password successfully');
+    }
+
+    public function deleteUser(Request $rq)
+    {
+        if (empty($rq->id)) {
+            return $this->sendErrorResponse('input is empty');
+        }
+
+        $user = AdminUser::find($rq->id);
+
+        if (empty($user)) {
+            return $this->sendErrorResponse('Tài khoản đã bị khóa hoặc không tồn tại');
+        }
+
+        $user->is_recycle_bin = 1;
+        $user->da_nghi_lam = 1;
+        $user->save();
+
+        return $this->sendSuccessResponse([], 'Delete successfully');
     }
 
 }
