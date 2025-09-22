@@ -9,18 +9,13 @@ use App\Services\Admin\TblService;
 use App\Services\CommonService;
 use App\Models\Admin\Table;
 use App\Models\Admin\Column;
-use App\Models\Admin\ExportExcel;
 use App\Models\Admin\Log;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\ImportUser;
 use App\Models\Admin\FileManager;
 use App\Models\Admin\Language;
 use App\Models\AdminUser;
-use Hamcrest\Core\IsNull;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\Storage;
 use App\Services\Admin\TblModel;
@@ -63,6 +58,11 @@ class DataController extends Controller
             return to_route('admin.permission_denied');
         }
 
+        // nếu không có menu parent_id thì sẽ điều hướng về trang chủ
+        if (empty($request->p)) {
+            return to_route('dashboard');
+        }
+
         if (!empty($table->is_label)) {
             return to_route('dashboard');
         }
@@ -87,7 +87,7 @@ class DataController extends Controller
             $tableTabConfig = Table::find($table->tab_table_id);
             $tableTab = DB::table($tableTabConfig->name)->get();
             if (!empty($tableTabConfig) && empty($request->{$table->tab_table_name}) && count($tableTab) > 0) {
-                return to_route('data.index', [$table->id, $table->tab_table_name => 'all']);
+                return to_route('data.tblName', [$table->name, $table->tab_table_name => 'all']);
             }
             if ($request->{$table->tab_table_name} != 'all') {
                 $conditions = [$table->tab_table_name => $request->{$table->tab_table_name}];
@@ -96,7 +96,8 @@ class DataController extends Controller
 
         // 1 tbl master
         if ($table->type_show == 5) {
-            return Inertia::location(route('data.detail', [$tableId, 1]));
+            // return Inertia::location(route('data.detail', [$tableId, 1]) . '?p='.$request->p);
+            return to_route('data.detail', [$tableId, 1, 'p' => $request->p]);
         }
 
         $tables = TblService::getAdminMenu($table->id);
@@ -134,7 +135,10 @@ class DataController extends Controller
                 'token' => csrf_token(),
                 'ids' => $ids,
                 'parent' => [],
-                'adminUser' => $admUser
+                'adminUser' => $admUser,
+                'menus' => TblService::getMenus($request->p),
+                'p' => $request->p,
+                'token' => csrf_token(),
             ];
 
             return Inertia::render(
@@ -174,7 +178,10 @@ class DataController extends Controller
             'tableTabConfig' => $tableTabConfig,
             'tab_col_name' => $tab_col_name,
             'request' => $_GET,
-            'searchData' => $datas['searchData']
+            'searchData' => $datas['searchData'],
+            'menus' => TblService::getMenus($request->p),
+            'p' => $request->p,
+            'token' => csrf_token(),
         ];
 
         // drag and drop
@@ -231,7 +238,13 @@ class DataController extends Controller
         $props['fastEditClass'] = $dataSource['fastEditClass'];
         $props['columnData'] = TblService::getColumnSetting($tableId);
         $props['tableSetting'] = TblService::formatTableDDItem($table->display_name, $table);
-
+        
+        if (!empty($table->is_multiple_language) && $table->is_multiple_language == 1) {
+            $props['dataEdit'] = TblService::getDataLanguageEdit($table->id, 0);
+        } else {
+            $props['dataEdit'] = TblService::getDataEdit($tableId, 0, '', $request->all());
+        }
+        
         return Inertia::render('Admin/Data/index', $props);
     }
 
@@ -248,13 +261,15 @@ class DataController extends Controller
             return to_route('admin.permission_denied');
         }
 
-        if (!empty($table->is_label)) {
+        // nếu không có menu parent_id (hoặc đó ko fai là bảng) thì sẽ điều hướng về trang chủ
+        if (empty($request->p) || !empty($table->is_label)) {
             return to_route('dashboard');
         }
 
+        // đối với các table đặc biệt thì sẽ điều hướng về page được xử lý riêng cho table đó
         foreach (self::CHECK_REDIRECT_TABLE as $tblName => $routeName) {
             if ($table->name == $tblName) {
-                return to_route($routeName);
+                return to_route($routeName, ['p' => $request->p]);
             }
         }
 
@@ -319,13 +334,12 @@ class DataController extends Controller
                 'token' => csrf_token(),
                 'ids' => $ids,
                 'parent' => [],
-                'adminUser' => $admUser
+                'adminUser' => $admUser,
+                'p' => $request->p,
+                'token' => csrf_token(),
             ];
 
-            return Inertia::render(
-                'Admin/File/index',
-                $props
-            );
+            return Inertia::render('Admin/File/index', $props);
         }
 
         $columns = Column::where('table_id', $tableId)->orderBy('sort_order', 'asc')->get();
@@ -342,6 +356,7 @@ class DataController extends Controller
                 'columns' => $columns,
                 'month' => date('m'),
                 'year' => date('Y'),
+                'token' => csrf_token(),
             ]);
         }
 
@@ -359,13 +374,14 @@ class DataController extends Controller
             'tableTabConfig' => $tableTabConfig,
             'tab_col_name' => $tab_col_name,
             'request' => $_GET,
-            'searchData' => $datas['searchData']
+            'searchData' => $datas['searchData'],
+            'token' => csrf_token(),
         ];
         // drag and drop
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
             $props['dataSource'] = $dataSource;
-
+            $props['p'] = $request->p;
             // dd($dataSource);
             return Inertia::render('Admin/Data/index_drag_drop', $props);
         }
@@ -417,7 +433,7 @@ class DataController extends Controller
         $props['fastEditClass'] = $dataSource['fastEditClass'];
         $props['columnData'] = TblService::getColumnSetting($tableId);
         $props['tableSetting'] = TblService::formatTableDDItem($table->display_name, $table);
-
+        $props['p'] = $request->p;
         return Inertia::render('Admin/Data/index', $props);
     }
 
@@ -432,6 +448,11 @@ class DataController extends Controller
         // log
         $table = Table::find($tableId);
 
+        // nếu không có menu parent_id (hoặc đó ko fai là bảng) thì sẽ điều hướng về trang chủ
+        if (empty($request->p)) {
+            return to_route('dashboard');
+        }
+
         // save log report
         if ($table->name == 'report') {
             TblService::logView($table->id, $dataId, 'detail');
@@ -439,7 +460,8 @@ class DataController extends Controller
 
         $checkData = DB::table($table->name)->where('id', $dataId)->count();
         if ($checkData == 0) {
-            return to_route('data.index', [$table->id]);
+            die('empty');
+            return to_route('data.name', [$table->name, 'p' => $request->p]);
         }
 
         // view
@@ -471,6 +493,11 @@ class DataController extends Controller
      */
     public function create(Request $request, $tableId)
     {
+        // nếu không có menu parent_id (hoặc đó ko fai là bảng) thì sẽ điều hướng về trang chủ
+        if (empty($request->p)) {
+            return to_route('dashboard');
+        }
+
         // check permission
         $per = TblService::getPermission();
         $table = Table::find($tableId);
@@ -546,16 +573,16 @@ class DataController extends Controller
             $data = TblService::saveData($columns, $dataId, $table, $request->all());
             DB::commit();
             if ($request->submit_edirect == 'detail') {
-                return to_route('data.detail', [$tableId, $data->id]);
+                return to_route('data.detail', [$tableId, $data->id, 'p' => $request->p]);
             }
             if ($request->submit_edirect == 'list') {
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
             if ($request->submit_edirect == 'thanh_toan') {
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
             if ($request->submit_edirect == 'huy_hoa_don') {
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
             return $this->sendSuccessResponse($data, 'Update successfully', 200);
@@ -566,6 +593,39 @@ class DataController extends Controller
         }
     }
 
+    public function getDataInfo(Request $request, $tableId, $dataId)
+    {
+        $table = Table::find($tableId);
+
+        $checkData = DB::table($table->name)->where('id', $dataId)->count();
+        if ($checkData == 0) {
+            return $this->sendErrorResponse('empty');
+        }
+        // lang
+        if ($table->is_multiple_language == 1) {
+            $data = TblService::getDataLanguageEdit($tableId, $dataId);
+            $data['request'] = $request->all();
+            return $this->sendSuccessResponse($data);
+        }
+
+        $data = TblService::getDataEdit($tableId, $dataId);
+
+        if ($data == false) {
+            return $this->sendErrorResponse('empty');
+        }
+
+        $data['request'] = $request->all();
+
+        // cài đặt data hiển thị theo select
+        if (!empty($table->config_show_data)) {
+            $data['request']['type'] = !empty($request->type) ? $request->type : $data['data'][$table->config_show_data['column']];
+        }
+
+        $data['tables'] = TblService::getAdminMenu($table->id);
+
+        return $this->sendSuccessResponse($data);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -574,6 +634,11 @@ class DataController extends Controller
      */
     public function edit(Request $request, $tableId, $dataId)
     {
+        // nếu không có menu parent_id (hoặc đó ko fai là bảng) thì sẽ điều hướng về trang chủ
+        if (empty($request->p)) {
+            return to_route('dashboard');
+        }
+
         $per = TblService::getPermission();
         $table = Table::find($tableId);
 
@@ -622,7 +687,7 @@ class DataController extends Controller
         if (!empty(in_array($table->name, ['permission_group']))) {
             return Inertia::render('Admin/Data/form_permission_group', $viewData);
         }
-        
+
         return Inertia::render('Admin/Data/form', $viewData);
     }
 
@@ -644,23 +709,23 @@ class DataController extends Controller
             DB::commit();
 
             if ($request->submit_edirect == 'detail') {
-                return to_route('data.detail', [$tableId, $dataId]);
+                return to_route('data.detail', [$tableId, $dataId, 'p' => $request->p]);
             }
 
             if ($request->submit_edirect == 'list') {
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
             if ($request->submit_edirect == 'thanh_toan') {
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
             if ($request->submit_edirect == 'huy_hoa_don') {
                 // chuyển hóa đơn vào thùng rác
-                TblService::deleteDatas($table->id, [$dataId]);
+                TblService::deleteDatas($table->id, [$dataId, 'p' => $request->p]);
 
                 // redirect về trang index
-                return to_route('data.index', [$tableId]);
+                return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
             return $this->sendSuccessResponse($result, 'Update successfully', 200);

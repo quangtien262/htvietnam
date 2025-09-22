@@ -757,7 +757,7 @@ export function report_DoanhThu() {
         <>
             <Row>
                 <Col span={24} className="mb-4">
-                    {searchByTime(khoangThoiGian, (data) => {
+                    {searchByTime(khoangThoiGian, (data: any) => {
                         fetchDataDoanhThu(data.time);
                     })}
                 </Col>

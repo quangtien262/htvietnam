@@ -1095,7 +1095,8 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={itemMenu(props.table.name)}
+            menus={props.menus}
+            menuParentID={props.p}
             current={props.table}
             content={
                 <Spin spinning={loading} size="large">

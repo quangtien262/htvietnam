@@ -604,6 +604,8 @@ export function HTInput(col: any, langId = 0) {
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
     }
+    console.log('namreeeee', name, langId);
+    
     let note = <span></span>;
     if (col.name.search("meta_title") >= 0) {
         note = <p><b>Ghi chú: </b><em> "[SEO] Tiêu đề" là thẻ tiêu đề của bài viết, Nếu bỏ trống, sẽ tư động lấy tiêu đề của bài viết</em></p>

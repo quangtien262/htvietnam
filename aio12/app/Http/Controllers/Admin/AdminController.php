@@ -45,7 +45,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/Pages/index', $param);
     }
 
-    public function dashboardWeb()
+    public function dashboardWeb(Request $request)
     {
         // Lấy dữ liệu lượt view theo ngày
         $viewStats = AnalyticService::getAll();
@@ -68,15 +68,18 @@ class AdminController extends Controller
         
         // get 20 log mới nhất
         $logs = Log::orderBy('id', 'desc')->limit(20)->get();
+
+        $menus = TblService::getMenus($request->p);
         
         $param = [
             'viewStats' => $viewStats,
             // 'viewStatsIp' => $viewStatsIp,
             'contacts' => $contacts,
             'orders' => $orders,
-            'logs' => $logs
+            'logs' => $logs, 
+            'menus' => TblService::getMenus($request->p),
+            'p' => $request->p
         ];
-        // dd($param);
         return Inertia::render('Admin/Dashboard/web', $param);
     }
 

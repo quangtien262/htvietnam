@@ -325,7 +325,7 @@ export const routeTask = [
 export const routeTaiChinh = [
     {
         parent: {
-            link: route('task.dashboard'),
+            link: route('taiChinh.dashboard'),
             display_name: 'Báo cáo',
             key: key++
         },

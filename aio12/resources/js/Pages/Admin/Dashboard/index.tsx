@@ -13,7 +13,8 @@ import {
     GoldFilled, CalendarOutlined, ReadFilled, UserSwitchOutlined, UndoOutlined, InfoCircleFilled,
     HddFilled, CalendarFilled, TeamOutlined, UngroupOutlined, InsertRowRightOutlined, AccountBookOutlined,
     BookOutlined, BranchesOutlined, ArrowDownOutlined, ClusterOutlined, AppstoreOutlined,
-    MailOutlined
+    MailOutlined, HomeOutlined, IdcardOutlined, ProfileOutlined,
+    WalletOutlined
 } from "@ant-design/icons";
 
 
@@ -31,13 +32,76 @@ export default function Dashboard(props: any) {
 
     function showDataDashboard(item: any) {
 
-        if (item.name === 'parent_tai_lieu') {
-            {/* QUẢN LÝ TÀI LIỆU */ }
-            return <Col sm={6} className='item-home'>
+        if (item.name === 'parent_website') {
+
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('file.index')}>
+                            <Link href={route(item.route, { p: item.id })}>
+                                <DribbbleSquareOutlined /> {item.display_name}
+                            </Link>
+                        </div>
+
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <DribbbleSquareOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HddOutlined /> Quản lý sản phẩm</li>
+                                        <li><CopyOutlined /> Quản lý tin tức</li>
+                                        <li><FileSearchOutlined /> Quản lý landingpage</li>
+                                        <li><MailOutlined /> Liên hệ từ website</li>
+                                        <li><AppstoreOutlined /> Đơn hàng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        if (item.name === 'parent_aitilen') {
+            return <Col className='item-home' sm={6} xs={24}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
+                                <HomeOutlined /> BĐS AITILEN
+                            </Link>
+                        </div>
+
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <HomeOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HomeOutlined /> Căn hộ</li>
+                                        <li><BookOutlined /> Phòng cho thuê</li>
+                                        <li><IdcardOutlined /> Hợp đồng</li>
+                                        <li><ProfileOutlined /> Hóa đơn</li>
+                                        <li><WalletOutlined /> Công việc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        if (item.name === 'parent_tai_lieu') {
+            {/* QUẢN LÝ TÀI LIỆU */ }
+            return <Col className='item-home' sm={6} xs={24}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
                                 <a><CopyOutlined /> QUẢN LÝ TÀI LIỆU</a>
                             </Link>
                         </div>
@@ -52,7 +116,7 @@ export default function Dashboard(props: any) {
                                         <li><BookOutlined /> Tài liệu chung</li>
                                         <li><BranchesOutlined /> Tài liệu được chia sẻ</li>
                                         <li><ArrowDownOutlined /> Download tài liệu</li>
-                                        <li><ClusterOutlined /> Upload nhiều loại định dạng file</li>
+                                        <li><ClusterOutlined /> Upload multiple file</li>
                                     </ul>
                                 </div>
                             </div>
@@ -64,12 +128,14 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ NHÂN SỰ */ }
         if (item.name === 'parent_nhan_su') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('nhanSu.dashboard')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link>
+                            <Link href={route(item.route, { p: item.id })}>
+                                <IdcardFilled /> QUẢN LÝ NHÂN SỰ
+                            </Link>
                         </div>
                         <div className="ant-statistic-content" >
                             <div className="ant-statistic-content-prefix">
@@ -82,7 +148,7 @@ export default function Dashboard(props: any) {
                                         <li><ProjectOutlined /> Quản lý phòng ban</li>
                                         <li><SolutionOutlined /> Quản lý bảng lương</li>
                                         <li><NodeExpandOutlined /> Phân quyền quản trị</li>
-                                        <li><InsertRowAboveOutlined /> Báo cáo doanh số, hoa hồng</li>
+                                        <li><InsertRowAboveOutlined /> Doanh số, hoa hồng</li>
                                     </ul>
                                 </div>
                             </div>
@@ -93,11 +159,11 @@ export default function Dashboard(props: any) {
         }
         {/* QUẢN LÝ KHO HÀNG */ }
         if (item.name === 'parent_kho_hang') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('khoHang.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <SlidersFilled /> QUẢN LÝ HÀNG HÓA & DỊCH VỤ
                             </Link>
                         </div>
@@ -124,11 +190,11 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ BÁN HÀNG */ }
         if (item.name === 'parent_kho_hang') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('sale.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <ShopFilled /> QUẢN LÝ BÁN HÀNG
                             </Link>
                         </div>
@@ -155,12 +221,12 @@ export default function Dashboard(props: any) {
 
         {/* BÁO CÁO - THỐNG KÊ */ }
         if (item.name === 'parent_thong_ke') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('report.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
                             </Link>
                         </div>
@@ -187,11 +253,11 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ CÔNG VIỆC */ }
         if (item.name === 'parent_cong_viec') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('task.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
                             </Link>
                         </div>
@@ -218,11 +284,11 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ TÀI SẢN */ }
         if (item.name === 'parent_tai_san') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('taiSan.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <HddFilled /> QUẢN LÝ TÀI SẢN
                             </Link>
                         </div>
@@ -233,11 +299,11 @@ export default function Dashboard(props: any) {
                             <div className="ant-statistic-content-value">
                                 <div>
                                     <ul className="dashboard-list-item">
-                                        <li><OrderedListOutlined /> Quản lý danh sách tài sản</li>
+                                        <li><OrderedListOutlined /> Danh sách tài sản</li>
                                         <li><SortAscendingOutlined /> Phân loại tài sản</li>
                                         <li><InsertRowRightOutlined /> Tài sản trong kho</li>
                                         <li><LaptopOutlined /> Tài sản đang sử dụng</li>
-                                        <li><UndoOutlined /> Tài sản hư hỏng, cần sửa chữa</li>
+                                        <li><UndoOutlined /> Tài sản bảo trì</li>
                                     </ul>
                                 </div>
                             </div>
@@ -249,11 +315,11 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ TÀI CHÍNH */ }
         if (item.name === 'parent_tai_chinh') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('taiChinh.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <AccountBookOutlined /> QUẢN LÝ TÀI CHÍNH
                             </Link>
                         </div>
@@ -279,12 +345,12 @@ export default function Dashboard(props: any) {
         }
 
         if (item.name === 'parent_ban_hang') {
-            return <Col sm={6} className='item-home'>
+            return <Col className='item-home' sm={6} xs={24}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route('sale.dashboard')}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <ShopFilled /> QUẢN LÝ BÁN HÀNG
                             </Link>
                         </div>

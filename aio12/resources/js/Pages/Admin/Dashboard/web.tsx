@@ -32,7 +32,8 @@ export default function Dashboard(props: any) {
         <AdminLayout
             auth={props.auth}
             header='Trang chủ'
-            tables={routeWeb}
+            menus={props.menus}
+            menuParentID = {props.p}
             content={
                 <div>
                     <Row className='main-home'>

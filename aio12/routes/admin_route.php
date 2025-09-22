@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\GmailController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AitilenController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -58,6 +59,8 @@ Route::group(['prefix' => 'data'], function () {
     Route::get('edit/{tableId}/{dataId}', [DataController::class, 'edit'])->name('data.edit');
     Route::post('update/{tableId}/{dataId}', [DataController::class, 'update'])->name('data.update');
 
+    Route::post('api/info/{tableId}/{dataId}', [DataController::class, 'getDataInfo'])->name('data.api.info');
+
     // sửa nhanh theo id bảng, tên cột cần sửa và id của bảng
     Route::post('fast-edit/{tableId}', [DataController::class, 'fastEdit'])->name('data.fastEdit');
     // sửa nhanh theo tên bảng, tên cột cần sửa và id của bảng
@@ -95,6 +98,7 @@ Route::group(['prefix' => 'data'], function () {
 Route::group(['prefix' => 'configtbl'], function () {
     Route::get('/', [TblController::class, 'index'])->name('table.index');
     Route::get('form/{tableId}/{columnId?}', [TblController::class, 'form'])->name('table.form');
+    Route::get('form-name/{tableName}/{columnId?}', [TblController::class, 'formName'])->name('table.formName');
     Route::post('deletes', [TblController::class, 'deletes'])->name('table.deletes');
     Route::post('form/{tableId}', [TblController::class, 'submitFormTable'])->name('table.submit');
     Route::post('table/update-sort-order', [TblController::class, 'updateSortOrderTable'])->name('table.update_sort_order');
@@ -310,9 +314,6 @@ Route::post('khach-hang/info/{id}', [KhachHangController::class, 'info'])->name(
 
 Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->name('tatToanCongNo');
 
-// task
-
-
 //tasks
 Route::group(['prefix' => 'tasks'], function () {
     Route::get('/dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
@@ -369,11 +370,22 @@ Route::group(['prefix' => 'report'], function () {
 Route::group(['prefix' => 'web'], function () {
     Route::get('/', [AdminController::class, 'dashboardWeb'])->name('web.dashboard');
 
-    Route::get('/landing-page', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
-    Route::get('/landing-page/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
+    Route::get('/landingpage', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
+    Route::get('/landingpage/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
 });
 
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
 Route::post('/data/delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');
 
 Route::post('/data/upload-file', [DataController::class, 'uploadFile'])->name('data.upload_file');
+
+
+Route::group(['prefix' => 'bds'], function () {
+    Route::get('/', [AitilenController::class, 'dashboard'])->name('aitilen.dashboard');
+    Route::get('report/doanh-thu', [AitilenController::class, 'report_doanhThu'])->name('aitilen.report_doanhThu');
+    Route::get('report/don-hang', [AitilenController::class, 'report_DonHang'])->name('aitilen.report_DonHang');
+    Route::get('report/khach-hang', [AitilenController::class, 'report_khachHang'])->name('aitilen.report_khachHang');
+    Route::get('report/nhan-vien-sale', [AitilenController::class, 'report_nhanVienSale'])->name('aitilen.report_nhanVienSale');
+    Route::get('report/nhan-vien-kt', [AitilenController::class, 'report_nhanVienKT'])->name('aitilen.report_nhanVienKT');
+    Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
+}); 

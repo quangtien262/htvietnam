@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Drawer } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import { Link } from "@inertiajs/react";
 import {
     Layout, Menu, Button, Spin, Image, Dropdown, message
@@ -34,18 +36,37 @@ interface AdminProps {
 export default function Admin({
     auth,
     header,
-    tables = null,
+    menus = null,
+    menuParentID = 0,
     current = { id: 0, parent_id: 0 },
     content,
 }: AdminProps) {
-    const isMobile = window.innerWidth < 2000;
+    const isMobile = window.innerWidth < 768;
     const [spinning, setSpinning] = useState(false);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     let key = 1;
 
     const onClick = (e) => {
         setSpinning(true);
     };
+
+    function getLinkMenu(menu: any) {
+        let href = '';
+        
+        if (menu.route && menu.route === 'data.tblName') {
+            href = route(menu.route, { tblName: menu.table_name, p: menuParentID });
+        }
+
+        if (menu.route && menu.route !== 'data.tblName') {
+            href = route(menu.route, { p: menuParentID });
+        }
+
+        if (menu.link) {
+            href = menu.link;
+        }
+        return href;
+    }
 
     function getItems() {
 
@@ -57,30 +78,33 @@ export default function Admin({
             },
             {
                 label: <a href={route("home")}><HomeOutlined /> Website</a>,
-                key: 1,
+                key: '-1',
                 // icon: <HomeOutlined />,
             },
             {
                 label: <a href={route("dashboard")}><DashboardOutlined /> Admin</a>,
-                key: 2,
+                key: '-2',
                 // icon: <HomeOutlined />,
             },
         ];
 
-        if (!tables) {
+        if (!menus) {
             return itemsMenu;
         }
 
-        tables.forEach((table: any) => {
+        menus.forEach((menu: any) => {
+            let link = getLinkMenu(menu.parent);
+
             let itemTmp: any = {};
-            itemTmp.label = <Link href={table.parent.link === '' || table.parent.link == null ? route("data.index", [table.parent.id]) : table.parent.link}>{table.parent.display_name}</Link>;
+            itemTmp.label = <Link href={link}>{menu.parent.display_name}</Link>;
             itemTmp.key = key++;
-            if (table.sub.length > 0) {
-                itemTmp.label = <>{table.parent.display_name} <DownOutlined /></>;
+            if (menu.children.length > 0) {
+                itemTmp.label = <>{menu.parent.display_name} <DownOutlined /></>;
                 let sub = [];
-                for (let subData of table.sub) {
+                for (let subData of menu.children) {
+                    let subLink = getLinkMenu(subData);
                     let submenu: any = {};
-                    submenu.label = <Link href={subData.link === '' || subData.link === null ? route("data.index", [subData.id]) : subData.link}>{subData.display_name}</Link>;
+                    submenu.label = <Link href={subLink}>{subData.display_name}</Link>;
                     submenu.key = key++;
                     sub.push(submenu);
                 }
@@ -128,17 +152,46 @@ export default function Admin({
         ]
         return result;
     }
-    
+
     return (
         <Layout>
-
             <div className="header01">
                 <div className="main-menu-header-letf">
                     <Header style={{ display: 'flex', alignItems: 'center' }}>
                         <div className="demo-logo" />
-                        {
-                            !tables
-                                ?
+                        {isMobile ? (
+                            <>
+                                <Button
+                                    type="text"
+                                    icon={<MenuOutlined style={{ fontSize: 24 }} />}
+                                    onClick={() => setShowMobileMenu(true)}
+                                    style={{ marginRight: 16 }}
+                                />
+                                <Drawer
+                                    title="Menu"
+                                    placement="left"
+                                    onClose={() => setShowMobileMenu(false)}
+                                    open={showMobileMenu}
+                                    bodyStyle={{ padding: 0 }}
+                                >
+                                    <Menu
+                                        mode="vertical"
+                                        theme="light"
+                                        items={menus ? getItems() : itemHome()}
+                                        onClick={() => setShowMobileMenu(false)}
+                                    />
+                                </Drawer>
+                            </>
+                        ) : (
+                            menus ? (
+                                <Menu
+                                    mode="horizontal"
+                                    theme="light"
+                                    className="slide menu-header"
+                                    items={getItems()}
+                                    onClick={onClick}
+                                />
+                            ) : (
                                 <Menu
                                     mode="horizontal"
                                     theme="light"
@@ -148,32 +201,11 @@ export default function Admin({
                                     defaultOpenKeys={[2]}
                                     onClick={onClick}
                                 />
-                                :
-                                <Menu
-                                    mode="horizontal"
-                                    theme="light"
-                                    className="slide menu-header"
-                                    items={getItems()}
-                                    // defaultSelectedKeys={[current.id.toString()]}
-                                    // defaultOpenKeys={[current.parent_id.toString()]}
-                                    onClick={onClick}
-                                />
-                        }
-
+                            )
+                        )}
                     </Header>
                 </div>
-
-                {/* main-menu-header-right */}
                 <div className="main-menu-header">
-                    {/* <Button className="btn-thu-ngan" onClick={() => { window.open(route('hoaDon.create'), '_blank').focus(); }}>
-                        <MoneyCollectFilled />
-                        Thu ngân
-                    </Button>
-
-                    <a className="icon-header" href={route('admin.setting.menu')} target="new">
-                        <SettingOutlined />
-                    </a> */}
-
                     <Dropdown menu={{ items }} trigger={['click']}>
                         <a className="icon-header" onClick={(e) => e.preventDefault()}>
                             <UserOutlined />
@@ -181,20 +213,19 @@ export default function Admin({
                     </Dropdown>
                 </div>
             </div>
-
-
-            <Content style={{ padding: '0 48px' }}>
-                <br />
-                <div className="main-content">
-                    <Spin spinning={spinning} size="large">
-                        <article>{content}</article>
-                    </Spin>
-                </div>
-            </Content>
-
+            <Layout>
+                <Content>
+                    <br />
+                    <div className="main-content">
+                        <Spin spinning={spinning} size="large">
+                            <article>{content}</article>
+                        </Spin>
+                    </div>
+                </Content>
+            </Layout>
             <Footer style={{ textAlign: 'center' }}>
                 HTVietNam ©{new Date().getFullYear()} Created by HT Việt Nam
             </Footer>
-        </Layout >
+        </Layout>
     );
 }

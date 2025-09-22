@@ -19,7 +19,9 @@ export default function index(props) {
     const [checkbox, setCheckbox] = useState([]);
 
     const onSelect = (id) => {
-        router.get(route('data.edit', [props.tableId, id]));
+        console.log('xxx', route('data.edit', {tableId:props.tableId, dataId: id, p: props.p}));
+        
+        // router.get(route('data.edit', {tableId:props.tableId, dataId: id, p: props.p}));
     };
 
     const onDragEnter = (info) => {
@@ -66,17 +68,18 @@ export default function index(props) {
         });
     }
 
-    const btnAddNew = <Link href={route('data.create', [props.table.id, props.searchData])}>
+    const btnAddNew = <Link href={route('data.create', {tableId:props.table.id, p: props.p})}>
         <Button type="primary" className="_right">
             <PlusCircleOutlined />Thêm mới
         </Button>
-    </Link>;
+    </Link>
 
     return (
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={itemMenu(props.table.name)}
+            menus={props.menus}
+            menuParentID={props.p}
             current={props.table}
             content={
                 <div>
@@ -107,19 +110,6 @@ export default function index(props) {
                                 {props.searchData[props.table.tab_table_name] && props.searchData[props.table.tab_table_name] === 'all' ? '' : btnAddNew}
                             </div>
                         }>
-
-                        {/* <Tree
-                            className="draggable-tree"
-                            draggable
-                            blockNode
-                            checkable
-                            // defaultExpandedKeys={props.expandedKeys}
-                            onDragEnter={onDragEnter}
-                            onDrop={(info) => onDropData(info)}
-                            treeData={gData}
-                            onSelect={onSelect}
-                            onCheck={onCheck}
-                        /> */}
 
                         <Tree
                             className="draggable-tree"

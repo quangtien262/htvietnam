@@ -23,6 +23,7 @@ return new class extends Migration
             // Phần này dành cho web
             $table->string('icon')->nullable();
             $table->string('route')->nullable(); // tên route
+            $table->string('table_name')->nullable();
             $table->string('link')->nullable(); // liên kết nếu có
             $table->string('is_active')->default(1)->nullable(); // trạng thái hoạt động
 

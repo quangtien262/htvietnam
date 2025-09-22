@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call(HimalayaSeeder::class);
 
-        // if(!empty(env('APP_LAYOUT'))) {
-        //     $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');
-        // }
+        if(!empty(env('APP_LAYOUT'))) {
+            $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');
+        }
 
     }
 };

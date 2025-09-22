@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Admin\AdminMenu;
 use Illuminate\Support\Facades\DB;
 use App\Services\Service;
 use App\Models\Admin\Table;
@@ -56,7 +57,7 @@ class TblService extends Service
         'getQuery',
         'formatDataByID',
         'checkGenerateCode',
-        'saveDataBasic'
+        'saveDataBasic', 'getMenus'
     ];
 
     protected function getPermissionDefault()
@@ -1894,6 +1895,7 @@ class TblService extends Service
             $cascaderData[$key] = $item;
         }
         $dataRelated = $this->getDataRelated($table, $data);
+        $p = $_GET['p'] ?? 0;
         return [
             'time' => time(),
             'dataId' => $dataId,
@@ -1922,7 +1924,9 @@ class TblService extends Service
             'dataRelated' => $dataRelated,
             'columnSelectTable' => $columnSelectTable,
             'cascaderData' => $cascaderData,
-            'token' => csrf_token()
+            'token' => csrf_token(),
+            'p' => $p,
+            'menus' => TblService::getMenus($p)
         ];
     }
 
@@ -2510,5 +2514,18 @@ class TblService extends Service
         }
 
         return $data;
+    }
+
+    protected function getMenus($parentID) {
+        $menus = [];
+        $adminMenu = AdminMenu::baseQuery()->where('parent_id', $parentID)->get()->toArray();
+        foreach($adminMenu as $menu) {
+            $subs = AdminMenu::baseQuery()->where('parent_id', $menu['key'])->get()->toArray();
+            $menus[] = [
+                'parent' => $menu,
+                'children' => $subs
+            ];
+        }
+        return $menus;
     }
 }
