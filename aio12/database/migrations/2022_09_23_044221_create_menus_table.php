@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->string('icon')->default(0)->nullable();
             $table->integer('is_active')->default(1)->nullable();
 
-            
+
 
             $table->integer('create_by')->default(0)->nullable();
             $table->integer('is_recycle_bin')->default(0)->nullable();
@@ -38,8 +37,17 @@ return new class extends Migration
         });
 
         $order = 1;
-        $data = MigrateService::createTable02('menus', 'Menu',
-        ['is_multiple_language' => 1, 'table_data' => 'menus_data', 'parent_id' => 0, 'type_show' => 1]);
+        $data = MigrateService::createTable02(
+            'menus',
+            'Menu',
+            [
+                'is_multiple_language' => 1,
+                'table_data' => 'menus_data',
+                'parent_id' => 0,
+                'type_show' => 1,
+                'form_data_type' => 1
+            ]
+        );
         MigrateService::createColumn02(
             $data->id,
             'id',
@@ -60,12 +68,26 @@ return new class extends Migration
             ['show_in_list' => 1, 'edit' => 0]
         );
 
-        MigrateService::createColumn02($data->id, 'images', 'Ảnh nền', 'text', 'images_crop', $order++,
-        ['edit' => 1, 'conditions' => 1, 'show_in_list' => 1]);
+        MigrateService::createColumn02(
+            $data->id,
+            'images',
+            'Ảnh nền',
+            'text',
+            'images_crop',
+            $order++,
+            ['edit' => 1, 'conditions' => 1, 'show_in_list' => 1]
+        );
 
         $confirm = Table::where('name', 'confirm')->first();
-        MigrateService::createColumn02($data->id, 'is_active', 'Hiển thị', 'INT', 'select', $order++, 
-        ['edit' => 0, 'select_table_id' => $confirm->id]);
+        MigrateService::createColumn02(
+            $data->id,
+            'is_active',
+            'Hiển thị',
+            'INT',
+            'select',
+            $order++,
+            ['edit' => 0, 'select_table_id' => $confirm->id]
+        );
 
         MigrateService::createColumn02($data->id, 'position', 'Vị trí menu', 'INT', 'text', 2, ['edit' => 0]);
 

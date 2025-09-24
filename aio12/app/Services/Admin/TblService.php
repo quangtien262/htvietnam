@@ -57,7 +57,8 @@ class TblService extends Service
         'getQuery',
         'formatDataByID',
         'checkGenerateCode',
-        'saveDataBasic', 'getMenus'
+        'saveDataBasic',
+        'getMenus'
     ];
 
     protected function getPermissionDefault()
@@ -129,13 +130,24 @@ class TblService extends Service
         }
         $result = [];
         // $tables = Table::where('parent_id', 0)->where('show_in_menu', 1)->orderBy('sort_order', 'asc')->get();
-         $currentTblNamePermission = [
-                'permission_group', 'categories', 
-                'admin_users', 'news', 'users', 'orders',
-                 'contact', 'file_manager','doi_tac', 'products',
-                 'menus', 'web_config','video', 
-                 'page_setting','library','countries'
-            ];
+        $currentTblNamePermission = [
+            'permission_group',
+            'categories',
+            'admin_users',
+            'news',
+            'users',
+            'orders',
+            'contact',
+            'file_manager',
+            'doi_tac',
+            'products',
+            'menus',
+            'web_config',
+            'video',
+            'page_setting',
+            'library',
+            'countries'
+        ];
         $tables = Table::whereIn('name', $currentTblNamePermission)->orderBy('sort_order', 'asc')->get();
         foreach ($tables as $table) {
             // check ẩn cài đặt
@@ -886,9 +898,6 @@ class TblService extends Service
         // save
         $data->save();
         $dataId = $data->id;
-        // update thêm tùy theo đặc tính của mỗi tính năng
-        $data = $this->updateByBusiness($table, $data, $post);
-
 
         // generate code
         self::checkGenerateCode($data, $table, $columns);
@@ -896,22 +905,28 @@ class TblService extends Service
         // save log
         self::saveLog($table->id, $dataId, $dataOld);
 
-        if ($is_uploadImages == true) {
-            //$this->uploadImages2S3($post, $colImage, $dataId, $table);
-            $this->uploadImages($post, $colImages, $dataId, $table);
+        foreach ($columns as $column) {
+            //images
+            if (in_array($column->type_edit, ['image_crop', 'image', 'images_crop', 'images'])) {
+                //$this->uploadImages2S3($post, $colImage, $dataId, $table);
+                $this->uploadImages($post, $column, $dataId, $table);
+                continue;
+            }
+
         }
 
-        if ($is_uploadImage == true) {
-            $this->uploadImages($post, $colImage, $dataId, $table);
-        }
+        // if ($is_uploadImages == true) {
+        //$this->uploadImages2S3($post, $colImage, $dataId, $table);
+        // $this->uploadImages($post, $colImages, $dataId, $table);
+        // }
 
-        if ($is_uploadFile == true) {
-            $this->uploadFiles($post, $colFile, $dataId, $table);
-        }
+        // if ($is_uploadFile == true) {
+        //     $this->uploadFiles($post, $colFile, $dataId, $table);
+        // }
 
-        if ($is_uploadFiles == true) {
-            $this->uploadFiles($post, $colFiles, $dataId, $table);
-        }
+        // update thêm tùy theo đặc tính của mỗi tính năng
+        $data = $this->updateByBusiness($table, $data, $post);
+
 
         $dataUpdate = [];
 
@@ -1272,52 +1287,21 @@ class TblService extends Service
     {
         $images = [];
         $avatar = '';
-
-        if (in_array($column->type_edit, ['image_crop', 'image'])) {
-            $url = '';
-            if (!isset($post['image'][0])) {
-                return false;
-            }
-            $img = $post['image'][0];
-            $url = $img['url'];
-            if ($img['status'] == 'done') {
-                $file = File::get('files/' . $img['url']);
-                Storage::disk('s3')->put($img['url'], $file);
-                $url = env('AWS_URL') . $img['url'];
-                // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
-                // $url = '/files/datas/' . $table->id .'/' . $img['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
+        $url = '';
+        if (!isset($post['image'][0])) {
+            return false;
         }
-
-        // multiple img
-        foreach ($post['images'] as $idx => $img) {
-            $url = $img['url'];
-            if ($img['status'] == 'OK') {
-                $url = $img['url'];
-            }
-
-            if ($img['status'] == 'done') {
-                $file = File::get('files/' . $img['url']);
-                Storage::disk('s3')->put($img['url'], $file);
-                $url = env('AWS_URL') . $img['name'];
-                // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
-                // $url = '/files/datas/' . $table->id .'/' . $img['name'];
-            }
-            if ($idx == 0) {
-                $avatar = $url;
-            }
-            $images[] = $url;
+        $img = $post['image'][0];
+        $url = $img['url'];
+        if ($img['status'] == 'done') {
+            $file = File::get('files/' . $img['url']);
+            Storage::disk('s3')->put($img['url'], $file);
+            $url = env('AWS_URL') . $img['url'];
+            // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
+            // $url = '/files/datas/' . $table->id .'/' . $img['name'];
         }
-
-        $dataInsert = '';
-        if (!empty($images)) {
-            $dataInsert = [
-                $column->name => json_encode(['avatar' => $avatar, 'images' => $images])
-            ];
-        }
-        $this->updateData($table->name, $dataId, $dataInsert);
+        $this->updateData($table->name, $dataId, [$column->name => $url]);
+        return true;
     }
 
     protected function uploadImages($post, $column, $dataId, $table)
@@ -1327,30 +1311,20 @@ class TblService extends Service
         if (!file_exists('files/datas')) {
             mkdir('files/datas', 0777, true);
         }
-        if (in_array($column->type_edit, ['image_crop', 'image'])) {
-            $url = '';
-            if (!isset($post[$column->name][0])) {
-                return false;
-            }
-            $img = $post[$column->name][0];
-            $url = $img['url'];
-            if ($img['status'] == 'done') {
-                Storage::move($img['url'], 'datas/' . $table->id . '/' . $img['name']);
-                $url = '/files/datas/' . $table->id . '/' . $img['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
+        if (!file_exists('files/datas/' . $table->id)) {
+            mkdir('files/datas/' . $table->id, 0777, true);
         }
-
+        // dd($post[$column->name]);
         // multiple img
         foreach ($post[$column->name] as $idx => $img) {
-            $url = $img['url'];
+            // dd( $img);
+            // $url = $img['url'];
             if ($img['status'] == 'OK') {
                 $url = $img['url'];
             }
 
             if ($img['status'] == 'done') {
-                Storage::move($img['url'], 'datas/' . $table->id . '/' . $img['name']);
+                Storage::move($img['response']['data']['filePath'], 'datas/' . $table->id . '/' . $img['name']);
                 $url = '/files/datas/' . $table->id . '/' . $img['name'];
             }
             if ($idx == 0) {
@@ -1367,52 +1341,6 @@ class TblService extends Service
         }
         $this->updateData($table->name, $dataId, $dataInsert);
     }
-
-    protected function uploadFiles($post, $column, $dataId, $table)
-    {
-        $files = [];
-        if (!file_exists('files/datas')) {
-            mkdir('files/datas', 0777, true);
-        }
-        if (in_array($column->type_edit, ['file'])) {
-            $url = '';
-            if (!isset($post[$column->name][0])) {
-                return false;
-            }
-            $file = $post[$column->name][0];
-            $url = $file['url'];
-            if ($file['status'] == 'done') {
-                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
-                $url = '/files/datas/' . $table->id . '/' . $file['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
-        }
-
-        // multiple files
-        foreach ($post[$column->name] as $idx => $file) {
-            $url = $file['url'];
-            if ($file['status'] == 'OK') {
-                $url = $file['url'];
-            }
-
-            if ($file['status'] == 'done') {
-                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
-                $url = '/files/datas/' . $table->id . '/' . $file['name'];
-            }
-            $files[] = $url;
-        }
-
-        $dataInsert = '';
-        if (!empty($files)) {
-            $dataInsert = [
-                $column->name => json_encode($files)
-            ];
-        }
-        $this->updateData($table->name, $dataId, $dataInsert);
-    }
-
-
 
     /*
      * insert
@@ -1497,7 +1425,10 @@ class TblService extends Service
     {
         $result = [];
         $table = Table::find($tableId);
-        $datas = DB::table($table->name)->where('parent_id', $parentId)->orderBy('sort_order', 'asc');
+        $datas = DB::table($table->name)
+            ->where('parent_id', $parentId)
+            ->where('is_recycle_bin', '!=', 1)
+            ->orderBy('sort_order', 'asc');
         if (!empty($conditions)) {
             foreach ($conditions as $key => $val) {
                 $datas = $datas->where($key, $val);
@@ -1627,29 +1558,6 @@ class TblService extends Service
         ];
     }
 
-    private function dataEditDefault($data)
-    {
-        $result = [
-            'tablesPermission' => [],
-            'permissionList_all' => [],
-            'permissionList' => [],
-            'selectData' => [],
-            'selectsData' => [],
-            'ckeditorData' => [],
-            'imagesData' => [],
-            'tabs' => [],
-            'blocks' => [],
-            'countImage' => 1,
-            'isImage' => false,
-            'isImages' => false
-        ];
-        foreach ($data as $key => $val) {
-            $result[$key] = $val;
-        }
-
-        return $result;
-    }
-
 
     protected function getDataLanguageEdit($tableId, $dataId, $route = '')
     {
@@ -1697,7 +1605,7 @@ class TblService extends Service
         return $datasView;
     }
 
-    protected function getDataEdit($tableId, $dataId, $route = '')
+    protected function getDataEdit($tableId, $dataId = 0, $route = '')
     {
         $table = Table::find($tableId);
         $tables = self::getAdminMenu($tableId, true);
@@ -1705,11 +1613,6 @@ class TblService extends Service
         $data = [];
         if (!empty($dataId)) {
             $data = self::getDataById($tableId, $dataId, $route);
-
-            // if(empty($data)) {
-            //     return false;
-            // }
-
             $data = json_decode(json_encode($data), true);
         }
         $tablesPermission = [];
@@ -1824,62 +1727,60 @@ class TblService extends Service
                 }
 
                 // check type == images
-                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop']) && !empty($data[$col->name])) {
-                    $jsonImg = CommonService::isJson($data[$col->name]);
-                    if (!$jsonImg) {
-                        if (!empty($data[$col->name])) {
-                            $imagesData[] = [
-                                'name' => $data[$col->name],
-                                'status' => 'OK',
-                                'url' => $data[$col->name]
-                            ];
-                            $avatar = $data[$col->name];
-                        }
+                if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop']) && !empty($data[$col->name])) {
+                    if (is_array($data[$col->name])) {
+                        $jsonImage = $data[$col->name];
                     } else {
-                        $avatar = $jsonImg['avatar'];
-                        foreach ($jsonImg['images'] as $k => $img) {
-                            $imagesData[] = [
-                                'name' => 'Image-' . $k,
+                        $jsonImage = CommonService::isJson($data[$col->name]);
+                    }
+
+                    if ($jsonImage && isset($jsonImage['images'])) {
+                        $imagesData[$col->name] = [];
+                        foreach ($jsonImage['images'] as $k => $img) {
+                            $imagesData[$col->name][] = [
+                                'name' => 'image-' . $k,
                                 'status' => 'OK',
                                 'url' => $img
                             ];
+                            if ($k == 0) {
+                                $avatar[$col->name] = $img;
+                            }
                         }
                     }
 
-                    //
-                    if (in_array($col->type_edit, ['encryption'])) {
-                        $data[$col->name] = '';
-                    }
+                    $avatar[$col->name] = $data[$col->name];
                 }
 
                 if (in_array($col->type_edit, ['file', 'files']) && !empty($data[$col->name])) {
                     $jsonFile = CommonService::isJson($data[$col->name]);
                     if (!$jsonFile) {
                         if (!empty($data[$col->name])) {
-                            $filesData[] = [
+                            $filesData[$col->name][] = [
                                 'name' => $data[$col->name],
                                 'status' => 'OK',
                                 'url' => $data[$col->name]
                             ];
-                            $avatar = $data[$col->name];
+                            $avatar[$col->name] = $data[$col->name];
                         }
                     } else {
                         foreach ($jsonFile as $k => $img) {
-                            $filesData[] = [
+                            $filesData[$col->name][] = [
                                 'name' => 'file-' . $k,
                                 'status' => 'OK',
                                 'url' => $img
                             ];
                         }
                     }
+                }
 
-                    //
-                    if (in_array($col->type_edit, ['encryption'])) {
-                        $data[$col->name] = '';
-                    }
+                //
+                if (in_array($col->type_edit, ['encryption'])) {
+                    $data[$col->name] = '';
                 }
             }
         }
+
+        // dd($imagesData);
 
         $cascaderData = [];
         foreach ($cascader as $key => $cas) {
@@ -2516,10 +2417,11 @@ class TblService extends Service
         return $data;
     }
 
-    protected function getMenus($parentID) {
+    protected function getMenus($parentID)
+    {
         $menus = [];
         $adminMenu = AdminMenu::baseQuery()->where('parent_id', $parentID)->get()->toArray();
-        foreach($adminMenu as $menu) {
+        foreach ($adminMenu as $menu) {
             $subs = AdminMenu::baseQuery()->where('parent_id', $menu['key'])->get()->toArray();
             $menus[] = [
                 'parent' => $menu,

@@ -118,7 +118,16 @@ return new class extends Migration {
             MigrateService::createBaseColumn($table);
         });
 
-        $tbl = MigrateService::createTable02('products', 'Sản phẩm', ['is_multiple_language' => 1, 'table_data' => 'products_data', 'parent_id' => 0]);
+        $tbl = MigrateService::createTable02(
+            'products',
+            'Sản phẩm',
+            [
+                'is_multiple_language' => 1,
+                'table_data' => 'products_data',
+                'parent_id' => 0,
+                'form_data_type' => 1,
+            ]
+        );
         // $tbl = Table::where('name', 'products')->first();
         $tableId = $tbl->id;
         $order_col = 1;

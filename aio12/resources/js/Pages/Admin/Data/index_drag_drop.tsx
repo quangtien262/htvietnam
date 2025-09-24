@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/layouts/AdminLayout';
-import { Button, message, Card, Tree, TreeDataNode, TreeProps } from 'antd';
+import { Button, message, Card, Tree, TreeDataNode, Modal } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { routeQLKho } from "../../../Function/config_route";
 import { Link } from '@inertiajs/react';
@@ -8,9 +8,9 @@ import axios from 'axios';
 import { router } from '@inertiajs/react';
 import { onDrop } from "../../../Function/common";
 import { itemMenu } from "../../../Function/config_route";
+import { contentFormData } from '../../../components/comp_data';
 
-
-export default function index(props) {
+export default function index(props: any) {
     console.log('props.dataSource', props.dataSource);
 
     const [loadingBtn, setLoadingBtn] = useState(false);
@@ -18,10 +18,17 @@ export default function index(props) {
     // const [gData, setGData] = useState(generateData(2));
     const [checkbox, setCheckbox] = useState([]);
 
+    const [dataAction, setDataAction] = useState([]);
+    const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
+    const [fileList, setFileList] = useState([]);
+
     const onSelect = (id) => {
-        console.log('xxx', route('data.edit', {tableId:props.tableId, dataId: id, p: props.p}));
+
+        if (props.table.form_data_type === 1) {
+            return router.get(route('data.edit', { tableId: props.tableId, dataId: id, p: props.p }));
+        }
+        editData(id)
         
-        // router.get(route('data.edit', {tableId:props.tableId, dataId: id, p: props.p}));
     };
 
     const onDragEnter = (info) => {
@@ -68,11 +75,52 @@ export default function index(props) {
         });
     }
 
-    const btnAddNew = <Link href={route('data.create', {tableId:props.table.id, p: props.p})}>
-        <Button type="primary" className="_right">
-            <PlusCircleOutlined />Thêm mới
+    function addNewData() {
+        setIsOpenFormEdit(true);
+        axios
+            .post(route("data.api.info", { tableId: props.table.id, dataId: 0, p: props.p }))
+            .then((response) => {
+                if (response.data.status_code == 200) {
+                    setDataAction(response.data.data);
+                    setFileList(response.data.data.imagesData);
+                } else {
+                    message.error("Lỗi tải dữ liệu cần sửa");
+                }
+            })
+            .catch((error) => {
+                message.error("Lỗi tải dữ liệu cần sửa");
+            });
+    }
+
+    function editData(id:number) {
+        setIsOpenFormEdit(true);
+        axios
+            .post(route("data.api.info", { tableId: props.table.id, dataId: id, p: props.p }))
+            .then((response) => {
+
+                if (response.data.status_code == 200) {
+                    setDataAction(response.data.data);
+                    setFileList(response.data.data.imagesData);
+                } else {
+                    message.error("Lỗi tải dữ liệu cần sửa");
+                }
+            })
+            .catch((error) => {
+                message.error("Lỗi tải dữ liệu cần sửa");
+            });
+    }
+
+    function btnAddNew() {
+        if (props.table.form_data_type === 1) {
+            return <Button type="primary" onClick={() => {
+                router.get(route('data.create', { tableId: props.tableId, p: props.p }));
+            }}><PlusCircleOutlined /> Thêm mới</Button>
+        }
+        return <Button type="primary" onClick={() => addNewData()}>
+            <PlusCircleOutlined />
+            Thêm mới
         </Button>
-    </Link>
+    }
 
     return (
         <AdminLayout
@@ -83,6 +131,21 @@ export default function index(props) {
             current={props.table}
             content={
                 <div>
+                    <Modal
+                        title={""}
+                        open={isOpenFormEdit}
+                        // onOk={formEdit}
+                        onCancel={() => setIsOpenFormEdit(false)}
+                        footer={[]}
+                        width={1000}
+                    >
+                        {contentFormData(dataAction, fileList, (result: any) => {
+                            // todo: update state
+                            setIsOpenFormEdit(false);
+                        })}
+                    </Modal>
+
+
                     <p className='current-tab'><b>{props.table.display_name}</b></p>
                     <hr />
                     <br />
@@ -107,7 +170,7 @@ export default function index(props) {
                         }
                         extra={
                             <div>
-                                {props.searchData[props.table.tab_table_name] && props.searchData[props.table.tab_table_name] === 'all' ? '' : btnAddNew}
+                                {btnAddNew()}
                             </div>
                         }>
 

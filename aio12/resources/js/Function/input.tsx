@@ -204,6 +204,45 @@ export function HTSelect(col, prop, langId = 0) {
     </Col>
 }
 
+export function HTSelect02(col, prop, langId = 0) {
+    console.log('col', col);
+    console.log('langId', langId);
+
+    let name = col.name;
+    if (langId > 0) {
+        console.log('namenamename', name);
+        name = 'lang_' + langId + '_' + col.name;
+    }
+    console.log('name', name);
+
+    // add_express
+    let label = <span>{col.display_name} <a target='new' href={route('data.index', [col.select_table_id])} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
+
+    //todo: link to list
+    if (col.add_express === 1) {
+        label = <div>
+            {label}
+        </div>
+    }
+
+    const optionsData = prop.selectData[col.name].selectbox ? prop.selectData[col.name].selectbox : prop.selectData[col.name];
+    // return
+    return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+
+        <Form.Item name={name} rules={checkRule(col)} label={label}>
+
+            <Select showSearch className='ht-select'
+                style={{ width: '100%' }}
+                placeholder="Search to Select"
+                optionFilterProp="children"
+                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                options={optionsData}
+                allowClear={true}
+            />
+        </Form.Item>
+    </Col>
+}
+
 
 export function HTSelectModal(col, prop, langId = 0) {
     let name = col.name;
@@ -254,8 +293,6 @@ export function HTSelectsNormal(col, prop, langId = 0) {
 
 export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
     const [colData, setColData] = useState(col);
-
-    console.log('prop.selectData[col.name]', prop.selectsData[col.name]);
 
     const [optionsData, setOptionsData] = useState(prop.selectsData[col.name]);
 
@@ -532,6 +569,18 @@ export function HTTextarea(col: any, langId = 0) {
     </Col>
 }
 
+export function HTTextarea02(col: any, langId = 0) {
+    let name = col.name;
+    if (langId > 0) {
+        name = 'lang_' + langId + '_' + col.name;
+    }
+    return <Col key={col.id} xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+        <Form.Item name={name} rules={checkRule(col)} label={col.display_name}>
+            <TextArea placeholder={col.placeholder ?? ''} />
+        </Form.Item>
+    </Col>
+}
+
 export function HTNumber(col, langId = 0) {
     let name = col.name;
     if (langId > 0) {
@@ -604,8 +653,7 @@ export function HTInput(col: any, langId = 0) {
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
     }
-    console.log('namreeeee', name, langId);
-    
+
     let note = <span></span>;
     if (col.name.search("meta_title") >= 0) {
         note = <p><b>Ghi chú: </b><em> "[SEO] Tiêu đề" là thẻ tiêu đề của bài viết, Nếu bỏ trống, sẽ tư động lấy tiêu đề của bài viết</em></p>

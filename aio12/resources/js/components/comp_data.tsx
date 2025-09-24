@@ -3,22 +3,13 @@ import AdminLayout from "@/layouts/AdminLayout";
 import dayjs from "dayjs";
 import {
     Button,
-    Table,
     message,
-    Modal,
     Form,
     Input,
-    InputNumber,
     Popconfirm,
-    Select,
     Row, Col,
-    Space,
-    Tree,
-    notification,
     Divider,
-    Image,
-    Upload,
-    Dropdown, Tabs
+    Upload, Tabs, Spin
 } from "antd";
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
@@ -30,64 +21,47 @@ import {
 } from '@dnd-kit/sortable';
 
 import {
-    ArrowRightOutlined,
-    FormOutlined,
-    SearchOutlined,
     PlusCircleOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    EyeOutlined,
     CopyOutlined,
     CloseSquareOutlined,
     UploadOutlined,
-    CaretRightOutlined, SettingOutlined
 } from "@ant-design/icons";
 
-import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import "../../css/form.css";
 import "../../css/popconfirm_hidden_btn.css";
-import { inArray, parseJson, numberFormat, showsettingMenu, formatGdata_column, onDrop } from "../Function/common";
-import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../Function/constant';
-import { showLog, loadDataLanguage } from '../Function/auto_load';
+import { parseJson } from "../Function/common";
+import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from '../Function/constant';
 
 import ImgCrop from 'antd-img-crop';
 
-import {
-    HTSelect,
-    HTSelects,
-    HTTextarea,
-    HTNumber,
-    HTDate,
-    HTDateTime,
-    HTPassword,
-    HTInput,
-    HTTime, HTColor, HTCascaderTable, smartSearch02, smartSearch, showDataSearch, showDataSearch02
-} from "../Function/input";
 
-import { checkRule, showData, showDataSelectTable } from '../Function/data';
+import { checkRule, showData02, showDataSelectTable } from '../Function/data';
 
 // SunEditor
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../Function/sun_config';
 
-import { showSelects, showSelect } from '../Function/selects_table';
-import { callApi } from '../Function/api';
 
 
-export function formData(dataAction, props, onSuccess) {
+
+export function contentFormData(dataAction: any, imagesData: any[], files: any[], onSuccess: any) {
+    // All hooks must be called unconditionally at the top
     const [formEdit] = Form.useForm();
-    const [fileList, setFileList] = useState([]);
+    const [fileList, setFileList] = useState(imagesData);
+    const [fileDocument, setFileDocument] = useState(files);
     const [currentFile, setCurrentFile] = useState('');
     const editor = useRef([]);
-
-    const onChange = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
-
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [isStopSubmit, setIsStopSubmit] = useState(false);
+    const sensor = useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 10,
+        },
+    });
     // Chỉ cho phép file ảnh
-    const beforeUpload = (file) => {
+    const beforeUpload = (file: any) => {
         const isImage = file.type.startsWith('image/');
         if (!isImage) {
             message.error('Chỉ được upload file hình ảnh!');
@@ -95,18 +69,99 @@ export function formData(dataAction, props, onSuccess) {
         return isImage;
     };
 
+    // Xử lý khi upload document thay đổi
+    React.useEffect(() => {
+        console.log('fileDocument', fileDocument);
+        // update images
+        const safeFileList = (fileDocument || []).map(file => ({
+            ...file,
+            url: typeof file.url === 'string' ? file.url : ''
+        }));
+        setFileList(safeFileList);
+    }, [fileDocument]);
 
-    const sensor = useSensor(PointerSensor, {
-        activationConstraint: {
-            distance: 10,
-        },
-    });
+    // Xử lý khi upload file thay đổi
+    React.useEffect(() => {
+        console.log('imagesData', imagesData);
+
+        // update images
+        const safeFileList = (imagesData || []).map(file => ({
+            ...file,
+            url: typeof file.url === 'string' ? file.url : ''
+        }));
+        setFileList(safeFileList);
+    }, [imagesData]);
+
+    // Chỉ set giá trị form khi dataAction.data thay đổi
+    React.useEffect(() => {
+        if (dataAction && dataAction.data) {
+            let data_tmp = dataAction.data;
+            dataAction.columns.map((col) => {
+                if (col.type_edit === "date" && data_tmp[col.name]) {
+                    formEdit.setFieldValue(col.name, dayjs(data_tmp[col.name], DATE_FORMAT));
+                }
+                if (col.type_edit === "datetime" && data_tmp[col.name]) {
+                    const zone = Number(new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split('GMT')[1]);
+                    data_tmp[col.name] = dayjs(data_tmp[col.name], DATE_TIME_FORMAT).add(zone, 'hour');
+
+                    formEdit.setFieldValue(col.name, dayjs(data_tmp[col.name], DATE_TIME_FORMAT).add(zone, 'hour'));
+                }
+                if (col.type_edit === "time" && data_tmp[col.name]) {
+                    formEdit.setFieldValue(col.name, dayjs(data_tmp[col.name], TIME_FORMAT));
+                }
+
+                if (col.type_edit === "selects" && data_tmp[col.name]) {
+                    let selects = null;
+                    try {
+                        selects = JSON.parse(data_tmp[col.name]).map((select) => {
+                            return +select;
+                        });
+                    } catch (error) {
+                        selects = [];
+                    }
+                    formEdit.setFieldValue(col.name, selects);
+                }
+
+                if (col.type_edit === "select" && data_tmp[col.name]) {
+                    console.log('col.name', col.name, data_tmp[col.name]);
+
+                    formEdit.setFieldValue(col.name, data_tmp[col.name].id);
+                }
+            });
+
+            // Object.entries(dataAction.data).forEach(([key, value]: [string, any]) => {
+            //     console.log('set', key, value);
+
+            //     formEdit.setFieldValue(key, value);
+            // });
+        }
+        if (dataAction && dataAction.dataLanguage) {
+            Object.entries(dataAction.dataLanguage).forEach(([langId, value1]: [string, any]) => {
+                Object.entries(value1).forEach(([colName, value2]: [string, any]) => {
+                    const name = 'lang_' + langId + '_' + colName;
+                    formEdit.setFieldValue(name, value2);
+                })
+            });
+        }
+    }, [dataAction.data, dataAction.dataLanguage, formEdit]);
+
+    // Early return for empty dataAction, after all hooks
+    if (dataAction && Object.keys(dataAction).length === 0) {
+        return <Spin tip="Loading" size="large">Loading...</Spin>;
+    }
+
+    const onChange = ({ fileList: newFileList }) => {
+        const safeFileList = (newFileList || []).map(file => ({
+            ...file,
+            url: typeof file.url === 'string' ? file.url : ''
+        }));
+        setFileList(safeFileList);
+    };
 
 
-
-    const onDragEnd = ({ active, over }) => {
+    const onDragEnd = ({ active, over }: { active: { id: string }, over: { id: string } | null }) => {
         if (active.id !== over?.id) {
-            setFileList((prev) => {
+            setFileList((prev: any[]) => {
                 const activeIndex = prev.findIndex((i) => i.uid === active.id);
                 const overIndex = prev.findIndex((i) => i.uid === over?.id);
                 return arrayMove(prev, activeIndex, overIndex);
@@ -115,7 +170,7 @@ export function formData(dataAction, props, onSuccess) {
     };
 
     // const listItems = dataAction.columns.map((col) => {
-    //     return showData(col);
+    //     return showData02(col);
     // });
 
     // const imageItems = dataAction.columns.map((col) => {
@@ -131,19 +186,17 @@ export function formData(dataAction, props, onSuccess) {
     });
 
     const imageItems = dataAction.columns.map((col) => {
-
         if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
             if (checkConfig(col)) {
                 return showDataImages(col);
             }
         }
-
     });
 
     const listItems = dataAction.columns.map((col) => {
         if (col.block_type == null || col.block_type == '') {
             if (checkConfig(col) === true) {
-                return showData(col, dataAction);
+                return showData02(col, dataAction);
             }
         }
     });
@@ -161,7 +214,7 @@ export function formData(dataAction, props, onSuccess) {
     }
 
 
-    function contentTab(tab) {
+    function contentTab(tab: any) {
         let have_block = false;
 
         const content_block = dataAction.blocks.map((block) => {
@@ -200,7 +253,7 @@ export function formData(dataAction, props, onSuccess) {
             if (["block_basic"].includes(col.block_type)) {
                 content = dataAction.columns.map((subCol) => {
                     if (subCol.parent_id === col.id) {
-                        return showData(subCol, dataAction);
+                        return showData02(subCol, dataAction);
                     }
                 });
                 continue;
@@ -221,7 +274,7 @@ export function formData(dataAction, props, onSuccess) {
                 continue;
             }
 
-            content.push(showData(col, dataAction));
+            content.push(showData02(col, dataAction));
         }
 
 
@@ -233,7 +286,6 @@ export function formData(dataAction, props, onSuccess) {
     }
 
     function checkShowData() {
-
         if (dataAction.tabs.length > 0) {
             return <Tabs defaultActiveKey="1" items={tabData()} />
         }
@@ -395,9 +447,86 @@ export function formData(dataAction, props, onSuccess) {
         return result;
     }
 
+    function handleAddDocument(col) {
+        // Handle adding document logic here
+        const name = Date.now();
+        let imageItem = {
+            uid: name,
+            name: name,
+            status: 'OK',
+            url: currentFile
+        };
+        let newFileDocument = [...fileDocument];
+        if (col.conditions && +col.conditions > 0) {
+            if (newFileDocument.length >= +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " tài liệu");
+                return false;
+            }
+        }
+        newFileDocument = [...newFileDocument, imageItem];
+        setFileDocument(newFileDocument);
+        setCurrentFile('');
+    }
+
+    function showDataFile(col) {
+        if (!checkConfig(col)) {
+            return false;
+        }
+        if (col.edit !== 1) {
+            return false;
+        }
+
+
+        // Xử lý khi upload file thay đổi
+        const onChangeFileDocument = ({ fileList: newFileList }) => {
+            setFileDocument(newFileList);
+        };
+
+        return (
+            <Col span={24} key={col.id}>
+                <Divider orientation='left'>
+                    {col.display_name}
+                    <span> | </span>
+                    <Popconfirm
+                        title={
+                            <div>
+                                <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
+                                <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
+                            </div>
+                        }
+                        onConfirm={() => handleAddDocument(col)}
+                        okText="Thêm ảnh"
+                        cancelText="Hủy"
+                    >
+                        <a><PlusCircleOutlined /></a>
+                    </Popconfirm>
+                </Divider>
+                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                    <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                        <Upload multiple
+                            action={route("data.upload_file")}
+                            listType="picture-card" // picture-card
+                            fileList={fileDocument}
+                            maxCount={1}
+                            onChange={onChangeFileDocument}
+                            itemRender={(originNode, file) => (
+                                <DraggableUploadListItem originNode={originNode} file={file} />
+                            )}
+                            headers={{
+                                'X-CSRF-TOKEN': dataAction.token,
+                            }}
+                        >
+                            <Button icon={<UploadOutlined />}>Upload </Button>
+                        </Upload>
+                    </SortableContext>
+                </DndContext>
+            </Col>
+        );
+    }
+
     function checkConfig(col) {
         let result = true;
-        if (props.request?.type && props.table.config_show_data && !props.table.config_show_data.config[props.request.type].includes(col.name)) {
+        if (dataAction.request?.type && dataAction.table.config_show_data && !dataAction.table.config_show_data.config[dataAction.request.type].includes(col.name)) {
             result = false;
         }
         return result;
@@ -419,7 +548,7 @@ export function formData(dataAction, props, onSuccess) {
         }
     }
 
-    function showItemsLg(col) {
+    function showItemsLg(col: any) {
         if (!checkConfig(col)) {
             return false;
         }
@@ -427,7 +556,7 @@ export function formData(dataAction, props, onSuccess) {
         if (col.type_edit === "tiny") {
             let config = optionSunEditor;
             config.imageUploadHeader = {
-                'X-CSRF-TOKEN': props.token
+                'X-CSRF-TOKEN': dataAction.token
             };
             return (
                 <Row key={col.id} layout="vertical" className="main-tiny01">
@@ -465,11 +594,7 @@ export function formData(dataAction, props, onSuccess) {
         }
 
         if (col.edit === 1 && col.type_edit === "selects_table") {
-            return showDataSelectTable(props, col);
-        }
-
-        if (col.type_edit === "permission_list") {
-            return permission();
+            return showDataSelectTable(dataAction, col);
         }
     }
 
@@ -487,8 +612,6 @@ export function formData(dataAction, props, onSuccess) {
         )
     }
     function tabDataLanguage() {
-        console.log('lang tabDataLanguage', dataAction);
-
         return dataAction.language.map((lang: any) => {
             return {
                 key: lang.id,
@@ -499,8 +622,6 @@ export function formData(dataAction, props, onSuccess) {
     }
 
     function contentTabLanguage(lang: any) {
-        console.log('langlanglanglang', lang);
-
         let content = [],
             contentImage = [],
             contentLong = [];
@@ -540,9 +661,7 @@ export function formData(dataAction, props, onSuccess) {
                 continue;
             }
 
-            console.log('lang.idlang.id', lang.id);
-
-            content.push(showData(col, lang.id));
+            content.push(showData02(col, dataAction, lang.id));
         }
 
         return <Row>
@@ -551,26 +670,6 @@ export function formData(dataAction, props, onSuccess) {
             {contentLong}
         </Row>
 
-    }
-
-    function handleAddImage(col) {
-        const name = Date.now();
-        let imageItem = {
-            uid: name,
-            name: name,
-            status: 'OK',
-            url: currentFile
-        };
-        let newFileList = [...fileList];
-        if (col.conditions && +col.conditions > 0) {
-            if (newFileList.length >= +col.conditions) {
-                message.error("Chỉ được phép thêm tối đa " + col.conditions + " hình ảnh");
-                return false;
-            }
-        }
-        newFileList = [...newFileList, imageItem];
-        setFileList(newFileList);
-        setCurrentFile('');
     }
 
     const DraggableUploadListItem = ({ originNode, file }) => {
@@ -597,126 +696,9 @@ export function formData(dataAction, props, onSuccess) {
         );
     };
 
-    function showDataImages(col) {
-        const data = props.data;
-        let result;
-        const typeEdit = col.type_edit;
-        if (col.edit !== 1) {
-            return false;
-        }
-        switch (typeEdit) {
-            case "images_crop":
-            case "image_crop":
-                result = (
-                    <Row>
-                        <Col key={col.name}>
-                            <Divider orientation='left'>
-                                {col.display_name}
-                                <span> | </span>
-                                <Popconfirm
-                                    title={
-                                        <div>
-                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
-                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
-                                        </div>
-                                    }
-                                    onConfirm={() => handleAddImage(col)}
-                                    okText="Thêm ảnh"
-                                    cancelText="Hủy"
-                                >
-                                    <a><PlusCircleOutlined /></a>
-                                </Popconfirm>
-                            </Divider>
-                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                                    <ImgCrop
-                                        aspect={col.ratio_crop}
-                                        aspectSlider={true}
-                                        rotationSlider={true}
-                                        showGrid={true}
-                                        showReset={true}
-                                    >
-                                        <Upload multiple
-                                            action={route("data.upload_image")}
-                                            listType="picture-card" // picture-card
-                                            fileList={fileList}
-                                            accept="image/*"
-                                            maxCount={+col.conditions}
-                                            beforeUpload={beforeUpload}
-                                            onChange={onChange}
-                                            itemRender={(originNode, file) => (
-                                                <DraggableUploadListItem originNode={originNode} file={file} />
-                                            )}
-                                            headers={{
-                                                'X-CSRF-TOKEN': props.token,
-                                            }}
-                                        >
-
-                                            <Button icon={<UploadOutlined />}>Upload({+col.conditions})</Button>
-                                        </Upload>
-                                    </ImgCrop>
-                                </SortableContext>
-                            </DndContext>
-                        </Col>
-                    </Row>
-                );
-                break;
-            case "image":
-            case "images":
-                result = (
-                    <Row>
-                        <Divider orientation='left'>{col.display_name}</Divider>
-                        <Col key={col.name}>
-                            <Divider orientation='left'>
-                                {col.display_name}
-                                <span> | </span>
-                                <Popconfirm
-                                    title={
-                                        <div>
-                                            <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
-                                            <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
-                                        </div>
-                                    }
-                                    onConfirm={() => handleAddImage(col)}
-                                    okText="Thêm ảnh"
-                                    cancelText="Hủy"
-                                >
-                                    <a><PlusCircleOutlined /></a>
-                                </Popconfirm>
-                            </Divider>
-                            <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                                    <Upload multiple
-                                        action={route("data.upload_image")}
-                                        listType="picture-card" // picture-card
-                                        fileList={fileList}
-                                        maxCount={props.countImage}
-                                        onChange={onChange}
-                                        accept="image/*"
-                                        beforeUpload={beforeUpload}
-                                        itemRender={(originNode, file) => (
-                                            <DraggableUploadListItem originNode={originNode} file={file} />
-                                        )}
-                                        headers={{
-                                            'X-CSRF-TOKEN': props.token,
-                                        }}
-                                    >
-                                        <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
-                                    </Upload>
-                                </SortableContext>
-                            </DndContext>
-                        </Col>
-                    </Row>
-                );
-                break;
-        }
-
-        return result;
-    }
-
     const onFinishFormEdit = (values: any) => {
-        setIsStopSubmit(false);
-        values.id = idAction;
+        // setLoadingSubmit(true);
+        values.id = dataAction.data.id;
         for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
             if (!values[key]) {
                 values[key] = val;
@@ -726,40 +708,55 @@ export function formData(dataAction, props, onSuccess) {
         // return
         if (isStopSubmit) {
             message.error("Vui lòng chờ tải xong hình ảnh");
+            setLoadingSubmit(false);
             return false;
         }
 
-        values = formatValueForm(props.columns, values);
+        values = formatValueForm(dataAction.columns, values);
 
         console.log('va', values);
         // values.tiny_images = tinyImageName;
-        values.submit_edirect = 'api';
-        let link;
-        if (idAction === 0) {
-            link = route("data.store", [props.table.id]);
-        } else {
-            link = route("data.update", [props.table.id, idAction]);
+
+
+        if (dataAction.table.is_multiple_language === 1) {
+            let nameLang;
+            for (const [key, col] of Object.entries(dataAction.columnsLanguage)) {
+                if (col.type_edit === "tiny") {
+                    for (const [keyLang, lang] of Object.entries(dataAction.language)) {
+                        nameLang = 'lang' + '_' + lang.id + '_' + col.name;
+                        if (editor.current[nameLang]) {
+                            values[nameLang] = editor.current[nameLang].getContents();
+                        }
+                    }
+                }
+            }
         }
 
-        setLoadingTable(true);
-        setIsOpenFormEdit(false);
+        values.submit_edirect = 'api';
+        let link;
+        if (dataAction.data.id === 0 || dataAction.data.id === "") {
+            link = route("data.store", [dataAction.table.id]);
+        } else {
+            link = route("data.update", [dataAction.table.id, dataAction.data.id]);
+        }
+        // return true;
         axios.post(link, values).then((response) => {
+            setLoadingSubmit(false);
             console.log('res', response);
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
                 location.reload();
             } else {
-                message.error("Đã lưu dữ liệu thất bại");
+                message.error("Đã lưu dữ liệu thất bại1234");
             }
-
-            setLoadingTable(false);
         }).catch((error) => {
+            setLoadingSubmit(false);
             message.error("Lưu dữ liệu thất bại");
         });
     };
 
-    function formatValueForm(columns, values) {
-        for (const [key, col] of Object.entries(columns)) {
+    function formatValueForm(columns: any, values: any) {
+        for (const [key, col] of Object.entries(columns) as [string, any][]) {
             if (col.edit !== 1) {
                 values[col.name] = '';
                 continue;
@@ -769,7 +766,7 @@ export function formData(dataAction, props, onSuccess) {
             }
             if (col.type_edit === "permission_list") {
                 values[col.name] = isCheckAllPermission
-                    ? props.permissionList_all
+                    ? dataAction.permissionList_all
                     : permissionList;
             }
             if (col.type_edit === "date") {
@@ -788,43 +785,74 @@ export function formData(dataAction, props, onSuccess) {
                 values[col.name] = values[col.name].toHexString();
             }
 
-            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
+            // images
+            if (['images', 'image', 'image_crop', 'images_crop'].includes((col as any).type_edit)) {
                 if (fileList && fileList.length > 0) {
-                    let images = fileList.map((file) => {
-                        if (!file.status) {
-                            return false;
-                        }
-                        if (file.status === "uploading") {
-                            setIsStopSubmit(true);
-                            return false;
-                        }
-
-                        if (file.status === "OK") {
-                            return {
-                                name: file.name,
-                                status: file.status,
-                                url: file.url,
-                            };
-                        }
-                        if (file.status === "done") {
-                            return {
-                                name: file.response.data.fileName,
-                                status: file.status,
-                                url: file.response.data.filePath,
-                            };
-                        }
-                    });
-
-                    // values.images = JSON.stringify(images);
-                    values[col.name] = images;
+                    values[(col as any).name] = formatFiles(fileList);
                 } else {
-                    values[col.name] = "";
-                    values[col.name] = "";
+                    values[(col as any).name] = "";
+                }
+            }
+
+            // files
+            if (['file', 'files'].includes((col as any).type_edit)) {
+
+                if (fileDocument && fileDocument.length > 0) {
+                    values[(col as any).name] = formatFiles(fileDocument);
+                } else {
+                    values[(col as any).name] = "";
                 }
             }
 
         }
         return values;
+    }
+
+    function formatFiles(files: any) {
+        interface FileResponseData {
+            fileName: string;
+            filePath: string;
+        }
+
+        interface UploadFile {
+            name: string;
+            status?: string;
+            url?: string;
+            response?: {
+                data: FileResponseData;
+            };
+        }
+
+        interface FormattedFile {
+            name: string;
+            status: string;
+            url: string;
+        }
+
+        return files.map((file: UploadFile): FormattedFile | false | undefined => {
+            if (!file.status) {
+                return false;
+            }
+            if (file.status === "uploading") {
+                setIsStopSubmit(true);
+                return false;
+            }
+
+            if (file.status === "OK") {
+                return {
+                    name: file.name,
+                    status: file.status,
+                    url: file.url!,
+                };
+            }
+            if (file.status === "done") {
+                return {
+                    name: file.response!.data.fileName,
+                    status: file.status,
+                    url: file.response!.data.filePath,
+                };
+            }
+        });
     }
 
     return <>
@@ -854,7 +882,7 @@ export function formData(dataAction, props, onSuccess) {
                         Hủy
                     </Button>
                     <span> </span>
-                    <Button className="btn-popup" type="primary" htmlType="submit">
+                    <Button className="btn-popup" type="primary" htmlType="submit" loading={loadingSubmit}>
                         <CopyOutlined />
                         Lưu
                     </Button>

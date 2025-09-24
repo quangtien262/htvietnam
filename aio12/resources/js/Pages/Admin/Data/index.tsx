@@ -46,7 +46,7 @@ import {
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import "../../../../css/form.css";
-import "../../../../css/popconfirm_hidden_btn.css";
+// import "../../../../css/popconfirm_hidden_btn.css";
 import { inArray, parseJson, numberFormat, showsettingMenu, formatGdata_column, onDrop } from "../../../Function/common";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../../Function/constant';
 
@@ -65,12 +65,7 @@ import {
 } from "../../../Function/input";
 
 import { checkRule, showData, showDataSelectTable } from '../../../Function/data';
-import { formData } from '../../../components/comp_data';
-
-// SunEditor
-import SunEditor from 'suneditor-react';
-import 'suneditor/dist/css/suneditor.min.css';
-import { optionSunEditor } from '../../../Function/sun_config';
+import { contentFormData } from '../../../components/comp_data';
 
 import { showSelects, showSelect } from '../../../Function/selects_table';
 import { callApi } from '../../../Function/api';
@@ -85,20 +80,16 @@ export default function Dashboard(props: any) {
     const [dataSource, setDataSource] = useState(props.dataSource);
 
     const [fileList, setFileList] = useState([]);
-
+    const [documentFile, setDocumentFile] = useState([]);
+    
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
 
     // upload excel
     const [uploading, setUploading] = useState(false);
 
-
-    const [idAction, setIdAction] = useState(0);
-    const [dataAction, setDataAction] = useState(props.dataEdit);
+    const [dataAction, setDataAction] = useState([]);
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
-    const [isStopSubmit, setIsStopSubmit] = useState(false);
-
-    const editor = useRef([]);
 
     // import excel
     const [loadingBtnExport, setLoadingBtnExport] = useState(false);
@@ -531,7 +522,7 @@ export default function Dashboard(props: any) {
                     }
                 );
             } catch (error) {
-                // console.log('err', error);
+                console.log('err', error);
             }
             initialValues[col.name] = selects;
         }
@@ -592,7 +583,7 @@ export default function Dashboard(props: any) {
 
     function configColumnData() {
         let result = props.columns
-            .filter(function (col) {
+            .filter(function (col: any) {
                 if (col.show_in_list === 1) {
                     return true;
                 }
@@ -952,58 +943,49 @@ export default function Dashboard(props: any) {
     const [expandable, setExpandable] = useState(props.table.expandable === 0 ? false : { expandedRowRender, defaultExpandedRowKeys: ['1'] });
 
 
-    // function checkShowData(record: any) {
-    //     const content = props.columns.map((col02: any, key) => {
-    //         if (col02.show_in_detail !== 1) {
-    //             return '';
-    //         }
-    //         if (['select_table'].includes(col02.type_edit)) {
-    //             return '';
-    //         }
+    function checkShowData(record: any) {
+        const content = props.columns.map((col02: any, key) => {
+            if (col02.show_in_detail !== 1) {
+                return '';
+            }
+            if (['select_table'].includes(col02.type_edit)) {
+                return '';
+            }
 
-    //         if (['select'].includes(col02.type_edit) && record[col02.name] && record[col02.name].info) {
-    //             return <Col key={col02.id} sm={{ span: 12 }}>{record[col02.name].info.name} {fastEdit(col02, record)}</Col>
-    //         }
+            if (['select'].includes(col02.type_edit) && record[col02.name] && record[col02.name].info) {
+                return <Col key={col02.id} sm={{ span: 12 }}>{record[col02.name].info.name} {fastEdit(col02, record)}</Col>
+            }
 
-    //         if (['selects'].includes(col02.type_edit)) {
-    //             console.log('selects record', record);
-    //             return <div className="main-selects">{showSelects(record[col02.name])} {fastEdit(col02, record)} </div>;
-    //         }
-
-
-    //         if (['date'].includes(col02.type_edit)) {
-    //             return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_SHOW)} </Col>;
-    //         }
-
-    //         if (['datetime'].includes(col02.type_edit)) {
-    //             return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_TIME_SHOW)}</Col>;
-    //         }
-
-    //         if (['number'].includes(col02.type_edit)) {
-    //             return record[col02.name] ? <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{numberFormat(record[col02.name])} </Col> : '';
-    //         };
-
-    //         if (['text', 'textarea'].includes(col02.type_edit)) {
-    //             return <Col key={col02.id} sm={{ span: 12 }}>
-    //                 <label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a>{col02.display_name}: </label>{record[col02.name]}
-    //             </Col>;
-    //         };
+            if (['selects'].includes(col02.type_edit)) {
+                console.log('selects record', record);
+                return <div className="main-selects">{showSelects(record[col02.name])} {fastEdit(col02, record)} </div>;
+            }
 
 
-    //         // if(['image', 'image_crop'].includes(col02.type_edit)) {
-    //         //     return <Image className="image-index" src={record[col02.name]}></Image>;
-    //         // }
+            if (['date'].includes(col02.type_edit)) {
+                return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_SHOW)} </Col>;
+            }
 
-    //         // if(['images', 'images_crop'].includes(col02.type_edit) && record[col02.name].avatar) {
-    //         //     return <Image className="image-index" src={record[col02.name].avatar}></Image>;
-    //         // }
-    //     });
+            if (['datetime'].includes(col02.type_edit)) {
+                return <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label> {dayjs(record[col02.name]).format(DATE_TIME_SHOW)}</Col>;
+            }
 
-    //     return <Row>
-    //         {content}
-    //         {/* code đa ngôn ngữ ở đây */}
-    //     </Row>;
-    // }
+            if (['number'].includes(col02.type_edit)) {
+                return record[col02.name] ? <Col key={col02.id} sm={{ span: 12 }}><label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a> {col02.display_name}: </label>{numberFormat(record[col02.name])} </Col> : '';
+            };
+
+            if (['text', 'textarea'].includes(col02.type_edit)) {
+                return <Col key={col02.id} sm={{ span: 12 }}>
+                    <label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a>{col02.display_name}: </label>{record[col02.name]}
+                </Col>;
+            };
+        });
+
+        return <Row>
+            {content}
+            {/* code đa ngôn ngữ ở đây */}
+        </Row>;
+    }
 
     function showData(col, langId = 0) {
 
@@ -1121,47 +1103,36 @@ export default function Dashboard(props: any) {
         </div>
     }
 
-    function addNewData() {
-        setIsOpenFormEdit(true);
-        setIdAction(0);
-    }
-
     function editData(record: any) {
         setIsOpenFormEdit(true);
-
-        setIdAction(record.key);
         axios
             .post(route("data.api.info", { tableId: props.table.id, dataId: record.id, p: props.p }))
             .then((response) => {
 
                 if (response.data.status_code == 200) {
-                    console.log('responsexxxx', response.data.data);
                     setDataAction(response.data.data);
-                    // foreach response.data.data
-                    Object.entries(response.data.data.data).forEach(([key, value]: [string, any]) => {
-                        // console.log('key', key);
-                        // console.log('value', value);
-
-                        formEdit.setFieldValue(key, value);
-                    });
-
-                    if (response.data.data.dataLanguage) {
-                        Object.entries(response.data.data.dataLanguage).forEach(([key1, value1]: [string, any]) => {
-                            console.log('key1', key1);
-                            console.log('value1', value1);
-                            Object.entries(value1).forEach(([key2, value2]: [string, any]) => {
-                                // console.log('value2', value2);
-                                const name = 'lang_' + key1 + '_' + key2;
-                                console.log('namenamename', name);
-                                console.log('value2value2value2', value2);
-                            })
-                        });
-                    }
-
-
-                    // formEdit
+                    setFileList(response.data.data.imagesData);
+                    setDocumentFile(response.data.data.filesData);
                 } else {
-                    setSelectedRowKeys([]);
+                    message.error("Lỗi tải dữ liệu cần sửa");
+                }
+            })
+            .catch((error) => {
+                message.error("Lỗi tải dữ liệu cần sửa");
+            });
+    }
+
+    function addNewData() {
+        setIsOpenFormEdit(true);
+        axios
+            .post(route("data.api.info", { tableId: props.table.id, dataId: 0, p: props.p }))
+            .then((response) => {
+
+                if (response.data.status_code == 200) {
+                    setDataAction(response.data.data);
+                    setFileList(response.data.data.imagesData);
+                    setDocumentFile(response.data.data.filesData);
+                } else {
                     message.error("Lỗi tải dữ liệu cần sửa");
                 }
             })
@@ -1430,7 +1401,7 @@ export default function Dashboard(props: any) {
                 auth={props.auth}
                 header={props.table.display_name}
                 menus={props.menus}
-                menuParentID={props.p}
+                menuParentID={props.p} q
                 current={props.table}
                 content={
                     <div>
@@ -1443,8 +1414,10 @@ export default function Dashboard(props: any) {
                             footer={[]}
                             width={1000}
                         >
-                            {formData(dataAction, props, (result: any) => {
+                            {contentFormData(dataAction, fileList, documentFile, (result: any) => {
                                 // todo: update state
+                                setLoadingTable(false);
+                                setIsOpenFormEdit(false);
                             })}
                         </Modal>
 

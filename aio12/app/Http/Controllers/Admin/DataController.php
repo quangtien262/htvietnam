@@ -593,22 +593,22 @@ class DataController extends Controller
         }
     }
 
-    public function getDataInfo(Request $request, $tableId, $dataId)
+    public function getDataInfo(Request $request, $tableId, $dataId = 0)
     {
         $table = Table::find($tableId);
 
         $checkData = DB::table($table->name)->where('id', $dataId)->count();
-        if ($checkData == 0) {
-            return $this->sendErrorResponse('empty');
-        }
+        // if ($checkData == 0) {
+        //     return $this->sendErrorResponse('empty');
+        // }
         // lang
         if ($table->is_multiple_language == 1) {
-            $data = TblService::getDataLanguageEdit($tableId, $dataId);
+            $data = TblService::getDataLanguageEdit($tableId, intval($dataId));
             $data['request'] = $request->all();
             return $this->sendSuccessResponse($data);
         }
 
-        $data = TblService::getDataEdit($tableId, $dataId);
+        $data = TblService::getDataEdit($tableId, intval($dataId));
 
         if ($data == false) {
             return $this->sendErrorResponse('empty');
@@ -700,8 +700,7 @@ class DataController extends Controller
      */
     public function update(Request $request, $tableId, $dataId)
     {
-        // dd($request->all());
-        try {
+        // try {
             DB::beginTransaction();
             $table = Table::find($tableId);
             $columns = Column::where('table_id', $tableId)->orderBy('sort_order', 'asc')->get();
@@ -729,10 +728,10 @@ class DataController extends Controller
             }
 
             return $this->sendSuccessResponse($result, 'Update successfully', 200);
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return $th->getMessage();
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollback();
+        //     return $th->getMessage();
+        // }
     }
 
     /**
