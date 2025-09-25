@@ -177,7 +177,6 @@ export default function Dashboard(props) {
         }
         values.p = props.p;
         if (props.dataId > 0) {
-            // thử đổi sang ajax
             router.post(
                 route("data.update", [props.table.id, data.id]), values
             );
@@ -1097,9 +1096,6 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            menus={props.menus}
-            menuParentID={props.p}
-            current={props.table}
             content={
                 <Spin spinning={loading} size="large">
                     {/* form data */}

@@ -184,8 +184,9 @@ class DataController extends Controller
             'token' => csrf_token(),
         ];
 
-        // drag and drop
+        // drag and drop: 1
         if ($table->type_show == config('constant.type_edit.drag_drop')) {
+            // dd($table);
             $dataSource = TblService::getDataDragDrop($tableId, 0, $conditions);
             $props['dataSource'] = $dataSource;
             return Inertia::render('Admin/Data/index_drag_drop', $props);
@@ -585,7 +586,8 @@ class DataController extends Controller
                 return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
-            return $this->sendSuccessResponse($data, 'Update successfully', 200);
+            $result = TblService::getData($table, $data->id);
+            return $this->sendSuccessResponse($result, 'Update successfully', 200);
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
@@ -597,10 +599,6 @@ class DataController extends Controller
     {
         $table = Table::find($tableId);
 
-        $checkData = DB::table($table->name)->where('id', $dataId)->count();
-        // if ($checkData == 0) {
-        //     return $this->sendErrorResponse('empty');
-        // }
         // lang
         if ($table->is_multiple_language == 1) {
             $data = TblService::getDataLanguageEdit($tableId, intval($dataId));
@@ -609,7 +607,7 @@ class DataController extends Controller
         }
 
         $data = TblService::getDataEdit($tableId, intval($dataId));
-
+        
         if ($data == false) {
             return $this->sendErrorResponse('empty');
         }
@@ -700,7 +698,7 @@ class DataController extends Controller
      */
     public function update(Request $request, $tableId, $dataId)
     {
-        // try {
+        try {
             DB::beginTransaction();
             $table = Table::find($tableId);
             $columns = Column::where('table_id', $tableId)->orderBy('sort_order', 'asc')->get();
@@ -727,11 +725,14 @@ class DataController extends Controller
                 return to_route('data.index', [$tableId, 'p' => $request->p]);
             }
 
-            return $this->sendSuccessResponse($result, 'Update successfully', 200);
-        // } catch (\Throwable $th) {
-        //     DB::rollback();
-        //     return $th->getMessage();
-        // }
+            $data = TblService::getData($table, $dataId);
+
+            //submit_edirect = api
+            return $this->sendSuccessResponse($data, 'Update successfully', 200);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return $th->getMessage();
+        }
     }
 
     /**

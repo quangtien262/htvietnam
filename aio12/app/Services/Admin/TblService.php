@@ -242,6 +242,11 @@ class TblService extends Service
         return $selects;
     }
 
+    protected function getData($table, $id)
+    {
+        return TblModel::model($table->name)->where('id', $id)->first();
+    }
+
     protected function getDatas($table, $columns, $request, $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
     {
         $per = self::getPermission();
@@ -905,24 +910,16 @@ class TblService extends Service
         // save log
         self::saveLog($table->id, $dataId, $dataOld);
 
+        // upload image
         foreach ($columns as $column) {
             //images
-            if (in_array($column->type_edit, ['image_crop', 'image', 'images_crop', 'images'])) {
+            if (!empty($post[$column->name]) && in_array($column->type_edit, ['image_crop', 'image', 'images_crop', 'images'])) {
                 //$this->uploadImages2S3($post, $colImage, $dataId, $table);
                 $this->uploadImages($post, $column, $dataId, $table);
                 continue;
             }
 
         }
-
-        // if ($is_uploadImages == true) {
-        //$this->uploadImages2S3($post, $colImage, $dataId, $table);
-        // $this->uploadImages($post, $colImages, $dataId, $table);
-        // }
-
-        // if ($is_uploadFile == true) {
-        //     $this->uploadFiles($post, $colFile, $dataId, $table);
-        // }
 
         // update thêm tùy theo đặc tính của mỗi tính năng
         $data = $this->updateByBusiness($table, $data, $post);
@@ -1687,16 +1684,6 @@ class TblService extends Service
                 }
             }
 
-            if (in_array($col->type_edit, ['images', 'images_crop'])) {
-                $countImage = intval($col->conditions);
-                $isImages = true;
-            }
-
-            if (in_array($col->type_edit, ['image', 'image_crop'])) {
-                $countImage = 1;
-                $isImage = true;
-            }
-
             if ($col->type_edit == 'permission_list') {
                 if (!empty($data['permission'])) {
                     $userPermission = json_decode($data['permission'], true);
@@ -1728,6 +1715,7 @@ class TblService extends Service
 
                 // check type == images
                 if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop']) && !empty($data[$col->name])) {
+
                     if (is_array($data[$col->name])) {
                         $jsonImage = $data[$col->name];
                     } else {
@@ -1746,31 +1734,16 @@ class TblService extends Service
                                 $avatar[$col->name] = $img;
                             }
                         }
+                    } else {
+                        $imagesData[$col->name][] = [
+                            'name' => 'image-0',
+                            'status' => 'OK',
+                            'url' => $data[$col->name]
+                        ];
+                        $avatar[$col->name] = $data[$col->name];
                     }
 
                     $avatar[$col->name] = $data[$col->name];
-                }
-
-                if (in_array($col->type_edit, ['file', 'files']) && !empty($data[$col->name])) {
-                    $jsonFile = CommonService::isJson($data[$col->name]);
-                    if (!$jsonFile) {
-                        if (!empty($data[$col->name])) {
-                            $filesData[$col->name][] = [
-                                'name' => $data[$col->name],
-                                'status' => 'OK',
-                                'url' => $data[$col->name]
-                            ];
-                            $avatar[$col->name] = $data[$col->name];
-                        }
-                    } else {
-                        foreach ($jsonFile as $k => $img) {
-                            $filesData[$col->name][] = [
-                                'name' => 'file-' . $k,
-                                'status' => 'OK',
-                                'url' => $img
-                            ];
-                        }
-                    }
                 }
 
                 //
@@ -1812,7 +1785,6 @@ class TblService extends Service
             'imagesData' => $imagesData,
             'filesData' => $filesData,
             'avatar' => $avatar,
-            'countImage' => $countImage,
             'userPermission' => $userPermission,
             'permissionList_all' => $permissionList_all,
             'tablesPermission' => $tablesPermission,

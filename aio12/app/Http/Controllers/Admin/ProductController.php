@@ -91,6 +91,8 @@ class ProductController extends Controller
             'thuongHieu' => $thuongHieu,
             'viTri' => $viTri,
             'thuocTinh' => $thuocTinh,
+            'token' => csrf_token(),
+            'p' => $request->p ?? 0,
         ];
 
         return Inertia::render('Admin/Product/list', $viewData);
@@ -158,18 +160,21 @@ class ProductController extends Controller
                     'donvi' => $sd_name[$product->lich_trinh_sd],
                 ];
             }
-
+            // check form trường hợp là nguyên liệu tiêu hao
             if ($type == 2) {
                 $productApplyData = $nguyenLieuTieuHao;
             }
 
+            // check form trường hợp là dịch vụ
             if ($type == 3) {
                 $productApplyData = $dichVu;
             }
 
+            // trường hợp là dịch vụ hoặc gói dịch vụ, cần lấy ra danh sách nguyên liệu tiêu hao tương ứng
             if (!empty($product->product_apply) && in_array($type, [2, 3])) {
                 $productApply = $product->product_apply;
             }
+
         }
 
         $classItem = $this->checkShowFormItem($type, $product);
@@ -180,7 +185,7 @@ class ProductController extends Controller
             $chiNhanh[$cn->id] = $cn->name;
         }
 
-        $tonKhoDetail = $this->getTonKhoDetail($product);
+        $tonKhoDetail = $this->getTonKhoDetail($pid);
 
         $donVi = DB::table('don_vi')->where('is_recycle_bin', 0)->get();
         $donVi_key = [];
@@ -209,7 +214,7 @@ class ProductController extends Controller
                 }
             }
         }
-        // dd($donViQuyDoi);
+        // dd($tonKhoDetail);
 
         $viewData = [
             'tables' => $tables,
@@ -241,17 +246,16 @@ class ProductController extends Controller
         return Inertia::render('Admin/Product/form', $viewData);
     }
 
-    private function getTonKhoDetail($data, $colName = 'ton_kho_detail')
+    private function getTonKhoDetail($productId)
     {
         $khoHang = DB::table('kho_hang')->get();
-        $tonKhoDetail = [];
 
         // trường hợp thêm mới, tạo sẵn SL = 0 cho mỗi kho
-        if (empty($data)) {
-            foreach ($khoHang as $cn) {
-                $tonKhoDetail[$cn->id] = [
-                    'kho_hang_id' => $cn->id,
-                    'kho_hang_name' => $cn->name,
+        if (empty($productId)) {
+            foreach ($khoHang as $kho) {
+                $tonKhoDetail[$kho->id] = [
+                    'kho_hang_id' => $kho->id,
+                    'kho_hang_name' => $kho->name,
                     'ton_kho' => 0,
                 ];
             }
@@ -259,24 +263,25 @@ class ProductController extends Controller
         }
 
         // trường hợp edit
-        foreach ($khoHang as $cn) {
+        $tonKhoDetail = [];
+        
+        foreach ($khoHang as $kho) {
+            $khoData = DB::table('kho_hang_data')
+            ->where('product_id', $productId)
+            ->where('kho_hang_id', $kho->id)
+            ->first();
             $tonKho = 0;
-            if (
-                !empty($data->{$colName}) &&
-                !empty($data->{$colName}[$cn->id]) &&
-                !empty($data->{$colName}[$cn->id]['ton_kho'])
-            ) {
-                $tonKho = $data->{$colName}[$cn->id]['ton_kho'];
+            if ($khoData) {
+                $tonKho = $khoData->ton_kho;
             }
-            $tonKhoDetail[$cn->id] = [
-                'kho_hang_id' => $cn->id,
-                'kho_hang_name' => $cn->name,
+            $tonKhoDetail[$kho->id] = [
+                'kho_hang_id' => $kho->id,
+                'kho_hang_name' => $kho->name,
                 'ton_kho' => $tonKho,
             ];
         }
         return $tonKhoDetail;
     }
-
     public function save(Request $rq)
     {
 
@@ -1037,6 +1042,11 @@ class ProductController extends Controller
 
                 $tongTonKho = 0;
                 $tonKhoDetail = $product->ton_kho_detail;
+                
+                if(empty($tonKhoDetail) || !is_array($tonKhoDetail)) {
+                    $tonKhoDetail = [];
+                }
+
                 foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
                     if ($chiNhanhId == $rq['chi_nhanh_id']) {
                         $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoChiNhanh['ton_kho'] + $detail['so_luong'];

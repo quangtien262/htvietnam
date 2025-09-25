@@ -390,3 +390,5 @@ Route::group(['prefix' => 'bds'], function () {
     Route::get('report/nhan-vien-kt', [AitilenController::class, 'report_nhanVienKT'])->name('aitilen.report_nhanVienKT');
     Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
 }); 
+
+Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');

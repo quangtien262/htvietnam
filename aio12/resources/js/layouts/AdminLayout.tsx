@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Drawer } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import { Link } from "@inertiajs/react";
@@ -14,7 +14,7 @@ import {
     HomeOutlined
 } from "@ant-design/icons";
 
-
+import axios from "axios";
 
 //
 const { Header, Content, Footer } = Layout;
@@ -36,16 +36,27 @@ interface AdminProps {
 export default function Admin({
     auth,
     header,
-    menus = null,
-    menuParentID = 0,
     current = { id: 0, parent_id: 0 },
     content,
 }: AdminProps) {
     const isMobile = window.innerWidth < 768;
     const [spinning, setSpinning] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
-
     let key = 1;
+    const [menus, setMenus] = useState([]);
+
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get('p'); // sẽ là string hoặc null
+    console.log('p', p);
+    
+    useEffect(() => {
+        axios.post(route('getMenus', { p: p }))
+            .then((res) => {
+                setMenus(res.data.data);
+                console.log('res.data', res.data.data);
+            })
+            .catch((err) => console.error(err));
+    }, []);
 
     const onClick = (e) => {
         setSpinning(true);
@@ -53,13 +64,13 @@ export default function Admin({
 
     function getLinkMenu(menu: any) {
         let href = '';
-        
+
         if (menu.route && menu.route === 'data.tblName') {
-            href = route(menu.route, { tblName: menu.table_name, p: menuParentID });
+            href = route(menu.route, { tblName: menu.table_name, p: p });
         }
 
         if (menu.route && menu.route !== 'data.tblName') {
-            href = route(menu.route, { p: menuParentID });
+            href = route(menu.route, { p: p });
         }
 
         if (menu.link) {

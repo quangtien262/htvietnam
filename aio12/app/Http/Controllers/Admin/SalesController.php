@@ -39,6 +39,8 @@ class SalesController extends Controller
             'chiNhanh' => $chiNhanh,
             'nhanVien' => $nhanVien,
             'khoangThoiGian' => $khoangThoiGian,
+            'menus' => TblService::getMenus($request->p),
+            'p' => $request->p
         ];
         return Inertia::render('Admin/Dashboard/sales', $props);
     }
@@ -135,7 +137,7 @@ class SalesController extends Controller
             'khachHangMoi' => $khachHangMoi,
             'slDonHangMoi' => $slDonHangMoi,
             'doanhThu' => $doanhThu,
-            'title' => $title
+            'title' => $title,
         ]);
     }
 

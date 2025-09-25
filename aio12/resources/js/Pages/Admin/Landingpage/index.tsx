@@ -95,9 +95,6 @@ export default function Dashboard(props: { auth: unknown; table: { id: number; p
             <AdminLayout
                 auth={props.auth}
                 header={'Cài đặt trang Landingpage'}
-                menus={props.menus}
-                menuParentID = {props.p}
-                current={props.table}
                 content={
                     <div>
                         <Row>

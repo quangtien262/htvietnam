@@ -68,8 +68,6 @@ class AdminController extends Controller
         
         // get 20 log mới nhất
         $logs = Log::orderBy('id', 'desc')->limit(20)->get();
-
-        $menus = TblService::getMenus($request->p);
         
         $param = [
             'viewStats' => $viewStats,
@@ -241,5 +239,11 @@ class AdminController extends Controller
         return $this->sendSuccessResponse([
             'nhanVien' => $nhanVien
         ], 'success');
+    }
+
+    public function getMenus(Request $request)
+    {
+        $menus = TblService::getMenus($request->p);
+        return $this->sendSuccessResponse($menus);
     }
 }

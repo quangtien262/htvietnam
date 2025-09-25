@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -28,7 +27,19 @@ return new class extends Migration
 
             // config table
             $table->integer('sort_order')->default(0)->nullable();
+            
+            // 'type_show' => [
+            //     'basic' => 0,
+            //     'drag_drop' => 1,
+            //     'drag_drop_multiple' => 8,
+            //     '1data' => 5,
+            //     'landingpage' => 3,
+            //     'block' => 4,
+            //     'calendar' => 6,
+            //     'file_manager' => 7
+            // ],
             $table->integer('type_show')->default(0)->nullable();
+            
             $table->string('model_name')->nullable();
             $table->integer('count_item_of_page')->default(30)->nullable();
             $table->integer('is_edit')->default(1)->nullable();
@@ -61,7 +72,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->integer('create_by')->default(0)->nullable();
             $table->integer('tab_table_id')->default(0)->nullable();
-            $table->string('tab_table_name')->nullable(); 
+            $table->string('tab_table_name')->nullable();
             $table->integer('is_label')->default(0)->nullable(); // chỉ là label, hiển thị ở menu. ko tạo database
             $table->integer('is_recycle_bin')->default(0)->nullable();
             $table->string('route_name')->nullable();
@@ -100,13 +111,13 @@ return new class extends Migration
             //     'is_label' => 0,
             // ]);
             // $tbl = Table::where('name', 'tables')->first();
-            
+
             // MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
             // MigrateService::createColumn02($tbl->id, 'name', 'Tên bảng', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
             // MigrateService::createColumn02($tbl->id, 'display_name', 'Tên hiển thị', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
-        
-        
-        
+
+
+
         });
     }
 
@@ -122,37 +133,37 @@ return new class extends Migration
 };
 
 
-    // config_show_data: cài đặt show data theo select khi thêm/sửa, 
-    // $configShowData = [
-    //     'column' => 'type_hoa_don_id', // col selects
-    //     'data' => [ // show data master
-    //         1 => 'Hóa đơn bán lẻ',
-    //         2 => 'Hóa đơn thẻ lần',
-    //     ],
-    //     'config' => [ // config col cần show ra
-    //         1=>[
-    //             'col_name',....
-    //         ],
-    //         1=>[
-    //             'name',....
-    //         ],
-    //     ],
-    // ];
+// config_show_data: cài đặt show data theo select khi thêm/sửa, 
+// $configShowData = [
+//     'column' => 'type_hoa_don_id', // col selects
+//     'data' => [ // show data master
+//         1 => 'Hóa đơn bán lẻ',
+//         2 => 'Hóa đơn thẻ lần',
+//     ],
+//     'config' => [ // config col cần show ra
+//         1=>[
+//             'col_name',....
+//         ],
+//         1=>[
+//             'name',....
+//         ],
+//     ],
+// ];
 
 
-    //data_related
-    // $data_related = [
-    //     [
-    //         'table'=>'table name', // bảng cần lấy ra
-    //         'column'=>'column name' // column name mà maping với bảng hiện tại
-    //     ]
-    // ];
+//data_related
+// $data_related = [
+//     [
+//         'table'=>'table name', // bảng cần lấy ra
+//         'column'=>'column name' // column name mà maping với bảng hiện tại
+//     ]
+// ];
 
-    //add_btn_from_route
-    // 'add_btn_from_route' => '{
-    //     "0": {
-    //         "name":"hima.merge_customer",
-    //         "display_name":"Gộp khách hàng",
-    //         "class":"success"
-    //     }
-    // }'
+//add_btn_from_route
+// 'add_btn_from_route' => '{
+//     "0": {
+//         "name":"hima.merge_customer",
+//         "display_name":"Gộp khách hàng",
+//         "class":"success"
+//     }
+// }'

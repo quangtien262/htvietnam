@@ -270,9 +270,6 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header="Trang chủ"
-            menus={props.menus}
-            menuParentID={props.p}
-            current={props.table}
             content={
                 <div>
                     {btnAddNew(props)}

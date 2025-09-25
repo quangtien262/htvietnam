@@ -47,9 +47,9 @@ export default function Dashboard(props: any) {
 
     const [products, setProducts] = useState(props.products.data);
 
-    const [pidAction, setPidAction] = useState(0);
-    const [isModalNgungKinhDoanhOpen, setIsModalNgungKinhDoanhOpen] = useState(0);
-    const [isModalXoaOpen, setIsModalXoaOpen] = useState(0);
+    const [pidAction, setPidAction] = useState<number>(0);
+    const [isModalNgungKinhDoanhOpen, setIsModalNgungKinhDoanhOpen] = useState<boolean>(false);
+    const [isModalXoaOpen, setIsModalXoaOpen] = useState<boolean>(false);
 
     const columns = [
         {
@@ -339,7 +339,7 @@ export default function Dashboard(props: any) {
             <Col sm={{ span: 24 }} >
                 <Divider orientation="left">
                     <Space>
-                        <Link href={route('product.edit', [record.id])}><Button className="_success"><CheckOutlined /> Cập nhật</Button></Link>
+                        <Link href={route('product.edit', {pid: record.id, p: props.p})}><Button className="_success"><CheckOutlined /> Cập nhật</Button></Link>
                         {/* <Button className="_warning"> <SnippetsOutlined /> Sao chép</Button> */}
                         <Button onClick={() => { setIsModalNgungKinhDoanhOpen(true); setPidAction(record.id); }}><StopOutlined /> Ngừng kinh doanh</Button>
                         <Button onClick={() => { setIsModalXoaOpen(true); setPidAction(record.id); }}><DeleteOutlined /> Xóa</Button>
@@ -679,7 +679,7 @@ export default function Dashboard(props: any) {
 
                                     </Col>
                                     <Col sm={{ span: 8 }}>
-                                        <Link href={route('product.add')}>
+                                        <Link href={route('product.add', {p:props.p})}>
                                             <Button type="primary" className="_right">
                                                 <PlusCircleOutlined />Thêm mới
                                             </Button>

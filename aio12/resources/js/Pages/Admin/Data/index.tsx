@@ -679,7 +679,7 @@ export default function Dashboard(props: any) {
             if (props.table.form_data_type === 2) {
                 return <Button onClick={() => { editData(record) }} type="button" className="icon-edit"><EditOutlined /> </Button>
             }
-            return <Link href={route("data.edit", { tableId: props.tableId, dataId: record.index, p: props.p })}>
+            return <Link href={route("data.edit", { tableId: props.tableId, dataId: record.id, p: props.p })}>
                 <Button type="button" className="icon-edit"><EditOutlined /> </Button>
             </Link>
         }
@@ -687,7 +687,7 @@ export default function Dashboard(props: any) {
 
     function checkShowBtnDetail(record) {
         if (props.table.is_show_btn_detail === 1 && inArray(props.table.id, props.userPermission.table_view)) {
-            return <Link href={route("data.detail", { tableId: props.tableId, dataId: record.index, p: props.p })}>
+            return <Link href={route("data.detail", { tableId: props.tableId, dataId: record.id, p: props.p })}>
                 <Button type="button" className="icon-view"><EyeOutlined /> </Button>
             </Link>
         }
@@ -1050,6 +1050,7 @@ export default function Dashboard(props: any) {
 
     const cancelEdit = () => {
         setIsOpenFormEdit(false);
+        setDataAction([]);
     }
 
     function btnAddNew() {
@@ -1111,8 +1112,9 @@ export default function Dashboard(props: any) {
 
                 if (response.data.status_code == 200) {
                     setDataAction(response.data.data);
+                    console.log('response.data.data.imagesData', response.data.data.imagesData);
+                    
                     setFileList(response.data.data.imagesData);
-                    setDocumentFile(response.data.data.filesData);
                 } else {
                     message.error("Lỗi tải dữ liệu cần sửa");
                 }
@@ -1131,7 +1133,6 @@ export default function Dashboard(props: any) {
                 if (response.data.status_code == 200) {
                     setDataAction(response.data.data);
                     setFileList(response.data.data.imagesData);
-                    setDocumentFile(response.data.data.filesData);
                 } else {
                     message.error("Lỗi tải dữ liệu cần sửa");
                 }
@@ -1400,9 +1401,6 @@ export default function Dashboard(props: any) {
             <AdminLayout
                 auth={props.auth}
                 header={props.table.display_name}
-                menus={props.menus}
-                menuParentID={props.p} q
-                current={props.table}
                 content={
                     <div>
 
@@ -1414,10 +1412,28 @@ export default function Dashboard(props: any) {
                             footer={[]}
                             width={1000}
                         >
-                            {contentFormData(dataAction, fileList, documentFile, (result: any) => {
-                                // todo: update state
+                            {contentFormData(dataAction, fileList, (result: any) => {
+                                setDataAction([]);
                                 setLoadingTable(false);
                                 setIsOpenFormEdit(false);
+                                // update state datasource
+                                if (result) {
+                                    const newData = [...dataSource];
+                                    const index = newData.findIndex(
+                                        (item) => result.id === item.id
+                                    );
+                                    if (index > -1) {
+                                        const item = newData[index];
+                                        newData.splice(index, 1, {
+                                            ...item,
+                                            ...result,
+                                        });
+                                        setDataSource(newData);
+                                    } else {
+                                        newData.unshift(result);
+                                        setDataSource(newData);
+                                    }
+                                }
                             })}
                         </Modal>
 

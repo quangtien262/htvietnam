@@ -451,9 +451,6 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            menus={props.menus}
-            menuParentID={props.p}
-            current={props.table}
             content={
                 <div>
                     <Card type="inner"

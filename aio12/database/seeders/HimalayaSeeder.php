@@ -337,25 +337,36 @@ class HimalayaSeeder extends Seeder
         // ]);
 
 
+        DB::table('kho_hang')->truncate();
+        DB::table('kho_hang')->insert([
+            ['name' => 'Kho Vinhomes', 'code' => 'KHO00001'],
+            ['name' => 'Kho Phổ Quang', 'code' => 'KHO00002'],
+            ['name' => 'Kho trung tâm', 'code' => 'KHO00003'],
+        ]);
 
         // product
         DB::table('products')->truncate();
         for ($i = 0; $i < 20; $i++) {
             $product = new Product();
-            $product->name = 'Sản phẩm ' . $i;
-            $product->code = 'SP0000' . $i;
+
             $product->gia_ban = '1000000';
             $product->gia_von = '900000';
 
-            if ($i < 8) {
+            if ($i < 10) {
                 $product->product_type_id = 1;
                 $product->product_group_id = 2;
-            } else if ($i >= 8 && $i <= 15) {
+                $product->name = 'Sản phẩm ' . $i;
+                $product->code = 'SP0000' . $i;
+            } else if ($i >= 10 && $i <= 15) {
                 $product->product_type_id = 1;
                 $product->product_group_id = 1;
+                $product->name = 'Sản phẩm ' . $i;
+                $product->code = 'SP000' . $i;
             } else {
                 $product->product_group_id = 3;
                 $product->product_type_id = 2;
+                $product->name = 'Dịch vụ ' . $i;
+                $product->code = 'DV000' . $i;
             }
 
             $product->don_vi_id = 2;
@@ -376,6 +387,25 @@ class HimalayaSeeder extends Seeder
 
             $product->ton_kho = $detail[1]['ton_kho'] + $detail[2]['ton_kho'];
             $product->save();
+
+            if ($i <= 15) {
+                // insert kho_hang_data
+                DB::table('kho_hang_data')->insert([
+                    'product_id' => $product->id,
+                    'kho_hang_id' => 1,
+                    'ton_kho' => $detail[1]['ton_kho'],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+
+                DB::table('kho_hang_data')->insert([
+                    'product_id' => $product->id,
+                    'kho_hang_id' => 2,
+                    'ton_kho' => $detail[2]['ton_kho'],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
         }
 
         DB::table('admin_config')->truncate();
@@ -386,14 +416,6 @@ class HimalayaSeeder extends Seeder
             ]
         ]);
 
-
-
-        DB::table('kho_hang')->truncate();
-        DB::table('kho_hang')->insert([
-            ['name' => 'Kho Vinhomes', 'code' => 'KHO00001'],
-            ['name' => 'Kho Phổ Quang', 'code' => 'KHO00002'],
-            ['name' => 'Kho trung tâm', 'code' => 'KHO00003'],
-        ]);
         // DB::table('trang_thai_telesales')->truncate();
         // DB::table('trang_thai_telesales')->insert([
         //     ['name' => 'Đã chốt đơn'],
@@ -508,8 +530,8 @@ class HimalayaSeeder extends Seeder
                     'product_id' => 1,
                     'product_name' => 'Sản phẩm 1',
                     'so_luong' => 1,
-                    'don_gia' => $tongTien/2,
-                    'thanh_tien' => $tongTien/2,
+                    'don_gia' => $tongTien / 2,
+                    'thanh_tien' => $tongTien / 2,
                     'users_id' => $khId,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
@@ -519,8 +541,8 @@ class HimalayaSeeder extends Seeder
                     'product_id' => 2,
                     'product_name' => 'Sản phẩm 2',
                     'so_luong' => 1,
-                    'don_gia' => $tongTien/2,
-                    'thanh_tien' => $tongTien/2,
+                    'don_gia' => $tongTien / 2,
+                    'thanh_tien' => $tongTien / 2,
                     'users_id' => $khId,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
@@ -529,10 +551,10 @@ class HimalayaSeeder extends Seeder
                 DB::table('nhan_vien_tu_van')->insertGetId(array(
                     'nhan_vien_id' => $nvId,
                     'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id'=>$hdon01,
+                    'chung_tu_chi_tiet_id' => $hdon01,
                     'loai_chung_tu' => 'hoa_don_chi_tiet',
                     'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram'=>1,
+                    'LaPhanTram' => 1,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
                 ));
@@ -540,10 +562,10 @@ class HimalayaSeeder extends Seeder
                 DB::table('nhan_vien_thuc_hien')->insertGetId(array(
                     'nhan_vien_id' => $nvId,
                     'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id'=>$hdon01,
+                    'chung_tu_chi_tiet_id' => $hdon01,
                     'loai_chung_tu' => 'hoa_don_chi_tiet',
                     'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram'=>1,
+                    'LaPhanTram' => 1,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
                 ));
@@ -551,20 +573,20 @@ class HimalayaSeeder extends Seeder
                 DB::table('nhan_vien_tu_van')->insertGetId(array(
                     'nhan_vien_id' => $nvId,
                     'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id'=>$hdon02,
+                    'chung_tu_chi_tiet_id' => $hdon02,
                     'loai_chung_tu' => 'hoa_don_chi_tiet',
                     'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram'=>1,
+                    'LaPhanTram' => 1,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
                 ));
                 DB::table('nhan_vien_thuc_hien')->insertGetId(array(
                     'nhan_vien_id' => $nvId,
                     'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id'=>$hdon02,
+                    'chung_tu_chi_tiet_id' => $hdon02,
                     'loai_chung_tu' => 'hoa_don_chi_tiet',
                     'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram'=>1,
+                    'LaPhanTram' => 1,
                     'updated_at' => $ngay,
                     'created_at' => $ngay,
                 ));

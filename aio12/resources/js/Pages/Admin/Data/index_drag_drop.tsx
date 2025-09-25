@@ -126,9 +126,6 @@ export default function index(props: any) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            menus={props.menus}
-            menuParentID={props.p}
-            current={props.table}
             content={
                 <div>
                     <Modal
@@ -142,6 +139,7 @@ export default function index(props: any) {
                         {contentFormData(dataAction, fileList, (result: any) => {
                             // todo: update state
                             setIsOpenFormEdit(false);
+                            // reload
                         })}
                     </Modal>
 
