@@ -14,6 +14,8 @@ use App\Models\Admin\ChiNhanh;
 use App\Models\Admin\Column;
 use App\Models\Admin\CongNo;
 use App\Models\Admin\DonViQuyDoi;
+use App\Models\Admin\HoaDon;
+use App\Models\Admin\HoaDonChiTiet;
 use App\Models\Admin\KhachTraHang;
 use App\Models\Admin\KhachTraHangDetail;
 use App\Models\Admin\KiemKho;
@@ -66,7 +68,8 @@ class ProductController extends Controller
         $viewData = [
             'tkeLoaiSPTheoTen' => $tkeLoaiSPTheoTen,
             'tkeLoaiSPTheoSoLuong' => $tkeLoaiSPTheoSoLuong,
-            'latestProducts' => $latestProducts
+            'latestProducts' => $latestProducts,
+            'p' => $request->p ?? 0,
         ];
         return Inertia::render('Admin/Dashboard/kho_hang', $viewData);
     }
@@ -242,6 +245,7 @@ class ProductController extends Controller
             'donViQuyDoi' => $donViQuyDoi,
             'donViSelectedID' => $donViSelectedID,
             'token' => csrf_token(),
+            'p' => $request->p ?? 0,
         ];
         return Inertia::render('Admin/Product/form', $viewData);
     }
@@ -282,17 +286,50 @@ class ProductController extends Controller
         }
         return $tonKhoDetail;
     }
-    public function save(Request $rq)
+    public function saveProduct(Request $rq)
     {
+        Product::savePro($rq);
 
-        $tables = TblService::getAdminMenu(0);
-        $tbl = DB::table('tables')->where('name', 'products')->first();
-        $table = Table::find($tbl->id);
+        return to_route('product.list', ['p' => $rq->p ?? 0]);
+    }
 
-        $product = Product::savePro($rq);
+    public function getProductInfo($pid)
+    {
+        $product = Product::find($pid);
 
+        // kiểm kho
+        $kiemKho = $this->getkiemKho($pid);
 
-        return to_route('data.index', $tbl->id);
+        //lịch sử nhập hàng
+        $nhapHang = NhapHang::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử khách trả hàng
+        $khachTraHang = KhachTraHang::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử xuất hủy
+        $xuatHuy = XuatHuy::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử bán hàng
+        $banHang = HoaDonChiTiet::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử trả hàng NCC
+        $traHangNCC = TraHangNCC::baseQuery()->where('product_id', $pid)->get();
+
+        // nguyên liệu tiêu hao
+        $nguyenLieu = $this->getnguyenLieu($pid);
+
+        $data = [
+            'product' => $product,
+            'kiemKho' => $kiemKho,
+            'nhapHang' => $nhapHang,
+            'khachTraHang' => $khachTraHang,
+            'xuatHuy' => $xuatHuy,
+            'banHang' => $banHang,
+            'traHangNCC' => $traHangNCC,
+            'nguyenLieu' => $nguyenLieu,
+        ];
+
+        return $this->sendSuccessResponse($data);
     }
 
     public function getkiemKho($pid)
@@ -329,6 +366,13 @@ class ProductController extends Controller
 
     public function nguyenLieu($pid)
     {
+        $nguyenLieu = $this->getnguyenLieu($pid);
+
+        return $this->sendSuccessResponse($nguyenLieu);
+    }
+
+    private function getnguyenLieu($pid)
+    {
         $nguyenLieu = DB::table('product_nguyen_lieu_tieu_hao')
             ->select(
                 'product_nguyen_lieu_tieu_hao.so_luong as so_luong',
@@ -356,7 +400,7 @@ class ProductController extends Controller
             ];
         }
 
-        return $this->sendSuccessResponse($result);
+        return $result;
     }
 
     public function dichVuTrongGoi($pid)
@@ -747,7 +791,7 @@ class ProductController extends Controller
     public function traHangNCC(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_tra_hang_ncc', $request, true, true);
-
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/tra_hang_ncc', $viewData);
     }
 
@@ -957,6 +1001,7 @@ class ProductController extends Controller
     public function nhapHang(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_nhap_hang', $request, true, true);
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/nhap_hang', $viewData);
     }
 
@@ -1158,7 +1203,7 @@ class ProductController extends Controller
     public function xuatHuy(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_xuat_huy', $request, true, true);
-
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/xuat_huy', $viewData);
     }
 
@@ -1518,7 +1563,8 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
-            'nguoiKiem' => $nguoiKiem
+            'nguoiKiem' => $nguoiKiem,
+            'p' => $request->p ?? 0,
         ]);
     }
 
@@ -1557,7 +1603,8 @@ class ProductController extends Controller
             'info' => $info,
             'khachHang' => $khachHang,
             'nguoiTao' => $nguoiTao,
-            'nguoiBan' => $nguoiBan
+            'nguoiBan' => $nguoiBan,
+            'p' => $request->p ?? 0,
         ]);
     }
 
@@ -1612,6 +1659,7 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 
@@ -1662,6 +1710,7 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 
@@ -1714,6 +1763,7 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 

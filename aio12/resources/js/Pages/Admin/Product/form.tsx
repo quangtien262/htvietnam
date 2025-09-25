@@ -89,6 +89,7 @@ export default function Dashboard(props) {
     const [fileList, setFileList] = useState([]);
 
     const onFinish = (values) => {
+        values.p = props.p;
         values.pid = props.pid;
         values.sub_product_index = subProductsIndex;
         values.type = type;
@@ -96,7 +97,7 @@ export default function Dashboard(props) {
         if (values.hsd_ngay_cu_the) {
             values.hsd_ngay_cu_the = dayjs(values.hsd_ngay_cu_the).format('YYYY-MM-DD')
         }
-
+        
 
         // set images
         if (fileList && fileList.length > 0) {
@@ -1433,7 +1434,7 @@ export default function Dashboard(props) {
                                         LƯU VÀ THÊM MỚI
                                     </Button>
 
-                                    <Link href={route('product.list')}><Button> <CloseOutlined /> THOÁT </Button>   </Link>
+                                    <Link href={route('product.list', {p:props.p})}><Button> <CloseOutlined /> THOÁT </Button>   </Link>
 
                                 </Space>
                             </div>

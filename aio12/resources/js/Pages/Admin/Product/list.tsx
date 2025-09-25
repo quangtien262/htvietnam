@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
+import axios from "axios";
+import { JSX } from "react/jsx-runtime";
+import { cloneDeep } from "lodash";
 import {
     Button,
     Table,
@@ -15,7 +18,6 @@ import {
     Col, Image, Radio, List
 } from "antd";
 import { Link } from "@inertiajs/react";
-import axios from "axios";
 import {
     DeleteOutlined,
     StopOutlined,
@@ -28,18 +30,28 @@ import {
 
 import "../../../../css/list02.css";
 import { numberFormat } from "../../../Function/common";
-import { cloneDeep } from "lodash";
 import { routeQLKho } from "../../../Function/config_route";
-import { JSX } from "react/jsx-runtime";
+import { ProductInfo } from "./product_comp";
 
-export default function Dashboard(props: any) {
+// Utility to ensure value is always an array
+function safeArray<T>(value: T | T[] | undefined | null): T[] {
+    if (Array.isArray(value)) return value;
+    if (value === undefined || value === null) return [];
+    return [value];
+}
+
+export default function ProductList(props: any) {
     const [formSearch] = Form.useForm();
     const [nguyenLieu, setNguyenLieu] = useState([]);
     const [loadingNguyenLieu, setLoadingNguyenLieu] = useState(false);
     const [dichVuTrongGoi, setDichVuTrongGoi] = useState([]);
-    const [kiemKhoData, setKiemKhoData] = useState([]);
-    const [banHangData, setBanHangData] = useState([]);
-    const [nhapHangData, setNhapHangData] = useState([]);
+    const [kiemKhoData, setKiemKhoData] = useState<{ [key: string]: any[] }>({});
+    const [banHangData, setBanHangData] = useState<{ [key: string]: any[] }>({});
+    const [nhapHangData, setNhapHangData] = useState<{ [key: string]: any[] }>({});
+    const [khachTraHangData, setKhachTraHangData] = useState<{ [key: string]: any[] }>({});
+    const [traHangNhapData, setTraHangNhapData] = useState<{ [key: string]: any[] }>({});
+
+
     const [productApDung, setProductApDung] = useState([]);
     const [loadingDVTrongGoi, setLoadingDVTrongGoi] = useState(false);
     const [loadingSubData, setLoadingSubData] = useState(false);
@@ -113,9 +125,8 @@ export default function Dashboard(props: any) {
                 }
             })
             .catch((error) => {
-                openNotification("error", "Cập nhật thất bại");
-            }
-            );
+                message.error("Cập nhật thất bại");
+            });
     }
     function getNhapHang(pid: string | number) {
         setLoadingNguyenLieu(true);
@@ -134,11 +145,10 @@ export default function Dashboard(props: any) {
                 } else {
                     message.error("Không lấy được thông tin nguyên liệu");
                     setLoadingNguyenLieu(false);
-                    // openNotification('error', 'Cập nhật thất bại');
                 }
             })
             .catch((error) => {
-                openNotification("error", "Cập nhật thất bại");
+                message.error("Cập nhật thất bại");
             }
             );
     }
@@ -160,15 +170,12 @@ export default function Dashboard(props: any) {
                 } else {
                     message.error("Không lấy được thông tin nguyên liệu");
                     setLoadingNguyenLieu(false);
-                    // openNotification('error', 'Cập nhật thất bại');
                 }
             })
             .catch((error) => {
-                openNotification("error", "Cập nhật thất bại");
-            }
-            );
+                message.error("Cập nhật thất bại");
+            });
     }
-
     function getNguyenLieu(pid: unknown) {
         setLoadingNguyenLieu(true);
         axios.post(route("product.nguyenLieu", [pid]))
@@ -181,15 +188,12 @@ export default function Dashboard(props: any) {
                 } else {
                     message.error("Không lấy được thông tin nguyên liệu");
                     setLoadingNguyenLieu(false);
-                    // openNotification('error', 'Cập nhật thất bại');
                 }
             })
             .catch((error) => {
-                openNotification("error", "Cập nhật thất bại");
-            }
-            );
+                message.error("Cập nhật thất bại");
+            });
     }
-
     function getDichVuTrongGoi(pid: unknown) {
         setLoadingDVTrongGoi(true);
         axios.post(route("product.dichVuTrongGoi", [pid]))
@@ -236,42 +240,29 @@ export default function Dashboard(props: any) {
             );
     }
 
-    const ngungKinhDoanh = () => {
-        setLoadingTable(true);
-        axios.post(route("product.ngungKinhDoanh"), { pid: pidAction })
-            .then((response) => {
-                // setLoadingTable(false);
-                // setPidAction(0);
-                message.success("Đã ngừng kinh doanh");
-                window.location.reload();
-            })
-            .catch((error) => {
-                setLoadingTable(false);
-                message.error("Cập nhật thất bại");
-            }
-            );
-    }
-
-    const deleteProduct = () => {
-        setLoadingTable(true);
-        axios.post(route("product.deleteProduct"), { pid: pidAction })
-            .then((response) => {
-                // setLoadingTable(false);
-                // setPidAction(0);
-                message.success("Đã xóa");
-                window.location.reload();
-            })
-            .catch((error) => {
-                setLoadingTable(false);
-                message.error("Cập nhật thất bại");
-            }
-            );
-    }
-
     const expandedRowRender = (record: { ban_truc_tiep: number; product_type_name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; product_group_name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; thuong_hieu_name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; vi_tri_name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; ton_kho: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; dinh_muc_ton_it_nhat: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; dinh_muc_ton_nhieu_nhat: any; trong_luong: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; product_type_id: number; ck_nv_tu_van: any; is_ck_nv_tu_van_percen: number; ck_nv_cham_soc: any; is_ck_nv_cham_soc_percen: number; code: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; images: { avatar: string | undefined; }; mo_ta: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; ghi_chu: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; id: unknown; loai_hang_hoa: { map: (arg0: (loai: any) => JSX.Element) => string; }; }) => {
-        let banTrucTiep = <span className="text_success"><CheckCircleOutlined /> Cho phép bán trực tiếp</span>;
+        
+        axios.post(route('product.getProductInfo', [record.id]))
+            .then((response) => {
+                console.log('response', response);
+
+                if (response.data.status_code === 200) {
+                    
+                } else {
+                    message.error("Lỗi không lấy được thông tin chi tiết sản phẩm");
+                    setLoadingSubData(false);
+                }
+            })
+            .catch((error) => {
+                message.error("Cập nhật thất bại");
+            });
+        
+        const id = record.id as number;
+        let banTrucTiep: React.ReactNode = '';
         if (record.ban_truc_tiep === 1) {
             banTrucTiep = <span className="text_warning"><CloseCircleOutlined /> Không bán trực tiếp</span>;
+        } else {
+            banTrucTiep = <span className="text_success"><CheckCircleOutlined /> Cho phép bán trực tiếp</span>
         }
         let data01 = [
             <p><b>Loại hàng: </b>  {record.product_type_name}</p>,
@@ -286,8 +277,6 @@ export default function Dashboard(props: any) {
             <p><b>Trọng lượng: </b> {record.trong_luong}</p>,
             <p>{banTrucTiep}</p>,
         ]
-
-
 
         if (record.product_type_id === 1) {
             data01.push(<p><b>Hoa hồng bán hàng: </b> {numberFormat(record.ck_nv_tu_van)} {record.is_ck_nv_tu_van_percen === 1 ? '%' : <sup>đ</sup>}</p>);
@@ -305,7 +294,7 @@ export default function Dashboard(props: any) {
             <Col sm={{ span: 8 }}>
                 {/* <Carousel>
                     </Carousel> */}
-                {record.images ? <Image className="image-list" src={record.images.avatar}></Image> : <Image className="image-list" src='/images/no-image.jpg'></Image>}
+                {record.images && record.images.avatar ? <Image className="image-list" src={record.images.avatar}></Image> : <Image className="image-list" src='/images/no-image.jpg'></Image>}
 
             </Col>
             <Col sm={{ span: 8 }}>
@@ -334,15 +323,15 @@ export default function Dashboard(props: any) {
 
             {record.mo_ta && record.mo_ta !== '' ? <Col sm={{ span: 24 }}><p><b>Mô Tả: </b>{record.mo_ta}</p></Col> : ''}
 
-            {record.mo_ta && record.mo_ta !== '' ? <Col sm={{ span: 24 }}><p><b>Ghi chú:{record.ghi_chu}</b></p></Col> : ''}
+            {record.ghi_chu && record.ghi_chu !== '' ? <Col sm={{ span: 24 }}><p><b>Ghi chú:{record.ghi_chu}</b></p></Col> : ''}
 
             <Col sm={{ span: 24 }} >
                 <Divider orientation="left">
                     <Space>
                         <Link href={route('product.edit', {pid: record.id, p: props.p})}><Button className="_success"><CheckOutlined /> Cập nhật</Button></Link>
                         {/* <Button className="_warning"> <SnippetsOutlined /> Sao chép</Button> */}
-                        <Button onClick={() => { setIsModalNgungKinhDoanhOpen(true); setPidAction(record.id); }}><StopOutlined /> Ngừng kinh doanh</Button>
-                        <Button onClick={() => { setIsModalXoaOpen(true); setPidAction(record.id); }}><DeleteOutlined /> Xóa</Button>
+                        <Button onClick={() => { setIsModalNgungKinhDoanhOpen(true); setPidAction(id); }}><StopOutlined /> Ngừng kinh doanh</Button>
+                        <Button onClick={() => { setIsModalXoaOpen(true); setPidAction(id); }}><DeleteOutlined /> Xóa</Button>
                     </Space>
                 </Divider>
 
@@ -492,46 +481,49 @@ export default function Dashboard(props: any) {
             },
         ]
         //SP
+
+
         if (record.product_type_id === 1) {
+
             item.push({
-                label: <span onClick={() => { getTheKho(record.id) }}>Kiểm kho</span>,
+                label: <span onClick={() => { getTheKho(id) }}>Kiểm kho</span> as any,
                 key: '2',
                 children: <Table
                     loading={loadingSubData}
                     columns={columnKiemKho}
-                    dataSource={kiemKhoData[record.id]}
+                    dataSource={kiemKhoData[id]}
                 />,
             }, {
-                label: <span onClick={() => { getBanHang(record.id) }}>Bán hàng</span>,
+                label: <span onClick={() => { getBanHang(id) }}>Bán hàng</span> as any,
                 key: '3',
                 children: <Table
                     loading={loadingSubData}
                     columns={columnBanHang}
-                    dataSource={banHangData[record.id]}
+                    dataSource={banHangData[id]}
                 />
             }, {
-                label: <span onClick={() => { getNhapHang(record.id) }}>Nhập hàng</span>,
+                label: <span onClick={() => { getNhapHang(id) }}>Nhập hàng</span> as any,
                 key: '4',
                 children: <Table
                     loading={loadingSubData}
                     columns={columnNhapHang}
-                    dataSource={nhapHangData[record.id]}
+                    dataSource={nhapHangData[id]}
                 />,
             }, {
-                label: <span onClick={() => { getNhapHang(record.id) }}>Khách trả hàng</span>,
+                label: <span onClick={() => { getNhapHang(id) }}>Khách trả hàng</span> as any,
                 key: '5',
                 children: <Table
                     loading={loadingSubData}
                     columns={columnNhapHang}
-                    dataSource={nhapHangData[record.id]}
+                    dataSource={khachTraHangData[id]}
                 />,
             }, {
-                label: <span onClick={() => { getNhapHang(record.id) }}>Trả hàng nhập</span>,
+                label: <span onClick={() => { getNhapHang(id) }}>Trả hàng nhập</span> as any,
                 key: '6',
                 children: <Table
                     loading={loadingSubData}
                     columns={columnNhapHang}
-                    dataSource={nhapHangData[record.id]}
+                    dataSource={traHangNhapData[id]}
                 />,
             }
             )
@@ -539,45 +531,48 @@ export default function Dashboard(props: any) {
         // DV
         if (record.product_type_id === 2) {
             item.push({
-                label: <span onClick={() => { getNguyenLieu(record.id) }}>Nguyên liệu</span>, // dv
+                label: <span onClick={() => { getNguyenLieu(id) }}>Nguyên liệu</span> as any, // dv
                 key: '3',
                 children: <Table
                     loading={loadingNguyenLieu}
                     columns={columnNguyenLieu}
-                    dataSource={nguyenLieu[record.id]}
+                    dataSource={nguyenLieu[id]}
                 />,
             });
         }
         // goi dv
         if (record.product_type_id === 3) {
             item.push({
-                label: <span onClick={() => { getDichVuTrongGoi(record.id) }}>Dịch vụ trong gói</span>, // dv
+                label: <span onClick={() => { getDichVuTrongGoi(id) }}>Dịch vụ trong gói</span> as any, // dv
                 key: '4',
                 children: <Table
                     loading={loadingDVTrongGoi}
                     columns={columnDichVuTrongGoi}
-                    dataSource={dichVuTrongGoi[record.id]}
+                    dataSource={dichVuTrongGoi[id]}
                 />,
             });
         }
         // card
         if (record.product_type_id === 4) {
-            let LoaiHH = '';
+            let LoaiHH: React.ReactNode = null;
             if (record.loai_hang_hoa) {
-                LoaiHH = record.loai_hang_hoa.map((loai: string | number) => {
-                    return <li>{props.typeProduct[loai]}</li>
-                })
+                LoaiHH = safeArray(record.loai_hang_hoa).map((loai, idx) => (
+                    <li key={idx}>{props.typeProduct[loai]}</li>
+                ));
             }
-
-            let proApdung = '';
+            let LoaiHHStr: React.ReactNode = null;
+            if (LoaiHH) {
+                LoaiHHStr = <ul>{LoaiHH}</ul>;
+            }
+            let proApdung: React.ReactNode = null;
             if (productApDung[record.id]) {
-                proApdung = productApDung[record.id].map((pro: { code: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }) => {
-                    return <li>({pro.code}) {pro.name}</li>
-                })
+                proApdung = safeArray(productApDung[record.id]).map((pro, idx) => (
+                    <li key={idx}>({pro.code}) {pro.name}</li>
+                ));
             }
 
             item.push({
-                label: <p onClick={() => { getApDung(record) }}>Áp dụng</p>,
+                label: <span onClick={() => { getApDung(record) }}>Áp dụng</span> as any,
                 key: '5',
                 children: <div>
                     <p><b>Loại:</b></p>
@@ -632,6 +627,38 @@ export default function Dashboard(props: any) {
             );
     }
 
+    const ngungKinhDoanh = () => {
+        setLoadingTable(true);
+        axios.post(route("product.ngungKinhDoanh"), { pid: pidAction })
+            .then((response) => {
+                // setLoadingTable(false);
+                // setPidAction(0);
+                message.success("Đã ngừng kinh doanh");
+                window.location.reload();
+            })
+            .catch((error) => {
+                setLoadingTable(false);
+                message.error("Cập nhật thất bại");
+            }
+            );
+    }
+
+    const deleteProduct = () => {
+        setLoadingTable(true);
+        axios.post(route("product.deleteProduct"), { pid: pidAction })
+            .then((response) => {
+                // setLoadingTable(false);
+                // setPidAction(0);
+                message.success("Đã xóa");
+                window.location.reload();
+            })
+            .catch((error) => {
+                setLoadingTable(false);
+                message.error("Cập nhật thất bại");
+            }
+            );
+    }
+
     return (
         <div>
             <AdminLayout
@@ -679,7 +706,7 @@ export default function Dashboard(props: any) {
 
                                     </Col>
                                     <Col sm={{ span: 8 }}>
-                                        <Link href={route('product.add', {p:props.p})}>
+                                        <Link href={route('product.add', { p: props.p })}>
                                             <Button type="primary" className="_right">
                                                 <PlusCircleOutlined />Thêm mới
                                             </Button>
