@@ -8,5 +8,9 @@ class TraHangNCCDetail extends Model
 {
     protected $table = 'product_tra_hang_ncc_detail';
 
-    
+
+    static function baseQuery()
+    {
+        return self::where('is_recycle_bin', '!=', 1)->where('is_draft', 0);
+    }
 }

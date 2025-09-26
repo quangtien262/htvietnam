@@ -11,6 +11,9 @@ class KiemKho extends Model
         'sub_data_ids' =>  Json::class,
         'info' =>  Json::class,
     ];
-
+    static function baseQuery()
+    {
+        return self::where('is_recycle_bin', '!=', 1)->where('is_draft', 0);
+    }
     
 }

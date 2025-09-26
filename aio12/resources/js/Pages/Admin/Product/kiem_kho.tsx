@@ -71,11 +71,7 @@ export default function Dashboard(props) {
     const [loadingBtnSearch, setLoadingBtnSearch] = useState(false);
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
     const [dataSource, setDataSource] = useState(props.dataSource);
-    const [fastEditValue, setFastEditValue] = useState("");
-    const [columnData, setColumnData] = useState(props.columnData);
-    const [loading, setLoading] = useState(false);
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
-    const [confirmLoading, setConfirmLoading] = useState(false);
 
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
@@ -87,8 +83,6 @@ export default function Dashboard(props) {
     const [formEdit] = Form.useForm();
     const [idAction, setIdAction] = useState(0);
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
-
-    const [isStopSubmit, setIsStopSubmit] = useState(false);
 
     const [isDraft, setIsDraft] = useState(2);
 
@@ -104,7 +98,7 @@ export default function Dashboard(props) {
         gia_von: 0,
     };
     const [dataDetail, setDataDetail] = useState([dataDetail_item_default]);
-    const [result, setResult] = useState([]);
+    const [result, setResult] = useState<React.ReactNode[]>([]);
 
     // import excel
     const [loadingBtnExport, setLoadingBtnExport] = useState(false);
@@ -120,7 +114,7 @@ export default function Dashboard(props) {
             pageSize: props.pageConfig.perPage,
             position: ["bottonRight"],
             total: props.pageConfig.total,
-            onChange: (page, pageSize) => setPagination({ page, pageSize }),
+            onChange: (page: number, pageSize: number) => setPagination({ page, pageSize }),
         },
     });
 
@@ -137,7 +131,7 @@ export default function Dashboard(props) {
         setDataDetail(dataDetail_tmp);
     }
 
-    function setPagination(pagination) {
+    function setPagination(pagination: { page: number; pageSize: number }) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),
             pagination
@@ -148,9 +142,8 @@ export default function Dashboard(props) {
     const { useMemo } = React;
     const [api, contextHolder] = notification.useNotification();
     
-    const onFinishFormEdit = (values) => {
+    const onFinishFormEdit = (values:any) => {
 
-        setLoading(true);
         values.is_draft = isDraft;
         
         // check product
@@ -164,7 +157,8 @@ export default function Dashboard(props) {
         values.dataDetail = dataDetail;
 
         values.id = idAction;
-        for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
+        const allFields = formEdit.getFieldsValue();
+        for (const [key, val] of Object.entries(allFields)) {
             if (!values[key]) {
                 values[key] = val;
             }
@@ -193,7 +187,7 @@ export default function Dashboard(props) {
     function checkProduct() {
         // check pro
         let  isOK = true;
-        let checkResult = [];
+        let checkResult: React.ReactNode[] = [];
         let key = 0;
         dataDetail.forEach((item) => {
             if(!item.product_id) {
@@ -299,7 +293,18 @@ export default function Dashboard(props) {
     };
 
     //
-    const EditableCell = ({
+    interface EditableCellProps {
+        editing: boolean;
+        dataIndex: string;
+        title: React.ReactNode;
+        inputType: string;
+        record: any;
+        index: number;
+        children: React.ReactNode;
+        [key: string]: any;
+    }
+
+    const EditableCell: React.FC<EditableCellProps> = ({
         editing,
         dataIndex,
         title,

@@ -176,7 +176,7 @@ class HoaDonController extends Controller
 
             // update khach hang
             $detail->khach_hang_id = $hoaDon->users_id;
-            $detail->data_code = $hoaDon->data_code;
+            $detail->data_code = $hoaDon->code;
             // update số lượng
             if(!empty($product->ton_kho_detail) || !empty($product->ton_kho_detail)) {
 

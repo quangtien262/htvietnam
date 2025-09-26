@@ -83,7 +83,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'code', 'Mã kiểm kho', 'VARCHAR', 'text', $order_col++,
             ['is_view_detail' => 1, 'show_in_list' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"HD", "length":5}', 'placeholder' => 'Tự tạo nếu bỏ trống']);
         
-        $kho_hang = DB::table('tables')->where('name', 'admin_users')->first();
+        $kho_hang = DB::table('tables')->where('name', 'kho_hang')->first();
         MigrateService::createColumn02($tableId, 'kho_hang_id', 'Kho hàng', 'INT', 'select', $order_col++, 
         ['show_in_list' => 1, 'edit' => 1, 'placeholder'=> 'Người kiểm kho', 'select_table_id' => $kho_hang->id]);
 

@@ -90,8 +90,6 @@ Route::group(['prefix' => 'data'], function () {
     Route::get('api/get-data-slt', [AdmApiController::class, 'getDataSelect'])->name('adm_api.select');
     Route::get('api/get-name', [AdmApiController::class, 'getName'])->name('adm_api.get_name');
 
-    // get sub data
-    Route::post('data/info/{pid}', [DataController::class, 'getProductInfo'])->name('product.getProductInfo');
 });
 
 //table config
@@ -190,6 +188,9 @@ Route::group(['prefix' => 'product'], function () {
     Route::get('edit/{pid}', [ProductController::class, 'createOrUpdate'])->name('product.edit');
     Route::post('save', [ProductController::class, 'saveProduct'])->name('product.save');
     Route::post('nguyen-lieu/{pid}', [ProductController::class, 'nguyenLieu'])->name('product.nguyenLieu');
+
+    // get sub data
+    Route::post('data/info/{pid}', [ProductController::class, 'getProductInfo'])->name('product.info');
 
     Route::post('get-dich-vu-trong-goi/{pid}', [ProductController::class, 'dichVuTrongGoi'])->name('product.dichVuTrongGoi');
     Route::post('ap-dung/{pid}', [ProductController::class, 'apDung'])->name('product.apDung');

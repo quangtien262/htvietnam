@@ -750,7 +750,7 @@ export function report_DoanhThu() {
         { title: 'Ngày', dataIndex: 'date', key: 'date' },
         {
             title: 'Doanh thu', dataIndex: 'revenue', key: 'revenue',
-            render: (val: number) => val.toLocaleString() + ' đ'
+            render: (val: number) => numberFormat(val) + ' đ'
         },
     ];
     return (
@@ -937,13 +937,13 @@ export function report_sales_KhachHang() {
             </ResponsiveContainer>
         </Card>
         <Card className="rounded-2xl shadow-md p-4">
-            <h3 className="text-lg font-medium mb-3">Bảng khách hàng mua hàng gần nhất</h3>
+            <h3 className="text-lg font-medium mb-3">Bảng khách hàng mua hàng</h3>
             <Table
                 columns={[
                     { title: 'Khách hàng', dataIndex: 'users_name', key: 'users_name' },
                     // { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
                     { title: 'Số đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
-                    { title: 'Tổng tiền', dataIndex: 'thanh_toan', key: 'thanh_toan', render: (val: number) => val.toLocaleString() + ' đ' },
+                    { title: 'Tổng tiền', dataIndex: 'thanh_toan', key: 'thanh_toan', render: (val: number) => numberFormat(val) + ' đ' },
 
                 ]}
                 dataSource={datas}
@@ -1009,7 +1009,7 @@ export function report_sales_NhanVienSale() {
                 columns={[
                     { title: 'Nhân viên', dataIndex: 'users_name', key: 'users_name' },
                     { title: 'SL đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
-                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => val.toLocaleString() + ' đ' },
+                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => numberFormat(val) + ' đ' },
                 ]}
                 dataSource={datas}
                 pagination={false}
@@ -1076,7 +1076,7 @@ export function report_sales_NhanVienLamDV() {
                 columns={[
                     { title: 'Nhân viên', dataIndex: 'users_name', key: 'users_name' },
                     { title: 'SL đơn hàng', dataIndex: 'total_orders', key: 'total_orders' },
-                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => val.toLocaleString() + ' đ' },
+                    { title: 'Tổng doanh số', dataIndex: 'thanh_tien', key: 'thanh_tien', render: (val: number) => numberFormat(val) + ' đ' },
                 ]}
                 dataSource={datas}
                 pagination={false}

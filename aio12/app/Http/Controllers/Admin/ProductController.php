@@ -298,28 +298,39 @@ class ProductController extends Controller
         $product = Product::find($pid);
 
         // kiểm kho
-        $kiemKho = $this->getkiemKho($pid);
+        $kiemKho = KiemKhoDetail::baseQuery()->where('product_id', $pid)->get();
 
         //lịch sử nhập hàng
-        $nhapHang = NhapHang::baseQuery()->where('product_id', $pid)->get();
+        $nhapHang = NhapHangDetail::baseQuery()->where('product_id', $pid)->get();
 
         // lịch sử khách trả hàng
-        $khachTraHang = KhachTraHang::baseQuery()->where('product_id', $pid)->get();
+        $khachTraHang = KhachTraHangDetail::baseQuery()->where('product_id', $pid)->get();
 
         // lịch sử xuất hủy
-        $xuatHuy = XuatHuy::baseQuery()->where('product_id', $pid)->get();
+        $xuatHuy = XuatHuyDetail::baseQuery()->where('product_id', $pid)->get();
 
         // lịch sử bán hàng
         $banHang = HoaDonChiTiet::baseQuery()->where('product_id', $pid)->get();
 
         // lịch sử trả hàng NCC
-        $traHangNCC = TraHangNCC::baseQuery()->where('product_id', $pid)->get();
+        $traHangNCC = TraHangNCCDetail::baseQuery()->where('product_id', $pid)->get();
 
         // nguyên liệu tiêu hao
         $nguyenLieu = $this->getnguyenLieu($pid);
 
+        $dichVuTrongGoi = CardClass::getDVTrongGoi($pid);
+
+        $productApply = [];
+        if (!empty($product->hang_hoa_ap_dung)) {
+            $productApply = Product::whereIn('id', $product->hang_hoa_ap_dung)->get()->toArray();
+        }
+        $loaiHangHoaApDung = [];
+        if (!empty($product->loai_hang_hoa)) {
+        $loaiHangHoaApDung = ProductType::whereIn('id', $product->loai_hang_hoa)->get()->toArray();
+        }
+
         $data = [
-            'product' => $product,
+            'info' => $product,
             'kiemKho' => $kiemKho,
             'nhapHang' => $nhapHang,
             'khachTraHang' => $khachTraHang,
@@ -327,41 +338,11 @@ class ProductController extends Controller
             'banHang' => $banHang,
             'traHangNCC' => $traHangNCC,
             'nguyenLieu' => $nguyenLieu,
+            'dichVuTrongGoi' => $dichVuTrongGoi,
+            'productApply' => $productApply,
+            'loaiHangHoaApDung' => $loaiHangHoaApDung,
         ];
-
         return $this->sendSuccessResponse($data);
-    }
-
-    public function getkiemKho($pid)
-    {
-        $kiemKho = DB::table('product_kiem_kho')
-            ->select(
-                'product_kiem_kho.so_luong as so_luong',
-                'product_kiem_kho.id as id',
-                'products.name as product_name',
-                'products.code as product_code',
-                'products.gia_von as gia_von',
-                'products.gia_ban as gia_ban',
-            )
-            ->leftJoin('products', 'products.id', 'product_kiem_kho.product_id')
-            ->where('product_kiem_kho.product_id', $pid)
-            ->get();
-        $result = [];
-        foreach ($kiemKho as $key => $nl) {
-            $stt = $key + 1;
-            $result[] = [
-                'key' => $nl->id,
-                'id' => $nl->id,
-                'stt' => $stt,
-                'gia_von' => $nl->gia_von,
-                'gia_ban' => $nl->gia_ban,
-                'product_code' => $nl->product_code,
-                'product_name' => $nl->product_name,
-                'so_luong' => $nl->so_luong,
-            ];
-        }
-
-        return $this->sendSuccessResponse($result);
     }
 
     public function nguyenLieu($pid)
