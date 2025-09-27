@@ -1675,7 +1675,6 @@ class TblService extends Service
             // check type == selects
             if (in_array($col->type_edit, ['selects', 'tags', 'selects_normal']) && !empty($col->select_table_id)) {
                 $dataTmp = self::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectsData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
@@ -1702,6 +1701,9 @@ class TblService extends Service
                 $dataSelectTbl[$col->name] = $getDataSelectTbl['datas']['dataSource'];
                 $isShowModalSelectTable[$col->name] = false;
             }
+            if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop'])) {
+                $imagesData[$col->name] = [];
+            }
 
             if ($dataId > 0) {
                 // check type == ckeditor
@@ -1714,8 +1716,12 @@ class TblService extends Service
                 }
 
                 // check type == images
-                if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop']) && !empty($data[$col->name])) {
+                if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop'])) {
+                    $imagesData[$col->name] = [];
 
+                    if (empty($data[$col->name])) {
+                        continue;
+                    }
                     if (is_array($data[$col->name])) {
                         $jsonImage = $data[$col->name];
                     } else {
@@ -1723,7 +1729,7 @@ class TblService extends Service
                     }
 
                     if ($jsonImage && isset($jsonImage['images'])) {
-                        $imagesData[$col->name] = [];
+
                         foreach ($jsonImage['images'] as $k => $img) {
                             $imagesData[$col->name][] = [
                                 'name' => 'image-' . $k,
@@ -1753,8 +1759,6 @@ class TblService extends Service
             }
         }
 
-        // dd($imagesData);
-
         $cascaderData = [];
         foreach ($cascader as $key => $cas) {
             $item = [];
@@ -1783,7 +1787,6 @@ class TblService extends Service
             'selectsData' => $selectsData,
             'ckeditorData' => $ckeditorData,
             'imagesData' => $imagesData,
-            'filesData' => $filesData,
             'avatar' => $avatar,
             'userPermission' => $userPermission,
             'permissionList_all' => $permissionList_all,
@@ -1882,140 +1885,6 @@ class TblService extends Service
         return $selectData;
     }
 
-    private function selectsData($col, $selectsData)
-    {
-        $dataTmp = self::getDataSelect($col);
-        $selectsData[$col->name]['selectbox'] = $dataTmp;
-        foreach ($dataTmp as $d) {
-            $selectsData[$col->name][$d['value']] = $d['label'];
-            if (!empty($d['color'])) {
-                $selectColor[$col->name][$d['value']] = $d['color'];
-            }
-        }
-        return $selectsData;
-    }
-
-    private function getDataByColumn($columns, $data, $route = '')
-    {
-        $countImage = 1;
-        $isImages = false;
-        $permissionList_all = [];
-        $permissionList = [];
-
-        $tablesPermission = [];
-        $selectData = [];
-        $selectsData = [];
-        $ckeditorData = [];
-        $imagesData = [];
-        $blocks = [];
-        $isImage = false;
-        $tabs = [];
-        foreach ($columns as $col) {
-            if ($col->block_type == 'tab') {
-                $tabs[] = $col;
-                continue;
-            }
-            if (!empty($col->block_type)) {
-                $blocks[] = $col;
-                continue;
-            }
-            // check type == select
-            if (in_array($col->type_edit, ['select', 'selects'])) {
-                if ($route == 'data.detail') {
-                    $dataTmp = self::getDataSelect($col);
-                    foreach ($dataTmp as $d) {
-                        $selectData[$col->name][$d['value']] = $d['label'];
-                        if (!empty($d['color']))
-                            $selectColor[$col->name][$d['value']] = $d['color'];
-                    }
-                } else {
-                    $selectData[$col->name] = self::getDataSelect($col);
-                }
-            }
-
-            // check type == selects
-            if (in_array($col->type_edit, ['selects']) && !empty($col->select_table_id)) {
-                $dataTmp = self::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
-                foreach ($dataTmp as $d) {
-                    $selectsData[$col->name][$d['value']] = $d['label'];
-                    if (!empty($d['color'])) {
-                        $selectColor[$col->name][$d['value']] = $d['color'];
-                    }
-                }
-            }
-
-            if (in_array($col->type_edit, ['images', 'images_crop'])) {
-                $countImage = $col->conditions;
-                $isImages = true;
-            }
-
-            if (in_array($col->type_edit, ['image', 'image_crop'])) {
-                $isImage = true;
-            }
-
-            if ($col->type_edit == 'permission_list') {
-                $permissionList = json_decode($data->permission, true);
-                $per = TblService::getPermissionDefault();
-                $permissionList_all = $per['all'];
-                $tablesPermission = TblService::getAdminMenu(0, true);
-            }
-
-            if (isset($data->id) && $data->id > 0) {
-                // check type == ckeditor
-                if (in_array($col->type_edit, ['ckeditor', 'summernote', 'summoner'])) {
-                    $ckeditorData[$col->name] = $data->{$col->name};
-                }
-
-                // check type == image
-                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop'])) {
-                    $jsonImg = app('CommonService')->isJson($data->{$col->name});
-                    if (!$jsonImg) {
-                        if (!empty($data->{$col->name})) {
-                            $imagesData[] = [
-                                'name' => $data->{$col->name},
-                                'status' => 'OK',
-                                'url' => $data->{$col->name},
-                                'uid' => 1
-                            ];
-                        }
-                    } else {
-                        foreach ($jsonImg['images'] as $k => $img) {
-                            $imagesData[] = [
-                                // 'name' => $img,
-                                'name' => 'image-' + $k,
-                                'status' => 'OK',
-                                'url' => $img,
-                                'uid' => $k
-                            ];
-                        }
-                    }
-                }
-
-                //
-                if (in_array($col->type_edit, ['encryption'])) {
-                    $data->{$col->name} = '';
-                }
-            }
-        }
-
-        return [
-            'tabs' => $tabs,
-            'blocks' => $blocks,
-            'data' => $data,
-            'selectData' => $selectData,
-            'selectsData' => $selectsData,
-            'ckeditorData' => $ckeditorData,
-            'imagesData' => $imagesData,
-            'countImage' => $countImage,
-            'permissionList' => $permissionList,
-            'permissionList_all' => $permissionList_all,
-            'tablesPermission' => $tablesPermission,
-            'isImages' => $isImages,
-            'isImage' => $isImage,
-        ];
-    }
-
     protected function getDataSource($datas, $columns, $isShowAll = false)
     {
         $fastEditClass = [];
@@ -2075,7 +1944,6 @@ class TblService extends Service
         foreach ($columns as $col) {
             if (in_array($col->type_edit, ['select']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
@@ -2085,7 +1953,6 @@ class TblService extends Service
             }
             if (in_array($col->type_edit, ['selects', 'tags']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectsData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
@@ -2221,6 +2088,7 @@ class TblService extends Service
         }
 
         if ($isGetProduct) {
+            // chỉ lấy sản phẩm: PRODUCT_TYPE_ID = 1
             $products = Product::select(
                 'id',
                 'name',
@@ -2229,7 +2097,7 @@ class TblService extends Service
                 'gia_ban',
                 'ton_kho',
                 'ton_kho_detail',
-            )->get();
+            )->where('is_draft', 0)->where('is_recycle_bin', 0)->where('is_active', 1)->where('product_type_id', 1)->get();
 
             $viewData['products'] = $products;
         }

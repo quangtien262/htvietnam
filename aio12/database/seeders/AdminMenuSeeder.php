@@ -95,6 +95,8 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $banHang, 'name' => 'hoa_don', 'display_name' => 'Hóa đơn', 'table_name' => 'hoa_don', 'route' => 'hoaDon.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'dat_lich', 'display_name' => 'Lịch hẹn', 'table_name' => 'dat_lich', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Đơn hoàn', 'table_name' => '', 'route' => 'khachTraHang', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Công nợ', 'table_name' => 'cong_no', 'route' => 'congNo', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
         ]);
 
         // QL kho
@@ -118,6 +120,7 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $khoHang, 'name' => 'label_ql_kho', 'display_name' => 'Quản lý kho', 'table_name' => '', 'route' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
         );
         DB::table('admin_menu')->insert([
+            ['parent_id' => $qlKho, 'name' => 'kho_hang_data', 'display_name' => 'Sản phẩm', 'table_name' => 'kho_hang_data', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $qlKho, 'name' => 'product_kiem_kho', 'display_name' => 'Kiểm kho', 'table_name' => 'product_kiem_kho', 'route' => 'kiemKho', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $qlKho, 'name' => 'product_nhap_hang', 'display_name' => 'Nhập hàng', 'table_name' => 'product_nhap_hang', 'route' => 'nhapHang', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $qlKho, 'name' => 'product_tra_hang_ncc', 'display_name' => 'Trả hàng nhập', 'table_name' => 'product_tra_hang_ncc', 'route' => 'traHangNCC', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],

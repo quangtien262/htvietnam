@@ -1581,7 +1581,7 @@ export default function Dashboard(props) {
 
         return <div>
             <Modal
-                title={""}
+                title={<span className="title-modal01"><PlusCircleOutlined /> Thêm mới phiếu nhập hàng</span>}
                 open={isOpenFormEdit}
                 // onOk={formEdit}
                 onCancel={cancelEdit}

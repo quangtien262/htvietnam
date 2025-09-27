@@ -436,7 +436,7 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -458,7 +458,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectsData[col.name].selectbox}
+                            // options={props.selectsData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -480,7 +481,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectsData[col.name].selectbox}
+                            // options={props.selectsData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -756,7 +758,7 @@ export default function Dashboard(props: any) {
 
     function checkShowBtnDelete() {
         let result = "";
-        if (inArray(props.table.id, props.userPermission.table_delete)) {
+        if (inArray(props.table.id, props.userPermission.table_delete) && props.table.have_delete === 1) {
             result = (
                 <Button
                     type="primary"
@@ -1054,6 +1056,9 @@ export default function Dashboard(props: any) {
     }
 
     function btnAddNew() {
+        if(props.table.have_add_new === 0) {
+            return '';
+        }
         if (inArray(props.table.id, props.userPermission.table_add) && props.table.have_add_new === 1) {
             if (props.table.config_show_data) {
                 const datas = props.table.config_show_data.data;

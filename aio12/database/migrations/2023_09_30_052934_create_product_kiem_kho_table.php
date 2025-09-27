@@ -78,14 +78,14 @@ return new class extends Migration
         );
 
         MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order_col++, 
-        ['show_in_list' => 1, 'edit' => 1, 'placeholder'=> 'Mặc định là ngày hôm nay']);
+        ['show_in_list' => 1, 'edit' => 0, 'placeholder'=> 'Mặc định là ngày hôm nay']);
 
         MigrateService::createColumn02($tableId, 'code', 'Mã kiểm kho', 'VARCHAR', 'text', $order_col++,
             ['is_view_detail' => 1, 'show_in_list' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"HD", "length":5}', 'placeholder' => 'Tự tạo nếu bỏ trống']);
         
         $kho_hang = DB::table('tables')->where('name', 'kho_hang')->first();
         MigrateService::createColumn02($tableId, 'kho_hang_id', 'Kho hàng', 'INT', 'select', $order_col++, 
-        ['show_in_list' => 1, 'edit' => 1, 'placeholder'=> 'Người kiểm kho', 'select_table_id' => $kho_hang->id]);
+        ['show_in_list' => 1, 'edit' => 0, 'placeholder'=> 'Người kiểm kho', 'select_table_id' => $kho_hang->id]);
 
         $ngKiem = DB::table('tables')->where('name', 'admin_users')->first();
         MigrateService::createColumn02($tableId, 'nhan_vien_id', 'Người kiểm kho', 'INT', 'select', $order_col++, 
@@ -100,7 +100,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'so_luong_lech_giam', 'SL lệch giảm', 'INT', 'number', $order_col++, 
         ['show_in_list' => 1, 'edit' => 0,'show_in_detail' => 1]);
         MigrateService::createColumn02($tableId, 'note', 'Ghi chú', 'TEXT', 'textarea', $order_col++, 
-        ['show_in_list' => 1, 'edit' => 1, 'col'=> 12,'show_in_detail' => 1]);
+        ['show_in_list' => 1, 'edit' => 1, 'col'=> 24,'show_in_detail' => 1]);
 
         $status = DB::table('tables')->where('name', 'status_kiem_kho')->first();
         MigrateService::createColumn02($tableId, 'is_draft', 'Trạng thái', 'INT', 'select', $order_col++, 

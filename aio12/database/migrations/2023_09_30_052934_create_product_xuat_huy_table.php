@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('code')->default(0)->nullable();
 
             $table->integer('ly_do_xuat_huy_id')->default(0)->nullable();
-            $table->integer('chi_nhanh_id')->default(0)->nullable();
+            $table->integer('kho_hang_id')->default(0)->nullable();
 
             $table->integer('nhan_vien_id')->default(0)->nullable();
 
@@ -89,9 +89,9 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'ly_do_xuat_huy_id', 'Lý do xuất kho', 'INT', 'select', $order_col++, 
         ['show_in_list' => 1, 'edit' => 1, 'col'=> 12,'show_in_detail' => 1, 'fast_edit' => 1, 'select_table_id' => $lydo->id, 'require' => 1]);
 
-        $chinhanh = DB::table('tables')->where('name', 'chi_nhanh')->first();
-        MigrateService::createColumn02($tableId, 'chi_nhanh_id', 'Chi nhánh', 'INT', 'select', $order_col++, 
-        ['show_in_list' => 1, 'require' => 1,'edit' => 1, 'col'=> 12,'show_in_detail' => 1, 'fast_edit' => 1, 'select_table_id' => $chinhanh->id]);
+        $khoHang = DB::table('tables')->where('name', 'kho_hang')->first();
+        MigrateService::createColumn02($tableId, 'kho_hang_id', 'Kho hàng', 'INT', 'select', $order_col++, 
+        ['show_in_list' => 1, 'require' => 1,'edit' => 1, 'col'=> 12,'show_in_detail' => 1, 'fast_edit' => 1, 'select_table_id' => $khoHang->id]);
 
         $nv = DB::table('tables')->where('name', 'users')->first();
         MigrateService::createColumn02($tableId, 'nhan_vien_id', 'Nhân viên xuất kho', 'INT', 'select', $order_col++, 

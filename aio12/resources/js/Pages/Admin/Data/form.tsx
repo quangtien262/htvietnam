@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '@/layouts/AdminLayout';
 import {
@@ -69,7 +68,11 @@ export default function Dashboard(props) {
     const [currentFile, setCurrentFile] = useState('');
 
     // file images
-    const [fileList, setFileList] = useState(props.imagesData);
+    // Ensure props.imagesData is always an object
+    const initialFileList = (props.imagesData && typeof props.imagesData === 'object') ? props.imagesData : {};
+    console.log('initialFileList', initialFileList);
+    
+    const [fileList, setFileList] = useState(initialFileList);
 
     // const [fileList, setFileList] = useState(props.imagesData.length == 0 ? [] : props.imagesData.map((item) => {
     //     return {
@@ -235,52 +238,6 @@ export default function Dashboard(props) {
 
     const onFinishFailed = (errorInfo) => { };
 
-    function formatFiles(files: any) {
-        interface FileResponseData {
-            fileName: string;
-            filePath: string;
-        }
-
-        interface UploadFile {
-            name: string;
-            status?: string;
-            url?: string;
-            response?: {
-                data: FileResponseData;
-            };
-        }
-
-        interface FormattedFile {
-            name: string;
-            status: string;
-            url: string;
-        }
-
-        return files.map((file: UploadFile): FormattedFile | false | undefined => {
-            if (!file.status) {
-                return false;
-            }
-            if (file.status === "uploading") {
-                setIsStopSubmit(true);
-                return false;
-            }
-
-            if (file.status === "OK") {
-                return {
-                    name: file.name,
-                    status: file.status,
-                    url: file.url!,
-                };
-            }
-            if (file.status === "done") {
-                return {
-                    name: file.response!.data.fileName,
-                    status: file.status,
-                    url: file.response!.data.filePath,
-                };
-            }
-        });
-    }
 
     const DraggableUploadListItem = ({ originNode, file }) => {
         const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -314,7 +271,7 @@ export default function Dashboard(props) {
 
     const onDragEnd = ({ active, over }) => {
         if (active.id !== over?.id) {
-            setFilesList((prev) => {
+            setFileList((prev) => {
                 const activeIndex = prev.findIndex((i) => i.uid === active.id);
                 const overIndex = prev.findIndex((i) => i.uid === over?.id);
                 return arrayMove(prev, activeIndex, overIndex);
@@ -402,7 +359,7 @@ export default function Dashboard(props) {
                                 </Popconfirm>
                             </Divider>
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList[col.name].map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                <SortableContext items={fileList[col.name].map((i: any) => i.uid)} strategy={verticalListSortingStrategy}>
                                     <ImgCrop
                                         aspect={col.ratio_crop}
                                         aspectSlider={true}
@@ -459,7 +416,7 @@ export default function Dashboard(props) {
                                 </Popconfirm>
                             </Divider>
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList[col.name].map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                <SortableContext items={fileList[col.name].map((i:any) => i.uid)} strategy={verticalListSortingStrategy}>
                                     <Upload multiple
                                         action={route("data.upload_image")}
                                         listType="picture-card" // picture-card

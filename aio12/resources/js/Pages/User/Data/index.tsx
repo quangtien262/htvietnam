@@ -182,6 +182,7 @@ const openNotification = (type, msg) => {
                     continue;
                 }
                 // check type == select
+                // todo: cần sửa lại, bỏ selectbox, thay bằng Object.entries
                 if(props.selectData[key]) {
                     if(props.selectData[key]['selectbox'][value] && props.selectData[key]['selectbox'][value]['color']) {
                         let style = { color: props.selectData[key]['selectbox'][value]['color'] };
@@ -260,14 +261,15 @@ const openNotification = (type, msg) => {
                             <TextArea rows={4} />
                         </Form.Item>
             case 'select':
-                return <Form.Item label={col.display_name} name={col.name} rules={rule} >
+                return <Form.Item label={col.display_name + 'xxxxx'} name={col.name} rules={rule} >
                             <Select
                                 showSearch
                                 style={{ width: '100%' }}
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
                                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                options={props.selectData[col.name].selectbox}
+                                // options={props.selectData[col.name].selectbox}
+                                options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value.name, value: key }))}
                             />
                         </Form.Item>
             case 'selects':
@@ -423,7 +425,6 @@ const openNotification = (type, msg) => {
 
     // form search
     function showData(col) {
-        const data = props.data;
         let result;
         const typeEdit = col.type_edit;
         if(col.add2search !== 1) {
@@ -455,7 +456,8 @@ const openNotification = (type, msg) => {
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
                                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                options={props.selectData[col.name]['selectbox']}
+                                // options={props.selectData[col.name]['selectbox']}
+                                options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value.name, value: key }))}
                             />
                         </Form.Item>
 

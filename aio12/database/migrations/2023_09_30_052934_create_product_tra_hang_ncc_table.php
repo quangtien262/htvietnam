@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('code')->default(0)->nullable();
-            $table->integer('chi_nhanh_id')->default(0)->nullable();
+            $table->integer('kho_hang_id')->default(0)->nullable();
 
             $table->integer('tong_tien_hang')->default(0)->nullable();
             $table->integer('giam_gia')->default(0)->nullable();
@@ -88,9 +88,9 @@ return new class extends Migration
         
 
         // nv nhap
-        $chinhanh = Table::where('name', 'chi_nhanh')->first();
-        MigrateService::createColumn02($tableId, 'chi_nhanh_id', 'Chi nhánh', 'INT', 'select', $order_col++, 
-        ['show_in_list' => 1, 'require' => 1,'select_table_id' => $chinhanh->id, 'add2search' => 1]);
+        $khoHang = Table::where('name', 'kho_hang')->first();
+        MigrateService::createColumn02($tableId, 'kho_hang_id', 'Kho hàng', 'INT', 'select', $order_col++, 
+        ['show_in_list' => 1, 'require' => 1,'select_table_id' => $khoHang->id, 'add2search' => 1]);
 
         // nv nhap
         $admin = Table::where('name', 'admin_users')->first();

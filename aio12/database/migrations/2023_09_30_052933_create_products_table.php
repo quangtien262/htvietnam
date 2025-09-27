@@ -301,7 +301,7 @@ return new class extends Migration {
             'file',
             'File tài liệu',
             'text',
-            'file',
+            'image',
             $order_col++,
             ['parent_id' => $hh->id, 'col' => 24]
         );

@@ -82,32 +82,32 @@ export default function Dashboard(props: any) {
     let key = 1;
     const items: TabsProps['items'] = [
         {
-            key: key++,
+            key: (key++).toString(),
             label: 'Tổng quan',
             children: report_kho_tongQuan(props),
         },
         {
-            key: key++,
+            key: (key++).toString(),
             children: report_kho_nhapHang(),
             label: <span>Báo cáo nhập hàng</span>,
         },
         {
-            key: key++,
+            key: (key++).toString(),
             label: 'Báo cáo tồn kho',
             children: report_kho_tonKho(),
         },
         {
-            key: key++,
+            key: (key++).toString(),
             label: 'Báo cáo kiểm kê kho',
             children: report_kho_kiemKeKho(),
         },
         {
-            key: key++,
+            key: (key++).toString(),
             label: 'Công nợ',
             children: report_kho_congNo(),
         },
         {
-            key: key++,
+            key: (key++).toString(),
             label: 'Lịch sử cập nhật kho',
             children: history(),
         },

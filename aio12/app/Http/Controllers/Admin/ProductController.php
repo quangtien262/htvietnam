@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Admin\KhoHangData;
 use App\Models\Admin\NhapHangDetail;
 use App\Models\Admin\Product;
 use App\Models\Admin\TraHangNCC;
@@ -63,7 +64,7 @@ class ProductController extends Controller
             ];
         }
 
-        $latestProducts  = Product::latest()->take(10)->get();
+        $latestProducts = Product::latest()->take(10)->get();
 
         $viewData = [
             'tkeLoaiSPTheoTen' => $tkeLoaiSPTheoTen,
@@ -199,7 +200,7 @@ class ProductController extends Controller
         $donViQuyDoi = [
             [
                 'don_vi_quy_doi_id' => null,
-                'ty_le_quy_doi' =>  0
+                'ty_le_quy_doi' => 0
             ]
         ];
         $donViSelectedID = [];
@@ -212,7 +213,7 @@ class ProductController extends Controller
                     $donViSelectedID[] = $d->don_vi_id;
                     $donViQuyDoi[] = [
                         'don_vi_quy_doi_id' => $d->don_vi_id,
-                        'ty_le_quy_doi' =>  $d->ty_le_quy_doi_theoDVQuyDoi
+                        'ty_le_quy_doi' => $d->ty_le_quy_doi_theoDVQuyDoi
                     ];
                 }
             }
@@ -268,12 +269,12 @@ class ProductController extends Controller
 
         // trường hợp edit
         $tonKhoDetail = [];
-        
+
         foreach ($khoHang as $kho) {
             $khoData = DB::table('kho_hang_data')
-            ->where('product_id', $productId)
-            ->where('kho_hang_id', $kho->id)
-            ->first();
+                ->where('product_id', $productId)
+                ->where('kho_hang_id', $kho->id)
+                ->first();
             $tonKho = 0;
             if ($khoData) {
                 $tonKho = $khoData->ton_kho;
@@ -326,7 +327,7 @@ class ProductController extends Controller
         }
         $loaiHangHoaApDung = [];
         if (!empty($product->loai_hang_hoa)) {
-        $loaiHangHoaApDung = ProductType::whereIn('id', $product->loai_hang_hoa)->get()->toArray();
+            $loaiHangHoaApDung = ProductType::whereIn('id', $product->loai_hang_hoa)->get()->toArray();
         }
 
         $data = [
@@ -427,7 +428,6 @@ class ProductController extends Controller
     public function kiemKho(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_kiem_kho', $request, true, true);
-
         return Inertia::render('Admin/Product/kiem_kho', $viewData);
     }
 
@@ -444,13 +444,13 @@ class ProductController extends Controller
             $kiemKho = KiemKho::find($rq->id);
         }
 
-
         if (empty($rq->name)) {
             $kiemKho->name = date('d/m/Y');
         } else {
             $kiemKho->name = $rq->name;
         }
         $kiemKho->code = $rq->code;
+        $kiemKho->kho_hang_id = $rq->kho_hang_id;
         $kiemKho->note = $rq->note;
         $kiemKho->is_draft = $rq->is_draft;
         $kiemKho->nhan_vien_id = $rq->nhan_vien_id;
@@ -460,7 +460,8 @@ class ProductController extends Controller
         $kiemKho->save();
 
         if (empty($rq->code)) {
-            $kiemKho->code = 'KK' . TblService::formatNumberByLength($kiemKho->id, 5);;
+            $kiemKho->code = 'KK' . TblService::formatNumberByLength($kiemKho->id, 5);
+            ;
         }
 
         $tong_tien_chenh_lech = 0;
@@ -477,15 +478,10 @@ class ProductController extends Controller
         $subDataId = [];
         $dataInfo = [];
         foreach ($rq->dataDetail as $detail) {
-            // save product
-            if (intval($rq->is_draft) == 2) {
+            // update số lượng và kho và sản phẩm
+            KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], $detail['so_luong'], 'replace');
 
-                $product = Product::find($detail['product_id']);
-                $product->ton_kho =  $detail['so_luong'];
-                $product->save();
-            }
-
-            //save
+            //save detail
             $kiemKhoDetail = new KiemKhoDetail();
             $kiemKhoDetail->data_id = $kiemKho->id;
             $kiemKhoDetail->product_id = $detail['product_id'];
@@ -657,7 +653,7 @@ class ProductController extends Controller
                     $tongTonKho += $tonKhoChiNhanh['ton_kho'];
                 }
                 $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
+                $product->ton_kho = $tongTonKho;
                 $product->save();
             }
 
@@ -801,7 +797,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = $rq->chi_nhanh_id;
+        $data->kho_hang_id = $rq->kho_hang_id;
         $data->is_draft = $rq->is_draft;
         $data->hinh_thuc_thanh_toan_id = $rq->hinh_thuc_thanh_toan_id;
         $data->nha_cung_cap_id = $rq->nha_cung_cap_id;
@@ -827,6 +823,7 @@ class ProductController extends Controller
             $data->save();
         }
 
+        // công nợ nhà cung cấp
         if ($rq->tongCongNo > 0) {
             $congNo = new CongNo();
             $congNo->name = 'Trả hàng nhà cung cấp';
@@ -854,24 +851,10 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
+            // Câp nhật lại SL sản phẩm tồn kho
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoChiNhanh['ton_kho'] - $detail['so_luong'];
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                $product->save();
+                // trả hàng NCC nên số lượng đặt số < 0
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], -$detail['so_luong'], 'replace');
             }
 
             //save
@@ -1011,7 +994,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = !empty($rq->chi_nhanh_id) ? $rq->chi_nhanh_id : 0;
+        $data->kho_hang_id = !empty($rq->kho_hang_id) ? $rq->kho_hang_id : 0;
         $data->is_draft = $rq->is_draft;
         $data->hinh_thuc_thanh_toan_id = !empty($rq->hinh_thuc_thanh_toan_id) ? $rq->hinh_thuc_thanh_toan_id : 0;
         $data->nhan_vien_id = !empty($rq->nhan_vien_id) ? $rq->nhan_vien_id : 0;
@@ -1062,30 +1045,9 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
+            // Câp nhật lại SL sản phẩm trong kho hàng
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                
-                if(empty($tonKhoDetail) || !is_array($tonKhoDetail)) {
-                    $tonKhoDetail = [];
-                }
-
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoChiNhanh['ton_kho'] + $detail['so_luong'];
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                $product->gia_von = $detail['gia_von'];
-                $product->save();
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], $detail['so_luong'], 'plus');
             }
 
             //save
@@ -1213,7 +1175,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = !empty($rq->chi_nhanh_id) ? $rq->chi_nhanh_id : 0;
+        $data->kho_hang_id = !empty($rq->kho_hang_id) ? $rq->kho_hang_id : 0;
         $data->nhan_vien_id = !empty($rq->nhan_vien_id) ? $rq->nhan_vien_id : 0;
         $data->ly_do_xuat_huy_id = !empty($rq->ly_do_xuat_huy_id) ? $rq->ly_do_xuat_huy_id : 0;
         $data->is_draft = $rq->is_draft;
@@ -1234,38 +1196,28 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
-            $subData = new XuatHuyDetail();
-            $product = Product::find($detail['product_id']);
+            // check SL trước và sau khi hủy ở kho tương ứng
             $tonKhoTrươcKhiHuy = 0;
             $tonKhoSauKhiHuy = 0;
+            $tonKhoData = KhoHangData::baseQuery()
+                ->where('kho_hang_id', $rq->kho_hang_id)
+                ->where('product_id', $detail['product_id'])
+                ->first();
+            if (!empty($tonKhoData)) {
+                $tonKhoTrươcKhiHuy = $tonKhoData->so_luong;
+                $tonKhoSauKhiHuy = $tonKhoData->so_luong - $detail['so_luong'];
+            } else {
+                $tonKhoTrươcKhiHuy = 0;
+                $tonKhoSauKhiHuy = 0 - $detail['so_luong'];
+            }
 
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-
-                        $tonKhoTrươcKhiHuy = $tonKhoChiNhanh['ton_kho'];
-                        $tonKhoSauKhiHuy = $tonKhoChiNhanh['ton_kho'] - $detail['so_luong'];
-
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoSauKhiHuy;
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                // $product->ton_kho = $tonKhoSauKhiHuy;
-                $product->save();
+                // xuất hủy nên số lượng tồn kho sẽ - đi
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], -$detail['so_luong'], 'replace');
             }
 
             //save
-
+            $subData = new XuatHuyDetail();
             $subData->data_id = $data->id;
             $subData->product_id = $detail['product_id'];
             $subData->product_code = $detail['product_code'];
@@ -1518,7 +1470,7 @@ class ProductController extends Controller
 
     function print_kiemKho(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = KiemKho::find($id);
         if (empty($data)) {
             return 'Hóa đơn đã bị xóa hoặc không tồn tại';
@@ -1551,7 +1503,7 @@ class ProductController extends Controller
 
     function print_khachTraHang(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = KhachTraHang::find($id);
         if (empty($data)) {
             return 'Hóa đơn đã bị xóa hoặc không tồn tại';
@@ -1591,7 +1543,7 @@ class ProductController extends Controller
 
     function print_traHangNCC(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = TraHangNCC::select(
             'product_tra_hang_ncc.id',
             'product_tra_hang_ncc.name',
@@ -1646,7 +1598,7 @@ class ProductController extends Controller
 
     function print_nhapHang(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = NhapHang::select(
             'product_nhap_hang.id',
             'product_nhap_hang.code',
@@ -1698,7 +1650,7 @@ class ProductController extends Controller
 
     function print_xuatHuy(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = XuatHuy::select(
             'product_xuat_huy.id',
             'product_xuat_huy.code',

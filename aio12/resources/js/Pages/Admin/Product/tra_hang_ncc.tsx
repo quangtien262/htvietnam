@@ -36,7 +36,7 @@ import {
     CloseSquareOutlined,
     PrinterOutlined,
     CloseCircleOutlined,
-    UploadOutlined,
+    UploadOutlined,FileOutlined,
     CaretRightOutlined,DashboardOutlined 
 } from "@ant-design/icons";
 import {callApi} from "../../../Function/api";
@@ -1573,7 +1573,7 @@ export default function Dashboard(props) {
 
         return <div>
             <Modal
-                title={""}
+                title={<span className="title-modal01"><FileOutlined /> Thêm mới phiếu trả hàng NCC</span>}
                 open={isOpenFormEdit}
                 // onOk={formEdit}
                 onCancel={cancelEdit}
