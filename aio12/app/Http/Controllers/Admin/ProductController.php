@@ -1831,7 +1831,10 @@ class ProductController extends Controller
     }
 
 
-
+    /**
+     * Summary of report_tongQuan
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function report_tongQuan()
     {
         // summary
@@ -1854,7 +1857,7 @@ class ProductController extends Controller
             ->limit(10)
             ->get()->toArray();
 
-        // chart data
+        // chart data 
         $chartData = [];
         $currentMonth = date('m');
         $currentYear = date('Y');
@@ -1871,11 +1874,21 @@ class ProductController extends Controller
                     ->sum('so_luong_huy'),
             ];
         }
+
+        // Báo cáo theo loại hàng hóa
+        $loaiHangHoa = Product::select('product_type.name as name', DB::raw('COUNT(*) as value'))
+            ->where('products.is_recycle_bin', 0)
+            ->groupBy('products.product_type_id')
+            ->leftJoin('product_type', 'product_type.id', 'products.product_type_id')
+            ->get();
+        
+
         $datas = [
             'token' => csrf_token(),
             'summary' => $summary,
             'chartData' => $chartData,
             'topProducts' => $topProducts,
+            'loaiHangHoa' => $loaiHangHoa,
         ];
         return $this->sendSuccessResponse($datas);
     }

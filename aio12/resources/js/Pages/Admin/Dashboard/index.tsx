@@ -34,7 +34,7 @@ export default function Dashboard(props: any) {
 
         if (item.name === 'parent_website') {
 
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -65,7 +65,7 @@ export default function Dashboard(props: any) {
         }
 
         if (item.name === 'parent_aitilen') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -97,7 +97,7 @@ export default function Dashboard(props: any) {
 
         if (item.name === 'parent_tai_lieu') {
             {/* QUẢN LÝ TÀI LIỆU */ }
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -128,7 +128,7 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ NHÂN SỰ */ }
         if (item.name === 'parent_nhan_su') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
@@ -159,7 +159,7 @@ export default function Dashboard(props: any) {
         }
         {/* QUẢN LÝ KHO HÀNG */ }
         if (item.name === 'parent_kho_hang') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -190,7 +190,7 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ BÁN HÀNG */ }
         if (item.name === 'parent_kho_hang') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -221,7 +221,7 @@ export default function Dashboard(props: any) {
 
         {/* BÁO CÁO - THỐNG KÊ */ }
         if (item.name === 'parent_thong_ke') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
@@ -253,7 +253,7 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ CÔNG VIỆC */ }
         if (item.name === 'parent_cong_viec') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -268,10 +268,10 @@ export default function Dashboard(props: any) {
                             <div className="ant-statistic-content-value">
                                 <div>
                                     <ul className="dashboard-list-item">
-                                        <li><FileProtectOutlined /> Quản lý danh sách công việc</li>
+                                        <li><FileProtectOutlined /> Danh sách công việc</li>
                                         <li><ForkOutlined /> Phân loại công việc</li>
-                                        <li><FlagOutlined /> Quản lý Meeting, Daily</li>
-                                        <li><DoubleRightOutlined /> Báo cáo tiến độ công việc</li>
+                                        <li><FlagOutlined /> Meeting, Daily</li>
+                                        <li><DoubleRightOutlined /> Báo cáo tiến độ</li>
                                         <li><HourglassOutlined /> Quản lý lịch hẹn</li>
                                     </ul>
                                 </div>
@@ -284,7 +284,7 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ TÀI SẢN */ }
         if (item.name === 'parent_tai_san') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -315,7 +315,7 @@ export default function Dashboard(props: any) {
 
         {/* QUẢN LÝ TÀI CHÍNH */ }
         if (item.name === 'parent_tai_chinh') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
@@ -345,7 +345,7 @@ export default function Dashboard(props: any) {
         }
 
         if (item.name === 'parent_ban_hang') {
-            return <Col className='item-home' sm={6} xs={24}>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">

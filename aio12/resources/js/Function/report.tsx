@@ -148,184 +148,6 @@ export function report_kho_nhapHang(dateRange: any) {
     </div>
 }
 
-export function report_kho_tongQuan1(props) {
-
-    function ThongKeTheoLoaiTheoTenSP() {
-
-        const COLORS = ["#0088FE", "#05b405ff", "#FFBB28", "#FF8042"];
-        // Custom label rendering function
-        const renderThongKeLoaiTheoTenSP = ({
-            cx, cy, midAngle, innerRadius, outerRadius, percent, index
-        }) => {
-            const RADIAN = Math.PI / 180;
-            const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-            const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-            return (
-                <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
-                    {`${(percent * 100).toFixed(0)}%`}
-                </text>
-            );
-        };
-
-        return <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-                <Pie
-                    data={props.tkeLoaiSPTheoTen}
-                    cx="50%" // X position
-                    cy="50%" // Y position
-                    labelLine={false}
-                    outerRadius={120}
-                    dataKey="value"
-                    label={renderThongKeLoaiTheoTenSP}
-                >
-                    {props.tkeLoaiSPTheoTen.map((entry: any, index: number) => (
-                        <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                        />
-                    ))}
-                </Pie>
-                {/* Tooltip hiển thị name và value khi hover */}
-                <Tooltip
-                    formatter={(value, name, props) => [`${value}`, `${props.payload.name}`]}
-                />
-            </PieChart>
-        </ResponsiveContainer>
-    }
-
-
-    function ThongKeTheoSoLuongSP() {
-
-        const COLORS = ["#0088FE", "#05b405ff", "#FFBB28", "#FF8042"];
-        // Custom label rendering function
-        const renderThongKeLoaiTheoSoLuongSP = ({
-            cx, cy, midAngle, innerRadius, outerRadius, percent, index
-        }) => {
-            const RADIAN = Math.PI / 180;
-            const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-            const y = cy + radius * Math.sin(-midAngle * RADIAN);
-            return (
-                <text key={index} x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
-                    {`${(percent * 100).toFixed(0)}%`}
-                </text>
-            );
-        };
-
-        return <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-                <Pie
-                    data={props.tkeLoaiSPTheoSoLuong}
-                    cx="50%" // X position
-                    cy="50%" // Y position
-                    labelLine={false}
-                    outerRadius={120}
-                    dataKey="value"
-                    label={renderThongKeLoaiTheoSoLuongSP}
-                >
-                    {props.tkeLoaiSPTheoSoLuong.map((entry: any, index: number) => (
-                        <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                        />
-                    ))}
-                </Pie>
-                {/* Tooltip hiển thị name và value khi hover */}
-                <Tooltip
-                    formatter={(value, name, props) => [`${value}`, `${props.payload.name}`]}
-                />
-            </PieChart>
-        </ResponsiveContainer>
-    }
-
-    return <Row className='content-home'>
-        <Col span={18}>
-            <Row>
-                {/* Top ban chay */}
-                <Col span={24} className='item-home'>
-                    <div className='sub-item-home'>
-                        <h3>
-                            <MonitorOutlined />
-                            Sản phẩm mới về
-                        </h3>
-
-                        <Table
-                            size="small"
-                            dataSource={props.latestProducts}
-                            pagination={{ pageSize: 10 }}
-                            rowClassName={(_, index) =>
-                                index % 2 === 0 ? "even-row" : "odd-row"
-                            }
-                            columns={
-                                [
-                                    {
-                                        title: 'Mã',
-                                        dataIndex: 'code',
-                                        key: 'code',
-                                    },
-                                    {
-                                        title: 'Tên hàng',
-                                        dataIndex: 'name',
-                                        key: 'name',
-                                    },
-                                    {
-                                        title: 'Giá bán',
-                                        dataIndex: 'gia_ban',
-                                        key: 'gia_ban',
-                                        render: (record: any) => {
-                                            return <span>{numberFormat(record)}</span>
-                                        },
-                                    },
-                                    {
-                                        title: 'Giá vốn',
-                                        dataIndex: 'gia_von',
-                                        key: 'gia_von',
-                                        render: (record: any) => {
-                                            return <span>{numberFormat(record)}</span>
-                                        },
-                                    },
-                                    {
-                                        title: 'Tồn kho',
-                                        dataIndex: 'ton_kho',
-                                        key: 'ton_kho',
-                                    }
-                                ]
-                            }
-                        />
-                    </div>
-                </Col>
-            </Row>
-        </Col>
-        <Col span={6} className='item-home'>
-            <div className='sub-item-home'>
-                <h3>
-                    <MonitorOutlined />
-                    Thống kê theo loại sản phẩm
-                </h3>
-                {ThongKeTheoLoaiTheoTenSP()}
-            </div>
-
-            <div className='sub-item-home'>
-                <h3>
-                    <MonitorOutlined />
-                    Thống kê theo số lượng sản phẩm
-                </h3>
-                {ThongKeTheoSoLuongSP()}
-            </div>
-
-            <div className='sub-item-home'>
-                <h3>
-                    <MonitorOutlined />
-                    Thống kê theo Sản phẩm
-                </h3>
-                {ThongKeTheoSoLuongSP()}
-            </div>
-        </Col>
-    </Row>
-}
-
 export function report_kho_tongQuan() {
     const [summary, setSummary] = useState({
         totalProduct: 0,
@@ -333,6 +155,7 @@ export function report_kho_tongQuan() {
         totalImport: 0,
         totalExport: 0,
     });
+    const [loaiHangHoa, setLoaiHangHoa] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [topProducts, setTopProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -340,13 +163,17 @@ export function report_kho_tongQuan() {
     useEffect(() => {
         setLoading(true);
         axios.get(route('khoHang.api.tongQuan')).then((res) => {
+            console.log('res.res.data.data.loaiHangHoa', res.data.data.loaiHangHoa);
+            
             setSummary(res.data.data.summary);
             setChartData(res.data.data.chartData);
             setTopProducts(res.data.data.topProducts);
+            setLoaiHangHoa(res.data.data.loaiHangHoa);
             setLoading(false);
         });
     }, []);
 
+    const COLORS = ["#05b405ff", "#FF8042", "#0427b1ff", "#c90a3dff"];
 
 
     return (
@@ -387,6 +214,33 @@ export function report_kho_tongQuan() {
                                 <Bar dataKey="export" fill="#8884d8" name="Xuất kho" />
                             </BarChart>
                         </ResponsiveContainer>
+                    </Card>
+
+                    <Card title="Biểu đồ nhập/xuất kho theo tháng trong năm">
+                        <div className='sub-item-home'>
+                            <h3>
+                                <MonitorOutlined />
+                                Báo cáo theo loại hàng hóa
+                            </h3>
+                            <PieChart width={400} height={400}>
+                                <Pie
+                                    data={loaiHangHoa}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={80}
+                                    outerRadius={140}
+                                    paddingAngle={3}
+                                    dataKey="value"
+                                    label
+                                >
+                                    {loaiHangHoa.map((entry, index) => (
+                                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend />
+                            </PieChart>
+                        </div>
                     </Card>
                 </Col>
                 <Col span={8}>
@@ -689,29 +543,6 @@ export function report_kho_congNo() {
         { title: "Ngày giao dịch gần nhất", dataIndex: "updated_at", key: "updated_at" },
     ];
 
-    const data = [
-        {
-            key: 1,
-            code: "NCC001",
-            name: "Nhà cung cấp A",
-            importValue: "200,000,000",
-            exportValue: "0",
-            paid: "150,000,000",
-            debt: "50,000,000",
-            lastDate: "05/08/2025",
-        },
-        {
-            key: 2,
-            code: "KH001",
-            name: "Khách hàng B",
-            importValue: "0",
-            exportValue: "120,000,000",
-            paid: "80,000,000",
-            debt: "40,000,000",
-            lastDate: "06/08/2025",
-        },
-    ];
-
     const dataChart02 = [
         {
             name: 'Nhà cung cấp A',
@@ -759,6 +590,15 @@ export function report_kho_congNo() {
                 })}
             </Col>
         </Row>
+
+        <div className='sub-item-home'>
+            <h3>
+                <MonitorOutlined />
+                Báo cáo chi tiết công nợ
+            </h3>
+            <Table columns={columns} dataSource={congNo} bordered pagination={false} />
+        </div>
+
         <div className='sub-item-home'>
             <h3>
                 <MonitorOutlined />
@@ -775,21 +615,13 @@ export function report_kho_congNo() {
                     dataKey="value"
                     label
                 >
-                    {data.map((entry, index) => (
+                    {tongCongNo.map((entry, index) => (
                         <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
                 <Tooltip />
                 <Legend />
             </PieChart>
-        </div>
-
-        <div className='sub-item-home'>
-            <h3>
-                <MonitorOutlined />
-                Báo cáo chi tiết công nợ
-            </h3>
-            <Table columns={columns} dataSource={congNo} bordered pagination={false} />
         </div>
 
         <div style={{ width: '100%', height: 400 }}>
@@ -814,6 +646,12 @@ export function report_kho_congNo() {
                 </BarChart>
             </ResponsiveContainer>
         </div>
+
+        <Row>
+            <Col span={24} className="mb-4">
+                <br /><br /><br /><br /><br />
+            </Col>
+        </Row>
     </div>
 }
 
