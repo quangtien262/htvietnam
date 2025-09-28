@@ -26,7 +26,6 @@ return new class extends Migration
             $table->integer('so_luong')->default(0)->nullable();
             $table->integer('tong_phi_van_chuyen')->default(0)->nullable();
 
-            
             $table->integer('cong_no_status_id')->default(1)->nullable(); 
 
             // $table->integer('nhap_hang_status_id')->default(1)->nullable();

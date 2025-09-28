@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 export function searchByTime(thoiGian, onSuccess) {
     const [khoangThoiGian, setKhoangThoiGian] = useState(thoiGian ? [dayjs(thoiGian[0]), dayjs(thoiGian[1])] : [null, null]);
-    const [title, setTitle] = useState('7 ngày gần đây');
+    const [title, setTitle] = useState('30 ngày qua');
 
     return <>
         <label>Chọn khoảng thời gian</label>

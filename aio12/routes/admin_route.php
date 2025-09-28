@@ -333,6 +333,12 @@ Route::group(['prefix' => 'tasks'], function () {
 
 Route::group(['prefix' => 'wms'], function () {
     Route::get('/', [ProductController::class, 'dashboard'])->name('khoHang.dashboard');
+    Route::get('api/tong-quan', [ProductController::class, 'report_tongQuan'])->name('khoHang.api.tongQuan');
+    Route::get('api/nhap-hang', [ProductController::class, 'report_nhapHang'])->name('khoHang.api.nhapHang');
+    Route::get('api/ton-kho', [ProductController::class, 'report_tonKho'])->name('khoHang.api.tonKho'); // pending
+    Route::get('api/kiem-kho', [ProductController::class, 'report_kiemKho'])->name('khoHang.api.kiemKho');
+    Route::get('api/xuat-huy', [ProductController::class, 'report_xuatHuy'])->name('khoHang.api.xuatHuy'); // pending
+    Route::get('api/cong-no', [ProductController::class, 'report_congNo'])->name('khoHang.api.congNo'); // pending
 });
 
 Route::group(['prefix' => 'sale'], function () {

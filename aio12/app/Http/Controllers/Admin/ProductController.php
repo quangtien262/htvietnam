@@ -1829,4 +1829,227 @@ class ProductController extends Controller
 
         return $this->sendSuccessResponse($id);
     }
+
+
+
+    public function report_tongQuan()
+    {
+        // summary
+        $totalProduct = Product::where('is_recycle_bin', 0)->count();
+        $totalStock = Product::where('is_recycle_bin', 0)->sum('ton_kho');
+        $totalImport = NhapHangDetail::where('is_recycle_bin', 0)->sum('so_luong');
+        $totalExport = XuatHuyDetail::where('is_recycle_bin', 0)->sum('so_luong_huy');
+        $summary = [
+            'totalProduct' => $totalProduct,
+            'totalStock' => $totalStock,
+            'totalImport' => $totalImport,
+            'totalExport' => $totalExport,
+        ];
+        // top products
+        $topProducts = Product::select('id as key', 'name', 'ton_kho', 'code')
+            ->where('is_recycle_bin', 0)
+            ->where('product_type_id', 1) // hàng hóa
+            ->groupBy('id')
+            ->orderByDesc('ton_kho')
+            ->limit(10)
+            ->get()->toArray();
+
+        // chart data
+        $chartData = [];
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        for ($month = 1; $month <= $currentMonth; $month++) {
+            $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthLabel = $monthPadded . '/' . $currentYear;
+            $chartData[] = [
+                'month' => $monthLabel,
+                'import' => NhapHang::where('is_recycle_bin', 0)->where('is_draft', 2)
+                    ->whereMonth('created_at', $month)
+                    ->sum('so_luong'),
+                'export' => XuatHuy::where('is_recycle_bin', 0)->where('is_draft', 2)
+                    ->whereMonth('created_at', $month)
+                    ->sum('so_luong_huy'),
+            ];
+        }
+        $datas = [
+            'token' => csrf_token(),
+            'summary' => $summary,
+            'chartData' => $chartData,
+            'topProducts' => $topProducts,
+        ];
+        return $this->sendSuccessResponse($datas);
+    }
+
+    public function report_nhapHang(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(30)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+
+        $data = NhapHangDetail::select(
+            'product_nhap_hang_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_nhap_hang_detail.is_recycle_bin', 0)
+            ->where('product_nhap_hang_detail.is_draft', 2)
+            ->whereBetween('product_nhap_hang_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_nhap_hang_detail.product_id')
+            ->orderBy('product_nhap_hang_detail.id', 'asc')
+            ->get();
+
+        // get total theo tháng
+        $totalByMonth = NhapHangDetail::select(
+            DB::raw('SUM(so_luong) as so_luong'),
+            DB::raw('SUM(thanh_tien) as thanh_tien'),
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month')
+        )
+            ->where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->whereBetween('product_nhap_hang_detail.created_at', [$startDate, $endDate])
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $dataResponse = [
+            'data' => $data,
+            'totalByMonth' => $totalByMonth,
+        ];
+
+        return $this->sendSuccessResponse($dataResponse);
+    }
+
+    public function report_xuatHuy(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(7)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+
+        $data = XuatHuyDetail::select(
+            'product_xuat_huy_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_xuat_huy_detail.is_recycle_bin', 0)
+            ->where('product_xuat_huy_detail.is_draft', 2)
+            ->whereBetween('product_xuat_huy_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_xuat_huy_detail.product_id')
+            ->orderBy('product_xuat_huy_detail.id', 'asc')
+            ->limit(20)
+            ->get();
+
+        // get total theo tháng
+        $totalByMonth = XuatHuyDetail::select(
+            DB::raw('SUM(so_luong_huy) as so_luong_huy'),
+            DB::raw('SUM(gia_tri_huy) as gia_tri_huy'),
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month')
+        )
+            ->where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $dataResponse = [
+            'data' => $data,
+            'totalByMonth' => $totalByMonth,
+        ];
+
+        return $this->sendSuccessResponse($dataResponse);
+    }
+
+    public function report_kiemKho(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            $startDate = now()->subDays(30)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+        // report_kiemKho
+        $data = KiemKhoDetail::select(
+            'product_kiem_kho_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_kiem_kho_detail.is_recycle_bin', 0)
+            ->where('product_kiem_kho_detail.is_draft', 2)
+            ->whereBetween('product_kiem_kho_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_kiem_kho_detail.product_id')
+            ->orderBy('product_kiem_kho_detail.id', 'asc')
+            ->limit(20)
+            ->get();
+        return $this->sendSuccessResponse($data);
+    }
+
+    public function report_congNo(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(7)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+        // data
+        $congNo = CongNo::select(
+            'cong_no.*',
+            'nha_cung_cap.name as ten_ncc',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('cong_no.is_recycle_bin', 0)
+            ->where('cong_no.is_draft', '!=', 1)
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->whereIn('cong_no.loai_chung_tu', ['product_tra_hang_ncc', 'product_nhap_hang'])
+            ->leftJoin('nha_cung_cap', 'nha_cung_cap.id', 'cong_no.nha_cung_cap_id')
+            ->leftJoin('products', 'products.id', 'cong_no.product_id')
+            ->orderBy('id', 'asc')
+            ->limit(20)
+            ->get();
+
+        // 
+        $tongCongNoTraHang = CongNo::where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->where('loai_chung_tu', 'product_tra_hang_ncc')
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->sum('so_tien_no');
+        $tongCongNoNhapHang = CongNo::where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->where('loai_chung_tu', 'product_nhap_hang')
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->sum('so_tien_no');
+        $tongCongNo = [
+            [
+                'name' => 'Công nợ trả hàng NCC',
+                'value' => intval($tongCongNoTraHang),
+            ],
+            [
+                'name' => 'Công nợ nhập hàng',
+                'value' => intval($tongCongNoNhapHang),
+            ],
+        ];
+
+        $data = [
+            'congNo' => $congNo,
+            'tongCongNo' => $tongCongNo,
+        ];
+        return $this->sendSuccessResponse($data);
+    }
 }

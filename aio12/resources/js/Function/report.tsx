@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Statistic,
     Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, List, Popconfirm,
@@ -18,6 +18,7 @@ import { numberFormat } from "./common";
 import axios from 'axios';
 import { searchByTime } from "../components/comp_common";
 import dayjs from "dayjs";
+import { c } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
 export function history() {
     return <div className='sub-item-home'>
@@ -70,27 +71,44 @@ export function history() {
     </div>
 }
 
-export function report_kho_nhapHang() {
-    const data = [
-        { key: 1, date: "2025-08-01", product: "Gạo ST25", quantity: 200, price: 15000 },
-        { key: 2, date: "2025-08-02", product: "Đường trắng", quantity: 100, price: 12000 },
-        { key: 3, date: "2025-08-02", product: "Dầu ăn", quantity: 80, price: 11000 },
-        { key: 4, date: "2025-08-03", product: "Nước mắm", quantity: 60, price: 30000 },
-    ];
-
+export function report_kho_nhapHang(dateRange: any) {
+    // start là 
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
+    const [data, setData] = useState([]);
+    const [totalByMonth, setTotalByMonth] = useState([]);
     const columns = [
-        { title: "Ngày nhập", dataIndex: "date", key: "date" },
-        { title: "Tên hàng", dataIndex: "product", key: "product" },
-        { title: "Số lượng", dataIndex: "quantity", key: "quantity" },
-        { title: "Giá nhập (VND)", dataIndex: "price", key: "price", render: (text: { toLocaleString: () => any; }) => text.toLocaleString() },
-        {
-            title: "Thành tiền (VND)",
-            key: "total",
-            render: (_: any, record: { quantity: number; price: number; }) => (record.quantity * record.price).toLocaleString()
-        },
+        { title: "Ngày nhập", dataIndex: "created_at", key: "created_at", render: (text) => dayjs(text).format('DD/MM/YYYY') },
+        { title: "Tên hàng", dataIndex: "product_name", key: "product_name" },
+        { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
+        { title: "Giá nhập", dataIndex: "gia_nhap", key: "gia_nhap", render: (price: number) => numberFormat(price) },
+        { title: "Thành tiền", dataIndex: "thanh_tien", key: "thanh_tien", render: (thanh_tien: number) => numberFormat(thanh_tien) },
+
     ];
+    function fetchDataNhapHang(dateRange: any) {
+        axios.get(route('khoHang.api.nhapHang', {
+            startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+            endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+        })).then((res) => {
+            console.log('res.data.data', res.data.data);
+            setData(res.data.data.data);
+            setTotalByMonth(res.data.data.totalByMonth);
+        });
+    }
+
+    useEffect(() => {
+        fetchDataNhapHang(khoangThoiGian);
+    }, []);
 
     return <div style={{ padding: 20 }} className='content-home'>
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data: any) => {
+                    fetchDataNhapHang(data.time);
+                })}
+            </Col>
+        </Row>
+
+
         {/* Bảng nhập hàng */}
         <div className='sub-item-home'>
             <h3>
@@ -104,6 +122,7 @@ export function report_kho_nhapHang() {
                 rowClassName={(_, index) => (index % 2 === 0 ? "even-row" : "odd-row")}
             />
         </div>
+
         {/* Biểu đồ nhập hàng */}
         <div className='sub-item-home'>
             <h3>
@@ -111,20 +130,25 @@ export function report_kho_nhapHang() {
                 Biểu đồ biến động
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data}>
+                <BarChart data={totalByMonth}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip formatter={(value, name, info) => {
+                        return <>
+                            {numberFormat(info.payload.thanh_tien)}
+                            <p>Số lượng: {info.payload.so_luong}</p>
+                        </>;
+                    }} />
                     <Legend />
-                    <Bar dataKey="quantity" fill="#1890ff" name="Số lượng nhập" />
+                    <Bar dataKey="thanh_tien" fill="#01327aff" name="Tổng tiền" />
                 </BarChart>
             </ResponsiveContainer>
         </div>
     </div>
 }
 
-export function report_kho_tongQuan(props) {
+export function report_kho_tongQuan1(props) {
 
     function ThongKeTheoLoaiTheoTenSP() {
 
@@ -302,6 +326,89 @@ export function report_kho_tongQuan(props) {
     </Row>
 }
 
+export function report_kho_tongQuan() {
+    const [summary, setSummary] = useState({
+        totalProduct: 0,
+        totalStock: 0,
+        totalImport: 0,
+        totalExport: 0,
+    });
+    const [chartData, setChartData] = useState([]);
+    const [topProducts, setTopProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setLoading(true);
+        axios.get(route('khoHang.api.tongQuan')).then((res) => {
+            setSummary(res.data.data.summary);
+            setChartData(res.data.data.chartData);
+            setTopProducts(res.data.data.topProducts);
+            setLoading(false);
+        });
+    }, []);
+
+
+
+    return (
+        <Spin spinning={loading}>
+            <Row gutter={16}>
+                <Col span={6}>
+                    <Card>
+                        <Statistic title="Tổng sản phẩm" value={summary.totalProduct} />
+                    </Card>
+                </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic title="Tổng tồn kho" value={summary.totalStock} />
+                    </Card>
+                </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic title="Tổng nhập kho" value={summary.totalImport} />
+                    </Card>
+                </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic title="Tổng xuất kho" value={summary.totalExport} />
+                    </Card>
+                </Col>
+            </Row>
+
+            <Row gutter={16} style={{ marginTop: 24 }}>
+                <Col span={16}>
+                    <Card title="Biểu đồ nhập/xuất kho theo tháng trong năm">
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={chartData}>
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="import" fill="#82ca9d" name="Nhập kho" />
+                                <Bar dataKey="export" fill="#8884d8" name="Xuất kho" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card title="Top sản phẩm tồn kho cao nhất">
+                        <Table
+                            columns={[
+                                { title: "Mã sản phẩm", dataIndex: "code", key: "code" },
+                                { title: "Tên sản phẩm", dataIndex: "name", key: "name" },
+                                { title: "Tồn kho", dataIndex: "ton_kho", key: "ton_kho" },
+                            ]}
+                            dataSource={topProducts}
+                            size="small"
+                            pagination={false}
+                            rowKey="code"
+                        />
+                    </Card>
+                </Col>
+            </Row>
+        </Spin>
+    );
+}
+
 export function report_kho_tonKho() {
     interface StockData {
         key: number;
@@ -477,77 +584,48 @@ export function report_kho_tonKho() {
 }
 
 export function report_kho_kiemKeKho() {
-    const data = [
-        {
-            key: "1",
-            product: "Gạo ST25",
-            unit: "Kg",
-            systemQty: 100,
-            actualQty: 98,
-            difference: -2
-        },
-        {
-            key: "2",
-            product: "Đường trắng",
-            unit: "Kg",
-            systemQty: 50,
-            actualQty: 50,
-            difference: 0
-        },
-        {
-            key: "3",
-            product: "Nước mắm",
-            unit: "Chai",
-            systemQty: 200,
-            actualQty: 205,
-            difference: 5
-        }
-    ];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
+    const [data, setData] = useState([]);
 
-    const columns = [
-        {
-            title: "Tên sản phẩm",
-            dataIndex: "product",
-            key: "product"
-        },
-        {
-            title: "Đơn vị",
-            dataIndex: "unit",
-            key: "unit",
-            align: "center"
-        },
-        {
-            title: "Tồn hệ thống",
-            dataIndex: "systemQty",
-            key: "systemQty",
-            align: "center"
-        },
-        {
-            title: "Tồn thực tế",
-            dataIndex: "actualQty",
-            key: "actualQty",
-            align: "center"
-        },
-        {
-            title: "Chênh lệch",
-            dataIndex: "difference",
-            key: "difference",
-            align: "center",
-            render: (diff) => (
-                <Tag color={diff > 0 ? "green" : diff < 0 ? "red" : "blue"}>
-                    {diff}
-                </Tag>
-            )
-        }
-    ];
+    function fetchData(dateRange: any) {
+        axios.get(route('khoHang.api.kiemKho', {
+            startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+            endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+        })).then((res) => {
+            console.log('kiemKho', res.data.data);
+            setData(res.data.data);
+        });
+    }
 
-    const dataChart = [
-        { name: "Gạo ST25", systemQty: 100, actualQty: 98 },
-        { name: "Đường trắng", systemQty: 50, actualQty: 50 },
-        { name: "Nước mắm", systemQty: 200, actualQty: 205 }
-    ];
+    useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
 
     return <div className="content-home">
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data: any) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
+        <div className='sub-item-home'>
+            <h3>
+                <MonitorOutlined />
+                Biểu đồ thống kê
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="product_name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="ton_kho" fill="#8884d8" name="Tồn hệ thống" />
+                    <Bar dataKey="thuc_te" fill="#05b405ff" name="Tồn thực tế" />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
 
         <div className='sub-item-home'>
             <h3>
@@ -555,45 +633,60 @@ export function report_kho_kiemKeKho() {
                 Sản phẩm tồn kho
             </h3>
             <Table
-                columns={columns}
+                columns={[
+                    {
+                        title: "Mã SP",
+                        dataIndex: "product_code",
+                        key: "product_code",
+                        align: "center"
+                    },
+                    {
+                        title: "Tên sản phẩm",
+                        dataIndex: "product_name",
+                        key: "product_name"
+                    },
+                    {
+                        title: "Tồn hệ thống",
+                        dataIndex: "ton_kho",
+                        key: "ton_kho",
+                        align: "center"
+                    },
+                    {
+                        title: "Tồn thực tế",
+                        dataIndex: "thuc_te",
+                        key: "thuc_te",
+                        align: "center"
+                    },
+                    {
+                        title: "Chênh lệch",
+                        dataIndex: "so_luong_lech",
+                        key: "so_luong_lech",
+                        align: "center",
+                        render: (diff) => (
+                            <Tag color={diff > 0 ? "green" : diff < 0 ? "red" : "blue"}>
+                                {diff}
+                            </Tag>
+                        )
+                    }
+                ]}
                 dataSource={data}
-                pagination={false}
                 rowClassName={(record, index) =>
                     index % 2 === 0 ? "table-row-light" : "table-row-dark"
                 }
             />
         </div>
 
-
-        <div className='sub-item-home'>
-            <h3>
-                <MonitorOutlined />
-                Biểu đồ thống kê
-            </h3>
-            <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={dataChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="systemQty" fill="#8884d8" name="Tồn hệ thống" />
-                    <Bar dataKey="actualQty" fill="#05b405ff" name="Tồn thực tế" />
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
     </div>
 }
 
 export function report_kho_congNo() {
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const columns = [
-        { title: "Mã đối tác", dataIndex: "code", key: "code" },
+        { title: "Mã công nợ", dataIndex: "code", key: "code" },
         { title: "Tên đối tác", dataIndex: "name", key: "name" },
-        { title: "Giá trị nhập", dataIndex: "importValue", key: "importValue" },
-        { title: "Giá trị xuất", dataIndex: "exportValue", key: "exportValue" },
-        { title: "Đã thanh toán", dataIndex: "paid", key: "paid" },
-        { title: "Còn nợ", dataIndex: "debt", key: "debt" },
-        { title: "Ngày giao dịch gần nhất", dataIndex: "lastDate", key: "lastDate" },
+        { title: "Công nợ", dataIndex: "so_tien_no", key: "so_tien_no" },
+        { title: "Đã thanh toán", dataIndex: "so_tien_da_thanh_toan", key: "so_tien_da_thanh_toan" },
+        { title: "Ngày giao dịch gần nhất", dataIndex: "updated_at", key: "updated_at" },
     ];
 
     const data = [
@@ -642,14 +735,30 @@ export function report_kho_congNo() {
         }
     ];
 
-    const dataChart = [
-        { name: "Nợ phải thu (Khách hàng)", value: 40 },
-        { name: "Nợ phải trả (Nhà cung cấp)", value: 50 },
-    ];
+    const [congNo, setCongNo] = useState([]);
+    const [tongCongNo, setTongCongNo] = useState([]);
+    function fetchData(dateRange: any) {
+        axios.get(route('khoHang.api.congNo', {
+            startDate: dayjs(dateRange[0]).format('YYYY-MM-DD 00:00:00'),
+            endDate: dayjs(dateRange[1]).format('YYYY-MM-DD 23:59:59'),
+        })).then((res) => {
+            setCongNo(res.data.data.congNo);
+            setTongCongNo(res.data.data.tongCongNo);
+        });
+    }
+    useEffect(() => {
+        fetchData(khoangThoiGian);
+    }, []);
 
     const COLORS = ["#05b405ff", "#FF8042"];
     return <div style={{ padding: 20 }} className='content-home'>
-
+        <Row>
+            <Col span={24} className="mb-4">
+                {searchByTime(khoangThoiGian, (data: any) => {
+                    fetchData(data.time);
+                })}
+            </Col>
+        </Row>
         <div className='sub-item-home'>
             <h3>
                 <MonitorOutlined />
@@ -657,7 +766,7 @@ export function report_kho_congNo() {
             </h3>
             <PieChart width={400} height={400}>
                 <Pie
-                    data={dataChart}
+                    data={tongCongNo}
                     cx="50%"
                     cy="50%"
                     innerRadius={80}
@@ -680,7 +789,7 @@ export function report_kho_congNo() {
                 <MonitorOutlined />
                 Báo cáo chi tiết công nợ
             </h3>
-            <Table columns={columns} dataSource={data} bordered pagination={false} />
+            <Table columns={columns} dataSource={congNo} bordered pagination={false} />
         </div>
 
         <div style={{ width: '100%', height: 400 }}>
@@ -710,7 +819,7 @@ export function report_kho_congNo() {
 
 export function report_DoanhThu() {
 
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
 
     const [dataDoanhThu, setDataDoanhThu] = useState([]);
     const [title, setTitle] = useState('');
@@ -806,7 +915,7 @@ export function report_DoanhThu() {
 }
 
 export function report_DonHang() {
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const [datas, setDatas] = useState([]);
     const [dataChart, setDataChart] = useState([]);
 
@@ -882,7 +991,7 @@ export function report_DonHang() {
 }
 
 export function report_sales_KhachHang() {
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const [datas, setDatas] = useState([]);
     const [dataChart, setDataChart] = useState([]);
 
@@ -956,7 +1065,7 @@ export function report_sales_KhachHang() {
 }
 
 export function report_sales_NhanVienSale() {
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const [datas, setDatas] = useState([]);
 
     function fetchData(dateRange: any) {
@@ -1021,7 +1130,7 @@ export function report_sales_NhanVienSale() {
 }
 
 export function report_sales_NhanVienLamDV() {
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const [datas, setDatas] = useState([]);
 
     function fetchData(dateRange: any) {
@@ -1088,8 +1197,8 @@ export function report_sales_NhanVienLamDV() {
 }
 
 export function report_sale_congNo() {
-    
-    const khoangThoiGian = [dayjs().subtract(7, 'day'), dayjs()];
+
+    const khoangThoiGian = [dayjs().subtract(30, 'day'), dayjs()];
     const [datas, setDatas] = useState([]);
 
     function fetchData(dateRange: any) {
@@ -1112,7 +1221,7 @@ export function report_sale_congNo() {
     React.useEffect(() => {
         fetchData(khoangThoiGian);
     }, []);
-    
+
     const columns = [
         { title: 'Đối tượng', dataIndex: 'users_name', key: 'users_name' },
         { title: 'Tổng nợ', dataIndex: 'thanh_toan', key: 'thanh_toan', render: (v: number) => numberFormat(v) },

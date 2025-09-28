@@ -91,14 +91,14 @@ export default function Dashboard(props: any) {
             children: report_kho_nhapHang(),
             label: <span>Báo cáo nhập hàng</span>,
         },
+        // {
+        //     key: (key++).toString(),
+        //     label: 'Báo cáo tồn kho',
+        //     children: report_kho_tonKho(),
+        // },
         {
             key: (key++).toString(),
-            label: 'Báo cáo tồn kho',
-            children: report_kho_tonKho(),
-        },
-        {
-            key: (key++).toString(),
-            label: 'Báo cáo kiểm kê kho',
+            label: 'Báo cáo kiểm kho',
             children: report_kho_kiemKeKho(),
         },
         {
@@ -106,11 +106,11 @@ export default function Dashboard(props: any) {
             label: 'Công nợ',
             children: report_kho_congNo(),
         },
-        {
-            key: (key++).toString(),
-            label: 'Lịch sử cập nhật kho',
-            children: history(),
-        },
+        // {
+        //     key: (key++).toString(),
+        //     label: 'Lịch sử cập nhật kho',
+        //     children: history(),
+        // },
     ];
     return (
         <AdminLayout
