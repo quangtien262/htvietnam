@@ -279,49 +279,50 @@ export const routeNhanSu = [
 
 ];
 
-export const routeTask = [
-    {
-        parent: {
-            link: route('task.dashboard'),
-            display_name: 'Báo cáo',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('task.list'),
-            display_name: 'Công việc',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('data.tblName', ['task_milestones']),
-            display_name: 'Cài đặt',
-            key: key++
-        },
-        sub: [
-            {
-                link: route('data.tblName', ['task_milestones']),
-                display_name: 'Milestones',
-                key: key++
-            },
-            {
-                link: route('data.tblName', ['task_prority']),
-                display_name: 'Độ ưu tiên',
-                key: key++
-            },
-            {
-                link: route('data.tblName', ['task_status']),
-                display_name: 'Trạng thái',
-                key: key++
-            },
-        ]
-    },
+// export const routeTask = [
+//     {
+//         parent: {
+//             link: route('task.dashboard'),
+//             display_name: 'Báo cáo',
+//             key: key++
+//         },
+//         sub: []
+//     },
+//     // {
+//     //     parent: {
+//     //         link: route('task.list'),
+//     //         display_name: 'Công việc',
+//     //         key: key++
+//     //     },
+//     //     sub: []
+//     // },
+//     {
+//         parent: {
+//             link: route('data.tblName', ['task_milestones']),
+//             display_name: 'Cài đặt',
+//             key: key++
+//         },
+//         sub: [
+//             {
+//                 link: route('data.tblName', ['task_milestones']),
+//                 display_name: 'Milestones',
+//                 key: key++
+//             },
+//             {
+//                 link: route('data.tblName', ['task_prority']),
+//                 display_name: 'Độ ưu tiên',
+//                 key: key++
+//             },
+//             {
+//                 link: route('data.tblName', ['task_status']),
+//                 display_name: 'Trạng thái',
+//                 key: key++
+//             },
+//         ]
+//     },
 
-];
+// ];
+
 export const routeTaiChinh = [
     {
         parent: {

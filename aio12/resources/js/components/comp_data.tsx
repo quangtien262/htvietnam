@@ -5,7 +5,7 @@ import {
     Button,
     message,
     Form,
-    Input,
+    Input, ColorPicker,
     Popconfirm,
     Row, Col,
     Divider,
@@ -29,7 +29,6 @@ import {
 
 import axios from "axios";
 import "../../css/form.css";
-import "../../css/popconfirm_hidden_btn.css";
 import { parseJson } from "../Function/common";
 import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from '../Function/constant';
 
@@ -42,8 +41,9 @@ import { checkRule, showData02, showDataSelectTable } from '../Function/data';
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../Function/sun_config';
+import { a } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
-
+const { TextArea } = Input;
 
 
 export function contentFormData(dataAction: any, imagesData: any[], onSuccess: any) {
@@ -628,7 +628,7 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
         axios.post(link, values).then((response) => {
             setLoadingSubmit(false);
             if (response.data.status_code === 200) {
-                if(dataAction.table.type_show === 1) {
+                if (dataAction.table.type_show === 1) {
                     // reload page if drag and drop
                     window.location.reload();
                 }
@@ -713,4 +713,67 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
             </Row>
         </Form>
     </>
+}
+
+
+type DisplayName = {
+    name?: string;
+    description?: string;
+    color?: string;
+};
+/**
+ * Form thêm nhanh dữ liệu cho các bảng đơn giản
+ * @param tableName 
+ * @param displayName 
+ * @param route 
+ * @param onSuccess 
+ * @returns 
+ */
+export function formAddExpress(tableName: string, displayName: DisplayName = {}, route: string, onSuccess: any) {
+    const [formExpress] = Form.useForm();
+    console.log('route', route);
+
+    let name = 'Tiêu đề';
+    let description = 'Mô tả';
+    let color = 'Màu đánh dấu';
+    if (displayName.name) {
+        name = displayName.name;
+    }
+    if (displayName.description) {
+        description = displayName.description;
+    }
+    if (displayName.color) {
+        color = displayName.color;
+    }
+    const onfinish = (values: any) => {
+        axios.post(route, values).then((response) => {
+            console.log('Success:', response.data);
+            onSuccess(response.data.data);
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    return (
+        <>
+            <Form layout="vertical" onFinish={onfinish} form={formExpress}>
+                <Form.Item label={name} name="name" rules={[{ required: true, message: 'Vui lòng nhập ' + name }]}>
+                    <Input />
+                </Form.Item>
+                <Form.Item label='Mô tả' name="description">
+                    <TextArea />
+                </Form.Item>
+                <Form.Item label='Màu nền' name="background">
+                    <ColorPicker showText />
+                </Form.Item>
+                <Form.Item label='Màu chữ' name="color">
+                    <ColorPicker showText />
+                </Form.Item>
+
+                <Button type="primary" htmlType="submit">
+                    <CopyOutlined />
+                    Thêm mới
+                </Button>
+            </Form>
+        </>
+    )
 }

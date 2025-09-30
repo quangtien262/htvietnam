@@ -39,7 +39,6 @@ class DataController extends Controller
         'cong_no' => 'congNo',
 
         'nha_cung_cap' => 'ncc.index',
-        'tasks' => 'task.list',
     ];
 
     public function getDataCalendar(Request $request)

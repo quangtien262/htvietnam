@@ -27,9 +27,6 @@ import {
 import "../../../../css/home.css";
 
 
-import { routeTaiSan } from "../../../Function/config_route";
-
-
 // Dữ liệu mẫu cho báo cáo tài sản
 const dataOverview = [
   { key: 1, name: "Tổng số tài sản", value: 120 },
@@ -204,7 +201,6 @@ export default function Dashboard(props: DashboardProps) {
         <AdminLayout
             auth={props.auth}
             header='Trang chủ'
-            tables={routeTaiSan}
             content={
                 <div>
                     <Tabs tabPosition="left" defaultActiveKey="1" items={items} />

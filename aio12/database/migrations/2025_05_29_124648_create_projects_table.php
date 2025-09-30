@@ -13,22 +13,32 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_checklist', function (Blueprint $table) {
+        Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
-            $table->text('content')->nullable();
-            $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
-            $table->text('nguoi_theo_doi')->nullable(); // // json người theo dõi hoặc làm cùng
-            $table->integer('task_id')->nullable();
-            $table->integer('is_checked')->default(0)->nullable();
-            $table->string('parent_name')->nullable();
+            $table->text('description')->nullable();
+            $table->integer('task_status_id')->default(1)->nullable();
+            $table->integer('nguoi_thuc_hien')->nullable();
+            $table->text('nguoi_theo_doi')->nullable();
+            $table->text('project_manager')->nullable(); //admin_users_id
+
+            $table->string('parent_name')->nullable(); // tên tính năng: sale, task, project.... 
+
+             // todo, doing, done
+             // nv thực hiện
+            $table->integer('nguoi_tạo')->nullable();
+            $table->text('task_type_ids')->nullable();
+            $table->date('start')->nullable();
+            $table->date('end')->nullable();
+            $table->date('actual')->nullable();
+            $table->text('tags')->nullable();
 
             MigrateService::createBaseColumn($table);
 
             Table::create([
                 //require
-                'name' => 'task_checklist',
-                'display_name' => 'Check list',
+                'name' => 'projects',
+                'display_name' => 'Quản lý công việc',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),
@@ -44,12 +54,11 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'task_checklist')->first();
+            $tbl = Table::where('name', 'projects')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
-            MigrateService::createColumn02($tableId, 'name', 'Tên', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
-            MigrateService::baseColumn($tbl);
+            MigrateService::createColumn02($tableId, 'name', 'Tên tài sản', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
         });
     }
 
@@ -58,6 +67,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_checklist');
+        Schema::dropIfExists('projects');
     }
 };

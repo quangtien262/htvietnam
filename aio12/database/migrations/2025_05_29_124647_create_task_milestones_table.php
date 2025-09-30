@@ -14,7 +14,9 @@ return new class extends Migration {
         Schema::create('task_milestones', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('description')->nullable();
             $table->string('color')->default('todo')->nullable();
+            $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
 

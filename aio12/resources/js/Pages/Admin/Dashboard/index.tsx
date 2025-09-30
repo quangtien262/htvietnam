@@ -226,9 +226,9 @@ export default function Dashboard(props: any) {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route(item.route, {p:item.id})}>
+                            {/* <Link href={route(item.route, {p:item.id})}>
                                 <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
-                            </Link>
+                            </Link> */}
                         </div>
                         <div className="ant-statistic-content" >
                             <div className="ant-statistic-content-prefix">
@@ -254,10 +254,10 @@ export default function Dashboard(props: any) {
         {/* QUẢN LÝ CÔNG VIỆC */ }
         if (item.name === 'parent_cong_viec') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-                <Card variant="borderless" className='item-dashboard'>
+                <Card variant="borderless" className='item-dashboard'> 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route(item.route, {p:item.id})}>
+                            <Link href={route(item.route, {tblName:'tasks',p:item.id})}>
                                 <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
                             </Link>
                         </div>

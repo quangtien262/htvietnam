@@ -13,22 +13,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_checklist', function (Blueprint $table) {
+        Schema::create('task_parent_setting', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
-            $table->text('content')->nullable();
-            $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
-            $table->text('nguoi_theo_doi')->nullable(); // // json người theo dõi hoặc làm cùng
-            $table->integer('task_id')->nullable();
-            $table->integer('is_checked')->default(0)->nullable();
-            $table->string('parent_name')->nullable();
+            $table->text('setting')->nullable(); // json cấu hình
+
 
             MigrateService::createBaseColumn($table);
 
             Table::create([
                 //require
-                'name' => 'task_checklist',
-                'display_name' => 'Check list',
+                'name' => 'tasks',
+                'display_name' => 'Quản lý công việc',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),
@@ -44,12 +40,11 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'task_checklist')->first();
+            $tbl = Table::where('name', 'tasks')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
-            MigrateService::createColumn02($tableId, 'name', 'Tên', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
-            MigrateService::baseColumn($tbl);
+            MigrateService::createColumn02($tableId, 'name', 'Tên tài sản', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
         });
     }
 
@@ -58,6 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_checklist');
+        Schema::dropIfExists('task_parent_setting');
     }
 };

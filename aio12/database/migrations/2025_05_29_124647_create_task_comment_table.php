@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('name')->nullable();
             $table->text('content')->nullable();
             $table->text('task_id')->nullable();
+            $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
 

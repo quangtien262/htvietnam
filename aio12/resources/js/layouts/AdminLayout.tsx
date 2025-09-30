@@ -15,6 +15,7 @@ import {
 } from "@ant-design/icons";
 
 import axios from "axios";
+import { get } from "lodash";
 
 //
 const { Header, Content, Footer } = Layout;
@@ -47,13 +48,11 @@ export default function Admin({
 
     const params = new URLSearchParams(window.location.search);
     const p = params.get('p'); // sẽ là string hoặc null
-    console.log('p', p);
     
     useEffect(() => {
         axios.post(route('getMenus', { p: p }))
             .then((res) => {
                 setMenus(res.data.data);
-                console.log('res.data', res.data.data);
             })
             .catch((err) => console.error(err));
     }, []);
@@ -62,20 +61,28 @@ export default function Admin({
         setSpinning(true);
     };
 
-    function getLinkMenu(menu: any) {
-        let href = '';
-
+    function getLinkRoute(menu: any) {
         if (menu.route && menu.route === 'data.tblName') {
-            href = route(menu.route, { tblName: menu.table_name, p: p });
+            return route(menu.route, { p: p });
         }
 
-        if (menu.route && menu.route !== 'data.tblName') {
-            href = route(menu.route, { p: p });
+        // đôi với route task.list thì format này có thể áp dụng cho trường hợp là QL công việc, quy trình sale, cskh ...
+        if(menu.route === 'task.list') {  
+            return route(menu.route, {tblName:menu.table_name, p: p});
+        }
+        return route(menu.route, { p: p });
+    }
+
+    function getLinkMenu(menu: any) {
+        let href = '';
+        if (menu.route) {
+            href = getLinkRoute(menu);
         }
 
         if (menu.link) {
             href = menu.link;
         }
+        
         return href;
     }
 
@@ -183,7 +190,6 @@ export default function Admin({
                                     placement="left"
                                     onClose={() => setShowMobileMenu(false)}
                                     open={showMobileMenu}
-                                    bodyStyle={{ padding: 0 }}
                                 >
                                     <Menu
                                         mode="vertical"

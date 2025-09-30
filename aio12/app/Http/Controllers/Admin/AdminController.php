@@ -246,4 +246,5 @@ class AdminController extends Controller
         $menus = TblService::getMenus($request->p);
         return $this->sendSuccessResponse($menus);
     }
+    
 }

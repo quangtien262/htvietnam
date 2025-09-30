@@ -10,7 +10,7 @@ import {
   Popover,
   Select, Checkbox,
   Row,
-  Space, Flex, Progress,
+  Space,Flex, Progress,
   Tag,
   DatePicker,
   Empty,
@@ -18,7 +18,7 @@ import {
   Divider, Tree,
   Tabs,
   Col, Drawer,
-  Radio, List
+   Radio, List
 } from "antd";
 import axios from "axios";
 import {
@@ -49,7 +49,6 @@ import { callApi } from "../../../Function/api";
 import { DATE_TIME_FORMAT } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
 import { formAddExpress } from "../../../components/comp_data";
-import { taskConfig } from "./task_config";
 
 import {
   getTasks,
@@ -57,14 +56,14 @@ import {
   updateTask,
   deleteTask,
 } from "../../../Function/api";
-import { cloneDeep, set } from "lodash";
+import { cloneDeep } from "lodash";
 import dayjs from "dayjs";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
+import { routeTask } from "../../../Function/config_route";
 
 export default function Dashboard(props) {
   const [status, setStatus] = useState(props.status);
-  const [statusData, setStatusData] = useState(props.statusData);
+  const [statusData, setStatusData] = useState(props.statusData_DragDrop);
 
   const [isModalAddExpress, setIsModalAddExpress] = useState(false);
   const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -112,7 +111,7 @@ export default function Dashboard(props) {
       name: '',
       description: '',
       nguoi_thuc_hien: null,
-      task_status_id: null
+      task_status_id: '1'
     };
     const [formAddTaskExpress, setFormAddTaskExpress] = useState([formAddTaskExpress_default, formAddTaskExpress_default, formAddTaskExpress_default]);
     const [nguoiThucHien_applyAll, setNguoiThucHien_applyAll] = useState(true);
@@ -151,8 +150,8 @@ export default function Dashboard(props) {
     };
 
     function addExpress() {
-      // setIsLoadingBtn(true);
-      axios.post(route("task.addTaskExpress", [props.tblName]), {
+      setIsLoadingBtn(true);
+      axios.post(route("task.addTaskExpress"), {
         datas: formAddTaskExpress
       }).then((response) => {
         // location.reload();
@@ -201,7 +200,6 @@ export default function Dashboard(props) {
       {/* form Thêm task express */}
       {
         formAddTaskExpress.map((item, key) => {
-          
           return <tbody key={key}>
             <tr>
               <td>
@@ -333,6 +331,8 @@ export default function Dashboard(props) {
       id: dataAction.id,
       value: value
     }).then(response => {
+      console.log('re', response);
+
       setIsLoadingBtn(false);
       setColumns(response.data.data);
       message.success('Cập nhật thành công');
@@ -349,6 +349,7 @@ export default function Dashboard(props) {
       task_id: dataAction.id,
       content: values.content
     }).then(response => {
+      console.log('ds', response.data.data);
       formComment.resetFields();
       setIsLoadingBtn(false);
       setComments(response.data.data);
@@ -432,6 +433,7 @@ export default function Dashboard(props) {
     // const res = await getTasks();
     // const grouped = {1:[],2:[],3:[],4:[]};
     // res.data.forEach((task) => grouped[task.status].push(task));
+    // console.log('grouped', grouped);
 
     // setColumns(grouped);
   };
@@ -457,6 +459,11 @@ export default function Dashboard(props) {
   const onDragEnd = async (result) => {
     const { source, destination } = result;
     if (!destination) return;
+    console.log('result', result);
+
+    console.log('source', source);
+    console.log('destination', destination);
+    console.log('columns', columns);
 
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
@@ -468,6 +475,8 @@ export default function Dashboard(props) {
     // lấy index của cột
     const source_index = columns.findIndex(item => item.status.id === +source.droppableId);
     const destination_index = columns.findIndex(item => item.status.id === +destination.droppableId);
+    console.log('source_index', source_index);
+    console.log('destination_index', destination_index);
 
     // data cần di chuyển
     const itemToMove = newDatas[source_index].datas[source.index];
@@ -525,6 +534,22 @@ export default function Dashboard(props) {
   function closeModalAdd() {
     setIsModalAddOpen(false);
   }
+
+  function onDropData(info) {
+    const result = onDrop(info, statusData);
+    setStatusData(result);
+
+    axios.post(route('task.sortOrder'), {
+      data: JSON.stringify(result),
+      table_name: 'task_status'
+    }).then(response => {
+      message.success('Cập nhật thứ tự thành công');
+      setColumns(response.data.data);
+    }).catch(error => {
+      message.error('Cập nhật thứ tự thất bại');
+    });
+  }
+
 
   function formAddTaskChecklist(users, task) {
     function addFormCheckList() {
@@ -665,30 +690,48 @@ export default function Dashboard(props) {
               onCancel={() => closePopupStatus()}
               footer={[]}
             >
-              <div>
 
-                {taskConfig(statusData, { parentName: props.tblName, currentName: 'task_status' }, {
-                  name: 'Quy trình',
-                  description: 'Mô tả ',
-                  color: 'Màu chữ',
-                  background: 'Màu nền',
-                }, (data: any) => {
-                  setStatusData(data.data);
-                  setColumns(data.columns);
-                })}
+              <Tabs className={' '}
+                defaultActiveKey="1"
+                items={[
+                  // Danh sách
+                  {
+                    label: <span className="title-sub-tab">Danh sách</span>,
+                    key: '1',
+                    children: <div>
+                      <em>Kéo thả để sắp xếp thứ tự</em>
+                      <Tree
+                        className="draggable-tree tree-modal"
+                        draggable
+                        blockNode
+                        onDrop={(info) => onDropData(info)}
+                        treeData={formatGdata_column(statusData)}
+                      />
 
-                <Row>
-                  <Col sm={24} className="text-center">
-                    <br />
-                    <Button type="primary"
-                      className="btn-submit01"
-                      onClick={() => closePopupStatus()}>
-                      Đóng
-                    </Button>
-                  </Col>
-                </Row>
+                      <Row>
+                        <Col sm={24} className="text-center">
+                          <br />
+                          <Button type="primary"
+                            className="btn-submit01"
+                            onClick={() => closePopupStatus()}>
+                            Đóng
+                          </Button>
+                        </Col>
+                      </Row>
 
-              </div>
+                    </div>
+                  },
+                  // Thêm mới
+                  {
+                    label: <span className="title-sub-tab">Thêm mới</span>,
+                    key: '2',
+                    children: formAddExpress('tasks', {name:'Quy trình'}, route('task.addConfig', {parentName:'tasks', tableName:'task_status'}),(data:any) => {
+                      setStatusData(data);
+                      message.success('Thêm mới thành công');
+                    })
+                  },
+                ]
+                } />
             </Modal>
 
             {/* Thêm nhanh công việc */}
@@ -1191,6 +1234,7 @@ export default function Dashboard(props) {
                                     if (e.target.checked) {
                                       status = 1;
                                     }
+                                    console.log(status);
 
                                     // update status state
                                     let checklist_tmp = cloneDeep(checklist);
@@ -1361,6 +1405,7 @@ export default function Dashboard(props) {
                                   <p style={{ color: item.color }}
                                     className="cursor"
                                     onClick={() => {
+                                      console.log('item.id', item);
                                       updateTaskByColumn(dataAction.id, 'task_prority_id', item.id);
                                     }}
                                   >

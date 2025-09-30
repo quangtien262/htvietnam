@@ -13,6 +13,7 @@ use App\Models\Admin\Checklist;
 use App\Models\Admin\Task;
 use App\Models\Admin\TaskComment;
 use App\Models\AdminUser;
+use App\Services\Admin\TblModel;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -21,27 +22,37 @@ class TaskController extends Controller
     public function dashboard(Request $request)
     {
         $viewData = [
-         
+
         ];
         return Inertia::render('Admin/Dashboard/task', $viewData);
     }
 
-    public function index(Request $request)
+    /**
+     * Summary of index
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $tblName
+     * @return \Inertia\Response
+     */
+    public function index(Request $request, $tblName)
     {
-        $table = Table::where('name', 'tasks')->first();
-        $tables = TblService::getAdminMenu($table->id);
+        $table = Table::where('name', $tblName)->first();
 
-        $prority = TblService::formatData('task_prority');
-        $type = TblService::formatData('task_type');
-        $status = TblService::formatData('task_status');
+        $prority = TblService::formatData('task_prority', ['parent_name' => $tblName]);
+        $type = TblService::formatData('task_type', ['parent_name' => $tblName]);
+        $status = TblService::formatData('task_status', ['parent_name' => $tblName]);
         $admin = Auth::guard('admin_users')->user();
 
-        $datas = Task::getTaskByStatus($request);
+        $datas = Task::getTaskByStatus($request, $tblName);
 
-        $statusTable = Table::where('name', 'task_status')->first('id');
-        $statusData_DragDrop = TblService::getDataDragDrop($statusTable->id);
-
-        // $users = DB::table('users')->get(['id', 'name', 'code']);
+        $statusTable = Table::where('name', 'task_status')->first();
+        // $statusData_DragDrop = TblService::getDataDragDrop($statusTable->id, 0, ['parent_name' => $tblName]);
+        $statusData = DB::table('task_status')
+            ->select('sort_order as sort', 'id as key', 'task_status.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $tblName)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
         $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
         $users_byID = [];
         foreach ($users as $u) {
@@ -53,15 +64,16 @@ class TaskController extends Controller
 
         return Inertia::render('Admin/Task/index', [
             'table' => $table,
-            'tables' => $tables,
             'status' => $status,
             'datas' => $datas,
             'users' => $users_byID,
             'prority' => $prority,
             'type' => $type,
             'admin' => $admin,
-            'statusData_DragDrop' => $statusData_DragDrop,
-            'statusTable' => $statusTable
+            'statusData' => $statusData,
+            // 'statusData_DragDrop' => $statusData_DragDrop,
+            'statusTable' => $statusTable,
+            'tblName' => $tblName,
         ]);
     }
     public function getList()
@@ -212,7 +224,7 @@ class TaskController extends Controller
         return $this->sendSuccessResponse($tasks);
     }
 
-    public function addTaskExpress(Request $request)
+    public function addTaskExpress(Request $request, $tblName)
     {
         if (empty($request->datas)) {
             return $this->sendErrorResponse('empty');
@@ -231,11 +243,12 @@ class TaskController extends Controller
             $task->nguoi_thuc_hien = $data['nguoi_thuc_hien'];
             $task->task_status_id = $data['task_status_id'];
             $task->create_by = $admin->id;
+            $task->parent_name = $tblName;
             $task->save();
         }
 
         // get all
-        $tasks = Task::getTaskByStatus($request);
+        $tasks = Task::getTaskByStatus($request, $tblName);
 
         return $this->sendSuccessResponse($tasks);
     }
@@ -255,5 +268,51 @@ class TaskController extends Controller
             }
         }
         return ++$indexStart;
+    }
+
+    public function addConfig(Request $request, $parentTable, $currentTable)
+    {
+        $table = Table::where('name', $currentTable)->first();
+        $admin = Auth::guard('admin_users')->user();
+
+        // save
+        $data = TblModel::model($currentTable);
+        $data->parent_name = $parentTable;
+        foreach ($request->all() as $k => $v) {
+            $data->{$k} = $v;
+        }
+        $data->create_by = $admin->id;
+        $data->sort_order = 0;
+        $data->save();
+        $datas = DB::table($currentTable)
+            ->select('sort_order as sort', 'id as key', $currentTable . '.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $parentTable)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
+        $columns = Task::getTaskByStatus([], $parentTable);
+        return $this->sendSuccessResponse(['data' => $datas, 'columns' => $columns]);
+    }
+
+    public function deleteConfig(Request $request, $parentTable, $currentTable)
+    {
+        $table = Table::where('name', $currentTable)->first();
+        if (empty($table)) {
+            return $this->sendErrorResponse('Table not found');
+        }
+        // delete
+        TblService::deleteDatas($table->id, ['id' => $request->id]);
+
+        // get all
+        $datas = DB::table($currentTable)
+            ->select('sort_order as sort', 'id as key', $currentTable . '.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $parentTable)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
+        $columns = Task::getTaskByStatus([], $parentTable);
+        return $this->sendSuccessResponse(['data' => $datas, 'columns' => $columns]);
     }
 }

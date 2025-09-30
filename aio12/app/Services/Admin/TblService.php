@@ -2131,10 +2131,18 @@ class TblService extends Service
         return $viewData;
     }
 
-    protected function formatData($tableName, $name = 'name')
+    protected function formatData($tableName, $conditions = [])
     {
+        
+        $datas = DB::table($tableName)->where('is_recycle_bin', 0);
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $datas = $datas->where($key, $val);
+            }
+        }
+        $datas = $datas->get();
+
         $result = [];
-        $datas = DB::table($tableName)->where('is_recycle_bin', 0)->get();
         foreach ($datas as $data) {
             $result[$data->id] = $data;
         }

@@ -148,16 +148,9 @@ class AdminMenuSeeder extends Seeder
             ]
         );
         DB::table('admin_menu')->insert([
-            ['parent_id' => $congViec, 'name' => 'task.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'task.dashboard', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc', 'table_name' => 'tasks', 'route' => 'task.list', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $congViec, 'name' => 'label_tasks_setting', 'display_name' => 'Cài đặt', 'table_name' => '', 'route' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-        ]);
-
-        $task = DB::table('admin_menu')->where('table_name', 'tasks')->first();
-        DB::table('admin_menu')->insert([
-            ['parent_id' => $task->id, 'name' => 'task_milestones', 'display_name' => 'Milestones', 'table_name' => 'task_milestones', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $task->id, 'name' => 'task_prority', 'display_name' => 'Độ ưu tiên', 'table_name' => 'task_prority', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $task->id, 'name' => 'task_status', 'display_name' => 'Trạng thái', 'table_name' => 'task_status', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $congViec, 'name' => 'task.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'task.dashboard', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $congViec, 'name' => 'label_tasks_setting', 'display_name' => 'Cài đặt', 'table_name' => '', 'route' => '', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
         ]);
 
 
@@ -174,8 +167,8 @@ class AdminMenuSeeder extends Seeder
         );
         DB::table('admin_menu')->insert([
             ['parent_id' => $taiSan, 'name' => 'taisan_dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'taiSan.dashboard', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $taiSan, 'name' => '', 'display_name' => 'Tài sản', 'table_name' => '', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $taiSan, 'name' => 'tai_san', 'display_name' => '', 'table_name' => 'tai_san', 'route' => 'taiSan.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            // ['parent_id' => $taiSan, 'name' => '', 'display_name' => 'Tài sản', 'table_name' => 'tai_san', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $taiSan, 'name' => 'tai_san', 'display_name' => 'Tài sản', 'table_name' => 'tai_san', 'route' => 'taiSan.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $taiSan, 'name' => 'tai_san_kiem_ke', 'display_name' => 'Kiểm kê', 'table_name' => 'tai_san_kiem_ke', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $taiSan, 'name' => 'tai_san_bao_tri', 'display_name' => 'Bảo trì', 'table_name' => 'tai_san_bao_tri', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $taiSan, 'name' => 'tai_san_thanh_ly', 'display_name' => 'Thanh lý', 'table_name' => 'tai_san_thanh_ly', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],

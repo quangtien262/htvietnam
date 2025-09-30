@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable(); // tên bảng, dùng để tạo database
             $table->string('display_name')->nullable(); // tên hiển thị, dùng để hiển thị ở table list, form add/edit
-
+            $table->string('parameter')->nullable(); // parameter truyền vào if exists
             // Phần này dành cho web
             $table->string('icon')->nullable();
             $table->string('route')->nullable(); // tên route
@@ -38,7 +38,7 @@ return new class extends Migration
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),
                 'count_item_of_page' => 30,
-                'is_edit' => 0,
+                'is_edit' => 1,
                 'form_data_type' => 2, //1: new page, 2: popup
                 'expandable' => 1,
                 'have_delete' => 1,
@@ -49,13 +49,27 @@ return new class extends Migration
                 'tab_table_name' => '',
                 'table_data' => '',
                 'is_label' => 0,
+                'is_show_btn_detail' => 1,
             ]);
             $tbl = Table::where('name', 'admin_menu')->first();
             
-            MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
-            MigrateService::createColumn02($tbl->id, 'name', 'Tên bảng', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
-            MigrateService::createColumn02($tbl->id, 'display_name', 'Tên hiển thị', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
-        
+            MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
+            MigrateService::createColumn02($tbl->id, 'parent_id', 'id', 'INT', 'number', $order_col++, []);
+            MigrateService::createColumn02($tbl->id, 'name', 'Tên bảng', 'VARCHAR', 'text', $order_col++,
+            ['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'display_name', 'Tên hiển thị', 'VARCHAR', 'text', $order_col++,
+            ['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'icon', 'Icon', 'VARCHAR', 'text', $order_col++,
+            ['is_view_detail' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'route', 'Route', 'VARCHAR', 'text', $order_col++,
+            ['is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'table_name', 'Tên bảng dữ liệu', 'VARCHAR', 'text', $order_col++,
+            ['is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'link', 'Liên kết', 'VARCHAR', 'text', $order_col++,
+            ['is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+            MigrateService::createColumn02($tbl->id, 'is_active', 'Trạng thái hoạt động', 'TINYINT', 'switch', $order_col++,
+            ['is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
+
         });
     }
 

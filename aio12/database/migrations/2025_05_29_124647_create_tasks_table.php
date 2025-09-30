@@ -17,7 +17,11 @@ return new class extends Migration
             $table->id();
             $table->text('name')->nullable();
             $table->text('description')->nullable();
-            // $table->text('content')->nullable();
+
+            $table->string('parent_name')->nullable();
+
+            $table->string('project_id')->nullable();
+
             $table->integer('task_status_id')->default(1)->nullable(); // todo, doing, done
             $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
             $table->text('nguoi_theo_doi')->nullable(); // json người theo dõi hoặc làm cùng
@@ -28,6 +32,12 @@ return new class extends Migration
             $table->date('end')->nullable();
             $table->date('actual')->nullable();
             $table->text('tags')->nullable();
+
+            $table->integer('milestones_id')->nullable();
+
+            $table->integer('is_daily')->default(0)->nullable();
+            $table->integer('is_weekly')->default(0)->nullable();
+            $table->integer('is_monthly')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
 

@@ -272,12 +272,13 @@ export function options(data, haveCode = false) {
 // key ko bắt đầu từ số 0
 export function optionEntries(data, haveCode = false){
   return Object.entries(data).map(([key, value]) => {
+    
     let label = value.name;
     if(haveCode) {
       label = value.code + ' - ' + value.name;
     }
     return {
-      value: key,
+      value: value.id,
       label: label,
     }
   })

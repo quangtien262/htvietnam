@@ -15,7 +15,9 @@ return new class extends Migration
         Schema::create('task_prority', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('description')->nullable();
             $table->string('color')->default('#000000')->nullable();
+            $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
 
