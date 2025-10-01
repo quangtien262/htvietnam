@@ -30,26 +30,25 @@ class TaskController extends Controller
     /**
      * Summary of index
      * @param \Illuminate\Http\Request $request
-     * @param mixed $tblName
+     * @param mixed $parentName
      * @return \Inertia\Response
      */
-    public function index(Request $request, $tblName)
+    public function index(Request $request, $parentName)
     {
-        $table = Table::where('name', $tblName)->first();
+        $table = Table::where('name', $parentName)->first();
 
-        $prority = TblService::formatData('task_prority', ['parent_name' => $tblName]);
-        $type = TblService::formatData('task_type', ['parent_name' => $tblName]);
-        $status = TblService::formatData('task_status', ['parent_name' => $tblName]);
+        $prority = TblService::formatData('task_prority', ['parent_name' => $parentName]);
+        $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
+        $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
         $admin = Auth::guard('admin_users')->user();
 
-        $datas = Task::getTaskByStatus($request, $tblName);
+        $datas = Task::getTaskByStatus($request, $parentName);
 
         $statusTable = Table::where('name', 'task_status')->first();
-        // $statusData_DragDrop = TblService::getDataDragDrop($statusTable->id, 0, ['parent_name' => $tblName]);
         $statusData = DB::table('task_status')
             ->select('sort_order as sort', 'id as key', 'task_status.*')
             ->where('is_recycle_bin', 0)
-            ->where('parent_name', $tblName)
+            ->where('parent_name', $parentName)
             ->orderBy('sort_order', 'asc')
             ->get()
             ->toArray();
@@ -73,14 +72,14 @@ class TaskController extends Controller
             'statusData' => $statusData,
             // 'statusData_DragDrop' => $statusData_DragDrop,
             'statusTable' => $statusTable,
-            'tblName' => $tblName,
+            'parentName' => $parentName,
         ]);
     }
     public function getList()
     {
         return Task::all();
     }
-    public function store(Request $request)
+    public function store(Request $request, $parentName)
     {
         $admin = Auth::guard('admin_users')->user();
 
@@ -95,9 +94,10 @@ class TaskController extends Controller
         $task->start = $request->start ? $request->start : null;
         $task->end = $request->end ? $request->end : null;
         $task->create_by = $admin->id;
+        $task->parent_name = $parentName;
         $task->save();
 
-        $datas = Task::getTaskByStatus($request);
+        $datas = Task::getTaskByStatus($request, $parentName);
 
         return $this->sendSuccessResponse($datas);
     }
@@ -224,7 +224,7 @@ class TaskController extends Controller
         return $this->sendSuccessResponse($tasks);
     }
 
-    public function addTaskExpress(Request $request, $tblName)
+    public function addTaskExpress(Request $request, $parentName)
     {
         if (empty($request->datas)) {
             return $this->sendErrorResponse('empty');
@@ -243,12 +243,12 @@ class TaskController extends Controller
             $task->nguoi_thuc_hien = $data['nguoi_thuc_hien'];
             $task->task_status_id = $data['task_status_id'];
             $task->create_by = $admin->id;
-            $task->parent_name = $tblName;
+            $task->parent_name = $parentName;
             $task->save();
         }
 
         // get all
-        $tasks = Task::getTaskByStatus($request, $tblName);
+        $tasks = Task::getTaskByStatus($request, $parentName);
 
         return $this->sendSuccessResponse($tasks);
     }

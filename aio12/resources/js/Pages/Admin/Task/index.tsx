@@ -77,16 +77,16 @@ export default function Dashboard(props) {
   const [checklist, setChecklist] = useState([]);
   const [isModalChecklist, setIsModalChecklist] = useState(false);
 
-  const [formDesc, setFormDesc] = Form.useForm();
+  const [formDesc] = Form.useForm();
 
   const [comments, setComments] = useState([]);
-  const [formComment, setFormComment] = Form.useForm();
+  const [formComment] = Form.useForm();
 
   const [api, contextHolder] = notification.useNotification();
   const [isShowStatusSetting, setIsShowStatusSetting] = useState(false);
 
-  const [formData, setFormData] = Form.useForm();
-  const [formSearch, setFormSearch] = Form.useForm();
+  const [formData] = Form.useForm();
+  const [formSearch] = Form.useForm();
 
   const [openDetail, setOpenDetail] = useState(false);
 
@@ -99,8 +99,8 @@ export default function Dashboard(props) {
   // save_continue: save and add new
   const [typeSubmit, setTypeSubmit] = useState('save');
 
-  const [isModalXoaOpen, setIsModalXoaOpen] = useState(0);
-  const [isModalAddOpen, setIsModalAddOpen] = useState(0);
+  const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
+  const [isModalAddOpen, setIsModalAddOpen] = useState(false);
 
   const [columns, setColumns] = useState(props.datas);
   const [taskInput, setTaskInput] = useState("");
@@ -151,8 +151,20 @@ export default function Dashboard(props) {
     };
 
     function addExpress() {
+      // validation form
+      let isValid = true;
+
+      formAddTaskExpress.forEach((item, index) => {
+        if (item.name && item.name.trim() !== '' && !item.task_status_id) {
+          isValid = false;
+          message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
+        }
+      });
+
+      if (!isValid) return;
+
       // setIsLoadingBtn(true);
-      axios.post(route("task.addTaskExpress", [props.tblName]), {
+      axios.post(route("task.addTaskExpress", [props.parentName]), {
         datas: formAddTaskExpress
       }).then((response) => {
         // location.reload();
@@ -201,7 +213,7 @@ export default function Dashboard(props) {
       {/* form Thêm task express */}
       {
         formAddTaskExpress.map((item, key) => {
-          
+
           return <tbody key={key}>
             <tr>
               <td>
@@ -376,8 +388,7 @@ export default function Dashboard(props) {
 
   // form data
   const onFinishData = async (values) => {
-    setIsLoadingBtn(true);
-
+    // setIsLoadingBtn(true);
     values.typeSubmit = typeSubmit;
     if (values.start) {
       values.start = values.start.format('YYYY-MM-DD');
@@ -386,20 +397,30 @@ export default function Dashboard(props) {
       values.end = values.end.format('YYYY-MM-DD');
     }
 
-    const res = await createTask(values);
+    // const res = await createTask(values);
+    axios.post(route('task.add', { parentName: props.parentName }), values)
+      .then(response => {
+        setIsLoadingBtn(false);
+        setColumns(response.data.data);
+        message.success("Đã lưu dữ liệu thành công");
 
-    setIsLoadingBtn(false);
+        // reset form
+        formData.resetFields();
 
-    setColumns(res.data.data);
+        // case lưu và đóng, đóng modal sau khu lưu thành công
+        if (typeSubmit === 'save') {
+          setIsModalAddOpen(false);
+        }
+      })
+      .catch(error => {
+        setIsLoadingBtn(false);
+      });
 
-    formData.resetFields();
 
-    message.success("Đã lưu dữ liệu thành công");
 
-    // case lưu và đóng, đóng modal sau khu lưu thành công
-    if (typeSubmit === 'save') {
-      setIsModalAddOpen(false);
-    }
+
+
+
 
     // setColumns((prev) => ({
     //   ...prev,
@@ -659,7 +680,7 @@ export default function Dashboard(props) {
               <p>Các thông tin về hàng hóa này sẽ bị xóa hoàn toàn</p>
             </Modal>
 
-            <Modal title="Cài đặt quy trình"
+            <Modal title="Cài đặt trạng thái"
               className="status-setting"
               open={isShowStatusSetting}
               onCancel={() => closePopupStatus()}
@@ -667,7 +688,7 @@ export default function Dashboard(props) {
             >
               <div>
 
-                {taskConfig(statusData, { parentName: props.tblName, currentName: 'task_status' }, {
+                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status' }, {
                   name: 'Quy trình',
                   description: 'Mô tả ',
                   color: 'Màu chữ',
@@ -736,7 +757,7 @@ export default function Dashboard(props) {
 
                 <Row>
                   <Col sm={24}>
-                    <Form.Item name='task_status_id' label=''>
+                    <Form.Item name='task_status_id' label='Chọn trạng thái' rules={[{ required: true, message: 'Vui lòng nhập trạng thái công việc', }]}>
                       <Radio.Group
                         block
                         optionType="button"

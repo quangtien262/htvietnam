@@ -68,7 +68,7 @@ export default function Admin({
 
         // đôi với route task.list thì format này có thể áp dụng cho trường hợp là QL công việc, quy trình sale, cskh ...
         if(menu.route === 'task.list') {  
-            return route(menu.route, {tblName:menu.table_name, p: p});
+            return route(menu.route, {parentName:menu.table_name, p: p});
         }
         return route(menu.route, { p: p });
     }

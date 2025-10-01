@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\KhachHangController;
 use App\Http\Controllers\Admin\NCCController;
 use App\Http\Controllers\Admin\NhanVienController;
 use App\Http\Controllers\Admin\PhieuThuController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\SoQuyController;
@@ -316,22 +317,32 @@ Route::post('khach-hang/info/{id}', [KhachHangController::class, 'info'])->name(
 
 Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->name('tatToanCongNo');
 
-//tasks
-Route::group(['prefix' => 'pro'], function () {
-    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
-    Route::get('{tblName}/list', [TaskController::class, 'index'])->name('task.list');
-    Route::post('{tblName}/add', [TaskController::class, 'store'])->name('task.add');
-    Route::put('{tblName}/update/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
-    Route::delete('{tblName}/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
-    Route::post('{tblName}/add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
-    Route::post('{tblName}/task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
-    Route::post('{tblName}/add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
-    Route::post('{tblName}/fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
-    Route::post('{tblName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
-    Route::post('{tblName}/add-express', [TaskController::class, 'addTaskExpress'])->name('task.addTaskExpress');
 
-    Route::post('{tblName}/add-config/{currentTable}', [TaskController::class, 'addConfig'])->name('task.addConfig');
-    Route::post('{tblName}/delete-config/{currentTable}', [TaskController::class, 'deleteConfig'])->name('task.deleteConfig');
+Route::group(['prefix' => 'pj'], function () {
+    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
+    Route::get('{parentName}/project/list', [ProjectController::class, 'projectList'])->name('project.list');
+    Route::post('{parentName}/project/add', [ProjectController::class, 'store'])->name('project.add');
+    Route::put('{parentName}/project/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    Route::delete('{parentName}/project/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+});
+//tasks
+Route::group(['prefix' => 'cv'], function () {
+
+
+
+    Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
+    Route::post('{parentName}/add', [TaskController::class, 'store'])->name('task.add');
+    Route::put('{parentName}/update/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
+    Route::delete('{parentName}/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
+    Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
+    Route::post('{parentName}/task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
+    Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
+    Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
+    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
+    Route::post('{parentName}/add-express', [TaskController::class, 'addTaskExpress'])->name('task.addTaskExpress');
+
+    Route::post('{parentName}/add-config/{currentTable}', [TaskController::class, 'addConfig'])->name('task.addConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [TaskController::class, 'deleteConfig'])->name('task.deleteConfig');
 });
 
 Route::group(['prefix' => 'wms'], function () {

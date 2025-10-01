@@ -18,11 +18,11 @@ return new class extends Migration
             $table->text('name')->nullable();
             $table->text('description')->nullable();
             $table->integer('task_status_id')->default(1)->nullable();
-            $table->integer('nguoi_thuc_hien')->nullable();
-            $table->text('nguoi_theo_doi')->nullable();
+            $table->text('nguoi_theo_doi')->nullable(); // json người theo dõi hoặc làm cùng
+            $table->integer('nguoi_thuc_hien')->nullable(); // json người thực hiện
             $table->text('project_manager')->nullable(); //admin_users_id
 
-            $table->string('parent_name')->nullable(); // tên tính năng: sale, task, project.... 
+            $table->string('parent_name')->nullable(); // tên tính năng: sale, task, project, tms.... 
 
              // todo, doing, done
              // nv thực hiện

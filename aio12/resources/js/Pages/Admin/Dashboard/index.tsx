@@ -257,7 +257,7 @@ export default function Dashboard(props: any) {
                 <Card variant="borderless" className='item-dashboard'> 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link href={route(item.route, {tblName:'tasks',p:item.id})}>
+                            <Link href={route(item.route, {p:item.id})}>
                                 <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
                             </Link>
                         </div>
