@@ -247,7 +247,7 @@ class TblService extends Service
         return TblModel::model($table->name)->where('id', $id)->first();
     }
 
-    protected function getDatas($table, $columns, $request, $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
+    protected function getDatas($table, $columns, $request = [], $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
     {
         $per = self::getPermission();
         //select table

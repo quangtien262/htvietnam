@@ -63,14 +63,16 @@ export default function Admin({
 
     function getLinkRoute(menu: any) {
         if (menu.route && menu.route === 'data.tblName') {
-            return route(menu.route, { p: p });
+            return route(menu.route, {tblName: menu.table_name, p: p });
         }
 
         // đôi với route task.list thì format này có thể áp dụng cho trường hợp là QL công việc, quy trình sale, cskh ...
-        if(menu.route === 'task.list') {  
+        if(menu.route === 'task.list' || menu.route === 'project.list') {  
             return route(menu.route, {parentName:menu.table_name, p: p});
         }
-        return route(menu.route, { p: p });
+
+
+        return route(menu.route, { p: p});
     }
 
     function getLinkMenu(menu: any) {

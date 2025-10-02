@@ -61,7 +61,7 @@ return new class extends Migration
         MigrateService::createColumn02($cart->id, 'note', 'Số lượng', 'TEXT', 'textarea', $order_col++);
 
         $confirm = Table::where('name', 'confirm')->first();
-        MigrateService::createColumn02($cart->id, 'is_payment', 'Số lượng', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
+        MigrateService::createColumn02($cart->id, 'is_payment', 'Đã thanh toán', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
         MigrateService::createColumn02($cart->id, 'invoice', 'Xuất hóa đơn', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
         
         MigrateService::createColumn02($cart->id, 'sort_order', 'Số lượng', 'TEXT', 'text', $order_col++);

@@ -15,7 +15,8 @@ import {
   DatePicker,
   Empty,
   notification,
-  Divider,
+  Divider, Tree,
+  Tabs,
   Col, Drawer,
   Radio, List
 } from "antd";
@@ -31,12 +32,12 @@ import {
   PlusSquareFilled, CheckSquareFilled,
   CheckOutlined, HddFilled,
   CloseSquareOutlined,
-  ArrowRightOutlined, CheckCircleOutlined,
+  CheckCircleOutlined,
   SnippetsFilled,
-  CheckSquareOutlined, UserOutlined, UsergroupAddOutlined,
+  PlusCircleFilled, UserOutlined, UsergroupAddOutlined,
   UserSwitchOutlined, PushpinFilled,
   SettingFilled, EditFilled,
-  HomeOutlined, PlusCircleFilled, PlusCircleOutlined
+  HomeOutlined, PlusCircleOutlined
 } from "@ant-design/icons";
 
 import "../../../../css/list02.css";
@@ -48,7 +49,7 @@ import { callApi } from "../../../Function/api";
 import { DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
 import { formAddExpress } from "../../../components/comp_data";
-import { taskConfig } from "./task_config";
+import { projectConfig } from "./project_config";
 
 import {
   getTasks,
@@ -71,7 +72,6 @@ export default function Dashboard(props) {
   // checklist
   const formChecklist_default = { name: '', content: '', admin_user_id: null };
   const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-  const [nguoiThucHien, setNguoiThucHien] = useState(null);
   const [isApplyAll, setIsApplyAll] = useState(true);
   const [checklist, setChecklist] = useState([]);
   const [isModalChecklist, setIsModalChecklist] = useState(false);
@@ -90,7 +90,7 @@ export default function Dashboard(props) {
   const [openDetail, setOpenDetail] = useState(false);
 
   const [statusAction, setStatusAction] = useState(1);
-  const [dataAction, setDataAction] = useState(0);
+  const [dataAction, setDataAction] = useState({ id: 0 });
   const [idxDataAction, setIdxDataAction] = useState(0);
   const [idxColumnAction, setIdxColumnAction] = useState(0);
 
@@ -111,7 +111,7 @@ export default function Dashboard(props) {
       name: '',
       description: '',
       nguoi_thuc_hien: null,
-      task_status_id: null
+      project_status_id: null
     };
     const [formAddTaskExpress, setFormAddTaskExpress] = useState([formAddTaskExpress_default, formAddTaskExpress_default, formAddTaskExpress_default]);
     const [nguoiThucHien_applyAll, setNguoiThucHien_applyAll] = useState(true);
@@ -134,7 +134,7 @@ export default function Dashboard(props) {
         return;
       }
 
-      if (key === 'task_status_id' && status_applyAll) {
+      if (key === 'project_status_id' && status_applyAll) {
         setFormAddTaskExpress(prev =>
           prev.map(item => ({
             ...item,
@@ -154,7 +154,7 @@ export default function Dashboard(props) {
       let isValid = true;
 
       formAddTaskExpress.forEach((item, index) => {
-        if (item.name && item.name.trim() !== '' && !item.task_status_id) {
+        if (item.name && item.name.trim() !== '' && !item.project_status_id) {
           isValid = false;
           message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
         }
@@ -163,7 +163,7 @@ export default function Dashboard(props) {
       if (!isValid) return;
 
       // setIsLoadingBtn(true);
-      axios.post(route("task.addTaskExpress", [props.parentName]), {
+      axios.post(route("project.addExpress", [props.parentName]), {
         datas: formAddTaskExpress
       }).then((response) => {
         // location.reload();
@@ -243,9 +243,9 @@ export default function Dashboard(props) {
                       .includes(input.toLowerCase())
                   }
                   options={optionEntries(status)}
-                  value={item.task_status_id}
+                  value={item.project_status_id}
                   onChange={(val) => {
-                    updateformAddTaskExpres(key, 'task_status_id', val);
+                    updateformAddTaskExpres(key, 'project_status_id', val);
                   }}
                 />
               </td>
@@ -292,7 +292,7 @@ export default function Dashboard(props) {
               <Col span={24} className="main-btn-popup">
                 <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
                   <CheckOutlined />
-                  Tạo Công việc
+                  Thêm mới
                 </Button>
                 <span> </span>
                 <Button className="btn-popup" onClick={() => setIsModalAddExpress(false)} loading={isLoadingBtn}>
@@ -504,7 +504,7 @@ export default function Dashboard(props) {
       const ids = newDatas[destination_index].datas.map(item => item.id);
       // save 2 db
       await updateTask(itemToMove.id, {
-        task_status_id: destination.droppableId,
+        project_status_id: destination.droppableId,
         ids: ids
       });
 
@@ -530,7 +530,7 @@ export default function Dashboard(props) {
     const ids = newDatas[destination_index].datas.map(item => item.id);
 
     await updateTask(itemToMove.id, {
-      task_status_id: destination.droppableId,
+      project_status_id: destination.droppableId,
       ids: ids
     });
 
@@ -657,7 +657,6 @@ export default function Dashboard(props) {
   function closePopupStatus() {
     setIsShowStatusSetting(false);
   }
-
   return (
     <div>
       <AdminLayout
@@ -687,8 +686,8 @@ export default function Dashboard(props) {
             >
               <div>
 
-                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status' }, {
-                  name: 'Quy trình',
+                {projectConfig(statusData, { parentName: props.parentName, currentName: 'project_status' }, {
+                  name: 'Trạng thái',
                   description: 'Mô tả ',
                   color: 'Màu chữ',
                   background: 'Màu nền',
@@ -711,8 +710,8 @@ export default function Dashboard(props) {
               </div>
             </Modal>
 
-            {/* Thêm nhanh công việc */}
-            <Modal title="Thêm nhanh công việc"
+            {/* Thêm nhanh  */}
+            <Modal title="Thêm nhanh "
               open={isModalAddExpress}
               onCancel={() => setIsModalAddExpress(false)}
               footer={[]}
@@ -731,7 +730,7 @@ export default function Dashboard(props) {
             </Modal>
 
             {/* Thêm mới */}
-            <Modal title="Thêm dự án"
+            <Modal title="Thêm mới"
               open={isModalAddOpen}
               onCancel={() => closeModalAdd()}
               footer={[]}
@@ -756,7 +755,7 @@ export default function Dashboard(props) {
 
                 <Row>
                   <Col sm={24}>
-                    <Form.Item name='task_status_id' label='Chọn trạng thái' rules={[{ required: true, message: 'Vui lòng nhập trạng thái công việc', }]}>
+                    <Form.Item name='project_status_id' label='Chọn trạng thái' rules={[{ required: true, message: 'Vui lòng nhập trạng thái công việc', }]}>
                       <Radio.Group
                         block
                         optionType="button"
@@ -793,11 +792,11 @@ export default function Dashboard(props) {
 
 
                       <Col sm={{ span: 24 }}>
-                        <Form.Item className="item-form" name='nguoi_thuc_hien' label="Người thực hiện">
+                        <Form.Item className="item-form" name='project_manager' label="Người quản lý">
                           <Select
                             showSearch
                             style={{ width: "100%" }}
-                            placeholder="Chọn nhân viên thực hiện"
+                            placeholder="Chọn quản lý"
                             optionFilterProp="children"
                             filterOption={(input, option) =>
                               (option?.label ?? "")
@@ -949,26 +948,21 @@ export default function Dashboard(props) {
 
             {/* title */}
             <Row>
+              <Col sm={{ span: 24 }}>
 
-              <Col sm={{ span: 8 }}>
-                <h3 className="title04">{TITLE.TASK}</h3>
-              </Col>
-
-              <Col sm={{ span: 16 }}>
-
-                {/* Cài đặt quy trình */}
+                {/* Cài đặt trạng thái */}
                 <Button className="_right"
                   onClick={() => setIsShowStatusSetting(true)}
                 >
                   <SettingFilled /> Cài đặt trạng thái
                 </Button>
 
-                {/* Thêm dự án */}
+                {/* Thêm mới */}
                 <Button type="primary"
                   className="_right btn-submit01"
                   onClick={() => setIsModalAddOpen(true)}
                 >
-                  <PlusCircleFilled /> Thêm dự án
+                  <PlusCircleFilled /> Thêm mới
                 </Button>
 
                 <Button type="primary"
@@ -1001,25 +995,25 @@ export default function Dashboard(props) {
             >
               <Row>
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Từ khóa'>
+                  <Form.Item name='keyword' label='Từ khóa'>
                     <Input />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Nhân viên'>
+                  <Form.Item name='nguoi_thuc_hien' label='Nhân viên'>
                     <Input />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Thời hạn'>
+                  <Form.Item name='start' label='Thời hạn'>
                     <Input />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Nhóm công việc'>
+                  <Form.Item name='project_status_id' label='Loại'>
                     <Input />
                   </Form.Item>
                 </Col>
@@ -1030,7 +1024,18 @@ export default function Dashboard(props) {
             <div className="tasks-container">
 
               <Row>
-                {/* content */}
+                <Divider orientation="left" className="divider02">
+                  <Space>
+                    <span>{TITLE.PROJECT}</span>
+                    <span> | </span>
+                    <span className="text-normal">Kiểu hiển thị: <a>List</a> - <a>Kanban</a></span>
+                  </Space>
+                </Divider>
+              </Row>
+
+              <Row className="kanban">
+
+                {/* kanban content */}
                 <div>
                   <DragDropContext onDragEnd={onDragEnd}>
                     <div style={{ display: "flex", gap: "5px" }}>
@@ -1319,14 +1324,14 @@ export default function Dashboard(props) {
                           <a><PushpinFilled /> </a>
                           <span>Trạng thái: </span>
                           {
-                            !dataAction.task_status_id
+                            !dataAction.project_status_id
                               ?
                               <span className="value-list">Chưa xác định</span>
                               :
                               <>
-                                <Tag style={{ color: status[dataAction.task_status_id].color, background: status[dataAction.task_status_id].background }}>
-                                  <span>{icon[status[dataAction.task_status_id].icon]} </span>
-                                  <span> {status[dataAction.task_status_id].name}</span>
+                                <Tag style={{ color: status[dataAction.project_status_id].color, background: status[dataAction.project_status_id].background }}>
+                                  <span>{icon[status[dataAction.project_status_id].icon]} </span>
+                                  <span> {status[dataAction.project_status_id].name}</span>
                                 </Tag>
                               </>
                           }
@@ -1341,7 +1346,7 @@ export default function Dashboard(props) {
                                   <p style={{ color: item.background }}
                                     className="cursor"
                                     onClick={() => {
-                                      updateTaskByColumn(dataAction.id, 'task_status_id', item.id);
+                                      updateTaskByColumn(dataAction.id, 'project_status_id', item.id);
                                     }}
                                   >
                                     {icon[item.icon]} {item.name}

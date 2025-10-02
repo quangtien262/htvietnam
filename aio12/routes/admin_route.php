@@ -319,15 +319,26 @@ Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->nam
 
 
 Route::group(['prefix' => 'pj'], function () {
-    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
-    Route::get('{parentName}/project/list', [ProjectController::class, 'projectList'])->name('project.list');
-    Route::post('{parentName}/project/add', [ProjectController::class, 'store'])->name('project.add');
-    Route::put('{parentName}/project/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
-    Route::delete('{parentName}/project/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
+    Route::post('{parentName}/add', [ProjectController::class, 'store'])->name('project.add');
+    Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+
+    
+    Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
+    Route::post('{parentName}/task-info/{taskId}', [TaskController::class, 'getProjectInfo'])->name('project.getProjectInfo');
+    Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
+    Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEdit'])->name('project.fastEdit');
+    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
+    Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
+
+    Route::post('{parentName}/add-config/{currentTable}', [ProjectController::class, 'editConfig'])->name('project.editConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 //tasks
 Route::group(['prefix' => 'cv'], function () {
-
+    
+    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
 
 
     Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
@@ -339,9 +350,9 @@ Route::group(['prefix' => 'cv'], function () {
     Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
     Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
     Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
-    Route::post('{parentName}/add-express', [TaskController::class, 'addTaskExpress'])->name('task.addTaskExpress');
+    Route::post('{parentName}/add-express', [TaskController::class, 'addExpress'])->name('task.addTaskExpress');
 
-    Route::post('{parentName}/add-config/{currentTable}', [TaskController::class, 'addConfig'])->name('task.addConfig');
+    Route::post('{parentName}/add-config/{currentTable}', [TaskController::class, 'editConfig'])->name('task.editConfig');
     Route::post('{parentName}/delete-config/{currentTable}', [TaskController::class, 'deleteConfig'])->name('task.deleteConfig');
 });
 

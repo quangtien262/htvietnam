@@ -95,6 +95,7 @@ class TaskController extends Controller
         $task->end = $request->end ? $request->end : null;
         $task->create_by = $admin->id;
         $task->parent_name = $parentName;
+        $task->project_id = $request->project_id;
         $task->save();
 
         $datas = Task::getTaskByStatus($request, $parentName);
@@ -219,12 +220,12 @@ class TaskController extends Controller
         $this->updateSortOrderSetting($dataSort, $request->table_name);
 
         // get tasks
-        $tasks = Task::getTaskByStatus($request);
+        $tasks = Task::getTaskByStatus($request, $request->parent_name);
 
         return $this->sendSuccessResponse($tasks);
     }
 
-    public function addTaskExpress(Request $request, $parentName)
+    public function addExpress(Request $request, $parentName)
     {
         if (empty($request->datas)) {
             return $this->sendErrorResponse('empty');
@@ -270,13 +271,16 @@ class TaskController extends Controller
         return ++$indexStart;
     }
 
-    public function addConfig(Request $request, $parentTable, $currentTable)
+    public function editConfig(Request $request, $parentTable, $currentTable)
     {
         $table = Table::where('name', $currentTable)->first();
         $admin = Auth::guard('admin_users')->user();
 
         // save
         $data = TblModel::model($currentTable);
+        if($request->id){
+            $data = $data->find($request->id);
+        }
         $data->parent_name = $parentTable;
         foreach ($request->all() as $k => $v) {
             $data->{$k} = $v;

@@ -4,40 +4,14 @@ import {
     Button,
     message,
     Modal,
-    Form, Input, Timeline,
-    Popconfirm, Popover,
-    Select, Checkbox,
-    Row,
-    Space, Flex, ColorPicker,
-    Tag,
-    DatePicker,
-    Empty,
-    notification,
-    Divider, Tree,
-    Tabs,
-    Col, Drawer,
-    Radio, List,
+    Form, Input, 
+    Popconfirm, ColorPicker,
     TableColumnsType,
     Table
 } from "antd";
 import axios from "axios";
 import {
-    CopyOutlined, FlagFilled,
-    DownOutlined,
-    ToolFilled, ProfileOutlined,
-    DeleteOutlined,
-    EditOutlined, EyeOutlined, CaretRightFilled,
-    SettingOutlined,
-    InfoCircleFilled, FireFilled,
-    PlusSquareFilled, CheckSquareFilled,
-    CheckOutlined, HddFilled,
-    CloseSquareOutlined,
-    ArrowRightOutlined, CheckCircleOutlined,
-    SnippetsFilled,
-    CheckSquareOutlined, UserOutlined, UsergroupAddOutlined,
-    UserSwitchOutlined, PushpinFilled,
-    SettingFilled, EditFilled,
-    HomeOutlined, PlusCircleFilled, PlusCircleOutlined, HolderOutlined
+    CopyOutlined, PlusCircleOutlined, HolderOutlined
 } from "@ant-design/icons";
 
 // start import DND
@@ -58,24 +32,6 @@ import "../../../../css/list02.css";
 import "../../../../css/task.css";
 import "../../../../css/form.css";
 
-import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../../Function/common";
-import { callApi } from "../../../Function/api";
-import { DATE_TIME_FORMAT } from "../../../Function/constant";
-import { icon } from "../../../components/comp_icon";
-import { formAddExpress } from "../../../components/comp_data";
-
-import {
-    getTasks,
-    createTask,
-    updateTask,
-    deleteTask,
-} from "../../../Function/api";
-import { cloneDeep } from "lodash";
-import dayjs from "dayjs";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
-import { a } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
-
 const { TextArea } = Input;
 interface columnType {
     name?: string;
@@ -90,6 +46,14 @@ interface TblType {
     // [key: string]: any;
 }
 
+const dataActionDefault = {
+    id: 0,
+    name: '',
+    description: '',
+    color: '#FFFFFF',
+    background: '#64748B',
+};
+
 export function taskConfig(
     datas: any,
     tbl: TblType,
@@ -99,6 +63,7 @@ export function taskConfig(
     const [isModalAddExpress, setIsModalAddExpress] = useState(false);
     const [dataSource, setDataSource] = React.useState<DataType[]>(datas);
     const [formExpress] = Form.useForm();
+    const [dataAction, setDataAction] = useState<any>(dataActionDefault);
 
     let name = 'Tiêu đề';
     let description = 'Mô tả';
@@ -114,14 +79,14 @@ export function taskConfig(
     }
 
     const onfinish = (values: any) => {
-        if(values.background && typeof values.background === 'object') {
+        if (values.background && typeof values.background === 'object') {
             values.background = values.background.toHexString();;
         }
-        if(values.color && typeof values.color === 'object') {
+        if (values.color && typeof values.color === 'object') {
             values.color = values.color.toHexString();;
         }
         console.log('values', values);
-        axios.post(route('task.addConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
+        axios.post(route('task.editConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
             message.success('Thêm mới thành công');
             setDataSource(response.data.data.data);
             onSuccess(response.data.data);
@@ -256,11 +221,6 @@ export function taskConfig(
                         Thêm mới
                     </Button>
                 </Form>
-                {/* {formAddExpress('tasks', { name: 'Quy trình' }, route('task.addConfig', { parentName: 'tasks', tableName: 'task_status' }), (data: any) => {
-                        setDataSource(data);
-                        onSuccess(data);
-                        message.success('Thêm mới thành công');
-                    })} */}
             </Modal>
             <Button type="dashed" onClick={() => setIsModalAddExpress(true)} style={{ marginBottom: 16 }}>
                 <PlusCircleOutlined /> Thêm mới

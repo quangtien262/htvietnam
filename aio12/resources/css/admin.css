@@ -1268,3 +1268,6 @@ table.table05 tr th{
     font-size: 18px;
     text-transform: uppercase;
 }
+.text-normal {
+    text-transform: none;
+}

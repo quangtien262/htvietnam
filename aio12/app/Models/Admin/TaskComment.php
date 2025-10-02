@@ -18,4 +18,15 @@ class TaskComment extends Model
             ->get(['task_comment.*', 'admin_users.name as admin_users_name'])
             ->toArray();
     }
+    static function getByProject($projectId)
+    {
+        return self::where('task_comment.project_id', $projectId)
+            ->leftJoin('admin_users', 'admin_users.id', 'task_comment.create_by')
+            ->where('task_comment.is_recycle_bin', 0)
+            ->orderBy('task_comment.id', 'desc')
+            ->get(['task_comment.*', 'admin_users.name as admin_users_name'])
+            ->toArray();
+    }
+
+    
 }

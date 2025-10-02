@@ -183,6 +183,7 @@ export default function index(props: any) {
                             treeData={gData}
                             onSelect={onSelect}
                             onCheck={onCheck}
+                            checkStrictly={true}
                         />
                     </Card>
                 </div>

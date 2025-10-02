@@ -7,11 +7,11 @@ export const DATE_TIME_SHOW = "HH:mm:ss DD/MM/YYYY";
 export const CHAM_CONG_DEFAULT = {checkin_h: '08',checkin_m: '30',checkout_h: '17',checkout_m: '30',note: '',type: 1,kpi: 0};
 
 export const TITLE =  { 
-    tasks: "QUẢN LÝ CÔNG VIỆC", 
-    projects: "QUẢN LÝ DỰ ÁN",
-    cskh: "QUẢN LÝ CSKH",
-    sale: "QUẢN LÝ BÁN HÀNG",
-    day_phong: "QUẢN LÝ ĐẨY PHÒNG",
+    TASK: "QUẢN LÝ CÔNG VIỆC", 
+    PROJECT: "QUẢN LÝ DỰ ÁN",
+    CSKH: "QUẢN LÝ CSKH",
+    SALE: "QUẢN LÝ BÁN HÀNG",
+    DAY_PHONG: "QUẢN LÝ ĐẨY PHÒNG",
  };
 
 export const TYPE_EDIT = [

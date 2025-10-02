@@ -12,6 +12,7 @@ class Task extends Model
     protected $casts = [
         'task_type_ids' => Json::class,
         'nguoi_theo_doi' => Json::class,
+        // 'nguoi_thuc_hien' => Json::class,
     ];
 
     static function getTaskByStatus($request = [], $parentName)

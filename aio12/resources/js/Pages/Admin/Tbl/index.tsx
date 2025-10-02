@@ -243,6 +243,7 @@ export default function index(props) {
                             onCheck={onCheck}
                             confirmDelete = {confirmDelete}
                             handleCancelDelete = {handleCancelDelete}
+                            checkStrictly={true}
                         />
                     </Card>
                 </div>
