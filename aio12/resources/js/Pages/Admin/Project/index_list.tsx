@@ -4,40 +4,40 @@ import {
     Button,
     Table,
     message,
-    Modal,
+    Modal, Drawer,
     Form,
     Input,
-    InputNumber,
+    TableColumnsType,
     Popconfirm,
-    Radio,
+    List,
     Select,
     Row, Col,
     Space,
     DatePicker,
-    Card,
-    Statistic,
-    notification,
+    Card, Flex, Progress,
+    Tag, Popover,
+    Timeline,
     Divider,
-    Image,
+    Empty,
     Checkbox,
     Dropdown,
 } from "antd";
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
-    ArrowRightOutlined,
-    FormOutlined,
-    SearchOutlined,
-    PlusCircleOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    EyeOutlined,
-    MoneyCollectFilled,
-    CheckOutlined,
-    CloseSquareOutlined,
-    CheckCircleFilled,
-    MinusSquareFilled,
-    SettingFilled,
+    SettingOutlined, FireFilled, PushpinFilled,
+    FieldTimeOutlined, CaretRightFilled,
+    SearchOutlined, DownOutlined,
+    PlusCircleOutlined, PlusSquareFilled,
+    DeleteOutlined, CheckSquareFilled,
+    EditOutlined, InfoCircleFilled,
+    EyeOutlined, EditFilled,
+    CheckCircleOutlined,
+    CheckOutlined, SnippetsFilled,
+    UsergroupAddOutlined,
+    FlagFilled, HddFilled,
+    ProfileOutlined,
+    SettingFilled, UserOutlined,
     CaretRightOutlined, PlusCircleFilled,
 } from "@ant-design/icons";
 
@@ -46,7 +46,7 @@ import "../../../../css/form.css";
 import { callApi } from "../../../Function/api";
 
 
-import { inArray, parseJson, numberFormat, removeByIndex, optionEntries, showInfo } from "../../../Function/common";
+import { inArray, parseJson, numberFormat, removeByIndex, optionEntries, showInfo, objEntries } from "../../../Function/common";
 import dayjs from "dayjs";
 import { projectConfig, formProject } from "./project_config";
 
@@ -80,6 +80,7 @@ import {
     useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { icon } from "../../../components/comp_icon";
 
 export default function Dashboard(props) {
     sessionStorage.clear();
@@ -100,6 +101,7 @@ export default function Dashboard(props) {
     const [isModalAddExpress, setIsModalAddExpress] = useState(false);
 
     const [statusData, setStatusData] = useState(props.statusData);
+    const [status, setStatus] = useState(props.status);
 
     const [form] = Form.useForm();
 
@@ -120,24 +122,12 @@ export default function Dashboard(props) {
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
     const [isApplyAll, setIsApplyAll] = useState(true);
-    const [checklist, setChecklist] = useState([]);
     const [isModalChecklist, setIsModalChecklist] = useState(false);
-
-    const [formDesc] = Form.useForm();
-
-    const [comments, setComments] = useState([]);
-    const [formComment] = Form.useForm();
 
     const [isShowStatusSetting, setIsShowStatusSetting] = useState(false);
 
-    
+
     const [formSearch] = Form.useForm();
-
-    const [openDetail, setOpenDetail] = useState(false);
-
-    const [statusAction, setStatusAction] = useState(1);
-    const [idxDataAction, setIdxDataAction] = useState(0);
-    const [idxColumnAction, setIdxColumnAction] = useState(0);
 
     // save: save and close
     // save_continue: save and add new
@@ -145,66 +135,70 @@ export default function Dashboard(props) {
 
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
     const [isModalAddOpen, setIsModalAddOpen] = useState(false);
+    const [formDesc] = Form.useForm();
+    const [formComment] = Form.useForm();
+    const [comments, setComments] = useState([]);
+    const [checklist, setChecklist] = useState([]);
 
-    const [columns, setColumns] = useState(props.datas);
-    const [taskInput, setTaskInput] = useState("");
-
-    const [saveStatus, setSaveStatus] = useState(false);
+    const [openDetail, setOpenDetail] = useState(false);
 
     // import excel
 
     const [tableParams, setTableParams] = useState({
-        // pagination: {
-        //     current: props.pageConfig.currentPage,
-        //     pageSize: props.pageConfig.perPage,
-        //     position: ["bottonRight"],
-        //     total: props.pageConfig.total,
-        //     onChange: (page, pageSize) => setPagination({ page, pageSize }),
-        // },
-    });
-
-
-    const sensor = useSensor(PointerSensor, {
-        activationConstraint: {
-            distance: 10,
+        pagination: {
+            current: props.pageConfig.currentPage,
+            pageSize: props.pageConfig.perPage,
+            position: ["bottonRight"],
+            total: props.pageConfig.total,
+            onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
     });
-    const onDragEnd = ({ active, over }) => {
-        if (active.id !== over?.id) {
-            setFileList((prev) => {
-                const activeIndex = prev.findIndex((i) => i.uid === active.id);
-                const overIndex = prev.findIndex((i) => i.uid === over?.id);
-                return arrayMove(prev, activeIndex, overIndex);
-            });
-        }
-    };
-    const onChange = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
-    const DraggableUploadListItem = ({ originNode, file }) => {
-        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-            id: file.uid,
-        });
-        return (
-            <div
-                ref={setNodeRef}
-                // style={style}
-                // prevent preview event when drag end
-                className={isDragging ? 'is-dragging' : ''}
-                {...attributes}
-                {...listeners}
-            >
-                {/* hide error tooltip when dragging */}
-                {file.status === 'error' && isDragging ? originNode.props.children : originNode}
-            </div>
-        );
-    };
 
     function setPagination(pagination: any) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),
             pagination
         );
+    }
+
+    function updateTaskByColumn(id, columnName, value) {
+        setDataAction({
+            ...dataAction,
+            [columnName]: value,
+        });
+
+        axios.post(route('task.fastEditTask'), {
+            column_name: columnName,
+            id: dataAction.id,
+            value: value
+        }).then(response => {
+            setIsLoadingBtn(false);
+            //   setColumns(response.data.data);
+            message.success('Cập nhật thành công');
+        }).catch(error => {
+            message.error('Cập nhật thất bại');
+        });
+    }
+
+    const onFinishFormDesc = async (values) => {
+        updateTaskByColumn(dataAction.id, 'description', values.description);
+    }
+
+    //onFinishFormComment
+    const onFinishFormComment = async (values) => {
+        setIsLoadingBtn(true);
+
+        axios.post(route('task.addComment'), {
+            task_id: dataAction.id,
+            content: values.content
+        }).then(response => {
+            formComment.resetFields();
+            setIsLoadingBtn(false);
+            setComments(response.data.data);
+            message.success('Đã thêm comment');
+        }).catch(error => {
+            message.error('Thêm comment thất bại');
+        });
     }
 
     const onFinishFormEdit = (values: any) => {
@@ -456,208 +450,6 @@ export default function Dashboard(props) {
         </table>
     }
 
-    function formAddTaskExpress(users) {
-        const formAddTaskExpress_default = {
-            name: '',
-            description: '',
-            nguoi_thuc_hien: null,
-            project_status_id: null
-        };
-        const [formAddTaskExpress, setFormAddTaskExpress] = useState([formAddTaskExpress_default, formAddTaskExpress_default, formAddTaskExpress_default]);
-        const [nguoiThucHien_applyAll, setNguoiThucHien_applyAll] = useState(true);
-        const [status_applyAll, setStatus_applyAll] = useState(true);
-
-        function remove(key) {
-            setFormAddTaskExpress(prev =>
-                prev.filter((_, index) => index !== key)
-            );
-        }
-
-        function updateformAddTaskExpres(idx, key, val) {
-            if (key === 'nguoi_thuc_hien' && nguoiThucHien_applyAll) {
-                setFormAddTaskExpress(prev =>
-                    prev.map(item => ({
-                        ...item,
-                        [key]: val
-                    }))
-                );
-                return;
-            }
-
-            if (key === 'project_status_id' && status_applyAll) {
-                setFormAddTaskExpress(prev =>
-                    prev.map(item => ({
-                        ...item,
-                        [key]: val
-                    }))
-                );
-                return;
-            }
-
-            let updated = [...formAddTaskExpress]; // sao chép mảng
-            updated[idx] = { ...updated[idx], [key]: val }; // cập nhật phần tử
-            setFormAddTaskExpress(updated); // cập nhật state
-        };
-
-        function addExpress() {
-            // validation form
-            let isValid = true;
-
-            formAddTaskExpress.forEach((item, index) => {
-                if (item.name && item.name.trim() !== '' && !item.project_status_id) {
-                    isValid = false;
-                    message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
-                }
-            });
-
-            if (!isValid) return;
-
-            // setIsLoadingBtn(true);
-            axios.post(route("project.addExpress", [props.parentName]), {
-                datas: formAddTaskExpress
-            }).then((response) => {
-                // location.reload();
-                setIsLoadingBtn(false);
-                setIsModalAddExpress(false);
-                setColumns(response.data.data);
-            }).catch((error) => {
-                message.error("Tạo checklist thất bại");
-            });
-        }
-
-        return <table className="table-sub">
-            <thead>
-                <tr>
-                    <th>
-                        <span>Tiêu đề </span>
-                        {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
-                    </th>
-                    <th>
-                        <span>Mô tả </span>
-                        {showInfo('Mô tả ngắn về công việc (nếu có)')}
-                    </th>
-                    <th>
-                        <span>Trạng thái </span>
-                        {showInfo('Trạng thái hoặc tiến độ hiện tại của công việc, chọn áp dụng tất cả thì sẽ được áp dụng cho tất cả cho các trạng thái khác giống như trạng thái mà bạn vừa chọn')}
-                        <br />
-                        <Checkbox checked={status_applyAll}
-                            onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                        >
-                            <em>Áp dụng tất cả</em>
-                        </Checkbox>
-                    </th>
-                    <th>
-                        <span>Người thực hiện </span>
-                        {showInfo('Chọn người làm chính cho công việc này, chọn áp dụng tất cả thì sẽ được áp dụng cho tất cả cho các "Người thực hiện" đều giống như lựa chọn mà bạn vừa chọn')}
-                        <br />
-                        <Checkbox checked={nguoiThucHien_applyAll}
-                            onChange={(e) => { setNguoiThucHien_applyAll(e.target.checked) }}
-                        >
-                            <em>Áp dụng tất cả</em>
-                        </Checkbox>
-                    </th>
-                    <th>Xóa</th>
-                </tr>
-            </thead>
-            {/* form Thêm task express */}
-            {
-                formAddTaskExpress.map((item, key) => {
-
-                    return <tbody key={key}>
-                        <tr>
-                            <td>
-                                <Input value={item.name}
-                                    placeholder="Nhập tiêu đề"
-                                    onChange={(e) => {
-                                        updateformAddTaskExpres(key, 'name', e.target.value);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Input.TextArea value={item.description}
-                                    placeholder="Nhập mô tả ngắn"
-                                    onChange={(e) => {
-                                        updateformAddTaskExpres(key, 'description', e.target.value);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn trạng thái"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(status)}
-                                    value={item.project_status_id}
-                                    onChange={(val) => {
-                                        updateformAddTaskExpres(key, 'project_status_id', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn nhân viên thực hiện"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(users)}
-                                    value={item.nguoi_thuc_hien}
-                                    onChange={(val) => {
-                                        updateformAddTaskExpres(key, 'nguoi_thuc_hien', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                })
-            }
-
-            <tbody>
-                <tr>
-                    <td colSpan={4}>
-                        <a className="add-item01" onClick={() => addFormCheckList()}>
-                            <span className="icon-b" onClick={() => setFormAddTaskExpress(prev => [...prev, formAddTaskExpress_default])}>
-                                <PlusCircleOutlined /> Thêm mới
-                            </span>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={4}>
-                        <Row className="main-modal-footer01">
-                            <Col span={24} className="main-btn-popup">
-                                <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
-                                    <CheckOutlined />
-                                    Thêm mới
-                                </Button>
-                                <span> </span>
-                                <Button className="btn-popup" onClick={() => setIsModalAddExpress(false)} loading={isLoadingBtn}>
-                                    <CloseSquareOutlined />
-                                    Đóng
-                                </Button>
-                            </Col>
-                        </Row>
-                    </td>
-                </tr>
-            </tbody>
-
-        </table>
-    }
-
 
     //
     const EditableCell = ({
@@ -725,65 +517,6 @@ export default function Dashboard(props) {
     const handleCancelDelete = () => {
         setIsOpenConfirmDelete(false);
     };
-
-    function configColumnData() {
-        let result = props.columns
-            .filter(function (col) {
-                if (col.show_in_list === 1) {
-                    return true;
-                }
-                return false;
-            })
-            .map((col) => {
-                return {
-                    title: col.display_name,
-                    dataIndex: col.name,
-                    key: col.dataIndex,
-                    render: (_, record) => {
-                        if (['select'].includes(col.type_edit)) {
-                            return <div>{showSelect(col, record)} </div>
-                        }
-
-                        if (['selects'].includes(col.type_edit)) {
-                            return <div className="main-selects">{showSelects(record[col.name])} </div>;
-                        }
-
-                        if (['date'].includes(col.type_edit)) {
-                            return <div>{dayjs(record[col.name]).format(DATE_FORMAT)} </div>;
-                        }
-
-                        if (['datetime'].includes(col.type_edit)) {
-                            return dayjs(record[col.name]).format(DATE_TIME_FORMAT);
-                        }
-
-                        if (['number'].includes(col.type_edit)) {
-                            return record[col.name] ? <div>{numberFormat(record[col.name])}</div> : '';
-                        };
-
-                        if (['text'].includes(col.type_edit)) {
-                            return record[col.name] ? <div>{record[col.name]}</div> : '';
-                        };
-
-                        if (['image', 'image_crop'].includes(col.type_edit)) {
-                            return <Image className="image-index" src={record[col.name]}></Image>;
-                        }
-
-                        if (['images', 'images_crop'].includes(col.type_edit) && record[col.name] && record[col.name].avatar) {
-                            return <Image className="image-index" src={record[col.name].avatar}></Image>;
-                        }
-
-                        if (['cascader'].includes(col.type_edit) && record[col.name]) {
-                            try {
-                                return record[record[col.name]].info.name;
-                            } catch (error) {
-                                // todo: empty
-                            }
-                        }
-                    },
-                }
-            });
-        return result;
-    }
 
     const onFinishSearch = (values) => {
         setLoadingTable(true);
@@ -1014,6 +747,60 @@ export default function Dashboard(props) {
         return <Row>{content}</Row>;
     }
 
+    const columns2: TableColumnsType = [
+        {
+            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                // console.log('record', record);
+                return <>
+                    <Link href={route('task.list', {parentName: props.parentName, pid: record.id, p:props.p })}>{text}</Link>
+                    {record.description ? <p>{record.description}</p> : ''}
+                </>;
+            }
+        },
+        {
+            title: 'Quản lý', dataIndex: 'project_manager', render: (text, record: any) => {
+                return <>
+                    <span>{record.project_manager.info.name}</span>
+                </>;
+            }
+        },
+        {
+            title: 'Trạng thái', dataIndex: 'project_status_id', render: (text, record: any) => {
+                const info = record.project_status_id.info;
+                return <>
+                    <Tag style={{ background: info.background, color: info.color, padding: '2px 5px', borderRadius: 3 }}>{info.name}</Tag>
+                </>;
+            }
+        },
+        {
+            title: 'Thời gian', dataIndex: 'date', render: (text, record: any) => {
+                return <>
+                    {record.start ? <p><b>Start:</b> {record.start}</p> : ''}
+                    {record.end ? <p><b>End:</b> {record.end}</p> : ''}
+                </>;
+            }
+        },
+        {
+            title: <SettingOutlined />, dataIndex: 'date', render: (text, record: any) => {
+                return <a onClick={async () => {
+
+                    console.log('record', record);
+
+                    setOpenDetail(true);
+                    setDataAction(record);
+                    const res = await callApi(route('project.getProjectInfo', [record.id]));
+                    console.log('res', res);
+                    
+                    setChecklist(res.data.data.checklist);
+                    setComments(res.data.data.comments);
+                    if (formDesc) {
+                        formDesc.setFieldValue('description', record.description);
+                    }
+                }}><SettingOutlined /></a>;
+            }
+        },
+    ];
+
     const pageContent = (
         <div>
             <Form form={form} component={false}>
@@ -1069,13 +856,6 @@ export default function Dashboard(props) {
                                 <PlusCircleFilled /> Thêm mới
                             </Button>
 
-                            <Button type="primary"
-                                className="_right btn-submit01"
-                                onClick={() => setIsModalAddExpress(true)}
-                            >
-                                <PlusCircleFilled /> Thêm nhanh
-                            </Button>
-
                         </Col>
                     </Row>
                 </div>
@@ -1101,7 +881,7 @@ export default function Dashboard(props) {
                             loading={loadingTable}
                             pagination={tableParams.pagination}
                             dataSource={dataSource}
-                            columns={configColumnData()}
+                            columns={columns2}
                             rowSelection={rowSelection}
                             // rowClassName="editable-row"
                             // className="table-index"
@@ -1147,17 +927,13 @@ export default function Dashboard(props) {
                             </ul>
                         </Modal>
 
-
-
                         <Row>
                             <br />
                         </Row>
 
                         {pageContent}
 
-
                         {/* modal  */}
-
 
                         <Modal title="Cài đặt trạng thái"
                             className="status-setting"
@@ -1174,7 +950,7 @@ export default function Dashboard(props) {
                                     background: 'Màu nền',
                                 }, (data: any) => {
                                     setStatusData(data.data);
-                                    setColumns(data.columns);
+                                    // setColumns(data.columns);
                                 })}
 
                                 <Row>
@@ -1189,16 +965,6 @@ export default function Dashboard(props) {
                                 </Row>
 
                             </div>
-                        </Modal>
-
-                        {/* Thêm nhanh  */}
-                        <Modal title="Thêm nhanh "
-                            open={isModalAddExpress}
-                            onCancel={() => setIsModalAddExpress(false)}
-                            footer={[]}
-                            width={1000}
-                        >
-                            {formAddTaskExpress(props.users)}
                         </Modal>
 
                         <Modal title="Thêm checklist"
@@ -1235,6 +1001,387 @@ export default function Dashboard(props) {
                     </div>
                 }
             />
+
+            <Drawer
+                title="Chi tiết công việc"
+                placement="right"
+                open={openDetail}
+                // size={'large'}
+                onClose={() => setOpenDetail(false)}
+                width="90%"
+            >
+                <Row>
+                    <Col sm={16}>
+
+                        {/* <Button
+                                  className=""
+                                  onClick={() => handleDelete(task.id, status)}
+                                >
+                                  Xóa
+                                </Button> */}
+                        <h3>{dataAction.name}</h3>
+                        <p className="description01">Tạo bởi: {props.users[dataAction.create_by] ? props.users[dataAction.create_by].name : ''}</p>
+                        <Divider orientation="left">
+                            <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                            <span> | </span>
+                            <Popconfirm
+                                icon={<EditFilled />}
+                                title="Sửa mô tả"
+                                okButtonProps={{ loading: isLoadingBtn }}
+                                onConfirm={() => formDesc.submit()}
+                                description={
+                                    <Form
+                                        name="formDesc"
+                                        form={formDesc}
+                                        layout="vertical"
+                                        onFinish={onFinishFormDesc}
+                                        autoComplete="off"
+                                        initialValues={{ description: dataAction.description }}
+                                    >
+                                        <Form.Item className="edit-description" name='description' label=''>
+                                            <Input.TextArea rows={4} />
+                                        </Form.Item>
+                                    </Form>
+                                }
+                            >
+                                <span className="desc cursor"> <EditFilled /> Sửa</span>
+                            </Popconfirm>
+
+                        </Divider>
+                        <div>
+                            <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
+                        </div>
+
+                        {/* Checklist */}
+                        <div>
+                            <Divider orientation="left">
+                                <span className="title-desc"><CheckSquareFilled /> Checklist</span>
+                                <span> | </span>
+                                <span className="desc cursor" onClick={() => setIsModalChecklist(true)}> <PlusSquareFilled /> Thêm</span>
+                            </Divider>
+                            <Flex gap="small" vertical>
+                                {/* <Progress percent={30} />
+                                    <Progress percent={50} status="active" /> */}
+                                <Progress percent={70} status="exception" />
+                                {/* <Progress percent={100} /> */}
+                            </Flex>
+
+                            <List
+                                className="demo-loadmore-list"
+                                itemLayout="horizontal"
+                                pagination={{
+                                    pageSize: 10, //  số item mỗi trang
+                                }}
+                                dataSource={!checklist ? [] : checklist.map((item) => { return item; })}
+                                locale={{ emptyText: 'Danh sách checklist trống' }}
+                                renderItem={(item, key) => (
+                                    <List.Item
+                                        actions={[
+                                            <a title="Chọn người thực hiện" className="icon-large" key="list-loadmore-edit"><UserSwitchOutlined /></a>,
+                                            <Popconfirm
+                                                icon={<DeleteOutlined />}
+                                                title="Xác nhận xóa"
+                                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                                onConfirm={() => {
+                                                    removeChecklistByIndex(key, item.id);
+                                                }}
+                                            >
+                                                <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                            </Popconfirm>
+                                        ]}
+                                    >
+                                        <List.Item.Meta
+                                            avatar={
+                                                <Checkbox checked={item.is_checked ? true : false}
+                                                    onChange={(e) => {
+                                                        let status = 0;
+                                                        if (e.target.checked) {
+                                                            status = 1;
+                                                        }
+
+                                                        // update status state
+                                                        let checklist_tmp = cloneDeep(checklist);
+                                                        checklist_tmp[key].is_checked = status;
+                                                        setChecklist(checklist_tmp);
+                                                        // update status 2 db
+                                                        axios.post(route('data.fastEditByTableName'), {
+                                                            column_name: 'is_checked',
+                                                            tbl_name: 'task_checklist',
+                                                            id: item.id,
+                                                            value: status
+                                                        }).then(response => {
+                                                            message.success('Cập nhật thứ tự thành công');
+                                                        }).catch(error => {
+                                                            message.error('Cập nhật thứ tự thất bại');
+                                                        });
+                                                    }}
+                                                />
+                                            }
+                                            title={<span className="text-normal">{item.name}</span>}
+                                            description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : ''}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </div>
+
+                        {/* Comment */}
+                        <div>
+                            <Divider orientation="left">
+                                <span className="title-desc"><CheckSquareFilled /> Comment</span>
+                                <span> | </span>
+                                <Popconfirm
+                                    icon={<EditFilled />}
+                                    title="Thêm comment"
+                                    okButtonProps={{ loading: isLoadingBtn }}
+                                    onConfirm={() => { formComment.submit() }}
+                                    description={
+                                        <Form
+                                            name="formComment"
+                                            form={formComment}
+                                            layout="vertical"
+                                            // onFinish={onFinishFormComment}
+                                            autoComplete="off"
+                                        // initialValues={}
+                                        >
+                                            <Form.Item className="edit-description" name='content' label=''>
+                                                <Input.TextArea rows={4} />
+                                            </Form.Item>
+                                        </Form>
+                                    }
+                                >
+                                    <span className="desc cursor"> <PlusSquareFilled /> Thêm</span>
+                                </Popconfirm>
+                            </Divider>
+
+                            <List
+                                className="demo-loadmore-list"
+                                itemLayout="horizontal"
+                                pagination={{
+                                    pageSize: 5, // 👉 số item mỗi trang
+                                }}
+                                dataSource={!comments ? [] : comments.map((item) => { return item; })}
+                                renderItem={(item) => (
+                                    <List.Item
+                                        actions={[
+                                            <a title="Sửa comment này" className="icon-large" key="list-loadmore-edit"><EditOutlined /></a>,
+                                            <Popconfirm
+                                                icon={<DeleteOutlined />}
+                                                title="Xác nhận xóa"
+                                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                            >
+                                                <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                            </Popconfirm>
+                                        ]}
+                                    >
+                                        <List.Item.Meta
+                                            avatar={<div>
+                                            </div>
+                                            }
+                                            title={<div>
+                                                <b>{item.admin_users_name}</b>
+                                            </div>
+                                            }
+                                            description={
+                                                <div>
+                                                    <em className="text-normal date01"> {dayjs(item.created_at).format(DATE_TIME_FORMAT)}</em>
+                                                    <p>{item.content}</p>
+                                                </div>
+
+                                            }
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </div>
+                    </Col>
+
+                    {/* right */}
+                    <Col sm={8}>
+                        <List
+                            header={<b><InfoCircleFilled /> Thông tin chi tiết</b>}
+                            footer={<div></div>}
+                            bordered
+                            dataSource={[
+                                // status
+                                <div>
+                                    <a><PushpinFilled /> </a>
+                                    <span>Trạng thái: </span>
+                                    {
+                                        !dataAction.project_status_id
+                                            ?
+                                            <span className="value-list">Chưa xác định</span>
+                                            :
+                                            <>
+                                                {/* <Tag style={{ color: status[dataAction.project_status_id].color, background: status[dataAction.project_status_id].background }}>
+                                                    <span>{icon[status[dataAction.project_status_id].icon]} </span>
+                                                    <span> {status[dataAction.project_status_id].name}</span>
+                                                </Tag> */}
+                                            </>
+                                    }
+                                    <Popover placement="bottomLeft"
+                                        title="Chọn trạng thái"
+                                        trigger="click"
+                                        content={
+                                            <List
+                                                itemLayout="horizontal"
+                                                dataSource={objEntries(status)}
+                                                renderItem={(item, key) => (
+                                                    <p style={{ color: item.background }}
+                                                        className="cursor"
+                                                        onClick={() => {
+                                                            updateTaskByColumn(dataAction.id, 'project_status_id', item.id);
+                                                        }}
+                                                    >
+                                                        {icon[item.icon]} {item.name}
+                                                    </p>
+                                                )}
+                                            />
+                                        }
+                                    >
+                                        <a onClick={(e) => e.preventDefault()}>
+                                            <DownOutlined />
+                                        </a>
+                                    </Popover>
+                                </div>,
+
+                                // độ ưu tiên
+                                <div>
+                                    <a><FireFilled /> </a>
+                                    <span>Độ ưu tiên: </span>
+                                    {
+                                        !dataAction.task_prority_id
+                                            ?
+                                            <span className="value-list">Chưa xác định</span>
+                                            :
+                                            <Tag style={{ color: props.prority[dataAction.task_prority_id].color }}>{props.prority[dataAction.task_prority_id].name} </Tag>
+
+                                    }
+                                    <Popover placement="bottomLeft"
+                                        title="Chọn mức độ ưu tiên"
+                                        trigger="click"
+                                        content={
+                                            <List
+                                                itemLayout="horizontal"
+                                                dataSource={objEntries(props.prority)}
+                                                renderItem={(item, key) => (
+                                                    <p style={{ color: item.color }}
+                                                        className="cursor"
+                                                        onClick={() => {
+                                                            updateTaskByColumn(dataAction.id, 'task_prority_id', item.id);
+                                                        }}
+                                                    >
+                                                        <CaretRightFilled /> {item.name}
+                                                    </p>
+                                                )}
+                                            />
+                                        }
+                                    >
+                                        <a onClick={(e) => e.preventDefault()}>
+                                            <DownOutlined />
+                                        </a>
+                                    </Popover>
+
+                                </div>,
+
+                                // loại công việc
+                                <div>
+                                    <a><HddFilled /> </a>
+                                    <span>Loại công việc: </span>
+                                    <span className="value-list"></span>
+                                </div>,
+                                <div>
+                                    <a><HddFilled /> </a>
+                                    <span>Loại dự án: </span>
+                                    <span className="value-list"></span>
+                                </div>,
+                                <div>
+                                    <a><UserOutlined /> </a>
+                                    <span>Người thực hiện: </span>
+                                    <Select
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        value={dataAction.nguoi_thuc_hien}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        options={optionEntries(props.users)}
+                                    />
+                                </div>,
+                                <div>
+                                    <a><UsergroupAddOutlined /> </a>
+                                    Làm cùng hoặc theo dõi:
+                                    <Select mode="multiple"
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        value={dataAction.nguoi_theo_doi}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        options={optionEntries(props.users)}
+                                    />
+                                </div>,
+                                <div>
+                                    <a><FieldTimeOutlined /> </a>
+                                    Ngày tạo:
+                                    <span className="value-list">{dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_TIME_FORMAT) : ''}</span></div>,
+                                <div>
+                                    <a><FieldTimeOutlined /> </a>
+                                    Ngày bắt đầu:
+                                    <span className="value-list">{dataAction.start ? dayjs(dataAction.start).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span></div>,
+                                <div>
+                                    <a><CheckCircleOutlined /> </a>
+                                    Ngày hoàn thành
+                                    <span className="value-list">{dataAction.end ? dayjs(dataAction.end).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span>
+                                </div>,
+                                <div>
+                                    <a><FieldTimeOutlined /> </a>
+                                    Thời gian hoàn thành thực tế:
+                                    <br />
+                                    <span className="value-list">{dataAction.actual ? dayjs(dataAction.actual).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span>
+                                </div>,
+                                <div>
+                                    <a><FlagFilled /> </a>
+                                    Milestone:
+                                </div>
+                            ]}
+                            renderItem={(item) => (
+                                <List.Item>{item}</List.Item>
+                            )}
+                        />
+                        <div><br /></div>
+
+                        <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
+                        <Timeline
+                            items={[
+                                {
+                                    children: 'Create a services site 2015-09-01',
+                                },
+                                {
+                                    children: 'Solve initial network problems 2015-09-01',
+                                },
+                                {
+                                    children: 'Technical testing 2015-09-01',
+                                },
+                                {
+                                    children: 'Network problems being solved 2015-09-01',
+                                },
+                            ]}
+                        />
+                    </Col>
+                </Row>
+
+                <br />
+
+            </Drawer>
         </div>
     );
 }

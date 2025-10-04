@@ -5,8 +5,8 @@ import {
     UpOutlined,
     DownOutlined,BackwardOutlined,
     ArrowsAltOutlined,ShrinkOutlined,
-    StepBackwardOutlined,
-    FastForwardOutlined,
+    StepBackwardOutlined,CloseCircleOutlined,
+    FastForwardOutlined,CheckCircleOutlined,
     FastBackwardOutlined,HddFilled,
     StepForwardOutlined,SyncOutlined,
     MoneyCollectFilled,LoadingOutlined,
@@ -16,7 +16,7 @@ import {
     CaretRightOutlined,VerticalRightOutlined,ForwardOutlined,SlidersFilled,
     UpCircleOutlined,DoubleRightOutlined,DoubleLeftOutlined,VerticalLeftOutlined,
     DownCircleOutlined, LeftCircleOutlined,RightCircleOutlined,BulbFilled, ShopFilled,
-    AccountBookOutlined,PieChartFilled,IdcardFilled
+    AccountBookOutlined,PieChartFilled,IdcardFilled,PlayCircleOutlined
 } from "@ant-design/icons";
 
 export const icon = 
@@ -67,5 +67,8 @@ export const icon =
         AccountBookOutlined:<AccountBookOutlined />,
         PieChartFilled:<PieChartFilled />,
         IdcardFilled:<IdcardFilled />,
+        PlayCircleOutlined:<PlayCircleOutlined />,
+        CheckCircleOutlined:<CheckCircleOutlined />,
+        CloseCircleOutlined:<CloseCircleOutlined />
 
 }

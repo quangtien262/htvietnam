@@ -17,6 +17,7 @@
     margin-top: 0px;
     padding-top: 15px;
     padding-bottom: 15px;
+    text-transform: uppercase;
 }
 .main-task-detail {
     width: 100%;
@@ -73,4 +74,14 @@
 }
 .cursor:hover {
     color: darkslategray;
+}
+.item03 {
+    width: 100%;
+}
+.ant-tag {
+    font-size: 13px;
+    padding: 0px 12px !important;
+    height: 25px;
+    line-height: 22px;
+    font-weight: bold;
 }

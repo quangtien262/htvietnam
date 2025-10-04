@@ -4,14 +4,15 @@ import {
     Button,
     message,
     Modal,
-    Form, Input, 
+    Form, Input,
     Popconfirm, ColorPicker,
     TableColumnsType,
     Table
 } from "antd";
 import axios from "axios";
 import {
-    CopyOutlined, PlusCircleOutlined, HolderOutlined
+    CopyOutlined, PlusCircleOutlined, HolderOutlined, 
+    EditOutlined, DeleteOutlined
 } from "@ant-design/icons";
 
 // start import DND
@@ -43,7 +44,8 @@ interface columnType {
 interface TblType {
     parentName: string;
     currentName: string;
-    // [key: string]: any;
+    searchData: any;
+    pid: number;
 }
 
 const dataActionDefault = {
@@ -85,13 +87,19 @@ export function taskConfig(
         if (values.color && typeof values.color === 'object') {
             values.color = values.color.toHexString();;
         }
+        values.id = dataAction.id;
+        values.pid = tbl.pid;
         console.log('values', values);
         axios.post(route('task.editConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
-            message.success('Thêm mới thành công');
-            setDataSource(response.data.data.data);
-            onSuccess(response.data.data);
+            if(dataAction.id > 0) {
+                message.success('Cập nhật thành công');
+            } else {
+                message.success('Thêm mới thành công');
+            }
+            setDataSource(response.data.data.datas);
             setIsModalAddExpress(false);
             formExpress.resetFields();
+            onSuccess(response.data.data);
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -121,8 +129,6 @@ export function taskConfig(
     };
 
     const handleDelete = (key: React.Key) => {
-        // const newData = dataSource.filter((item) => item.key !== key);
-        // setDataSource(newData);
         axios.post(route('task.deleteConfig', [tbl.parentName, tbl.currentName]), { id: key }).then((response) => {
             message.success('Xóa thành công');
             setDataSource(response.data.data.data);
@@ -145,9 +151,18 @@ export function taskConfig(
             dataIndex: 'operation',
             render: (_, record) =>
                 dataSource.length >= 1 ? (
-                    <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.key)}>
-                        <a>Xóa</a>
-                    </Popconfirm>
+                    <>
+                        <a onClick={() => {
+                            console.log('record', record);
+                            setIsModalAddExpress(true);
+                            setDataAction(record);
+                            formExpress.setFieldsValue(record);
+                        }}><EditOutlined /></a>
+                        <span> | </span>
+                        <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.key)}>
+                            <a><DeleteOutlined /></a>
+                        </Popconfirm>
+                    </>
                 ) : null,
         },
     ];
@@ -185,19 +200,45 @@ export function taskConfig(
             </RowContext.Provider>
         );
     };
+
     const onDragEnd2 = ({ active, over }: DragEndEvent) => {
         if (active.id !== over?.id) {
             setDataSource((prevState) => {
                 const activeIndex = prevState.findIndex((record) => record.key === active?.id);
                 const overIndex = prevState.findIndex((record) => record.key === over?.id);
-                return arrayMove(prevState, activeIndex, overIndex);
+                const newOrder = arrayMove(prevState, activeIndex, overIndex);
+
+                // Lấy danh sách key/id theo thứ tự mới
+                const orderKeys = newOrder.map(item => item.key);
+                console.log('orderKeys', orderKeys);
+
+                // send 2 server:
+                const param = {
+                    order: orderKeys,
+                    parentName: tbl.parentName,
+                    currentName: tbl.currentName,
+                    searchData: tbl.searchData,
+                    pid: tbl.pid,
+                };
+                console.log('param', param);
+
+                axios.post(route('task.updateSortOrder_taskStatus'), param).then((response) => {
+                    message.success('Cập nhật thứ tự thành công');
+                    console.log('sss', response.data.data);
+
+                    onSuccess(response.data.data);
+                }).catch((error) => {
+                    message.error('Cập nhật thứ tự thất bại');
+                });
+
+                return newOrder;
             });
         }
     };
 
     return (
         <div>
-            <Modal title="Thêm mới quy trình"
+            <Modal title={dataAction.id > 0 ? 'Sửa dữ liệu' : 'Thêm mới dữ liệu'}
                 open={isModalAddExpress}
                 footer={null}
                 onCancel={() => setIsModalAddExpress(false)}
@@ -218,7 +259,7 @@ export function taskConfig(
 
                     <Button type="primary" htmlType="submit">
                         <CopyOutlined />
-                        Thêm mới
+                        Lưu
                     </Button>
                 </Form>
             </Modal>

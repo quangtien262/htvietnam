@@ -61,16 +61,23 @@ return new class extends Migration
             $order_col = 1;
             $admin = Table::where('name', 'admin_users')->first();
             $confirm = Table::where('name', 'confirm')->first();
+            $status = Table::where('name', 'project_status')->first();
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
             MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
-            MigrateService::createColumn02($tableId, 'project_manager', 'Quản lý dự án', 'INT', 'select', $order_col++,['select_table_id' => $admin->id]);
+            MigrateService::createColumn02($tableId, 'project_manager', 'Quản lý dự án', 'INT', 'select', $order_col++,
+            ['select_table_id' => $admin->id, 'show_in_list' => 1]);
+
+            MigrateService::createColumn02($tableId, 'project_status_id', 'Trạng thái', 'INT', 'select', $order_col++,
+            ['select_table_id' => $status->id, 'show_in_list' => 1]);
+
             MigrateService::createColumn02($tableId, 'nguoi_thuc_hien', 'Người thực hiện', 'INT', 'select', $order_col++,['select_table_id' => $admin->id]);
             MigrateService::createColumn02($tableId, 'nguoi_theo_doi', 'Người theo dõi', 'TEXT', 'selects', $order_col++,['select_table_id' => $admin->id]);
 
             MigrateService::createColumn02($tableId, 'tags', 'Tags', 'TEXT', 'selects', $order_col++,[]);
-            MigrateService::createColumn02($tableId, 'is_daily', 'Thêm vào Daily', 'INT', 'select', $order_col++,['select_table_id' => $admin->id]);
-            MigrateService::createColumn02($tableId, 'is_weekly', 'Thêm vào Weekly', 'INT', 'select', $order_col++,['select_table_id' => $admin->id]);
-            MigrateService::createColumn02($tableId, 'is_monthly', 'Thêm vào Monthly', 'INT', 'select', $order_col++,['select_table_id' => $admin->id]);
+            MigrateService::createColumn02($tableId, 'is_daily', 'Thêm vào Daily', 'INT', 'select', $order_col++,
+            ['select_table_id' => $confirm->id, 'show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'is_weekly', 'Thêm vào Weekly', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
+            MigrateService::createColumn02($tableId, 'is_monthly', 'Thêm vào Monthly', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
 
             MigrateService::createColumn02($tableId, 'start', 'Ngày bắt đầu', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
             ['edit' => 1, 'is_view_detail' => 1]);

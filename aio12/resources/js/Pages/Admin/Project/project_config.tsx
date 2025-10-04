@@ -12,7 +12,8 @@ import {
 } from "antd";
 import axios from "axios";
 import {
-    CopyOutlined, PlusCircleOutlined, HolderOutlined, CloseSquareOutlined, CheckOutlined
+    CopyOutlined, PlusCircleOutlined, HolderOutlined, CloseSquareOutlined, CheckOutlined,
+    EditOutlined, DeleteOutlined
 } from "@ant-design/icons";
 
 // start import DND
@@ -41,6 +42,10 @@ interface columnType {
     [key: string]: any;
 }
 
+/**
+ * currentName: Tên bảng hiện tại
+ * parentName: Tên bảng hoặc danh mục cha
+ */
 interface TblType {
     parentName: string;
     currentName: string;
@@ -138,6 +143,8 @@ export function projectConfig(
         { key: 'sort', align: 'center', width: 80, render: () => <DragHandle /> },
         {
             title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                // console.log('record', record);
+
                 return <span style={{ background: record.background, color: record.color, padding: '2px 5px', borderRadius: 3 }}>{text}</span>
             }
         },
@@ -150,13 +157,13 @@ export function projectConfig(
                     <>
                         <a onClick={() => {
                             console.log('record', record);
-                            setIsModalAddExpress(true)
+                            setIsModalAddExpress(true);
                             setDataAction(record);
                             formExpress.setFieldsValue(record);
-                        }}>Sửa</a>
+                        }}><EditOutlined /></a>
                         <span> | </span>
                         <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.key)}>
-                            <a>Xóa</a>
+                            <a><DeleteOutlined /></a>
                         </Popconfirm>
                     </>
                 ) : null,
@@ -196,18 +203,29 @@ export function projectConfig(
             </RowContext.Provider>
         );
     };
+
     const onDragEnd2 = ({ active, over }: DragEndEvent) => {
         if (active.id !== over?.id) {
             setDataSource((prevState) => {
                 const activeIndex = prevState.findIndex((record) => record.key === active?.id);
                 const overIndex = prevState.findIndex((record) => record.key === over?.id);
-                return arrayMove(prevState, activeIndex, overIndex);
+                const newOrder = arrayMove(prevState, activeIndex, overIndex);
+
+                // Lấy danh sách key/id theo thứ tự mới
+                const orderKeys = newOrder.map(item => item.key);
+                console.log('Thứ tự mới:', orderKeys);
+                console.log('tbl.currentName', tbl.currentName);
+                // send 2 server:
+                axios.post(route('data.sortOrder02', [tbl.currentName]), { order: orderKeys })
+
+                return newOrder;
             });
         }
     };
 
     return (
         <div>
+            {/* modal thên/sửa */}
             <Modal title="Thêm mới"
                 open={isModalAddExpress}
                 footer={null}
@@ -233,6 +251,8 @@ export function projectConfig(
                     </Button>
                 </Form>
             </Modal>
+
+            {/* btn thêm mới */}
             <Button type="dashed"
                 onClick={() => {
                     setIsModalAddExpress(true)
@@ -243,6 +263,7 @@ export function projectConfig(
                 style={{ marginBottom: 16 }}>
                 <PlusCircleOutlined /> Thêm mới
             </Button>
+
             <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd2}>
                 <SortableContext items={dataSource.map((i) => i.key)} strategy={verticalListSortingStrategy}>
                     <Table
@@ -284,8 +305,6 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                 message.success("Đã lưu dữ liệu thành công");
                 // reset form
                 formData.resetFields();
-                console.log('displayxxxxxxxxxxxxxxxxx', props.display);
-                console.log('zzzzzzzzzz', response.data.data);
                 onSuccess(response.data.data);
 
             })

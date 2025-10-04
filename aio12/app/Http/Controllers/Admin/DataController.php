@@ -238,13 +238,13 @@ class DataController extends Controller
         $props['fastEditClass'] = $dataSource['fastEditClass'];
         $props['columnData'] = TblService::getColumnSetting($tableId);
         $props['tableSetting'] = TblService::formatTableDDItem($table->display_name, $table);
-        
+
         if (!empty($table->is_multiple_language) && $table->is_multiple_language == 1) {
             $props['dataEdit'] = TblService::getDataLanguageEdit($table->id, 0);
         } else {
             $props['dataEdit'] = TblService::getDataEdit($tableId, 0, '', $request->all());
         }
-        
+
         return Inertia::render('Admin/Data/index', $props);
     }
 
@@ -606,7 +606,7 @@ class DataController extends Controller
         }
 
         $data = TblService::getDataEdit($tableId, intval($dataId));
-        
+
         if ($data == false) {
             return $this->sendErrorResponse('empty');
         }

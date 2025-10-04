@@ -76,11 +76,13 @@ class ProjectController extends Controller
             $props['table'] = $table;
             $props['prority'] = $prority;
             $props['type'] = $type;
-            $props['status'] = $status;
             $props['admin'] = $admin;
             $props['users'] = $users_byID;
+            $props['status'] = $status;
             $props['statusData'] = $statusData;
             $props['statusTable'] = $statusTable;
+            $props['p'] = $_GET['p'] ?? 0;
+            // dd($props['selectData']['project_manager']);
             return Inertia::render('Admin/Project/index_list', $props);
         }
 
@@ -135,6 +137,7 @@ class ProjectController extends Controller
     {
         $admin = Auth::guard('admin_users')->user();
 
+        // CRERATE PROJECT
         $project = new Project();
         $project->name = $request->name;
         $project->description = $request->description;
@@ -154,7 +157,7 @@ class ProjectController extends Controller
             return $this->sendSuccessResponse($datas);
         }
         
-        $table = Table::where('name', 'projects')->first();
+        $table = Table::where('name', '  ')->first();
         $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get();
         $datas = TblService::getDatas($table, $columns);
         $dataSource = TblService::getDataSource($datas['data'], $columns);

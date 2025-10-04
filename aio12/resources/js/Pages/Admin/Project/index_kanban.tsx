@@ -73,12 +73,13 @@ export default function Dashboard(props) {
   const formChecklist_default = { name: '', content: '', admin_user_id: null };
   const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
   const [isApplyAll, setIsApplyAll] = useState(true);
-  const [checklist, setChecklist] = useState([]);
+  
   const [isModalChecklist, setIsModalChecklist] = useState(false);
 
   const [formDesc] = Form.useForm();
 
   const [comments, setComments] = useState([]);
+  const [checklist, setChecklist] = useState([]);
   const [formComment] = Form.useForm();
 
   const [api, contextHolder] = notification.useNotification();

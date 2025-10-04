@@ -21,31 +21,29 @@ import {
 } from "antd";
 import axios from "axios";
 import {
-  FieldTimeOutlined, FlagFilled,
+  ScheduleFilled, FlagFilled,
   DownOutlined,
   ToolFilled, ProfileOutlined,
   DeleteOutlined,
   EditOutlined, EyeOutlined, CaretRightFilled,
-  SettingOutlined,
+  DiffFilled, SettingOutlined,
   InfoCircleFilled, FireFilled,
   PlusSquareFilled, CheckSquareFilled,
   CheckOutlined, HddFilled,
   CloseSquareOutlined,
-  ArrowRightOutlined, CheckCircleOutlined,
-  SnippetsFilled,
-  CheckSquareOutlined, UserOutlined, UsergroupAddOutlined,
+  FileSearchOutlined, FileSyncOutlined,
+  SnippetsFilled, ClockCircleFilled,
+  FileMarkdownOutlined, UserOutlined, UsergroupAddOutlined,
   UserSwitchOutlined, PushpinFilled,
   SettingFilled, EditFilled,
   HomeOutlined, PlusCircleFilled, PlusCircleOutlined
 } from "@ant-design/icons";
 
-import "../../../../css/list02.css";
 import "../../../../css/task.css";
-import "../../../../css/form.css";
 
 import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../../Function/common";
 import { callApi } from "../../../Function/api";
-import { DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
+import { DATE_FORMAT, DATE_SHOW, DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
 import { formAddExpress } from "../../../components/comp_data";
 import { taskConfig } from "./task_config";
@@ -59,9 +57,10 @@ import {
 import { cloneDeep, set } from "lodash";
 import dayjs from "dayjs";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { pid } from "process";
 
 
-export default function Dashboard(props) {
+export default function Dashboard(props: any) {
   const [status, setStatus] = useState(props.status);
   const [statusData, setStatusData] = useState(props.statusData);
 
@@ -342,7 +341,9 @@ export default function Dashboard(props) {
     axios.post(route('task.fastEditTask'), {
       column_name: columnName,
       id: dataAction.id,
-      value: value
+      value: value,
+      parentName: props.parentName,
+      searchData: props.searchData
     }).then(response => {
       setIsLoadingBtn(false);
       setColumns(response.data.data);
@@ -416,11 +417,6 @@ export default function Dashboard(props) {
       });
 
 
-
-
-
-
-
     // setColumns((prev) => ({
     //   ...prev,
     //   1: [...prev[1], res.data],
@@ -458,23 +454,33 @@ export default function Dashboard(props) {
 
 
   // xóa task
-  const handleDelete = async (id, status) => {
-    await deleteTask(id);
-    setColumns((prev) => ({
-      ...prev,
-      [status]: prev[status].filter((t) => t.id !== id),
-    }));
+  const handleDelete = (id: number, status: number) => {
+    const params = {
+      parentName: props.parentName,
+      pid: props.pid,
+      searchData: props.searchData,
+      p: props.p
+    };
+    axios.post(route('task.delete', id), params).then(response => {
+      setColumns(response.data.data);
+    }).catch(error => {
+      message.error('Xóa thất bại');
+    });
+
+
+    setOpenDetail(false);
+    message.success("Đã xóa thành công");
   };
 
   // di chuyển item trong mảng
-  function moveItemInArray(array, fromIndex, toIndex) {
+  function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
     const result = [...array];
     const [removed] = result.splice(fromIndex, 1);
     result.splice(toIndex, 0, removed);
     return result;
   }
 
-  const onDragEnd = async (result) => {
+  const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
 
@@ -505,7 +511,9 @@ export default function Dashboard(props) {
       // save 2 db
       await updateTask(itemToMove.id, {
         task_status_id: destination.droppableId,
-        ids: ids
+        ids: ids,
+        parentName: props.parentName,
+        pid: props.pid,
       });
 
       return;
@@ -676,7 +684,7 @@ export default function Dashboard(props) {
               cancelText="Hủy"
             // onCancel={handleCancelDelete}
             >
-              <p>Các thông tin về hàng hóa này sẽ bị xóa hoàn toàn</p>
+              <p>Dữ liệu sẽ bị xóa hoàn toàn</p>
             </Modal>
 
             <Modal title="Cài đặt trạng thái"
@@ -687,14 +695,14 @@ export default function Dashboard(props) {
             >
               <div>
 
-                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status' }, {
-                  name: 'Quy trình',
+                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: props.searchData, pid: props.pid }, {
+                  name: 'Trạng thái',
                   description: 'Mô tả ',
                   color: 'Màu chữ',
                   background: 'Màu nền',
-                }, (data: any) => {
-                  setStatusData(data.data);
-                  setColumns(data.columns);
+                }, (result: any) => {
+                  setStatusData(result.status);
+                  setColumns(result.columns);
                 })}
 
                 <Row>
@@ -721,6 +729,7 @@ export default function Dashboard(props) {
               {formAddTaskExpress(props.users)}
             </Modal>
 
+            {/* Thêm checklist */}
             <Modal title="Thêm checklist"
               open={isModalChecklist}
               onCancel={() => setIsModalChecklist(false)}
@@ -731,7 +740,7 @@ export default function Dashboard(props) {
             </Modal>
 
             {/* Thêm mới */}
-            <Modal title="Thêm dự án"
+            <Modal title="Thêm mới"
               open={isModalAddOpen}
               onCancel={() => closeModalAdd()}
               footer={[]}
@@ -963,12 +972,12 @@ export default function Dashboard(props) {
                   <SettingFilled /> Cài đặt trạng thái
                 </Button>
 
-                {/* Thêm dự án */}
+                {/* Thêm mới */}
                 <Button type="primary"
                   className="_right btn-submit01"
                   onClick={() => setIsModalAddOpen(true)}
                 >
-                  <PlusCircleFilled /> Thêm dự án
+                  <PlusCircleFilled /> Thêm mới
                 </Button>
 
                 <Button type="primary"
@@ -977,7 +986,6 @@ export default function Dashboard(props) {
                 >
                   <PlusCircleFilled /> Thêm nhanh
                 </Button>
-
               </Col>
             </Row>
 
@@ -989,6 +997,7 @@ export default function Dashboard(props) {
               </Space>
             </Divider>
 
+            {/* form search */}
             <Form
               name="formSearch"
               form={formSearch}
@@ -1026,7 +1035,7 @@ export default function Dashboard(props) {
               </Row>
             </Form>
 
-
+            {/* {/* content */}
             <div className="tasks-container">
 
               <Row>
@@ -1058,6 +1067,8 @@ export default function Dashboard(props) {
                                   color: value.status.color ? value.status.color : '#64748b',
                                 }}
                               >
+                                {value.status.icon ? icon[value.status.icon] : ''}
+                                <span> </span>
                                 {value.status.name}
                               </p>
 
@@ -1123,13 +1134,6 @@ export default function Dashboard(props) {
               >
                 <Row>
                   <Col sm={16}>
-
-                    {/* <Button
-                      className=""
-                      onClick={() => handleDelete(task.id, status)}
-                    >
-                      Xóa
-                    </Button> */}
                     <h3>{dataAction.name}</h3>
                     <p className="description01">Tạo bởi: {props.users[dataAction.create_by] ? props.users[dataAction.create_by].name : ''}</p>
                     <Divider orientation="left">
@@ -1315,7 +1319,7 @@ export default function Dashboard(props) {
                       bordered
                       dataSource={[
                         // status
-                        <div>
+                        <div className="item03">
                           <a><PushpinFilled /> </a>
                           <span>Trạng thái: </span>
                           {
@@ -1350,14 +1354,14 @@ export default function Dashboard(props) {
                               />
                             }
                           >
-                            <a onClick={(e) => e.preventDefault()}>
+                            <a onClick={(e) => e.preventDefault()} className="_right">
                               <DownOutlined />
                             </a>
                           </Popover>
                         </div>,
 
                         // độ ưu tiên
-                        <div>
+                        <div className="item03">
                           <a><FireFilled /> </a>
                           <span>Độ ưu tiên: </span>
                           {
@@ -1388,104 +1392,355 @@ export default function Dashboard(props) {
                               />
                             }
                           >
-                            <a onClick={(e) => e.preventDefault()}>
+                            <a onClick={(e) => e.preventDefault()} className="_right">
                               <DownOutlined />
                             </a>
                           </Popover>
 
                         </div>,
 
-                        // loại công việc
-                        <div>
-                          <a><HddFilled /> </a>
-                          <span>Loại công việc: </span>
-                          <span className="value-list"></span>
-                        </div>,
-                        <div>
-                          <a><HddFilled /> </a>
-                          <span>Loại dự án: </span>
-                          <span className="value-list"></span>
-                        </div>,
-                        <div>
+                        // người thực hiện
+                        <div className="item03">
                           <a><UserOutlined /> </a>
                           <span>Người thực hiện: </span>
-                          <Select
-                            showSearch
-                            style={{ width: "100%" }}
-                            value={dataAction.nguoi_thuc_hien}
-                            placeholder="Chọn nhân viên thực hiện"
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
+                          <Popover placement="bottomLeft"
+                            title="Chọn người thực hiện"
+                            trigger="click"
+                            content={
+                              <Select
+                                showSearch
+                                style={{ width: "100%" }}
+                                value={dataAction.nguoi_thuc_hien}
+                                placeholder="Chọn nhân viên thực hiện"
+                                optionFilterProp="children"
+                                options={optionEntries(props.users)}
+                                filterOption={(input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                                }
+                                onChange={(value) => {
+                                  updateTaskByColumn(dataAction.id, 'nguoi_thuc_hien', value);
+                                }}
+                              />
                             }
-                            options={optionEntries(props.users)}
-                          />
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                          <p>
+                            {
+                              !dataAction.nguoi_thuc_hien
+                                ?
+                                <span className="value-list">Chưa xác định</span>
+                                :
+                                <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.nguoi_thuc_hien].name} </Tag>
+                            }
+                          </p>
+
                         </div>,
-                        <div>
+
+                        // Chọn người Làm cùng hoặc theo dõi
+                        <div className="item03">
                           <a><UsergroupAddOutlined /> </a>
                           Làm cùng hoặc theo dõi:
-                          <Select mode="multiple"
-                            showSearch
-                            style={{ width: "100%" }}
-                            value={dataAction.nguoi_theo_doi}
-                            placeholder="Chọn nhân viên thực hiện"
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
+                          <Popover placement="bottomLeft"
+                            title="Chọn người Làm cùng hoặc theo dõi"
+                            trigger="click"
+                            content={
+                              <Select
+                                showSearch
+                                mode="multiple"
+                                style={{ width: "100%" }}
+                                value={dataAction.nguoi_theo_doi}
+                                placeholder="Chọn nhân viên thực hiện"
+                                optionFilterProp="children"
+                                options={optionEntries(props.users)}
+                                filterOption={(input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                                }
+                                onChange={(value) => {
+                                  console.log(value);
+
+                                  updateTaskByColumn(dataAction.id, 'nguoi_theo_doi', value);
+                                }}
+                              />
                             }
-                            options={optionEntries(props.users)}
-                          />
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+
+                          <p>
+                            {
+                              !dataAction.nguoi_theo_doi
+                                ?
+                                <span className="value-list">Chưa xác định</span>
+                                :
+                                <div>
+                                  {dataAction.nguoi_theo_doi.map((item, key) => (
+                                    <Tag style={{ color: '#04772cff' }} key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                  ))}
+                                </div>
+                            }
+                          </p>
                         </div>,
+
+                        // Tags
+                        <div className="item03">
+                          <a><HddFilled /> </a>
+                          <span>Tags: </span>
+                          <Popover placement="bottomLeft"
+                            title="Thêm tags"
+                            trigger="click"
+                            content={
+                              <Select
+                                showSearch
+                                mode="tags"
+                                style={{ width: "100%" }}
+                                value={dataAction.tags}
+                                placeholder="Chọn nhân viên thực hiện"
+                                optionFilterProp="children"
+                                // options={optionEntries([])}
+                                filterOption={(input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                                }
+                                onChange={(value) => {
+                                  console.log(value);
+
+                                  updateTaskByColumn(dataAction.id, 'tags', value);
+                                }}
+                              />
+                            }
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                          <p>
+                            {
+                              !dataAction.tags
+                                ?
+                                <span className="value-list">Chưa xác định</span>
+                                :
+                                <div>
+                                  {dataAction.tags.map((item, key) => (
+                                    <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
+                                  ))}
+                                </div>
+                            }
+                          </p>
+                        </div>,
+
+                        // Thời gian
+                        <div className="item03">
+                          <b><PushpinFilled />  Thời gian: </b>
+                        </div>,
+
+                        // Ngày tạo
                         <div>
-                          <a><FieldTimeOutlined /> </a>
+                          <a><ClockCircleFilled /> </a>
                           Ngày tạo:
-                          <span className="value-list">{dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_TIME_FORMAT) : ''}</span></div>,
-                        <div>
-                          <a><FieldTimeOutlined /> </a>
-                          Ngày bắt đầu:
-                          <span className="value-list">{dataAction.start ? dayjs(dataAction.start).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span></div>,
-                        <div>
-                          <a><CheckCircleOutlined /> </a>
-                          Ngày hoàn thành
-                          <span className="value-list">{dataAction.end ? dayjs(dataAction.end).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span>
+                          <span className="value-list"> {dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_SHOW) : ''}</span>
                         </div>,
-                        <div>
-                          <a><FieldTimeOutlined /> </a>
-                          Thời gian hoàn thành thực tế:
-                          <br />
-                          <span className="value-list">{dataAction.actual ? dayjs(dataAction.actual).format(DATE_TIME_FORMAT) : 'Chưa xác định'}</span>
-                        </div>,
-                        <div>
+                        // Ngày cập nhật
+                        <div className="item03">
                           <a><FlagFilled /> </a>
-                          Milestone:
+                          Bắt đầu:
+                          <span className="value-list"> {dataAction.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                          <Popover placement="bottomLeft"
+                            title="Ngày bắt đầu"
+                            trigger="click"
+                            content={
+                              <DatePicker format='DD/MM/YYYY'
+                                onChange={(date) => {
+                                  updateTaskByColumn(dataAction.id, 'start', date.format('YYYY-MM-DD'));
+                                }}
+                              />
+                            }
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                        </div>,
+
+                        // ngày hoàn thành
+                        <div className="item03">
+                          <a><ScheduleFilled /> </a>
+                          Hoàn thành:
+                          <span className="value-list"> {dataAction.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                          <Popover placement="bottomLeft"
+                            title="Ngày hoàn thành"
+                            trigger="click"
+                            content={
+                              <DatePicker format='DD/MM/YYYY'
+                                onChange={(date) => {
+                                  updateTaskByColumn(dataAction.id, 'end', date.format('YYYY-MM-DD'));
+                                }}
+                              />
+                            }
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                        </div>,
+
+                        // ngày thực tế
+                        <div className="item03">
+                          <a><CheckSquareFilled /> </a>
+                          Thực tế:
+                          <span className="value-list"> {dataAction.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                          <Popover placement="bottomLeft"
+                            title="Ngày hoàn thành"
+                            trigger="click"
+                            content={
+                              <DatePicker format='DD/MM/YYYY'
+                                onChange={(date) => {
+                                  updateTaskByColumn(dataAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                }}
+                              />
+                            }
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                        </div>,
+
+
+                        <div className="item03">
+                          <b><DiffFilled />  Thêm vào meeting: </b>
+                          <Popover placement="bottomLeft"
+                            title="Thêm vào meeting"
+                            trigger="click"
+                            content={
+                              <Row>
+                                <Col span={24}>
+                                  <Checkbox value="1"
+                                    onChange={(e) => {
+                                      let status = 0;
+                                      if (e.target.checked) {
+                                        status = 1;
+                                      }
+                                      updateTaskByColumn(dataAction.id, 'is_daily', status);
+                                    }}
+                                    checked={dataAction.is_daily}>Daily</Checkbox>
+                                </Col>
+                                <Col span={24}>
+                                  <Checkbox value="is_weekly"
+                                    onChange={(e) => {
+                                      let status = 0;
+                                      if (e.target.checked) {
+                                        status = 1;
+                                      }
+                                      updateTaskByColumn(dataAction.id, 'is_weekly', status);
+                                    }}
+                                    checked={dataAction.is_weekly}>Weekly</Checkbox>
+                                </Col>
+                                <Col span={24}>
+                                  <Checkbox value="1"
+                                    onChange={(e) => {
+                                      let status = 0;
+                                      if (e.target.checked) {
+                                        status = 1;
+                                      }
+                                      updateTaskByColumn(dataAction.id, 'is_monthly', status);
+                                    }}
+                                    checked={dataAction.is_monthly}>Monthly</Checkbox>
+                                </Col>
+                              </Row>
+                            }
+                          >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                              <EditOutlined />
+                            </a>
+                          </Popover>
+                        </div>,
+
+                        // daily
+                        <div className="item03">
+                          <a><FileSyncOutlined /> </a>
+                          Daily:
+                          <span className="value-list"> {dataAction.is_daily ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // weekly
+                        <div className="item03">
+                          <a><FileSearchOutlined /> </a>
+                          Weekly:
+                          <span className="value-list"> {dataAction.is_weekly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // monthly
+                        <div className="item03">
+                          <a><FileMarkdownOutlined /> </a>
+                          Monthly:
+                          <span className="value-list"> {dataAction.is_monthly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // delete
+                        <div className="item03">
+                          <Popconfirm
+                            icon={<DeleteOutlined />}
+                            title="Xác nhận xóa"
+                            description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                            onConfirm={() => {
+                              handleDelete(dataAction.id, status);
+                            }}
+                          >
+                            <Button className="_right"><DeleteOutlined /> Xóa </Button>
+                          </Popconfirm>
                         </div>
+
                       ]}
                       renderItem={(item) => (
                         <List.Item>{item}</List.Item>
                       )}
                     />
+
                     <div><br /></div>
 
                     <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
                     <Timeline
-                      items={[
-                        {
-                          children: 'Create a services site 2015-09-01',
-                        },
-                        {
-                          children: 'Solve initial network problems 2015-09-01',
-                        },
-                        {
-                          children: 'Technical testing 2015-09-01',
-                        },
-                        {
-                          children: 'Network problems being solved 2015-09-01',
-                        },
-                      ]}
+                      items={props.logs.map((item) => {
+                        return {
+                          color: item.color ? item.color : 'blue',
+                          children: (
+                            <div>
+                              <p>{item.name}</p>
+                              <span className="text-normal date01">{dayjs(item.created_at).format(DATE_TIME_FORMAT)}</span>
+                            </div>
+                          ),
+                        }
+                      })}
+                      // items={[
+                      //   {
+                      //     children: 'Create a services site 2015-09-01',
+                      //   },
+                      //   {
+                      //     children: 'Solve initial network problems 2015-09-01',
+                      //   },
+                      //   {
+                      //     children: 'Technical testing 2015-09-01',
+                      //   },
+                      //   {
+                      //     children: 'Network problems being solved 2015-09-01',
+                      //   },
+                      //   {
+                      //     children: 'Create a services site 2015-09-01',
+                      //   },
+                      //   {
+                      //     children: 'Solve initial network problems 2015-09-01',
+                      //   },
+                      // ]}
                     />
                   </Col>
                 </Row>

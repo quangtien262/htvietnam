@@ -317,16 +317,15 @@ Route::post('khach-hang/info/{id}', [KhachHangController::class, 'info'])->name(
 
 Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->name('tatToanCongNo');
 
-
 Route::group(['prefix' => 'pj'], function () {
     Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
     Route::post('{parentName}/add', [ProjectController::class, 'store'])->name('project.add');
     Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
     Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
 
-    
+
     Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
-    Route::post('{parentName}/task-info/{taskId}', [TaskController::class, 'getProjectInfo'])->name('project.getProjectInfo');
+    Route::post('{parentName}/task-info/{projectId}', [TaskController::class, 'getProjectInfo'])->name('project.getProjectInfo');
     Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
     Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEdit'])->name('project.fastEdit');
     Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
@@ -336,20 +335,23 @@ Route::group(['prefix' => 'pj'], function () {
     Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 //tasks
-Route::group(['prefix' => 'cv'], function () {
+Route::group(['prefix' => 'task'], function () {
+    Route::post('api/sort-order/task-status', [TaskController::class, 'updateSortOrder_taskStatus'])->name('task.updateSortOrder_taskStatus');
+    Route::put('update-sort-order/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
+    Route::post('fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
     
+    Route::post('delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
+    Route::post('add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
+    Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
+    Route::post('add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
+});
+
+Route::group(['prefix' => 'cv'], function () {
+
     Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
-
-
     Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
     Route::post('{parentName}/add', [TaskController::class, 'store'])->name('task.add');
-    Route::put('{parentName}/update/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
-    Route::delete('{parentName}/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
-    Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
-    Route::post('{parentName}/task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
-    Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
-    Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
-    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
+    // Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
     Route::post('{parentName}/add-express', [TaskController::class, 'addExpress'])->name('task.addTaskExpress');
 
     Route::post('{parentName}/add-config/{currentTable}', [TaskController::class, 'editConfig'])->name('task.editConfig');
@@ -421,6 +423,6 @@ Route::group(['prefix' => 'bds'], function () {
     Route::get('report/nhan-vien-sale', [AitilenController::class, 'report_nhanVienSale'])->name('aitilen.report_nhanVienSale');
     Route::get('report/nhan-vien-kt', [AitilenController::class, 'report_nhanVienKT'])->name('aitilen.report_nhanVienKT');
     Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
-}); 
+});
 
 Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');
