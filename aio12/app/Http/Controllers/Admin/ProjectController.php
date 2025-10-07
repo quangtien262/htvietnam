@@ -9,16 +9,42 @@ use App\Services\Admin\TblService;
 use App\Models\Admin\Table;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\Admin\Checklist;
 use App\Models\Admin\Column;
 use App\Models\Admin\Project;
+use App\Models\Admin\ProjectChecklist;
+use App\Models\Admin\Task;
 use App\Models\Admin\TaskComment;
+use App\Models\Admin\TaskLog;
 use App\Models\AdminUser;
 use App\Services\Admin\TblModel;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
+    public function getProjectInfo(Request $request, $projectId = 0)
+    {
+        if (empty($projectId)) {
+            return $this->sendSuccessResponse([]);
+        }
+        // get project info
+        $project = Project::find($projectId);
+        // get all comments
+        $comments = TaskComment::getByTask($projectId);
+        // get all checklist
+        $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $projectId)->orderBy('id', 'desc')->get()->toArray();
+        // phần trăm hoàn thành checklist
+        $percent = TblService::getChecklistPercent($checklist);
+        // tasks
+        $tasks = Task::getTaskByProject($projectId);
+
+        return $this->sendSuccessResponse([
+            'checklist' => $checklist,
+            'comments' => $comments,
+            'percent' => $percent,
+            'tasks' => $tasks,
+            'project' => $project
+        ]);
+    }
     /**
      * Summary of index
      * @param \Illuminate\Http\Request $request
@@ -29,12 +55,10 @@ class ProjectController extends Controller
     {
         $table = Table::where('name', $parentName)->first();
 
-        $prority = TblService::formatData('task_prority', ['parent_name' => $parentName]);
-        $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
         $status = TblService::formatData('project_status', ['parent_name' => $parentName]);
+        $type = TblService::formatData('project_type', ['parent_name' => $parentName]);
+        $users = TblService::formatData('admin_users', ['is_recycle_bin' => 0]);
         $admin = Auth::guard('admin_users')->user();
-
-        $datas = Project::getProjectByStatus($request, $parentName);
 
         $statusTable = Table::where('name', 'project_status')->first();
         $statusData = DB::table('project_status')
@@ -44,11 +68,6 @@ class ProjectController extends Controller
             ->orderBy('sort_order', 'asc')
             ->get()
             ->toArray();
-        $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
-        $users_byID = [];
-        foreach ($users as $u) {
-            $users_byID[$u['id']] = $u;
-        }
         // get chi nhanh
 
         // áp dụng với quy trình ql dự án, cskh
@@ -57,47 +76,28 @@ class ProjectController extends Controller
             $display = $request->display;
         }
 
-        if ($display == 'list') {
-            $props = TblService::getDataIndexDefault('projects', $request, true, true);
-            $mocThoiGian = 'today';
-            if (!empty($request['mocThoiGian'])) {
-                $mocThoiGian = $request['mocThoiGian'];
-            }
-
-            $khoangThoiGian = [null, null];
-            if (!empty($request->khoangThoiGian)) {
-                $khoangThoiGian = $request->khoangThoiGian;
-                $mocThoiGian = '';
-            }
-            $props['display'] = $display;
-            $props['khoangThoiGian'] = $khoangThoiGian;
-            $props['mocThoiGian'] = $mocThoiGian;
-            $props['parentName'] = $parentName;
-            $props['table'] = $table;
-            $props['prority'] = $prority;
-            $props['type'] = $type;
-            $props['admin'] = $admin;
-            $props['users'] = $users_byID;
-            $props['status'] = $status;
-            $props['statusData'] = $statusData;
-            $props['statusTable'] = $statusTable;
-            $props['p'] = $_GET['p'] ?? 0;
-            // dd($props['selectData']['project_manager']);
-            return Inertia::render('Admin/Project/index_list', $props);
-        }
-
-        return Inertia::render('Admin/Project/index_kanban', [
+        $props = [
+            'display' => $display,
+            'parentName' => $parentName,
             'table' => $table,
-            'status' => $status,
-            'datas' => $datas,
-            'users' => $users_byID,
-            'prority' => $prority,
-            'type' => $type,
             'admin' => $admin,
+            'users' => $users,
+            'status' => $status,
+            'type' => $type,
             'statusData' => $statusData,
             'statusTable' => $statusTable,
-            'parentName' => $parentName,
-        ]);
+            'p' => $_GET['p'] ?? 0,
+            'display' => $display,
+            'searchData' => $request->all(),
+        ];
+
+        if ($display == 'list') {
+            $props['dataSource'] = Project::getDatas($parentName);
+            return Inertia::render('Admin/Project/index_list', $props);
+        }
+        $datas = Project::getProjectByStatus($parentName, $request->all());
+        $props['datas'] = $datas;
+        return Inertia::render('Admin/Project/index_kanban', $props);
     }
 
     public function editConfig(Request $request, $parentTable, $currentTable)
@@ -153,16 +153,16 @@ class ProjectController extends Controller
         $project->save();
 
         if ($request->display == 'kanban') {
-            $datas = Project::getTaskByStatus($request, $parentName);
+            $datas = Project::getTaskByStatus($request->all(), $parentName);
             return $this->sendSuccessResponse($datas);
         }
-        
-        $table = Table::where('name', '  ')->first();
+
+        $table = Table::where('name', 'projects')->first();
         $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get();
-        $datas = TblService::getDatas($table, $columns);
-        $dataSource = TblService::getDataSource($datas['data'], $columns);
-        
-        return $this->sendSuccessResponse($dataSource['dataSource']);
+
+        $dataSource = Project::getDatas($parentName);
+
+        return $this->sendSuccessResponse($dataSource['data']);
     }
 
     public function updateSortOrder(Request $request, $id)
@@ -185,6 +185,9 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         Project::destroy($id);
+        // xóa task liên quan
+        Task::where('project_id', $id)->delete();
+
         return response()->json(null, 204);
     }
 
@@ -195,42 +198,29 @@ class ProjectController extends Controller
         }
 
         $admin = Auth::guard('admin_users')->user();
-
         // save
         foreach ($request->data as $data) {
+
             if (empty($data['name'])) {
                 continue;
             }
-            $checklist = new Checklist();
+            $checklist = new ProjectChecklist();
+            if (!empty($request->checklist_id)) {
+                $checklist = ProjectChecklist::find($request->checklist_id);
+            }
             $checklist->name = $data['name'];
             $checklist->content = $data['content'];
             $checklist->nguoi_thuc_hien = $data['admin_user_id'];
-            $checklist->task_id = $request->task_id;
+            $checklist->project_id = $request->project_id;
             $checklist->create_by = $admin->id;
             $checklist->is_checked = 0;
             $checklist->save();
         }
 
         // get all
-        $checklists = Checklist::where('task_id', $request->task_id)->orderBy('id', 'desc')->get()->toArray();
-
-        return $this->sendSuccessResponse($checklists);
-    }
-
-    public function getProjectInfo(Request $request, $projectId = 0)
-    {
-        if (empty($projectId)) {
-            return $this->sendSuccessResponse([]);
-        }
-
-
-        $checklist = Checklist::where('task_id', $projectId)->where('is_recycle_bin', 0)->get()->toArray();
-        $comments = TaskComment::getByTask($projectId);
-        return $this->sendSuccessResponse([
-            'checklist' => $checklist,
-            'comments' => $comments,
-            // 'datas' => $datas
-        ]);
+        $checklists = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
+        $percent = TblService::getChecklistPercent($checklists);
+        return $this->sendSuccessResponse(['list' => $checklists, 'percent' => $percent]);
     }
 
     public function addComment(Request $request)
@@ -430,4 +420,36 @@ class ProjectController extends Controller
         }
         return $data;
     }
+
+    /**
+     * Update first item the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Blog  $blog
+     * @return \Illuminate\Http\Response
+     */
+    public function fastEditProject(Request $request)
+    {
+        // dd($request->all());
+        $table = Table::where('name', 'projects')->first();
+        $column = Column::where('table_id', $table->id)->where('name', $request->column_name)->first();
+        $data = Project::find($request->id);
+
+        // $logName = 'Đã sửa ' . $column->display_name . ' "' . $data->name . '": ' . $data->{$request->column_name} . ' => ' . $request->value;
+        // TaskLog::logEdit('projects', $logName, $data->id, $request->column_name);
+
+        $data->{$request->column_name} = $request->value;
+        // dd($data);
+        $data->save();
+
+        $datas = [];
+        if ($request->display == 'list') {
+            $datas = Project::getDatas($request->parentName, $request->searchData);
+            // dd($datas);
+        }
+
+        return $this->sendSuccessResponse(['dataAction' => $data, 'datas' => $datas['data']], 'Update successfully', 200);
+    }
+
+
 }

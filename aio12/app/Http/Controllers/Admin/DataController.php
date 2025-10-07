@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Admin\FileManager;
 use App\Models\Admin\Language;
+use App\Models\Admin\ProjectChecklist;
+use App\Models\Admin\TaskChecklist;
 use App\Models\AdminUser;
 use Illuminate\Support\Facades\Auth;
 
@@ -890,6 +892,19 @@ class DataController extends Controller
         $data = TblModel::find($request->tbl_name, $request->id);
         $data->{$request->column_name} = $request->value;
         $data->save();
+
+        if ($request->tbl_name == 'project_checklist') {
+            $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
+            $percent = TblService::getChecklistPercent($checklist);
+            return $this->sendSuccessResponse(['list' => $checklist, 'percent' => $percent, 'data' => $data]);
+        }
+
+        if ($request->tbl_name == 'task_checklist') {
+            $checklists = TaskChecklist::baseQuery()->where('task_checklist.task_id', $request->task_id)->orderBy('id', 'desc')->get()->toArray();
+            $percent = TblService::getChecklistPercent($checklists);
+            return $this->sendSuccessResponse(['list' => $checklists, 'percent' => $percent, 'data' => $data]);
+        }
+
         return $this->sendSuccessResponse($data, 'Update successfully', 200);
     }
 

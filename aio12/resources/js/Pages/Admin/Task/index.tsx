@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
+import { Link } from "@inertiajs/react";
 import {
   Button,
   message,
@@ -22,7 +23,7 @@ import {
 import axios from "axios";
 import {
   ScheduleFilled, FlagFilled,
-  DownOutlined,
+  DownOutlined, RollbackOutlined,
   ToolFilled, ProfileOutlined,
   DeleteOutlined,
   EditOutlined, EyeOutlined, CaretRightFilled,
@@ -46,7 +47,7 @@ import { callApi } from "../../../Function/api";
 import { DATE_FORMAT, DATE_SHOW, DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
 import { formAddExpress } from "../../../components/comp_data";
-import { taskConfig } from "./task_config";
+import { taskConfig, taskInfo } from "./task_config";
 
 import {
   getTasks,
@@ -57,7 +58,6 @@ import {
 import { cloneDeep, set } from "lodash";
 import dayjs from "dayjs";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { pid } from "process";
 
 
 export default function Dashboard(props: any) {
@@ -76,22 +76,18 @@ export default function Dashboard(props: any) {
   const [isModalChecklist, setIsModalChecklist] = useState(false);
 
   const [formDesc] = Form.useForm();
+  const [formTitle] = Form.useForm();
 
   const [comments, setComments] = useState([]);
   const [formComment] = Form.useForm();
-
-  const [api, contextHolder] = notification.useNotification();
   const [isShowStatusSetting, setIsShowStatusSetting] = useState(false);
 
   const [formData] = Form.useForm();
   const [formSearch] = Form.useForm();
 
   const [openDetail, setOpenDetail] = useState(false);
-
-  const [statusAction, setStatusAction] = useState(1);
-  const [dataAction, setDataAction] = useState(0);
-  const [idxDataAction, setIdxDataAction] = useState(0);
-  const [idxColumnAction, setIdxColumnAction] = useState(0);
+  const [dataAction, setDataAction] = useState<any>({});
+  const [checklistPercent, setChecklistPercent] = useState(0);
 
   // save: save and close
   // save_continue: save and add new
@@ -101,9 +97,6 @@ export default function Dashboard(props: any) {
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
 
   const [columns, setColumns] = useState(props.datas);
-  const [taskInput, setTaskInput] = useState("");
-
-  const [saveStatus, setSaveStatus] = useState(false);
 
   function formAddTaskExpress(users) {
     const formAddTaskExpress_default = {
@@ -161,16 +154,15 @@ export default function Dashboard(props: any) {
 
       if (!isValid) return;
 
-      // setIsLoadingBtn(true);
       axios.post(route("task.addTaskExpress", [props.parentName]), {
-        datas: formAddTaskExpress
+        datas: formAddTaskExpress,
+        pid: props.pid
       }).then((response) => {
-        // location.reload();
         setIsLoadingBtn(false);
         setIsModalAddExpress(false);
         setColumns(response.data.data);
       }).catch((error) => {
-        message.error("Tạo checklist thất bại");
+        message.error("Tạo mới thất bại");
       });
     }
 
@@ -278,9 +270,9 @@ export default function Dashboard(props: any) {
       <tbody>
         <tr>
           <td colSpan={4}>
-            <a className="add-item01" onClick={() => addFormCheckList()}>
+            <a className="add-item01">
               <span className="icon-b" onClick={() => setFormAddTaskExpress(prev => [...prev, formAddTaskExpress_default])}>
-                <PlusCircleOutlined /> Thêm mới
+                <PlusCircleOutlined /> Thêm mới 
               </span>
             </a>
           </td>
@@ -314,7 +306,11 @@ export default function Dashboard(props: any) {
       data: formChecklist,
       task_id: dataAction.id
     }).then((response) => {
-      setChecklist(response.data.data);
+      console.log(response.data.data);
+
+      setChecklist(response.data.data.checklist);
+      setChecklistPercent(response.data.data.percent);
+
       setIsLoadingBtn(false);
       setIsModalChecklist(false);
       message.success("Tạo checklist thành công");
@@ -343,7 +339,8 @@ export default function Dashboard(props: any) {
       id: dataAction.id,
       value: value,
       parentName: props.parentName,
-      searchData: props.searchData
+      searchData: props.searchData,
+      display: props.display
     }).then(response => {
       setIsLoadingBtn(false);
       setColumns(response.data.data);
@@ -371,7 +368,7 @@ export default function Dashboard(props: any) {
   }
 
   // xoa check list
-  const removeChecklistByIndex = (indexToRemove, id) => {
+  const removeChecklistByIndex = (indexToRemove: number, id: number) => {
     setChecklist(prev => prev.filter((checklist, index) => index !== indexToRemove));
     axios.post(route('data.fastEditByTableName'), {
       column_name: 'is_recycle_bin',
@@ -380,6 +377,7 @@ export default function Dashboard(props: any) {
       value: 1
     }).then(response => {
       setIsLoadingBtn(false);
+      setChecklistPercent(response.data.percent);
       message.success('Xóa checklist thành công');
     }).catch(error => {
       message.error('Xóa checklist thất bại');
@@ -396,7 +394,7 @@ export default function Dashboard(props: any) {
     if (values.end) {
       values.end = values.end.format('YYYY-MM-DD');
     }
-
+    values.pid = props.pid;
     // const res = await createTask(values);
     axios.post(route('task.add', { parentName: props.parentName }), values)
       .then(response => {
@@ -428,11 +426,6 @@ export default function Dashboard(props: any) {
   const onFinishSearch = async (values) => {
 
   }
-
-  function addFormCheckList() {
-    setFormChecklist(prev => [...prev, formChecklist_default]);
-  }
-
   function removeFormChecklist(key) {
     setFormChecklist(prev =>
       prev.filter((_, index) => index !== key)
@@ -554,113 +547,6 @@ export default function Dashboard(props: any) {
     setIsModalAddOpen(false);
   }
 
-  function formAddTaskChecklist(users, task) {
-    function addFormCheckList() {
-      setFormChecklist(prev => [...prev, formChecklist_default]);
-    }
-
-    function updateChecklistByIndex(indexToUpdate, updatedData) {
-      setFormChecklist(prev =>
-        prev.map((item, index) =>
-          index === indexToUpdate ? { ...item, ...updatedData } : item
-        )
-      );
-    }
-
-    return <table className="table-sub">
-      <thead>
-        <tr>
-          <th>Tiêu đề</th>
-          <th>Mô tả</th>
-          <th>
-            Người thực hiện
-            <br />
-            <Checkbox checked={isApplyAll}
-              onChange={(e) => setIsApplyAll(e.target.checked)}
-            >
-              Áp dụng tất cả
-            </Checkbox>
-          </th>
-          <th>Xóa</th>
-        </tr>
-      </thead>
-      {/* form Thêm checklist */}
-      {
-        formChecklist.map((item, key) => {
-          return <tbody key={key}>
-            <tr>
-              <td>
-                <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
-              </td>
-              <td>
-                <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
-              </td>
-              <td>
-                <Select
-                  showSearch
-                  style={{ width: "100%" }}
-                  placeholder="Chọn nhân viên thực hiện"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  value={item.admin_user_id}
-                  options={optionEntries(users)}
-                  onChange={(value) => {
-                    if (!isApplyAll) {
-                      updateChecklistByIndex(key, { admin_user_id: value });
-                    }
-                    setFormChecklist(prev =>
-                      prev.map(item => ({
-                        ...item,
-                        admin_user_id: value
-                      }))
-                    );
-                    return;
-
-                  }}
-                />
-              </td>
-              <td>
-                <span onClick={() => removeFormChecklist(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-              </td>
-            </tr>
-
-          </tbody>
-        })
-      }
-
-      <tbody>
-        <tr>
-          <td colSpan={4}>
-            <a className="add-item01" onClick={() => addFormCheckList()}>
-              <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td colSpan={4}>
-            <Row className="main-modal-footer01">
-              <Col span={24} className="main-btn-popup">
-                <span> </span>
-                <Button className="btn-popup"
-                  loading={isLoadingBtn}
-                  type="primary"
-                  onClick={() => createChecklist()}
-                >
-                  <CheckOutlined />
-                  Tạo Checklist
-                </Button>
-              </Col>
-            </Row>
-          </td>
-        </tr>
-      </tbody>
-
-    </table>
-  }
 
   function closePopupStatus() {
     setIsShowStatusSetting(false);
@@ -729,15 +615,7 @@ export default function Dashboard(props: any) {
               {formAddTaskExpress(props.users)}
             </Modal>
 
-            {/* Thêm checklist */}
-            <Modal title="Thêm checklist"
-              open={isModalChecklist}
-              onCancel={() => setIsModalChecklist(false)}
-              footer={[]}
-              width={1000}
-            >
-              {formAddTaskChecklist(props.users, dataAction)}
-            </Modal>
+            
 
             {/* Thêm mới */}
             <Modal title="Thêm mới"
@@ -960,7 +838,9 @@ export default function Dashboard(props: any) {
             <Row>
 
               <Col sm={{ span: 8 }}>
-                <h3 className="title04">{TITLE.TASK}</h3>
+                <Link href={route('project.list', { parentName: props.parentName, p: props.p })}> <Button icon={<RollbackOutlined />}> Back </Button> </Link>
+                <span> </span>
+                <a><b className="title-page">{props.project.name} </b></a>
               </Col>
 
               <Col sm={{ span: 16 }}>
@@ -993,7 +873,7 @@ export default function Dashboard(props: any) {
               <Space>
                 <span>Tìm kiếm</span>
                 <span> | </span>
-                <a><ToolFilled /> Tìm kiếm nâng cao</a>
+                <a className="title-search"><ToolFilled /> Tìm kiếm nâng cao</a>
               </Space>
             </Divider>
 
@@ -1089,25 +969,25 @@ export default function Dashboard(props: any) {
                                           onClick={async () => {
                                             setOpenDetail(true);
                                             setDataAction(task);
-                                            setIdxDataAction(index);
-                                            setIdxColumnAction(idx);
                                             const res = await callApi(route('task.getTaskInfo', [task.id]));
+                                            console.log(res);
                                             setChecklist(res.data.data.checklist);
+                                            setChecklistPercent(res.data.data.percent);
                                             setComments(res.data.data.comments);
                                             if (formDesc) {
                                               formDesc.setFieldValue('description', task.description);
                                             }
-
                                           }}
                                         >
+                                          {props.prority[task.task_prority_id] ? <Tag color={props.prority[task.task_prority_id].color}>{props.prority[task.task_prority_id].name}</Tag> : ''}
                                           {task.name}
                                         </h3>
 
                                         <p className="description01">{task.description}</p>
 
-                                        {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{props.users[task.nguoi_thuc_hien].name}</Tag>}
-                                        {!task.end ? '' : <em><br />Deadline: {dayjs(task.end).format('DD/MM/YYYY')}</em>}
 
+                                        {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{props.users[task.nguoi_thuc_hien].name}</Tag>}
+                                        <p className="deadline"><em>{task.end ? dayjs(task.end).format('DD/MM/YYYY') : ''}</em></p>
                                       </div>
 
                                     </div>
@@ -1132,618 +1012,40 @@ export default function Dashboard(props: any) {
                 onClose={() => setOpenDetail(false)}
                 width="90%"
               >
-                <Row>
-                  <Col sm={16}>
-                    <h3>{dataAction.name}</h3>
-                    <p className="description01">Tạo bởi: {props.users[dataAction.create_by] ? props.users[dataAction.create_by].name : ''}</p>
-                    <Divider orientation="left">
-                      <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                      <span> | </span>
-                      <Popconfirm
-                        icon={<EditFilled />}
-                        title="Sửa mô tả"
-                        okButtonProps={{ loading: isLoadingBtn }}
-                        onConfirm={() => formDesc.submit()}
-                        description={
-                          <Form
-                            name="formDesc"
-                            form={formDesc}
-                            layout="vertical"
-                            onFinish={onFinishFormDesc}
-                            autoComplete="off"
-                            initialValues={{ description: dataAction.description }}
-                          >
-                            <Form.Item className="edit-description" name='description' label=''>
-                              <Input.TextArea rows={4} />
-                            </Form.Item>
-                          </Form>
-                        }
-                      >
-                        <span className="desc cursor"> <EditFilled /> Sửa</span>
-                      </Popconfirm>
+                {taskInfo(props,
+                  dataAction,
+                  comments,
+                  checklist,
+                  checklistPercent,
+                  (result: any) => {
+                    // set columns, dùng cho case fast edit
+                    if (result.columns) {
+                      setColumns(result.columns);
+                    }
 
-                    </Divider>
-                    <div>
-                      <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
-                    </div>
+                    // set data action, dùng cho case fast edit
+                    if (result.dataAction_column) {
+                      setDataAction({
+                          ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
+                          [result.dataAction_column.col]: result.dataAction_column.val,
+                      });
+                    }
+                    
+                    // set checklist
+                    if (result.checklist) {
+                      setChecklist(result.checklist);
+                    }
+                    
+                    // set percent
+                    if (result.checklist_percent !== undefined) {
+                      setChecklistPercent(result.checklist_percent);
+                    }
+                    // set comments
+                    if (result.comments) {
+                      setComments(result.comments);
+                    }
 
-                    {/* Checklist */}
-                    <div>
-                      <Divider orientation="left">
-                        <span className="title-desc"><CheckSquareFilled /> Checklist</span>
-                        <span> | </span>
-                        <span className="desc cursor" onClick={() => setIsModalChecklist(true)}> <PlusSquareFilled /> Thêm</span>
-                      </Divider>
-                      <Flex gap="small" vertical>
-                        {/* <Progress percent={30} />
-                        <Progress percent={50} status="active" /> */}
-                        <Progress percent={70} status="exception" />
-                        {/* <Progress percent={100} /> */}
-                      </Flex>
-
-                      <List
-                        className="demo-loadmore-list"
-                        itemLayout="horizontal"
-                        pagination={{
-                          pageSize: 10, //  số item mỗi trang
-                        }}
-                        dataSource={!checklist ? [] : checklist.map((item) => { return item; })}
-                        locale={{ emptyText: 'Danh sách checklist trống' }}
-                        renderItem={(item, key) => (
-                          <List.Item
-                            actions={[
-                              <a title="Chọn người thực hiện" className="icon-large" key="list-loadmore-edit"><UserSwitchOutlined /></a>,
-                              <Popconfirm
-                                icon={<DeleteOutlined />}
-                                title="Xác nhận xóa"
-                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
-                                onConfirm={() => {
-                                  removeChecklistByIndex(key, item.id);
-                                }}
-                              >
-                                <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                              </Popconfirm>
-                            ]}
-                          >
-                            <List.Item.Meta
-                              avatar={
-                                <Checkbox checked={item.is_checked ? true : false}
-                                  onChange={(e) => {
-                                    let status = 0;
-                                    if (e.target.checked) {
-                                      status = 1;
-                                    }
-
-                                    // update status state
-                                    let checklist_tmp = cloneDeep(checklist);
-                                    checklist_tmp[key].is_checked = status;
-                                    setChecklist(checklist_tmp);
-                                    // update status 2 db
-                                    axios.post(route('data.fastEditByTableName'), {
-                                      column_name: 'is_checked',
-                                      tbl_name: 'task_checklist',
-                                      id: item.id,
-                                      value: status
-                                    }).then(response => {
-                                      message.success('Cập nhật thứ tự thành công');
-                                    }).catch(error => {
-                                      message.error('Cập nhật thứ tự thất bại');
-                                    });
-                                  }}
-                                />
-                              }
-                              title={<span className="text-normal">{item.name}</span>}
-                              description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : ''}
-                            />
-                          </List.Item>
-                        )}
-                      />
-                    </div>
-
-                    {/* Comment */}
-                    <div>
-                      <Divider orientation="left">
-                        <span className="title-desc"><CheckSquareFilled /> Comment</span>
-                        <span> | </span>
-                        <Popconfirm
-                          icon={<EditFilled />}
-                          title="Thêm comment"
-                          okButtonProps={{ loading: isLoadingBtn }}
-                          onConfirm={() => { formComment.submit() }}
-                          description={
-                            <Form
-                              name="formComment"
-                              form={formComment}
-                              layout="vertical"
-                              onFinish={onFinishFormComment}
-                              autoComplete="off"
-                            // initialValues={}
-                            >
-                              <Form.Item className="edit-description" name='content' label=''>
-                                <Input.TextArea rows={4} />
-                              </Form.Item>
-                            </Form>
-                          }
-                        >
-                          <span className="desc cursor"> <PlusSquareFilled /> Thêm</span>
-                        </Popconfirm>
-                      </Divider>
-
-                      <List
-                        className="demo-loadmore-list"
-                        itemLayout="horizontal"
-                        pagination={{
-                          pageSize: 5, // 👉 số item mỗi trang
-                        }}
-                        dataSource={!comments ? [] : comments.map((item) => { return item; })}
-                        renderItem={(item) => (
-                          <List.Item
-                            actions={[
-                              <a title="Sửa comment này" className="icon-large" key="list-loadmore-edit"><EditOutlined /></a>,
-                              <Popconfirm
-                                icon={<DeleteOutlined />}
-                                title="Xác nhận xóa"
-                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
-                              >
-                                <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                              </Popconfirm>
-                            ]}
-                          >
-                            <List.Item.Meta
-                              avatar={<div>
-                              </div>
-                              }
-                              title={<div>
-                                <b>{item.admin_users_name}</b>
-                              </div>
-                              }
-                              description={
-                                <div>
-                                  <em className="text-normal date01"> {dayjs(item.created_at).format(DATE_TIME_FORMAT)}</em>
-                                  <p>{item.content}</p>
-                                </div>
-
-                              }
-                            />
-                          </List.Item>
-                        )}
-                      />
-                    </div>
-                  </Col>
-
-                  {/* right */}
-                  <Col sm={8}>
-                    <List
-                      header={<b><InfoCircleFilled /> Thông tin chi tiết</b>}
-                      footer={<div></div>}
-                      bordered
-                      dataSource={[
-                        // status
-                        <div className="item03">
-                          <a><PushpinFilled /> </a>
-                          <span>Trạng thái: </span>
-                          {
-                            !dataAction.task_status_id
-                              ?
-                              <span className="value-list">Chưa xác định</span>
-                              :
-                              <>
-                                <Tag style={{ color: status[dataAction.task_status_id].color, background: status[dataAction.task_status_id].background }}>
-                                  <span>{icon[status[dataAction.task_status_id].icon]} </span>
-                                  <span> {status[dataAction.task_status_id].name}</span>
-                                </Tag>
-                              </>
-                          }
-                          <Popover placement="bottomLeft"
-                            title="Chọn trạng thái"
-                            trigger="click"
-                            content={
-                              <List
-                                itemLayout="horizontal"
-                                dataSource={objEntries(status)}
-                                renderItem={(item, key) => (
-                                  <p style={{ color: item.background }}
-                                    className="cursor"
-                                    onClick={() => {
-                                      updateTaskByColumn(dataAction.id, 'task_status_id', item.id);
-                                    }}
-                                  >
-                                    {icon[item.icon]} {item.name}
-                                  </p>
-                                )}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <DownOutlined />
-                            </a>
-                          </Popover>
-                        </div>,
-
-                        // độ ưu tiên
-                        <div className="item03">
-                          <a><FireFilled /> </a>
-                          <span>Độ ưu tiên: </span>
-                          {
-                            !dataAction.task_prority_id
-                              ?
-                              <span className="value-list">Chưa xác định</span>
-                              :
-                              <Tag style={{ color: props.prority[dataAction.task_prority_id].color }}>{props.prority[dataAction.task_prority_id].name} </Tag>
-
-                          }
-                          <Popover placement="bottomLeft"
-                            title="Chọn mức độ ưu tiên"
-                            trigger="click"
-                            content={
-                              <List
-                                itemLayout="horizontal"
-                                dataSource={objEntries(props.prority)}
-                                renderItem={(item, key) => (
-                                  <p style={{ color: item.color }}
-                                    className="cursor"
-                                    onClick={() => {
-                                      updateTaskByColumn(dataAction.id, 'task_prority_id', item.id);
-                                    }}
-                                  >
-                                    <CaretRightFilled /> {item.name}
-                                  </p>
-                                )}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <DownOutlined />
-                            </a>
-                          </Popover>
-
-                        </div>,
-
-                        // người thực hiện
-                        <div className="item03">
-                          <a><UserOutlined /> </a>
-                          <span>Người thực hiện: </span>
-                          <Popover placement="bottomLeft"
-                            title="Chọn người thực hiện"
-                            trigger="click"
-                            content={
-                              <Select
-                                showSearch
-                                style={{ width: "100%" }}
-                                value={dataAction.nguoi_thuc_hien}
-                                placeholder="Chọn nhân viên thực hiện"
-                                optionFilterProp="children"
-                                options={optionEntries(props.users)}
-                                filterOption={(input, option) =>
-                                  (option?.label ?? "")
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                                }
-                                onChange={(value) => {
-                                  updateTaskByColumn(dataAction.id, 'nguoi_thuc_hien', value);
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                          <p>
-                            {
-                              !dataAction.nguoi_thuc_hien
-                                ?
-                                <span className="value-list">Chưa xác định</span>
-                                :
-                                <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.nguoi_thuc_hien].name} </Tag>
-                            }
-                          </p>
-
-                        </div>,
-
-                        // Chọn người Làm cùng hoặc theo dõi
-                        <div className="item03">
-                          <a><UsergroupAddOutlined /> </a>
-                          Làm cùng hoặc theo dõi:
-                          <Popover placement="bottomLeft"
-                            title="Chọn người Làm cùng hoặc theo dõi"
-                            trigger="click"
-                            content={
-                              <Select
-                                showSearch
-                                mode="multiple"
-                                style={{ width: "100%" }}
-                                value={dataAction.nguoi_theo_doi}
-                                placeholder="Chọn nhân viên thực hiện"
-                                optionFilterProp="children"
-                                options={optionEntries(props.users)}
-                                filterOption={(input, option) =>
-                                  (option?.label ?? "")
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                                }
-                                onChange={(value) => {
-                                  console.log(value);
-
-                                  updateTaskByColumn(dataAction.id, 'nguoi_theo_doi', value);
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-
-                          <p>
-                            {
-                              !dataAction.nguoi_theo_doi
-                                ?
-                                <span className="value-list">Chưa xác định</span>
-                                :
-                                <div>
-                                  {dataAction.nguoi_theo_doi.map((item, key) => (
-                                    <Tag style={{ color: '#04772cff' }} key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
-                                  ))}
-                                </div>
-                            }
-                          </p>
-                        </div>,
-
-                        // Tags
-                        <div className="item03">
-                          <a><HddFilled /> </a>
-                          <span>Tags: </span>
-                          <Popover placement="bottomLeft"
-                            title="Thêm tags"
-                            trigger="click"
-                            content={
-                              <Select
-                                showSearch
-                                mode="tags"
-                                style={{ width: "100%" }}
-                                value={dataAction.tags}
-                                placeholder="Chọn nhân viên thực hiện"
-                                optionFilterProp="children"
-                                // options={optionEntries([])}
-                                filterOption={(input, option) =>
-                                  (option?.label ?? "")
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                                }
-                                onChange={(value) => {
-                                  console.log(value);
-
-                                  updateTaskByColumn(dataAction.id, 'tags', value);
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                          <p>
-                            {
-                              !dataAction.tags
-                                ?
-                                <span className="value-list">Chưa xác định</span>
-                                :
-                                <div>
-                                  {dataAction.tags.map((item, key) => (
-                                    <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
-                                  ))}
-                                </div>
-                            }
-                          </p>
-                        </div>,
-
-                        // Thời gian
-                        <div className="item03">
-                          <b><PushpinFilled />  Thời gian: </b>
-                        </div>,
-
-                        // Ngày tạo
-                        <div>
-                          <a><ClockCircleFilled /> </a>
-                          Ngày tạo:
-                          <span className="value-list"> {dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_SHOW) : ''}</span>
-                        </div>,
-                        // Ngày cập nhật
-                        <div className="item03">
-                          <a><FlagFilled /> </a>
-                          Bắt đầu:
-                          <span className="value-list"> {dataAction.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                          <Popover placement="bottomLeft"
-                            title="Ngày bắt đầu"
-                            trigger="click"
-                            content={
-                              <DatePicker format='DD/MM/YYYY'
-                                onChange={(date) => {
-                                  updateTaskByColumn(dataAction.id, 'start', date.format('YYYY-MM-DD'));
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                        </div>,
-
-                        // ngày hoàn thành
-                        <div className="item03">
-                          <a><ScheduleFilled /> </a>
-                          Hoàn thành:
-                          <span className="value-list"> {dataAction.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                          <Popover placement="bottomLeft"
-                            title="Ngày hoàn thành"
-                            trigger="click"
-                            content={
-                              <DatePicker format='DD/MM/YYYY'
-                                onChange={(date) => {
-                                  updateTaskByColumn(dataAction.id, 'end', date.format('YYYY-MM-DD'));
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                        </div>,
-
-                        // ngày thực tế
-                        <div className="item03">
-                          <a><CheckSquareFilled /> </a>
-                          Thực tế:
-                          <span className="value-list"> {dataAction.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                          <Popover placement="bottomLeft"
-                            title="Ngày hoàn thành"
-                            trigger="click"
-                            content={
-                              <DatePicker format='DD/MM/YYYY'
-                                onChange={(date) => {
-                                  updateTaskByColumn(dataAction.id, 'actual', date.format('YYYY-MM-DD'));
-                                }}
-                              />
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                        </div>,
-
-
-                        <div className="item03">
-                          <b><DiffFilled />  Thêm vào meeting: </b>
-                          <Popover placement="bottomLeft"
-                            title="Thêm vào meeting"
-                            trigger="click"
-                            content={
-                              <Row>
-                                <Col span={24}>
-                                  <Checkbox value="1"
-                                    onChange={(e) => {
-                                      let status = 0;
-                                      if (e.target.checked) {
-                                        status = 1;
-                                      }
-                                      updateTaskByColumn(dataAction.id, 'is_daily', status);
-                                    }}
-                                    checked={dataAction.is_daily}>Daily</Checkbox>
-                                </Col>
-                                <Col span={24}>
-                                  <Checkbox value="is_weekly"
-                                    onChange={(e) => {
-                                      let status = 0;
-                                      if (e.target.checked) {
-                                        status = 1;
-                                      }
-                                      updateTaskByColumn(dataAction.id, 'is_weekly', status);
-                                    }}
-                                    checked={dataAction.is_weekly}>Weekly</Checkbox>
-                                </Col>
-                                <Col span={24}>
-                                  <Checkbox value="1"
-                                    onChange={(e) => {
-                                      let status = 0;
-                                      if (e.target.checked) {
-                                        status = 1;
-                                      }
-                                      updateTaskByColumn(dataAction.id, 'is_monthly', status);
-                                    }}
-                                    checked={dataAction.is_monthly}>Monthly</Checkbox>
-                                </Col>
-                              </Row>
-                            }
-                          >
-                            <a onClick={(e) => e.preventDefault()} className="_right">
-                              <EditOutlined />
-                            </a>
-                          </Popover>
-                        </div>,
-
-                        // daily
-                        <div className="item03">
-                          <a><FileSyncOutlined /> </a>
-                          Daily:
-                          <span className="value-list"> {dataAction.is_daily ? 'Có' : 'Không'}</span>
-                        </div>,
-
-                        // weekly
-                        <div className="item03">
-                          <a><FileSearchOutlined /> </a>
-                          Weekly:
-                          <span className="value-list"> {dataAction.is_weekly ? 'Có' : 'Không'}</span>
-                        </div>,
-
-                        // monthly
-                        <div className="item03">
-                          <a><FileMarkdownOutlined /> </a>
-                          Monthly:
-                          <span className="value-list"> {dataAction.is_monthly ? 'Có' : 'Không'}</span>
-                        </div>,
-
-                        // delete
-                        <div className="item03">
-                          <Popconfirm
-                            icon={<DeleteOutlined />}
-                            title="Xác nhận xóa"
-                            description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
-                            onConfirm={() => {
-                              handleDelete(dataAction.id, status);
-                            }}
-                          >
-                            <Button className="_right"><DeleteOutlined /> Xóa </Button>
-                          </Popconfirm>
-                        </div>
-
-                      ]}
-                      renderItem={(item) => (
-                        <List.Item>{item}</List.Item>
-                      )}
-                    />
-
-                    <div><br /></div>
-
-                    <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
-                    <Timeline
-                      items={props.logs.map((item) => {
-                        return {
-                          color: item.color ? item.color : 'blue',
-                          children: (
-                            <div>
-                              <p>{item.name}</p>
-                              <span className="text-normal date01">{dayjs(item.created_at).format(DATE_TIME_FORMAT)}</span>
-                            </div>
-                          ),
-                        }
-                      })}
-                      // items={[
-                      //   {
-                      //     children: 'Create a services site 2015-09-01',
-                      //   },
-                      //   {
-                      //     children: 'Solve initial network problems 2015-09-01',
-                      //   },
-                      //   {
-                      //     children: 'Technical testing 2015-09-01',
-                      //   },
-                      //   {
-                      //     children: 'Network problems being solved 2015-09-01',
-                      //   },
-                      //   {
-                      //     children: 'Create a services site 2015-09-01',
-                      //   },
-                      //   {
-                      //     children: 'Solve initial network problems 2015-09-01',
-                      //   },
-                      // ]}
-                    />
-                  </Col>
-                </Row>
+                  })}
 
                 <br />
 

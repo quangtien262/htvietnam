@@ -317,16 +317,24 @@ Route::post('khach-hang/info/{id}', [KhachHangController::class, 'info'])->name(
 
 Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->name('tatToanCongNo');
 
+Route::group(['prefix' => 'project'], function () {
+    Route::put('update-sort-order/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+
+    Route::post('fast-edit', [ProjectController::class, 'fastEditProject'])->name('project.fastEditProject');
+    Route::post('delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    Route::post('add-checklist', [ProjectController::class, 'addChecklist'])->name('project.addChecklist');
+    Route::post('add-comment', [ProjectController::class, 'addComment'])->name('project.addComment');
+    Route::post('info/{projectId}', [ProjectController::class, 'getProjectInfo'])->name('project.getProjectInfo');
+});
+
 Route::group(['prefix' => 'pj'], function () {
     Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
     Route::post('{parentName}/add', [ProjectController::class, 'store'])->name('project.add');
-    Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
-    Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
-
-
-    Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
-    Route::post('{parentName}/task-info/{projectId}', [TaskController::class, 'getProjectInfo'])->name('project.getProjectInfo');
-    Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
+    // Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    // Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    // Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
+    
+    // Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
     Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEdit'])->name('project.fastEdit');
     Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
     Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
@@ -334,6 +342,7 @@ Route::group(['prefix' => 'pj'], function () {
     Route::post('{parentName}/add-config/{currentTable}', [ProjectController::class, 'editConfig'])->name('project.editConfig');
     Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
+
 //tasks
 Route::group(['prefix' => 'task'], function () {
     Route::post('api/sort-order/task-status', [TaskController::class, 'updateSortOrder_taskStatus'])->name('task.updateSortOrder_taskStatus');
@@ -344,6 +353,7 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
     Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
     Route::post('add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
+    Route::post('delete-comment', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
 });
 
 Route::group(['prefix' => 'cv'], function () {

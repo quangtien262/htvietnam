@@ -18,15 +18,30 @@ class Project extends Model
     static function baseQuery()
     {
         return self::select([
-                'projects.*',
-                'project_status.name as project_status_name',
-                'project_status.color as project_status_color',
-                'project_status.background as project_status_background',
-                'project_status.icon as project_status_icon'
-            ])
+            'projects.*',
+            'projects.id as key',
+            'project_status.name as project_status_name',
+            'project_status.color as project_status_color',
+            'project_status.background as project_status_background',
+            'project_status.icon as project_status_icon'
+        ])
             ->leftJoin('project_status', 'project_status.id', 'projects.project_status_id')
             ->where('projects.is_recycle_bin', 0)
             ->orderBy('projects.sort_order', 'asc');
+    }
+
+    static function projectDetail($id)
+    {
+        return self::select([
+            'projects.*',
+            'projects.id as key',
+            'project_status.name as project_status_name',
+            'project_status.color as project_status_color',
+            'project_status.background as project_status_background',
+            'project_status.icon as project_status_icon'
+        ])
+            ->leftJoin('project_status', 'project_status.id', 'projects.project_status_id')
+            ->find($id);
     }
 
     static function getProjectByStatus($request = [], $parentName)
@@ -54,5 +69,16 @@ class Project extends Model
             ];
         }
         return $datas;
+    }
+
+    static function getDatas($parentName, $request = [])
+    {
+        $dataSource = Project::baseQuery()
+            ->where('projects.parent_name', $parentName);
+        if (!empty($request['keyword'])) {
+            $dataSource = $dataSource->where('projects.name', 'like', '%' . $request['keyword'] . '%');
+        }
+        $dataSource = $dataSource->paginate(30)->toArray();
+        return $dataSource;
     }
 }

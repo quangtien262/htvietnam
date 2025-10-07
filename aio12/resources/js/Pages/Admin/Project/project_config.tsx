@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
+import dayjs from "dayjs";
+import axios from "axios";
 import {
     Button,
-    message,
-    Modal,
+    message,Tag,
+    Modal, Tabs, TabsProps,
     Form, Input,
     Popconfirm, ColorPicker,
     TableColumnsType,
     Table, Row, Col, Divider, Space,
-    Radio, Select, DatePicker
+    Radio, Select, DatePicker,
+    Spin
 } from "antd";
-import axios from "axios";
 import {
     CopyOutlined, PlusCircleOutlined, HolderOutlined, CloseSquareOutlined, CheckOutlined,
     EditOutlined, DeleteOutlined
@@ -31,7 +32,12 @@ import { CSS } from '@dnd-kit/utilities';
 // END DND
 
 import { optionEntries } from "../../../Function/common";
-import { o } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
+
+import { icon } from "../../../components/comp_icon";
+
+import "../../../../css/list02.css";
+import "../../../../css/task.css";
+import "../../../../css/form.css";
 
 
 const { TextArea } = Input;
@@ -329,7 +335,6 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                         block
                         optionType="button"
                         buttonStyle="solid"
-                        defaultValue={1}
                         options={Object.entries(statusData).map(([key, value]) => {
                             return {
                                 value: value.id,
@@ -354,7 +359,7 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
 
                     <Col sm={{ span: 24 }}>
                         {/* Tên công việc */}
-                        <Form.Item className="item-form-textarea" name='name' label="Tên công việc" rules={[{ required: true, message: 'Vui lòng nhập tên công việc', }]}>
+                        <Form.Item className="item-form-textarea" name='name' label="Tiêu đề" rules={[{ required: true, message: 'Vui lòng nhập tên công việc', }]}>
                             <Input />
                         </Form.Item>
                     </Col>
@@ -393,13 +398,6 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                             />
                         </Form.Item>
                     </Col>
-
-                    <Col sm={{ span: 24 }}>
-                        {/* Mô tả chi tiết */}
-                        <Form.Item className="item-form-textarea" name='description' label="Mô tả thêm">
-                            <Input.TextArea rows={4} />
-                        </Form.Item>
-                    </Col>
                 </Row>
             </Col>
 
@@ -411,28 +409,12 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                             <Divider orientation="left"><Space>Cài đặt</Space></Divider>
                         </div>
                     </Col>
-                    {/* Độ ưu tiên */}
-                    <Col sm={{ span: 24 }}>
-                        <Form.Item className="item-form" name='task_prority_id' label="Độ ưu tiên">
-                            <Select showSearch
-                                style={{ width: "100%" }}
-                                placeholder="Chọn mức độ ưu tiên"
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "")
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
-                                }
-                                options={optionEntries(props.prority)}
-                            />
-                        </Form.Item>
-                    </Col>
                     {/* Loại công việc */}
                     <Col sm={{ span: 24 }}>
-                        <Form.Item className="item-form" name='task_type_ids' label="Loại công việc">
+                        <Form.Item className="item-form" name='task_type_ids' label="Loại">
                             <Select showSearch
                                 style={{ width: "100%" }}
-                                placeholder="Chọn loại công việc"
+                                placeholder="Chọn loại "
                                 optionFilterProp="children"
                                 filterOption={(input, option) =>
                                     (option?.label ?? "")
@@ -458,25 +440,17 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                         </Form.Item>
                     </Col>
 
-                    {/* Người giao việc */}
-                    <Col sm={{ span: 24 }} className="main-item-form">
-                        <Form.Item className="item-form" name='nguoi_tạo' label="Người giao việc">
-                            <Select showSearch
-                                style={{ width: "100%" }}
-                                placeholder="Chọn mức độ ưu tiên"
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "")
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
-                                }
-                                options={optionEntries(props.users)}
-                            />
-                        </Form.Item>
-                    </Col>
-
                     <Col sm={{ span: 24 }}></Col>
                 </Row>
+            </Col>
+
+
+
+            <Col sm={{ span: 24 }}>
+                {/* Mô tả chi tiết */}
+                <Form.Item className="item-form-textarea" name='description' label="Mô tả thêm">
+                    <Input.TextArea rows={4} />
+                </Form.Item>
             </Col>
 
             {/* footer */}
@@ -489,9 +463,9 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                         }}
                     >
                         <CheckOutlined />
-                        Lưu và đóng
+                        THÊM MỚI
                     </Button>
-                    <span> </span>
+                    {/* <span> </span>
                     <Button className="btn-popup" type="primary"
                         loading={isLoadingBtn}
                         onClick={() => {
@@ -501,9 +475,87 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
                     >
                         <PlusCircleOutlined />
                         Lưu và thêm mới
-                    </Button>
+                    </Button> */}
                 </Col>
             </Col>
         </Row>
     </Form>
 }
+
+export function getProjectDetail(props: any, record: any, index: number, dataInfo: any, onSuccess) {
+    if (!dataInfo[record.key]) {
+        console.log('load data ', record.key);
+
+        axios.post(route('project.getProjectInfo', [record.key])).then((response) => {
+            dataInfo[record.key] = response.data.data;
+            onSuccess(response.data.data);
+        });
+        return <div><Spin /></div>;
+    }
+    const items: TabsProps['items'] = [
+        {
+            key: '1',
+            label: 'TASK',
+            children: <>
+                <Table className="table-sub02"
+                    dataSource={dataInfo[record.key].tasks}
+                    rowKey="id"
+                    // pagination={false}
+                    columns={[
+                        {
+                            title: 'Tên công việc', dataIndex: 'name', key: 'name',
+                            render: (text, record: any) => {
+                                return <div>
+                                    <h3 className="title04 click"
+                                        onClick={() => {
+                                            console.log('record', record);
+                                        }}
+                                    >
+                                        {record.name}
+                                        {record.assignee_name ? <><br /><b>{record.assignee_name}</b></> : null}
+                                    </h3>
+                                </div>;
+                                // <span style={{ background: record.background, color: record.color, padding: '2px 5px', borderRadius: 3 }}>{text}</span>  <br />  <em>{dayjs(record.start).format('DD/MM/YYYY')} - {dayjs(record.end).format('DD/MM/YYYY')}</em>
+                            },
+                        },
+                        { title: 'Độ ưu tiên', dataIndex: 'task_prority_name', key: 'task_prority_name',
+                            render: (_, record: any) => record.task_prority_name ? <Tag style={{ background: record.task_prority_color, color:'#fff' }}><i className={record.task_prority_icon} /> {record.task_prority_name}</Tag> : null
+                        },
+                        { title: 'Trạng thái', dataIndex: 'status', key: 'status',
+                            render: (_, record: any) => <Tag icon={icon[record.task_status_icon]} style={{ background: record.task_status_background, color: record.task_status_color }}><i className={record.task_status_icon} /> {record.task_status_name}</Tag>
+                        },
+                        {
+                            title: 'Thời gian', dataIndex: 'time', key: 'time',
+                            render: (_, record: any) => <div>
+                                <em>{record.start ? dayjs(record.start).format('DD/MM/YYYY') : ''}</em>
+                                <br />
+                                <em>{record.end ? dayjs(record.end).format('DD/MM/YYYY') : ''}</em>
+                            </div>
+                        },
+                    ]}
+                />
+            </>,
+        },
+        {
+            key: '2',
+            label: <span>INFO</span>,
+            children: '',
+        },
+        {
+            key: '3',
+            label: 'COMMENT',
+            children: '',
+        },
+        {
+            key: '4',
+            label: 'CHECKLIST',
+            children: '',
+        },
+    ];
+    return (
+        <>
+            <Tabs tabPosition="top" defaultActiveKey="1" items={items} />
+        </>
+    );
+}
+// IGNORE BELOW

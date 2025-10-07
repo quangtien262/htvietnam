@@ -30,7 +30,10 @@ class Task extends Model
                 ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
                 ->where('tasks.is_recycle_bin', 0)
                 ->orderBy('tasks.sort_order', 'asc');
-            if (!empty($request->keyword)) {
+            if (!empty($request['pid'])) {
+                $tasks = $tasks->where('tasks.project_id', $request['pid']);
+            }
+            if (!empty($request['keyword'])) {
                 $tasks = $tasks->where('tasks.name', 'like', '%' . $request['keyword'] . '%');
             }
 
@@ -40,6 +43,32 @@ class Task extends Model
                 'datas' => $tasks
             ];
         }
+        return $datas;
+    }
+
+    static function getTaskByProject($projectId)
+    {
+        $datas = self::select(
+            'tasks.*',
+            'task_status.name as task_status_name',
+            'task_status.color as task_status_color',
+            'task_status.background as task_status_background',
+            'task_status.icon as task_status_icon',
+            'task_prority.name as task_prority_name',
+            'task_prority.color as task_prority_color',
+            'task_prority.sort_order as task_prority_sort_order',
+            'admin_users.name as assignee_name',
+            
+        )
+            ->where('tasks.project_id', $projectId)
+            ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
+            ->leftJoin('task_prority', 'task_prority.id', 'tasks.task_prority_id')
+            ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
+            ->where('tasks.is_recycle_bin', 0)
+            ->orderBy('task_prority.sort_order', 'asc')
+            ->orderBy('tasks.id', 'desc')
+            ->get()
+            ->toArray();
         return $datas;
     }
 }

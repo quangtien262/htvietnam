@@ -20,18 +20,18 @@ return new class extends Migration
 
             $table->string('parent_name')->nullable();
 
-            $table->string('project_id')->nullable();
+            $table->integer('project_id')->default(0)->nullable();
 
             $table->integer('task_status_id')->default(1)->nullable(); // todo, doing, done
             $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
             $table->text('nguoi_theo_doi')->nullable(); // json người theo dõi hoặc làm cùng
-            $table->integer('nguoi_tạo')->nullable();
             $table->integer('task_prority_id')->nullable();
             $table->text('task_type_ids')->nullable();
             $table->date('start')->nullable();
             $table->date('end')->nullable();
             $table->date('actual')->nullable();
             $table->text('tags')->nullable();
+            $table->integer('status_order')->nullable();
 
             $table->integer('milestones_id')->nullable();
 
@@ -64,7 +64,37 @@ return new class extends Migration
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
-            MigrateService::createColumn02($tableId, 'name', 'Tên tài sản', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'description', 'Mô tả', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
+
+            $priority = Table::where('name', 'task_prority')->first();
+            MigrateService::createColumn02($tableId, 'task_prority_id', 'Độ ưu tiên', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1, 'select_table_id' => $priority->id]);
+           
+            MigrateService::createColumn02($tableId, 'project_id', 'Dự án', 'VARCHAR', 'number', $order_col++, ['show_in_list' => 1]);
+
+            $status = Table::where('name', 'task_status')->first();
+            MigrateService::createColumn02($tableId, 'task_status_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+            ['show_in_list' => 1, 'select_table_id' => $status->id]);
+
+            $adminUsers = Table::where('name', 'admin_users')->first();
+            MigrateService::createColumn02($tableId, 'nguoi_thuc_hien', 'Người thực hiện', 'INT', 'select', $order_col++, ['show_in_list' => 1, 'select_table_id' => $adminUsers->id]);
+            MigrateService::createColumn02($tableId, 'nguoi_theo_doi', 'Người làm cùng', 'TEXT', 'selects', $order_col++, ['show_in_list' => 1, 'select_table_id' => $adminUsers->id]);
+
+            MigrateService::createColumn02($tableId, 'start', 'Ngày bắt đầu', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            ['show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'end', 'Ngày kết thúc', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            ['show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'actual', 'Ngày hoàn thành thực tế', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            ['show_in_list' => 1]);
+            MigrateService::createColumn02($tableId, 'tags', 'Tags', 'TEXT', 'number', $order_col++, ['show_in_list' => 1]);
+
+            MigrateService::createColumn02($tableId, 'is_daily', 'Họp hàng ngày', 'INT', 'select', $order_col++, ['show_in_list' => 1, 'select_table_id' => Table::where('name', 'confirm')->first()->id]);
+            MigrateService::createColumn02($tableId, 'is_weekly', 'Họp hàng tuần', 'INT', 'select', $order_col++, ['show_in_list' => 1, 'select_table_id' => Table::where('name', 'confirm')->first()->id]);
+            MigrateService::createColumn02($tableId, 'is_monthly', 'Họp hàng tháng', 'INT', 'select', $order_col++, ['show_in_list' => 1, 'select_table_id' => Table::where('name', 'confirm')->first()->id]);
+
+
+            MigrateService::baseColumn($tbl);
+            
         });
     }
 

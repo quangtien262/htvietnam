@@ -131,13 +131,15 @@ export default function Dashboard(props: any) {
             children: report_sale_congNo(),
         },
     ];
+    type TabPosition = 'left' | 'right' | 'top' | 'bottom';
+    const [mode, setMode] = useState<TabPosition>('top');
     return (
         <AdminLayout
             auth={props.auth}
             header='Trang chủ'
             content={
                 <div>
-                    <Tabs tabPosition="left" defaultActiveKey="1" items={items} />
+                    <Tabs tabPosition={mode} defaultActiveKey="1" items={items} />
                 </div>
             }
         />

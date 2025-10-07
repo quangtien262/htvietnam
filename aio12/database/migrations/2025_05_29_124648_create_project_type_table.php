@@ -5,25 +5,25 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('task_prority', function (Blueprint $table) {
+        Schema::create('project_type', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('description')->nullable();
-            $table->string('color')->default('#000000')->nullable();
-            $table->string('parent_name')->nullable();
+            $table->string('color')->nullable();
             $table->string('icon')->nullable();
+            $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
 
+
             $order_col = 1;
-            $tbl = MigrateService::createTable02('task_prority', 'Độ ưu tiên', ['is_edit' => 1]);
+            $tbl = MigrateService::createTable02('project_type', 'Loại dự án', ['is_edit' => 1]);
 
             MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
             MigrateService::createColumn02(
@@ -46,7 +46,6 @@ return new class extends Migration
             );
 
             MigrateService::baseColumn($tbl);
-            
         });
     }
 
@@ -55,6 +54,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_prority');
+        Schema::dropIfExists('project_type');
     }
 };

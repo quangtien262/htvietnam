@@ -58,7 +58,7 @@ class TblService extends Service
         'formatDataByID',
         'checkGenerateCode',
         'saveDataBasic',
-        'getMenus'
+        'getMenus', 'getChecklistPercent'
     ];
 
     protected function getPermissionDefault()
@@ -2277,5 +2277,21 @@ class TblService extends Service
             ];
         }
         return $menus;
+    }
+
+    protected function getChecklistPercent($checklist)
+    {
+        $percent = 100;
+        if (!empty($checklist)) {
+            $total = count($checklist);
+            $done = 0;
+            foreach ($checklist as $cl) {
+                if ($cl['is_checked']) {
+                    $done++;
+                }
+            }
+            $percent = round(($done / $total) * 100, 2);
+        }
+        return $percent;
     }
 }

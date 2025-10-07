@@ -39,6 +39,12 @@
     color: #4b5563;
     margin-top: 5px;
     margin-bottom: 7px;
+    max-height: 100px;
+    overflow: auto;
+}
+.deadline {
+    float: right;
+    color: #4b5563;
 }
 .title04 {
     margin-top: 7px;
@@ -84,4 +90,15 @@
     height: 25px;
     line-height: 22px;
     font-weight: bold;
+}
+.ant-timeline {
+    max-height: 1000px;
+    overflow: auto;
+}
+.table-sub02 .ant-table {
+    margin-inline : 0px !important;
+}
+.title-search {
+    font-weight: normal;
+    color: #053690;
 }

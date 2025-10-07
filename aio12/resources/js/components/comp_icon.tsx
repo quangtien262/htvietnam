@@ -9,7 +9,7 @@ import {
     FastForwardOutlined,CheckCircleOutlined,
     FastBackwardOutlined,HddFilled,
     StepForwardOutlined,SyncOutlined,
-    MoneyCollectFilled,LoadingOutlined,
+    MoneyCollectFilled,LoadingOutlined, ExclamationCircleOutlined,
     RightOutlined,EyeFilled,FileExclamationFilled,
     InfoCircleFilled,ExclamationCircleFilled,CalendarFilled,
     CaretDownOutlined,VerticalAlignTopOutlined,RollbackOutlined,
@@ -69,6 +69,7 @@ export const icon =
         IdcardFilled:<IdcardFilled />,
         PlayCircleOutlined:<PlayCircleOutlined />,
         CheckCircleOutlined:<CheckCircleOutlined />,
-        CloseCircleOutlined:<CloseCircleOutlined />
+        CloseCircleOutlined:<CloseCircleOutlined />,
+        ExclamationCircleOutlined:<ExclamationCircleOutlined />
 
 }

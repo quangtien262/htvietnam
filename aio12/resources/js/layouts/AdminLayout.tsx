@@ -28,7 +28,7 @@ interface MenuItem {
 
 interface AdminProps {
     auth: any;
-    header: React.ReactNode;
+    // header: React.ReactNode;
     tables?: any[] | null;
     current?: { id: number; parent_id: number };
     content: React.ReactNode;
