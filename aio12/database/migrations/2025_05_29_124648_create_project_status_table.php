@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
+            $table->integer('is_default')->default(1)->nullable();
             MigrateService::createBaseColumn($table);
 
             Table::create([
@@ -58,6 +59,8 @@ return new class extends Migration
 
             $confirm = Table::where('name', 'confirm')->first();
             MigrateService::createColumn02($tableId, 'is_active', 'Active', 'select', 'icon', $order_col++, 
+            ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
+            MigrateService::createColumn02($tableId, 'is_default', 'Tìm kiếm mặc định', 'select', 'icon', $order_col++, 
             ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
             MigrateService::baseColumn($tbl);
         });

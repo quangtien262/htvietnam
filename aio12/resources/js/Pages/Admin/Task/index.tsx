@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Link } from "@inertiajs/react";
+import axios from "axios";
 import {
   Button,
   message,
@@ -20,7 +21,6 @@ import {
   Col, Drawer,
   Radio, List
 } from "antd";
-import axios from "axios";
 import {
   ScheduleFilled, FlagFilled,
   DownOutlined, RollbackOutlined,

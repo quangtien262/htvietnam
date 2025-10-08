@@ -573,9 +573,6 @@ export function taskInfo(props: any,
     }
 
 
-    console.log('dataAction', dataAction);
-
-
     return <Row>
         {/* Thêm checklist */}
         <Modal title="Thêm checklist"

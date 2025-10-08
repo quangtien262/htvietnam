@@ -13,6 +13,7 @@ class Project extends Model
         'project_type_ids' => Json::class,
         'nguoi_theo_doi' => Json::class,
         'nguoi_thuc_hien' => Json::class,
+        'tags' => Json::class,
     ];
 
     static function baseQuery()
@@ -26,6 +27,7 @@ class Project extends Model
             'project_status.icon as project_status_icon'
         ])
             ->leftJoin('project_status', 'project_status.id', 'projects.project_status_id')
+            ->leftJoin('admin_users', 'admin_users.id', 'projects.nguoi_thuc_hien')
             ->where('projects.is_recycle_bin', 0)
             ->orderBy('projects.sort_order', 'asc');
     }
@@ -81,4 +83,6 @@ class Project extends Model
         $dataSource = $dataSource->paginate(30)->toArray();
         return $dataSource;
     }
+
+    
 }

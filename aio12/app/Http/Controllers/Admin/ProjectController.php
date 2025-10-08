@@ -32,6 +32,7 @@ class ProjectController extends Controller
         $comments = TaskComment::getByTask($projectId);
         // get all checklist
         $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $projectId)->orderBy('id', 'desc')->get()->toArray();
+        // $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
         // phần trăm hoàn thành checklist
         $percent = TblService::getChecklistPercent($checklist);
         // tasks
@@ -74,6 +75,11 @@ class ProjectController extends Controller
         $display = 'list'; // kanban
         if ($request->display) {
             $display = $request->display;
+        }
+
+        $searchData = $request->all();
+        if (!empty($request->status)) {
+            $searchData = $request->searchData;
         }
 
         $props = [
@@ -182,13 +188,16 @@ class ProjectController extends Controller
         return response()->json($project, 200);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         Project::destroy($id);
         // xóa task liên quan
         Task::where('project_id', $id)->delete();
+        $datas = Project::getDatas($request->parentName, $request->searchData);
 
-        return response()->json(null, 204);
+        return $this->sendSuccessResponse([
+            'datas' => $datas['data']
+        ]);
     }
 
     public function addChecklist(Request $request)
@@ -218,9 +227,9 @@ class ProjectController extends Controller
         }
 
         // get all
-        $checklists = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
-        $percent = TblService::getChecklistPercent($checklists);
-        return $this->sendSuccessResponse(['list' => $checklists, 'percent' => $percent]);
+        $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
+        $percent = TblService::getChecklistPercent($checklist);
+        return $this->sendSuccessResponse(['checklist' => $checklist, 'percent' => $percent]);
     }
 
     public function addComment(Request $request)
@@ -445,7 +454,6 @@ class ProjectController extends Controller
         $datas = [];
         if ($request->display == 'list') {
             $datas = Project::getDatas($request->parentName, $request->searchData);
-            // dd($datas);
         }
 
         return $this->sendSuccessResponse(['dataAction' => $data, 'datas' => $datas['data']], 'Update successfully', 200);
