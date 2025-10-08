@@ -100,7 +100,7 @@ export const tblConfig = {
     tblTask: {
         name: 'Quản lý công việc',
         active: false,
-        data: ['task_status', 'task_prority', 'task_milestones', 'tasks']
+        data: ['task_status', 'task_priority', 'task_milestones', 'tasks']
     },
 };
 
@@ -309,7 +309,7 @@ export const routeNhanSu = [
 //                 key: key++
 //             },
 //             {
-//                 link: route('data.tblName', ['task_prority']),
+//                 link: route('data.tblName', ['task_priority']),
 //                 display_name: 'Độ ưu tiên',
 //                 key: key++
 //             },

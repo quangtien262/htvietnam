@@ -83,8 +83,6 @@ export default function Dashboard(props) {
         setIsModalAddOpen(false);
     }
 
-
-
     //
     const EditableCell = ({
         editing,
@@ -152,34 +150,6 @@ export default function Dashboard(props) {
         setIsOpenConfirmDelete(false);
     };
 
-    const onFinishSearch = (values) => {
-        setLoadingTable(true);
-        setLoadingBtnSearch(true);
-        const cols = props.columns;
-        for (let i = 0; i < cols.length; i++) {
-            if (cols[i].add2search === 1 && cols[i].type_edit === "date") {
-                if (values[cols[i].name]) {
-                    values[cols[i].name] = {
-                        0: values[cols[i].name][0].format(DATE_FORMAT),
-                        1: values[cols[i].name][1].format(DATE_FORMAT),
-                    };
-                }
-            }
-        }
-
-        // mocThoiGian
-        values.mocThoiGian = mocThoiGian;
-        if (khoangThoiGian[0]) {
-            console.log('khoangThoiGian', khoangThoiGian);
-            values.khoangThoiGian = khoangThoiGian.map((item) => {
-                return item.format("YYYY-MM-DD");
-            });
-        } else {
-            values.khoangThoiGian = null;
-        }
-        router.get(route("soQuy"), values);
-    };
-
 
     const expandedRowRender = (record: any, index: number) => {
         return getProjectDetail(props, record, index, dataInfo, (data: any) => setDataInfo(data.info));
@@ -240,6 +210,16 @@ export default function Dashboard(props) {
         },
     ];
 
+    const onFinishSearch = (values: any) => {
+        values.p = props.p;
+        values.display = props.display;
+        // console.log('Received values of form: ', values);
+        // return;
+        setLoadingTable(true);
+        setLoadingBtnSearch(true);
+        router.get(route('project.list', [props.parentName]), values);
+    };
+
     const pageContent = (
         <div>
             <Form form={form} component={false}>
@@ -294,26 +274,26 @@ export default function Dashboard(props) {
                 <br />
 
                 <Row>
+                    {/* search form */}
                     <Col className="search-left" sm={{ span: 6 }}>
                         <Form form={formSearch}
                             name="search"
                             onFinish={onFinishSearch}
+                            initialValues={props.searchData}
                             layout="vertical">
                             <Form.Item name="keyword" label="Từ khóa">
-                                <Input placeholder="Nhập từ khóa" />
+                                <Input placeholder="Nhập từ khóa" onBlur={() => formSearch.submit()} />
                             </Form.Item>
                             <Form.Item name="status" label="Trạng thái">
                                 <CheckboxGroup className="item-status"
                                     options={Object.keys(status).map((key) => ({
                                         label: status[key].name,
-                                        value: status[key].id
+                                        value: status[key].id.toString()
                                     }))}
-                                    onChange={(e) => {
-                                        console.log('e', e);
-
-                                    }} />
+                                    onChange={(e) => formSearch.submit()}
+                                />
                             </Form.Item>
-                            <Form.Item name="project_manager" label="Quản lý">
+                            <Form.Item name="manager" label="Quản lý">
                                 <Select
                                     showSearch
                                     placeholder="Chọn quản lý"
@@ -326,17 +306,41 @@ export default function Dashboard(props) {
                                     }
                                     options={Object.keys(props.users).map((key) => ({
                                         label: props.users[key].name,
-                                        value: props.users[key].id
+                                        value: props.users[key].id.toString()
                                     }))}
-                                    onChange={() => { }} />
+                                    onChange={(e) => formSearch.submit()} />
                             </Form.Item>
-                            <Form.Item>
-                                <Button type="primary" htmlType="submit">
-                                    Tìm kiếm
-                                </Button>
+                            <Form.Item name="support" label="Người làm cùng">
+                                <Select
+                                    showSearch
+                                    placeholder="Chọn người làm cùng"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                    }
+                                    filterSort={(optionA, optionB) =>
+                                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                    }
+                                    options={Object.keys(props.users).map((key) => ({
+                                        label: props.users[key].name,
+                                        value: props.users[key].id.toString()
+                                    }))}
+                                    onChange={(e) => formSearch.submit()} />
                             </Form.Item>
+
+                            <Button type="primary" 
+                                className="btn btn-primary btn-submit01"
+                                onClick={() => {
+                                    router.get(route('project.list', [props.parentName]), { p: props.p });
+                                }}
+                                loading={loadingBtnSearch}
+                            >
+                                Reset
+                            </Button>
                         </Form>
                     </Col>
+
+                    {/* content */}
                     <Col className="content-right" sm={{ span: 18 }}>
                         <Table
                             size="small"

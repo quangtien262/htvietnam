@@ -55,31 +55,26 @@ class ProjectController extends Controller
     public function index(Request $request, $parentName)
     {
         $table = Table::where('name', $parentName)->first();
-
         $status = TblService::formatData('project_status', ['parent_name' => $parentName]);
         $type = TblService::formatData('project_type', ['parent_name' => $parentName]);
         $users = TblService::formatData('admin_users', ['is_recycle_bin' => 0]);
         $admin = Auth::guard('admin_users')->user();
 
-        $statusTable = Table::where('name', 'project_status')->first();
+        // status data
         $statusData = DB::table('project_status')
             ->select('sort_order as sort', 'id as key', 'project_status.*')
             ->where('is_recycle_bin', 0)
             ->where('parent_name', $parentName)
             ->orderBy('sort_order', 'asc')
-            ->get()
-            ->toArray();
-        // get chi nhanh
-
+            ->get()->toArray();
+        
+        // search data
+        $searchData = $this->getSearchData($request, $status);
+        // dd($searchData);
         // áp dụng với quy trình ql dự án, cskh
         $display = 'list'; // kanban
         if ($request->display) {
             $display = $request->display;
-        }
-
-        $searchData = $request->all();
-        if (!empty($request->status)) {
-            $searchData = $request->searchData;
         }
 
         $props = [
@@ -91,19 +86,34 @@ class ProjectController extends Controller
             'status' => $status,
             'type' => $type,
             'statusData' => $statusData,
-            'statusTable' => $statusTable,
             'p' => $_GET['p'] ?? 0,
             'display' => $display,
-            'searchData' => $request->all(),
+            'searchData' => $searchData,
         ];
 
         if ($display == 'list') {
-            $props['dataSource'] = Project::getDatas($parentName);
+            $props['dataSource'] = Project::getDatas($parentName, $searchData);
             return Inertia::render('Admin/Project/index_list', $props);
         }
-        $datas = Project::getProjectByStatus($parentName, $request->all());
+        $datas = Project::getProjectByStatus($parentName, $searchData);
         $props['datas'] = $datas;
         return Inertia::render('Admin/Project/index_kanban', $props);
+    }
+
+    private function getSearchData($request, $status)
+    {
+        $searchData = $request->all();
+        if (empty($request->status)) {
+            $statusDefault = [];
+            foreach ($status as $val) {
+                if ($val->is_default == 1) {
+                    $statusDefault[] = (string)$val->id;
+                }
+            }
+            $searchData['status'] = $statusDefault;
+        }
+        // dd($searchData);
+        return $searchData;
     }
 
     public function editConfig(Request $request, $parentTable, $currentTable)
@@ -151,7 +161,6 @@ class ProjectController extends Controller
         $project->project_manager = $request->project_manager;
         $project->nguoi_theo_doi = $request->nguoi_theo_doi;
         $project->sort_order = 1;
-        $project->nguoi_tạo = $request->nguoi_tạo;
         $project->start = $request->start ? $request->start : null;
         $project->end = $request->end ? $request->end : null;
         $project->create_by = $admin->id;

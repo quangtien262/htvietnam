@@ -42,7 +42,7 @@ class TaskController extends Controller
 
         $project = Project::projectDetail($request->pid);
 
-        $prority = TblService::formatData('task_prority', ['parent_name' => $parentName]);
+        $priority = TblService::formatData('task_priority', ['parent_name' => $parentName]);
         $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
 
         $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
@@ -75,7 +75,7 @@ class TaskController extends Controller
             'status' => $status,
             'datas' => $datas,
             'users' => $users_byID,
-            'prority' => $prority,
+            'priority' => $priority,
             'type' => $type,
             'admin' => $admin,
             'statusData' => $statusData,

@@ -46,7 +46,7 @@ class Project extends Model
             ->find($id);
     }
 
-    static function getProjectByStatus($request = [], $parentName)
+    static function getProjectByStatus($parentName, $request = [])
     {
         // get list tasks
         $datas = [];
@@ -60,10 +60,10 @@ class Project extends Model
                 ->where('projects.parent_name', $parentName)
                 ->where('projects.is_recycle_bin', 0)
                 ->orderBy('projects.sort_order', 'asc');
-            if (!empty($request->keyword)) {
+            if (!empty($request['keyword'])) {
                 $projects = $projects->where('projects.name', 'like', '%' . $request['keyword'] . '%');
             }
-
+            
             $projects = $projects->get(['projects.*']);
             $datas[] = [
                 'status' => $st,
@@ -73,16 +73,29 @@ class Project extends Model
         return $datas;
     }
 
-    static function getDatas($parentName, $request = [])
+    static function getDatas($parentName, $searchData = [])
     {
         $dataSource = Project::baseQuery()
             ->where('projects.parent_name', $parentName);
-        if (!empty($request['keyword'])) {
-            $dataSource = $dataSource->where('projects.name', 'like', '%' . $request['keyword'] . '%');
+        if (!empty($searchData['keyword'])) {
+            $dataSource = $dataSource->where('projects.name', 'like', '%' . $searchData['keyword'] . '%');
         }
+
+        if (!empty($searchData['status'])) {
+            $dataSource = $dataSource->whereIn('projects.project_status_id', $searchData['status']);
+        }
+
+        if (!empty($searchData['manager'])) {
+            $dataSource = $dataSource->where('projects.project_manager', $searchData['manager']);
+        }
+
+        if (!empty($searchData['support'])) {
+            // search nguoi_theo_doi json   
+            $dataSource = $dataSource->where('projects.nguoi_theo_doi', 'like', '%"' . $searchData['support'] . '"%');
+        }
+
         $dataSource = $dataSource->paginate(30)->toArray();
         return $dataSource;
     }
 
-    
 }

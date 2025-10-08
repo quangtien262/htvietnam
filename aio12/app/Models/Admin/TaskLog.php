@@ -50,7 +50,7 @@ class TaskLog extends Model
             case 'nguoi_theo_doi':
                 $title = 'Đã cập nhật lại danh sách người theo dõi hoặc làm cùng';
                 break;
-            case 'task_prority_id':
+            case 'task_priority_id':
             case 'task_status_id':
             case 'nguoi_thuc_hien':
                 $tblSelect = Table::find($column->select_table_id);

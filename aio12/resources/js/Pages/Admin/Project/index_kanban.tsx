@@ -845,7 +845,7 @@ export default function Dashboard(props) {
                       </Col>
                       {/* Độ ưu tiên */}
                       <Col sm={{ span: 24 }}>
-                        <Form.Item className="item-form" name='task_prority_id' label="Độ ưu tiên">
+                        <Form.Item className="item-form" name='task_priority_id' label="Độ ưu tiên">
                           <Select showSearch
                             style={{ width: "100%" }}
                             placeholder="Chọn mức độ ưu tiên"
@@ -855,7 +855,7 @@ export default function Dashboard(props) {
                                 .toLowerCase()
                                 .includes(input.toLowerCase())
                             }
-                            options={optionEntries(props.prority)}
+                            options={optionEntries(props.priority)}
                           />
                         </Form.Item>
                       </Col>
@@ -1367,11 +1367,11 @@ export default function Dashboard(props) {
                           <a><FireFilled /> </a>
                           <span>Độ ưu tiên: </span>
                           {
-                            !dataAction.task_prority_id
+                            !dataAction.task_priority_id
                               ?
                               <span className="value-list">Chưa xác định</span>
                               :
-                              <Tag style={{ color: props.prority[dataAction.task_prority_id].color }}>{props.prority[dataAction.task_prority_id].name} </Tag>
+                              <Tag style={{ color: props.priority[dataAction.task_priority_id].color }}>{props.priority[dataAction.task_priority_id].name} </Tag>
 
                           }
                           <Popover placement="bottomLeft"
@@ -1380,12 +1380,12 @@ export default function Dashboard(props) {
                             content={
                               <List
                                 itemLayout="horizontal"
-                                dataSource={objEntries(props.prority)}
+                                dataSource={objEntries(props.priority)}
                                 renderItem={(item, key) => (
                                   <p style={{ color: item.color }}
                                     className="cursor"
                                     onClick={() => {
-                                      updateTaskByColumn(dataAction.id, 'task_prority_id', item.id);
+                                      updateTaskByColumn(dataAction.id, 'task_priority_id', item.id);
                                     }}
                                   >
                                     <CaretRightFilled /> {item.name}

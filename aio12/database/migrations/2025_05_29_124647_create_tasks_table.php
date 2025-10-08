@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('task_status_id')->default(1)->nullable(); // todo, doing, done
             $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
             $table->text('nguoi_theo_doi')->nullable(); // json người theo dõi hoặc làm cùng
-            $table->integer('task_prority_id')->nullable();
+            $table->integer('task_priority_id')->nullable();
             $table->text('task_type_ids')->nullable();
             $table->date('start')->nullable();
             $table->date('end')->nullable();
@@ -67,9 +67,9 @@ return new class extends Migration
             MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
             MigrateService::createColumn02($tableId, 'description', 'Mô tả', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1]);
 
-            $priority = Table::where('name', 'task_prority')->first();
-            MigrateService::createColumn02($tableId, 'task_prority_id', 'Độ ưu tiên', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1, 'select_table_id' => $priority->id]);
-           
+            $priority = Table::where('name', 'task_priority')->first();
+            MigrateService::createColumn02($tableId, 'task_priority_id', 'Độ ưu tiên', 'VARCHAR', 'text', $order_col++, ['show_in_list' => 1, 'select_table_id' => $priority->id]);
+
             MigrateService::createColumn02($tableId, 'project_id', 'Dự án', 'VARCHAR', 'number', $order_col++, ['show_in_list' => 1]);
 
             $status = Table::where('name', 'task_status')->first();

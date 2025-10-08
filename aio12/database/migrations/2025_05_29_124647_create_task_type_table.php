@@ -17,6 +17,8 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->string('color')->nullable();
             $table->string('parent_name')->nullable();
+            $table->integer('is_active')->default(1)->nullable();
+            $table->integer('is_default')->default(1)->nullable();
 
             MigrateService::createBaseColumn($table);
 

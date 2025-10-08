@@ -70,6 +70,16 @@ const dataActionDefault = {
 };
 const { RangePicker } = DatePicker;
 
+// Define DataType interface based on expected data structure
+interface DataType {
+    key: React.Key;
+    name: string;
+    description?: string;
+    color?: string;
+    background?: string;
+    [key: string]: any;
+}
+
 export function projectConfig(
     datas: any,
     tbl: TblType,
@@ -247,13 +257,15 @@ export function projectConfig(
                     <Form.Item label='Mô tả' name="description">
                         <TextArea />
                     </Form.Item>
+                    <Form.Item label='Tìm kiếm mặc định' name="color">
+                        <Checkbox>Mặc định luôn lọc theo trường này</Checkbox>
+                    </Form.Item>
                     <Form.Item label='Màu nền' name="background">
                         <ColorPicker showText />
                     </Form.Item>
                     <Form.Item label='Màu chữ' name="color">
                         <ColorPicker showText />
                     </Form.Item>
-
                     <Button type="primary" htmlType="submit">
                         <CopyOutlined />
                         Thêm mới
@@ -720,7 +732,7 @@ export function projectInfo(props: any,
                 checklist_percent: response.data.data.percent
             };
             console.log('successData', successData);
-            
+
             onSuccess(successData);
         }).catch((error) => {
             message.error("Tạo checklist thất bại");
@@ -1170,15 +1182,15 @@ export function projectInfo(props: any,
                     // người thực hiện
                     <div className="item03">
                         <a><UserOutlined /> </a>
-                        <span>Người thực hiện: </span>
+                        <span>Quản lý: </span>
                         <Popover placement="bottomLeft"
-                            title="Chọn người thực hiện"
+                            title="Chọn người quản lý"
                             trigger="click"
                             content={
                                 <Select
                                     showSearch
                                     style={{ width: "100%" }}
-                                    value={dataAction.nguoi_thuc_hien}
+                                    value={dataAction.project_manager}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
                                     options={optionEntries(props.users)}
@@ -1188,7 +1200,7 @@ export function projectInfo(props: any,
                                             .includes(input.toLowerCase())
                                     }
                                     onChange={(value) => {
-                                        updateTaskByColumn(dataAction.id, 'nguoi_thuc_hien', value);
+                                        updateTaskByColumn(dataAction.id, 'project_manager', value);
                                     }}
                                 />
                             }
@@ -1199,11 +1211,11 @@ export function projectInfo(props: any,
                         </Popover>
                         <p>
                             {
-                                !dataAction.nguoi_thuc_hien
+                                !dataAction.project_manager
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
-                                    <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.nguoi_thuc_hien].name} </Tag>
+                                    <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.project_manager].name} </Tag>
                             }
                         </p>
 

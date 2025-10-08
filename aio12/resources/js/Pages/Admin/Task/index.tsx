@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
   Button,
@@ -272,7 +272,7 @@ export default function Dashboard(props: any) {
           <td colSpan={4}>
             <a className="add-item01">
               <span className="icon-b" onClick={() => setFormAddTaskExpress(prev => [...prev, formAddTaskExpress_default])}>
-                <PlusCircleOutlined /> Thêm mới 
+                <PlusCircleOutlined /> Thêm mới
               </span>
             </a>
           </td>
@@ -423,9 +423,7 @@ export default function Dashboard(props: any) {
     // setIsModalAddOpen(false);
   }
 
-  const onFinishSearch = async (values) => {
 
-  }
   function removeFormChecklist(key) {
     setFormChecklist(prev =>
       prev.filter((_, index) => index !== key)
@@ -538,9 +536,7 @@ export default function Dashboard(props: any) {
   };
 
   function initialValuesForm() {
-    return {
-      // nguoi_tạo: props.admin.id
-    }
+    return props.searchData;
   }
 
   function closeModalAdd() {
@@ -552,11 +548,19 @@ export default function Dashboard(props: any) {
     setIsShowStatusSetting(false);
   }
 
+  const onFinishSearch = (values: any) => {
+    values.display = props.display;
+    values.p = props.p;
+    values.pid = props.pid;
+    // console.log('Received values of form: ', values);
+    // return;
+    router.get(route('task.list', [props.parentName]), values);
+  };
+
   return (
     <div>
       <AdminLayout
         auth={props.auth}
-        header={''}
         current={props.table}
         content={
 
@@ -615,9 +619,9 @@ export default function Dashboard(props: any) {
               {formAddTaskExpress(props.users)}
             </Modal>
 
-            
 
-            {/* Thêm mới */}
+
+            {/* Thêm mới task */}
             <Modal title="Thêm mới"
               open={isModalAddOpen}
               onCancel={() => closeModalAdd()}
@@ -732,7 +736,7 @@ export default function Dashboard(props: any) {
                       </Col>
                       {/* Độ ưu tiên */}
                       <Col sm={{ span: 24 }}>
-                        <Form.Item className="item-form" name='task_prority_id' label="Độ ưu tiên">
+                        <Form.Item className="item-form" name='task_priority_id' label="Độ ưu tiên">
                           <Select showSearch
                             style={{ width: "100%" }}
                             placeholder="Chọn mức độ ưu tiên"
@@ -742,7 +746,7 @@ export default function Dashboard(props: any) {
                                 .toLowerCase()
                                 .includes(input.toLowerCase())
                             }
-                            options={optionEntries(props.prority)}
+                            options={optionEntries(props.priority)}
                           />
                         </Form.Item>
                       </Col>
@@ -871,9 +875,9 @@ export default function Dashboard(props: any) {
 
             <Divider orientation="left" className="divider02">
               <Space>
-                <span>Tìm kiếm</span>
-                <span> | </span>
-                <a className="title-search"><ToolFilled /> Tìm kiếm nâng cao</a>
+                <span><ToolFilled /> Tìm kiếm</span>
+                {/* <span> | </span> */}
+                {/* <a className="title-search"> Tìm kiếm nâng cao</a> */}
               </Space>
             </Divider>
 
@@ -890,26 +894,76 @@ export default function Dashboard(props: any) {
             >
               <Row>
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Từ khóa'>
-                    <Input />
+                  <Form.Item name="keyword" label="Từ khóa">
+                    <Input placeholder="Nhập từ khóa"
+                      onBlur={() => formSearch.submit()}
+                      allowClear={true}
+                      onClear={() => formSearch.submit()}
+                    />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Nhân viên'>
-                    <Input />
+                  <Form.Item name="pic" label="Người làm chính">
+                    <Select
+                      allowClear={true}
+                      onClear={() => formSearch.submit()}
+                      showSearch
+                      placeholder="Chọn người làm chính"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      filterSort={(optionA, optionB) =>
+                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                      }
+                      options={Object.keys(props.users).map((key) => ({
+                        label: props.users[key].name,
+                        value: props.users[key].id.toString()
+                      }))}
+                      onChange={(e) => formSearch.submit()} />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Thời hạn'>
-                    <Input />
+                  <Form.Item name="support" label="Người làm cùng">
+                    <Select showSearch
+                      allowClear={true}
+                      onClear={() => formSearch.submit()}
+                      placeholder="Chọn người làm cùng"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      filterSort={(optionA, optionB) =>
+                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                      }
+                      options={Object.keys(props.users).map((key) => ({
+                        label: props.users[key].name,
+                        value: props.users[key].id.toString()
+                      }))}
+                      onChange={(e) => formSearch.submit()} />
                   </Form.Item>
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Item name='task_status_id' label='Nhóm công việc'>
-                    <Input />
+                  <Form.Item name="priority" label="Mức độ ưu tiên">
+                    <Select showSearch
+                      allowClear={true}
+                      onClear={() => formSearch.submit()}
+                      placeholder="Chọn mức độ ưu tiên"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      filterSort={(optionA, optionB) =>
+                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                      }
+                      options={Object.keys(props.priority).map((key) => ({
+                        label: props.priority[key].name,
+                        value: props.priority[key].id.toString()
+                      }))}
+                      onChange={(e) => formSearch.submit()} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -979,7 +1033,7 @@ export default function Dashboard(props: any) {
                                             }
                                           }}
                                         >
-                                          {props.prority[task.task_prority_id] ? <Tag color={props.prority[task.task_prority_id].color}>{props.prority[task.task_prority_id].name}</Tag> : ''}
+                                          {props.priority[task.task_priority_id] ? <Tag color={props.priority[task.task_priority_id].color}>{props.priority[task.task_priority_id].name}</Tag> : ''}
                                           {task.name}
                                         </h3>
 
@@ -1026,16 +1080,16 @@ export default function Dashboard(props: any) {
                     // set data action, dùng cho case fast edit
                     if (result.dataAction_column) {
                       setDataAction({
-                          ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
-                          [result.dataAction_column.col]: result.dataAction_column.val,
+                        ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
+                        [result.dataAction_column.col]: result.dataAction_column.val,
                       });
                     }
-                    
+
                     // set checklist
                     if (result.checklist) {
                       setChecklist(result.checklist);
                     }
-                    
+
                     // set percent
                     if (result.checklist_percent !== undefined) {
                       setChecklistPercent(result.checklist_percent);

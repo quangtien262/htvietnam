@@ -893,11 +893,11 @@ export function taskInfo(props: any,
                         <a><FireFilled /> </a>
                         <span>Độ ưu tiên: </span>
                         {
-                            !dataAction.task_prority_id
+                            !dataAction.task_priority_id
                                 ?
                                 <span className="value-list">Chưa xác định</span>
                                 :
-                                <Tag style={{ color: props.prority[dataAction.task_prority_id].color }}>{props.prority[dataAction.task_prority_id].name} </Tag>
+                                <Tag style={{ color: props.priority[dataAction.task_priority_id].color }}>{props.priority[dataAction.task_priority_id].name} </Tag>
 
                         }
                         <Popover placement="bottomLeft"
@@ -906,12 +906,12 @@ export function taskInfo(props: any,
                             content={
                                 <List
                                     itemLayout="horizontal"
-                                    dataSource={objEntries(props.prority)}
+                                    dataSource={objEntries(props.priority)}
                                     renderItem={(item, key) => (
                                         <p style={{ color: item.color }}
                                             className="cursor"
                                             onClick={() => {
-                                                updateTaskByColumn(dataAction.id, 'task_prority_id', item.id);
+                                                updateTaskByColumn(dataAction.id, 'task_priority_id', item.id);
                                             }}
                                         >
                                             <CaretRightFilled /> {item.name}

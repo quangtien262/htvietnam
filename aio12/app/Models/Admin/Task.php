@@ -36,6 +36,15 @@ class Task extends Model
             if (!empty($request['keyword'])) {
                 $tasks = $tasks->where('tasks.name', 'like', '%' . $request['keyword'] . '%');
             }
+            if (!empty($request['pic'])) {
+                $tasks = $tasks->where('tasks.nguoi_thuc_hien', $request['pic']);
+            }
+            if (!empty($request['support'])) {
+                $tasks = $tasks->where('tasks.nguoi_theo_doi', $request['support']);
+            }
+            if (!empty($request['priority'])) {
+                $tasks = $tasks->where('tasks.task_priority_id', $request['priority']);
+            }
 
             $tasks = $tasks->get(['tasks.*']);
             $datas[] = [
@@ -54,18 +63,18 @@ class Task extends Model
             'task_status.color as task_status_color',
             'task_status.background as task_status_background',
             'task_status.icon as task_status_icon',
-            'task_prority.name as task_prority_name',
-            'task_prority.color as task_prority_color',
-            'task_prority.sort_order as task_prority_sort_order',
+            'task_priority.name as task_priority_name',
+            'task_priority.color as task_priority_color',
+            'task_priority.sort_order as task_priority_sort_order',
             'admin_users.name as assignee_name',
             
         )
             ->where('tasks.project_id', $projectId)
             ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
-            ->leftJoin('task_prority', 'task_prority.id', 'tasks.task_prority_id')
+            ->leftJoin('task_priority', 'task_priority.id', 'tasks.task_priority_id')
             ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
             ->where('tasks.is_recycle_bin', 0)
-            ->orderBy('task_prority.sort_order', 'asc')
+            ->orderBy('task_priority.sort_order', 'asc')
             ->orderBy('tasks.id', 'desc')
             ->get()
             ->toArray();
