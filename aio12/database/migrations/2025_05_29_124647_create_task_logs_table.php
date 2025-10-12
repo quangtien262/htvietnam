@@ -48,7 +48,7 @@ return new class extends Migration {
                 ['require' => 0, 'is_view_detail' => 1, 'add2search' => 1, 'show_in_list' => 1]
             );
 
-            MigrateService::createColumn02($tbl->id, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order_col++, 
+            MigrateService::createColumn02($tbl->id, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order_col++,
             ['edit' => 0, 'is_view_detail' => 1, 'show_in_list' => 1]);
         });
     }

@@ -297,7 +297,7 @@ export function HTSelects(col:any, prop:any, mode = 'multiple', langId = 0) {
         return { label: val.label, value: val.value }
     }));
     console.log('optionsData', optionsData);
-    
+
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [loadingBtnAdd, setLoadingBtnAdd] = useState(false);
     const [formData] = Form.useForm();

@@ -77,8 +77,15 @@ class StatusSeeder extends Seeder
             ['name' => 'Khách thân thiết'],
             ['name' => 'Khách hàng tiềm năng'],
         ]);
-        
-        
+
+        $statusOrder = 1;
+        DB::table('meeting_status')->insert([
+            ['name' => 'Chờ họp', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#c1a207', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đang phân tích', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hoàn thành', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#08b14e', 'icon' => 'CheckCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
+        ]);
+
+
         // tạo sẵn 1 project mặc định để liên kết với task chung mà ko thuộng prject nào
         DB::table('projects')->truncate();
         $project = new Project();
@@ -95,7 +102,7 @@ class StatusSeeder extends Seeder
         // loại dự án
         DB::table('project_type')->truncate();
         $statusTaskOther = [
-            ['name' => 'Dự án phầm mềm', 'color' => '#0844b4ff', 'icon' => 'StepForwardOutlined', 'sort_order' => $idx++, 'parent_name' => 'projects'],
+            ['name' => 'Dự án phầm mềm', 'color' => '#0072ff', 'icon' => 'StepForwardOutlined', 'sort_order' => $idx++, 'parent_name' => 'projects'],
             ['name' => 'Dự án BĐS', 'color' => '#0dc65aff', 'icon' => 'ForwardOutlined', 'sort_order' => $idx++, 'parent_name' => 'projects'],
         ];
         DB::table('project_type')->insert($statusTaskOther);
@@ -104,7 +111,7 @@ class StatusSeeder extends Seeder
         DB::table('task_status')->truncate();
         $statusTaskOther = [
             ['name' => 'Chưa xử lý', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'all', 'project_id' => 1, 'is_default' => 1],
-            ['name' => 'Đang thực hiện', 'color' => '#fff', 'background' => '#0844b4ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'all', 'project_id' => 1, 'is_default' => 1],
+            ['name' => 'Đang thực hiện', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'all', 'project_id' => 1, 'is_default' => 1],
             ['name' => 'Hoàn thành', 'color' => '#fff', 'background' => '#0dc65aff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'all', 'project_id' => 1, 'is_default' => 0],
             ['name' => 'Hủy bỏ', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'all', 'project_id' => 1, 'is_default' => 0],
         ];
@@ -114,7 +121,7 @@ class StatusSeeder extends Seeder
         $statusOrder = 1;
         DB::table('task_status')->insert([
             ['name' => 'Chờ xử lý', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đang xử lý', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#063aa9ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đang xử lý', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
             ['name' => 'Chờ review', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#057734', 'icon' => 'EyeFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
             ['name' => 'Đã hoàn thành', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#08b14e', 'icon' => 'CheckCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
             ['name' => 'Hủy/Dừng', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'CloseCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
@@ -124,18 +131,18 @@ class StatusSeeder extends Seeder
         $statusOrder = 1;
         DB::table('project_status')->insert([
             ['name' => 'Chuẩn bị', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'EyeFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đang triển khai', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#064ee8ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đang triển khai', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
             ['name' => 'Đã hoàn thành', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
             ['name' => 'Hủy/Dừng', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'CloseCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
         ]);
 
-        // 
+        //
         DB::table('task_priority')->truncate();
         $idx = 1;
         DB::table('task_priority')->insert([
             ['name' => 'Urgent', 'color' => '#d30000ff', 'parent_name' => 'all', 'sort_order' => $idx++],
             ['name' => 'High', 'color' => '#d3c500ff', 'parent_name' => 'all', 'sort_order' => $idx++],
-            ['name' => 'Medium', 'color' => '#0557c2ff', 'parent_name' => 'all', 'sort_order' => $idx++],
+            ['name' => 'Medium', 'color' => '#0072ff', 'parent_name' => 'all', 'sort_order' => $idx++],
             ['name' => 'Low', 'color' => '#07a2adff', 'parent_name' => 'all', 'sort_order' => $idx++],
         ]);
 
@@ -143,7 +150,7 @@ class StatusSeeder extends Seeder
         DB::table('task_priority')->insert([
             ['name' => 'Urgent', 'color' => '#d30000ff', 'parent_name' => 'projects', 'sort_order' => $idx++],
             ['name' => 'High', 'color' => '#d3c500ff', 'parent_name' => 'projects', 'sort_order' => $idx++],
-            ['name' => 'Medium', 'color' => '#0557c2ff', 'parent_name' => 'projects', 'sort_order' => $idx++],
+            ['name' => 'Medium', 'color' => '#0072ff', 'parent_name' => 'projects', 'sort_order' => $idx++],
             ['name' => 'Low', 'color' => '#07a2adff', 'parent_name' => 'projects', 'sort_order' => $idx++],
         ]);
 

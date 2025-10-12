@@ -63,7 +63,7 @@ class Project extends Model
             if (!empty($request['keyword'])) {
                 $projects = $projects->where('projects.name', 'like', '%' . $request['keyword'] . '%');
             }
-            
+
             $projects = $projects->get(['projects.*']);
             $datas[] = [
                 'status' => $st,
@@ -73,9 +73,8 @@ class Project extends Model
         return $datas;
     }
 
-    static function getDatas($parentName, $searchData = [])
-    {
-        $dataSource = Project::baseQuery()
+    static function getDatas($parentName, $searchData = []){
+        $dataSource = self::baseQuery()
             ->where('projects.parent_name', $parentName);
         if (!empty($searchData['keyword'])) {
             $dataSource = $dataSource->where('projects.name', 'like', '%' . $searchData['keyword'] . '%');
@@ -90,7 +89,7 @@ class Project extends Model
         }
 
         if (!empty($searchData['support'])) {
-            // search nguoi_theo_doi json   
+            // search nguoi_theo_doi json
             $dataSource = $dataSource->where('projects.nguoi_theo_doi', 'like', '%"' . $searchData['support'] . '"%');
         }
 

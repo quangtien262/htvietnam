@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import {
@@ -14,9 +14,9 @@ import {
     CopyOutlined, PlusCircleOutlined, HolderOutlined, DownOutlined,
     EditOutlined, DeleteOutlined, SnippetsFilled, EditFilled, CheckOutlined,
     CheckSquareFilled, PlusSquareFilled, InfoCircleFilled, PushpinFilled,
-    HddFilled, UserSwitchOutlined, UserOutlined, FireFilled, UsergroupAddOutlined,
+    HddFilled, UserOutlined, UsergroupAddOutlined,
     ClockCircleFilled, FlagFilled, ScheduleFilled, DiffFilled, FileSyncOutlined,
-    FileSearchOutlined, FileMarkdownOutlined, ProfileOutlined, CaretRightFilled, SoundOutlined,
+    FileSearchOutlined, FileMarkdownOutlined, ProfileOutlined,
 } from "@ant-design/icons";
 
 
@@ -314,7 +314,7 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
         if (values.end) {
             values.end = values.end.format('YYYY-MM-DD');
         }
-        // 
+        //
         // return;
         values.display = props.display;
 
@@ -594,10 +594,10 @@ export function projectInfo(props: any,
     // formChecklist
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-    const status = props.status;
+    const status = props.projectStatus;
 
 
-    const onFinishFormDesc = async (values) => {
+    const onFinishFormDesc = async (values: any) => {
         updateTaskByColumn(dataAction.id, 'description', values.description);
     }
 
@@ -1215,7 +1215,7 @@ export function projectInfo(props: any,
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
-                                    <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.project_manager].name} </Tag>
+                                    <Tag color="cyan">{props.users[dataAction.project_manager].name} </Tag>
                             }
                         </p>
 
@@ -1263,7 +1263,7 @@ export function projectInfo(props: any,
                                     :
                                     <div>
                                         {dataAction.nguoi_theo_doi.map((item, key) => (
-                                            <Tag style={{ color: '#04772cff' }} key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
                                         ))}
                                     </div>
                             }

@@ -151,7 +151,7 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $congViec, 'name' => 'task.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'task.dashboard', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $congViec, 'name' => 'projects', 'display_name' => 'Dự án', 'table_name' => 'projects', 'route' => 'project.list', 'parameter' => 'projects', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/cv/all/list?pid=1&p=' . $congViec],
-            ['parent_id' => $congViec, 'name' => 'label_tasks_setting', 'display_name' => 'Cài đặt', 'table_name' => '', 'route' => '', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $congViec, 'name' => 'meeting', 'display_name' => 'Meeting', 'table_name' => 'meeting', 'route' => 'meeting.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
         ]);
 
 

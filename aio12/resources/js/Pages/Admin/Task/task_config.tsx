@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
+import React, { useState,  useContext, useMemo } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
-import cloneDeep from "lodash/cloneDeep";
 import {
     Button, Row, Col, Timeline,
     message,
@@ -16,9 +14,9 @@ import {
     CopyOutlined, PlusCircleOutlined, HolderOutlined, DownOutlined,
     EditOutlined, DeleteOutlined, SnippetsFilled, EditFilled, CheckOutlined,
     CheckSquareFilled, PlusSquareFilled, InfoCircleFilled, PushpinFilled,
-    HddFilled, UserSwitchOutlined, UserOutlined, FireFilled, UsergroupAddOutlined,
+    HddFilled, UserOutlined, FireFilled, UsergroupAddOutlined,
     ClockCircleFilled, FlagFilled, ScheduleFilled, DiffFilled, FileSyncOutlined,
-    FileSearchOutlined, FileMarkdownOutlined, ProfileOutlined, CaretRightFilled, SoundOutlined,
+    FileSearchOutlined, FileMarkdownOutlined, ProfileOutlined, CaretRightFilled,
 } from "@ant-design/icons";
 
 // start import DND
@@ -294,6 +292,8 @@ export function taskInfo(props: any,
     comments: any,
     checklist: any,
     checklistPercent: any,
+    taskLog: any,
+    priority: any,
     onSuccess: (data: any) => void) {
     const [formDesc] = Form.useForm();
     const [formTitle] = Form.useForm();
@@ -310,10 +310,10 @@ export function taskInfo(props: any,
     // formChecklist
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-    const status = props.status;
+    const status = props.taskStatus;
 
 
-    const onFinishFormDesc = async (values) => {
+    const onFinishFormDesc = async (values: any) => {
         updateTaskByColumn(dataAction.id, 'description', values.description);
     }
 
@@ -323,7 +323,7 @@ export function taskInfo(props: any,
         // return
         axios.post(route('task.addComment'), {
             task_id: dataAction.id,
-            content: values.content, 
+            content: values.content,
             id: commentAction.id
         }).then(response => {
             setIsModalComment(false);
@@ -408,11 +408,13 @@ export function taskInfo(props: any,
             setIsLoadingBtn(false);
             // setColumns(response.data.data);
             message.success('Cập nhật thành công');
-            const dataSuccess = {
+            onSuccess({
                 dataAction_column: { col: columnName, val: value },
-                columns: response.data.data,
-            }
-            onSuccess(dataSuccess);
+                columns: response.data.data.datas,
+                data: response.data.data.data,
+            });
+
+
         }).catch(error => {
             message.error('Cập nhật thất bại');
         });
@@ -700,7 +702,7 @@ export function taskInfo(props: any,
                     renderItem={(item, key) => (
                         <List.Item
                             actions={[
-                                <span>{item.nguoi_thuc_hien_name ? <Tag color="blue">{item.nguoi_thuc_hien_name}</Tag> : ''}</span>,
+                                <span>{item.nguoi_thuc_hien_name ? <Tag color="cyan">{item.nguoi_thuc_hien_name}</Tag> : ''}</span>,
 
                                 <a title="Sửa checklist này"
                                     onClick={() => {
@@ -797,7 +799,7 @@ export function taskInfo(props: any,
                                         setIsModalComment(true);
                                         setCommentAction(item);
                                         formComment.setFieldValue('content', item.content);
-                                    } }
+                                    }}
                                 >
                                     <EditOutlined />
                                 </a>,
@@ -811,7 +813,7 @@ export function taskInfo(props: any,
                                             onSuccess({ comments: response.data.data });
                                         }).catch(error => {
                                             message.error('Xóa comment thất bại');
-                                        }); 
+                                        });
                                     }}
                                 >
                                     <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
@@ -897,7 +899,7 @@ export function taskInfo(props: any,
                                 ?
                                 <span className="value-list">Chưa xác định</span>
                                 :
-                                <Tag style={{ color: props.priority[dataAction.task_priority_id].color }}>{props.priority[dataAction.task_priority_id].name} </Tag>
+                                <Tag style={{ color: priority[dataAction.task_priority_id].color }}>{priority[dataAction.task_priority_id].name} </Tag>
 
                         }
                         <Popover placement="bottomLeft"
@@ -906,8 +908,8 @@ export function taskInfo(props: any,
                             content={
                                 <List
                                     itemLayout="horizontal"
-                                    dataSource={objEntries(props.priority)}
-                                    renderItem={(item, key) => (
+                                    dataSource={objEntries(priority)}
+                                    renderItem={(item: any, key: number) => (
                                         <p style={{ color: item.color }}
                                             className="cursor"
                                             onClick={() => {
@@ -1011,7 +1013,7 @@ export function taskInfo(props: any,
                                     :
                                     <div>
                                         {dataAction.nguoi_theo_doi.map((item, key) => (
-                                            <Tag style={{ color: '#04772cff' }} key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
                                         ))}
                                     </div>
                             }
@@ -1238,7 +1240,7 @@ export function taskInfo(props: any,
 
             <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
             <Timeline
-                items={props.logs.map((item) => {
+                items={taskLog.map((item) => {
                     return {
                         color: item.color ? item.color : 'blue',
                         children: (

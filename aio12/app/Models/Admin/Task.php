@@ -15,6 +15,27 @@ class Task extends Model
         'tags' => Json::class,
     ];
 
+    static function baseQuery()
+    {
+        return self::select([
+            'tasks.*',
+            'tasks.id as key',
+            'task_status.name as task_status_name',
+            'task_status.color as task_status_color',
+            'task_status.background as task_status_background',
+            'task_status.icon as task_status_icon',
+            'task_priority.name as task_priority_name',
+            'task_priority.color as task_priority_color',
+            'task_priority.sort_order as task_priority_sort_order',
+            'admin_users.name as assignee_name',
+        ])
+            ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
+            ->leftJoin('task_priority', 'task_priority.id', 'tasks.task_priority_id')
+            ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
+            ->where('tasks.is_recycle_bin', 0)
+            ->orderBy('tasks.sort_order', 'asc');
+    }
+
     static function getTaskByStatus($request = [], $parentName)
     {
         // get list tasks
@@ -67,7 +88,7 @@ class Task extends Model
             'task_priority.color as task_priority_color',
             'task_priority.sort_order as task_priority_sort_order',
             'admin_users.name as assignee_name',
-            
+
         )
             ->where('tasks.project_id', $projectId)
             ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
@@ -79,5 +100,29 @@ class Task extends Model
             ->get()
             ->toArray();
         return $datas;
+    }
+
+    static function getDatas($parentName, $searchData = []) {
+        $dataSource = self::baseQuery()
+            ->where('tasks.parent_name', $parentName);
+        if (!empty($searchData['keyword'])) {
+            $dataSource = $dataSource->where('tasks.name', 'like', '%' . $searchData['keyword'] . '%');
+        }
+
+        if (!empty($searchData['status'])) {
+            $dataSource = $dataSource->whereIn('tasks.task_status_id', $searchData['status']);
+        }
+
+        if (!empty($searchData['manager'])) {
+            $dataSource = $dataSource->where('tasks.task_manager', $searchData['manager']);
+        }
+
+        if (!empty($searchData['support'])) {
+            // search nguoi_theo_doi json
+            $dataSource = $dataSource->where('tasks.nguoi_theo_doi', 'like', '%"' . $searchData['support'] . '"%');
+        }
+
+        $dataSource = $dataSource->paginate(30)->toArray();
+        return $dataSource;
     }
 }

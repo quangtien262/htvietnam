@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\LuckyController;
 use App\Http\Controllers\Admin\HimalayaController;
 use App\Http\Controllers\Admin\HoaDonController;
 use App\Http\Controllers\Admin\KhachHangController;
+use App\Http\Controllers\Admin\MeetingController;
 use App\Http\Controllers\Admin\NCCController;
 use App\Http\Controllers\Admin\NhanVienController;
 use App\Http\Controllers\Admin\PhieuThuController;
@@ -87,7 +88,7 @@ Route::group(['prefix' => 'data'], function () {
     Route::get('thong-ke/{tableId}', [DataController::class, 'thongKe'])->name('data.thong_ke');
     Route::get('show-total/{tableId}', [DataController::class, 'showTotal'])->name('data.total');
 
-    // 
+    //
     Route::get('api/get-data-slt', [AdmApiController::class, 'getDataSelect'])->name('adm_api.select');
     Route::get('api/get-name', [AdmApiController::class, 'getName'])->name('adm_api.get_name');
 
@@ -333,9 +334,8 @@ Route::group(['prefix' => 'pj'], function () {
     // Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
     // Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
     // Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
-    
+
     // Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
-    Route::post('{parentName}/fast-edit', [TaskController::class, 'fastEdit'])->name('project.fastEdit');
     Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
     Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
 
@@ -348,7 +348,7 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('api/sort-order/task-status', [TaskController::class, 'updateSortOrder_taskStatus'])->name('task.updateSortOrder_taskStatus');
     Route::put('update-sort-order/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
     Route::post('fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
-    
+
     Route::post('delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
     Route::post('add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
     Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
@@ -436,3 +436,11 @@ Route::group(['prefix' => 'bds'], function () {
 });
 
 Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');
+
+
+Route::group(['prefix' => 'meeting'], function () {
+    Route::get('/', [MeetingController::class, 'index'])->name('meeting.index');
+    Route::post('add-express', [MeetingController::class, 'addExpress'])->name('meeting.addExpress');
+    Route::post('delete', [MeetingController::class, 'deleteMeeting'])->name('meeting.delete');
+    Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
+});

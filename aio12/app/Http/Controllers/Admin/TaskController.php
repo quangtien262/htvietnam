@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\TaskChecklist;
 use App\Models\Admin\Column;
+use App\Models\Admin\Meeting;
 use App\Models\Admin\Project;
 use App\Models\Admin\Task;
 use App\Models\Admin\TaskComment;
@@ -24,10 +25,29 @@ class TaskController extends Controller
 
     public function dashboard(Request $request)
     {
-        $viewData = [
-
-        ];
+        $viewData = [];
         return Inertia::render('Admin/Dashboard/task', $viewData);
+    }
+
+    public function getTaskInfo(Request $request, $taskId = 0)
+    {
+        if (empty($taskId)) {
+            return $this->sendSuccessResponse([]);
+        }
+        $task = Task::find($taskId);
+        $checklist = TaskChecklist::baseQuery()->where('task_checklist.task_id', $taskId)->orderBy('id', 'desc')->get()->toArray();
+        $comments = TaskComment::getByTask($taskId);
+        $percent = TblService::getChecklistPercent($checklist);
+        $priority = TblService::formatData('task_priority', ['parent_name' => $task->parent_name]);
+        $logs = TaskLog::where('data_id', $taskId)->orderBy('id', 'desc')->limit(30)->get()->toArray();
+        return $this->sendSuccessResponse([
+            'checklist' => $checklist,
+            'comments' => $comments,
+            'percent' => $percent,
+            'priority' => $priority,
+            'task' => $task,
+            'logs' => $logs,
+        ]);
     }
 
     /**
@@ -38,6 +58,7 @@ class TaskController extends Controller
      */
     public function index(Request $request, $parentName)
     {
+
         $table = Table::where('name', $parentName)->first();
 
         $project = Project::projectDetail($request->pid);
@@ -47,8 +68,6 @@ class TaskController extends Controller
 
         $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
         $admin = Auth::guard('admin_users')->user();
-
-        $datas = Task::getTaskByStatus($request->all(), $parentName);
 
         $statusTable = Table::where('name', 'task_status')->first();
         $statusData = DB::table('task_status')
@@ -65,15 +84,15 @@ class TaskController extends Controller
         }
         // get chi nhanh
 
-        $logs = TaskLog::orderBy('id', 'desc')->limit(30)->get()->toArray();
-
-        // áp dụng với quy trình ql dự án, cskh
+        $display = 'kanban'; // kanban, list
+        if ($request->display) {
+            $display = $request->display;
+        }
 
         $props = [
             'table' => $table,
             'project' => $project,
-            'status' => $status,
-            'datas' => $datas,
+            'taskStatus' => $status,
             'users' => $users_byID,
             'priority' => $priority,
             'type' => $type,
@@ -82,14 +101,41 @@ class TaskController extends Controller
             'statusTable' => $statusTable,
             'parentName' => $parentName,
             'display' => 'kanban',
-            'searchData' => $request->all(),
             'pid' => $request->pid ? $request->pid : 0,
-            'logs' => $logs,
+            'display' => $display,
             'p' => $request->p ? $request->p : 1,
         ];
 
+        if ($display == 'list') {
+            $props['searchData'] = $this->getSearchData($request, $status);
+            $props['dataSource'] = Task::getDatas($parentName, $props['searchData']);
+            return Inertia::render('Admin/Task/index_list', $props);
+        }
+
+        $props['datas'] = Task::getTaskByStatus($request->all(), $parentName);
         return Inertia::render('Admin/Task/index', $props);
     }
+
+    private function getSearchData($request, $status)
+    {
+        $searchData = $request->all();
+        if (empty($request->status)) {
+            $statusDefault = [];
+            foreach ($status as $val) {
+                if ($val->is_default == 1) {
+                    $statusDefault[] = (string)$val->id;
+                }
+            }
+            $searchData['status'] = $statusDefault;
+        }
+
+        if (empty($request->display)) {
+            $searchData['display'] = 'kanban'; // kanban, list
+        }
+
+        return $searchData;
+    }
+
     public function getList()
     {
         return Task::all();
@@ -171,7 +217,7 @@ class TaskController extends Controller
                 continue;
             }
             $checklist = new TaskChecklist();
-            if(!empty($request->checklist_id)){
+            if (!empty($request->checklist_id)) {
                 $checklist = $checklist->find($request->checklist_id);
             }
             $checklist->name = $data['name'];
@@ -193,23 +239,6 @@ class TaskController extends Controller
         return $this->sendSuccessResponse(['checklist' => $checklist, 'percent' => $percent]);
     }
 
-    public function getTaskInfo(Request $request, $taskId = 0)
-    {
-        if (empty($taskId)) {
-            return $this->sendSuccessResponse([]);
-        }
-
-
-        $checklist = TaskChecklist::baseQuery()->where('task_checklist.task_id', $taskId)->orderBy('id', 'desc')->get()->toArray();
-        $comments = TaskComment::getByTask($taskId);
-        $percent = TblService::getChecklistPercent($checklist);
-        return $this->sendSuccessResponse([
-            'checklist' => $checklist,
-            'comments' => $comments,
-            'percent' => $percent
-        ]);
-    }
-
     public function addComment(Request $request)
     {
         if (empty($request->content) || empty($request->task_id)) {
@@ -217,7 +246,7 @@ class TaskController extends Controller
         }
 
         $admin = Auth::guard('admin_users')->user();
-        
+
         // save
         $comment = new TaskComment();
         if (!empty($request->id)) {
@@ -269,7 +298,6 @@ class TaskController extends Controller
      */
     public function fastEditTask(Request $request)
     {
-        
         $data = Task::find($request->id);
 
         TaskLog::logEdit('tasks', $data, $request);
@@ -277,9 +305,18 @@ class TaskController extends Controller
         $data->{$request->column_name} = $request->value;
         $data->save();
 
-        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
+        if(in_array($request->column_name, ['is_daily', 'is_weekly', 'is_monthly'])) {
+            Meeting::saveMeeting($data, $request, 'tasks');
+        }
 
-        return $this->sendSuccessResponse($columns, 'Update successfully', 200);
+        if($request->display == 'kanban') {
+            $datas = Task::getTaskByStatus($request->all(), $request->parentName);
+            return $this->sendSuccessResponse(['datas' => $datas, 'data' => $data], 'Update successfully', 200);
+        }
+
+        $dataSource =  Task::getDatas($request->parentName, $request->searchData);
+
+        return $this->sendSuccessResponse(['datas' => $dataSource['data'], 'data' => $data], 'Update successfully', 200);
     }
 
     public function sortOrder(Request $request)
@@ -416,6 +453,4 @@ class TaskController extends Controller
         $status = TblService::formatData('task_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
         return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status]);
     }
-
-
 }

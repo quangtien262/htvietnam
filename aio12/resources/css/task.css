@@ -108,7 +108,6 @@
     padding: 0px 12px !important;
     height: 25px;
     line-height: 22px;
-    font-weight: bold;
 }
 
 .ant-timeline {
@@ -137,4 +136,16 @@
 .content-right {
     padding: 10px;
     background-color: #fff;
+}
+.main-search-left {
+    width: 100%;
+    float: left;
+}
+.item-search {
+    margin-top: 10px;
+    padding-bottom: 10px;
+}
+.main-search-left, .item-search,
+.main-search-left .item-search .ant-form-item {
+    background-color: #e6f4fc;
 }

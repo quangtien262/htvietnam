@@ -15,24 +15,23 @@ import {
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
-    SettingOutlined,
     SettingFilled,
-    PlusCircleFilled,
+    PlusCircleFilled,InsertRowAboveOutlined,ApartmentOutlined,
 } from "@ant-design/icons";
 
 import "../../../../css/task.css";
 
 import { callApi } from "../../../Function/api";
 
-import { projectConfig, formProject, getProjectDetail, projectInfo } from "./project_config";
+import { taskConfig, taskInfo } from "./task_config";
 
 import { DATE_FORMAT, TITLE } from '../../../Function/constant';
 import { icon } from "../../../components/comp_icon";
+import { set } from "lodash";
 
 const CheckboxGroup = Checkbox.Group;
-export default function Dashboard(props) {
-    sessionStorage.clear();
 
+export default function Dashboard(props: any) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
@@ -43,7 +42,7 @@ export default function Dashboard(props) {
     const [confirmLoading, setConfirmLoading] = useState(false);
 
     const [statusData, setStatusData] = useState(props.statusData);
-    const [status, setStatus] = useState(props.projectStatus);
+    const [status, setStatus] = useState(props.taskStatus);
     const [form] = Form.useForm();
     const [dataAction, setDataAction] = useState({ id: 0 });
 
@@ -57,6 +56,7 @@ export default function Dashboard(props) {
     const [checklistPercent, setChecklistPercent] = useState(0);
 
     const [openDetail, setOpenDetail] = useState(false);
+    const [taskLog, setTaskLog] = useState([]);
 
 
     // import excel
@@ -164,25 +164,35 @@ export default function Dashboard(props) {
         {
             title: 'Name', dataIndex: 'name', render: (text, record: any) => {
                 return <>
-                    <Link href={route('task.list', { parentName: props.parentName, pid: record.id, p: props.p })}><b>{text}</b></Link>
+                    <a onClick={async () => {
+                        setOpenDetail(true);
+                        setDataAction(record);
+                        const res = await callApi(route('task.getTaskInfo', [record.id]));
+                        setChecklist(res.data.data.checklist);
+                        setComments(res.data.data.comments);
+                        setChecklistPercent(res.data.data.percent);
+                        setTaskLog(res.data.data.logs);
+                    }}>
+                        <b>{text}</b>
+                    </a>
                     {record.description ? <p>{record.description}</p> : ''}
                 </>;
             }
         },
         {
-            title: 'Trạng thái', dataIndex: 'project_status_id', render: (text, record: any) => {
-                return status[record.project_status_id] ? (
-                    <Tag style={{ color: status[record.project_status_id]?.color, background: status[record.project_status_id]?.background }}>
-                        <span>{icon[status[record.project_status_id]?.icon]} </span>
-                        <span> {status[record.project_status_id]?.name}</span>
+            title: 'Trạng thái', dataIndex: 'task_status_id', render: (text, record: any) => {
+                return status[record.task_status_id] ? (
+                    <Tag style={{ color: status[record.task_status_id]?.color, background: status[record.task_status_id]?.background }}>
+                        <span>{icon[status[record.task_status_id]?.icon]} </span>
+                        <span> {status[record.task_status_id]?.name}</span>
                     </Tag>
                 ) : null;
             }
         },
         {
-            title: 'Quản lý', dataIndex: 'project_manager', render: (text, record: any) => {
+            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
                 return <>
-                    {props.users[record.project_manager] ? <Tag style={{ color: '#000' }}>{props.users[record.project_manager].name}</Tag> : ''}
+                    {props.users[record.nguoi_thuc_hien] ? <Tag style={{ color: '#000' }}>{props.users[record.nguoi_thuc_hien].name}</Tag> : ''}
                 </>;
             }
         },
@@ -194,20 +204,6 @@ export default function Dashboard(props) {
                 </>;
             }
         },
-        {
-            title: <SettingOutlined />,
-            dataIndex: 'date', render: (text, record: any) => {
-                return <a onClick={async () => {
-                    console.log('record', record);
-                    setOpenDetail(true);
-                    setDataAction(record);
-                    const res = await callApi(route('project.getProjectInfo', [record.id]));
-                    setChecklist(res.data.data.checklist);
-                    setComments(res.data.data.comments);
-                    setChecklistPercent(res.data.data.percent);
-                }}><SettingOutlined /></a>;
-            }
-        },
     ];
 
     const onFinishSearch = (values: any) => {
@@ -217,7 +213,7 @@ export default function Dashboard(props) {
         // return;
         setLoadingTable(true);
         setLoadingBtnSearch(true);
-        router.get(route('project.list', [props.parentName]), values);
+        router.get(route('task.list', [props.parentName]), values);
     };
 
     const pageContent = (
@@ -251,13 +247,27 @@ export default function Dashboard(props) {
                                 {props.dataSource.per_page}/{props.dataSource.total} )
                             </em>
 
+                            {/* Hiển thị dưới dạng */}
+                            <span> </span>
+                            <Select
+                                className="_right"
+                                value={props.display}
+                                onChange={(value) => {
+                                    router.get(route('task.list', [props.parentName]), { p: props.p, pid: props.pid, display: value });
+                                }}
+                                style={{ width: 150, marginRight: 8 }}
+                            >
+                                    <Select.Option value="list"><InsertRowAboveOutlined /> Danh sách</Select.Option>
+                                    <Select.Option value="kanban"><ApartmentOutlined /> Kanban</Select.Option>
+                            </Select>
+                            <span> </span>
                             {/* Cài đặt trạng thái */}
                             <Button className="_right"
                                 onClick={() => setIsShowStatusSetting(true)}
                             >
                                 <SettingFilled /> Cài đặt trạng thái
                             </Button>
-
+                            <span> </span>
                             {/* Thêm mới */}
                             <Button type="primary"
                                 className="_right btn-submit01"
@@ -272,9 +282,9 @@ export default function Dashboard(props) {
 
                 <hr />
                 <br />
-
+                {/* search form */}
                 <Row>
-                    {/* search form */}
+
                     <Col className="search-left" sm={{ span: 6 }}>
                         <Form form={formSearch}
                             name="search"
@@ -414,15 +424,14 @@ export default function Dashboard(props) {
                             footer={[]}
                         >
                             <div>
-
-                                {projectConfig(statusData, { parentName: props.parentName, currentName: 'project_status' }, {
+                                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: props.searchData, pid: props.pid }, {
                                     name: 'Trạng thái',
                                     description: 'Mô tả ',
                                     color: 'Màu chữ',
                                     background: 'Màu nền',
-                                }, (data: any) => {
-                                    setStatusData(data.data);
-                                    // setColumns(data.columns);
+                                }, (result: any) => {
+                                    setStatusData(result.status);
+                                    //   setColumns(result.columns);
                                 })}
 
                                 <Row>
@@ -453,12 +462,13 @@ export default function Dashboard(props) {
                                 xxl: '40%',
                             }}
                         >
-
-                            {formProject(statusData, props, (data: any) => {
+                            xxxxxxxxxxxxxx
+                            {/* {formProject(statusData, props, (data: any) => {
                                 console.log('data', data);
                                 setDataSource(data);
                                 setIsModalAddOpen(false);
-                            })}
+                            })} */}
+
                         </Modal>
 
                     </div>
@@ -473,20 +483,22 @@ export default function Dashboard(props) {
                 onClose={() => setOpenDetail(false)}
                 width="90%"
             >
-                {projectInfo(props,
+                {taskInfo(props,
                     dataAction,
                     comments,
                     checklist,
                     checklistPercent,
+                    taskLog,
+                    props.priority,
                     (result: any) => {
                         // set columns, dùng cho case fast edit
-                        if (result.datas) {
-                            setDataSource(result.datas);
+                        if (result.columns) {
+                            setDataSource(result.columns);
                         }
 
                         // set data action, dùng cho case fast edit
-                        if (result.dataAction) {
-                            setDataAction(result.dataAction);
+                        if (result.data) {
+                            setDataAction(result.data);
                         }
 
                         // set checklist
@@ -503,12 +515,10 @@ export default function Dashboard(props) {
                             setComments(result.comments);
                         }
 
-                        if (result.isClosed) {
-                            setOpenDetail(false);
-                        }
                     })}
 
                 <br />
+
             </Drawer>
         </div>
     );

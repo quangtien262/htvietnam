@@ -10,6 +10,7 @@ use App\Models\Admin\Table;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\Column;
+use App\Models\Admin\Meeting;
 use App\Models\Admin\Project;
 use App\Models\Admin\ProjectChecklist;
 use App\Models\Admin\Task;
@@ -57,7 +58,7 @@ class ProjectController extends Controller
         $table = Table::where('name', $parentName)->first();
         $status = TblService::formatData('project_status', ['parent_name' => $parentName]);
         $type = TblService::formatData('project_type', ['parent_name' => $parentName]);
-        $users = TblService::formatData('admin_users', ['is_recycle_bin' => 0]);
+        $users = TblService::formatData('admin_users');
         $admin = Auth::guard('admin_users')->user();
 
         // status data
@@ -67,7 +68,7 @@ class ProjectController extends Controller
             ->where('parent_name', $parentName)
             ->orderBy('sort_order', 'asc')
             ->get()->toArray();
-        
+
         // search data
         $searchData = $this->getSearchData($request, $status);
         // dd($searchData);
@@ -83,9 +84,9 @@ class ProjectController extends Controller
             'table' => $table,
             'admin' => $admin,
             'users' => $users,
-            'status' => $status,
-            'type' => $type,
+            'projectStatus' => $status,
             'statusData' => $statusData,
+            'type' => $type,
             'p' => $_GET['p'] ?? 0,
             'display' => $display,
             'searchData' => $searchData,
@@ -112,7 +113,9 @@ class ProjectController extends Controller
             }
             $searchData['status'] = $statusDefault;
         }
-        // dd($searchData);
+        if (empty($request->display)) {
+            $searchData['display'] = 'list';
+        }
         return $searchData;
     }
 
@@ -260,24 +263,6 @@ class ProjectController extends Controller
         $comments = TaskComment::getByProject($request->project_id);
 
         return $this->sendSuccessResponse($comments);
-    }
-
-    /**
-     * Update first item the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function fastEdit(Request $request)
-    {
-        $data = Project::find($request->id);
-        $data->{$request->column_name} = $request->value;
-        $data->save();
-
-        $datas = Project::getProjectByStatus($request);
-
-        return $this->sendSuccessResponse($datas, 'Update successfully', 200);
     }
 
     public function sortOrder(Request $request)
@@ -457,16 +442,17 @@ class ProjectController extends Controller
         // TaskLog::logEdit('projects', $logName, $data->id, $request->column_name);
 
         $data->{$request->column_name} = $request->value;
-        // dd($data);
         $data->save();
 
-        $datas = [];
-        if ($request->display == 'list') {
-            $datas = Project::getDatas($request->parentName, $request->searchData);
+        if (in_array($request->column_name, ['is_daily', 'is_weekly', 'is_monthly'])) {
+            Meeting::saveMeeting($data, $request, 'projects');
         }
 
+        $datas = [];
+        if ($request->display == 'kanban') {
+            // todo
+        }
+        $datas = Project::getDatas($request->parentName, $request->searchData);
         return $this->sendSuccessResponse(['dataAction' => $data, 'datas' => $datas['data']], 'Update successfully', 200);
     }
-
-
 }

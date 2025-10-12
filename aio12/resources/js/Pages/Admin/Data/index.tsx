@@ -81,7 +81,7 @@ export default function Dashboard(props: any) {
 
     const [fileList, setFileList] = useState([]);
     const [documentFile, setDocumentFile] = useState([]);
-    
+
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
 
@@ -294,7 +294,7 @@ export default function Dashboard(props: any) {
     };
 
 
-    function onFinishInputFastEdit(value, col, record) {
+    function onFinishInputFastEdit(value: any, col: any, record: any) {
         // set value
         value.column_name = col.name;
         value.id = record.id;
@@ -1118,7 +1118,7 @@ export default function Dashboard(props: any) {
                 if (response.data.status_code == 200) {
                     setDataAction(response.data.data);
                     console.log('response.data.data.imagesData', response.data.data.imagesData);
-                    
+
                     setFileList(response.data.data.imagesData);
                 } else {
                     message.error("Lỗi tải dữ liệu cần sửa");
