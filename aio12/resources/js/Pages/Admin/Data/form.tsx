@@ -71,25 +71,8 @@ export default function Dashboard(props) {
     // Ensure props.imagesData is always an object
     const initialFileList = (props.imagesData && typeof props.imagesData === 'object') ? props.imagesData : {};
     console.log('initialFileList', initialFileList);
-    
+
     const [fileList, setFileList] = useState(initialFileList);
-
-    // const [fileList, setFileList] = useState(props.imagesData.length == 0 ? [] : props.imagesData.map((item) => {
-    //     return {
-    //         name: item.name,
-    //         status: item.status,
-    //         url: item.url
-    //     }
-    // }));
-    // const [fileList, setFileList] = useState((props.imageData || []).map(file => ({
-    //     ...file,
-    //     url: typeof file.url === 'string' ? file.url : ''
-    // })));
-
-    // const [filesList, setFilesList] = useState((props.imagesData || []).map(file => ({
-    //     ...file,
-    //     url: typeof file.url === 'string' ? file.url : ''
-    // })));
 
     //permission
     const [permissionList, setPermissionList] = useState(props.userPermission);

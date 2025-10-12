@@ -89,7 +89,6 @@ class Meeting extends Model
 
     static function getMeeting($searchData) {
         $query = self::baseQuery();
-
         if (!empty($searchData['meeting'])) {
             if (in_array('daily', $searchData['meeting'])) {
                 $query->where('meeting.is_daily', 1);
@@ -101,7 +100,10 @@ class Meeting extends Model
                 $query->where('meeting.is_monthly', 1);
             }
         }
+        if (!empty($searchData['result'])) {
+            $query->whereIn('meeting.meeting_status_id', $searchData['result']);
+        }
 
-        return $query->orderBy('meeting.id', 'asc')->paginate(30);
+        return $query->orderBy('meeting.id', 'desc')->paginate(30);
     }
 }

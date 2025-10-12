@@ -443,4 +443,5 @@ Route::group(['prefix' => 'meeting'], function () {
     Route::post('add-express', [MeetingController::class, 'addExpress'])->name('meeting.addExpress');
     Route::post('delete', [MeetingController::class, 'deleteMeeting'])->name('meeting.delete');
     Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
+    Route::post('update}', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
 });

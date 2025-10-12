@@ -28,12 +28,15 @@ class MeetingController extends Controller
         $userPermission = TblService::getPermission();
 
         $searchData = $request->all();
-        if (!empty($request->meeting)) {
+        if (empty($request->meeting)) {
             $searchData['meeting'] = ['daily'];
+        }
+        if (empty($request->result)) {
+            $searchData['result'] = ['1'];
         }
 
         $datas = Meeting::getMeeting($searchData);
-
+        // dd($datas);
         // phân trang
         $pageConfig = [
             'currentPage' => $datas->currentPage(),
@@ -98,10 +101,47 @@ class MeetingController extends Controller
             $meeting->meeting_status_id = $data['meeting_status_id'];
             $meeting->task_id = $data['task_id'];
             $meeting->create_by = $admin->id;
+
+            if ($data['meeting_type'] == 'is_daily') {
+                $meeting->is_daily = 1;
+            }
+            if ($data['meeting_type'] == 'is_weekly') {
+                $meeting->is_weekly = 1;
+            }
+            if ($data['meeting_type'] == 'is_monthly') {
+                $meeting->is_monthly = 1;
+            }
+            if ($data['meeting_type'] == 'is_yearly') {
+                $meeting->is_yearly = 1;
+            }
+
             $meeting->save();
         }
 
         // get all
+        $datas = Meeting::getMeeting($request->searchData)->toArray();
+
+        return $this->sendSuccessResponse($datas['data']);
+    }
+
+    public function updateMeeting(Request $request) {
+        if (empty($request->id)) {
+            return $this->sendErrorResponse('empty1');
+        }
+        $meeting = Meeting::find($request->id);
+        if (empty($meeting)) {
+            return $this->sendErrorResponse('empty2');
+        }
+
+        $meeting->name = $request->name;
+        $meeting->meeting_status_id = $request->meeting_status_id;
+        $meeting->description = $request->description;
+        $meeting->is_daily = in_array('is_daily', $request->meeting_type) ? 1 : 0;
+        $meeting->is_weekly = in_array('is_weekly', $request->meeting_type) ? 1 : 0;
+        $meeting->is_monthly = in_array('is_monthly', $request->meeting_type) ? 1 : 0;
+        $meeting->is_yearly = in_array('is_yearly', $request->meeting_type) ? 1 : 0;
+        $meeting->save();
+
         $datas = Meeting::getMeeting($request->searchData)->toArray();
 
         return $this->sendSuccessResponse($datas['data']);
