@@ -79,9 +79,9 @@ export default function Dashboard(props) {
     const [keyword, setKeyword] = useState(props.searchData.sm_keyword ? props.searchData.sm_keyword : '');
     const [loadingTable, setLoadingTable] = useState(false);
 
-    
+
     const [user, setUser] = useState([]);
-    
+
     const [hoaDon, setHoaDon] = useState(props.hoaDon.data);
     const [hoaDonChiTiet, setHoaDonChiTiet] = useState([]);
 
@@ -168,26 +168,26 @@ export default function Dashboard(props) {
         );
     }
 
-    
+
     function hoaDonInfo(hoaDonChiTiet, hoaDon) {
         let data01 = [
                 <p><b><SignatureFilled /> Mã: </b> {hoaDon.code}</p>,
                 <p><b><FileTextFilled /> Người tạo: </b> {hoaDon.nguoi_tao}</p>,
                 <p><b><BookFilled /> Chi nhánh: </b> {hoaDon.chi_nhanh}</p>,
         ];
-    
+
         let data02 = [
             <p><b><MoneyCollectFilled /> HH NV làm DV: </b> {numberFormat(hoaDon.chiet_khau_nv_thuc_hien)}</p>,
             <p><b><MoneyCollectFilled />  HH NV sale: </b> {numberFormat(hoaDon.chiet_khau_nv_tu_van)}</p>,
             <p><b><EyeFilled /> Ngày tạo: </b> {dayjs(hoaDon.created_at).format('DD/MM/YYYY HH:mm:ss')}</p>,
         ]
-    
+
         // bán sản phẩm
         if(hoaDon.product_type_id === 1) {
             data01.push(<p><b>Hoa hồng bán hàng: </b> {numberFormat(hoaDon.ck_nv_tu_van)} {hoaDon.is_ck_nv_tu_van_percen === 1 ? '%' : <sup>đ</sup>}</p>);
             data01.push(<p><b>Hoa hồng thực hiện: </b> {numberFormat(hoaDon.ck_nv_cham_soc)} {hoaDon.is_ck_nv_cham_soc_percen === 1 ? '%' : <sup>đ</sup>}</p>);
         }
-    
+
         function detail(id) {
             if(hoaDonChiTiet[id]) {
                 return hoaDonChiTiet[id].map((item, idx) => {
@@ -215,7 +215,7 @@ export default function Dashboard(props) {
                 </td>
             </tr>;
         };
-        
+
         return <Row>
             <Col sm={{ span: 12 }}>
                 <List className="list01"
@@ -239,12 +239,12 @@ export default function Dashboard(props) {
                     )}
                 />
             </Col>
-            
-            
+
+
             {hoaDon.mo_ta && hoaDon.mo_ta !== '' ? <Col sm={{ span: 24 }}><p><b>Mô Tả: </b>{hoaDon.mo_ta}</p></Col> : ''}
-            
+
             {hoaDon.mo_ta && hoaDon.mo_ta !== '' ? <Col sm={{ span: 24 }}><p><b>Ghi chú:{hoaDon.ghi_chu}</b></p></Col> : ''}
-            
+
             <Col sm={{ span: 24 }} >
             <br/>
             <table className="table-sub">
@@ -256,19 +256,19 @@ export default function Dashboard(props) {
                         <th>Thành tiền</th>
                     </tr>
                 </thead>
-                
+
                 <tbody>
                     {detail(hoaDon.id)}
                 </tbody>
-    
+
                 <tbody>
-    
+
                     <tr>
                         <td colSpan={2}></td>
                         <td className="text-right _bold">Tổng tiền hàng: </td>
                         <td>{numberFormat(hoaDon.TongChiPhi)}</td>
                     </tr>
-    
+
                     {/* Giảm giá */}
                     <tr>
                         <td colSpan={2}></td>
@@ -279,7 +279,7 @@ export default function Dashboard(props) {
                     <tr>
                         <td colSpan={2}>
                             {
-                                hoaDon.cong_no === 0 ? 
+                                hoaDon.cong_no === 0 ?
                                 ''
                                 :
                                 <button className="btn-print"
@@ -294,7 +294,7 @@ export default function Dashboard(props) {
                                     <CheckOutlined /> Thanh toán công nợ
                                 </button>
                             }
-                            
+
                         </td>
                         <td className="text-right _bold">VAT ({numberFormat(hoaDon.vat)}%): </td>
                         <td>{numberFormat(hoaDon.vat_money)}<sup>đ</sup></td>
@@ -339,9 +339,9 @@ export default function Dashboard(props) {
                         <td>{numberFormat(hoaDon.cong_no)}</td>
                     </tr>
                 </tbody>
-                
+
             </table>
-                
+
             </Col>
         </Row>
     }
@@ -370,7 +370,7 @@ export default function Dashboard(props) {
                         khachHangData_tmp[record.id] = data.khachHangData;
                         setKhachHangData(khachHangData_tmp);
                     }
-                    
+
                 })
                 .catch((error) => {
                     message.error("Lỗi tải hóa đơn chi tiết");
@@ -401,7 +401,7 @@ export default function Dashboard(props) {
                 }
             }
         ];
-        
+
         let item = [
             {
                 label: 'Thông tin', //hh/dv
@@ -427,7 +427,7 @@ export default function Dashboard(props) {
                 />,
             }
         ]
-        
+
 
         return <div>
                 <Tabs
@@ -442,27 +442,27 @@ export default function Dashboard(props) {
         if(val !== keyword) {
             formSearch.submit();
         }
-        
+
         // formSearch.submit();
     }
 
     const onFinishSearch = (values) => {
-        
+
         values.mocThoiGian = mocThoiGian;
 
         if(khoangThoiGian[0]) {
             console.log('khoangThoiGian', khoangThoiGian);
             values.khoangThoiGian = khoangThoiGian.map((item) => {
                 return item.format("YYYY-MM-DD");
-            });      
+            });
         } else {
             values.khoangThoiGian = null;
         }
-        
+
         setLoadingTable(true);
         router.get(route("hoaDon.index"),values);
     }
-    
+
 
     return (
         <div>
@@ -474,12 +474,11 @@ export default function Dashboard(props) {
                 content={
                     <div>
 
-                        <Modal title="THANH TOÁN CÔNG NỢ" 
-                            open={isModalTatToan} 
+                        <Modal title="THANH TOÁN CÔNG NỢ"
+                            open={isModalTatToan}
                             okText="Xác nhận thanh toán"
                             cancelText="Hủy"
-                            loading={true}
-                         
+
                             onCancel={()=>setIsModalTatToan(false)}
                             onOk={() => {
                                     if(!tienCongNo_phuongThucTT) {
@@ -500,7 +499,7 @@ export default function Dashboard(props) {
                                                 message.error("Thanh toán thất bại, vui lòng tải lại trình duyệt và thử lại");
                                         });
                                     }
-                                } 
+                                }
                             >
                                 <div>
                                     <table className="table-sub">
@@ -510,11 +509,11 @@ export default function Dashboard(props) {
                                                     <b>Số tiền thanh toán:</b>
                                                 </td>
                                                 <td>
-                                                    <InputNumber value={soTienCongNoThanhToan} 
+                                                    <InputNumber value={soTienCongNoThanhToan}
                                                         min={1}
                                                         max={soTienCongNoThanhToan_max}
-                                                        formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} 
-                                                        parser={(value) => value.replace(/\$\s?|(,*)/g, "")} 
+                                                        formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                        parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                                                         onChange={(value) => setSoTienCongNoThanhToan(value)}
                                                     />
                                                 </td>
@@ -541,13 +540,13 @@ export default function Dashboard(props) {
                                         </tbody>
                                     </table>
                                      <span> </span>
-                                    
+
                                     <p> </p>
-                                        
+
                                     <p>Sau khi xác nhận thanh toán, hệ thống sẽ cập nhật và đồng bộ lại toàn bộ dữ liệu liên quan đến phiếu nhập hàng này, gồm có phiếu chi, sổ quỹ, công nợ</p>
-                                    
+
                                 </div>
-                                
+
                         </Modal>
 
                         <Row>
@@ -586,7 +585,7 @@ export default function Dashboard(props) {
                                             <h3 className="title-search02">Thời gian</h3>
                                             {searchByTime(mocThoiGian)}
                                             <br/><br/>
-                                            
+
                                             <label>Tùy chọn khoảng thời gian</label>
                                             <RangePicker
                                                 placeholder={['Bắt đầu','Kết thúc']}
@@ -603,9 +602,9 @@ export default function Dashboard(props) {
 
                                         {/* Nhóm hàng */}
                                         <Col sm={{ span: 24 }} className='item-search'>
-                                            <Form.Item name='customer_group_id' 
+                                            <Form.Item name='customer_group_id'
                                                 label={<span>Nhóm <a target="new" href={route('data.tblName', ['customer_group'])}><BarsOutlined /></a></span>}>
-                                                <Checkbox.Group onChange={search} 
+                                                <Checkbox.Group onChange={search}
                                                     className="list-checkbox01"
                                                     options={props.customerGroup.map((u) => {
                                                         return {
@@ -616,19 +615,19 @@ export default function Dashboard(props) {
                                                         })
                                                     }
                                                 />
-                                                
+
                                             </Form.Item>
                                         </Col>
 
                                         {/* Thương hiệu */}
                                         <Col sm={{ span: 24 }} className='item-search'>
-                                            <Form.Item name='hinh_thuc_thanh_toan_id' 
+                                            <Form.Item name='hinh_thuc_thanh_toan_id'
                                                 label={<div>Phương thức TT </div>}>
                                                 <Checkbox.Group
                                                     onChange={(value) => {
                                                         console.log('value', value);
                                                         formSearch.submit();
-                                                    }} 
+                                                    }}
                                                     options={[
                                                         { label: 'Tiền mặt', value: '1' },
                                                         { label: 'Chuyển khoản', value: '3' },
@@ -636,7 +635,7 @@ export default function Dashboard(props) {
                                                     ]
                                                     }
                                                 />
-                                                
+
                                             </Form.Item>
                                         </Col>
 
@@ -660,7 +659,7 @@ export default function Dashboard(props) {
                                                 <Checkbox.Group
                                                     onChange={(value) => {
                                                         formSearch.submit();
-                                                    }} 
+                                                    }}
                                                     options={[
                                                         { value: '1', label: 'Hóa đơn đã xóa' },
                                                     ]
@@ -686,7 +685,7 @@ export default function Dashboard(props) {
                                 />
                             </Col>
                         </Row>
-                        
+
                     </div>
                 }
             />

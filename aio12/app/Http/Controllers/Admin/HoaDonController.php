@@ -36,9 +36,9 @@ class HoaDonController extends Controller
     {
         $tables = TblService::getAdminMenu(0);
         $table = Table::find(236);
-        
+
         $hoaDon = HoaDon::search($request);
-                
+
         $typeProduct = config('constant.type_product');
         $customerGroup = DB::table('customer_group')->get();
         $gioiTinh = DB::table( 'gioi_tinh')->get();
@@ -56,7 +56,7 @@ class HoaDonController extends Controller
         }
 
         $searchData = $request->all();
-        
+
         if(isset($searchData['khoangThoiGian'])) {
             unset($searchData['khoangThoiGian']);
         }
@@ -74,14 +74,14 @@ class HoaDonController extends Controller
             'khoangThoiGian' => $khoangThoiGian,
             'searchData' => $searchData,
         ];
- 
+
         return Inertia::render('Admin/HoaDon/index', $viewData);
     }
 
     public function search(Request $request)
     {
         $hoaDon = HoaDon::search( $request);
- 
+
         return $this->sendSuccessResponse($hoaDon);
     }
 
@@ -90,7 +90,7 @@ class HoaDonController extends Controller
      * @param \Illuminate\Http\Request $rq
      * hoa_don_id
      * tien_tru_the
-     * 
+     *
      * @return void
      */
     public function hoaDon_payment(Request $rq) {
@@ -120,9 +120,9 @@ class HoaDonController extends Controller
         $thanhToan = $rq->thanh_toan - $rq->giam_gia;
         $hoaDon->thanh_toan = $thanhToan;
 
-        $hoaDon->code = 'HD' . TblService::formatNumberByLength($hoaDon->id); 
+        $hoaDon->code = 'HD' . TblService::formatNumberByLength($hoaDon->id);
         $hoaDon->create_by = \Auth::guard('admin_users')->user()->id;
-        
+
         $hoaDon->tien_tip = $rq->tien_tip;
 
         if($thanhToan > $rq->da_thanh_toan) {
@@ -160,13 +160,13 @@ class HoaDonController extends Controller
         } else {
             $hoaDon->hoa_don_status_id = 2; // da thanh toan
         }
-        
+
         if($rq->hinh_thuc_thanh_toan_id == 2) {
             $hoaDon->phi_ca_the = $rq->phi_ca_the;
         }
-        
+
         $hoaDon->save();
-        
+
         // lấy thông tin khách hàng
 
         $hoaDonChiTiet = HoaDonChiTiet::where('data_id', $hoaDon->id)->get();
@@ -184,7 +184,7 @@ class HoaDonController extends Controller
 
             $detail->save();
 
-            
+
 
             // lưu lịch sử thẻ GT
             if($product->product_type_id == 4) {
@@ -197,9 +197,9 @@ class HoaDonController extends Controller
             }
         }
 
-        
 
-        
+
+
 
         // save phieu thu
         $phieuThu = new PhieuThu();
@@ -215,13 +215,13 @@ class HoaDonController extends Controller
         $phieuThu->thoi_gian = $date;
         $phieuThu->nhan_vien_id = $admin->id;
         $phieuThu->khach_hang_id = $rq->khach_hang_id;
-        
+
         $phieuThu->users_id = $khachHang->id;
         $phieuThu->create_by = $admin->id;
 
         $phieuThu->save();
-        
-        $phieuThu->code = 'PD' . TblService::formatNumberByLength($phieuThu->id); 
+
+        $phieuThu->code = 'PD' . TblService::formatNumberByLength($phieuThu->id);
         $phieuThu->save();
 
         //save sổ quỹ
@@ -233,7 +233,7 @@ class HoaDonController extends Controller
         $soQuy->loai_chung_tu = 'hoa_don';
         $soQuy->chung_tu_id = $hoaDon->id;
         $soQuy->ma_chung_tu = $hoaDon->code;
-        
+
         $soQuy->chi_nhanh_id = $hoaDon->chi_nhanh_id;
         $soQuy->khach_hang_id = $rq->khach_hang_id;
         $soQuy->nhan_vien_id = !empty($rq->nhan_vien_id) ? intval($rq->nhan_vien_id) : 0;
@@ -241,7 +241,7 @@ class HoaDonController extends Controller
         $soQuy->nhom_nguoi_nhan_id = config('constant.nhom_nguoi_nhan.cty');
         $soQuy->thoi_gian = $nowDB;
         $soQuy->note = $rq->note;
-        
+
 
         $soQuy->so_tien = $thanhToan;
         if($thanhToan > $rq->da_thanh_toan) {
@@ -251,7 +251,7 @@ class HoaDonController extends Controller
             $soQuy->so_quy_status_id = config('constant.so_quy_status.cong_no');
         }
 
-        
+
 
         $soQuy->save();
         $soQuy->code = 'SQ' . TblService::formatNumberByLength($soQuy->id, 5);
@@ -286,11 +286,11 @@ class HoaDonController extends Controller
             ->where('users.is_recycle_bin', 0)
             ->leftJoin('customer_group', 'customer_group.id', 'users.customer_group_id')
             ->get();
-        
+
         $nhanVien = AdminUser::where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
 
         $khoHang = KhoHang::where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
-        
+
         $chiNhanh = DB::table('chi_nhanh')->where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
 
         $productGroup_db = DB::table('product_group')->where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
@@ -303,7 +303,7 @@ class HoaDonController extends Controller
         }
 
         // get data default
-        
+
         $hdonChoTT = $this->hoaDonChoThanhToan();
         // dd($hdonChoTT);
         $loaiHangHoa = config('constant.type_product');
@@ -312,8 +312,8 @@ class HoaDonController extends Controller
         $chiNhanhThuNgan = ['id' => null];
         $nhanVienThuNgan = ['id' => null];
         $khoHangThuNgan = ['id' => null];
-        if($request->session()->has('chi_nhanh') && 
-            $request->session()->has('nhan_vien_thu_ngan') && 
+        if($request->session()->has('chi_nhanh') &&
+            $request->session()->has('nhan_vien_thu_ngan') &&
             $request->session()->has('kho_hang')) {
             $checkThuNganConfig = false;
             $chiNhanhThuNgan = $request->session()->get('chi_nhanh');
@@ -322,7 +322,7 @@ class HoaDonController extends Controller
         }
         // dd($chiNhanhThuNgan);
         $caInfo = HoaDonService::getCaInfo($nhanVienThuNgan);
-        
+
         // data select dùng cho form khách hàng
         $userSource = DB::table('user_source')->where('is_recycle_bin', 0)->orderBy('sort_order', 'asc')->get();
         $customerGroup = DB::table('customer_group')->where('is_recycle_bin', 0)->orderBy('name', 'asc')->get();
@@ -357,13 +357,13 @@ class HoaDonController extends Controller
         $hd = $this->hoaDonChoThanhToan($newHdon->id);
 
         return $this->sendSuccessResponse([
-            'hoaDons' => $hd['hoa_don'], 
+            'hoaDons' => $hd['hoa_don'],
             'key_active'  => $hd['key_active']
         ]);
     }
 
     private function hoaDonChoThanhToan($idActive = 0) {
-        
+
         $hoaDon_db = HoaDon::getHoaDonChoThanhToan();
         if(!empty($hoaDon_db) && count($hoaDon_db) == 0) {
         // trường hợp ko có data thì insert sẵn 1 data mới
@@ -386,11 +386,11 @@ class HoaDonController extends Controller
                 }
                 $goiDV = CardClass::getGoiDV($hdct->product_id);
             }
-            
+
             if($hd->id == $idActive) {
                 $keyActive = $key;
             }
-            
+
             $goiDichVu = [];
             $khachHangData = [];
             if(!empty($hd->users_id)) {
@@ -405,7 +405,7 @@ class HoaDonController extends Controller
                 'hoaDonChiTiet_ids' => $hoaDonChiTiet_ids,
                 'productIDs' => $productIDs,
                 'goiDV' => $goiDV,
-                'goiDichVu' => $goiDichVu, 
+                'goiDichVu' => $goiDichVu,
                 'khachHangData' => $khachHangData
             ];
         }
@@ -421,7 +421,7 @@ class HoaDonController extends Controller
     }
 
     public function addHoaDonChiTiet(Request $request) {
-        
+
         $ids_active = $request->id_active;
         $hoaDonId = $request->hoaDonId;
 
@@ -462,7 +462,7 @@ class HoaDonController extends Controller
                 $hDonChiTiet->product_code = $product->code;
                 $hDonChiTiet->product_name = $product->name;
 
-                
+
                 $hDonChiTiet->so_luong = 1;
                 $hDonChiTiet->don_gia = $product->gia_ban;
                 $hDonChiTiet->thanh_tien = $product->gia_ban;
@@ -489,20 +489,20 @@ class HoaDonController extends Controller
         // get lại danh sách và trả về kết quả
 
         $hoaDons = $this->hoaDonChoThanhToan($hoaDon->id);
-        
+
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
-            'hoaDons' => $hoaDons['hoa_don'], 
+            'hoaDon' => $hoaDon,
+            'hoaDons' => $hoaDons['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet,
             'dvTrongGoi' => $dvTrongGoi
         ]);
-        
+
 
         // return $this->sendSuccessResponse(['hoaDon' => $hoaDon, 'hoaDonChiTiet' => $hoaDonChiTiet]);
     }
 
-    
+
     public function addHoaDonChiTiet_truThe01(Request $request) {
         $hoaDonId = $request->hoa_don_id;
         $so_luong_service = $request->so_luong_service;
@@ -548,22 +548,22 @@ class HoaDonController extends Controller
         $hoaDon = $this->updateHoaDonInfo($hoaDonId);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hoaDonId);
         $goiDichVu = CardClass::getGoiDV($hoaDon->users_id);
-        
+
         $hoaDons = $this->hoaDonChoThanhToan($hoaDon->id);
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
-            'hoaDons' => $hoaDons['hoa_don'], 
+            'hoaDon' => $hoaDon,
+            'hoaDons' => $hoaDons['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet,
             'goiDichVu' => $goiDichVu
         ]);
-        
+
 
         // return $this->sendSuccessResponse(['hoaDon' => $hoaDon, 'hoaDonChiTiet' => $hoaDonChiTiet]);
     }
 
     public function addHoaDonChiTiet_truThe(Request $request) {
         // dd($request->all());
-        
+
         if(empty($request->hoa_don_id)) {
             return $this->sendErrorResponse('Hóa đơn này đã bị xóa hoặc không tồn tại');
         }
@@ -582,7 +582,7 @@ class HoaDonController extends Controller
 
             // Nếu số lượng vượt quá cho phép thì return luôn
             if($soLuong > $data['card']['so_luong_con_lai']) {
-                
+
                 return $this->sendErrorResponse('Số lượng được chọn nhiều hơn số lượng đã mua');
             }
         }
@@ -592,7 +592,7 @@ class HoaDonController extends Controller
 
             // update
             $soLuong = 0;
-            
+
             foreach($data['cardService'] as $service) {
                 if(empty($service['so_luong_tmp'])) {
                     continue;
@@ -600,7 +600,7 @@ class HoaDonController extends Controller
 
                 // check so luong
                 $soLuong += $service['so_luong_tmp'];
-                
+
                 // save hoa don chi tiet
                 $hDonChiTiet = new HoaDonChiTiet();
                 $hDonChiTiet->data_id = $request->hoa_don_id;
@@ -630,21 +630,21 @@ class HoaDonController extends Controller
             $card->so_luong_con_lai = $card->so_luong - $card->so_luong_da_su_dung;
             $card->save();
 
-           
+
         }
 
         // cập nhật lại danh sách hđơn chi tiết
         $hoaDon = $this->updateHoaDonInfo($request->hoa_don_id);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($request->hoa_don_id);
         $goiDichVu = CardClass::getGoiDV($hoaDon->users_id);
-        
+
         $hoaDons = $this->hoaDonChoThanhToan($hoaDon->id);
         return $this->sendSuccessResponse([
-            'hoaDons' => $hoaDons['hoa_don'], 
+            'hoaDons' => $hoaDons['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet,
             'goiDichVu' => $goiDichVu
         ]);
-        
+
 
         // return $this->sendSuccessResponse(['hoaDon' => $hoaDon, 'hoaDonChiTiet' => $hoaDonChiTiet]);
     }
@@ -678,7 +678,7 @@ class HoaDonController extends Controller
                 ->where('nhan_vien_tu_van.loai_chung_tu', 'hoa_don') // 8: hdon ban le
                 ->where('nhan_vien_tu_van.chung_tu_chi_tiet_id', $hd->id)
                 ->delete();
-            
+
             // update lại số lượng card về như cũ
             $card = Card::find($hd->card_id);
             $card->so_luong_da_su_dung -= $hd->so_luong;
@@ -699,7 +699,7 @@ class HoaDonController extends Controller
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hoaDon->id);
         $hoaDonChoThanhToan = $this->hoaDonChoThanhToan($hoaDon->id);
         return $this->sendSuccessResponse([
-            'hoaDons' => $hoaDonChoThanhToan['hoa_don'], 
+            'hoaDons' => $hoaDonChoThanhToan['hoa_don'],
         ]);
     }
 
@@ -737,7 +737,7 @@ class HoaDonController extends Controller
         $card->save();
         $card->code = 'GT-' . TblService::formatNumberByLength($card->id);
         $card->save();
-        
+
 
         $user->tong_tien_da_nap += $card->menh_gia_the;
         $user->tien_con_lai = intval($user->tong_tien_da_nap) - intval($user->tien_da_su_dung);
@@ -817,7 +817,7 @@ class HoaDonController extends Controller
         $hoaDonChiTiet = $this->getHoaDonChiTiet($request->hoaDonId);
 
         return $this->sendSuccessResponse(['hoaDon' => $hoaDon, 'hoaDonChiTiet' => $hoaDonChiTiet]);
-        
+
     }
 
     private function updateHoaDonInfo($hoaDonId) {
@@ -850,7 +850,7 @@ class HoaDonController extends Controller
                 $nv->phan_tram_chiet_khau = round($phanTramCK, 2);;
                 $nv->save();
             }
-            
+
             // update ck nv thuc hien
             $nvThucHien = NhanVienThucHien::where('loai_chung_tu', 'hoa_don')->where('chung_tu_chi_tiet_id', $detail->id)->get();
             foreach($nvThucHien as $nv) {
@@ -906,7 +906,7 @@ class HoaDonController extends Controller
         }
 
         // thêm user nếu chưa có
-        $NhanVienId_old = []; 
+        $NhanVienId_old = [];
         foreach($nvTuVan as $nv) {
 
             // xử lý xóa nếu ko nằm trong danh sách nv mới nhất
@@ -937,17 +937,17 @@ class HoaDonController extends Controller
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
         $hoaDonChoThanhToan = $this->hoaDonChoThanhToan($hoaDon->id);
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
-            'hoaDons' => $hoaDonChoThanhToan['hoa_don'], 
+            'hoaDon' => $hoaDon,
+            'hoaDons' => $hoaDonChoThanhToan['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
 
     /** Request
-        id:id, 
-        value:value, 
-        is_percen:vnd: 0; %: 1, 
-        table:table update, 
+        id:id,
+        value:value,
+        is_percen:vnd: 0; %: 1,
+        table:table update,
      */
     public function hoaDon_updateCK(Request $rq) {
         if($rq->table == 'nhan_vien_tu_van') {
@@ -964,20 +964,20 @@ class HoaDonController extends Controller
         if($rq->is_percen == 1) {// %
             $data->phan_tram_chiet_khau = $value;
             $data->TienChietKhau = $value * $hdonChiTiet->thanh_tien / 100;
-            
+
         } else { // vnd
             $data->TienChietKhau = $value;
             $data->phan_tram_chiet_khau = $value * 100 / $hdonChiTiet->thanh_tien;
         }
         $data->save();
-        
+
 
         $hoaDon = HoaDon::find($hdonChiTiet->data_id);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
         $hoaDonChoThanhToan = $this->hoaDonChoThanhToan($hoaDon->id);
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
-            'hoaDons' => $hoaDonChoThanhToan['hoa_don'], 
+            'hoaDon' => $hoaDon,
+            'hoaDons' => $hoaDonChoThanhToan['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -985,10 +985,10 @@ class HoaDonController extends Controller
     public function hoaDon_updateNVThucHien(Request $request) {
         $nvIds = $request->user_ids;
         $hdonChiTiet = HoaDonChiTiet::find($request->hoa_don_chi_tiet_id);
-        $nvThucHien = NhanVienThucHien::where('loai_chung_tu', 'hoa_don') 
+        $nvThucHien = NhanVienThucHien::where('loai_chung_tu', 'hoa_don')
             ->where('chung_tu_chi_tiet_id', $hdonChiTiet->id)
             ->get();
-        
+
         $product = Product::find($hdonChiTiet->product_id);
 
         // tính tiền ck
@@ -1005,7 +1005,7 @@ class HoaDonController extends Controller
         }
 
         // thêm user nếu chưa có
-        $NhanVienId_old = []; 
+        $NhanVienId_old = [];
         foreach($nvThucHien as $nv) {
 
             // xử lý xóa nếu ko nằm trong danh sách nv mới nhất
@@ -1038,8 +1038,8 @@ class HoaDonController extends Controller
         $hoaDonChoThanhToan = $this->hoaDonChoThanhToan($hoaDon->id);
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
-            'hoaDons' => $hoaDonChoThanhToan['hoa_don'], 
+            'hoaDon' => $hoaDon,
+            'hoaDons' => $hoaDonChoThanhToan['hoa_don'],
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -1063,7 +1063,7 @@ class HoaDonController extends Controller
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
+            'hoaDon' => $hoaDon,
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -1082,13 +1082,13 @@ class HoaDonController extends Controller
         $nvThucHien->save();
 
         // update chiết khấu ở phần hóa đơn chi tiết sẽ được lưu ở bước thanh toán cuối cùng.
-        
+
         // get data
         $hoaDon = HoaDon::find($hdonChiTiet->data_id);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
+            'hoaDon' => $hoaDon,
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -1106,13 +1106,13 @@ class HoaDonController extends Controller
         $nv->save();
 
         // update chiết khấu ở phần hóa đơn chi tiết sẽ được lưu ở bước thanh toán cuối cùng.
-        
+
         // get data
         $hoaDon = HoaDon::find($hdonChiTiet->data_id);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
+            'hoaDon' => $hoaDon,
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -1135,7 +1135,7 @@ class HoaDonController extends Controller
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
+            'hoaDon' => $hoaDon,
             'hoaDonChiTiet' => $hoaDonChiTiet
         ]);
     }
@@ -1149,7 +1149,7 @@ class HoaDonController extends Controller
 
     private function getHoaDonChiTiet($hoaDonId) {
         $hdonChiTiet = HoaDonChiTiet::getByHoaDonId($hoaDonId);
-        
+
         $hdon = [];
         foreach($hdonChiTiet as $hd) {
             $item = $hd;
@@ -1174,7 +1174,7 @@ class HoaDonController extends Controller
                 ->where('nhan_vien_tu_van.chung_tu_chi_tiet_id', $hd->id)
                 ->leftJoin('admin_users', 'admin_users.id', 'nhan_vien_tu_van.nhan_vien_id')
                 ->get();
-            
+
             // get nv tu van ids
             $nvtuvan_ids = [];
             foreach($item['nv_tu_van'] as $nvtv) {
@@ -1189,7 +1189,7 @@ class HoaDonController extends Controller
     }
 
     public function hDonBanLe_choThanhToan(Request $request) {
-        
+
         $tables = TblService::getAdminMenu(0);
         $table = Table::find(239);
 
@@ -1262,13 +1262,13 @@ class HoaDonController extends Controller
             $hoaDon_item['key'] = $data->id;
             $hoaDon_item['customer_group_id'] = $data->customer_group_id;
             $hoaDon_item['ten_khach_hang'] = $data->ten_khach_hang;
-            
+
             // 'card_tl' =>  CastsCardTL::class,
-            
+
             $hoaDon_item['card_tl_info'] = HimalayaService::cardLTInfo($data->card_tl);
-            
+
             // // 'card_gt' => CastsCardGT::class,
-            
+
             // $hoaDon_item['card_gt_info'] = HimalayaService::cardLTInfo($data->card_gt);
 
             // // 'id' => CastsHoaDonChiTiet::class,
@@ -1277,7 +1277,7 @@ class HoaDonController extends Controller
             // 'users_id' =>  CastsUsers::class,
             $customerGroup = DB::table('customer_group')->where('id', $data->customer_group_id)->first();
             $hoaDon_item['customer_group'] = !empty($customerGroup) ? $customerGroup->name : '';
-            
+
             $hoaDon[] = $hoaDon_item;
         }
 
@@ -1306,7 +1306,7 @@ class HoaDonController extends Controller
         if (empty($rq->hoa_don_id)) {
             return $this->sendErrorResponse('ID is empty', $errors = null, 400);
         }
-        
+
         HimalayaService::deleteHoaDon($rq->hoa_don_id);
 
         $hoaDonChoThanhToan = $this->hoaDonChoThanhToan($rq->hoa_don_id_active);
@@ -1322,7 +1322,7 @@ class HoaDonController extends Controller
         if (empty($rq->hoa_don_id)) {
             return $this->sendErrorResponse('ID is empty', $errors = null, 400);
         }
-        
+
         HoaDonService::deleteHoaDon($rq->hoa_don_id);
 
         // nếu id cũ khác id đang active, thì get lại list hóa đơn, active vẫn là id cũ
@@ -1349,22 +1349,22 @@ class HoaDonController extends Controller
                 $card = Card::find($hdonChiTiet->card_id);
                 $card->so_luong_da_su_dung -= $hdonChiTiet->so_luong;
                 $card->so_luong_con_lai = $card->so_luong - $card->so_luong_da_su_dung;
-                $card->save(); 
-            }   
+                $card->save();
+            }
 
             $hdonChiTiet->delete();
         }
-        
+
         $hoaDon = HoaDon::find($request->hoaDonId);
         $hoaDonChiTiet = $this->getHoaDonChiTiet($hdonChiTiet->data_id);
-        
+
         $goiDichVu = [];
         if(!empty($hoaDon->users_id)) {
             $goiDichVu = CardClass::getGoiDV($hoaDon->users_id);
         }
 
         return $this->sendSuccessResponse([
-            'hoaDon' => $hoaDon, 
+            'hoaDon' => $hoaDon,
             'hoaDonChiTiet' => $hoaDonChiTiet,
             'goiDichVu' => $goiDichVu
         ]);
@@ -1376,7 +1376,7 @@ class HoaDonController extends Controller
         }
 
         $result = HoaDon::info($rq->id);
-        
+
         return $this->sendSuccessResponse($result);
     }
 
@@ -1416,7 +1416,7 @@ class HoaDonController extends Controller
         ];
         // update nhân viên thực hiên
         NhanVienThucHien::where('chung_tu_id', $hoaDon->id)->update($update);
-        
+
         // update nv tư vấn
         NhanVienTuVan::where('chung_tu_id', $hoaDon->id)->update($update);
 
@@ -1424,7 +1424,7 @@ class HoaDonController extends Controller
         SoQuy::where('loai_chung_tu', 'hoa_don')->where('chung_tu_id', $hoaDon->id)->update($update);
         // update phiếu thu
         PhieuThu::where('loai_chung_tu', 'hoa_don')->where('chung_tu_id', $hoaDon->id)->update($update);
-        
+
         return $this->sendSuccessResponse($id);
     }
 
@@ -1436,7 +1436,7 @@ class HoaDonController extends Controller
 
     public function tatToanCongNo(Request $request) {
         $loaiChungTu = $request->loai_chung_tu;
-        
+
         // update cong nợ
         $soTienNo = 0;
         $soTienDaThanhToan = 0;
@@ -1453,7 +1453,7 @@ class HoaDonController extends Controller
                 $soTienNo = $nhapHang->thanh_tien - $nhapHang->da_thanh_toan - $thanhToan;
                 $soTienDaThanhToan = $nhapHang->da_thanh_toan + $thanhToan;
                 $nhapHang->cong_no = $soTienNo;
-                $nhapHang->da_thanh_toan += $thanhToan; 
+                $nhapHang->da_thanh_toan += $thanhToan;
                 if($nhapHang->cong_no == 0) {
                     $nhapHang->cong_no_status_id = 1; // đã tất toán
                 }
@@ -1470,16 +1470,16 @@ class HoaDonController extends Controller
                 $soQuy = SoQuy::saveSoQuy_NhapHang(-$thanhToan, $nhapHang);
 
                 break;
-            
+
             case 'product_khach_tra_hang':
                 // update phieu nhap hang
                 $khachTraHang = KhachTraHang::find($request->chung_tu_id);
                 $soTienNo = $khachTraHang->thanh_tien - $khachTraHang->da_thanh_toan - $thanhToan;
                 $soTienDaThanhToan = $khachTraHang->da_thanh_toan + $thanhToan;
                 $khachTraHang->cong_no = $soTienNo;
-                $khachTraHang->da_thanh_toan += $thanhToan; 
+                $khachTraHang->da_thanh_toan += $thanhToan;
                 if($khachTraHang->cong_no == 0) {
-                    $khachTraHang->cong_no_status_id = 1; // đã tất toán                    
+                    $khachTraHang->cong_no_status_id = 1; // đã tất toán
                 }
                 if(!empty($hinhThucTT)) {
                     $khachTraHang->hinh_thuc_thanh_toan_id = $hinhThucTT; // đã tất toán
@@ -1500,7 +1500,7 @@ class HoaDonController extends Controller
                 $soTienNo = $traHangNCC->thanh_tien - $traHangNCC->da_thanh_toan - $thanhToan;
                 $soTienDaThanhToan = $traHangNCC->da_thanh_toan + $thanhToan;
                 $traHangNCC->cong_no = $soTienNo;
-                $traHangNCC->da_thanh_toan += $thanhToan; 
+                $traHangNCC->da_thanh_toan += $thanhToan;
                 if($traHangNCC->cong_no == 0) {
                     $traHangNCC->cong_no_status_id = 1; // đã tất toán
                 }
@@ -1510,25 +1510,25 @@ class HoaDonController extends Controller
                 $traHangNCC->save();
 
                 // update phieu chi
-                
+
                 PhieuChi::savePhieuChi_traHangNCC($thanhToan, $hinhThucTT, $traHangNCC);
 
                 // update so quy
                 SoQuy::saveSoQuy_TraHangNCC($thanhToan, $traHangNCC);
 
                 break;
-            
+
             case 'hoa_don':
                 // update phieu tra hang
                 $hoaDon = HoaDon::find($request->chung_tu_id);
                 $soTienNo = $hoaDon->thanh_toan - $hoaDon->da_thanh_toan - $thanhToan;
                 $soTienDaThanhToan = $hoaDon->da_thanh_toan + $thanhToan;
                 $hoaDon->cong_no = $soTienNo;
-                $hoaDon->da_thanh_toan = $soTienDaThanhToan; 
+                $hoaDon->da_thanh_toan = $soTienDaThanhToan;
                 if($hoaDon->cong_no == 0) {
                     $hoaDon->cong_no_status_id = 1; // đã tất toán
                 }
-                
+
                 if(!empty($hinhThucTT)) {
                     $hoaDon->hinh_thuc_thanh_toan_id = $hinhThucTT; // đã tất toán
                 }
@@ -1546,20 +1546,26 @@ class HoaDonController extends Controller
                 # code...
                 break;
         }
-        
+
         // update công nợ
-        $congNo = CongNo::where('loai_chung_tu', $request->loai_chung_tu)
+        $congNo = CongNo::where('loai_chung_tu', $loaiChungTu)
             ->where('chung_tu_id', $request->chung_tu_id)
             ->first();
-            
+        if(empty($congNo)) {
+            $congNo = new CongNo();
+            $congNo->loai_chung_tu = $loaiChungTu;
+            $congNo->chung_tu_id = $request->chung_tu_id;
+            $congNo->name = 'Thanh toán công nợ';
+            $congNo->create_by = $request->user()->id;
+        }
         $congNo->so_tien_no = $soTienNo;
         $congNo->so_tien_da_thanh_toan = $soTienDaThanhToan;
-        
+
         if($soTienNo == 0) {
             $congNo->cong_no_status_id = 1; // đã tất toán
         }
         $congNo->save();
-        
+
 
         return $this->sendSuccessResponse($congNo);
     }

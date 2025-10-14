@@ -113,7 +113,7 @@ export function btnAddNew(prop) {
                         <Link
                             href={route("data.create", [
                                 prop.table.id,
-                                { type: key },
+                                { type: key, p:props.p },
                             ])}
                         >
                             {value}
@@ -132,7 +132,7 @@ export function btnAddNew(prop) {
         }
 
         return (
-            <Link href={route("data.create", prop.table.id)}>
+        <Link href={route("data.create", { tableId:prop.table.id, p:prop.p })}>
                 <Button type="primary">
                     <PlusCircleOutlined />
                     Thêm mới

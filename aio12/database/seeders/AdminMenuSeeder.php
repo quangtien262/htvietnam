@@ -192,10 +192,9 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $nhanSu, 'name' => 'nhansu_dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'nhanSu.dashboard', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $nhanSu, 'name' => 'admin_users', 'display_name' => 'Nhân viên', 'table_name' => 'admin_users', 'route' => 'nhanVien.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $nhanSu, 'name' => 'permission_group', 'display_name' => 'Nhóm quyền', 'table_name' => 'permission_group', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $nhanSu, 'name' => 'chi_nhanh', 'display_name' => 'Chi nhán', 'table_name' => 'chi_nhanh', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $nhanSu, 'name' => 'chi_nhanh', 'display_name' => 'Chi nhánh', 'table_name' => 'chi_nhanh', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $nhanSu, 'name' => 'khoa_hoc', 'display_name' => 'Khóa học', 'table_name' => 'khoa_hoc', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $nhanSu, 'name' => 'salary', 'display_name' => 'Bảng lương', 'table_name' => 'salary', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-
         ]);
 
         $taiChinh = DB::table('admin_menu')->insertGetId(

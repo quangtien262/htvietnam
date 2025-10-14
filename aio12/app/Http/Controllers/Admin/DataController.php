@@ -162,6 +162,8 @@ class DataController extends Controller
                 'columns' => $columns,
                 'month' => date('m'),
                 'year' => date('Y'),
+                'token' => csrf_token(),
+                'p' => $request->p,
             ]);
         }
 

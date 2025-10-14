@@ -265,9 +265,21 @@ export default function Dashboard(props) {
             });
     }
 
+
+    function itemMenu() {
+        if (tblKhoHang.includes(props.table.name)) {
+            return routeQLKho;
+        }
+        if (tblSale.includes(props.table.name)) {
+            return routeSales;
+        }
+        return props.tables;
+    }
+
     return (
         <AdminLayout
             auth={props.auth}
+            header="Trang chủ"
             content={
                 <div>
                     {btnAddNew(props)}

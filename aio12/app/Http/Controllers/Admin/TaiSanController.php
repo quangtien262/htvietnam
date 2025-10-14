@@ -27,7 +27,6 @@ class TaiSanController extends Controller
     public function saveTaiSan(Request $rq)
     {
         $data = TblService::saveDataBasic('tai_san', $rq);
-
         // save log
         if (!empty($rq->id)) {
             $title = 'Đã sửa lại thông tin tài sản: ' . $data->name;
@@ -74,7 +73,7 @@ class TaiSanController extends Controller
 
     /**
      * Summary of capPhat
-     * @param \Illuminate\Http\Request $rq: 
+     * @param \Illuminate\Http\Request $rq:
      * $rq->name : tên col cần update, nhan_vien_id hoặc chi_nhanh_id
      * $rq->value : là value của $rq->name
      * $rq->note : là col note của bảng tai_san_cap_phat
@@ -103,7 +102,7 @@ class TaiSanController extends Controller
             $taiSan->nhan_vien_id = 0; // reset nhân viên
             $taiSan->{$rq->name} = $rq->value; // lưu vào nhân viên hoặc chi nhánh
             $taiSan->tai_san_status_used_id = 2; //2: Đang sử dụng
-            
+
             $taiSan->save();
 
 

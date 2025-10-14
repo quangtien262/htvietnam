@@ -52,7 +52,7 @@ import { taskConfig, taskInfo } from "../Task/task_config";
 import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
 
 
-import {smartSearch02, showDataSearch, showDataSearch02} from "../../../Function/input";
+import { smartSearch02, showDataSearch, showDataSearch02 } from "../../../Function/input";
 
 import { icon as iconRaw } from "../../../components/comp_icon";
 import { optionEntries, formatGdata_column, onDrop, nl2br, parseJson, showInfo, inArray } from "../../../Function/common";
@@ -380,15 +380,15 @@ export default function Dashboard(props: any) {
         let result = [];
         if (inArray(props.table.id, props.userPermission.table_delete)) {
             result.push(<Button
-                    key="delete"
-                    type="primary"
-                    onClick={confirmDelete}
-                    disabled={!hasSelected}
-                    loading={loadingBtnDelete}
-                >
-                    <DeleteOutlined />
-                    Xóa {hasSelected ? `(${selectedRowKeys.length})` : ""}
-                </Button>);
+                key="delete"
+                type="primary"
+                onClick={confirmDelete}
+                disabled={!hasSelected}
+                loading={loadingBtnDelete}
+            >
+                <DeleteOutlined />
+                Xóa {hasSelected ? `(${selectedRowKeys.length})` : ""}
+            </Button>);
         }
 
         return result;
@@ -498,7 +498,11 @@ export default function Dashboard(props: any) {
             >
                 <Row gutter={24} className="main-search-left">
                     {/* smartSearch */}
-                    {smartSearch02(props.table)}
+                    <Col sm={{ span: 24 }} className='item-search'>
+                        <Form.Item name='sm_keyword' label='Từ khoá'>
+                            <Input onBlur={() => { formSearch.submit(); }} />
+                        </Form.Item>
+                    </Col>
 
                     {/* meeting */}
                     <Col span={24}>
@@ -523,18 +527,6 @@ export default function Dashboard(props: any) {
                                 onChange={(e) => formSearch.submit()}
                             />
                         </Form.Item>
-                    </Col>
-
-                    {/* submit */}
-                    <Col span={24} className="main-btn-search">
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={loadingBtnSearch}
-                        >
-                            <SearchOutlined />
-                            Tìm kiếm
-                        </Button>
                     </Col>
                     <Col span={24}>
                         <br />

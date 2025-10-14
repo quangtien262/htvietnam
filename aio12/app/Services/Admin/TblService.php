@@ -1034,7 +1034,7 @@ class TblService extends Service
         'valOld' => $valOld,
         'valNew' => $valNew,
         'titleLog' => $titleLog,
-      ] 
+      ]
      * @param mixed $tblLog
      * @return string
      */
@@ -1168,15 +1168,15 @@ class TblService extends Service
             }
 
             // set data insert
-            $data = [];
-            $data[$column->name] = $auto['prefix'] . $dataId;
+            // $data = [];
+            $data->{$column->name} = $auto['prefix'] . $dataId;
 
             if ($isSaveBarcode) {
                 $d = new DNS1D();
-                $data['barcode'] = $d->getBarcodeHTML($data[$column->name], 'C128');
+                $data->barcode = $d->getBarcodeHTML($data->{$column->name}, 'C128');
             }
-
-            $this->updateData($table->name, $dataId, $data);
+            $data->save();
+                // $this->updateData($table->name, $dataId, $data);
             return $data;
         }
     }
@@ -2133,7 +2133,7 @@ class TblService extends Service
 
     protected function formatData($tableName, $conditions = [])
     {
-        
+
         $datas = DB::table($tableName)->where('is_recycle_bin', 0);
         if (!empty($conditions)) {
             foreach ($conditions as $key => $val) {
