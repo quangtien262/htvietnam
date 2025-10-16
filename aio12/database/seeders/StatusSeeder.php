@@ -127,6 +127,17 @@ class StatusSeeder extends Seeder
             ['name' => 'Hủy/Dừng', 'parent_name' => 'projects', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'CloseCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
         ]);
 
+        // status sale
+        DB::table('task_status')->truncate();
+        $statusTaskOther = [
+            ['name' => 'Chưa liên hệ', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'sales', 'project_id' => 1, 'is_default' => 1],
+            ['name' => 'Đang CSKH', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'sales', 'project_id' => 1, 'is_default' => 1],
+            ['name' => 'Chốt đơn', 'color' => '#fff', 'background' => '#0dc65aff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'sales', 'project_id' => 1, 'is_default' => 0],
+            ['name' => 'Tạm dừng', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'sales', 'project_id' => 1, 'is_default' => 0],
+        ];
+        DB::table('task_status')->insert($statusTaskOther);
+
+        //
         DB::table('project_status')->truncate();
         $statusOrder = 1;
         DB::table('project_status')->insert([

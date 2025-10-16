@@ -1924,24 +1924,9 @@ export default function Dashboard(props) {
                             <br/>
                         </Row>
 
-                        <HTBankingQR
-                            bankCode="TPB"
-                            accountNumber="00299941001"
-                            accountName="LUU QUANG TIEN"
-                            amount={5000}
-                            description="2013017"
-                        />
-
-                        {/* {HTBankingQR({
-                            bankCode: 'TPB',
-                            accountNumber: '00299941001',
-                            accountName: 'Luu Quang Tien',
-                            amount: 5000,
-                            description: 'test nap tien',
-                        })} */}
-
                         {contextHolder}
                         {pageContent}
+
                     </div>
                 }
             />

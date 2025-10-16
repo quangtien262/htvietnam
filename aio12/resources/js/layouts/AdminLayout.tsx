@@ -48,7 +48,7 @@ export default function Admin({
 
     const params = new URLSearchParams(window.location.search);
     const p = params.get('p'); // sẽ là string hoặc null
-    
+
     useEffect(() => {
         axios.post(route('getMenus', { p: p }))
             .then((res) => {
@@ -67,7 +67,7 @@ export default function Admin({
         }
 
         // đôi với route task.list thì format này có thể áp dụng cho trường hợp là QL công việc, quy trình sale, cskh ...
-        if(menu.route === 'task.list' || menu.route === 'project.list') {  
+        if(menu.route === 'task.list' || menu.route === 'project.list') {
             return route(menu.route, {parentName:menu.table_name, p: p});
         }
 
@@ -84,7 +84,7 @@ export default function Admin({
         if (menu.link) {
             href = menu.link;
         }
-        
+
         return href;
     }
 
@@ -96,11 +96,11 @@ export default function Admin({
                 key: 0,
                 // icon: <HomeOutlined />,
             },
-            {
-                label: <a href={route("home")}><HomeOutlined /> Website</a>,
-                key: '-1',
-                // icon: <HomeOutlined />,
-            },
+            // {
+            //     label: <a href={route("home")}><HomeOutlined /> Website</a>,
+            //     key: '-1',
+            //     // icon: <HomeOutlined />,
+            // },
             {
                 label: <a href={route("dashboard")}><DashboardOutlined /> Admin</a>,
                 key: '-2',

@@ -33,7 +33,7 @@ export default function Dashboard(props: any) {
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
 
     const DATE_FORMAT = "YYYY-MM-DD";
-    const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm";
+    const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 
 
@@ -327,23 +327,46 @@ export default function Dashboard(props: any) {
         function addExpress() {
             // validation form
             let isValid = true;
+            // tao biến data để formats lại data là kiểu datetime
 
             formAddExpress.forEach((item, index) => {
-                if (item.name && item.name.trim() !== '' && !item.task_status_id) {
-                    isValid = false;
-                    message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
-                }
+                item.forEach(col => {
+                    if (col.require === 1) {
+                        if (col.value === null || col.value === '') {
+                            isValid = false;
+                            message.error(`Dòng ${index + 1}: ${col.display_name} không được để trống`);
+                        }
+                    }
+                }); // <-- thêm dấu đóng này
             });
             if (!isValid) return;
 
-            setIsLoadingBtn(true);
-            axios.post(route("task.addTaskExpress", [props.parentName]), {
-                datas: formAddExpress,
+            const datas = formAddExpress.map(row => {
+                const formattedRow: any = {};
+                row.forEach(col => {
+                    if (col.type_edit === 'datetime') {
+                        formattedRow[col.name] = col.value ? col.value.format(DATE_TIME_FORMAT) : null;
+                    } else if (col.type_edit === 'date') {
+                        formattedRow[col.name] = col.value ? col.value.format(DATE_FORMAT) : null;
+                    } else {
+                        formattedRow[col.name] = col.value;
+                    }
+                });
+                return formattedRow;
+            });
+
+            // setIsLoadingBtn(true);
+            axios.post(route("calendar.addExpress"), {
+                datas: datas,
                 pid: props.pid
             }).then((response) => {
                 setIsLoadingBtn(false);
-                setIsModalAddExpress(false);
-                setColumns(response.data.data);
+                message.success("Tạo mới thành công");
+                setFormAddExpress([formAddExpress_default, formAddExpress_default]);
+                loadData(year + '-' + month + '-01');
+                setIsOpenAddExpress(false);
+                // setIsModalAddExpress(false);
+                // setColumns(response.data.data);
             }).catch((error) => {
                 message.error("Tạo mới thất bại");
             });
@@ -376,10 +399,6 @@ export default function Dashboard(props: any) {
                     formAddExpress.map((item, key) => {
                         return <tr key={key}>
                             {item.map((col: any, colKey: number) => {
-
-                                console.log('====================================');
-                                console.log('colcolcolcol', col);
-                                console.log('====================================');
                                 if (col.type_edit === 'select') {
                                     return <td key={colKey}>
                                         <Select
@@ -473,10 +492,10 @@ export default function Dashboard(props: any) {
                         Thêm nhanh
                     </Button>
 
-                    <Button type="primary" onClick={() => openModal()} style={{ marginBottom: '10px' }}>
+                    {/* <Button type="primary" onClick={() => openModal()} style={{ marginBottom: '10px' }}>
                         <PlusCircleOutlined />
-                        Thêm mới1
-                    </Button>
+                        Thêm mới
+                    </Button> */}
 
                     {/* <Button type="primary" onClick={() => openModal()}>
                         Thêm mới

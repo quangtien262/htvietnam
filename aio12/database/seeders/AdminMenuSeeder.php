@@ -90,12 +90,13 @@ class AdminMenuSeeder extends Seeder
             ]
         );
         DB::table('admin_menu')->insert([
-            ['parent_id' => $banHang, 'name' => 'sale.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'sale.dashboard', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'hoa_don__create', 'display_name' => 'Thu ngân', 'table_name' => 'hoa_don', 'route' => 'hoaDon.create', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'hoa_don', 'display_name' => 'Hóa đơn', 'table_name' => 'hoa_don', 'route' => 'hoaDon.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'calendar', 'display_name' => 'Lịch hẹn', 'table_name' => 'calendar', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Công nợ', 'table_name' => 'cong_no', 'route' => 'congNo', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $banHang, 'name' => 'sale.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'sale.dashboard', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $banHang, 'name' => 'hoa_don__create', 'display_name' => 'Thu ngân', 'table_name' => 'hoa_don', 'route' => 'hoaDon.create', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $banHang, 'name' => 'hoa_don', 'display_name' => 'Hóa đơn', 'table_name' => 'hoa_don', 'route' => 'hoaDon.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $banHang, 'name' => 'tasks', 'display_name' => 'Sales', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'sales', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/cv/sales/list?pid=1&p=' . $banHang],
+            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Công nợ', 'table_name' => 'cong_no', 'route' => 'congNo', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $banHang, 'name' => 'calendar', 'display_name' => 'Lịch hẹn', 'table_name' => 'calendar', 'route' => 'data.tblName', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
         ]);
 
         // QL kho
@@ -152,7 +153,6 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/cv/all/list?pid=1&p=' . $congViec],
             ['parent_id' => $congViec, 'name' => 'meeting', 'display_name' => 'Meeting', 'table_name' => 'meeting', 'route' => 'meeting.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
         ]);
-
 
         $taiSan = DB::table('admin_menu')->insertGetId(
             [

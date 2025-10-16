@@ -95,7 +95,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'nhan_vien_da_chon_id', 'Nhân viên đã chọn', 'TEXT', 'selects_normal', $order_col++, ['select_table_id' => $admin_users->id, 'show_in_list' => 1]);
 
         MigrateService::createColumn02($tableId, 'note', 'Nội dung', 'TEXT', 'textarea', $order_col++,
-        ['show_in_list' => 1, 'col' => 24, 'require'=>1]);
+        ['show_in_list' => 1, 'col' => 24, 'require'=>0]);
     }
 
     /**

@@ -553,15 +553,6 @@ export function HTBankingQR(props: {
                 >
                     Tạo mã QR
                 </Button>
-                <Tooltip title="Copy mã QR">
-                    <Button
-                        icon={<CopyOutlined />}
-                        onClick={copyQRData}
-                        disabled={!qrData}
-                    >
-                        Copy mã
-                    </Button>
-                </Tooltip>
                 <Tooltip title="Tải xuống QR">
                     <Button
                         icon={<DownloadOutlined />}
@@ -769,3 +760,13 @@ export function HTBankingQRForm(col: any, langId = 0) {
 
 // Export default cho convenience
 export default { HTBankingQR, HTBankingQRForm };
+
+
+
+{/* <HTBankingQR
+    bankCode="TPB"
+    accountNumber="00299941001"
+    accountName="LUU QUANG TIEN"
+    amount={5000}
+    description="2013017"
+/> */}

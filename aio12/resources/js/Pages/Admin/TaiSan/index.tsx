@@ -805,7 +805,7 @@ export default function Dashboard(props) {
                     initialValues={props.searchData}
                     onBlur={(e) => { formSearch.submit(); }}
                 >
-                    {smartSearch02(props.table, () => formSearch.submit()))}
+                    {smartSearch02(props.table, () => formSearch.submit())}
 
                     {listItemsSearch02}
                 </Form>
@@ -1021,7 +1021,7 @@ export default function Dashboard(props) {
                                 Lưu
                             </Button>
                             {/* <span> </span>
-                            <Button className="btn-popup btn-draft" type="primary" 
+                            <Button className="btn-popup btn-draft" type="primary"
                                 onClick={() => {
                                     if(isDraft !== 1) {
                                         setIsDraft(1);

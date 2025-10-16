@@ -38,6 +38,7 @@ import {
 import "../../../../css/hoa_don.css";
 
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
+import { HTBankingQR } from "../../../Function/generateQR";
 
 import { contentThuNganConfig, contentDoiCa } from "../../../components/comp_hoa_don";
 
@@ -54,6 +55,8 @@ import Highlighter from 'react-highlight-words';
 import { routeSales } from "../../../Function/config_route";
 
 export default function Dashboard(props) {
+    const [modalQRCode, setModalQRCode] = useState(false);
+    const [noiDungCK, setNoiDungCK] = useState('');
 
     const [isModalThuNganConfig, setIsModalThuNganConfig] = useState(props.checkThuNganConfig);
 
@@ -557,10 +560,10 @@ export default function Dashboard(props) {
     }
 
     /**
-     * 
-     * @param {nv info} nv 
-     * @param {giá trị mới} value 
-     * @param {% hay vnd} loai 
+     *
+     * @param {nv info} nv
+     * @param {giá trị mới} value
+     * @param {% hay vnd} loai
      */
     function updateChietKhau(nv, table) {
 
@@ -995,7 +998,7 @@ export default function Dashboard(props) {
             });
     }
 
-    function selectedKhachHang(user:any) {
+    function selectedKhachHang(user: any) {
         setKhachHangId(user.id);
         setKhachHangDetail(user);
         setTongTienConLai(user.tien_con_lai);
@@ -1195,7 +1198,7 @@ export default function Dashboard(props) {
                     <Space>
                         Khách hàng
                         <span className='space02'>|</span>
-                        <a className='divider-thoat' 
+                        <a className='divider-thoat'
                             onClick={() => setModalAddKhachHang(true)}
                         >
                             <PlusCircleOutlined />
@@ -1825,7 +1828,15 @@ export default function Dashboard(props) {
                                             </td>
                                         </tr>
                                         <tr className="main-btn-thanhtoan">
-                                            <td colSpan={2}>
+                                            <td colSpan={1}>
+                                                <Button className="btn-success"
+                                                    onClick={() => { setModalQRCode(true) }}
+                                                >
+                                                    <CheckOutlined />
+                                                    QR Code
+                                                </Button>
+                                            </td>
+                                            <td colSpan={1}>
                                                 <Button className="btn-success"
                                                     onClick={() => { payment() }}
                                                 >
@@ -1841,6 +1852,22 @@ export default function Dashboard(props) {
                     </Col>
                 </Row>
             </Drawer>
+
+            <Modal title="In hóa đơn"
+                open={modalQRCode}
+                onCancel={() => setModalQRCode(false)}
+                footer={[]}
+                width={800}
+                maskClosable={true}
+            >
+                <HTBankingQR
+                    bankCode="TPB"
+                    accountNumber="00299941001"
+                    accountName="LUU QUANG TIEN"
+                    amount={khachDaThanhToan - giamGia}
+                    description="2013017"
+                />
+            </Modal>
         </div>
     );
 }
