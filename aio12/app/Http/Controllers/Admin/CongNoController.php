@@ -52,17 +52,12 @@ class CongNoController extends Controller
             $mocThoiGian = '';
         }
 
-        $query = TblService::getQuery('cong_no', $request);
+        $soLuongCongNo = TblService::getQuery('cong_no', $request)->count();
 
-        $soLuongCongNo = $query;
-        $soLuongCongNo = $soLuongCongNo->count();
+        $noPhaiTra = TblService::getQuery('cong_no', $request)->where('so_tien_no', '<', 0)->sum('so_tien_no');
 
-        $noPhaiTra = $query;
-        $noPhaiTra = $noPhaiTra->where('so_tien_no', '<', 0)->sum('so_tien_no');
+        $noCanThu = TblService::getQuery('cong_no', $request)->where('so_tien_no', '>', 0)->sum('so_tien_no');
 
-        $noCanThu= $query;
-        $noCanThu = $noCanThu->where('so_tien_no', '>', 0)->sum('so_tien_no');
-        
         $tongCongNo = $noPhaiTra + $noCanThu;
 
         $viewData['tongCongNo'] = $tongCongNo;

@@ -326,12 +326,12 @@ class TblService extends Service
             $searchData[$col->name] = $request[$col->name];
 
             if (in_array($col->type_edit, ['select'])) {
-                $searchData[$col->name] = intval($request[$col->name]);
+                $searchData[$col->name] = $request[$col->name];
                 $data = $data->where($col->name, $request[$col->name]);
                 continue;
             }
             if (in_array($col->type_edit, ['selects', 'tags'])) {
-                $searchData[$col->name] = intval($request[$col->name]);
+                $searchData[$col->name] = $request[$col->name];
                 $data = $data->whereJsonContains($col->name, intval($request[$col->name]));
                 continue;
             }
@@ -556,7 +556,7 @@ class TblService extends Service
             return [];
         }
         $datas = DB::table($table->name);
-
+        $datas = $datas->where('is_recycle_bin', 0);
         // đối với bảng hóa đơn, lấy danh sách thẻ theo khách hàng
         if (!empty($data) && $table_parent->name == 'hoa_don' && $table->name == 'card') {
             // dd($data);
@@ -2128,6 +2128,8 @@ class TblService extends Service
         $viewData['fastEditClass'] = $dataSource['fastEditClass'];
         $viewData['columnData'] = TblService::getColumnSetting($tableId);
         $viewData['tableSetting'] = TblService::formatTableDDItem($table->display_name, $table);
+        $viewData['token'] = csrf_token();
+        $viewData['p'] = $request->p ?? 0;
         return $viewData;
     }
 

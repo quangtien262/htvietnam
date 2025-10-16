@@ -39,7 +39,7 @@ import {
 } from "@ant-design/icons";
 
 import "../../../../css/form.css";
-import {callApi} from "../../../Function/api";
+import { callApi } from "../../../Function/api";
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../../Function/common";
 import dayjs from "dayjs";
 
@@ -145,15 +145,15 @@ export default function Dashboard(props) {
     //
     const { useMemo } = React;
     const [api, contextHolder] = notification.useNotification();
-    
+
     const onFinishFormEdit = (values) => {
 
         setLoading(true);
         values.is_draft = isDraft;
-        
+
         // check product
         const check = checkProduct();
-        if(!check) {
+        if (!check) {
             formEdit.setFieldValue('is_draft', 0);
             return false;
         }
@@ -184,11 +184,11 @@ export default function Dashboard(props) {
 
     function checkProduct() {
         // check pro
-        let  isOK = true;
+        let isOK = true;
         let checkResult = [];
         let key = 0;
         dataDetail.forEach((item) => {
-            if(!item.product_id) {
+            if (!item.product_id) {
                 checkResult.push(<li key={key++} className="">Vui lòng chọn sản phẩm</li>)
                 isOK = false;
             }
@@ -466,7 +466,7 @@ export default function Dashboard(props) {
                     >
                         <InputNumber
                             style={{ width: "150px" }}
-                            formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                         />
                     </Form.Item>
@@ -731,8 +731,6 @@ export default function Dashboard(props) {
             return;
         }
 
-
-
         if (props.table.is_show_btn_edit === 1 && inArray(props.table.id, props.userPermission.table_edit)) {
             if (props.table.form_data_type === 2) {
                 return <Button onClick={() => { editData(record) }} type="button" className="icon-edit"><EditOutlined /> </Button>
@@ -743,7 +741,7 @@ export default function Dashboard(props) {
         }
     }
 
-    function checkShowBtnDetail(record) {
+    function checkShowBtnDetail(record: any) {
         if (props.table.is_show_btn_detail === 1 && inArray(props.table.id, props.userPermission.table_view)) {
             return <Link href={route("data.detail", [props.tableId, record.index,])}>
                 <Button type="button" className="icon-view"><EyeOutlined /> </Button>
@@ -751,7 +749,7 @@ export default function Dashboard(props) {
         }
     }
 
-    const onFinishSearch = (values) => {
+    const onFinishSearch = (values: any) => {
         setLoadingTable(true);
         setLoadingBtnSearch(true);
         const cols = props.columns;
@@ -765,30 +763,27 @@ export default function Dashboard(props) {
                 }
             }
         }
+        values.p = props.p;
 
         values.mocThoiGian = mocThoiGian;
-        if(khoangThoiGian[0]) {
+        if (khoangThoiGian[0]) {
             console.log('khoangThoiGian', khoangThoiGian);
             values.khoangThoiGian = khoangThoiGian.map((item) => {
                 return item.format("YYYY-MM-DD");
-            });      
+            });
         } else {
             values.khoangThoiGian = null;
         }
 
-        router.get(route("xuatHuy"),values);
+        router.get(route("xuatHuy"), values);
     };
 
     const onFinishSearchFailed = (errorInfo) => {
         console.log("Failed:", errorInfo);
     };
 
-    const listItemsSearch = props.columns.map((col) =>
-        showDataSearch(col, props)
-    );
-
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -935,69 +930,69 @@ export default function Dashboard(props) {
 
     function formKhoangThoiGian() {
         return <Col sm={{ span: 24 }} className='item-search'>
-                    <h3 className="title-search02">Thời gian</h3>
+            <h3 className="title-search02">Thời gian</h3>
 
-                    <label>Chọn nhanh</label>
-                    <Popconfirm title="Chọn nhanh theo các mốc thời gian xác định" 
-                        placement="right"
-                        showCancel={false}
-                        okText="Đóng"
-                        onConfirm={()=>true}
-                        description={<table className="table-sub">
-                            <thead>
-                                <tr>
-                                    <th>Ngày/Tuần</th>
-                                    <th>Tháng/Quý</th>
-                                    <th>Theo năm</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><a onClick={()=>searchByTime('today')}>Hôm nay</a></td>
-                                    <td><a onClick={()=>searchByTime('month')}>Tháng này</a></td>
-                                    <td><a onClick={()=>searchByTime('year')}>Năm nay</a></td>
-                                </tr>
-                                <tr>
-                                    <td><a onClick={()=>searchByTime('yesterday')}>Hôm qua</a></td>
-                                    <td><a onClick={()=>searchByTime('lastMonth')}>Tháng trước</a></td>
-                                    <td><a onClick={()=>searchByTime('lastYear')}>Năm trước</a></td>
-                                </tr>
-                                <tr>
-                                    <td><a onClick={()=>searchByTime('thisWeek')}>Tuần này</a></td>
-                                    <td><a onClick={()=>searchByTime('30day')}>30 ngày qua</a></td>
-                                    <td><a onClick={()=>searchByTime('all')}>Toàn thời gian</a></td>
-                                </tr>
-                                <tr>
-                                    <td><a onClick={()=>searchByTime('lastWeek')}>Tuần trước</a></td>
-                                    <td><a onClick={()=>searchByTime('thisQuarter')}>Quý này</a></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><a onClick={()=>searchByTime('7day')}>07 ngày qua</a></td>
-                                    <td><a onClick={()=>searchByTime('lastQuarter')}>Quý trước</a></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>}
-                    >
-                        <Input readOnly={true} value={mocThoiGian ? MOC_THOI_GIAN[mocThoiGian]: ''} />
-                    </Popconfirm>
-                    
-                    <br/><br/>
-                    
-                    <label>Tùy chọn khoảng thời gian</label>
-                    <RangePicker
-                        placeholder={['Bắt đầu','Kết thúc']}
-                        format={dateFormat}
-                        value={khoangThoiGian}
-                        onChange={(value) => {
-                            console.log('val', value);
-                            setKhoangThoiGian(value);
-                            setMocThoiGian('');
-                            formSearch.submit();
-                        }}
-                    />
-                </Col>
+            <label>Chọn nhanh</label>
+            <Popconfirm title="Chọn nhanh theo các mốc thời gian xác định"
+                placement="right"
+                showCancel={false}
+                okText="Đóng"
+                onConfirm={() => true}
+                description={<table className="table-sub">
+                    <thead>
+                        <tr>
+                            <th>Ngày/Tuần</th>
+                            <th>Tháng/Quý</th>
+                            <th>Theo năm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a onClick={() => searchByTime('today')}>Hôm nay</a></td>
+                            <td><a onClick={() => searchByTime('month')}>Tháng này</a></td>
+                            <td><a onClick={() => searchByTime('year')}>Năm nay</a></td>
+                        </tr>
+                        <tr>
+                            <td><a onClick={() => searchByTime('yesterday')}>Hôm qua</a></td>
+                            <td><a onClick={() => searchByTime('lastMonth')}>Tháng trước</a></td>
+                            <td><a onClick={() => searchByTime('lastYear')}>Năm trước</a></td>
+                        </tr>
+                        <tr>
+                            <td><a onClick={() => searchByTime('thisWeek')}>Tuần này</a></td>
+                            <td><a onClick={() => searchByTime('30day')}>30 ngày qua</a></td>
+                            <td><a onClick={() => searchByTime('all')}>Toàn thời gian</a></td>
+                        </tr>
+                        <tr>
+                            <td><a onClick={() => searchByTime('lastWeek')}>Tuần trước</a></td>
+                            <td><a onClick={() => searchByTime('thisQuarter')}>Quý này</a></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><a onClick={() => searchByTime('7day')}>07 ngày qua</a></td>
+                            <td><a onClick={() => searchByTime('lastQuarter')}>Quý trước</a></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>}
+            >
+                <Input readOnly={true} value={mocThoiGian ? MOC_THOI_GIAN[mocThoiGian] : ''} />
+            </Popconfirm>
+
+            <br /><br />
+
+            <label>Tùy chọn khoảng thời gian</label>
+            <RangePicker
+                placeholder={['Bắt đầu', 'Kết thúc']}
+                format={dateFormat}
+                value={khoangThoiGian}
+                onChange={(value) => {
+                    console.log('val', value);
+                    setKhoangThoiGian(value);
+                    setMocThoiGian('');
+                    formSearch.submit();
+                }}
+            />
+        </Col>
     }
 
     const blurFormSearch = (e) => {
@@ -1018,11 +1013,11 @@ export default function Dashboard(props) {
                 autoComplete="off"
                 form={formSearch}
                 initialValues={initialValueSearch()}
-                onBlur={(e) => {formSearch.submit();}}
+                onBlur={(e) => { formSearch.submit(); }}
             >
                 <Row gutter={24} className="main-search-left">
-                    {smartSearch02(props.table)}
-                    
+                    {smartSearch02(props.table, () => formSearch.submit())}
+
                     {/* thoi gian */}
                     {formKhoangThoiGian()}
 
@@ -1067,7 +1062,7 @@ export default function Dashboard(props) {
                         <th>Thành tiền</th>
                     </tr>
                 </thead>
-                
+
                 <tbody>{detail}</tbody>
 
                 <tbody>
@@ -1082,13 +1077,13 @@ export default function Dashboard(props) {
                     </tr>
                     <tr className="border-none">
                         <td>
-                            <button className="btn-cancel02" onClick={() => {setIsModalXoaOpen(true); setIdAction(record.id)}}><CloseSquareOutlined /> Hủy phiếu này</button>
+                            <button className="btn-cancel02" onClick={() => { setIsModalXoaOpen(true); setIdAction(record.id) }}><CloseSquareOutlined /> Hủy phiếu này</button>
                         </td>
                         <td colSpan={4} className="text-right01">Tổng giá trị hủy:</td>
                         <td>{numberFormat(record.gia_tri_huy)}</td>
                     </tr>
                 </tbody>
-                
+
             </table>
         </div>;
     };
@@ -1217,14 +1212,14 @@ export default function Dashboard(props) {
                             console.log('info', info);
                             let isError = false;
                             dataDetail.forEach((item) => {
-                                if(item.product_id === value) {
+                                if (item.product_id === value) {
                                     message.error('Sản phẩm này đã được chọn trước đó, xin vui lòng chọn sản phẩm khác');
                                     isError = true;
                                 }
                             });
 
                             // check duplication
-                            if(isError) {
+                            if (isError) {
                                 return false;
                             }
 
@@ -1237,12 +1232,12 @@ export default function Dashboard(props) {
                             data_tmp[idx].gia_von = info.gia_von;
                             data_tmp[idx].thanh_tien = info.gia_von;
                             data_tmp[idx].ton_kho_truoc_khi_huy = info.ton_kho;
-                            if(formEdit.getFieldValue('chi_nhanh_id') > 0) {
-                                
-                                if(info.ton_kho_detail)
-                                data_tmp[idx].ton_kho_sau_khi_huy = info.ton_kho - 1;
+                            if (formEdit.getFieldValue('chi_nhanh_id') > 0) {
+
+                                if (info.ton_kho_detail)
+                                    data_tmp[idx].ton_kho_sau_khi_huy = info.ton_kho - 1;
                             }
-                            
+
                             setDataDetail(data_tmp);
                             tinhTongTien(data_tmp);
                         }}
@@ -1251,7 +1246,7 @@ export default function Dashboard(props) {
                         options={props.products.map((pro) => {
                             return {
                                 value: pro.id,
-                                label: pro.code + ' - ' + pro.name ,
+                                label: pro.code + ' - ' + pro.name,
                                 gia_von: +pro.gia_von,
                                 name: pro.name,
                                 code: pro.code,
@@ -1264,8 +1259,8 @@ export default function Dashboard(props) {
                 </td>
                 {/* <td>{data.ton_kho_truoc_khi_huy}</td> */}
                 <td className="td-input">
-                    <InputNumber 
-                        className="input-number-kiemkho" 
+                    <InputNumber
+                        className="input-number-kiemkho"
                         disabled={data.product_id ? false : true}
                         value={data.so_luong}
                         min={1}
@@ -1274,15 +1269,15 @@ export default function Dashboard(props) {
                             let data_tmp = cloneDeep(dataDetail);
                             data_tmp[idx].so_luong = value;
                             data_tmp[idx].thanh_tien = value * dataDetail[idx].gia_von;
-                            
+
                             data_tmp[idx].ton_kho_sau_khi_huy = dataDetail[idx].ton_kho_truoc_khi_huy - value;
-                            
+
                             setDataDetail(data_tmp);
                             tinhTongTien(data_tmp);
                         }}
                     />
                 </td>
-                
+
                 {/* <td>{data.ton_kho_sau_khi_huy}</td> */}
 
                 <td className="td-input">
@@ -1325,7 +1320,7 @@ export default function Dashboard(props) {
                 <td colSpan={4} className="text-right01">Tổng số lượng hủy:</td>
                 <td colSpan={2} className="_red text-right">{numberFormat(tongSoLuongHuy)} </td>
             </tr>
-            
+
             <tr>
                 <td colSpan={4} className="text-right01">Tổng giá trị hủy:</td>
                 <td colSpan={2} className="_red text-right">{numberFormat(tongGiaTriHuy)} <sup>đ</sup></td>
@@ -1334,8 +1329,8 @@ export default function Dashboard(props) {
     }
 
     const changeFormEdit = (value) => {
-         console.log('va', value.target.value);
-         console.log('xx', value.target.id);
+        console.log('va', value.target.value);
+        console.log('xx', value.target.id);
     }
 
     function btnAddNew() {
@@ -1403,10 +1398,10 @@ export default function Dashboard(props) {
                                 </tr>
 
                             </tbody>
-                                
+
                             {showTotalDetail()}
 
-                            
+
                         </table>
                     </Row>
                     <Row className="main-modal-footer01">
@@ -1416,9 +1411,9 @@ export default function Dashboard(props) {
                                 Hủy
                             </Button>
                             <span> </span>
-                            <Button className="btn-popup" type="primary" 
+                            <Button className="btn-popup" type="primary"
                                 onClick={() => {
-                                    if(isDraft !== 2) {
+                                    if (isDraft !== 2) {
                                         setIsDraft(2);
                                     }
                                     formEdit.submit();
@@ -1428,9 +1423,9 @@ export default function Dashboard(props) {
                                 Xác nhận hủy
                             </Button>
                             <span> </span>
-                            <Button className="btn-popup btn-draft" type="primary" 
+                            <Button className="btn-popup btn-draft" type="primary"
                                 onClick={() => {
-                                    if(isDraft !== 1) {
+                                    if (isDraft !== 1) {
                                         setIsDraft(1);
                                     }
                                     formEdit.submit();
@@ -1443,7 +1438,7 @@ export default function Dashboard(props) {
                     </Row>
                 </Form>
             </Modal>
-            
+
             <Button type="primary" onClick={() => addNewData()}>
                 <PlusCircleOutlined />
                 Thêm mới
@@ -1600,7 +1595,7 @@ export default function Dashboard(props) {
                         open={isOpenConfirmDelete}
                         onOk={deletes}
                         onCancel={handleCancelDelete}
-                        // confirmLoading={loadingBtnDelete}
+                    // confirmLoading={loadingBtnDelete}
                     >
                         <p>
                             Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
@@ -1717,7 +1712,7 @@ export default function Dashboard(props) {
                             // rowClassName="editable-row"
                             // className="table-index"
                             expandable={expandable}
-                            
+
                         />
                     </Col>
                 </Row>
@@ -1734,32 +1729,32 @@ export default function Dashboard(props) {
                 current={props.table}
                 content={
                     <div>
-                        
-                        <Modal title="Xác nhận xóa" 
-                            open={isModalXoaOpen} 
+
+                        <Modal title="Xác nhận xóa"
+                            open={isModalXoaOpen}
                             onOk={async () => {
-                                    setConfirmLoading(true);
-                                    const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
-                                    if(result.status === 200) {
-                                        message.success("Đã hủy đơn thành công");
-                                        location.reload();
-                                    } else {
-                                        setConfirmLoading(false);
-                                        message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                                    }
+                                setConfirmLoading(true);
+                                const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
+                                if (result.status === 200) {
+                                    message.success("Đã hủy đơn thành công");
+                                    location.reload();
+                                } else {
+                                    setConfirmLoading(false);
+                                    message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
                                 }
-                            } 
+                            }
+                            }
                             okText="Xác nhận hủy đơn"
                             cancelText="Hủy"
                             loading={true}
                             maskClosable={true}
                             // confirmLoading={confirmLoading}
-                            onCancel={() => {setIsModalXoaOpen(false);}}>
-                                <ul>
-                                    <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
-                                    <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                                    <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
-                                </ul>
+                            onCancel={() => { setIsModalXoaOpen(false); }}>
+                            <ul>
+                                <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
+                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
+                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                            </ul>
                         </Modal>
 
                         {contextHolder}

@@ -5,7 +5,7 @@ import {
     Table,
     message,
     Modal,
-    Form,
+    Form,DatePicker,
     Input,
     InputNumber,
     Popconfirm,
@@ -15,8 +15,7 @@ import {
     notification,
     Divider,
     Image,
-    Upload,
-    Dropdown,
+    Upload, Dropdown,
 } from "antd";
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
@@ -34,14 +33,14 @@ import {
 } from "@ant-design/icons";
 
 import "../../../../css/form.css";
-import {callApi} from "../../../Function/api";
+import { callApi } from "../../../Function/api";
 
 import { inArray, parseJson, numberFormat } from "../../../Function/common";
 import dayjs from "dayjs";
 
 import { nhaCungCapInfo } from "../../../components/comp_nha_cung_cap";
 
-import { DATE_FORMAT, DATE_TIME_FORMAT} from '../../../Function/constant';
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant';
 import { cloneDeep } from "lodash";
 const { TextArea } = Input;
 
@@ -54,8 +53,8 @@ import {
     HTDate,
     HTDateTime,
     HTPassword,
-    HTInput,
-    HTTime, HTColor, HTCascaderTable, smartSearch02, showDataSearch, showDataSearch02
+    HTInput,showDataSearch02 ,
+    HTTime, HTColor, HTCascaderTable, smartSearch02, showDataSearch
 } from "../../../Function/input";
 
 import { showSelects, showSelect, showDate, showDateTime } from '../../../Function/selects_table';
@@ -77,7 +76,7 @@ export default function Dashboard(props) {
     const [formSearch] = Form.useForm();
 
     const [isDraft, setIsDraft] = useState(2);
-    
+
     // upload excel
     const [fileList, setFileList] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -85,8 +84,8 @@ export default function Dashboard(props) {
     const [formEdit] = Form.useForm();
     const [idAction, setIdAction] = useState(0);
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
+    const { RangePicker } = DatePicker;
 
-    
 
 
     // import excel
@@ -116,7 +115,7 @@ export default function Dashboard(props) {
     }
 
     const [api, contextHolder] = notification.useNotification();
-    
+
     const onFinishFormEdit = (values) => {
 
         setLoading(true);
@@ -410,7 +409,7 @@ export default function Dashboard(props) {
                     >
                         <InputNumber
                             style={{ width: "150px" }}
-                            formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                         />
                     </Form.Item>
@@ -695,7 +694,7 @@ export default function Dashboard(props) {
         }
     }
 
-    const onFinishSearch = (values) => {
+    const onFinishSearch = (values: any) => {
         setLoadingTable(true);
         setLoadingBtnSearch(true);
         const cols = props.columns;
@@ -709,10 +708,9 @@ export default function Dashboard(props) {
                 }
             }
         }
+        values.p = props.p;
 
-        
-
-        router.get(route("ncc.index"),values);
+        router.get(route("ncc.index"), values);
     };
 
     const onFinishSearchFailed = (errorInfo) => {
@@ -724,7 +722,7 @@ export default function Dashboard(props) {
     );
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -877,54 +875,46 @@ export default function Dashboard(props) {
                 autoComplete="off"
                 form={formSearch}
                 initialValues={initialValueSearch()}
-                onBlur={(e) => {formSearch.submit();}}
             >
                 <Row gutter={24} className="main-search-left">
-                    {smartSearch02(props.table)}
+                    {smartSearch02(props.table, () => formSearch.submit())}
 
                     {listItemsSearch02}
                 </Row>
-                <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={loadingBtnSearch}
-                >
-                    <SearchOutlined />
-                    Tìm kiếm
-                </Button>
+                
             </Form>
             <br />
         </div>
     }
 
     const expandedRowRender = (record, index) => {
-        if(!dataInfo[record.id]) {
+        if (!dataInfo[record.id]) {
             axios.post(route("ncc.detail"), { id: record.id })
                 .then((response) => {
                     console.log('response', response.data.data);
-                    if(response.status === 200) {
+                    if (response.status === 200) {
                         let dataInfo_tmp = cloneDeep(dataInfo);
                         dataInfo_tmp[record.id] = response.data.data;
 
                         console.log('dataInfo_tmp', dataInfo_tmp);
-                        
+
                         setDataInfo(dataInfo_tmp);
                     }
-                    
+
                 })
                 .catch((error) => {
                     message.error("Lỗi tải hóa đơn chi tiết");
                 }
-            );
+                );
         }
 
         return <Col key={record.id}>
-                    {/* {checkShowData(record)} */}
-                    <Row colSpan={24}>
-                        { dataInfo[record.id] ? nhaCungCapInfo(dataInfo[record.id]) : '' }
-                    </Row>
+            {/* {checkShowData(record)} */}
+            <Row colSpan={24}>
+                {dataInfo[record.id] ? nhaCungCapInfo(dataInfo[record.id]) : ''}
+            </Row>
 
-                    {/* <Row colSpan={24}>
+            {/* <Row colSpan={24}>
                         <Divider orientation="left">
                             <Space>
                                 <Button className="_success" onClick={() => editCustomer(record, index)}>
@@ -936,7 +926,7 @@ export default function Dashboard(props) {
                             </Space>
                         </Divider>
                     </Row> */}
-                </Col>
+        </Col>
     };
 
 
@@ -1006,7 +996,7 @@ export default function Dashboard(props) {
     }
 
     const changeFormEdit = (value) => {
-    
+
     }
 
     function btnAddNew() {
@@ -1039,8 +1029,8 @@ export default function Dashboard(props) {
                         {listItems}
                     </Row>
 
-                    
-                    
+
+
                     <Row className="main-modal-footer01">
                         <Col span={24} className="main-btn-popup">
                             <Button className="btn-popup" onClick={cancelEdit}>
@@ -1048,9 +1038,9 @@ export default function Dashboard(props) {
                                 Hủy
                             </Button>
                             <span> </span>
-                            <Button className="btn-popup" type="primary" 
+                            <Button className="btn-popup" type="primary"
                                 onClick={() => {
-                                    if(isDraft !== 2) {
+                                    if (isDraft !== 2) {
                                         setIsDraft(2);
                                     }
                                     formEdit.submit();
@@ -1063,7 +1053,7 @@ export default function Dashboard(props) {
                     </Row>
                 </Form>
             </Modal>
-            
+
             <Button type="primary" onClick={() => addNewData()}>
                 <PlusCircleOutlined />
                 Thêm mới
@@ -1219,7 +1209,7 @@ export default function Dashboard(props) {
                         open={isOpenConfirmDelete}
                         onOk={deletes}
                         onCancel={handleCancelDelete}
-                        // confirmLoading={loadingBtnDelete}
+                    // confirmLoading={loadingBtnDelete}
                     >
                         <p>
                             Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
@@ -1339,7 +1329,7 @@ export default function Dashboard(props) {
                                 expandedRowRender,
                                 defaultExpandedRowKeys: ['1'],
                             }}
-                            
+
                         />
                     </Col>
                 </Row>
@@ -1356,32 +1346,32 @@ export default function Dashboard(props) {
                 current={props.table}
                 content={
                     <div>
-                        
-                        <Modal title="Xác nhận xóa" 
-                            open={isModalXoaOpen} 
+
+                        <Modal title="Xác nhận xóa"
+                            open={isModalXoaOpen}
                             onOk={async () => {
-                                    setConfirmLoading(true);
-                                    const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
-                                    if(result.status === 200) {
-                                        message.success("Đã hủy đơn thành công");
-                                        location.reload();
-                                    } else {
-                                        setConfirmLoading(false);
-                                        message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                                    }
+                                setConfirmLoading(true);
+                                const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
+                                if (result.status === 200) {
+                                    message.success("Đã hủy đơn thành công");
+                                    location.reload();
+                                } else {
+                                    setConfirmLoading(false);
+                                    message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
                                 }
-                            } 
+                            }
+                            }
                             okText="Xác nhận hủy đơn"
                             cancelText="Hủy"
                             loading={true}
                             maskClosable={true}
                             // confirmLoading={confirmLoading}
-                            onCancel={() => {setIsModalXoaOpen(false);}}>
-                                <ul>
-                                    <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
-                                    <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                                    <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
-                                </ul>
+                            onCancel={() => { setIsModalXoaOpen(false); }}>
+                            <ul>
+                                <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
+                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
+                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                            </ul>
                         </Modal>
 
                         {contextHolder}

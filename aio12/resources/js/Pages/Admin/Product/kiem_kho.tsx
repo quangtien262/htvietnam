@@ -791,6 +791,8 @@ export default function Dashboard(props) {
                 }
             }
         }
+        
+        values.p = props.p;
 
 
         values.mocThoiGian = mocThoiGian;
@@ -810,12 +812,8 @@ export default function Dashboard(props) {
         console.log("Failed:", errorInfo);
     };
 
-    const listItemsSearch = props.columns.map((col) =>
-        showDataSearch(col, props)
-    );
-
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -1065,7 +1063,7 @@ export default function Dashboard(props) {
                 onBlur={(e) => { formSearch.submit(); }}
             >
                 <Row gutter={24} className="main-search-left">
-                    {smartSearch02(props.table)}
+                    {smartSearch02(props.table, () => formSearch.submit())}
 
                     {/* thoi gian */}
                     {formKhoangThoiGian()}

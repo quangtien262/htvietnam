@@ -42,7 +42,7 @@ import {
 
 import "../../../../css/task.css";
 
-import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../../Function/common";
+import { optionEntries, showInfo } from "../../../Function/common";
 import { callApi } from "../../../Function/api";
 import { DATE_FORMAT, DATE_SHOW, DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
@@ -110,7 +110,7 @@ export default function Dashboard(props: any) {
             );
         }
 
-        function updateformAddTaskExpres(idx, key, val) {
+        function updateformAddTaskExpres(idx: number, key: string, val: any) {
             if (key === 'nguoi_thuc_hien' && nguoiThucHien_applyAll) {
                 setFormAddTaskExpress(prev =>
                     prev.map(item => ({

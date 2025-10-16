@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\GmailController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AitilenController;
+use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -445,3 +446,12 @@ Route::group(['prefix' => 'meeting'], function () {
     Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
     Route::post('update}', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
 });
+
+Route::group(['prefix' => 'calendar'], function () {
+    Route::get('/', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::post('add-express', [CalendarController::class, 'addExpress'])->name('calendar.addExpress');
+    Route::post('delete', [CalendarController::class, 'deleteCalendar'])->name('calendar.delete');
+    Route::post('close', [CalendarController::class, 'closeCalendar'])->name('calendar.close');
+    Route::post('update', [CalendarController::class, 'updateCalendar'])->name('calendar.update');
+});
+

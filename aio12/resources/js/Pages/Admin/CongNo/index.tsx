@@ -20,7 +20,7 @@ import {
     Divider,
     Image,
     Upload,
-    Dropdown,Tabs 
+    Dropdown,Tabs
 } from "antd";
 
 import { Link, router } from "@inertiajs/react";
@@ -58,6 +58,7 @@ import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../
 import { cloneDeep } from "lodash";
 const { TextArea } = Input;
 
+import { HTBankingQR } from '../../../Function/generateQR';
 
 import {
     HTSelect,
@@ -218,7 +219,7 @@ export default function Dashboard(props) {
     //
     const { useMemo } = React;
     const [api, contextHolder] = notification.useNotification();
-    
+
     const onFinishFormEdit = (values) => {
 
         // todo: xu ly lưu hình ảnh
@@ -235,7 +236,7 @@ export default function Dashboard(props) {
         console.log('val', values);
 
         setLoading(true);
-        
+
         // check product
         values.id = idAction;
         for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
@@ -852,7 +853,7 @@ export default function Dashboard(props) {
             console.log('khoangThoiGian', khoangThoiGian);
             values.khoangThoiGian = khoangThoiGian.map((item) => {
                 return item.format("YYYY-MM-DD");
-            });      
+            });
         } else {
             values.khoangThoiGian = null;
         }
@@ -1012,13 +1013,13 @@ export default function Dashboard(props) {
             setKhoangThoiGian([null, null]);
             formSearch.submit();
         }
-    
+
         function formKhoangThoiGian() {
             return <Col sm={{ span: 24 }} className='item-search'>
                         <h3 className="title-search02">Thời gian</h3>
-    
+
                         <label>Chọn nhanh</label>
-                        <Popconfirm title="Chọn nhanh theo các mốc thời gian xác định" 
+                        <Popconfirm title="Chọn nhanh theo các mốc thời gian xác định"
                             placement="right"
                             showCancel={false}
                             okText="Đóng"
@@ -1062,9 +1063,9 @@ export default function Dashboard(props) {
                         >
                             <Input readOnly={true} value={mocThoiGian ? MOC_THOI_GIAN[mocThoiGian]: ''} />
                         </Popconfirm>
-                        
+
                         <br/><br/>
-                        
+
                         <label>Tùy chọn khoảng thời gian</label>
                         <RangePicker
                             placeholder={['Bắt đầu','Kết thúc']}
@@ -1100,11 +1101,11 @@ export default function Dashboard(props) {
                 initialValues={initialValueSearch()}
             // initialValues={props.searchData}
             >
-                
+
                     {smartSearch02(props.table)}
-                    
+
                     {listItemsSearch02}
-                
+
                 <Button
                     type="primary"
                     htmlType="submit"
@@ -1127,10 +1128,10 @@ export default function Dashboard(props) {
                         if(response.status === 200) {
                             let dataInfo_tmp = cloneDeep(dataInfo);
                             dataInfo_tmp[record.id] = response.data.data;
-                            
+
                             setDataInfo(dataInfo_tmp);
                         }
-                        
+
                     })
                     .catch((error) => {
                         message.error("Lỗi tải hóa đơn chi tiết");
@@ -1138,16 +1139,18 @@ export default function Dashboard(props) {
                 );
         }
 
-        
+
         let key = 1;
         console.log('record', record);
-        
+
         let item = [
             {
-                label: <span className="title-sub-tab">Thông tin</span>, 
+                label: <span className="title-sub-tab">Thông tin</span>,
                 key: key++,
                 children: <div>
                     {checkShowData(record)}
+
+                    {record.cong_no_status_id.id !== 1 ?
                     <Divider>
                         <button className="btn-print"
                                 onClick={() => {
@@ -1162,6 +1165,7 @@ export default function Dashboard(props) {
                             Thanh toán công nợ
                         </button>
                     </Divider>
+                    : <span>111</span>}
                 </div>
             }
         ];
@@ -1173,16 +1177,16 @@ export default function Dashboard(props) {
             // check ncc
             if(info.nhaCungCap) {
                 item.push({
-                    label: <span className="title-sub-tab">Nhà cung cấp</span>, 
+                    label: <span className="title-sub-tab">Nhà cung cấp</span>,
                     key: key++,
                     children: nhaCungCapInfo(info.nhaCungCap)
                 })
-                
+
             }
             // check khach hang
             if(info.khachHang) {
                 item.push({
-                    label: <span className="title-sub-tab">Khách hàng</span>, 
+                    label: <span className="title-sub-tab">Khách hàng</span>,
                     key: key++,
                     children: khachHangInfo(info.khachHang)
                 })
@@ -1190,7 +1194,7 @@ export default function Dashboard(props) {
 
             if(info.khachTraHang) {
                 item.push({
-                    label: <span className="title-sub-tab">Hóa đơn khách trả hàng</span>, 
+                    label: <span className="title-sub-tab">Hóa đơn khách trả hàng</span>,
                     key: key++,
                     children: khachTraHang(info.khachTraHang)
                 })
@@ -1198,7 +1202,7 @@ export default function Dashboard(props) {
 
             if(info.nhapHang) {
                 item.push({
-                    label: <span className="title-sub-tab">Hóa đơn nhập hàng</span>, 
+                    label: <span className="title-sub-tab">Hóa đơn nhập hàng</span>,
                     key: key++,
                     children: nhapHang(info.nhapHang)
                 })
@@ -1206,7 +1210,7 @@ export default function Dashboard(props) {
 
             if(info.traHangNCC) {
                 item.push({
-                    label: <span className="title-sub-tab">Hóa đơn trả hàng</span>, 
+                    label: <span className="title-sub-tab">Hóa đơn trả hàng</span>,
                     key: key++,
                     children: traHangNCC(info.traHangNCC)
                 })
@@ -1225,7 +1229,7 @@ export default function Dashboard(props) {
         return <Tabs className={' width100'}
             defaultActiveKey="1"
             items={item}/>
-        
+
     };
 
     function checkShowData(record) {
@@ -1354,8 +1358,8 @@ export default function Dashboard(props) {
                     <Row>
                         {/* chọn loại phiếu */}
                         <Col sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: 12 }}>
-                            <Form.Item name='loai_phieu' label='' 
-                                className="radio02" 
+                            <Form.Item name='loai_phieu' label=''
+                                className="radio02"
                                 rules={[{
                                     required: true,
                                     message: 'Vui lòng chọn loại phiếu',
@@ -1384,8 +1388,8 @@ export default function Dashboard(props) {
                             </Form.Item>
                         </Col>
 
-                        
-                        
+
+
                     </Row>
 
 
@@ -1421,7 +1425,7 @@ export default function Dashboard(props) {
 
                     <Row>
                         <Col md={{ span: 24 }}>
-                            
+
                             <p><b>Hình ảnh</b></p>
 
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
@@ -1454,7 +1458,7 @@ export default function Dashboard(props) {
 
                     <Row className="main-modal-footer01">
                         <Col span={24} className="main-btn-popup">
-                            <Button className="btn-popup" type="primary" 
+                            <Button className="btn-popup" type="primary"
                                 onClick={() => {
                                     if(isDraft !== 2) {
                                         setIsDraft(2);
@@ -1749,7 +1753,7 @@ export default function Dashboard(props) {
                                 expandedRowRender,
                                 defaultExpandedRowKeys: ['1'],
                             }}
-                            
+
                         />
                     </Col>
                 </Row>
@@ -1766,8 +1770,8 @@ export default function Dashboard(props) {
                 current={props.table}
                 content={
                     <div>
-                        <Modal title="Xác nhận xóa" 
-                            open={isModalXoaOpen} 
+                        <Modal title="Xác nhận xóa"
+                            open={isModalXoaOpen}
                             onOk={async () => {
                                     setConfirmLoading(true);
                                     const result = await callApi(route('hoa_don.huyHoaDon.nhapHang', [idAction]));
@@ -1779,7 +1783,7 @@ export default function Dashboard(props) {
                                         message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
                                     }
                                 }
-                            } 
+                            }
                             okText="Xác nhận hủy đơn"
                             cancelText="Hủy"
                             loading={true}
@@ -1793,11 +1797,10 @@ export default function Dashboard(props) {
                                 </ul>
                         </Modal>
 
-                        <Modal title="THANH TOÁN CÔNG NỢ" 
-                            open={isModalTatToan} 
+                        <Modal title="THANH TOÁN CÔNG NỢ"
+                            open={isModalTatToan}
                             okText="Xác nhận thanh toán"
                             cancelText="Hủy"
-                            loading={true}
                             onCancel={()=>setIsModalTatToan(false)}
                             onOk={() => {
                                     if(!tienCongNo_phuongThucTT) {
@@ -1818,7 +1821,7 @@ export default function Dashboard(props) {
                                                 message.error("Thanh toán thất bại, vui lòng tải lại trình duyệt và thử lại");
                                         });
                                     }
-                                } 
+                                }
                             >
                                 <div>
                                     <table className="table-sub">
@@ -1828,11 +1831,11 @@ export default function Dashboard(props) {
                                                     <b>Số tiền thanh toán:</b>
                                                 </td>
                                                 <td>
-                                                    <InputNumber value={soTienCongNoThanhToan} 
+                                                    <InputNumber value={soTienCongNoThanhToan}
                                                         min={1}
                                                         max={soTienCongNoThanhToan_max}
-                                                        formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} 
-                                                        parser={(value) => value.replace(/\$\s?|(,*)/g, "")} 
+                                                        formatter={(value) =>`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                        parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                                                         onChange={(value) => setSoTienCongNoThanhToan(value)}
                                                     />
                                                 </td>
@@ -1859,13 +1862,13 @@ export default function Dashboard(props) {
                                         </tbody>
                                     </table>
                                         <span> </span>
-                                    
+
                                     <p> </p>
-                                        
+
                                     <p>Sau khi xác nhận thanh toán, hệ thống sẽ cập nhật và đồng bộ lại toàn bộ dữ liệu liên quan đến phiếu nhập hàng này, gồm có phiếu chi, sổ quỹ, công nợ</p>
-                                    
+
                                 </div>
-                                
+
                         </Modal>
 
                         <Row className='width100'>
@@ -1877,7 +1880,7 @@ export default function Dashboard(props) {
                                     valueStyle={{ color: '#cf1322' }}
                                     prefix={<MoneyCollectFilled />}
                                     />
-                                </Card> 
+                                </Card>
                             </Col>
 
                             <Col sm={6}>
@@ -1889,7 +1892,7 @@ export default function Dashboard(props) {
                                     prefix={<CheckCircleFilled />}
                                     suffix="đ"
                                     />
-                                </Card>     
+                                </Card>
                             </Col>
 
                             <Col sm={6}>
@@ -1901,7 +1904,7 @@ export default function Dashboard(props) {
                                     prefix={<MinusSquareFilled />}
                                     suffix="đ"
                                     />
-                                </Card>     
+                                </Card>
                             </Col>
 
                             <Col sm={6}>
@@ -1913,13 +1916,29 @@ export default function Dashboard(props) {
                                     prefix={<DiffFilled />}
                                     suffix="đ"
                                     />
-                                </Card>     
+                                </Card>
                             </Col>
                         </Row>
-                        
+
                         <Row>
                             <br/>
                         </Row>
+
+                        <HTBankingQR
+                            bankCode="TPB"
+                            accountNumber="00299941001"
+                            accountName="LUU QUANG TIEN"
+                            amount={5000}
+                            description="2013017"
+                        />
+
+                        {/* {HTBankingQR({
+                            bankCode: 'TPB',
+                            accountNumber: '00299941001',
+                            accountName: 'Luu Quang Tien',
+                            amount: 5000,
+                            description: 'test nap tien',
+                        })} */}
 
                         {contextHolder}
                         {pageContent}

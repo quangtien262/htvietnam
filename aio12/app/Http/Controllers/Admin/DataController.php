@@ -125,8 +125,7 @@ class DataController extends Controller
                 $admUser[] = [
                     'value' => $u->id,
                     'label' => $u->code . ' - ' . $u->name,
-                ];
-                ;
+                ];;
             }
 
             $props = [
@@ -154,12 +153,14 @@ class DataController extends Controller
         if ($table->type_show == 6) {
             $date = date('Y-m-01');
             $calendars = TblService::getCalendars($date, $table);
+            $select = TblService::getSelectData($columns);
             return Inertia::render('Admin/Data/calendars', [
                 'tables' => $tables,
                 'table' => $table,
                 'calendars' => $calendars,
                 'userPermission' => $per,
                 'columns' => $columns,
+                'selectData' => $select['selectData'],
                 'month' => date('m'),
                 'year' => date('Y'),
                 'token' => csrf_token(),
@@ -327,8 +328,7 @@ class DataController extends Controller
                 $admUser[] = [
                     'value' => $u->id,
                     'label' => $u->code . ' - ' . $u->name,
-                ];
-                ;
+                ];;
             }
 
             $props = [

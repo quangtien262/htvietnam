@@ -1,23 +1,37 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
-import { Badge, Calendar, Select,  Row, Col, Radio, Spin, Modal, Form, message, List } from "antd";
 import { Link, router } from "@inertiajs/react";
+import dayjs from "dayjs";
 import axios from 'axios';
+import {
+    Badge, Calendar, Select, Row, Col, Radio, Input,
+    Modal, Form, message, List, Button, DatePicker, Checkbox
+} from "antd";
+import { PlusCircleOutlined, CloseSquareOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
+
 
 import { btnAddNew, showDataPopup } from "../../../Function/data";
-import { routeQLKho, tblKhoHang, routeSales, tblSale } from "../../../Function/config_route";
+import { optionEntries, showInfo } from "../../../Function/common";
 
-export default function Dashboard(props) {
+import "../../../../css/form.css";
+import "../../../../css/task.css";
+
+
+
+export default function Dashboard(props: any) {
+    const [formData] = Form.useForm();
     const [listData, setListData] = useState(props.calendars);
     const [mode, setMode] = useState('month');
     const [month, setMonth] = useState(props.month);
     const [year, setYear] = useState(props.year);
-    const [contentForm, setContentForm] = useState(<Spin />);
+    const [isOpenAddNew, setIsOpenAddNew] = useState(false);
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [currentDate, setCurrentDate] = useState('');
     const [dataDetail, setDataDetail] = useState([]);
-    const [formData] = Form.useForm();
+
+    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+
     const DATE_FORMAT = "YYYY-MM-DD";
     const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm";
 
@@ -204,10 +218,10 @@ export default function Dashboard(props) {
     const onOk = () => formData.submit();
 
     const onCancel = () => {
-        setIsOpenAddExpress(false);
+        setIsOpenAddNew(false);
     };
 
-    const onFinish = (values) => {
+    const onFinish = (values: any) => {
         values = formatValueForm(values);
         values.table_id = props.table.id;
         axios.post(route('data.tblSelect.save'), values)
@@ -215,7 +229,7 @@ export default function Dashboard(props) {
                 if (response.status === 200) {
                     message.success("Thêm mới thành công!");
                     loadData(year + '-' + month + '-01');
-                    setIsOpenAddExpress(false);
+                    setIsOpenAddNew(false);
                 } else {
                     message.error("Có lỗi xảy ra, xin vui lòng thử lại!");
                 }
@@ -227,7 +241,7 @@ export default function Dashboard(props) {
 
     };
 
-    function formatValueForm(values) {
+    function formatValueForm(values: any) {
         for (const [key, col] of Object.entries(props.columns)) {
             if (col.type_edit === "tiny") {
                 values[col.name] = tinyRefs.current[col.name].getContent();
@@ -243,34 +257,226 @@ export default function Dashboard(props) {
     }
 
     function openModal() {
-        setIsOpenAddExpress(true);
-        axios.post(route('data.data_create'), {
-            table_id: props.table.id,
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    const listItems = response.data.data.columns.map((column) => {
-                        if (column.block_type === null || column.block_type == '') {
-                            return showDataPopup(column, response.data.data);
-                        }
-                    });
-                    setContentForm(listItems);
-                    setSelectTableId(response.data.data.table.id);
-                } else {
-                    message.success("Có lỗi xảy ra, xin vui lòng thử lại");
-                }
-            })
-            .catch((response) => {
-                message.error("Có lỗi xảy ra, xin vui lòng thử lại");
-            });
+        setIsOpenAddNew(true);
+        formData.resetFields();
     }
+
+    function formAddTaskExpress() {
+        let formAddExpress_default: any = [];
+        props.columns.forEach((col: any) => {
+            if (col.edit === 1 && col.require === 1) {
+                formAddExpress_default.push({
+                    name: col.name,
+                    type_edit: col.type_edit,
+                    display_name: col.display_name,
+                    edit: col.edit,
+                    require: col.require,
+                    value: null,
+                });
+            }
+
+        });
+        const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default]);
+        const [date_applyAll, setDate_applyAll] = useState(true);
+
+        function remove(key) {
+            setFormAddExpress(prev =>
+                prev.filter((_, index) => index !== key)
+            );
+        }
+
+        function updateformAddExpres(col: any, val: any, rowIndex: number = 0) {
+            if (col.type_edit === 'datetime' && date_applyAll) {
+                // Apply to all rows for this specific column name
+                setFormAddExpress(prev =>
+                    prev.map(row =>
+                        row.map(column => {
+                            if (column.name === col.name) {
+                                return {
+                                    ...column,
+                                    value: val
+                                };
+                            }
+                            return column;
+                        })
+                    )
+                );
+                return;
+            }
+
+            // Update only specific row and column
+            setFormAddExpress(prev =>
+                prev.map((row, rIndex) => {
+                    if (rIndex === rowIndex) {
+                        // Update specific row
+                        return row.map((column: any) => {
+                            if (column.name === col.name) {
+                                return {
+                                    ...column,
+                                    value: val
+                                };
+                            }
+                            return column;
+                        });
+                    }
+                    return row;
+                })
+            );
+        };
+
+        function addExpress() {
+            // validation form
+            let isValid = true;
+
+            formAddExpress.forEach((item, index) => {
+                if (item.name && item.name.trim() !== '' && !item.task_status_id) {
+                    isValid = false;
+                    message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
+                }
+            });
+            if (!isValid) return;
+
+            setIsLoadingBtn(true);
+            axios.post(route("task.addTaskExpress", [props.parentName]), {
+                datas: formAddExpress,
+                pid: props.pid
+            }).then((response) => {
+                setIsLoadingBtn(false);
+                setIsModalAddExpress(false);
+                setColumns(response.data.data);
+            }).catch((error) => {
+                message.error("Tạo mới thất bại");
+            });
+        }
+
+        return <table className="table-sub">
+            <thead>
+                <tr>
+                    {formAddExpress_default.map((item, key) => {
+                        return <th key={item.name}>
+                            <span>{item.display_name}</span>
+                            {item.type_edit === 'datetime' ?
+                                <>
+                                    <br />
+                                    <Checkbox checked={date_applyAll}
+                                        onChange={(e) => { setDate_applyAll(e.target.checked) }}
+                                    >
+                                        <em>Áp dụng tất cả</em>
+                                    </Checkbox>
+                                </> : ''
+                            }
+                        </th>;
+                    })}
+                    <th>Xóa</th>
+                </tr>
+            </thead>
+            <tbody>
+                {/* form Thêm task express */}
+                {
+                    formAddExpress.map((item, key) => {
+                        return <tr key={key}>
+                            {item.map((col: any, colKey: number) => {
+
+                                console.log('====================================');
+                                console.log('colcolcolcol', col);
+                                console.log('====================================');
+                                if (col.type_edit === 'select') {
+                                    return <td key={colKey}>
+                                        <Select
+                                            value={col.value}
+                                            onChange={val => updateformAddExpres(col, val, key)}
+                                            options={props.selectData[col.name] || []}
+                                            placeholder={`Chọn ${col.display_name}`}
+                                        />
+                                    </td>;
+                                }
+
+                                if (col.type_edit === 'text') {
+                                    return <td key={colKey}>
+                                        <Input
+                                            value={col.value}
+                                            onChange={e => updateformAddExpres(col, e.target.value, key)}
+                                            placeholder={`Nhập ${col.display_name}`}
+                                        />
+                                    </td>;
+                                }
+
+                                if (col.type_edit === 'textarea') {
+                                    return <td key={colKey}>
+                                        <Input.TextArea
+                                            value={col.value}
+                                            onChange={e => updateformAddExpres(col, e.target.value, key)}
+                                            placeholder={`Nhập ${col.display_name}`}
+                                            autoSize={{ minRows: 1, maxRows: 3 }}
+                                        />
+                                    </td>;
+                                }
+
+                                if (col.type_edit === 'datetime') {
+                                    return <td key={colKey}>
+                                        <DatePicker
+                                            value={col.value}
+                                            onChange={date => updateformAddExpres(col, date, key)}
+                                            placeholder={`Nhập ${col.display_name}`}
+                                        />
+                                    </td>;
+                                }
+                            })}
+                            <td>
+                                <Button type="link" onClick={() => remove(key)}>Xóa</Button>
+                            </td>
+                        </tr>;
+                    })
+                }
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colSpan={4}>
+                        <a className="add-item01">
+                            <span className="icon-b" onClick={() => setFormAddExpress(prev => [...prev, formAddExpress_default])}>
+                                <PlusCircleOutlined /> Thêm mới
+                            </span>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={4}>
+                        <Row className="main-modal-footer01">
+                            <Col span={24} className="main-btn-popup">
+                                <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
+                                    <CheckOutlined />
+                                    TẠO MỚI
+                                </Button>
+                                <span> </span>
+                                <Button className="btn-popup" onClick={() => setIsOpenAddExpress(false)} loading={isLoadingBtn}>
+                                    <CloseSquareOutlined />
+                                    ĐÓNG
+                                </Button>
+                            </Col>
+                        </Row>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    }
+
 
     return (
         <AdminLayout
             auth={props.auth}
             content={
                 <div>
-                    {btnAddNew(props)}
+
+                    <Button type="primary" onClick={() => setIsOpenAddExpress(true)} style={{ marginBottom: '10px' }}>
+                        <PlusCircleOutlined />
+                        Thêm nhanh
+                    </Button>
+
+                    <Button type="primary" onClick={() => openModal()} style={{ marginBottom: '10px' }}>
+                        <PlusCircleOutlined />
+                        Thêm mới1
+                    </Button>
 
                     {/* <Button type="primary" onClick={() => openModal()}>
                         Thêm mới
@@ -286,12 +492,12 @@ export default function Dashboard(props) {
                         headerRender={headerRender}
                     />
 
+                    {/* Thêm mới */}
                     <Modal
                         title={'Thêm mới'}
-                        open={isOpenAddExpress}
+                        open={isOpenAddNew}
                         onOk={onOk}
                         onCancel={onCancel}
-                    // confirmLoading={loadingBtnAdd}
                     >
                         <Form
                             name="basic"
@@ -302,28 +508,43 @@ export default function Dashboard(props) {
                             autoComplete="off"
                             className='form-modal'
                         >
-                            {contentForm}
+                            {props.columns.map((col: any) => {
+                                return showDataPopup(col, props);
+                            })}
                         </Form>
                     </Modal>
 
+                    {/* add express */}
+                    <Modal
+                        title={'Thêm nhanh'}
+                        open={isOpenAddExpress}
+                        footer={[]}
+                        onCancel={() => setIsOpenAddExpress(false)}
+                        width={1000}
+                    >
+                        {formAddTaskExpress()}
+                    </Modal>
+
+
+                    {/* Chi tiết ngày */}
                     <Modal
                         title={currentDate}
                         open={isOpenDetail}
                         onOk={() => setIsOpenDetail(false)}
                         onCancel={() => setIsOpenDetail(false)}
-                    // confirmLoading={loadingBtnAdd}
                     >
                         <List
                             itemLayout="horizontal"
                             dataSource={dataDetail}
-                            renderItem={(item, index) => (
+                            renderItem={(item: any, index: number) => (
                                 <List.Item>
                                     <List.Item.Meta
-                                        title={<Link href={route("data.detail", [props.table.id, item.id])}>{item.name}</Link>}
+                                        title={<a>{item.name}</a>}
                                         description={
                                             <div>
-                                                <p><b>Thời gian:</b> {item.calendar}</p>
-                                                <p><b>Ghi chú:</b> {item.note}</p>
+                                                <b>[</b><em>{item.calendar ? dayjs(item.calendar).format('HH:mm') : ''}</em><b>]</b>
+                                                <span> </span>
+                                                {item.note}
                                             </div>
                                         }
                                     />

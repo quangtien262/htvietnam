@@ -658,7 +658,7 @@ export default function Dashboard(props) {
     };
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -805,7 +805,7 @@ export default function Dashboard(props) {
                     initialValues={props.searchData}
                     onBlur={(e) => { formSearch.submit(); }}
                 >
-                    {smartSearch02(props.table)}
+                    {smartSearch02(props.table, () => formSearch.submit()))}
 
                     {listItemsSearch02}
                 </Form>

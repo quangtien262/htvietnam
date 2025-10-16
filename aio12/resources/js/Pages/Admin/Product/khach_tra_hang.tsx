@@ -164,6 +164,8 @@ export default function Dashboard(props) {
                 }
             }
         }
+        
+        values.p = props.p;
 
         values.mocThoiGian = mocThoiGian;
         if(khoangThoiGian[0]) {
@@ -826,7 +828,7 @@ export default function Dashboard(props) {
     );
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -1081,7 +1083,7 @@ export default function Dashboard(props) {
                         initialValues={initialValueSearch()}
                         onBlur={(e) => {formSearch.submit();}}
                     >
-                        {smartSearch02(props.table)}
+                        {smartSearch02(props.table(), () => formSearch.submit())}
 
                         {/* hinh_thuc_thanh_toan */}
                         {formHinhThucTT()}

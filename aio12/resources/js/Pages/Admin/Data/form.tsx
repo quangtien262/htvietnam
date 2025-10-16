@@ -1035,7 +1035,6 @@ export default function Dashboard(props) {
     return (
         <AdminLayout
             auth={props.auth}
-            header={props.table.display_name}
             content={
                 <Spin spinning={loading} size="large">
                     {/* form data */}
@@ -1077,6 +1076,7 @@ export default function Dashboard(props) {
 
                         </Form>
                     </div>
+
                     {/* Modal Calendar Chấm công */}
                     <Modal
                         open={openModalChamCong}

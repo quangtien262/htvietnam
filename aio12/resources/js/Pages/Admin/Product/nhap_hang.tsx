@@ -791,6 +791,7 @@ export default function Dashboard(props) {
                 }
             }
         }
+        values.p = props.p;
         
         // values.hinh_thuc_thanh_toan_id = hinhThucTT;
         values.mocThoiGian = mocThoiGian;
@@ -804,12 +805,9 @@ export default function Dashboard(props) {
 
         router.get(route("nhapHang"),values);
     };
-    const listItemsSearch = props.columns.map((col) =>
-        showDataSearch(col, props)
-    );
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -1065,7 +1063,7 @@ export default function Dashboard(props) {
                         initialValues={props.searchData}
                         onBlur={(e) => {formSearch.submit();}}
                     >
-                        {smartSearch02(props.table)}
+                        {smartSearch02(props.table, () => formSearch.submit())}
 
                         {/* hinh_thuc_thanh_toan */}
                         {formHinhThucTT()}

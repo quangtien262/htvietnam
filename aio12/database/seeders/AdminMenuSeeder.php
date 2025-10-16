@@ -93,9 +93,8 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $banHang, 'name' => 'sale.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'sale.dashboard', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'hoa_don__create', 'display_name' => 'Thu ngân', 'table_name' => 'hoa_don', 'route' => 'hoaDon.create', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'hoa_don', 'display_name' => 'Hóa đơn', 'table_name' => 'hoa_don', 'route' => 'hoaDon.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'dat_lich', 'display_name' => 'Lịch hẹn', 'table_name' => 'dat_lich', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
+            ['parent_id' => $banHang, 'name' => 'calendar', 'display_name' => 'Lịch hẹn', 'table_name' => 'calendar', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Đơn hoàn', 'table_name' => '', 'route' => 'khachTraHang', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $banHang, 'name' => 'users', 'display_name' => 'Công nợ', 'table_name' => 'cong_no', 'route' => 'congNo', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
         ]);
 

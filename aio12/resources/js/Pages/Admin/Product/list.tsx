@@ -511,8 +511,8 @@ export default function ProductList(props: any) {
     }
 
     const onFinishSearch = (values: any) => {
-        console.log('vaa', values);
         setLoadingTable(true);
+        values.p = props.p;
         axios.post(route("product.search"), values)
             .then((response) => {
                 console.log('response.data.data', response.data.data.data);
