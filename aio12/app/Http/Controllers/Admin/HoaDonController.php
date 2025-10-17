@@ -7,6 +7,7 @@ use App\Models\Admin\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Calendar;
 use App\Models\Admin\HoaDon;
 use App\Models\Admin\HoaDonChiTiet;
 use Illuminate\Support\Facades\DB;
@@ -156,6 +157,14 @@ class HoaDonController extends Controller
             $congNo->save();
             $congNo->code = 'CN' . TblService::formatNumberByLength($congNo->id, 5);
             $congNo->save();
+
+            // lưu vào lịch hẹn - calendar
+            $calendar = new Calendar();
+            $calendar->name = 'Thu hồi công nợ cho hóa đơn ' . $hoaDon->code . ' - ' . $khachHang->name . ' (' . $khachHang->code . ')';
+            $calendar->calendar = $rq->ngay_tat_toan . ' 10:00:00';
+            $calendar->users_id = $khachHang->id;
+            $calendar->admin_users_id = $admin->id;
+            $calendar->save();
 
         } else {
             $hoaDon->hoa_don_status_id = 2; // da thanh toan

@@ -132,11 +132,10 @@ export default function Dashboard(props: any) {
         },
     ];
     type TabPosition = 'left' | 'right' | 'top' | 'bottom';
-    const [mode, setMode] = useState<TabPosition>('top');
+    const [mode, setMode] = useState<TabPosition>('left'); // top
     return (
         <AdminLayout
             auth={props.auth}
-            header='Trang chủ'
             content={
                 <div>
                     <Tabs tabPosition={mode} defaultActiveKey="1" items={items} />
