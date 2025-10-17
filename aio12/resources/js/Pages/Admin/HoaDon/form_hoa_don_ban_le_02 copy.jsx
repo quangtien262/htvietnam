@@ -1418,8 +1418,6 @@ export default function Dashboard(props) {
                 current={props.table}
                 content={
                     <div>
-                        
-
                         <Modal
                             title={"Cài đặt thu ngân"}
                             open={isModalThuNganConfig}

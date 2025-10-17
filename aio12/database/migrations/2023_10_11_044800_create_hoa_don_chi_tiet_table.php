@@ -21,7 +21,7 @@ return new class extends Migration
             // $table->text('product_service')->nullable();
 
             $table->integer( 'data_id')->nullable(); // id hoa_don
-            $table->integer( 'data_code')->nullable();
+            $table->string( 'data_code')->nullable();
 
             $table->integer( 'product_id')->nullable();
             $table->string('product_code')->nullable();
@@ -86,7 +86,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'nv_thuc_hien_id', 'Nhân viên thực hiện', 'text', 'selects', $order_col++,
         ['select_table_id' => $nv->id, 'show_in_list' => 1, 'col' => 6]);
 
-      
+
 
         MigrateService::createColumn02($tableId, 'don_gia', 'Đơn giá', 'INT', 'number', $order_col++,
         ['show_in_list' => 1, 'require' => 1, 'col' => 12]);
@@ -103,7 +103,7 @@ return new class extends Migration
         ['show_in_list' => 1, 'col' => 12]);
 
         MigrateService::createColumn02($tableId, 'thanh_tien', 'Thành tiền', 'INT', 'number', $order_col++, ['show_in_list' => 1]);
-        MigrateService::createColumn02($tableId, 'thanh_toan', 'Thanh toán', 'INT', 'number', $order_col++, ['show_in_list' => 1]);
+
         MigrateService::createColumn02($tableId, 'ghi_chu', 'Ghi chú', 'TEXT', 'textarea', $order_col++, ['show_in_list' => 1, 'col' => 24]);
 
         $kh = Table::where('name', 'users')->first();
@@ -155,7 +155,7 @@ return new class extends Migration
         []);
         MigrateService::createColumn02($tableId, 'SoLanDaIn', 'Số lần đã in', 'INT', 'number', $order_col++,
         []);
-     
+
         MigrateService::createColumn02($tableId, 'ThoiGianThucHien', 'TG thực hiện', 'INT', 'number', $order_col++,
         []);
         MigrateService::createColumn02($tableId, 'SoLuong_TL', 'Số lượng TL', 'INT', 'number', $order_col++,
@@ -170,7 +170,7 @@ return new class extends Migration
         // []);
         // MigrateService::createColumn02($tableId, 'MaNhanVienTuVan', 'NV Tư vấn', 'INT', 'number', $order_col++,
         // []);
-   
+
         MigrateService::createColumn02($tableId, 'TenNhanVienThucHien', 'Tên NV thực hiện', 'TEXT', 'textarea', $order_col++,
         []);
         MigrateService::createColumn02($tableId, 'TenNhanVienTuVan', 'Tên NV tư vấn', 'TEXT', 'textarea', $order_col++,

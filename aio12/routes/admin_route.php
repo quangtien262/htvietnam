@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\GmailController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AitilenController;
+use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -19,9 +21,11 @@ use App\Http\Controllers\Admin\LuckyController;
 use App\Http\Controllers\Admin\HimalayaController;
 use App\Http\Controllers\Admin\HoaDonController;
 use App\Http\Controllers\Admin\KhachHangController;
+use App\Http\Controllers\Admin\MeetingController;
 use App\Http\Controllers\Admin\NCCController;
 use App\Http\Controllers\Admin\NhanVienController;
 use App\Http\Controllers\Admin\PhieuThuController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\SoQuyController;
@@ -58,6 +62,8 @@ Route::group(['prefix' => 'data'], function () {
     Route::get('edit/{tableId}/{dataId}', [DataController::class, 'edit'])->name('data.edit');
     Route::post('update/{tableId}/{dataId}', [DataController::class, 'update'])->name('data.update');
 
+    Route::post('api/info/{tableId}/{dataId}', [DataController::class, 'getDataInfo'])->name('data.api.info');
+
     // sửa nhanh theo id bảng, tên cột cần sửa và id của bảng
     Route::post('fast-edit/{tableId}', [DataController::class, 'fastEdit'])->name('data.fastEdit');
     // sửa nhanh theo tên bảng, tên cột cần sửa và id của bảng
@@ -83,18 +89,17 @@ Route::group(['prefix' => 'data'], function () {
     Route::get('thong-ke/{tableId}', [DataController::class, 'thongKe'])->name('data.thong_ke');
     Route::get('show-total/{tableId}', [DataController::class, 'showTotal'])->name('data.total');
 
-    // 
+    //
     Route::get('api/get-data-slt', [AdmApiController::class, 'getDataSelect'])->name('adm_api.select');
     Route::get('api/get-name', [AdmApiController::class, 'getName'])->name('adm_api.get_name');
 
-    // get sub data
-    Route::post('data/sub-data', [DataController::class, 'getSubData'])->name('product.getSubData');
 });
 
 //table config
 Route::group(['prefix' => 'configtbl'], function () {
     Route::get('/', [TblController::class, 'index'])->name('table.index');
     Route::get('form/{tableId}/{columnId?}', [TblController::class, 'form'])->name('table.form');
+    Route::get('form-name/{tableName}/{columnId?}', [TblController::class, 'formName'])->name('table.formName');
     Route::post('deletes', [TblController::class, 'deletes'])->name('table.deletes');
     Route::post('form/{tableId}', [TblController::class, 'submitFormTable'])->name('table.submit');
     Route::post('table/update-sort-order', [TblController::class, 'updateSortOrderTable'])->name('table.update_sort_order');
@@ -184,8 +189,11 @@ Route::group(['prefix' => 'product'], function () {
     Route::get('list', [ProductController::class, 'list'])->name('product.list');
     Route::get('create', [ProductController::class, 'createOrUpdate'])->name('product.add');
     Route::get('edit/{pid}', [ProductController::class, 'createOrUpdate'])->name('product.edit');
-    Route::post('save', [ProductController::class, 'save'])->name('product.save');
+    Route::post('save', [ProductController::class, 'saveProduct'])->name('product.save');
     Route::post('nguyen-lieu/{pid}', [ProductController::class, 'nguyenLieu'])->name('product.nguyenLieu');
+
+    // get sub data
+    Route::post('data/info/{pid}', [ProductController::class, 'getProductInfo'])->name('product.info');
 
     Route::post('get-dich-vu-trong-goi/{pid}', [ProductController::class, 'dichVuTrongGoi'])->name('product.dichVuTrongGoi');
     Route::post('ap-dung/{pid}', [ProductController::class, 'apDung'])->name('product.apDung');
@@ -241,6 +249,7 @@ Route::get('nhan-vien/danh-sach', [NhanVienController::class, 'index'])->name('n
 Route::post('nhan-vien/save', [NhanVienController::class, 'saveNhanVien'])->name('nhanVien.save');
 Route::post('nhan-vien/search', [NhanVienController::class, 'search'])->name('nhanVien.search');
 Route::post('nhan-vien/change-password', [NhanVienController::class, 'changePW'])->name('nhanVien.changePW');
+Route::post('nhan-vien/delete-user', [NhanVienController::class, 'deleteUser'])->name('nhanVien.deleteUser');
 
 // hóa đơn
 Route::get('hoa-don/danh-sach', [HoaDonController::class, 'index'])->name('hoaDon.index');
@@ -310,30 +319,74 @@ Route::post('khach-hang/info/{id}', [KhachHangController::class, 'info'])->name(
 
 Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->name('tatToanCongNo');
 
-// task
+Route::group(['prefix' => 'project'], function () {
+    Route::put('update-sort-order/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
 
+    Route::post('fast-edit', [ProjectController::class, 'fastEditProject'])->name('project.fastEditProject');
+    Route::post('delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    Route::post('add-checklist', [ProjectController::class, 'addChecklist'])->name('project.addChecklist');
+    Route::post('add-comment', [ProjectController::class, 'addComment'])->name('project.addComment');
+    Route::post('info/{projectId}', [ProjectController::class, 'getProjectInfo'])->name('project.getProjectInfo');
+});
+
+Route::group(['prefix' => 'pj'], function () {
+    Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
+    Route::post('{parentName}/add', [ProjectController::class, 'store'])->name('project.add');
+    // Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    // Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    // Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
+
+    // Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
+    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
+    Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
+
+    Route::post('{parentName}/add-config/{currentTable}', [ProjectController::class, 'editConfig'])->name('project.editConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
+});
 
 //tasks
-Route::group(['prefix' => 'tasks'], function () {
-    Route::get('/dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
-    Route::get('/', [TaskController::class, 'index'])->name('task.list');
-    Route::post('add', [TaskController::class, 'store'])->name('task.add');
-    Route::put('update/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
-    Route::delete('delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
+Route::group(['prefix' => 'task'], function () {
+    Route::post('api/sort-order/task-status', [TaskController::class, 'updateSortOrder_taskStatus'])->name('task.updateSortOrder_taskStatus');
+    Route::put('update-sort-order/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
+    Route::post('fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
+
+    Route::post('delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
     Route::post('add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
     Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
     Route::post('add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
-    Route::post('fast-edit', [TaskController::class, 'fastEditTask'])->name('task.fastEditTask');
-    Route::post('sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
-    Route::post('add-express', [TaskController::class, 'addTaskExpress'])->name('task.addTaskExpress');
+    Route::post('delete-comment', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
+});
+
+Route::group(['prefix' => 'cv'], function () {
+
+    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
+    Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
+    Route::post('{parentName}/add', [TaskController::class, 'store'])->name('task.add');
+    // Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
+    Route::post('{parentName}/add-express', [TaskController::class, 'addExpress'])->name('task.addTaskExpress');
+
+    Route::post('{parentName}/add-config/{currentTable}', [TaskController::class, 'editConfig'])->name('task.editConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [TaskController::class, 'deleteConfig'])->name('task.deleteConfig');
 });
 
 Route::group(['prefix' => 'wms'], function () {
     Route::get('/', [ProductController::class, 'dashboard'])->name('khoHang.dashboard');
+    Route::get('api/tong-quan', [ProductController::class, 'report_tongQuan'])->name('khoHang.api.tongQuan');
+    Route::get('api/nhap-hang', [ProductController::class, 'report_nhapHang'])->name('khoHang.api.nhapHang');
+    Route::get('api/ton-kho', [ProductController::class, 'report_tonKho'])->name('khoHang.api.tonKho'); // pending
+    Route::get('api/kiem-kho', [ProductController::class, 'report_kiemKho'])->name('khoHang.api.kiemKho');
+    Route::get('api/xuat-huy', [ProductController::class, 'report_xuatHuy'])->name('khoHang.api.xuatHuy'); // pending
+    Route::get('api/cong-no', [ProductController::class, 'report_congNo'])->name('khoHang.api.congNo'); // pending
 });
 
 Route::group(['prefix' => 'sale'], function () {
     Route::get('/', [SalesController::class, 'dashboard'])->name('sale.dashboard');
+    Route::get('report/doanh-thu', [SalesController::class, 'report_doanhThu'])->name('sale.report_doanhThu');
+    Route::get('report/don-hang', [SalesController::class, 'report_DonHang'])->name('sale.report_DonHang');
+    Route::get('report/khach-hang', [SalesController::class, 'report_khachHang'])->name('sale.report_khachHang');
+    Route::get('report/nhan-vien-sale', [SalesController::class, 'report_nhanVienSale'])->name('sale.report_nhanVienSale');
+    Route::get('report/nhan-vien-kt', [SalesController::class, 'report_nhanVienKT'])->name('sale.report_nhanVienKT');
+    Route::get('report/cong-no', [SalesController::class, 'report_congNo'])->name('sale.report_congNo');
 });
 
 Route::group(['prefix' => 'tai-san'], function () {
@@ -356,18 +409,49 @@ Route::group(['prefix' => 'setting'], function () {
     Route::get('/', [AdminController::class, 'dashboardSetting'])->name('setting.dashboard');
 });
 Route::group(['prefix' => 'report'], function () {
-    Route::get('/', [AdminController::class, 'dashboardReport'])->name('report.dashboard');
+    Route::get('/', [ReportController::class, 'index'])->name('report.dashboard');
 });
 
 
 Route::group(['prefix' => 'web'], function () {
     Route::get('/', [AdminController::class, 'dashboardWeb'])->name('web.dashboard');
 
-    Route::get('/landing-page', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
-    Route::get('/landing-page/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
+    Route::get('/landingpage', [LandingPageController::class, 'index'])->name('adm.landingpage.index');
+    Route::get('/landingpage/setting/{menuId?}', [LandingPageController::class, 'setting'])->name('adm.landingpage.setting');
 });
 
 Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
 Route::post('/data/delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');
 
 Route::post('/data/upload-file', [DataController::class, 'uploadFile'])->name('data.upload_file');
+
+
+Route::group(['prefix' => 'bds'], function () {
+    Route::get('/', [AitilenController::class, 'dashboard'])->name('aitilen.dashboard');
+    Route::get('report/doanh-thu', [AitilenController::class, 'report_doanhThu'])->name('aitilen.report_doanhThu');
+    Route::get('report/don-hang', [AitilenController::class, 'report_DonHang'])->name('aitilen.report_DonHang');
+    Route::get('report/khach-hang', [AitilenController::class, 'report_khachHang'])->name('aitilen.report_khachHang');
+    Route::get('report/nhan-vien-sale', [AitilenController::class, 'report_nhanVienSale'])->name('aitilen.report_nhanVienSale');
+    Route::get('report/nhan-vien-kt', [AitilenController::class, 'report_nhanVienKT'])->name('aitilen.report_nhanVienKT');
+    Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
+});
+
+Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');
+
+
+Route::group(['prefix' => 'meeting'], function () {
+    Route::get('/', [MeetingController::class, 'index'])->name('meeting.index');
+    Route::post('add-express', [MeetingController::class, 'addExpress'])->name('meeting.addExpress');
+    Route::post('delete', [MeetingController::class, 'deleteMeeting'])->name('meeting.delete');
+    Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
+    Route::post('update}', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
+});
+
+Route::group(['prefix' => 'calendar'], function () {
+    Route::get('/', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::post('add-express', [CalendarController::class, 'addExpress'])->name('calendar.addExpress');
+    Route::post('delete', [CalendarController::class, 'deleteCalendar'])->name('calendar.delete');
+    Route::post('close', [CalendarController::class, 'closeCalendar'])->name('calendar.close');
+    Route::post('update', [CalendarController::class, 'updateCalendar'])->name('calendar.update');
+});
+

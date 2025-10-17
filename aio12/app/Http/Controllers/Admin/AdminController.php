@@ -6,6 +6,7 @@ use App\Models\Admin\ChiNhanh;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\AdminMenu;
 use App\Models\Admin\Column;
 use App\Models\Admin\Log;
 use App\Models\Admin\Product;
@@ -44,7 +45,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/Pages/index', $param);
     }
 
-    public function dashboardWeb()
+    public function dashboardWeb(Request $request)
     {
         // Lấy dữ liệu lượt view theo ngày
         $viewStats = AnalyticService::getAll();
@@ -73,9 +74,10 @@ class AdminController extends Controller
             // 'viewStatsIp' => $viewStatsIp,
             'contacts' => $contacts,
             'orders' => $orders,
-            'logs' => $logs
+            'logs' => $logs, 
+            'menus' => TblService::getMenus($request->p),
+            'p' => $request->p
         ];
-        // dd($param);
         return Inertia::render('Admin/Dashboard/web', $param);
     }
 
@@ -106,25 +108,14 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $tables = TblService::getAdminMenu(0);
-        $tablesSelects = TblService::getTableSelects();
 
-        $products = Product::orderBy('id', 'desc')->paginate(10);
-        $banchay = [];
-        foreach ($products as $pro) {
-            $banchay[] = [
-                'title' => $pro->name,
-                'gia_ban' => $pro->gia_ban
-            ];
-        }
-
-        return Inertia::render(
-            'Admin/Dashboard/index',
-            [
-                'tables' => $tables,
-                'tablesSelects' => $tablesSelects,
-                'banChay' => $banchay
-            ]
-        );
+        $datas = AdminMenu::orderBy('sort_order', 'asc')->where('parent_id', 0)->get();
+        // dd($datas);
+        $props = [
+            'tables' => $tables,
+            'datas' => $datas
+        ];
+        return Inertia::render('Admin/Dashboard/index', $props);
     }
 
     /**
@@ -249,4 +240,11 @@ class AdminController extends Controller
             'nhanVien' => $nhanVien
         ], 'success');
     }
+
+    public function getMenus(Request $request)
+    {
+        $menus = TblService::getMenus($request->p);
+        return $this->sendSuccessResponse($menus);
+    }
+    
 }

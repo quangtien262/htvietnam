@@ -203,7 +203,7 @@ class CountriesTableSeeder extends Seeder
             ['name' => 'Zambia', 'code' => 'ZM', 'description' => null],
             ['name' => 'Zimbabwe', 'code' => 'ZW', 'description' => null],
         ];
-
+        DB::table('countries')->truncate();
         DB::table('countries')->insert($countries);
     }
 };

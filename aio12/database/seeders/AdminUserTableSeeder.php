@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\AdminUser;
+use Illuminate\Support\Facades\DB;
 
 class AdminUserTableSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class AdminUserTableSeeder extends Seeder
      */
     public function run()
     {
-        AdminUser::destroy(1);
+        DB::table('admin_users')->truncate();
         AdminUser::create([
             // 'id' => 1,
             'code' => 'NV00001',
@@ -25,7 +26,8 @@ class AdminUserTableSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'permission_group_id' => 1,
-            'chi_nhanh_id' => 1
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
         ]);
         AdminUser::create([
             // 'id' => 2,
@@ -36,7 +38,8 @@ class AdminUserTableSeeder extends Seeder
             'name' => 'An',
             'email' => 'an@gmail.com',
             'permission_group_id' => 1,
-            'chi_nhanh_id' => 1
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
         ]);
         AdminUser::create([
             // 'id' => 3,
@@ -47,7 +50,8 @@ class AdminUserTableSeeder extends Seeder
             'name' => 'Thảo',
             'email' => 'thao@gmail.com',
             'permission_group_id' => 1,
-            'chi_nhanh_id' => 1
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
         ]);
         AdminUser::create([
             'code' => 'NV00004',
@@ -57,7 +61,8 @@ class AdminUserTableSeeder extends Seeder
             'name' => 'ThoNT',
             'email' => 'thont@htvietnam.vn',
             'permission_group_id' => 1,
-            'chi_nhanh_id' => 1
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
         ]);
         AdminUser::create([
             'code' => 'NV00004',
@@ -67,7 +72,8 @@ class AdminUserTableSeeder extends Seeder
             'name' => 'HanhNT',
             'email' => 'hanhnt@htvietnam.vn',
             'permission_group_id' => 1,
-            'chi_nhanh_id' => 1
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
         ]);
     }
 }

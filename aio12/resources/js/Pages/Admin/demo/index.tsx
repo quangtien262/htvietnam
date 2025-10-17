@@ -564,7 +564,7 @@ export default function Dashboard(props) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 

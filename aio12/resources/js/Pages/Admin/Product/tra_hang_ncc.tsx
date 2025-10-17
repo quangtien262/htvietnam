@@ -36,7 +36,7 @@ import {
     CloseSquareOutlined,
     PrinterOutlined,
     CloseCircleOutlined,
-    UploadOutlined,
+    UploadOutlined,FileOutlined,
     CaretRightOutlined,DashboardOutlined 
 } from "@ant-design/icons";
 import {callApi} from "../../../Function/api";
@@ -754,7 +754,7 @@ export default function Dashboard(props) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 
@@ -1573,7 +1573,7 @@ export default function Dashboard(props) {
 
         return <div>
             <Modal
-                title={""}
+                title={<span className="title-modal01"><FileOutlined /> Thêm mới phiếu trả hàng NCC</span>}
                 open={isOpenFormEdit}
                 // onOk={formEdit}
                 onCancel={cancelEdit}

@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Admin\AdminMenu;
 use Illuminate\Support\Facades\DB;
 use App\Services\Service;
 use App\Models\Admin\Table;
@@ -56,7 +57,8 @@ class TblService extends Service
         'getQuery',
         'formatDataByID',
         'checkGenerateCode',
-        'saveDataBasic'
+        'saveDataBasic',
+        'getMenus', 'getChecklistPercent'
     ];
 
     protected function getPermissionDefault()
@@ -128,13 +130,24 @@ class TblService extends Service
         }
         $result = [];
         // $tables = Table::where('parent_id', 0)->where('show_in_menu', 1)->orderBy('sort_order', 'asc')->get();
-         $currentTblNamePermission = [
-                'permission_group', 'categories', 
-                'admin_users', 'news', 'users', 'orders',
-                 'contact', 'file_manager','doi_tac', 'products',
-                 'menus', 'web_config','video', 
-                 'page_setting','library','countries'
-            ];
+        $currentTblNamePermission = [
+            'permission_group',
+            'categories',
+            'admin_users',
+            'news',
+            'users',
+            'orders',
+            'contact',
+            'file_manager',
+            'doi_tac',
+            'products',
+            'menus',
+            'web_config',
+            'video',
+            'page_setting',
+            'library',
+            'countries'
+        ];
         $tables = Table::whereIn('name', $currentTblNamePermission)->orderBy('sort_order', 'asc')->get();
         foreach ($tables as $table) {
             // check ẩn cài đặt
@@ -229,7 +242,12 @@ class TblService extends Service
         return $selects;
     }
 
-    protected function getDatas($table, $columns, $request, $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
+    protected function getData($table, $id)
+    {
+        return TblModel::model($table->name)->where('id', $id)->first();
+    }
+
+    protected function getDatas($table, $columns, $request = [], $limit = 30, $conditions = [], $isRecycleBin = 0, $isSearchTime = false)
     {
         $per = self::getPermission();
         //select table
@@ -308,12 +326,12 @@ class TblService extends Service
             $searchData[$col->name] = $request[$col->name];
 
             if (in_array($col->type_edit, ['select'])) {
-                $searchData[$col->name] = intval($request[$col->name]);
+                $searchData[$col->name] = $request[$col->name];
                 $data = $data->where($col->name, $request[$col->name]);
                 continue;
             }
             if (in_array($col->type_edit, ['selects', 'tags'])) {
-                $searchData[$col->name] = intval($request[$col->name]);
+                $searchData[$col->name] = $request[$col->name];
                 $data = $data->whereJsonContains($col->name, intval($request[$col->name]));
                 continue;
             }
@@ -538,7 +556,7 @@ class TblService extends Service
             return [];
         }
         $datas = DB::table($table->name);
-
+        $datas = $datas->where('is_recycle_bin', 0);
         // đối với bảng hóa đơn, lấy danh sách thẻ theo khách hàng
         if (!empty($data) && $table_parent->name == 'hoa_don' && $table->name == 'card') {
             // dd($data);
@@ -885,9 +903,6 @@ class TblService extends Service
         // save
         $data->save();
         $dataId = $data->id;
-        // update thêm tùy theo đặc tính của mỗi tính năng
-        $data = $this->updateByBusiness($table, $data, $post);
-
 
         // generate code
         self::checkGenerateCode($data, $table, $columns);
@@ -895,22 +910,20 @@ class TblService extends Service
         // save log
         self::saveLog($table->id, $dataId, $dataOld);
 
-        if ($is_uploadImages == true) {
-            //$this->uploadImages2S3($post, $colImage, $dataId, $table);
-            $this->uploadImages($post, $colImages, $dataId, $table);
+        // upload image
+        foreach ($columns as $column) {
+            //images
+            if (!empty($post[$column->name]) && in_array($column->type_edit, ['image_crop', 'image', 'images_crop', 'images'])) {
+                //$this->uploadImages2S3($post, $colImage, $dataId, $table);
+                $this->uploadImages($post, $column, $dataId, $table);
+                continue;
+            }
+
         }
 
-        if ($is_uploadImage == true) {
-            $this->uploadImages($post, $colImage, $dataId, $table);
-        }
+        // update thêm tùy theo đặc tính của mỗi tính năng
+        $data = $this->updateByBusiness($table, $data, $post);
 
-        if ($is_uploadFile == true) {
-            $this->uploadFiles($post, $colFile, $dataId, $table);
-        }
-
-        if ($is_uploadFiles == true) {
-            $this->uploadFiles($post, $colFiles, $dataId, $table);
-        }
 
         $dataUpdate = [];
 
@@ -1021,7 +1034,7 @@ class TblService extends Service
         'valOld' => $valOld,
         'valNew' => $valNew,
         'titleLog' => $titleLog,
-      ] 
+      ]
      * @param mixed $tblLog
      * @return string
      */
@@ -1155,15 +1168,15 @@ class TblService extends Service
             }
 
             // set data insert
-            $data = [];
-            $data[$column->name] = $auto['prefix'] . $dataId;
+            // $data = [];
+            $data->{$column->name} = $auto['prefix'] . $dataId;
 
             if ($isSaveBarcode) {
                 $d = new DNS1D();
-                $data['barcode'] = $d->getBarcodeHTML($data[$column->name], 'C128');
+                $data->barcode = $d->getBarcodeHTML($data->{$column->name}, 'C128');
             }
-
-            $this->updateData($table->name, $dataId, $data);
+            $data->save();
+                // $this->updateData($table->name, $dataId, $data);
             return $data;
         }
     }
@@ -1271,52 +1284,21 @@ class TblService extends Service
     {
         $images = [];
         $avatar = '';
-
-        if (in_array($column->type_edit, ['image_crop', 'image'])) {
-            $url = '';
-            if (!isset($post['image'][0])) {
-                return false;
-            }
-            $img = $post['image'][0];
-            $url = $img['url'];
-            if ($img['status'] == 'done') {
-                $file = File::get('files/' . $img['url']);
-                Storage::disk('s3')->put($img['url'], $file);
-                $url = env('AWS_URL') . $img['url'];
-                // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
-                // $url = '/files/datas/' . $table->id .'/' . $img['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
+        $url = '';
+        if (!isset($post['image'][0])) {
+            return false;
         }
-
-        // multiple img
-        foreach ($post['images'] as $idx => $img) {
-            $url = $img['url'];
-            if ($img['status'] == 'OK') {
-                $url = $img['url'];
-            }
-
-            if ($img['status'] == 'done') {
-                $file = File::get('files/' . $img['url']);
-                Storage::disk('s3')->put($img['url'], $file);
-                $url = env('AWS_URL') . $img['name'];
-                // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
-                // $url = '/files/datas/' . $table->id .'/' . $img['name'];
-            }
-            if ($idx == 0) {
-                $avatar = $url;
-            }
-            $images[] = $url;
+        $img = $post['image'][0];
+        $url = $img['url'];
+        if ($img['status'] == 'done') {
+            $file = File::get('files/' . $img['url']);
+            Storage::disk('s3')->put($img['url'], $file);
+            $url = env('AWS_URL') . $img['url'];
+            // Storage::move($img['url'], 'datas/' . $table->id .'/' . $img['name']);
+            // $url = '/files/datas/' . $table->id .'/' . $img['name'];
         }
-
-        $dataInsert = '';
-        if (!empty($images)) {
-            $dataInsert = [
-                $column->name => json_encode(['avatar' => $avatar, 'images' => $images])
-            ];
-        }
-        $this->updateData($table->name, $dataId, $dataInsert);
+        $this->updateData($table->name, $dataId, [$column->name => $url]);
+        return true;
     }
 
     protected function uploadImages($post, $column, $dataId, $table)
@@ -1326,30 +1308,20 @@ class TblService extends Service
         if (!file_exists('files/datas')) {
             mkdir('files/datas', 0777, true);
         }
-        if (in_array($column->type_edit, ['image_crop', 'image'])) {
-            $url = '';
-            if (!isset($post[$column->name][0])) {
-                return false;
-            }
-            $img = $post[$column->name][0];
-            $url = $img['url'];
-            if ($img['status'] == 'done') {
-                Storage::move($img['url'], 'datas/' . $table->id . '/' . $img['name']);
-                $url = '/files/datas/' . $table->id . '/' . $img['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
+        if (!file_exists('files/datas/' . $table->id)) {
+            mkdir('files/datas/' . $table->id, 0777, true);
         }
-
+        // dd($post[$column->name]);
         // multiple img
         foreach ($post[$column->name] as $idx => $img) {
-            $url = $img['url'];
+            // dd( $img);
+            // $url = $img['url'];
             if ($img['status'] == 'OK') {
                 $url = $img['url'];
             }
 
             if ($img['status'] == 'done') {
-                Storage::move($img['url'], 'datas/' . $table->id . '/' . $img['name']);
+                Storage::move($img['response']['data']['filePath'], 'datas/' . $table->id . '/' . $img['name']);
                 $url = '/files/datas/' . $table->id . '/' . $img['name'];
             }
             if ($idx == 0) {
@@ -1366,52 +1338,6 @@ class TblService extends Service
         }
         $this->updateData($table->name, $dataId, $dataInsert);
     }
-
-    protected function uploadFiles($post, $column, $dataId, $table)
-    {
-        $files = [];
-        if (!file_exists('files/datas')) {
-            mkdir('files/datas', 0777, true);
-        }
-        if (in_array($column->type_edit, ['file'])) {
-            $url = '';
-            if (!isset($post[$column->name][0])) {
-                return false;
-            }
-            $file = $post[$column->name][0];
-            $url = $file['url'];
-            if ($file['status'] == 'done') {
-                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
-                $url = '/files/datas/' . $table->id . '/' . $file['name'];
-            }
-            $this->updateData($table->name, $dataId, [$column->name => $url]);
-            return true;
-        }
-
-        // multiple files
-        foreach ($post[$column->name] as $idx => $file) {
-            $url = $file['url'];
-            if ($file['status'] == 'OK') {
-                $url = $file['url'];
-            }
-
-            if ($file['status'] == 'done') {
-                Storage::move($file['url'], 'datas/' . $table->id . '/' . $file['name']);
-                $url = '/files/datas/' . $table->id . '/' . $file['name'];
-            }
-            $files[] = $url;
-        }
-
-        $dataInsert = '';
-        if (!empty($files)) {
-            $dataInsert = [
-                $column->name => json_encode($files)
-            ];
-        }
-        $this->updateData($table->name, $dataId, $dataInsert);
-    }
-
-
 
     /*
      * insert
@@ -1496,7 +1422,10 @@ class TblService extends Service
     {
         $result = [];
         $table = Table::find($tableId);
-        $datas = DB::table($table->name)->where('parent_id', $parentId)->orderBy('sort_order', 'asc');
+        $datas = DB::table($table->name)
+            ->where('parent_id', $parentId)
+            ->where('is_recycle_bin', '!=', 1)
+            ->orderBy('sort_order', 'asc');
         if (!empty($conditions)) {
             foreach ($conditions as $key => $val) {
                 $datas = $datas->where($key, $val);
@@ -1626,29 +1555,6 @@ class TblService extends Service
         ];
     }
 
-    private function dataEditDefault($data)
-    {
-        $result = [
-            'tablesPermission' => [],
-            'permissionList_all' => [],
-            'permissionList' => [],
-            'selectData' => [],
-            'selectsData' => [],
-            'ckeditorData' => [],
-            'imagesData' => [],
-            'tabs' => [],
-            'blocks' => [],
-            'countImage' => 1,
-            'isImage' => false,
-            'isImages' => false
-        ];
-        foreach ($data as $key => $val) {
-            $result[$key] = $val;
-        }
-
-        return $result;
-    }
-
 
     protected function getDataLanguageEdit($tableId, $dataId, $route = '')
     {
@@ -1696,7 +1602,7 @@ class TblService extends Service
         return $datasView;
     }
 
-    protected function getDataEdit($tableId, $dataId, $route = '')
+    protected function getDataEdit($tableId, $dataId = 0, $route = '')
     {
         $table = Table::find($tableId);
         $tables = self::getAdminMenu($tableId, true);
@@ -1704,11 +1610,6 @@ class TblService extends Service
         $data = [];
         if (!empty($dataId)) {
             $data = self::getDataById($tableId, $dataId, $route);
-
-            // if(empty($data)) {
-            //     return false;
-            // }
-
             $data = json_decode(json_encode($data), true);
         }
         $tablesPermission = [];
@@ -1774,23 +1675,12 @@ class TblService extends Service
             // check type == selects
             if (in_array($col->type_edit, ['selects', 'tags', 'selects_normal']) && !empty($col->select_table_id)) {
                 $dataTmp = self::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectsData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
                         $selectColor[$col->name][$d['value']] = $d['color'];
                     }
                 }
-            }
-
-            if (in_array($col->type_edit, ['images', 'images_crop'])) {
-                $countImage = intval($col->conditions);
-                $isImages = true;
-            }
-
-            if (in_array($col->type_edit, ['image', 'image_crop'])) {
-                $countImage = 1;
-                $isImage = true;
             }
 
             if ($col->type_edit == 'permission_list') {
@@ -1811,6 +1701,9 @@ class TblService extends Service
                 $dataSelectTbl[$col->name] = $getDataSelectTbl['datas']['dataSource'];
                 $isShowModalSelectTable[$col->name] = false;
             }
+            if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop'])) {
+                $imagesData[$col->name] = [];
+            }
 
             if ($dataId > 0) {
                 // check type == ckeditor
@@ -1823,59 +1716,45 @@ class TblService extends Service
                 }
 
                 // check type == images
-                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop']) && !empty($data[$col->name])) {
-                    $jsonImg = CommonService::isJson($data[$col->name]);
-                    if (!$jsonImg) {
-                        if (!empty($data[$col->name])) {
-                            $imagesData[] = [
-                                'name' => $data[$col->name],
-                                'status' => 'OK',
-                                'url' => $data[$col->name]
-                            ];
-                            $avatar = $data[$col->name];
-                        }
+                if (in_array($col->type_edit, ['image', 'image_crop', 'images', 'images_crop'])) {
+                    $imagesData[$col->name] = [];
+
+                    if (empty($data[$col->name])) {
+                        continue;
+                    }
+                    if (is_array($data[$col->name])) {
+                        $jsonImage = $data[$col->name];
                     } else {
-                        $avatar = $jsonImg['avatar'];
-                        foreach ($jsonImg['images'] as $k => $img) {
-                            $imagesData[] = [
-                                'name' => 'Image-' . $k,
+                        $jsonImage = CommonService::isJson($data[$col->name]);
+                    }
+
+                    if ($jsonImage && isset($jsonImage['images'])) {
+
+                        foreach ($jsonImage['images'] as $k => $img) {
+                            $imagesData[$col->name][] = [
+                                'name' => 'image-' . $k,
                                 'status' => 'OK',
                                 'url' => $img
                             ];
+                            if ($k == 0) {
+                                $avatar[$col->name] = $img;
+                            }
                         }
+                    } else {
+                        $imagesData[$col->name][] = [
+                            'name' => 'image-0',
+                            'status' => 'OK',
+                            'url' => $data[$col->name]
+                        ];
+                        $avatar[$col->name] = $data[$col->name];
                     }
 
-                    //
-                    if (in_array($col->type_edit, ['encryption'])) {
-                        $data[$col->name] = '';
-                    }
+                    $avatar[$col->name] = $data[$col->name];
                 }
 
-                if (in_array($col->type_edit, ['file', 'files']) && !empty($data[$col->name])) {
-                    $jsonFile = CommonService::isJson($data[$col->name]);
-                    if (!$jsonFile) {
-                        if (!empty($data[$col->name])) {
-                            $filesData[] = [
-                                'name' => $data[$col->name],
-                                'status' => 'OK',
-                                'url' => $data[$col->name]
-                            ];
-                            $avatar = $data[$col->name];
-                        }
-                    } else {
-                        foreach ($jsonFile as $k => $img) {
-                            $filesData[] = [
-                                'name' => 'file-' . $k,
-                                'status' => 'OK',
-                                'url' => $img
-                            ];
-                        }
-                    }
-
-                    //
-                    if (in_array($col->type_edit, ['encryption'])) {
-                        $data[$col->name] = '';
-                    }
+                //
+                if (in_array($col->type_edit, ['encryption'])) {
+                    $data[$col->name] = '';
                 }
             }
         }
@@ -1894,6 +1773,7 @@ class TblService extends Service
             $cascaderData[$key] = $item;
         }
         $dataRelated = $this->getDataRelated($table, $data);
+        $p = $_GET['p'] ?? 0;
         return [
             'time' => time(),
             'dataId' => $dataId,
@@ -1907,9 +1787,7 @@ class TblService extends Service
             'selectsData' => $selectsData,
             'ckeditorData' => $ckeditorData,
             'imagesData' => $imagesData,
-            'filesData' => $filesData,
             'avatar' => $avatar,
-            'countImage' => $countImage,
             'userPermission' => $userPermission,
             'permissionList_all' => $permissionList_all,
             'tablesPermission' => $tablesPermission,
@@ -1922,7 +1800,9 @@ class TblService extends Service
             'dataRelated' => $dataRelated,
             'columnSelectTable' => $columnSelectTable,
             'cascaderData' => $cascaderData,
-            'token' => csrf_token()
+            'token' => csrf_token(),
+            'p' => $p,
+            'menus' => TblService::getMenus($p)
         ];
     }
 
@@ -2005,140 +1885,6 @@ class TblService extends Service
         return $selectData;
     }
 
-    private function selectsData($col, $selectsData)
-    {
-        $dataTmp = self::getDataSelect($col);
-        $selectsData[$col->name]['selectbox'] = $dataTmp;
-        foreach ($dataTmp as $d) {
-            $selectsData[$col->name][$d['value']] = $d['label'];
-            if (!empty($d['color'])) {
-                $selectColor[$col->name][$d['value']] = $d['color'];
-            }
-        }
-        return $selectsData;
-    }
-
-    private function getDataByColumn($columns, $data, $route = '')
-    {
-        $countImage = 1;
-        $isImages = false;
-        $permissionList_all = [];
-        $permissionList = [];
-
-        $tablesPermission = [];
-        $selectData = [];
-        $selectsData = [];
-        $ckeditorData = [];
-        $imagesData = [];
-        $blocks = [];
-        $isImage = false;
-        $tabs = [];
-        foreach ($columns as $col) {
-            if ($col->block_type == 'tab') {
-                $tabs[] = $col;
-                continue;
-            }
-            if (!empty($col->block_type)) {
-                $blocks[] = $col;
-                continue;
-            }
-            // check type == select
-            if (in_array($col->type_edit, ['select', 'selects'])) {
-                if ($route == 'data.detail') {
-                    $dataTmp = self::getDataSelect($col);
-                    foreach ($dataTmp as $d) {
-                        $selectData[$col->name][$d['value']] = $d['label'];
-                        if (!empty($d['color']))
-                            $selectColor[$col->name][$d['value']] = $d['color'];
-                    }
-                } else {
-                    $selectData[$col->name] = self::getDataSelect($col);
-                }
-            }
-
-            // check type == selects
-            if (in_array($col->type_edit, ['selects']) && !empty($col->select_table_id)) {
-                $dataTmp = self::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
-                foreach ($dataTmp as $d) {
-                    $selectsData[$col->name][$d['value']] = $d['label'];
-                    if (!empty($d['color'])) {
-                        $selectColor[$col->name][$d['value']] = $d['color'];
-                    }
-                }
-            }
-
-            if (in_array($col->type_edit, ['images', 'images_crop'])) {
-                $countImage = $col->conditions;
-                $isImages = true;
-            }
-
-            if (in_array($col->type_edit, ['image', 'image_crop'])) {
-                $isImage = true;
-            }
-
-            if ($col->type_edit == 'permission_list') {
-                $permissionList = json_decode($data->permission, true);
-                $per = TblService::getPermissionDefault();
-                $permissionList_all = $per['all'];
-                $tablesPermission = TblService::getAdminMenu(0, true);
-            }
-
-            if (isset($data->id) && $data->id > 0) {
-                // check type == ckeditor
-                if (in_array($col->type_edit, ['ckeditor', 'summernote', 'summoner'])) {
-                    $ckeditorData[$col->name] = $data->{$col->name};
-                }
-
-                // check type == image
-                if (in_array($col->type_edit, ['image', 'images', 'image_crop', 'images_crop'])) {
-                    $jsonImg = app('CommonService')->isJson($data->{$col->name});
-                    if (!$jsonImg) {
-                        if (!empty($data->{$col->name})) {
-                            $imagesData[] = [
-                                'name' => $data->{$col->name},
-                                'status' => 'OK',
-                                'url' => $data->{$col->name},
-                                'uid' => 1
-                            ];
-                        }
-                    } else {
-                        foreach ($jsonImg['images'] as $k => $img) {
-                            $imagesData[] = [
-                                // 'name' => $img,
-                                'name' => 'image-' + $k,
-                                'status' => 'OK',
-                                'url' => $img,
-                                'uid' => $k
-                            ];
-                        }
-                    }
-                }
-
-                //
-                if (in_array($col->type_edit, ['encryption'])) {
-                    $data->{$col->name} = '';
-                }
-            }
-        }
-
-        return [
-            'tabs' => $tabs,
-            'blocks' => $blocks,
-            'data' => $data,
-            'selectData' => $selectData,
-            'selectsData' => $selectsData,
-            'ckeditorData' => $ckeditorData,
-            'imagesData' => $imagesData,
-            'countImage' => $countImage,
-            'permissionList' => $permissionList,
-            'permissionList_all' => $permissionList_all,
-            'tablesPermission' => $tablesPermission,
-            'isImages' => $isImages,
-            'isImage' => $isImage,
-        ];
-    }
-
     protected function getDataSource($datas, $columns, $isShowAll = false)
     {
         $fastEditClass = [];
@@ -2198,7 +1944,6 @@ class TblService extends Service
         foreach ($columns as $col) {
             if (in_array($col->type_edit, ['select']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
@@ -2208,7 +1953,6 @@ class TblService extends Service
             }
             if (in_array($col->type_edit, ['selects', 'tags']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
                 foreach ($dataTmp as $d) {
                     $selectsData[$col->name][$d['value']] = $d['label'];
                     if (!empty($d['color'])) {
@@ -2344,6 +2088,7 @@ class TblService extends Service
         }
 
         if ($isGetProduct) {
+            // chỉ lấy sản phẩm: PRODUCT_TYPE_ID = 1
             $products = Product::select(
                 'id',
                 'name',
@@ -2352,7 +2097,7 @@ class TblService extends Service
                 'gia_ban',
                 'ton_kho',
                 'ton_kho_detail',
-            )->get();
+            )->where('is_draft', 0)->where('is_recycle_bin', 0)->where('is_active', 1)->where('product_type_id', 1)->get();
 
             $viewData['products'] = $products;
         }
@@ -2383,13 +2128,23 @@ class TblService extends Service
         $viewData['fastEditClass'] = $dataSource['fastEditClass'];
         $viewData['columnData'] = TblService::getColumnSetting($tableId);
         $viewData['tableSetting'] = TblService::formatTableDDItem($table->display_name, $table);
+        $viewData['token'] = csrf_token();
+        $viewData['p'] = $request->p ?? 0;
         return $viewData;
     }
 
-    protected function formatData($tableName, $name = 'name')
+    protected function formatData($tableName, $conditions = [])
     {
+
+        $datas = DB::table($tableName)->where('is_recycle_bin', 0);
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $datas = $datas->where($key, $val);
+            }
+        }
+        $datas = $datas->get();
+
         $result = [];
-        $datas = DB::table($tableName)->where('is_recycle_bin', 0)->get();
         foreach ($datas as $data) {
             $result[$data->id] = $data;
         }
@@ -2510,5 +2265,35 @@ class TblService extends Service
         }
 
         return $data;
+    }
+
+    protected function getMenus($parentID)
+    {
+        $menus = [];
+        $adminMenu = AdminMenu::baseQuery()->where('parent_id', $parentID)->get()->toArray();
+        foreach ($adminMenu as $menu) {
+            $subs = AdminMenu::baseQuery()->where('parent_id', $menu['key'])->get()->toArray();
+            $menus[] = [
+                'parent' => $menu,
+                'children' => $subs
+            ];
+        }
+        return $menus;
+    }
+
+    protected function getChecklistPercent($checklist)
+    {
+        $percent = 100;
+        if (!empty($checklist)) {
+            $total = count($checklist);
+            $done = 0;
+            foreach ($checklist as $cl) {
+                if ($cl['is_checked']) {
+                    $done++;
+                }
+            }
+            $percent = round(($done / $total) * 100, 2);
+        }
+        return $percent;
     }
 }

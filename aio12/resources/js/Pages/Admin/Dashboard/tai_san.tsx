@@ -1,12 +1,12 @@
 import React from 'react';
 import AdminLayout from '@/layouts/AdminLayout';
 import { Link, router } from "@inertiajs/react";
-
 import {
     Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Statistic,
     Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, List, Popconfirm,
     Divider, Table, Spin, Badge
 } from 'antd';
+import type { TabsProps } from 'antd';
 
 import {
     UsergroupAddOutlined,
@@ -21,142 +21,193 @@ import {
 
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    Cell, Pie, PieChart, ResponsiveContainer
+    Cell, Pie, PieChart, ResponsiveContainer, BarChart, Bar
 } from 'recharts';
 
 import "../../../../css/home.css";
 
 
-import { routeTaiSan } from "../../../Function/config_route";
+// Dữ liệu mẫu cho báo cáo tài sản
+const dataOverview = [
+  { key: 1, name: "Tổng số tài sản", value: 120 },
+  { key: 2, name: "Tài sản đang sử dụng", value: 95 },
+  { key: 3, name: "Tài sản đã thanh lý", value: 10 },
+  { key: 4, name: "Tài sản hỏng", value: 5 },
+  { key: 5, name: "Tài sản sắp hết khấu hao", value: 8 },
+];
+const dataType = [
+  { type: "Máy tính", value: 40 },
+  { type: "Xe máy", value: 20 },
+  { type: "Điện thoại", value: 30 },
+  { type: "Khác", value: 30 },
+];
+const dataChange = [
+  { month: "2025-06", added: 5, liquidated: 2 },
+  { month: "2025-07", added: 8, liquidated: 1 },
+  { month: "2025-08", added: 3, liquidated: 4 },
+  { month: "2025-09", added: 6, liquidated: 2 },
+];
+const dataDept = [
+  { dept: "Phòng IT", value: 35 },
+  { dept: "Phòng Kế toán", value: 25 },
+  { dept: "Phòng HCNS", value: 30 },
+  { dept: "Phòng KD", value: 20 },
+];
+const dataDepreciation = [
+  { asset: "Laptop A", remain: 2 },
+  { asset: "Xe máy B", remain: 1 },
+  { asset: "Điện thoại C", remain: 3 },
+];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-export default function Dashboard(props) {
-    const changeMenu = (id) => {
-        router.get(route('data.index', [id]));
-    }
-
-  
+interface DashboardProps {
+    auth?: any;
+}
+export default function Dashboard(props: DashboardProps) {
+    const items: TabsProps['items'] = [
+        {
+            key: '1',
+            label: 'Tổng quan tài sản',
+            children: (
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Card title="Bảng tổng quan tài sản">
+                            <Table
+                                dataSource={dataOverview}
+                                columns={[
+                                    { title: "Chỉ số", dataIndex: "name", key: "name" },
+                                    { title: "Giá trị", dataIndex: "value", key: "value" },
+                                ]}
+                                pagination={false}
+                                rowClassName={(_, idx) => (idx % 2 === 0 ? "even-row" : "odd-row")}
+                            />
+                        </Card>
+                    </Col>
+                    <Col span={12}>
+                        <Card title="Phân loại tài sản">
+                            <ResponsiveContainer width="100%" height={250}>
+                                <PieChart>
+                                    <Pie
+                                        data={dataType}
+                                        dataKey="value"
+                                        nameKey="type"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={80}
+                                        label
+                                    >
+                                        {dataType.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </Card>
+                    </Col>
+                </Row>
+            ),
+        },
+        {
+            key: '2',
+            label: 'Biến động tài sản',
+            children: (
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Card title="Biểu đồ biến động tài sản">
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={dataChange} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="added" name="Tăng mới" fill="#52c41a" />
+                                    <Bar dataKey="liquidated" name="Thanh lý" fill="#f5222d" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                            <Table
+                                dataSource={dataChange}
+                                columns={[
+                                    { title: "Tháng", dataIndex: "month", key: "month" },
+                                    { title: "Tăng mới", dataIndex: "added", key: "added" },
+                                    { title: "Thanh lý", dataIndex: "liquidated", key: "liquidated" },
+                                ]}
+                                pagination={false}
+                                rowClassName={(_, idx) => (idx % 2 === 0 ? "even-row" : "odd-row")}
+                                style={{ marginTop: 16 }}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            ),
+        },
+        {
+            key: '3',
+            label: 'Tài sản theo phòng ban',
+            children: (
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Card title="Phân bổ tài sản theo phòng ban">
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={dataDept} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="dept" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="value" name="Số lượng tài sản" fill="#1890ff" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                            <Table
+                                dataSource={dataDept}
+                                columns={[
+                                    { title: "Phòng ban", dataIndex: "dept", key: "dept" },
+                                    { title: "Số lượng tài sản", dataIndex: "value", key: "value" },
+                                ]}
+                                pagination={false}
+                                rowClassName={(_, idx) => (idx % 2 === 0 ? "even-row" : "odd-row")}
+                                style={{ marginTop: 16 }}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            ),
+        },
+        {
+            key: '4',
+            label: 'Tài sản sắp hết khấu hao',
+            children: (
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Card title="Danh sách tài sản sắp hết khấu hao">
+                            <Table
+                                dataSource={dataDepreciation}
+                                columns={[
+                                    { title: "Tên tài sản", dataIndex: "asset", key: "asset" },
+                                    { title: "Số năm còn lại", dataIndex: "remain", key: "remain" },
+                                ]}
+                                pagination={false}
+                                rowClassName={(_, idx) => (idx % 2 === 0 ? "even-row" : "odd-row")}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            ),
+        },
+    ];
     return (
         <AdminLayout
             auth={props.auth}
             header='Trang chủ'
-            tables={routeTaiSan}
             content={
                 <div>
-                    <Card type="inner" title='Điều hướng nhanh'>
-                        <Select placeholder="Nhập để điều hướng quản trị nhanh đến chức năng tương ứng"
-                            showSearch
-                            style={{ width: '100%' }}
-                            optionFilterProp="children"
-                            onChange={changeMenu}
-                            filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                            filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())}
-                            options={props.tablesSelects}
-                        />
-                    </Card>
-
-                    <Row className='main-home'>
-                        <Col span={18}>
-                            <Row>
-
-                                {/* Top ban chay */}
-                                <Col span={24} className='item-home'>
-                                    <div className='sub-item-home'>
-                                        <h3>
-                                            <MonitorOutlined />
-                                            Tải sản mới mua gần đây
-                                        </h3>
-
-                                        <Card title="Biểu đồ doanh thu">
-                                            {/* <LineChart width={600} height={300} data={data}>
-                                                <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
-                                                <XAxis dataKey="name" />
-                                                <YAxis />
-                                                <Tooltip />
-                                                <Legend />
-                                                <Line type="monotone" dataKey="doanhThu" stroke="#8884d8" />
-                                            </LineChart> */}
-                                        </Card>
-
-                                        {/* <List className="list-01"
-                                            dataSource={props.banChay}
-                                            renderItem={(item, index) => (
-                                                <List.Item>
-                                                    <List.Item.Meta
-                                                        avatar={<a><RightSquareOutlined /></a>}
-                                                        title={item.title}
-                                                        description={<div>
-                                                            <span className="item-des">Giá bán: {item.gia_ban}</span>
-                                                            <span className="item-des">SL đã bán: 100</span>
-                                                        </div>}
-                                                    />
-                                                </List.Item>
-                                            )}
-                                        /> */}
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col span={6} className='item-home'>
-                            <div className='sub-item-home'>
-                                <h3>
-                                    <MonitorOutlined />
-                                    Thống kê theo loại sản phẩm
-                                </h3>
-                                
-                            </div>
-
-                            <Card variant="borderless">
-                                <Statistic
-                                    title="Tuần này"
-                                    value={9.3}
-                                    precision={2}
-                                    valueStyle={{ color: '#cf1322' }}
-                                    prefix={<ArrowDownOutlined />}
-                                    suffix="%"
-                                />
-                            </Card>
-                            <br />
-                            <Card variant="borderless" className='sub-item-home'>
-                                <Statistic
-                                    title="Tuần trước"
-                                    value={11.28}
-                                    precision={2}
-                                    valueStyle={{ color: '#3f8600' }}
-                                    prefix={<ArrowUpOutlined />}
-                                    suffix="%"
-                                />
-                            </Card>
-
-
-                            <div className='sub-item-home'>
-                                <h3>
-                                    <SoundOutlined />
-                                    THÔNG BÁO
-                                </h3>
-                                <List
-                                    dataSource={[
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa thêm mới sản phẩm <a>SP000123</a></div>,
-                                        },
-                                        {
-                                            title: <div><a>An</a> Vừa tạo HD <a>HD0232</a></div>,
-                                        }
-                                    ]}
-                                    renderItem={(item, index) => (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                avatar={<a><MessageOutlined /></a>}
-                                                title={<span className='text-normal'>{item.title}</span>}
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
-                            </div>
-                        </Col>
-                    </Row>
+                    <Tabs tabPosition="left" defaultActiveKey="1" items={items} />
+                    <style>{`
+                        .even-row { background: #fafafa; }
+                        .odd-row { background: #fff; }
+                    `}</style>
                 </div>
             }
         />

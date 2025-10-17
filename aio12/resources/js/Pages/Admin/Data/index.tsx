@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
 import dayjs from "dayjs";
 import {
@@ -18,11 +18,17 @@ import {
     Divider,
     Image,
     Upload,
-    Dropdown,
+    Dropdown, Tabs
 } from "antd";
 
-import { Link, router } from "@inertiajs/react";
-import axios from "axios";
+
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
 import {
     ArrowRightOutlined,
     FormOutlined,
@@ -36,13 +42,15 @@ import {
     UploadOutlined,
     CaretRightOutlined, SettingOutlined
 } from "@ant-design/icons";
+
+import { Link, router } from "@inertiajs/react";
+import axios from "axios";
 import "../../../../css/form.css";
-import "../../../../css/popconfirm_hidden_btn.css";
-import { itemMenu } from "../../../Function/config_route";
+// import "../../../../css/popconfirm_hidden_btn.css";
 import { inArray, parseJson, numberFormat, showsettingMenu, formatGdata_column, onDrop } from "../../../Function/common";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../../Function/constant';
-import { showLog, loadDataLanguage } from '../../../Function/auto_load';
-const { TextArea } = Input;
+
+import ImgCrop from 'antd-img-crop';
 
 import {
     HTSelect,
@@ -56,11 +64,14 @@ import {
     HTTime, HTColor, HTCascaderTable, smartSearch02, smartSearch, showDataSearch, showDataSearch02
 } from "../../../Function/input";
 
-import { showSelects, showSelect } from '../../../Function/selects_table';
+import { checkRule, showData, showDataSelectTable } from '../../../Function/data';
+import { contentFormData } from '../../../components/comp_data';
 
+import { showSelects, showSelect } from '../../../Function/selects_table';
+import { callApi } from '../../../Function/api';
+const { TextArea } = Input;
 export default function Dashboard(props: any) {
     sessionStorage.clear();
-    const [dataLang, setDataLang] = useState([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
@@ -68,17 +79,17 @@ export default function Dashboard(props: any) {
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
     const [dataSource, setDataSource] = useState(props.dataSource);
 
+    const [fileList, setFileList] = useState([]);
+    const [documentFile, setDocumentFile] = useState([]);
+
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
 
     // upload excel
-    const [fileList, setFileList] = useState([]);
     const [uploading, setUploading] = useState(false);
 
-    const [formEdit] = Form.useForm();
-    const [idAction, setIdAction] = useState(0);
+    const [dataAction, setDataAction] = useState([]);
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
-    const [isStopSubmit, setIsStopSubmit] = useState(false);
 
     // import excel
     const [loadingBtnExport, setLoadingBtnExport] = useState(false);
@@ -193,6 +204,10 @@ export default function Dashboard(props: any) {
             });
     };
 
+
+
+
+
     const onSelectChange = (newSelectedRowKeys) => {
         setSelectedRowKeys(newSelectedRowKeys);
     };
@@ -279,7 +294,7 @@ export default function Dashboard(props: any) {
     };
 
 
-    function onFinishInputFastEdit(value, col, record) {
+    function onFinishInputFastEdit(value: any, col: any, record: any) {
         // set value
         value.column_name = col.name;
         value.id = record.id;
@@ -338,6 +353,7 @@ export default function Dashboard(props: any) {
                 setUploading(false);
             });
     };
+
     const uploadConfig = {
         onRemove: (file) => {
             const index = fileList.indexOf(file);
@@ -351,6 +367,8 @@ export default function Dashboard(props: any) {
         },
         fileList,
     };
+
+
     const onFinishFailedFastEdit = (value) => {
         openNotification("error", "Cập nhật thất bại");
     };
@@ -359,9 +377,9 @@ export default function Dashboard(props: any) {
         let rule = [];
         if (col.require === 1) {
             rule.push({
-                    required: true,
-                    message: '"' + col.display_name + '" Không được bỏ trống',
-                })
+                required: true,
+                message: '"' + col.display_name + '" Không được bỏ trống',
+            })
         }
         const type = col.type_edit;
         switch (type) {
@@ -418,7 +436,7 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -440,7 +458,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectsData[col.name].selectbox}
+                            // options={props.selectsData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -462,7 +481,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={props.selectsData[col.name].selectbox}
+                            // options={props.selectsData[col.name].selectbox}
+                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -504,7 +524,7 @@ export default function Dashboard(props: any) {
                     }
                 );
             } catch (error) {
-                // console.log('err', error);
+                console.log('err', error);
             }
             initialValues[col.name] = selects;
         }
@@ -565,18 +585,18 @@ export default function Dashboard(props: any) {
 
     function configColumnData() {
         let result = props.columns
-            .filter(function (col) {
+            .filter(function (col: any) {
                 if (col.show_in_list === 1) {
                     return true;
                 }
                 return false;
             })
-            .map((col) => {
+            .map((col: any) => {
                 return {
                     title: col.display_name,
                     dataIndex: col.name,
                     key: col.dataIndex,
-                    render: (_, record) => {
+                    render: (_: any, record: any) => {
                         if (['select'].includes(col.type_edit)) {
                             return <div>{showSelect(col, record)} {fastEdit(col, record)}</div>
                         }
@@ -615,7 +635,6 @@ export default function Dashboard(props: any) {
                         };
 
                         if (['cascader'].includes(col.type_edit) && record[col.name]) {
-                            console.log('xxxxxx', record[record[col.name]]);
                             try {
                                 return record[record[col.name]].info.name;
                             } catch (error) {
@@ -652,7 +671,7 @@ export default function Dashboard(props: any) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 
@@ -662,7 +681,7 @@ export default function Dashboard(props: any) {
             if (props.table.form_data_type === 2) {
                 return <Button onClick={() => { editData(record) }} type="button" className="icon-edit"><EditOutlined /> </Button>
             }
-            return <Link href={route("data.edit", [props.tableId, record.index,])}>
+            return <Link href={route("data.edit", { tableId: props.tableId, dataId: record.id, p: props.p })}>
                 <Button type="button" className="icon-edit"><EditOutlined /> </Button>
             </Link>
         }
@@ -670,7 +689,7 @@ export default function Dashboard(props: any) {
 
     function checkShowBtnDetail(record) {
         if (props.table.is_show_btn_detail === 1 && inArray(props.table.id, props.userPermission.table_view)) {
-            return <Link href={route("data.detail", [props.tableId, record.index,])}>
+            return <Link href={route("data.detail", { tableId: props.tableId, dataId: record.id, p: props.p })}>
                 <Button type="button" className="icon-view"><EyeOutlined /> </Button>
             </Link>
         }
@@ -690,6 +709,7 @@ export default function Dashboard(props: any) {
                 }
             }
         }
+        values.p = props.p;
         router.get(route("data.index", [props.table.id]), values);
     };
 
@@ -738,7 +758,7 @@ export default function Dashboard(props: any) {
 
     function checkShowBtnDelete() {
         let result = "";
-        if (inArray(props.table.id, props.userPermission.table_delete)) {
+        if (inArray(props.table.id, props.userPermission.table_delete) && props.table.have_delete === 1) {
             result = (
                 <Button
                     type="primary"
@@ -792,7 +812,7 @@ export default function Dashboard(props: any) {
 
     const exportExcel = () => {
         setLoadingBtnExport(true);
-        router.get(route("data.export", [props.tableId]), {
+        router.get(route("data.export", { tableId: props.tableId, p: props.p }), {
             ids: selectedRowKeys,
         });
         setIsOpenConfirmExportExcel(false);
@@ -801,7 +821,7 @@ export default function Dashboard(props: any) {
 
     const exportAllDBExcel = () => {
         setLoadingBtnExport(true);
-        router.get(route("data.export", [props.tableId]), {
+        router.get(route("data.export", { tableId: props.tableId, p: props.p }), {
             search: props.request,
         });
         setIsOpenConfirmExportAllExcel(false);
@@ -961,15 +981,6 @@ export default function Dashboard(props: any) {
                     <label className="label-title01"><a className="a-icon"><CaretRightOutlined /></a>{col02.display_name}: </label>{record[col02.name]}
                 </Col>;
             };
-
-
-            // if(['image', 'image_crop'].includes(col02.type_edit)) {
-            //     return <Image className="image-index" src={record[col02.name]}></Image>;
-            // }
-
-            // if(['images', 'images_crop'].includes(col02.type_edit) && record[col02.name].avatar) {
-            //     return <Image className="image-index" src={record[col02.name].avatar}></Image>;
-            // }
         });
 
         return <Row>
@@ -1041,122 +1052,13 @@ export default function Dashboard(props: any) {
 
     const cancelEdit = () => {
         setIsOpenFormEdit(false);
-    }
-
-    const onFinishFormEdit = (values: any) => {
-        setIsStopSubmit(false);
-        values.id = idAction;
-        for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
-            if (!values[key]) {
-                values[key] = val;
-            }
-        }
-
-        // return
-        if (isStopSubmit) {
-            message.error("Vui lòng chờ tải xong hình ảnh");
-            return false;
-        }
-
-        values = formatValueForm(props.columns, values);
-
-        console.log('va', values);
-        // values.tiny_images = tinyImageName;
-        values.submit_edirect = 'api';
-        let link;
-        if (idAction === 0) {
-            link = route("data.store", [props.table.id]);
-        } else {
-            link = route("data.update", [props.table.id, idAction]);
-        }
-
-        setLoadingTable(true);
-        setIsOpenFormEdit(false);
-        axios.post(link, values).then((response) => {
-            console.log('res', response);
-            if (response.data.status_code === 200) {
-                message.success("Đã lưu dữ liệu thành công");
-                location.reload();
-            } else {
-                message.error("Đã lưu dữ liệu thất bại");
-            }
-
-            setLoadingTable(false);
-        }).catch((error) => {
-            message.error("Lưu dữ liệu thất bại");
-        });
-    };
-
-    function formatValueForm(columns, values) {
-        for (const [key, col] of Object.entries(columns)) {
-            if (col.edit !== 1) {
-                values[col.name] = '';
-                continue;
-            }
-            if (col.type_edit === "tiny" && editor.current[col.name]) {
-                values[col.name] = editor.current[col.name].getContents();
-            }
-            if (col.type_edit === "permission_list") {
-                values[col.name] = isCheckAllPermission
-                    ? props.permissionList_all
-                    : permissionList;
-            }
-            if (col.type_edit === "date") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_FORMAT);
-            }
-            if (col.type_edit === "datetime") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_TIME_FORMAT);
-            }
-            if (col.type_edit === "time") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(TIME_FORMAT);
-            }
-            // if (col.type_edit === "selects_table") {
-            //     values[col.name] = dataSourceSelectTbl[col.name].datas.dataSource;
-            // }
-            if (col.type_edit === "color") {
-                values[col.name] = values[col.name].toHexString();
-            }
-
-            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
-                if (fileList && fileList.length > 0) {
-                    let images = fileList.map((file) => {
-                        if (!file.status) {
-                            return false;
-                        }
-                        if (file.status === "uploading") {
-                            setIsStopSubmit(true);
-                            return false;
-                        }
-
-                        if (file.status === "OK") {
-                            return {
-                                name: file.name,
-                                status: file.status,
-                                url: file.url,
-                            };
-                        }
-                        if (file.status === "done") {
-                            return {
-                                name: file.response.data.fileName,
-                                status: file.status,
-                                url: file.response.data.filePath,
-                            };
-                        }
-                    });
-
-                    // values.images = JSON.stringify(images);
-                    values[col.name] = images;
-                } else {
-                    values[col.name] = "";
-                    values[col.name] = "";
-                }
-            }
-
-        }
-        return values;
+        setDataAction([]);
     }
 
     function btnAddNew() {
+        if(props.table.have_add_new === 0) {
+            return '';
+        }
         if (inArray(props.table.id, props.userPermission.table_add) && props.table.have_add_new === 1) {
             if (props.table.config_show_data) {
                 const datas = props.table.config_show_data.data;
@@ -1189,7 +1091,7 @@ export default function Dashboard(props: any) {
 
             if (props.table.form_data_type === 1) {
                 return (
-                    <Link href={route("data.create", props.table.id)}>
+                    <Link href={route("data.create", { tableId: props.table.id, p: props.p })}>
                         <Button type="primary">
                             <PlusCircleOutlined />
                             Thêm mới
@@ -1199,55 +1101,7 @@ export default function Dashboard(props: any) {
             }
         }
 
-        const listItems = props.columns.map((col) => {
-            return showData(col);
-        });
-
-        const imageItems = props.columns.map((col) => {
-            if (["image", "images", "image_crop", "images_crop"].includes(col.type_edit)) {
-                // return showDataImages(col);
-            }
-        });
-
         return <div>
-            <Modal
-                title={""}
-                open={isOpenFormEdit}
-                // onOk={formEdit}
-                onCancel={cancelEdit}
-                footer={[]}
-                width={1000}
-            >
-                <Form
-                    name="basic"
-                    layout="vertical"
-                    form={formEdit}
-                    onFinish={onFinishFormEdit}
-                    autoComplete="off"
-                // initialValues={formChamCong}
-                >
-                    <Row>
-
-                        <Row>
-                            {listItems}
-                            {/* {imageItems}
-                            {listItemsLg} */}
-                        </Row>
-
-                        <Col span={24} className="main-btn-popup">
-                            <Button className="btn-popup" onClick={cancelEdit}>
-                                <CloseSquareOutlined />
-                                Hủy
-                            </Button>
-                            <span> </span>
-                            <Button className="btn-popup" type="primary" htmlType="submit">
-                                <CopyOutlined />
-                                Lưu
-                            </Button>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
             <Button type="primary" onClick={() => addNewData()}>
                 <PlusCircleOutlined />
                 Thêm mới
@@ -1255,36 +1109,42 @@ export default function Dashboard(props: any) {
         </div>
     }
 
-    function addNewData() {
+    function editData(record: any) {
         setIsOpenFormEdit(true);
-        setIdAction(0);
-        formEdit.resetFields();
+        axios
+            .post(route("data.api.info", { tableId: props.table.id, dataId: record.id, p: props.p }))
+            .then((response) => {
+
+                if (response.data.status_code == 200) {
+                    setDataAction(response.data.data);
+                    console.log('response.data.data.imagesData', response.data.data.imagesData);
+
+                    setFileList(response.data.data.imagesData);
+                } else {
+                    message.error("Lỗi tải dữ liệu cần sửa");
+                }
+            })
+            .catch((error) => {
+                message.error("Lỗi tải dữ liệu cần sửa");
+            });
     }
 
-    function editData(record) {
+    function addNewData() {
         setIsOpenFormEdit(true);
+        axios
+            .post(route("data.api.info", { tableId: props.table.id, dataId: 0, p: props.p }))
+            .then((response) => {
 
-        setIdAction(record.key);
-        formEdit.resetFields();
-        props.columns.forEach((val, key) => {
-
-            if (['date', 'datetime'].includes(val.type_edit)) {
-                formEdit.setFieldValue(val.name, dayjs(record[val.name]));
-            }
-            if (['select', 'selects', 'selects_normal'].includes(val.type_edit)) {
-                if (val.show_in_list === 1) {
-                    formEdit.setFieldValue(val.name, record[val.name].id);
+                if (response.data.status_code == 200) {
+                    setDataAction(response.data.data);
+                    setFileList(response.data.data.imagesData);
                 } else {
-                    formEdit.setFieldValue(val.name, record[val.name]);
+                    message.error("Lỗi tải dữ liệu cần sửa");
                 }
-
-            }
-
-            if (['text', 'textarea', 'number', 'tiny', 'hidden', 'invisible', 'color'].includes(val.type_edit)) {
-                formEdit.setFieldValue(val.name, record[val.name]);
-            }
-
-        });
+            })
+            .catch((error) => {
+                message.error("Lỗi tải dữ liệu cần sửa");
+            });
     }
 
     function btnIndex(id = 0) {
@@ -1354,6 +1214,7 @@ export default function Dashboard(props: any) {
 
             return (
                 <div>
+                    {/* modal setting */}
                     <Modal
                         title={<div>Cài đặt <hr />{showsettingMenu(props.tableSetting)}<hr /></div>}
                         open={openSetting}
@@ -1369,6 +1230,7 @@ export default function Dashboard(props: any) {
                             treeData={formatGdata_column(gData)}
                         />
                     </Modal>
+
                     <Button
                         type="primary"
                         loading={loadingBtn}
@@ -1398,7 +1260,9 @@ export default function Dashboard(props: any) {
 
             {searchTop()}
 
+            {/* form delete/emport/export */}
             <Form form={form} component={false}>
+
                 <div style={{ marginBottom: 16 }}>
                     {/* confirm delete */}
                     <Modal
@@ -1542,10 +1406,42 @@ export default function Dashboard(props: any) {
             <AdminLayout
                 auth={props.auth}
                 header={props.table.display_name}
-                tables={itemMenu(props.table.name)}
-                current={props.table}
                 content={
                     <div>
+
+                        <Modal
+                            title={""}
+                            open={isOpenFormEdit}
+                            // onOk={formEdit}
+                            onCancel={cancelEdit}
+                            footer={[]}
+                            width={1000}
+                        >
+                            {contentFormData(dataAction, fileList, (result: any) => {
+                                setDataAction([]);
+                                setLoadingTable(false);
+                                setIsOpenFormEdit(false);
+                                // update state datasource
+                                if (result) {
+                                    const newData = [...dataSource];
+                                    const index = newData.findIndex(
+                                        (item) => result.id === item.id
+                                    );
+                                    if (index > -1) {
+                                        const item = newData[index];
+                                        newData.splice(index, 1, {
+                                            ...item,
+                                            ...result,
+                                        });
+                                        setDataSource(newData);
+                                    } else {
+                                        newData.unshift(result);
+                                        setDataSource(newData);
+                                    }
+                                }
+                            })}
+                        </Modal>
+
                         {contextHolder}
                         {pageContent}
                     </div>

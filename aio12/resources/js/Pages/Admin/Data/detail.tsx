@@ -85,25 +85,25 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={itemMenu(props.table.name)}
-            current={props.table}
             content={
                 <Spin spinning={loading} size="large">
                     <Card type="inner"
                         title={props.table.display_name}
                         extra={
                             <div>
-                                <Link href={route('data.edit', [props.table.id, props.data.id])}>
+                                <Link href={route('data.edit', {tableId:props.table.id, dataId:props.data.id, p: props.p})}>
                                     <Button className='btn-edit' type="primary" htmlType="submit">Sửa</Button>
                                 </Link>
                                 <span> </span>
-                                <Link href={route('data.index', [props.table.id])}>
-                                    <Button className='btn-back' onClick={(e)=> {setLoading(true);}}>
-                                            Quay lại
-                                    </Button>
-                                </Link>
+                                
+                                {
+                                    props.table.type_show === 5 ? '' : <Link href={route('data.tblName', {tblName:props.table.name, p: props.p})}><Button className='btn-back' onClick={(e)=> {setLoading(true);}}> Quay lại </Button></Link>
+                                }
+                                
                                 <span> </span>
+
                                 {checkShowBtnDelete()}
+
                             </div>
                         }>
                             {checkShowLink()}

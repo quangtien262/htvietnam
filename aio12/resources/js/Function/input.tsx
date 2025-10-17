@@ -11,6 +11,7 @@ import { PlusSquareOutlined, CheckCircleOutlined, CloseCircleOutlined, Unordered
 import cloneDeep from 'lodash/cloneDeep';
 
 import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from './constant';
+import { on } from 'events';
 
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
@@ -86,9 +87,14 @@ export function formatValueForm(columns: any, values: any) {
     return values;
 }
 
-export function HTSelect(col, prop, langId = 0) {
+export function HTSelect(col: any, prop: any, langId = 0) {
     const [colData, setColData] = useState(col);
-    const [optionsData, setOptionsData] = useState(prop.selectData[col.name].selectbox ? prop.selectData[col.name].selectbox : prop.selectData[col.name]);
+    const [optionsData, setOptionsData] = useState(Object.entries(prop.selectData[col.name] ? prop.selectData[col.name] : {}).map(([key, val]: [string, any]) => {
+        return {
+            label: val,
+            value: key
+        };
+    }));
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [loadingBtnAdd, setLoadingBtnAdd] = useState(false);
     const [formData] = Form.useForm();
@@ -159,7 +165,14 @@ export function HTSelect(col, prop, langId = 0) {
     }
 
     // add_express
-    let label = <span>{colData.display_name} <a target='new' href={route('data.index', [colData.select_table_id])} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
+    let label = <span>
+        {colData.display_name}
+        <a target='new'
+            href={route('data.index', { tableId: colData.select_table_id, p: prop.p })}
+            title={'QL danh sách "' + col.display_name + '"'}>
+            <UnorderedListOutlined />
+        </a>
+    </span>;
     if (colData.add_express === 1) {
         label = <div>
             {label}
@@ -191,6 +204,44 @@ export function HTSelect(col, prop, langId = 0) {
         </Modal>
 
         <Form.Item name={name} rules={checkRule(col)} label={label}>
+            <Select showSearch className='ht-select'
+                style={{ width: '100%' }}
+                placeholder="Search to Select"
+                optionFilterProp="children"
+                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                options={optionsData}
+                allowClear={true}
+            />
+        </Form.Item>
+    </Col>
+}
+
+export function HTSelect02(col, prop, langId = 0) {
+    console.log('col', col);
+    console.log('langId', langId);
+
+    let name = col.name;
+    if (langId > 0) {
+        console.log('namenamename', name);
+        name = 'lang_' + langId + '_' + col.name;
+    }
+    console.log('name', name);
+
+    // add_express
+    let label = <span>{col.display_name} <a target='new' href={route('data.index', { tableId: col.select_table_id, p: prop.p })} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
+
+    //todo: link to list
+    if (col.add_express === 1) {
+        label = <div>
+            {label}
+        </div>
+    }
+
+    const optionsData = Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }));
+    // return
+    return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+
+        <Form.Item name={name} rules={checkRule(col)} label={label}>
 
             <Select showSearch className='ht-select'
                 style={{ width: '100%' }}
@@ -209,23 +260,31 @@ export function HTSelectModal(col, prop, langId = 0) {
     let name = col.name;
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
+        // add_express
+        let label = <span>
+            {col.display_name}
+            <a target='new'
+                href={route('data.index', { tableId: col.select_table_id, p: prop.p })}
+                title={'QL danh sách "' + col.display_name + '"'}
+            >
+                <UnorderedListOutlined />
+            </a>
+        </span>;
+        // return
+        return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+            <Form.Item name={name} rules={checkRule(col)} label={label}>
+                <Select showSearch
+                    labelInValue={true}
+                    style={{ width: '100%' }}
+                    placeholder={col.placeholder ?? 'Search to Select'}
+                    optionFilterProp="children"
+                    filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                    options={prop.selectData[col.name]}
+                    allowClear={true}
+                />
+            </Form.Item>
+        </Col>
     }
-    // add_express
-    let label = <span>{col.display_name} <a target='new' href={route('data.index', [col.select_table_id])} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
-    // return
-    return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
-        <Form.Item name={name} rules={checkRule(col)} label={label}>
-            <Select showSearch
-                labelInValue={true}
-                style={{ width: '100%' }}
-                placeholder={col.placeholder ?? 'Search to Select'}
-                optionFilterProp="children"
-                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                options={prop.selectData[col.name]}
-                allowClear={true}
-            />
-        </Form.Item>
-    </Col>
 }
 
 export function HTSelectsNormal(col, prop, langId = 0) {
@@ -233,9 +292,8 @@ export function HTSelectsNormal(col, prop, langId = 0) {
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
     }
-
     // add_express
-    let label = <span>{col.display_name} <a target='new' href={route('data.index', [col.select_table_id])} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
+    let label = <span>{col.display_name} <a target='new' href={route('data.index', { tableId: col.select_table_id, p: prop.p })} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
     // return
     return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
         <Form.Item name={name} rules={checkRule(col)} label={label}>
@@ -252,12 +310,13 @@ export function HTSelectsNormal(col, prop, langId = 0) {
     </Col>
 }
 
-export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
-    const [colData, setColData] = useState(col);
+export function HTSelects(col: any, prop: any, mode = 'multiple', langId = 0) {
+    // const [optionsData, setOptionsData] = useState(Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value.label, value: value.value })));
 
-    console.log('prop.selectData[col.name]', prop.selectsData[col.name]);
-
-    const [optionsData, setOptionsData] = useState(prop.selectsData[col.name]);
+    const [optionsData, setOptionsData] = useState(Object.entries(prop.selectData[col.name]).map(([key, val]: [string, any]) => {
+        return { label: val.label, value: val.value }
+    }));
+    console.log('optionsData', optionsData);
 
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [loadingBtnAdd, setLoadingBtnAdd] = useState(false);
@@ -321,11 +380,14 @@ export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
     };
 
     // add_express
-    let label = <span>{colData.display_name} <a target='new' title={'QL danh sách "' + colData.display_name + '"'} href={route('data.index', [colData.select_table_id])}><UnorderedListOutlined /></a></span>;
-    if (colData.add_express === 1) {
+    let label = <span>{col.display_name} <a target='new'
+        title={'QL danh sách "' + col.display_name + '"'}
+        href={route('data.index', { tableId: col.select_table_id, p: prop.p })}><UnorderedListOutlined /></a>
+    </span>;
+    if (col.add_express === 1) {
         label = <div>
             {label}
-            <Text className='_point' type="success" onClick={openModal} title={'Thêm nhanh "' + colData.display_name + '"'}> <PlusSquareOutlined /></Text>
+            <Text className='_point' type="success" onClick={openModal} title={'Thêm nhanh "' + col.display_name + '"'}> <PlusSquareOutlined /></Text>
         </div>
     }
     label = <div>
@@ -337,17 +399,17 @@ export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
         name = 'lang_' + langId + '_' + col.name;
     }
     function checkAll() {
-        if (col.check_all_selects && col.check_all_selects === 1) {
-            return <Form.Item name={"checkall_" + name} className='checkbox-checkall'>
-                <Checkbox.Group><Checkbox value={true} /></Checkbox.Group>
-            </Form.Item>
-        }
-        return '';
+        // if (col.check_all_selects && col.check_all_selects === 1) {
+        return <Form.Item name={"checkall_" + name} className='checkbox-checkall'>
+            <Checkbox.Group><Checkbox value={true} /></Checkbox.Group>
+        </Form.Item>
+        // }
+        // return '';
     }
     return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }} >
         {/* modal */}
         <Modal
-            title={colData.display_name}
+            title={col.display_name}
             open={isOpenAddExpress}
             onOk={onOk}
             onCancel={onCancel}
@@ -375,7 +437,7 @@ export function HTSelects(col, prop, mode = 'multiple', langId = 0) {
                 placeholder={col.placeholder ?? 'Search to Select'}
                 optionFilterProp="children"
                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                options={optionsData.selectbox}
+                options={optionsData}
                 allowClear={true}
             />
         </Form.Item>
@@ -532,6 +594,18 @@ export function HTTextarea(col: any, langId = 0) {
     </Col>
 }
 
+export function HTTextarea02(col: any, langId = 0) {
+    let name = col.name;
+    if (langId > 0) {
+        name = 'lang_' + langId + '_' + col.name;
+    }
+    return <Col key={col.id} xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
+        <Form.Item name={name} rules={checkRule(col)} label={col.display_name}>
+            <TextArea placeholder={col.placeholder ?? ''} />
+        </Form.Item>
+    </Col>
+}
+
 export function HTNumber(col, langId = 0) {
     let name = col.name;
     if (langId > 0) {
@@ -604,6 +678,7 @@ export function HTInput(col: any, langId = 0) {
     if (langId > 0) {
         name = 'lang_' + langId + '_' + col.name;
     }
+
     let note = <span></span>;
     if (col.name.search("meta_title") >= 0) {
         note = <p><b>Ghi chú: </b><em> "[SEO] Tiêu đề" là thẻ tiêu đề của bài viết, Nếu bỏ trống, sẽ tư động lấy tiêu đề của bài viết</em></p>
@@ -630,10 +705,10 @@ export function smartSearch(table: any) {
     }
 }
 
-export function smartSearch02(table: any) {
+export function smartSearch02(table: any, onSuccess: (arg?: any) => void) {
     if (table.smart_search === 1) {
         return <Col key={10000} sm={{ span: 24 }} className='item-search'>
-            <Form.Item name='sm_keyword' label='Từ khoá'>
+            <Form.Item name='sm_keyword' label='Từ khoá' onBlur={() => onSuccess({ search: true })}>
                 <Input />
             </Form.Item>
         </Col>
@@ -641,7 +716,7 @@ export function smartSearch02(table: any) {
 }
 
 // form search
-export function showDataSearch(col: any, prop: any) {
+export function showDataSearch(col: any, prop: any, onSuccess) {
     let result;
     const typeEdit = col.type_edit;
     if (col.add2search !== 1) {
@@ -674,7 +749,9 @@ export function showDataSearch(col: any, prop: any) {
                     placeholder="Search to Select"
                     optionFilterProp="children"
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                    options={prop.selectData[col.name]['selectbox']}
+                    options={prop.selectData[col.name]}
+                    onChange={() => { onSuccess() }}
+                // options={prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                 />
             </Form.Item>
 
@@ -690,6 +767,7 @@ export function showDataSearch(col: any, prop: any) {
                     optionFilterProp="children"
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                     options={prop.selectsData[col.name]['selectbox']}
+                // options={Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                 />
             </Form.Item>
 
@@ -711,7 +789,7 @@ export function showDataSearch(col: any, prop: any) {
     return result;
 }
 
-export function showDataSearch02(col: any, prop: any) {
+export function showDataSearch02(col: any, prop: any, onSuccess: (arg?: any) => void) {
     let result;
     const typeEdit = col.type_edit;
     if (col.add2search !== 1) {
@@ -724,7 +802,7 @@ export function showDataSearch02(col: any, prop: any) {
         case 'textarea':
             result = <Col key={col.name} sm={{ span: 24 }} className='item-search'>
                 <Form.Item name={col.name} label={col.display_name}>
-                    <TextArea rows={4} />
+                    <TextArea rows={4} onBlur={() => onSuccess({ search: true })} />
                 </Form.Item>
             </Col>
 
@@ -733,14 +811,16 @@ export function showDataSearch02(col: any, prop: any) {
             result = <Col key={col.name} sm={{ span: 24 }} className='item-search'>
                 <Form.Item name={col.name} label={col.display_name}>
                     <InputNumber style={{ width: '100%' }}
+                        onChange={() => onSuccess({ search: true })}
                         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={(value) => value.replace(/\$\s?|(,*)/g, '')} />
                 </Form.Item>
             </Col>
             break;
         case 'select':
+            const label = <span>{col.display_name} <a target='new' href={route('data.index', { tableId: col.select_table_id, p: prop.p })} title={'QL danh sách "' + col.display_name + '"'}><UnorderedListOutlined /></a></span>;
             result = <Col key={col.name} sm={{ span: 24 }} className='item-search'>
-                <Form.Item name={col.name} label={col.display_name}>
+                <Form.Item name={col.name} label={label}>
                     <Select
                         allowClear={true}
                         showSearch
@@ -748,7 +828,8 @@ export function showDataSearch02(col: any, prop: any) {
                         placeholder="Search to Select"
                         optionFilterProp="children"
                         filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                        options={prop.selectData[col.name]['selectbox']}
+                        options={prop.selectData[col.name] ? Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key.toString() })) : []}
+                        onChange={() => onSuccess({ search: true })}
                     />
                 </Form.Item>
             </Col>
@@ -764,7 +845,8 @@ export function showDataSearch02(col: any, prop: any) {
                         placeholder="Search to Select"
                         optionFilterProp="children"
                         filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                        options={prop.selectsData[col.name]['selectbox']}
+                        // options={prop.selectsData[col.name]['selectbox']}
+                        options={Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                     />
                 </Form.Item>
             </Col>
@@ -778,7 +860,7 @@ export function showDataSearch02(col: any, prop: any) {
             break;
         default:
             result = <Col sm={{ span: 24 }} className='item-search'>
-                <Form.Item key={col.name} name={col.name} label={col.display_name}>
+                <Form.Item key={col.name} onBlur={() => onSuccess({ search: true })} name={col.name} label={col.display_name}>
                     <Input />
                 </Form.Item>
             </Col>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '@/layouts/AdminLayout';
 import {
@@ -59,7 +58,6 @@ dayjs.extend(timezone);
 const { TextArea } = Input;
 
 export default function Dashboard(props) {
-    console.log('fileList', props);
     const [data, setData] = useState(props.data);
     const [submitRedirect, setSubmitRedirect] = useState("detail"); // detail, list
     const [loading, setLoading] = useState(false);
@@ -70,24 +68,11 @@ export default function Dashboard(props) {
     const [currentFile, setCurrentFile] = useState('');
 
     // file images
-    const [fileList, setFileList] = useState(props.imagesData.length == 0 ? [] : props.imagesData.map((item) => {
-        return {
-            name: item.name,
-            status: item.status,
-            url: item.url
-        }
-    }
-    ));
+    // Ensure props.imagesData is always an object
+    const initialFileList = (props.imagesData && typeof props.imagesData === 'object') ? props.imagesData : {};
+    console.log('initialFileList', initialFileList);
 
-    // file other
-    const [fileDocument, setFileDocument] = useState(props.filesData.length == 0 ? [] : props.filesData.map((item) => {
-        return {
-            name: item.name,
-            status: item.status,
-            url: item.url
-        }
-    }
-    ));
+    const [fileList, setFileList] = useState(initialFileList);
 
     //permission
     const [permissionList, setPermissionList] = useState(props.userPermission);
@@ -135,8 +120,6 @@ export default function Dashboard(props) {
     }
 
     const onFinish = (values) => {
-        // console.log(values);
-        // return;
         setLoading(true);
         setIsStopSubmit(false);
         values = formData.getFieldValue();
@@ -178,11 +161,10 @@ export default function Dashboard(props) {
                 values.is_change_selects_table = true;
             }
         }
+        values.p = props.p;
         if (props.dataId > 0) {
-            // thử đổi sang ajax
             router.post(
-                route("data.update", [props.table.id, data.id]),
-                values
+                route("data.update", [props.table.id, data.id]), values
             );
         } else {
             router.post(route("data.store", [props.table.id]), values);
@@ -229,80 +211,16 @@ export default function Dashboard(props) {
             }
 
             // images
-            if (['images', 'image', 'image_crop', 'images_crop'].includes((col as any).type_edit)) {
-                if (fileList && fileList.length > 0) {
-                    values[(col as any).name] = formatFiles(fileList);
-                } else {
-                    values[(col as any).name] = "";
-                }
-            }
-
-            // files
-            if (['file', 'files'].includes((col as any).type_edit)) {
-
-                if (fileDocument && fileDocument.length > 0) {
-                    values[(col as any).name] = formatFiles(fileDocument);
-                } else {
-                    values[(col as any).name] = "";
-                }
+            if (['image', 'image_crop', 'images', 'images_crop'].includes((col as any).type_edit)) {
+                values[(col as any).name] = fileList[(col as any).name];
             }
         }
+        console.log('values', values);
         return values;
     }
 
     const onFinishFailed = (errorInfo) => { };
 
-    function formatFiles(files: any) {
-        interface FileResponseData {
-            fileName: string;
-            filePath: string;
-        }
-
-        interface UploadFile {
-            name: string;
-            status?: string;
-            url?: string;
-            response?: {
-                data: FileResponseData;
-            };
-        }
-
-        interface FormattedFile {
-            name: string;
-            status: string;
-            url: string;
-        }
-
-        return files.map((file: UploadFile): FormattedFile | false | undefined => {
-            if (!file.status) {
-                return false;
-            }
-            if (file.status === "uploading") {
-                setIsStopSubmit(true);
-                return false;
-            }
-
-            if (file.status === "OK") {
-                return {
-                    name: file.name,
-                    status: file.status,
-                    url: file.url!,
-                };
-            }
-            if (file.status === "done") {
-                return {
-                    name: file.response!.data.fileName,
-                    status: file.status,
-                    url: file.response!.data.filePath,
-                };
-            }
-        });
-    }
-
-    // even image
-    const onChangeImage = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
 
     const DraggableUploadListItem = ({ originNode, file }) => {
         const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -344,9 +262,20 @@ export default function Dashboard(props) {
         }
     };
 
-    const onChange = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
+    // const onChange = ({ fileList: newFileList }) => {
+    //     setFilesList(newFileList);
+    // };
+
+    function onChangeImage({ fileList: newFileList }, colName) {
+        console.log('onChangeImage-newFileList', newFileList);
+        console.log('onChangeImage-colName', colName);
+        // setFileList(newFileList);
+        // setFilesList theo colName
+        setFileList((prev) => ({
+            ...prev,
+            [colName]: newFileList
+        }));
+    }
 
     // Chỉ cho phép file ảnh
     const beforeUpload = (file) => {
@@ -367,15 +296,18 @@ export default function Dashboard(props) {
             status: 'OK',
             url: currentFile
         };
-        let newFileList = [...fileList];
+        let fileList_tmp = fileList;
+        fileList_tmp[col.name] = [...fileList_tmp[col.name], imageItem];
         if (col.conditions && +col.conditions > 0) {
-            if (newFileList.length >= +col.conditions) {
-                message.error("Chỉ được phép thêm tối đa " + col.conditions + " hình ảnh");
+            if (fileList_tmp[col.name].length > +col.conditions) {
+                message.error("Chỉ được phép thêm tối đa " + col.conditions + " hình ảnh, vui lòng xóa bớt hình ảnh trước khi thêm mới.");
                 return false;
             }
         }
-        newFileList = [...newFileList, imageItem];
-        setFileList(newFileList);
+
+        console.log('handleAddImage-newFileList', fileList_tmp);
+
+        setFileList(fileList_tmp);
         setCurrentFile('');
     }
 
@@ -410,7 +342,7 @@ export default function Dashboard(props) {
                                 </Popconfirm>
                             </Divider>
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                <SortableContext items={fileList[col.name].map((i: any) => i.uid)} strategy={verticalListSortingStrategy}>
                                     <ImgCrop
                                         aspect={col.ratio_crop}
                                         aspectSlider={true}
@@ -421,11 +353,11 @@ export default function Dashboard(props) {
                                         <Upload multiple
                                             action={route("data.upload_image")}
                                             listType="picture-card" // picture-card
-                                            fileList={fileList}
+                                            fileList={fileList[col.name]}
                                             accept="image/*"
                                             maxCount={+col.conditions}
                                             beforeUpload={beforeUpload}
-                                            onChange={onChange}
+                                            onChange={(fileList) => onChangeImage(fileList, col.name)}
                                             itemRender={(originNode, file) => (
                                                 <DraggableUploadListItem originNode={originNode} file={file} />
                                             )}
@@ -467,13 +399,13 @@ export default function Dashboard(props) {
                                 </Popconfirm>
                             </Divider>
                             <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                                <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+                                <SortableContext items={fileList[col.name].map((i:any) => i.uid)} strategy={verticalListSortingStrategy}>
                                     <Upload multiple
                                         action={route("data.upload_image")}
                                         listType="picture-card" // picture-card
-                                        fileList={fileList}
-                                        maxCount={props.countImage}
-                                        onChange={onChange}
+                                        fileList={fileList[col.name]}
+                                        maxCount={+col.conditions}
+                                        onChange={(fileList) => onChangeImage(fileList, col.name)}
                                         accept="image/*"
                                         beforeUpload={beforeUpload}
                                         itemRender={(originNode, file) => (
@@ -483,7 +415,7 @@ export default function Dashboard(props) {
                                             'X-CSRF-TOKEN': props.token,
                                         }}
                                     >
-                                        <Button icon={<UploadOutlined />}>Upload (Tối đa: {props.countImage})</Button>
+                                        <Button icon={<UploadOutlined />}>Upload (Tối đa: {+col.conditions})</Button>
                                     </Upload>
                                 </SortableContext>
                             </DndContext>
@@ -905,7 +837,6 @@ export default function Dashboard(props) {
                 data_tmp[col.name] = selects;
             }
         });
-        console.log('data_tmp', data_tmp);
 
         return data_tmp;
     }
@@ -1055,83 +986,6 @@ export default function Dashboard(props) {
 
     }
 
-    function handleAddDocument(col) {
-        // Handle adding document logic here
-        const name = Date.now();
-        let imageItem = {
-            uid: name,
-            name: name,
-            status: 'OK',
-            url: currentFile
-        };
-        let newFileDocument = [...fileDocument];
-        if (col.conditions && +col.conditions > 0) {
-            if (newFileDocument.length >= +col.conditions) {
-                message.error("Chỉ được phép thêm tối đa " + col.conditions + " tài liệu");
-                return false;
-            }
-        }
-        newFileDocument = [...newFileDocument, imageItem];
-        setFileDocument(newFileDocument);
-        setCurrentFile('');
-    }
-
-    function showDataFile(col) {
-        if (!checkConfig(col)) {
-            return false;
-        }
-        if (col.edit !== 1) {
-            return false;
-        }
-
-
-        // Xử lý khi upload file thay đổi
-        const onChangeFile = ({ fileList: newFileList }) => {
-            setFileDocument(newFileList);
-        };
-
-        return (
-            <Col span={24} key={col.id}>
-                <Divider orientation='left'>
-                    {col.display_name}
-                    <span> | </span>
-                    <Popconfirm
-                        title={
-                            <div>
-                                <span>Nhập Link hình ảnh bạn muốn thêm</span><br />
-                                <Input value={currentFile} onChange={(e) => setCurrentFile(e.target.value)} />
-                            </div>
-                        }
-                        onConfirm={() => handleAddDocument(col)}
-                        okText="Thêm ảnh"
-                        cancelText="Hủy"
-                    >
-                        <a><PlusCircleOutlined /></a>
-                    </Popconfirm>
-                </Divider>
-                <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                    <SortableContext items={fileDocument.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-                        <Upload multiple
-                            action={route("data.upload_file")}
-                            listType="picture-card" // picture-card
-                            fileList={fileDocument}
-                            maxCount={1}
-                            onChange={onChangeFile}
-                            itemRender={(originNode, file) => (
-                                <DraggableUploadListItem originNode={originNode} file={file} />
-                            )}
-                            headers={{
-                                'X-CSRF-TOKEN': props.token,
-                            }}
-                        >
-                            <Button icon={<UploadOutlined />}>Upload </Button>
-                        </Upload>
-                    </SortableContext>
-                </DndContext>
-            </Col>
-        );
-    }
-
     function contentBlock(block) {
         let content = [],
             contentImage = [],
@@ -1162,11 +1016,6 @@ export default function Dashboard(props) {
                 continue;
             }
 
-            if (["file"].includes(col.type_edit)) {
-                content.push(showDataFile(col));
-                continue;
-            }
-
             content.push(showData(col, props));
         }
 
@@ -1183,15 +1032,9 @@ export default function Dashboard(props) {
         name = ' (' + props.table.config_show_data.data[props.request.type] + ')';
     }
 
-
-
-
     return (
         <AdminLayout
             auth={props.auth}
-            header={props.table.display_name}
-            tables={itemMenu(props.table.name)}
-            current={props.table}
             content={
                 <Spin spinning={loading} size="large">
                     {/* form data */}
@@ -1209,7 +1052,7 @@ export default function Dashboard(props) {
                             <Divider orientation="right">
                                 {props.table.display_name}
                                 <span className='space02'>|</span>
-                                <Link className='divider-thoat' href={route('data.index', [props.table.id])}><RollbackOutlined />Thoát</Link>
+                                <Link className='divider-thoat' href={route('data.tblName', { tblName: props.table.name, p: props.p })}><RollbackOutlined />Thoát</Link>
                             </Divider>
                             {/* show form */}
                             {checkShowData()}
@@ -1233,6 +1076,7 @@ export default function Dashboard(props) {
 
                         </Form>
                     </div>
+
                     {/* Modal Calendar Chấm công */}
                     <Modal
                         open={openModalChamCong}

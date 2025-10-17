@@ -164,6 +164,8 @@ export default function Dashboard(props) {
                 }
             }
         }
+        
+        values.p = props.p;
 
         values.mocThoiGian = mocThoiGian;
         if(khoangThoiGian[0]) {
@@ -793,7 +795,7 @@ export default function Dashboard(props) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 
@@ -826,7 +828,7 @@ export default function Dashboard(props) {
     );
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -1081,7 +1083,7 @@ export default function Dashboard(props) {
                         initialValues={initialValueSearch()}
                         onBlur={(e) => {formSearch.submit();}}
                     >
-                        {smartSearch02(props.table)}
+                        {smartSearch02(props.table(), () => formSearch.submit())}
 
                         {/* hinh_thuc_thanh_toan */}
                         {formHinhThucTT()}
@@ -1580,7 +1582,7 @@ export default function Dashboard(props) {
 
         return <div>
             <Modal
-                title={""}
+                title={<span className="title-modal01"><PlusCircleOutlined /> Khách trả hàng</span>}
                 open={isOpenFormEdit}
                 // onOk={formEdit}
                 onCancel={cancelEdit}

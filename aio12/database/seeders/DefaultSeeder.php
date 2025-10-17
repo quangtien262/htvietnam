@@ -15,7 +15,6 @@ class DefaultSeeder extends Seeder
     public function run()
     {
         DB::table('permission_group')->truncate();
-        DB::table('confirm')->truncate();
         $order_col = 1;
         // $per = MigrateService::createTable02('permission_group', 'Nhóm quyền', []);
         // MigrateService::createColumn02($per->id,'id', 'id', 'INT', 'number', $order_col++);
@@ -32,6 +31,7 @@ class DefaultSeeder extends Seeder
         );
 
         // confirm
+        DB::table('confirm')->truncate();
         DB::table('confirm')->insert([
             ['id' => 1, 'name' => 'Có', 'color' => 'processing'],
             ['id' => 2, 'name' => 'Không', 'color' => 'error']

@@ -17,8 +17,9 @@ class HoaDonChiTiet extends Model
         'product_apply' => Json::class
     ];
 
-    static function getByHoaDonId($hoaDonId){
-        return HoaDonChiTiet::select(
+    static function baseQuery()
+    {
+        return self::select(
             'hoa_don_chi_tiet.*',
             'products.name as product_name',
             'products.code as product_code',
@@ -41,7 +42,11 @@ class HoaDonChiTiet extends Model
             'products.loai_hang_hoa as loai_hang_hoa',
             'products.hang_hoa_ap_dung as hang_hoa_ap_dung',
         )
-        ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id')
+        ->leftJoin('products', 'products.id', 'hoa_don_chi_tiet.product_id');
+    }
+
+    static function getByHoaDonId($hoaDonId){
+        return self::baseQuery()
         ->orderBy('id', 'asc')
         ->where('hoa_don_chi_tiet.data_id', $hoaDonId)
         ->where('hoa_don_chi_tiet.is_recycle_bin', 0)

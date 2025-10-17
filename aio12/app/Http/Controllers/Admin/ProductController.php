@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Admin\KhoHangData;
 use App\Models\Admin\NhapHangDetail;
 use App\Models\Admin\Product;
 use App\Models\Admin\TraHangNCC;
@@ -14,6 +15,8 @@ use App\Models\Admin\ChiNhanh;
 use App\Models\Admin\Column;
 use App\Models\Admin\CongNo;
 use App\Models\Admin\DonViQuyDoi;
+use App\Models\Admin\HoaDon;
+use App\Models\Admin\HoaDonChiTiet;
 use App\Models\Admin\KhachTraHang;
 use App\Models\Admin\KhachTraHangDetail;
 use App\Models\Admin\KiemKho;
@@ -61,12 +64,13 @@ class ProductController extends Controller
             ];
         }
 
-        $latestProducts  = Product::latest()->take(10)->get();
+        $latestProducts = Product::latest()->take(10)->get();
 
         $viewData = [
             'tkeLoaiSPTheoTen' => $tkeLoaiSPTheoTen,
             'tkeLoaiSPTheoSoLuong' => $tkeLoaiSPTheoSoLuong,
-            'latestProducts' => $latestProducts
+            'latestProducts' => $latestProducts,
+            'p' => $request->p ?? 0,
         ];
         return Inertia::render('Admin/Dashboard/kho_hang', $viewData);
     }
@@ -91,6 +95,8 @@ class ProductController extends Controller
             'thuongHieu' => $thuongHieu,
             'viTri' => $viTri,
             'thuocTinh' => $thuocTinh,
+            'token' => csrf_token(),
+            'p' => $request->p ?? 0,
         ];
 
         return Inertia::render('Admin/Product/list', $viewData);
@@ -158,18 +164,21 @@ class ProductController extends Controller
                     'donvi' => $sd_name[$product->lich_trinh_sd],
                 ];
             }
-
+            // check form trường hợp là nguyên liệu tiêu hao
             if ($type == 2) {
                 $productApplyData = $nguyenLieuTieuHao;
             }
 
+            // check form trường hợp là dịch vụ
             if ($type == 3) {
                 $productApplyData = $dichVu;
             }
 
+            // trường hợp là dịch vụ hoặc gói dịch vụ, cần lấy ra danh sách nguyên liệu tiêu hao tương ứng
             if (!empty($product->product_apply) && in_array($type, [2, 3])) {
                 $productApply = $product->product_apply;
             }
+
         }
 
         $classItem = $this->checkShowFormItem($type, $product);
@@ -180,7 +189,7 @@ class ProductController extends Controller
             $chiNhanh[$cn->id] = $cn->name;
         }
 
-        $tonKhoDetail = $this->getTonKhoDetail($product);
+        $tonKhoDetail = $this->getTonKhoDetail($pid);
 
         $donVi = DB::table('don_vi')->where('is_recycle_bin', 0)->get();
         $donVi_key = [];
@@ -191,7 +200,7 @@ class ProductController extends Controller
         $donViQuyDoi = [
             [
                 'don_vi_quy_doi_id' => null,
-                'ty_le_quy_doi' =>  0
+                'ty_le_quy_doi' => 0
             ]
         ];
         $donViSelectedID = [];
@@ -204,12 +213,12 @@ class ProductController extends Controller
                     $donViSelectedID[] = $d->don_vi_id;
                     $donViQuyDoi[] = [
                         'don_vi_quy_doi_id' => $d->don_vi_id,
-                        'ty_le_quy_doi' =>  $d->ty_le_quy_doi_theoDVQuyDoi
+                        'ty_le_quy_doi' => $d->ty_le_quy_doi_theoDVQuyDoi
                     ];
                 }
             }
         }
-        // dd($donViQuyDoi);
+        // dd($tonKhoDetail);
 
         $viewData = [
             'tables' => $tables,
@@ -237,21 +246,21 @@ class ProductController extends Controller
             'donViQuyDoi' => $donViQuyDoi,
             'donViSelectedID' => $donViSelectedID,
             'token' => csrf_token(),
+            'p' => $request->p ?? 0,
         ];
         return Inertia::render('Admin/Product/form', $viewData);
     }
 
-    private function getTonKhoDetail($data, $colName = 'ton_kho_detail')
+    private function getTonKhoDetail($productId)
     {
         $khoHang = DB::table('kho_hang')->get();
-        $tonKhoDetail = [];
 
         // trường hợp thêm mới, tạo sẵn SL = 0 cho mỗi kho
-        if (empty($data)) {
-            foreach ($khoHang as $cn) {
-                $tonKhoDetail[$cn->id] = [
-                    'kho_hang_id' => $cn->id,
-                    'kho_hang_name' => $cn->name,
+        if (empty($productId)) {
+            foreach ($khoHang as $kho) {
+                $tonKhoDetail[$kho->id] = [
+                    'kho_hang_id' => $kho->id,
+                    'kho_hang_name' => $kho->name,
                     'ton_kho' => 0,
                 ];
             }
@@ -259,70 +268,92 @@ class ProductController extends Controller
         }
 
         // trường hợp edit
-        foreach ($khoHang as $cn) {
+        $tonKhoDetail = [];
+
+        foreach ($khoHang as $kho) {
+            $khoData = DB::table('kho_hang_data')
+                ->where('product_id', $productId)
+                ->where('kho_hang_id', $kho->id)
+                ->first();
             $tonKho = 0;
-            if (
-                !empty($data->{$colName}) &&
-                !empty($data->{$colName}[$cn->id]) &&
-                !empty($data->{$colName}[$cn->id]['ton_kho'])
-            ) {
-                $tonKho = $data->{$colName}[$cn->id]['ton_kho'];
+            if ($khoData) {
+                $tonKho = $khoData->ton_kho;
             }
-            $tonKhoDetail[$cn->id] = [
-                'kho_hang_id' => $cn->id,
-                'kho_hang_name' => $cn->name,
+            $tonKhoDetail[$kho->id] = [
+                'kho_hang_id' => $kho->id,
+                'kho_hang_name' => $kho->name,
                 'ton_kho' => $tonKho,
             ];
         }
         return $tonKhoDetail;
     }
-
-    public function save(Request $rq)
+    public function saveProduct(Request $rq)
     {
+        Product::savePro($rq);
 
-        $tables = TblService::getAdminMenu(0);
-        $tbl = DB::table('tables')->where('name', 'products')->first();
-        $table = Table::find($tbl->id);
-
-        $product = Product::savePro($rq);
-
-
-        return to_route('data.index', $tbl->id);
+        return to_route('product.list', ['p' => $rq->p ?? 0]);
     }
 
-    public function getkiemKho($pid)
+    public function getProductInfo($pid)
     {
-        $kiemKho = DB::table('product_kiem_kho')
-            ->select(
-                'product_kiem_kho.so_luong as so_luong',
-                'product_kiem_kho.id as id',
-                'products.name as product_name',
-                'products.code as product_code',
-                'products.gia_von as gia_von',
-                'products.gia_ban as gia_ban',
-            )
-            ->leftJoin('products', 'products.id', 'product_kiem_kho.product_id')
-            ->where('product_kiem_kho.product_id', $pid)
-            ->get();
-        $result = [];
-        foreach ($kiemKho as $key => $nl) {
-            $stt = $key + 1;
-            $result[] = [
-                'key' => $nl->id,
-                'id' => $nl->id,
-                'stt' => $stt,
-                'gia_von' => $nl->gia_von,
-                'gia_ban' => $nl->gia_ban,
-                'product_code' => $nl->product_code,
-                'product_name' => $nl->product_name,
-                'so_luong' => $nl->so_luong,
-            ];
+        $product = Product::find($pid);
+
+        // kiểm kho
+        $kiemKho = KiemKhoDetail::baseQuery()->where('product_id', $pid)->get();
+
+        //lịch sử nhập hàng
+        $nhapHang = NhapHangDetail::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử khách trả hàng
+        $khachTraHang = KhachTraHangDetail::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử xuất hủy
+        $xuatHuy = XuatHuyDetail::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử bán hàng
+        $banHang = HoaDonChiTiet::baseQuery()->where('product_id', $pid)->get();
+
+        // lịch sử trả hàng NCC
+        $traHangNCC = TraHangNCCDetail::baseQuery()->where('product_id', $pid)->get();
+
+        // nguyên liệu tiêu hao
+        $nguyenLieu = $this->getnguyenLieu($pid);
+
+        $dichVuTrongGoi = CardClass::getDVTrongGoi($pid);
+
+        $productApply = [];
+        if (!empty($product->hang_hoa_ap_dung)) {
+            $productApply = Product::whereIn('id', $product->hang_hoa_ap_dung)->get()->toArray();
+        }
+        $loaiHangHoaApDung = [];
+        if (!empty($product->loai_hang_hoa)) {
+            $loaiHangHoaApDung = ProductType::whereIn('id', $product->loai_hang_hoa)->get()->toArray();
         }
 
-        return $this->sendSuccessResponse($result);
+        $data = [
+            'info' => $product,
+            'kiemKho' => $kiemKho,
+            'nhapHang' => $nhapHang,
+            'khachTraHang' => $khachTraHang,
+            'xuatHuy' => $xuatHuy,
+            'banHang' => $banHang,
+            'traHangNCC' => $traHangNCC,
+            'nguyenLieu' => $nguyenLieu,
+            'dichVuTrongGoi' => $dichVuTrongGoi,
+            'productApply' => $productApply,
+            'loaiHangHoaApDung' => $loaiHangHoaApDung,
+        ];
+        return $this->sendSuccessResponse($data);
     }
 
     public function nguyenLieu($pid)
+    {
+        $nguyenLieu = $this->getnguyenLieu($pid);
+
+        return $this->sendSuccessResponse($nguyenLieu);
+    }
+
+    private function getnguyenLieu($pid)
     {
         $nguyenLieu = DB::table('product_nguyen_lieu_tieu_hao')
             ->select(
@@ -351,7 +382,7 @@ class ProductController extends Controller
             ];
         }
 
-        return $this->sendSuccessResponse($result);
+        return $result;
     }
 
     public function dichVuTrongGoi($pid)
@@ -397,7 +428,6 @@ class ProductController extends Controller
     public function kiemKho(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_kiem_kho', $request, true, true);
-
         return Inertia::render('Admin/Product/kiem_kho', $viewData);
     }
 
@@ -414,13 +444,13 @@ class ProductController extends Controller
             $kiemKho = KiemKho::find($rq->id);
         }
 
-
         if (empty($rq->name)) {
             $kiemKho->name = date('d/m/Y');
         } else {
             $kiemKho->name = $rq->name;
         }
         $kiemKho->code = $rq->code;
+        $kiemKho->kho_hang_id = $rq->kho_hang_id;
         $kiemKho->note = $rq->note;
         $kiemKho->is_draft = $rq->is_draft;
         $kiemKho->nhan_vien_id = $rq->nhan_vien_id;
@@ -430,7 +460,8 @@ class ProductController extends Controller
         $kiemKho->save();
 
         if (empty($rq->code)) {
-            $kiemKho->code = 'KK' . TblService::formatNumberByLength($kiemKho->id, 5);;
+            $kiemKho->code = 'KK' . TblService::formatNumberByLength($kiemKho->id, 5);
+            ;
         }
 
         $tong_tien_chenh_lech = 0;
@@ -447,15 +478,10 @@ class ProductController extends Controller
         $subDataId = [];
         $dataInfo = [];
         foreach ($rq->dataDetail as $detail) {
-            // save product
-            if (intval($rq->is_draft) == 2) {
+            // update số lượng và kho và sản phẩm
+            KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], $detail['so_luong'], 'replace');
 
-                $product = Product::find($detail['product_id']);
-                $product->ton_kho =  $detail['so_luong'];
-                $product->save();
-            }
-
-            //save
+            //save detail
             $kiemKhoDetail = new KiemKhoDetail();
             $kiemKhoDetail->data_id = $kiemKho->id;
             $kiemKhoDetail->product_id = $detail['product_id'];
@@ -627,7 +653,7 @@ class ProductController extends Controller
                     $tongTonKho += $tonKhoChiNhanh['ton_kho'];
                 }
                 $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
+                $product->ton_kho = $tongTonKho;
                 $product->save();
             }
 
@@ -742,7 +768,7 @@ class ProductController extends Controller
     public function traHangNCC(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_tra_hang_ncc', $request, true, true);
-
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/tra_hang_ncc', $viewData);
     }
 
@@ -771,7 +797,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = $rq->chi_nhanh_id;
+        $data->kho_hang_id = $rq->kho_hang_id;
         $data->is_draft = $rq->is_draft;
         $data->hinh_thuc_thanh_toan_id = $rq->hinh_thuc_thanh_toan_id;
         $data->nha_cung_cap_id = $rq->nha_cung_cap_id;
@@ -797,6 +823,7 @@ class ProductController extends Controller
             $data->save();
         }
 
+        // công nợ nhà cung cấp
         if ($rq->tongCongNo > 0) {
             $congNo = new CongNo();
             $congNo->name = 'Trả hàng nhà cung cấp';
@@ -824,24 +851,10 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
+            // Câp nhật lại SL sản phẩm tồn kho
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoChiNhanh['ton_kho'] - $detail['so_luong'];
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                $product->save();
+                // trả hàng NCC nên số lượng đặt số < 0
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], -$detail['so_luong'], 'replace');
             }
 
             //save
@@ -952,6 +965,7 @@ class ProductController extends Controller
     public function nhapHang(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_nhap_hang', $request, true, true);
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/nhap_hang', $viewData);
     }
 
@@ -980,7 +994,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = !empty($rq->chi_nhanh_id) ? $rq->chi_nhanh_id : 0;
+        $data->kho_hang_id = !empty($rq->kho_hang_id) ? $rq->kho_hang_id : 0;
         $data->is_draft = $rq->is_draft;
         $data->hinh_thuc_thanh_toan_id = !empty($rq->hinh_thuc_thanh_toan_id) ? $rq->hinh_thuc_thanh_toan_id : 0;
         $data->nhan_vien_id = !empty($rq->nhan_vien_id) ? $rq->nhan_vien_id : 0;
@@ -1031,25 +1045,9 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
+            // Câp nhật lại SL sản phẩm trong kho hàng
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoChiNhanh['ton_kho'] + $detail['so_luong'];
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                $product->gia_von = $detail['gia_von'];
-                $product->save();
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], $detail['so_luong'], 'plus');
             }
 
             //save
@@ -1148,7 +1146,7 @@ class ProductController extends Controller
     public function xuatHuy(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_xuat_huy', $request, true, true);
-
+        $viewData['p'] = $request->p ?? 0;
         return Inertia::render('Admin/Product/xuat_huy', $viewData);
     }
 
@@ -1177,7 +1175,7 @@ class ProductController extends Controller
         }
 
         $data->note = $rq->note;
-        $data->chi_nhanh_id = !empty($rq->chi_nhanh_id) ? $rq->chi_nhanh_id : 0;
+        $data->kho_hang_id = !empty($rq->kho_hang_id) ? $rq->kho_hang_id : 0;
         $data->nhan_vien_id = !empty($rq->nhan_vien_id) ? $rq->nhan_vien_id : 0;
         $data->ly_do_xuat_huy_id = !empty($rq->ly_do_xuat_huy_id) ? $rq->ly_do_xuat_huy_id : 0;
         $data->is_draft = $rq->is_draft;
@@ -1198,38 +1196,28 @@ class ProductController extends Controller
         $dataInfo = [];
 
         foreach ($rq->dataDetail as $detail) {
-            // Câp nhật lại SL sản phẩm
-            $subData = new XuatHuyDetail();
-            $product = Product::find($detail['product_id']);
+            // check SL trước và sau khi hủy ở kho tương ứng
             $tonKhoTrươcKhiHuy = 0;
             $tonKhoSauKhiHuy = 0;
+            $tonKhoData = KhoHangData::baseQuery()
+                ->where('kho_hang_id', $rq->kho_hang_id)
+                ->where('product_id', $detail['product_id'])
+                ->first();
+            if (!empty($tonKhoData)) {
+                $tonKhoTrươcKhiHuy = $tonKhoData->so_luong;
+                $tonKhoSauKhiHuy = $tonKhoData->so_luong - $detail['so_luong'];
+            } else {
+                $tonKhoTrươcKhiHuy = 0;
+                $tonKhoSauKhiHuy = 0 - $detail['so_luong'];
+            }
 
             if (intval($rq->is_draft) == 2) {
-                $product = Product::find($detail['product_id']);
-
-                $tongTonKho = 0;
-                $tonKhoDetail = $product->ton_kho_detail;
-                foreach ($product->ton_kho_detail as $chiNhanhId => $tonKhoChiNhanh) {
-                    if ($chiNhanhId == $rq['chi_nhanh_id']) {
-
-                        $tonKhoTrươcKhiHuy = $tonKhoChiNhanh['ton_kho'];
-                        $tonKhoSauKhiHuy = $tonKhoChiNhanh['ton_kho'] - $detail['so_luong'];
-
-                        $tonKhoDetail[$chiNhanhId]['ton_kho'] = $tonKhoSauKhiHuy;
-                        $tongTonKho += $tonKhoDetail[$chiNhanhId]['ton_kho'];
-                        continue;
-                    }
-                    $tongTonKho += $tonKhoChiNhanh['ton_kho'];
-                }
-                $product->ton_kho_detail = $tonKhoDetail;
-                $product->ton_kho =  $tongTonKho;
-
-                // $product->ton_kho = $tonKhoSauKhiHuy;
-                $product->save();
+                // xuất hủy nên số lượng tồn kho sẽ - đi
+                KhoHangData::updateKhoHang($rq->kho_hang_id, $detail['product_id'], -$detail['so_luong'], 'replace');
             }
 
             //save
-
+            $subData = new XuatHuyDetail();
             $subData->data_id = $data->id;
             $subData->product_id = $detail['product_id'];
             $subData->product_code = $detail['product_code'];
@@ -1482,7 +1470,7 @@ class ProductController extends Controller
 
     function print_kiemKho(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = KiemKho::find($id);
         if (empty($data)) {
             return 'Hóa đơn đã bị xóa hoặc không tồn tại';
@@ -1508,13 +1496,14 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
-            'nguoiKiem' => $nguoiKiem
+            'nguoiKiem' => $nguoiKiem,
+            'p' => $request->p ?? 0,
         ]);
     }
 
     function print_khachTraHang(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = KhachTraHang::find($id);
         if (empty($data)) {
             return 'Hóa đơn đã bị xóa hoặc không tồn tại';
@@ -1547,13 +1536,14 @@ class ProductController extends Controller
             'info' => $info,
             'khachHang' => $khachHang,
             'nguoiTao' => $nguoiTao,
-            'nguoiBan' => $nguoiBan
+            'nguoiBan' => $nguoiBan,
+            'p' => $request->p ?? 0,
         ]);
     }
 
     function print_traHangNCC(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = TraHangNCC::select(
             'product_tra_hang_ncc.id',
             'product_tra_hang_ncc.name',
@@ -1602,12 +1592,13 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 
     function print_nhapHang(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = NhapHang::select(
             'product_nhap_hang.id',
             'product_nhap_hang.code',
@@ -1652,13 +1643,14 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 
 
     function print_xuatHuy(Request $rq, $id)
     {
-        $info  = DB::table('admin_config')->find(1);
+        $info = DB::table('admin_config')->find(1);
         $data = XuatHuy::select(
             'product_xuat_huy.id',
             'product_xuat_huy.code',
@@ -1704,6 +1696,7 @@ class ProductController extends Controller
             'dataDetail' => $dataDetail,
             'info' => $info,
             'nguoiTao' => $nguoiTao,
+            'p' => $request->p ?? 0,
         ]);
     }
 
@@ -1835,5 +1828,241 @@ class ProductController extends Controller
         }
 
         return $this->sendSuccessResponse($id);
+    }
+
+
+    /**
+     * Summary of report_tongQuan
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function report_tongQuan()
+    {
+        // summary
+        $totalProduct = Product::where('is_recycle_bin', 0)->count();
+        $totalStock = Product::where('is_recycle_bin', 0)->sum('ton_kho');
+        $totalImport = NhapHangDetail::where('is_recycle_bin', 0)->sum('so_luong');
+        $totalExport = XuatHuyDetail::where('is_recycle_bin', 0)->sum('so_luong_huy');
+        $summary = [
+            'totalProduct' => $totalProduct,
+            'totalStock' => $totalStock,
+            'totalImport' => $totalImport,
+            'totalExport' => $totalExport,
+        ];
+        // top products
+        $topProducts = Product::select('id as key', 'name', 'ton_kho', 'code')
+            ->where('is_recycle_bin', 0)
+            ->where('product_type_id', 1) // hàng hóa
+            ->groupBy('id')
+            ->orderByDesc('ton_kho')
+            ->limit(10)
+            ->get()->toArray();
+
+        // chart data 
+        $chartData = [];
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        for ($month = 1; $month <= $currentMonth; $month++) {
+            $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthLabel = $monthPadded . '/' . $currentYear;
+            $chartData[] = [
+                'month' => $monthLabel,
+                'import' => NhapHang::where('is_recycle_bin', 0)->where('is_draft', 2)
+                    ->whereMonth('created_at', $month)
+                    ->sum('so_luong'),
+                'export' => XuatHuy::where('is_recycle_bin', 0)->where('is_draft', 2)
+                    ->whereMonth('created_at', $month)
+                    ->sum('so_luong_huy'),
+            ];
+        }
+
+        // Báo cáo theo loại hàng hóa
+        $loaiHangHoa = Product::select('product_type.name as name', DB::raw('COUNT(*) as value'))
+            ->where('products.is_recycle_bin', 0)
+            ->groupBy('products.product_type_id')
+            ->leftJoin('product_type', 'product_type.id', 'products.product_type_id')
+            ->get();
+        
+
+        $datas = [
+            'token' => csrf_token(),
+            'summary' => $summary,
+            'chartData' => $chartData,
+            'topProducts' => $topProducts,
+            'loaiHangHoa' => $loaiHangHoa,
+        ];
+        return $this->sendSuccessResponse($datas);
+    }
+
+    public function report_nhapHang(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(30)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+
+        $data = NhapHangDetail::select(
+            'product_nhap_hang_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_nhap_hang_detail.is_recycle_bin', 0)
+            ->where('product_nhap_hang_detail.is_draft', 2)
+            ->whereBetween('product_nhap_hang_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_nhap_hang_detail.product_id')
+            ->orderBy('product_nhap_hang_detail.id', 'asc')
+            ->get();
+
+        // get total theo tháng
+        $totalByMonth = NhapHangDetail::select(
+            DB::raw('SUM(so_luong) as so_luong'),
+            DB::raw('SUM(thanh_tien) as thanh_tien'),
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month')
+        )
+            ->where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->whereBetween('product_nhap_hang_detail.created_at', [$startDate, $endDate])
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $dataResponse = [
+            'data' => $data,
+            'totalByMonth' => $totalByMonth,
+        ];
+
+        return $this->sendSuccessResponse($dataResponse);
+    }
+
+    public function report_xuatHuy(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(7)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+
+        $data = XuatHuyDetail::select(
+            'product_xuat_huy_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_xuat_huy_detail.is_recycle_bin', 0)
+            ->where('product_xuat_huy_detail.is_draft', 2)
+            ->whereBetween('product_xuat_huy_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_xuat_huy_detail.product_id')
+            ->orderBy('product_xuat_huy_detail.id', 'asc')
+            ->limit(20)
+            ->get();
+
+        // get total theo tháng
+        $totalByMonth = XuatHuyDetail::select(
+            DB::raw('SUM(so_luong_huy) as so_luong_huy'),
+            DB::raw('SUM(gia_tri_huy) as gia_tri_huy'),
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month')
+        )
+            ->where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $dataResponse = [
+            'data' => $data,
+            'totalByMonth' => $totalByMonth,
+        ];
+
+        return $this->sendSuccessResponse($dataResponse);
+    }
+
+    public function report_kiemKho(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            $startDate = now()->subDays(30)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+        // report_kiemKho
+        $data = KiemKhoDetail::select(
+            'product_kiem_kho_detail.*',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('product_kiem_kho_detail.is_recycle_bin', 0)
+            ->where('product_kiem_kho_detail.is_draft', 2)
+            ->whereBetween('product_kiem_kho_detail.created_at', [$startDate, $endDate])
+            ->leftJoin('products', 'products.id', 'product_kiem_kho_detail.product_id')
+            ->orderBy('product_kiem_kho_detail.id', 'asc')
+            ->limit(20)
+            ->get();
+        return $this->sendSuccessResponse($data);
+    }
+
+    public function report_congNo(Request $request)
+    {
+        if (empty($request->startDate) || empty($request->endDate)) {
+            // return $this->sendErrorResponse('Vui lòng chọn khoảng thời gian');
+            $startDate = now()->subDays(7)->startOfDay()->format('Y-m-d H:i:s');
+            $endDate = now()->endOfDay()->format('Y-m-d H:i:s');
+
+        } else {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+        }
+        // data
+        $congNo = CongNo::select(
+            'cong_no.*',
+            'nha_cung_cap.name as ten_ncc',
+            'products.name as product_name',
+            'products.code as product_code',
+        )
+            ->where('cong_no.is_recycle_bin', 0)
+            ->where('cong_no.is_draft', '!=', 1)
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->whereIn('cong_no.loai_chung_tu', ['product_tra_hang_ncc', 'product_nhap_hang'])
+            ->leftJoin('nha_cung_cap', 'nha_cung_cap.id', 'cong_no.nha_cung_cap_id')
+            ->leftJoin('products', 'products.id', 'cong_no.product_id')
+            ->orderBy('id', 'asc')
+            ->limit(20)
+            ->get();
+
+        // 
+        $tongCongNoTraHang = CongNo::where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->where('loai_chung_tu', 'product_tra_hang_ncc')
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->sum('so_tien_no');
+        $tongCongNoNhapHang = CongNo::where('is_recycle_bin', 0)
+            ->where('is_draft', '!=', 1)
+            ->where('loai_chung_tu', 'product_nhap_hang')
+            ->whereBetween('cong_no.created_at', [$startDate, $endDate])
+            ->sum('so_tien_no');
+        $tongCongNo = [
+            [
+                'name' => 'Công nợ trả hàng NCC',
+                'value' => intval($tongCongNoTraHang),
+            ],
+            [
+                'name' => 'Công nợ nhập hàng',
+                'value' => intval($tongCongNoNhapHang),
+            ],
+        ];
+
+        $data = [
+            'congNo' => $congNo,
+            'tongCongNo' => $tongCongNo,
+        ];
+        return $this->sendSuccessResponse($data);
     }
 }

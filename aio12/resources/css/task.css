@@ -4,32 +4,39 @@
     background-color: #fff;
     padding: 1px 10px;
 }
+
 .main-task {
     background-color: #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
-.item-form-textarea  textarea {
+
+.item-form-textarea textarea {
     height: auto;
 }
+
 .title-task {
     padding-left: 10px;
     background-color: #e9f0ff;
     margin-top: 0px;
     padding-top: 15px;
     padding-bottom: 15px;
+    text-transform: uppercase;
 }
+
 .main-task-detail {
     width: 100%;
 }
+
 .ant-drawer-content-wrapper {
     max-width: 1000px !important;
 }
+
 .tasks-container {
     width: 100%;
     overflow: auto;
 }
 
-#formSearch label{
+#formSearch label {
     font-weight: normal;
     padding-left: 7px;
 }
@@ -38,39 +45,107 @@
     color: #4b5563;
     margin-top: 5px;
     margin-bottom: 7px;
+    max-height: 100px;
+    overflow: auto;
 }
+
+.deadline {
+    float: right;
+    color: #4b5563;
+}
+
 .title04 {
     margin-top: 7px;
     margin-bottom: 5px;
     font-size: 14px;
 }
+
 .edit-description {
     width: 400px;
     max-width: 100%;
 }
+
 .title-desc {
     color: #000;
 }
+
 .desc {
     font-weight: normal;
     color: #4b5563;
 }
+
 .description01 .ant-empty-image {
     display: none;
 }
+
 .description01 .ant-empty-description {
     color: #4b5563;
 }
+
 .edit-description .ant-form-item-control-input-content textarea {
     height: 100px;
 }
+
 .date01 {
     color: #4b5563;
     font-size: 12px;
 }
+
 .value-list {
-    color:#6b7280
+    color: #6b7280
 }
+
 .cursor:hover {
     color: darkslategray;
+}
+
+.item03 {
+    width: 100%;
+}
+
+.ant-tag {
+    font-size: 13px;
+    padding: 0px 12px !important;
+    height: 25px;
+    line-height: 22px;
+}
+
+.ant-timeline {
+    max-height: 1000px;
+    overflow: auto;
+}
+
+.table-sub02 .ant-table {
+    margin-inline: 0px !important;
+}
+
+.title-search {
+    font-weight: normal;
+    color: #053690;
+}
+
+.item-status .ant-checkbox-group-item {
+    width: 100%;
+}
+
+.search-left {
+    display: flex;
+    background-color: #ecf2fc;
+    padding: 10px 5px 10px 10px;
+}
+.content-right {
+    padding: 10px;
+    background-color: #fff;
+}
+.main-search-left {
+    width: 100%;
+    float: left;
+}
+.item-search {
+    margin-top: 10px;
+    padding-bottom: 10px;
+}
+.main-search-left, .item-search,
+.main-search-left .item-search .ant-form-item {
+    background-color: #e6f4fc;
 }

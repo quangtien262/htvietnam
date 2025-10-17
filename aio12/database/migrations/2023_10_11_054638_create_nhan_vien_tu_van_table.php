@@ -16,15 +16,14 @@
         {
             Schema::create('nhan_vien_tu_van', function (Blueprint $table) {
                 $table->id();
-                $table->string('lucky_id')->nullable();
                 $table->string('name')->nullable();
                 $table->integer('nhan_vien_id')->nullable();
 
                 $table->integer('chung_tu_id')->nullable();
                 $table->string('loai_chung_tu')->nullable(); // ten bang
                 $table->string('ma_chung_tu')->nullable();
-
                 $table->integer('chung_tu_chi_tiet_id')->nullable();
+                
                 $table->integer('TienChietKhau')->nullable();
                 $table->integer('phan_tram_chiet_khau')->nullable();
                 $table->integer('LaPhanTram')->default(1)->nullable();

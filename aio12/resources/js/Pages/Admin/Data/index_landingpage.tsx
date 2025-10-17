@@ -134,6 +134,8 @@ export default function Dashboard(props) {
 
     function formatData(data) {
         return dataSource.map((data) => {
+            console.log('xxx');
+            
             let dataTmp = {};
             for (const [key, value] of Object.entries(data)) {
                 dataTmp[key] = value;
@@ -143,6 +145,7 @@ export default function Dashboard(props) {
                     continue;
                 }
                 // check type == select
+                // todo: cần sửa lại, bỏ selectbox, thay bằng Object.entries
                 if(props.selectData[key]) {
                     if(props.selectData[key]['selectbox'][value] && props.selectData[key]['selectbox'][value]['color']) {
                         let style = { color: props.selectData[key]['selectbox'][value]['color'] };
@@ -412,7 +415,8 @@ export default function Dashboard(props) {
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
                                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                options={props.selectData[col.name]['selectbox']}
+                                // options={props.selectData[col.name]['selectbox']}
+                                options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value.name, value: key }))}
                             />
                         </Form.Item>
 
@@ -451,8 +455,6 @@ export default function Dashboard(props) {
         <AdminLayout
             auth={props.auth}
             header={props.table.display_name}
-            tables={props.tables}
-            current={props.table}
             content={
                 <div>
                     <Card type="inner"

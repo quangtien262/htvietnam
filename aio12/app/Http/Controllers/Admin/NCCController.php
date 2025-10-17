@@ -37,9 +37,8 @@ class NCCController extends Controller
 {
     public function index(Request $request)
     {
-        $viewData = TblService::getDataIndexDefault('nha_cung_cap', $request);
-
-        return Inertia::render('Admin/NhaCungCap/index', $viewData);
+        $props = TblService::getDataIndexDefault('nha_cung_cap', $request);
+        return Inertia::render('Admin/NhaCungCap/index', $props);
     }
 
     public function save(Request $rq)

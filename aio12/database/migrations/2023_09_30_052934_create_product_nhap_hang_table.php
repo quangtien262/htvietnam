@@ -26,13 +26,12 @@ return new class extends Migration
             $table->integer('so_luong')->default(0)->nullable();
             $table->integer('tong_phi_van_chuyen')->default(0)->nullable();
 
-            
             $table->integer('cong_no_status_id')->default(1)->nullable(); 
 
             // $table->integer('nhap_hang_status_id')->default(1)->nullable();
             $table->integer('nha_cung_cap_id')->default(0)->nullable();
             $table->integer('nhan_vien_id')->default(0)->nullable();
-            $table->integer('chi_nhanh_id')->default(0)->nullable();
+            $table->integer('kho_hang_id')->default(0)->nullable();
             
             $table->integer('hinh_thuc_thanh_toan_id')->nullable();
 
@@ -110,10 +109,10 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'ton_kho', 'Tồn kho', 'INT', 'number', $order_col++, 
         ['show_in_list' => 0, 'require' => 1, 'edit' => 0, 'show_in_detail' => 1]);
 
-        // chinhanh
-        $chinhanh = Table::where('name', 'chi_nhanh')->first();
-        MigrateService::createColumn02($tableId, 'chi_nhanh_id', 'Chi nhánh', 'INT', 'select', $order_col++, 
-        ['show_in_list' => 1, 'require' => 1,'select_table_id' => $chinhanh->id, 'add2search' => 1, 'show_in_detail' => 1]);
+        // kho hang
+        $khoHang = Table::where('name', 'kho_hang')->first();
+        MigrateService::createColumn02($tableId, 'kho_hang_id', 'Kho hàng', 'INT', 'select', $order_col++, 
+        ['show_in_list' => 1, 'require' => 1,'select_table_id' => $khoHang->id, 'add2search' => 1, 'show_in_detail' => 1]);
 
         // nv nhap
         $admin = Table::where('name', 'admin_users')->first();

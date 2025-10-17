@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Models\Admin;
 
 use App\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 
-class Checklist extends Model
+class Calendar extends Model
 {
-    protected $table = 'task_checklist';
+    protected $table = 'calendar';
+
+
 }

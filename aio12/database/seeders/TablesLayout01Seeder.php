@@ -18,7 +18,7 @@ class TablesLayout01Seeder extends Seeder
     public function run()
     {
         // truncate all
-        DB::table('products')->truncate();
+        // DB::table('products')->truncate();
         DB::table('menus')->truncate();
         DB::table('images')->truncate();
         DB::table('news')->truncate();
@@ -54,51 +54,6 @@ class TablesLayout01Seeder extends Seeder
                     'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
                     'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
                 ],
-                'address' => [
-                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
-                    'LK14, KĐT Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
-                    'LK14, KĐT Hateco Green City, Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
-                ],
-                'address_header' => [
-                    'LK14, KĐT Hateco Green City',
-                    'LK14, KĐT Hateco Green City',
-                    'LK14, KĐT Hateco Green City'
-                ],
-                'address_header_description' => [
-                    'Foresa 4, Xuân Phương, Hà Nội, Việt Nam',
-                    'Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
-                    'Foresa 4, Xuân Phương, Hà Nội, Việt Nam'
-                ],
-                'factory' => [
-                    'Thôn Nho Lâm, phường Đường Hào, tỉnh Hưng Yên, Việt Nam',
-                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam',
-                    'Nho Lam hamlet, Duong Hao ward, Hung Yen province, Vietnam'
-                ],
-                'phone_language' => [
-                    '(84) 24 665 72208 ',
-                    '(84) 24 665 72208 ',
-                    '(84) 24 665 72208 '
-                ],
-                'title' => [
-                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
-                    'GCC PLASTIC JOINT STOCK COMPANY',
-                    'GCC PLASTIC JOINT STOCK COMPANY'
-                ],
-                'name_data' => [
-                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
-                    'GCC PLASTIC JOINT STOCK COMPANY',
-                    'GCC PLASTIC JOINT STOCK COMPANY'
-                ],
-                'company_name' => [
-                    'CÔNG TY CỔ PHẦN GCC PLASTIC',
-                    'GCC PLASTIC JOINT STOCK COMPANY',
-                    'GCC PLASTIC JOINT STOCK COMPANY'
-                ],
-                'copyright' => [
-                    '<p class="copyright-text">© 2025 <a href="/" target="_blank" rel="noopener noreferrer nofollow">GCC Group</a>. All rights reserved.</p>',
-                    '<p>我们自豪地成为越南风电领域的领先企业之一，我们有信心以最合理的价格为客户提供优质的产品和服务。</p>',
-                    '<p>We are proud to be one of the leading companies in exploiting, processing white limestone, producing super fine stone powder, filler masterbatch and high quality plastic materials, we always strive to meet the needs of domestic and international customers in a timely manner.</p>'
-                ]
             ]
         );
 
@@ -160,7 +115,7 @@ class TablesLayout01Seeder extends Seeder
         $this->createDataMenu();
 
         // product
-        $this->createDataProduct();
+        // $this->createDataProduct();
 
         //news
         $this->createNews();

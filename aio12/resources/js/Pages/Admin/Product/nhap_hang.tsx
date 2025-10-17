@@ -754,7 +754,7 @@ export default function Dashboard(props) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 
@@ -791,6 +791,7 @@ export default function Dashboard(props) {
                 }
             }
         }
+        values.p = props.p;
         
         // values.hinh_thuc_thanh_toan_id = hinhThucTT;
         values.mocThoiGian = mocThoiGian;
@@ -804,12 +805,9 @@ export default function Dashboard(props) {
 
         router.get(route("nhapHang"),values);
     };
-    const listItemsSearch = props.columns.map((col) =>
-        showDataSearch(col, props)
-    );
 
     const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
+        showDataSearch02(col, props, () => formSearch.submit())
     );
 
 
@@ -1065,7 +1063,7 @@ export default function Dashboard(props) {
                         initialValues={props.searchData}
                         onBlur={(e) => {formSearch.submit();}}
                     >
-                        {smartSearch02(props.table)}
+                        {smartSearch02(props.table, () => formSearch.submit())}
 
                         {/* hinh_thuc_thanh_toan */}
                         {formHinhThucTT()}
@@ -1581,7 +1579,7 @@ export default function Dashboard(props) {
 
         return <div>
             <Modal
-                title={""}
+                title={<span className="title-modal01"><PlusCircleOutlined /> Thêm mới phiếu nhập hàng</span>}
                 open={isOpenFormEdit}
                 // onOk={formEdit}
                 onCancel={cancelEdit}

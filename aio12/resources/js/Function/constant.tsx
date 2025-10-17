@@ -6,6 +6,14 @@ export const DATE_TIME_SHOW = "HH:mm:ss DD/MM/YYYY";
 
 export const CHAM_CONG_DEFAULT = {checkin_h: '08',checkin_m: '30',checkout_h: '17',checkout_m: '30',note: '',type: 1,kpi: 0};
 
+export const TITLE =  { 
+    tasks: "QUẢN LÝ CÔNG VIỆC", 
+    projects: "QUẢN LÝ DỰ ÁN",
+    all: "CÔNG VIỆC CHUNG",
+    sale: "QUẢN LÝ BÁN HÀNG",
+    dayphong: "QUẢN LÝ ĐẨY PHÒNG",
+ };
+
 export const TYPE_EDIT = [
     { value: "text", label: "text" },
     { value: "number", label: "number" },

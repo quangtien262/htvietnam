@@ -58,6 +58,12 @@ class TblController extends Controller
         return Inertia::location(route('table.index'));
     }
 
+    public function formName(Request $request, $tableName, $columnId = 0)
+    {
+        $table = Table::where('name',$tableName)->first();
+        return to_route('table.form', [$table->id, 0]);
+    }
+
     /**
      * Display a listing of the resource.
      *

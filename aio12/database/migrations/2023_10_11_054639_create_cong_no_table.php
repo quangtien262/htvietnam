@@ -23,6 +23,8 @@
                 $table->integer('users_id')->nullable(); 
                 $table->integer('nha_cung_cap_id')->default(0)->nullable(); 
                 
+                // product_tra_hang_ncc, product_nhap_hang, 
+                // hoa_don, product_khach_tra_hang
                 $table->string('loai_chung_tu')->nullable(); 
                 $table->integer('chung_tu_id')->default(0)->nullable(); 
                 $table->string('ma_chung_tu')->nullable(); 

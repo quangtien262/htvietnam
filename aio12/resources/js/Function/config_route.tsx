@@ -10,7 +10,7 @@ export const tblReport = [];
 export const tblTaiSan = ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat'];
 export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
     'products', 'menus', 'admin_user.edit', 'admin_user.index',
-    'admin_user.change_password', 'web_config', 'video','emails', 'countries','library'
+    'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library'
 ];
 
 // export const tblConfig = {
@@ -51,6 +51,7 @@ export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
 // };
 
 export const tblConfig = {
+    // website
     tblWeb: {
         name: 'Quản lý website',
         active: true,
@@ -59,40 +60,47 @@ export const tblConfig = {
             'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library']
 
     },
+    // Quản lý nhân sự
     tblNhanSu: {
         name: 'Quản lý nhân sự',
         active: true,
         data: ['permission_group', 'admin_user', 'khoa_hoc', 'chi_nhanh']
     },
+    // Quản lý kho hàng
     tblKhoHang: {
         name: 'Quản lý kho hàng',
         active: false,
         data: ['kho_hang', 'nha_cung_cap_status']
     },
+    // Quản lý bán hàng
     tblSale: {
         name: 'Quản lý bán hàng',
         active: false,
         data: ['data_telesales', 'dat_lich', 'users']
     },
+    // Quản lý tài chính
     tblTaiChinh: {
         name: 'Quản lý tài chính',
         active: false,
-        data: ['hoa_don']
+        data: ['soQuy']
     },
+    // Báo cáo
     tblReport: {
         name: 'Báo cáo',
         active: false,
         data: []
     },
+    // Quản lý tài sản
     tblTaiSan: {
         name: 'Quản lý tài sản',
         active: false,
         data: ['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
     },
+    // Quản lý công việc
     tblTask: {
         name: 'Quản lý công việc',
         active: false,
-        data: []
+        data: ['task_status', 'task_priority', 'task_milestones', 'tasks']
     },
 };
 
@@ -228,14 +236,14 @@ export const routeSales = [
 ];
 
 export const routeNhanSu = [
-    // {
-    //     parent: {
-    //         link: route('nhanSu.dashboard'),
-    //         display_name: 'Báo cáo',
-    //         key: key++
-    //     },
-    //     sub: []
-    // },
+    {
+        parent: {
+            link: route('nhanSu.dashboard'),
+            display_name: 'Báo cáo',
+            key: key++
+        },
+        sub: []
+    },
     {
         parent: {
             link: route('nhanVien.index'),
@@ -271,61 +279,54 @@ export const routeNhanSu = [
 
 ];
 
-export const routeTask = [
-    {
-        parent: {
-            link: route('task.dashboard'),
-            display_name: 'Báo cáo',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Nhóm công việc',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('task.list'),
-            display_name: 'Công việc',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('task.list'),
-            display_name: 'Nhóm checklist',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Milestones',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('data.tblName', ['data_telesales']),
-            display_name: 'Cài đặt',
-            key: key++
-        },
-        sub: []
-    },
+// export const routeTask = [
+//     {
+//         parent: {
+//             link: route('task.dashboard'),
+//             display_name: 'Báo cáo',
+//             key: key++
+//         },
+//         sub: []
+//     },
+//     // {
+//     //     parent: {
+//     //         link: route('task.list'),
+//     //         display_name: 'Công việc',
+//     //         key: key++
+//     //     },
+//     //     sub: []
+//     // },
+//     {
+//         parent: {
+//             link: route('data.tblName', ['task_milestones']),
+//             display_name: 'Cài đặt',
+//             key: key++
+//         },
+//         sub: [
+//             {
+//                 link: route('data.tblName', ['task_milestones']),
+//                 display_name: 'Milestones',
+//                 key: key++
+//             },
+//             {
+//                 link: route('data.tblName', ['task_priority']),
+//                 display_name: 'Độ ưu tiên',
+//                 key: key++
+//             },
+//             {
+//                 link: route('data.tblName', ['task_status']),
+//                 display_name: 'Trạng thái',
+//                 key: key++
+//             },
+//         ]
+//     },
 
-];
+// ];
+
 export const routeTaiChinh = [
     {
         parent: {
-            link: route('task.dashboard'),
+            link: route('taiChinh.dashboard'),
             display_name: 'Báo cáo',
             key: key++
         },
@@ -333,23 +334,15 @@ export const routeTaiChinh = [
     },
     {
         parent: {
-            link: route('hoaDon.index'),
-            display_name: 'Hóa Đơn',
+            link: route('soQuy'),
+            display_name: 'Sổ quỹ',
             key: key++
         },
         sub: []
     },
     {
         parent: {
-            link: route('task.list'),
-            display_name: 'Thu chi',
-            key: key++
-        },
-        sub: []
-    },
-    {
-        parent: {
-            link: route('hoaDon.index'),
+            link: route('congNo'),
             display_name: 'Công nợ',
             key: key++
         },
@@ -390,7 +383,7 @@ export const routeReport = [
 export const routeTaiSan = [
     {
         parent: {
-            link: route('task.dashboard'),
+            link: route('taiSan.dashboard'),
             display_name: 'Báo cáo',
             key: key++
         },
@@ -555,6 +548,9 @@ export function itemMenu(tableName: string) {
     }
     if (tblConfig.tblNhanSu.data.includes(tableName)) {
         return routeNhanSu;
+    }
+    if (tblConfig.tblTask.data.includes(tableName)) {
+        return routeTask;
     }
 
     return false;

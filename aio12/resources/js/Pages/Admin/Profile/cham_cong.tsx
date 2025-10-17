@@ -144,6 +144,7 @@ export default function Dashboard(props) {
                     continue;
                 }
                 // check type == select
+                // todo: cần sửa lại, bỏ selectbox, thay bằng Object.entries
                 if(props.selectData[key]) {
                     if(props.selectData[key]['selectbox'][value] && props.selectData[key]['selectbox'][value]['color']) {
                         let style = { color: props.selectData[key]['selectbox'][value]['color'] };

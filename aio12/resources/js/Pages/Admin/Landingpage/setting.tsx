@@ -12,8 +12,6 @@ export default function Dashboard(props: { auth: unknown; table: { id: number; p
             <AdminLayout
                 auth={props.auth}
                 header={'Cài đặt trang Landingpage'}
-                tables={routeWeb}
-                current={props.table}
                 content={
                     <div>
                         <Row>

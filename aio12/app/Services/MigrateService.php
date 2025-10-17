@@ -41,7 +41,7 @@ MigrateService
             'show_in_menu' => 1, // có hiển thị ở menu ko
             'is_multiple_language' => 0, // có phải là dữ liệu kiểu đa ngôn ngữ ko,
             'table_data' => '', // tên bảng data tương ứng
-            'form_data_type' => 1,
+            'form_data_type' => 2,
             'have_delete' => 1, // có cho phép xóa ko
             'have_add_new' => 1, // có cho phép thêm mới ko
             'parent_id' => 0,

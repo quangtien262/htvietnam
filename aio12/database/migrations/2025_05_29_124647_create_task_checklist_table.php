@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('nguoi_theo_doi')->nullable(); // // json người theo dõi hoặc làm cùng
             $table->integer('task_id')->nullable();
             $table->integer('is_checked')->default(0)->nullable();
+            $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
 

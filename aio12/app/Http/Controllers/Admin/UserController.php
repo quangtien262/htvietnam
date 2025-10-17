@@ -76,7 +76,6 @@ class UserController extends Controller
         foreach($columns as $col) {
             if (in_array($col->type_edit, ['select', 'select2']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectData[$col->name]['selectbox'] = $dataTmp;
                 foreach($dataTmp as $d) {
                     $selectData[$col->name][$d['value']] = $d['label'];
                     if(!empty($d['color'])) {
@@ -86,7 +85,6 @@ class UserController extends Controller
             }
             if (in_array($col->type_edit, ['selects']) && !empty($col->select_table_id)) {
                 $dataTmp = TblService::getDataSelect($col);
-                $selectsData[$col->name]['selectbox'] = $dataTmp;
                 foreach($dataTmp as $d) {
                     $selectsData[$col->name][$d['value']] = $d['label'];
                     if(!empty($d['color'])) {

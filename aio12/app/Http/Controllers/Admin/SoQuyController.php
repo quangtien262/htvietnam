@@ -19,7 +19,7 @@ class SoQuyController extends Controller
 
     public function index(Request $request)
     {
-        $viewData = TblService::getDataIndexDefault('so_quy', $request, true, true);
+        $props = TblService::getDataIndexDefault('so_quy', $request, true, true);
         $mocThoiGian = 'today';
         if (!empty($request['mocThoiGian'])) {
             $mocThoiGian = $request['mocThoiGian'];
@@ -54,12 +54,12 @@ class SoQuyController extends Controller
 
         
 
-        $viewData['soDuDauKy'] = $soDuDauKy;
-        $viewData['tongThu'] = $tongThu;
-        $viewData['tongChi'] = $tongChi;
-        $viewData['tonQuy'] = $tonQuy;
-        $viewData['khoangThoiGian'] = $khoangThoiGian;
-        return Inertia::render('Admin/SoQuy/index', $viewData);
+        $props['soDuDauKy'] = $soDuDauKy;
+        $props['tongThu'] = $tongThu;
+        $props['tongChi'] = $tongChi;
+        $props['tonQuy'] = $tonQuy;
+        $props['khoangThoiGian'] = $khoangThoiGian;
+        return Inertia::render('Admin/SoQuy/index', $props);
     }
 
     public function saveSoQuy(Request $rq)

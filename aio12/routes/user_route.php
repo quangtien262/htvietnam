@@ -18,7 +18,7 @@ use App\Http\Controllers\User\PhanboichauController;
 use App\Http\Controllers\User\VideoController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PagesController::class, 'index'])->name('home');
+// Route::get('/', [PagesController::class, 'index'])->name('home');
 
 Route::get('lang/{locale}', function ($locale) {
     if (in_array($locale, ['vi', 'en', 'ch'])) {

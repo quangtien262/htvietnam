@@ -9,10 +9,15 @@ use App\Services\Admin\TblService;
 use App\Models\Admin\Table;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use App\Models\Admin\Checklist;
+use App\Models\Admin\TaskChecklist;
+use App\Models\Admin\Column;
+use App\Models\Admin\Meeting;
+use App\Models\Admin\Project;
 use App\Models\Admin\Task;
 use App\Models\Admin\TaskComment;
+use App\Models\Admin\TaskLog;
 use App\Models\AdminUser;
+use App\Services\Admin\TblModel;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -20,28 +25,58 @@ class TaskController extends Controller
 
     public function dashboard(Request $request)
     {
-        $viewData = [
-         
-        ];
+        $viewData = [];
         return Inertia::render('Admin/Dashboard/task', $viewData);
     }
 
-    public function index(Request $request)
+    public function getTaskInfo(Request $request, $taskId = 0)
     {
-        $table = Table::where('name', 'tasks')->first();
-        $tables = TblService::getAdminMenu($table->id);
+        if (empty($taskId)) {
+            return $this->sendSuccessResponse([]);
+        }
+        $task = Task::find($taskId);
+        $checklist = TaskChecklist::baseQuery()->where('task_checklist.task_id', $taskId)->orderBy('id', 'desc')->get()->toArray();
+        $comments = TaskComment::getByTask($taskId);
+        $percent = TblService::getChecklistPercent($checklist);
+        $priority = TblService::formatData('task_priority', ['parent_name' => $task->parent_name]);
+        $logs = TaskLog::where('data_id', $taskId)->orderBy('id', 'desc')->limit(30)->get()->toArray();
+        return $this->sendSuccessResponse([
+            'checklist' => $checklist,
+            'comments' => $comments,
+            'percent' => $percent,
+            'priority' => $priority,
+            'task' => $task,
+            'logs' => $logs,
+        ]);
+    }
 
-        $prority = TblService::formatData('task_prority');
-        $type = TblService::formatData('task_type');
-        $status = TblService::formatData('task_status');
+    /**
+     * Summary of index
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $parentName
+     * @return \Inertia\Response
+     */
+    public function index(Request $request, $parentName)
+    {
+
+        $table = Table::where('name', $parentName)->first();
+
+        $project = Project::projectDetail($request->pid);
+
+        $priority = TblService::formatData('task_priority', ['parent_name' => $parentName]);
+        $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
+
+        $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
         $admin = Auth::guard('admin_users')->user();
 
-        $datas = Task::getTaskByStatus($request);
-
-        $statusTable = Table::where('name', 'task_status')->first('id');
-        $statusData_DragDrop = TblService::getDataDragDrop($statusTable->id);
-
-        // $users = DB::table('users')->get(['id', 'name', 'code']);
+        $statusTable = Table::where('name', 'task_status')->first();
+        $statusData = DB::table('task_status')
+            ->select('sort_order as sort', 'id as key', 'task_status.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $parentName)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
         $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
         $users_byID = [];
         foreach ($users as $u) {
@@ -49,26 +84,63 @@ class TaskController extends Controller
         }
         // get chi nhanh
 
-        // áp dụng với quy trình ql dự án, cskh
+        $display = 'kanban'; // kanban, list
+        if ($request->display) {
+            $display = $request->display;
+        }
 
-        return Inertia::render('Admin/Task/index', [
+        $props = [
             'table' => $table,
-            'tables' => $tables,
-            'status' => $status,
-            'datas' => $datas,
+            'project' => $project,
+            'taskStatus' => $status,
             'users' => $users_byID,
-            'prority' => $prority,
+            'priority' => $priority,
             'type' => $type,
             'admin' => $admin,
-            'statusData_DragDrop' => $statusData_DragDrop,
-            'statusTable' => $statusTable
-        ]);
+            'statusData' => $statusData,
+            'statusTable' => $statusTable,
+            'parentName' => $parentName,
+            'display' => 'kanban',
+            'pid' => $request->pid ? $request->pid : 0,
+            'display' => $display,
+            'p' => $request->p ? $request->p : 1,
+        ];
+
+        if ($display == 'list') {
+            $props['searchData'] = $this->getSearchData($request, $status);
+            $props['dataSource'] = Task::getDatas($parentName, $props['searchData']);
+            return Inertia::render('Admin/Task/index_list', $props);
+        }
+
+        $props['datas'] = Task::getTaskByStatus($request->all(), $parentName);
+        return Inertia::render('Admin/Task/index', $props);
     }
+
+    private function getSearchData($request, $status)
+    {
+        $searchData = $request->all();
+        if (empty($request->status)) {
+            $statusDefault = [];
+            foreach ($status as $val) {
+                if ($val->is_default == 1) {
+                    $statusDefault[] = (string)$val->id;
+                }
+            }
+            $searchData['status'] = $statusDefault;
+        }
+
+        if (empty($request->display)) {
+            $searchData['display'] = 'kanban'; // kanban, list
+        }
+
+        return $searchData;
+    }
+
     public function getList()
     {
         return Task::all();
     }
-    public function store(Request $request)
+    public function store(Request $request, $parentName)
     {
         $admin = Auth::guard('admin_users')->user();
 
@@ -79,13 +151,16 @@ class TaskController extends Controller
         $task->nguoi_thuc_hien = $request->nguoi_thuc_hien;
         $task->nguoi_theo_doi = $request->nguoi_theo_doi;
         $task->sort_order = 1;
-        $task->nguoi_tạo = $request->nguoi_tạo;
         $task->start = $request->start ? $request->start : null;
         $task->end = $request->end ? $request->end : null;
         $task->create_by = $admin->id;
+        $task->parent_name = $parentName;
+        $task->project_id = $request->pid;
         $task->save();
 
-        $datas = Task::getTaskByStatus($request);
+        TaskLog::logAdd('tasks', 'Đã thêm mới "' . $task->name . '"', $task->id);
+
+        $datas = Task::getTaskByStatus($request->all(), $parentName);
 
         return $this->sendSuccessResponse($datas);
     }
@@ -104,13 +179,28 @@ class TaskController extends Controller
             $t->save();
         }
 
-        return response()->json($task, 200);
+        return $this->sendSuccessResponse([], 'Update successfully', 200);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        Task::destroy($id);
-        return response()->json(null, 204);
+        $task = Task::find($id);
+        if (empty($task)) {
+            return $this->sendErrorResponse('Task not found');
+        }
+
+        TaskLog::logDelete('tasks', 'Đã xóa "' . $task->name . '"', $task->id);
+
+        $task->is_recycle_bin = 1;
+        $task->save();
+        // xóa checklist
+        TaskChecklist::where('task_id', $id)->update(['is_recycle_bin' => 1]);
+        // xóa comment
+        TaskComment::where('task_id', $id)->update(['is_recycle_bin' => 1]);
+
+        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
+
+        return $this->sendSuccessResponse($columns, 'Update successfully', 200);
     }
 
     public function addChecklist(Request $request)
@@ -126,7 +216,10 @@ class TaskController extends Controller
             if (empty($data['name'])) {
                 continue;
             }
-            $checklist = new Checklist();
+            $checklist = new TaskChecklist();
+            if (!empty($request->checklist_id)) {
+                $checklist = $checklist->find($request->checklist_id);
+            }
             $checklist->name = $data['name'];
             $checklist->content = $data['content'];
             $checklist->nguoi_thuc_hien = $data['admin_user_id'];
@@ -134,28 +227,16 @@ class TaskController extends Controller
             $checklist->create_by = $admin->id;
             $checklist->is_checked = 0;
             $checklist->save();
+
+            // log
+            TaskLog::logAdd('tasks', 'Đã thêm mới checklist "' . $checklist->name . '"', $request->task_id);
         }
 
         // get all
-        $checklists = Checklist::where('task_id', $request->task_id)->orderBy('id', 'desc')->get()->toArray();
+        $checklist = TaskChecklist::baseQuery()->where('task_checklist.task_id', $request->task_id)->orderBy('id', 'desc')->get()->toArray();
+        $percent = TblService::getChecklistPercent($checklist);
 
-        return $this->sendSuccessResponse($checklists);
-    }
-
-    public function getTaskInfo(Request $request, $taskId = 0)
-    {
-        if (empty($taskId)) {
-            return $this->sendSuccessResponse([]);
-        }
-
-
-        $checklist = Checklist::where('task_id', $taskId)->where('is_recycle_bin', 0)->get()->toArray();
-        $comments = TaskComment::getByTask($taskId);
-        return $this->sendSuccessResponse([
-            'checklist' => $checklist,
-            'comments' => $comments,
-            // 'datas' => $datas
-        ]);
+        return $this->sendSuccessResponse(['checklist' => $checklist, 'percent' => $percent]);
     }
 
     public function addComment(Request $request)
@@ -168,13 +249,42 @@ class TaskController extends Controller
 
         // save
         $comment = new TaskComment();
+        if (!empty($request->id)) {
+            $comment = $comment->find($request->id);
+        }
         $comment->content = $request->content;
         $comment->task_id = $request->task_id;
         $comment->create_by = $admin->id;
         $comment->save();
 
+        // log
+        TaskLog::logAdd('tasks', 'Đã thêm mới bình luận "' . $comment->content . '"', $request->task_id);
+
         // get all
         $comments = TaskComment::getByTask($request->task_id);
+
+        return $this->sendSuccessResponse($comments);
+    }
+
+    public function deleteComment(Request $request)
+    {
+        if (empty($request->id)) {
+            return $this->sendErrorResponse('empty');
+        }
+
+        $comment = TaskComment::find($request->id);
+        if (empty($comment)) {
+            return $this->sendErrorResponse('Comment not found');
+        }
+
+        // log
+        // TaskLog::logDelete('tasks', 'Đã xóa bình luận "' . $comment->content . '"', $comment->task_id);
+
+        $comment->is_recycle_bin = 1;
+        $comment->save();
+
+        // get all
+        $comments = TaskComment::getByTask($comment->task_id);
 
         return $this->sendSuccessResponse($comments);
     }
@@ -189,12 +299,24 @@ class TaskController extends Controller
     public function fastEditTask(Request $request)
     {
         $data = Task::find($request->id);
+
+        TaskLog::logEdit('tasks', $data, $request);
+
         $data->{$request->column_name} = $request->value;
         $data->save();
 
-        $datas = Task::getTaskByStatus($request);
+        if(in_array($request->column_name, ['is_daily', 'is_weekly', 'is_monthly'])) {
+            Meeting::saveMeeting($data, $request, 'tasks');
+        }
 
-        return $this->sendSuccessResponse($datas, 'Update successfully', 200);
+        if($request->display == 'kanban') {
+            $datas = Task::getTaskByStatus($request->all(), $request->parentName);
+            return $this->sendSuccessResponse(['datas' => $datas, 'data' => $data], 'Update successfully', 200);
+        }
+
+        $dataSource =  Task::getDatas($request->parentName, $request->searchData);
+
+        return $this->sendSuccessResponse(['datas' => $dataSource['data'], 'data' => $data], 'Update successfully', 200);
     }
 
     public function sortOrder(Request $request)
@@ -207,12 +329,12 @@ class TaskController extends Controller
         $this->updateSortOrderSetting($dataSort, $request->table_name);
 
         // get tasks
-        $tasks = Task::getTaskByStatus($request);
+        $tasks = Task::getTaskByStatus($request->all(), $request->parent_name);
 
         return $this->sendSuccessResponse($tasks);
     }
 
-    public function addTaskExpress(Request $request)
+    public function addExpress(Request $request, $parentName)
     {
         if (empty($request->datas)) {
             return $this->sendErrorResponse('empty');
@@ -231,11 +353,16 @@ class TaskController extends Controller
             $task->nguoi_thuc_hien = $data['nguoi_thuc_hien'];
             $task->task_status_id = $data['task_status_id'];
             $task->create_by = $admin->id;
+            $task->parent_name = $parentName;
+            $task->project_id = $request->pid;
             $task->save();
+            TaskLog::logAdd('tasks', 'Đã thêm nhanh "' . $task->name . '"', $task->id);
         }
 
         // get all
-        $tasks = Task::getTaskByStatus($request);
+        $tasks = Task::getTaskByStatus($request->all(), $parentName);
+
+
 
         return $this->sendSuccessResponse($tasks);
     }
@@ -255,5 +382,75 @@ class TaskController extends Controller
             }
         }
         return ++$indexStart;
+    }
+
+    public function editConfig(Request $request, $parentName, $currentTable)
+    {
+        $admin = Auth::guard('admin_users')->user();
+
+        // save
+        $data = TblModel::model($currentTable);
+        if ($request->id) {
+            $data = $data->find($request->id);
+        } else {
+            $data->sort_order = 0;
+        }
+        $data->parent_name = $parentName;
+        foreach ($request->all() as $k => $v) {
+            if (in_array($k, ['pid', 'id'])) {
+                continue;
+            }
+            $data->{$k} = $v;
+        }
+        $data->create_by = $admin->id;
+        $data->save();
+        $datas = DB::table($currentTable)
+            ->select('sort_order as sort', 'id as key', $currentTable . '.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $parentName)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
+
+        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
+        $status = TblService::formatData('task_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
+        return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status, 'datas' => $datas]);
+    }
+
+    public function deleteConfig(Request $request, $parentTable, $currentTable)
+    {
+        $table = Table::where('name', $currentTable)->first();
+        if (empty($table)) {
+            return $this->sendErrorResponse('Table not found');
+        }
+        // delete
+        TblService::deleteDatas($table->id, ['id' => $request->id]);
+
+        // get all
+        $datas = DB::table($currentTable)
+            ->select('sort_order as sort', 'id as key', $currentTable . '.*')
+            ->where('is_recycle_bin', 0)
+            ->where('parent_name', $parentTable)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->toArray();
+        $columns = Task::getTaskByStatus($request->all(), $parentTable);
+        return $this->sendSuccessResponse(['data' => $datas, 'columns' => $columns]);
+    }
+
+    public function updateSortOrder_taskStatus(Request $request)
+    {
+        if (empty($request->order)) {
+            return $this->sendErrorResponse('empty');
+        }
+        foreach ($request->order as $i => $id) {
+            $dataUpdate = [
+                'sort_order' => $i + 1,
+            ];
+            TblService::updateData($request->currentName, $id, $dataUpdate);
+        }
+        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
+        $status = TblService::formatData('task_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
+        return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status]);
     }
 }

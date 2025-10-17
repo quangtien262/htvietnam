@@ -16,9 +16,14 @@ return new class extends Migration
         Schema::create('task_status', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('description')->nullable();
             $table->string('color')->default('#ffffff')->nullable();
+            $table->string('parent_name')->nullable();
+            $table->string('project_id')->nullable();
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
+            $table->integer('is_active')->default(1)->nullable();
+            $table->integer('is_default')->default(1)->nullable();
             MigrateService::createBaseColumn($table);
 
             Table::create([
@@ -33,7 +38,6 @@ return new class extends Migration
                 'form_data_type' => 1,
                 'have_delete' => 1,
                 'have_add_new' => 1,
-
                 'is_show_btn_edit' => 1,
                 'tab_table_id' => 0,
                 'tab_table_name' => '',
@@ -53,6 +57,12 @@ return new class extends Migration
             ['show_in_list' => 1, 'edit => 1']);
             MigrateService::createColumn02($tableId, 'icon', 'Icon', 'VARCHAR', 'icon', $order_col++, 
             ['show_in_list' => 1, 'edit => 1']);
+
+            $confirm = Table::where('name', 'confirm')->first();
+            MigrateService::createColumn02($tableId, 'is_active', 'Active', 'select', 'icon', $order_col++, 
+            ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
+            MigrateService::createColumn02($tableId, 'is_default', 'Tìm kiếm mặc định', 'select', 'icon', $order_col++, 
+            ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
             MigrateService::baseColumn($tbl);
         });
     }

@@ -13,11 +13,15 @@ import {
     GoldFilled, CalendarOutlined, ReadFilled, UserSwitchOutlined, UndoOutlined, InfoCircleFilled,
     HddFilled, CalendarFilled, TeamOutlined, UngroupOutlined, InsertRowRightOutlined, AccountBookOutlined,
     BookOutlined, BranchesOutlined, ArrowDownOutlined, ClusterOutlined, AppstoreOutlined,
-    MailOutlined
+    MailOutlined, HomeOutlined, IdcardOutlined, ProfileOutlined,
+    WalletOutlined
 } from "@ant-design/icons";
+
+
 
 import "../../../../css/home.css";
 import { routeHome } from "../../../Function/config_route";
+import { icon } from "../../../components/comp_icon";
 
 export default function Dashboard(props: any) {
     const [isOpenModalConfirm, setIsOpenModalConfirm] = useState(false);
@@ -25,6 +29,356 @@ export default function Dashboard(props: any) {
     const changeMenu = (id: unknown) => {
         router.get(route('data.index', [id]));
     }
+
+    function showDataDashboard(item: any) {
+
+        if (item.name === 'parent_website') {
+
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
+                                <DribbbleSquareOutlined /> {item.display_name}
+                            </Link>
+                        </div>
+
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <DribbbleSquareOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HddOutlined /> Quản lý sản phẩm</li>
+                                        <li><CopyOutlined /> Quản lý tin tức</li>
+                                        <li><FileSearchOutlined /> Quản lý landingpage</li>
+                                        <li><MailOutlined /> Liên hệ từ website</li>
+                                        <li><AppstoreOutlined /> Đơn hàng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        if (item.name === 'parent_aitilen') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
+                                <HomeOutlined /> BĐS AITILEN
+                            </Link>
+                        </div>
+
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <HomeOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HomeOutlined /> Căn hộ</li>
+                                        <li><BookOutlined /> Phòng cho thuê</li>
+                                        <li><IdcardOutlined /> Hợp đồng</li>
+                                        <li><ProfileOutlined /> Hóa đơn</li>
+                                        <li><WalletOutlined /> Công việc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        if (item.name === 'parent_tai_lieu') {
+            {/* QUẢN LÝ TÀI LIỆU */ }
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
+                                <a><CopyOutlined /> QUẢN LÝ TÀI LIỆU</a>
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content">
+                            <div className="ant-statistic-content-prefix">
+                                <CopyOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><FileSearchOutlined /> Tài liệu theo từng user</li>
+                                        <li><BookOutlined /> Tài liệu chung</li>
+                                        <li><BranchesOutlined /> Tài liệu được chia sẻ</li>
+                                        <li><ArrowDownOutlined /> Download tài liệu</li>
+                                        <li><ClusterOutlined /> Upload multiple file</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* QUẢN LÝ NHÂN SỰ */ }
+        if (item.name === 'parent_nhan_su') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, { p: item.id })}>
+                                <IdcardFilled /> QUẢN LÝ NHÂN SỰ
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <IdcardFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><TeamOutlined /> Quản lý nhân viên</li>
+                                        <li><ProjectOutlined /> Quản lý phòng ban</li>
+                                        <li><SolutionOutlined /> Quản lý bảng lương</li>
+                                        <li><NodeExpandOutlined /> Phân quyền quản trị</li>
+                                        <li><InsertRowAboveOutlined /> Doanh số, hoa hồng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+        {/* QUẢN LÝ KHO HÀNG */ }
+        if (item.name === 'parent_kho_hang') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <SlidersFilled /> QUẢN LÝ HÀNG HÓA & DỊCH VỤ
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content">
+                            <div className="ant-statistic-content-prefix">
+                                <SlidersFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HddOutlined /> Quản lý sản phẩm</li>
+                                        <li><DoubleRightOutlined /> Nhập hàng</li>
+                                        <li><DoubleLeftOutlined /> Xuất kho</li>
+                                        <li><FileSearchOutlined /> Kiểm kho</li>
+                                        <li><FileSearchOutlined /> Trả hàng nhập từ NCC</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* QUẢN LÝ BÁN HÀNG */ }
+        if (item.name === 'parent_kho_hang') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <ShopFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GoldFilled /> Thu ngân</li>
+                                        <li><ReadFilled /> Quản lý Hóa đơn</li>
+                                        <li><TeamOutlined /> Quản lý khách hàng</li>
+                                        <li><UngroupOutlined /> Data telesale</li>
+                                        <li><CalendarOutlined /> Quy trình CSKH</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* BÁO CÁO - THỐNG KÊ */ }
+        if (item.name === 'parent_thong_ke') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            {/* <Link href={route(item.route, {p:item.id})}>
+                                <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
+                            </Link> */}
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <PieChartFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GlobalOutlined /> Báo cáo tổng hợp</li>
+                                        <li><UserSwitchOutlined /> Báo cáo nhân sự</li>
+                                        <li><PayCircleOutlined /> Báo cáo bán hàng</li>
+                                        <li><DeleteColumnOutlined /> Báo cáo công nợ</li>
+                                        <li><FileSearchOutlined /> ..........</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* QUẢN LÝ CÔNG VIỆC */ }
+        if (item.name === 'parent_cong_viec') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'> 
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <CalendarFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><FileProtectOutlined /> Danh sách công việc</li>
+                                        <li><ForkOutlined /> Phân loại công việc</li>
+                                        <li><FlagOutlined /> Meeting, Daily</li>
+                                        <li><DoubleRightOutlined /> Báo cáo tiến độ</li>
+                                        <li><HourglassOutlined /> Quản lý lịch hẹn</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* QUẢN LÝ TÀI SẢN */ }
+        if (item.name === 'parent_tai_san') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <HddFilled /> QUẢN LÝ TÀI SẢN
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <HddFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><OrderedListOutlined /> Danh sách tài sản</li>
+                                        <li><SortAscendingOutlined /> Phân loại tài sản</li>
+                                        <li><InsertRowRightOutlined /> Tài sản trong kho</li>
+                                        <li><LaptopOutlined /> Tài sản đang sử dụng</li>
+                                        <li><UndoOutlined /> Tài sản bảo trì</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        {/* QUẢN LÝ TÀI CHÍNH */ }
+        if (item.name === 'parent_tai_chinh') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <AccountBookOutlined /> QUẢN LÝ TÀI CHÍNH
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <AccountBookOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><CopyOutlined /> Quản lý hóa đơn</li>
+                                        <li><DeleteRowOutlined /> Quản lý công nợ</li>
+                                        <li><DiffOutlined /> Quản lý thu chi</li>
+                                        <li><LineChartOutlined /> Báo cáo tài chính</li>
+                                        <li><RiseOutlined /> Báo cáo dòng tiền</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        if (item.name === 'parent_ban_hang') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link href={route(item.route, {p:item.id})}>
+                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <ShopFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GoldFilled /> Thu ngân</li>
+                                        <li><ReadFilled /> Quản lý Hóa đơn</li>
+                                        <li><TeamOutlined /> Quản lý khách hàng</li>
+                                        <li><UngroupOutlined /> Data telesale</li>
+                                        <li><CalendarOutlined /> Quy trình CSKH</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
+
+        return '';
+    }
+
+
     return (
         <AdminLayout
             auth={props.auth}
@@ -32,8 +386,6 @@ export default function Dashboard(props: any) {
             tables={routeHome}
             content={
                 <div>
-
-
                     <Card type="inner" title='Điều hướng nhanh'>
                         <Select placeholder="Nhập để điều hướng quản trị nhanh đến chức năng tương ứng"
                             showSearch
@@ -47,103 +399,14 @@ export default function Dashboard(props: any) {
                     </Card>
 
                     <Row className='main-home'>
-                        {/* QUẢN TRỊ WEBSITE */}
-                        <Col sm={6} className='item-home'>
-                            <Card variant="borderless" className='item-dashboard'>
-                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                                    <div className="ant-statistic-title">
-                                        <Link href={route('web.dashboard')}>
-                                            <DribbbleSquareOutlined /> QUẢN TRỊ WEBSITE
-                                        </Link>
-                                    </div>
 
-                                    <div className="ant-statistic-content" >
-                                        <div className="ant-statistic-content-prefix">
-                                            <DribbbleSquareOutlined />
-                                        </div>
-                                        <div className="ant-statistic-content-value">
-                                            <div>
-                                                <ul className="dashboard-list-item">
-                                                    <li><HddOutlined /> Quản lý sản phẩm</li>
-                                                    <li><CopyOutlined /> Quản lý tin tức</li>
-                                                    <li><AppstoreOutlined /> Cài đặt website</li>
-                                                    <li><FileSearchOutlined /> Cài đặt landingpage</li>
-                                                    <li><MailOutlined /> Liên hệ từ website</li>
-                                                    <li><MailOutlined /> Liên hệ từ website</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col>
-
-                        {/* QUẢN LÝ KHO HÀNG */}
-                        <Col sm={6} className='item-home'>
-                            <Card variant="borderless" className='item-dashboard'>
-                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                                    <div className="ant-statistic-title">
-                                        <Link href={route('file.index')}>
-                                            <a><CopyOutlined /> QUẢN LÝ TÀI LIỆU</a>
-                                        </Link>
-                                    </div>
-                                    <div className="ant-statistic-content">
-                                        <div className="ant-statistic-content-prefix">
-                                            <CopyOutlined />
-                                        </div>
-                                        <div className="ant-statistic-content-value">
-                                            <div>
-                                                <ul className="dashboard-list-item">
-                                                    <li><FileSearchOutlined /> Tài liệu theo từng user</li>
-                                                    <li><BookOutlined /> Tài liệu chung</li>
-                                                    <li><BranchesOutlined /> Tài liệu được chia sẻ</li>
-                                                    <li><ArrowDownOutlined /> Download tài liệu</li>
-                                                    <li><ClusterOutlined /> Cho phép upload nhiều loại định dạng file</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col>
-
-                        <Col sm={6} className='item-home'>
-                            <Card variant="borderless" className='item-dashboard'>
-
-                                <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                                    <div className="ant-statistic-title">
-                                        <Link href={route('nhanVien.index')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link>
-                                        {/* <Link href={route('nhanSu.dashboard')}><IdcardFilled /> QUẢN LÝ NHÂN SỰ</Link> */}
-                                    </div>
-                                    <div className="ant-statistic-content" >
-                                        <div className="ant-statistic-content-prefix">
-                                            <IdcardFilled />
-                                        </div>
-                                        <div className="ant-statistic-content-value">
-                                            <div>
-                                                <ul className="dashboard-list-item">
-                                                    <li><TeamOutlined /> Quản lý nhân viên</li>
-                                                    <li><ProjectOutlined /> Quản lý phòng ban</li>
-                                                    <li><SolutionOutlined /> Quản lý bảng lương</li>
-                                                    <li><NodeExpandOutlined /> Phân quyền quản trị</li>
-                                                    <li><InsertRowAboveOutlined /> Báo cáo doanh số, hoa hồng</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col>
-
-
-
+                        {props.datas.map((item: any) => (showDataDashboard(item)))}
 
                     </Row>
 
                     <Modal
                         title={<div><a><InfoCircleFilled /></a> Tính năng này đang tạm khóa</div>}
                         open={isOpenModalConfirm}
-                        // onOk={formEdit}
                         width={600}
                         onCancel={() => setIsOpenModalConfirm(false)}
                         footer={[<Button key={1} onClick={() => setIsOpenModalConfirm(false)} type="primary">Đóng</Button>]}

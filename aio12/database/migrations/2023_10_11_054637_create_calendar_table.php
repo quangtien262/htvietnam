@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dat_lich', function (Blueprint $table) {
+        Schema::create('calendar', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
             $table->string('code')->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
         });
         Table::create([
             //require
-            'name' => 'dat_lich',
+            'name' => 'calendar',
             'display_name' => 'Đặt lịch',
             'parent_id' => 0,
             'sort_order' => 0,
@@ -55,16 +55,16 @@ return new class extends Migration
             'table_data' => '',
             'is_label' => 0,
         ]);
-        $tbl = Table::where('name', 'dat_lich')->first();
+        $tbl = Table::where('name', 'calendar')->first();
         $tableId = $tbl->id;
         $order_col = 1;
 
         MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
 
         MigrateService::createColumn02($tableId, 'code', 'Mã lịch hẹn', 'VARCHAR', 'text', $order_col++,
-        ['is_view_detail' => 1, 'show_in_list' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"LICH", "length":5}']);
+        ['is_view_detail' => 0, 'edit' => 0, 'show_in_list' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"LICH", "length":5}']);
 
-        MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'TEXT', 'textarea', $order_col++, 
+        MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'TEXT', 'textarea', $order_col++,
         ['edit' => 1, 'require'=>1]);
 
         $chi_nhanh = Table::where('name', 'chi_nhanh')->first();
@@ -77,25 +77,25 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'nhan_vien_nhan_lich_id', 'Mã-Tên nhân viên nhận lịch', 'INT', 'select', $order_col++, ['select_table_id' => $nv->id]);
 
         $kh = Table::where('name', 'users')->first();
-        MigrateService::createColumn02($tableId, 'users_id', 'Mã-Tên khách hàng', 'INT', 'select', $order_col++, 
-        ['select_table_id' => $kh->id, 'data_select' => '{"value":"id", "name":{"0":"code", "1":"name", "2":"phone"}}', 'is_view_detail' => 1, 'show_in_list' => 1, 'require' => 1]);
+        MigrateService::createColumn02($tableId, 'users_id', 'Mã-Tên khách hàng', 'INT', 'select', $order_col++,
+        ['select_table_id' => $kh->id, 'data_select' => '{"value":"id", "name":{"0":"code", "1":"name", "2":"phone"}}', 'is_view_detail' => 1, 'show_in_list' => 1, 'require' => 0]);
         // MigrateService::createColumn02($tableId, 'sdt', 'Số điện thoại', 'VARCHAR', 'text', $order_col++, []);
         $cn = Table::where('name', 'chi_nhanh')->first();
         MigrateService::createColumn02($tableId, 'chi_nhanh_nhan_lich_id', 'Chi nhánh/PB nhận lịch', 'INT', 'select', $order_col++, ['select_table_id' => $cn->id]);
         MigrateService::createColumn02($tableId, 'anh', 'Ảnh', 'TEXT', 'image', $order_col++);
         MigrateService::createColumn02($tableId, 'created_at', 'Ngày tạo', 'DATETIME', 'datetime', $order_col++, ['edit' => 0]);
-        
+
         $tt = Table::where('name', 'trang_thai_dat_lich')->first();
         MigrateService::createColumn02($tableId, 'trang_thai_dat_lich_id', 'Trạng thái', 'INT', 'select', $order_col++, ['select_table_id' => $tt->id, 'show_in_list' => 1, 'add2search' => 1]);
-        
+
         // $dv = Table::where('name', 'service')->first();
         // MigrateService::createColumn02($tableId, 'service_id', 'Dịch vụ đã chọn', 'TEXT', 'selects_normal', $order_col++, ['select_table_id' => $dv->id, 'show_in_list' => 1]);
-        
+
         $admin_users = Table::where('name', 'admin_users')->first();
         MigrateService::createColumn02($tableId, 'nhan_vien_da_chon_id', 'Nhân viên đã chọn', 'TEXT', 'selects_normal', $order_col++, ['select_table_id' => $admin_users->id, 'show_in_list' => 1]);
-        
-        MigrateService::createColumn02($tableId, 'note', 'Nội dung', 'TEXT', 'textarea', $order_col++, 
-        ['show_in_list' => 1, 'col' => 24, 'require'=>1]);
+
+        MigrateService::createColumn02($tableId, 'note', 'Nội dung', 'TEXT', 'textarea', $order_col++,
+        ['show_in_list' => 1, 'col' => 24, 'require'=>0]);
     }
 
     /**
@@ -103,6 +103,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dat_lich');
+        Schema::dropIfExists('calendar');
     }
 };

@@ -53,7 +53,6 @@ import { DATE_FORMAT, DATE_TIME_FORMAT, DATE_SHOW, DATE_TIME_SHOW } from '../../
 import { cloneDeep } from "lodash";
 const { TextArea } = Input;
 
-
 import {
     HTSelect,
     HTSelects,
@@ -79,6 +78,8 @@ import {
     useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+
+import { routeTaiChinh } from "../../../Function/config_route";
 
 export default function Dashboard(props) {
     sessionStorage.clear();
@@ -787,7 +788,7 @@ export default function Dashboard(props) {
     function checkShowBtnEdit(record) {
 
         // check đối với hóa_đơn, ko cho sửa nếu đã thanh toán
-        if (props.table.name === 'hoa_don' && record.status_hoa_don_id.id === 1) {
+        if (props.table.name === 'hoa_don' && record.hoa_don_status_id.id === 1) {
             return;
         }
 
@@ -1657,7 +1658,7 @@ export default function Dashboard(props) {
             <AdminLayout
                 auth={props.auth}
                 header={props.table.display_name}
-                tables={props.tables}
+                tables={routeTaiChinh}
                 current={props.table}
                 content={
                     <div>

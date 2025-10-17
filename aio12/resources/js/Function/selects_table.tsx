@@ -4,8 +4,8 @@ import dayjs from "dayjs";
 import {DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT} from './constant';
 import {numberFormat} from "./common";
 
-export function showSelect(col, record) {
-    let result = '';
+export function showSelect(col: any, record: any) {
+    let result: React.ReactNode = '';
     const color = record[col.name].info.color ? record[col.name].info.color : ''
     if(record[col.name] && record[col.name].info && record[col.name].info.name) {
         result = <Tag style={{ color: color }}>{ record[col.name].info.name }</Tag>;
@@ -16,7 +16,7 @@ export function showSelect(col, record) {
     return result;
 }
 
-export function showSelects(record, col) {
+export function showSelects(record: any, col: any) {
     let result = [];
     const color = record[col.name].info.color ? record[col.name].info.color : ''
     if(record[col.name] && record[col.name].info) {
@@ -28,7 +28,7 @@ export function showSelects(record, col) {
     return result;
 }
 
-export function formatValueForm(columns, values, editor = useRef([])) {
+export function formatValueForm(columns: any, values: any, editor = useRef([])) {
     for (const [key, col] of Object.entries(columns)) {
         if (col.type_edit === "tiny") {
             values[col.name] = editor.current[col.name].getContents();
@@ -61,7 +61,7 @@ export function formatValueForm(columns, values, editor = useRef([])) {
             };
             values[val.name] = selects;
         }
-        
+
         if (col.type_edit === "cascader" && values[col.name]) {
             console.log('kkk', values[col.name]);
         }
@@ -69,7 +69,7 @@ export function formatValueForm(columns, values, editor = useRef([])) {
     return values;
 }
 
-export function saveStorage_selectsTable (col_name, dataSource_tmp) {
+export function saveStorage_selectsTable (col_name: string, dataSource_tmp: any) {
     let storage = {};
     if(sessionStorage.getItem("storage")) {
         storage = parseJson(sessionStorage.getItem("storage"));
@@ -90,7 +90,7 @@ export function showDate(col) {
     };
 }
 
-export function showDateTime(col) {
+export function showDateTime(col: any) {
     return {
         title: col.display_name,
         dataIndex: col.name,

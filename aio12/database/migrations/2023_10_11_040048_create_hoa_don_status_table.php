@@ -12,14 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trang_thai_hoa_don', function (Blueprint $table) {
+        Schema::create('hoa_don_status', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             
             MigrateService::createBaseColumn($table);
         });
         $order_col = 1;
-        $tbl = MigrateService::createTable(0, 'trang_thai_hoa_don', 'Trạng thái hóa đơn', 0, 1, 1, 0, 0);
+        $tbl = MigrateService::createTable(0, 'hoa_don_status', 'Trạng thái hóa đơn', 0, 1, 1, 0, 0);
         
         MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trang_thai_hoa_don');
+        Schema::dropIfExists('hoa_don_status');
     }
 };

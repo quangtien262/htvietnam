@@ -41,9 +41,10 @@ import {
 } from "@ant-design/icons";
 import {
     HTSelect,
+    HTSelect02,
     HTSelects,
     HTSelectsNormal,
-    HTTextarea,
+    HTTextarea,HTTextarea02,
     HTNumber,
     HTDate,
     HTDateTime,
@@ -112,7 +113,7 @@ export function btnAddNew(prop) {
                         <Link
                             href={route("data.create", [
                                 prop.table.id,
-                                { type: key },
+                                { type: key, p:props.p },
                             ])}
                         >
                             {value}
@@ -131,7 +132,7 @@ export function btnAddNew(prop) {
         }
 
         return (
-            <Link href={route("data.create", prop.table.id)}>
+        <Link href={route("data.create", { tableId:prop.table.id, p:prop.p })}>
                 <Button type="primary">
                     <PlusCircleOutlined />
                     Thêm mới
@@ -572,6 +573,75 @@ export function btnIndex(prop) {
             {prop.table.setting_shotcut === 1 ? btnSetting() : ''}
         </Space>
     );
+}
+
+export function showData02(col, prop, langId = 0) {
+    let data;
+    if (langId === 0) {
+        data = prop.data;
+    } else {
+        data = prop[langId];
+    }
+
+    let result;
+    const typeEdit = col.type_edit;
+    if (col.edit !== 1) {
+        return false;
+    }
+    if (col.edit !== 1) {
+        return false;
+    }
+    switch (typeEdit) {
+        case "calendar_cham_cong":
+        case "tiny":
+        case "images_crop":
+        case "image_crop":
+        case "image":
+        case "images":
+        case "permission_list":
+        case "selects_table":
+        case "file":
+        case "files":
+            break;
+        case "textarea":
+            result = HTTextarea02(col, langId);
+            break;
+        case "number":
+            result = HTNumber(col, langId);
+            break;
+        case "select":
+            result = HTSelect02(col, prop, langId);
+            break;
+        case "selects":
+            result = HTSelects(col, prop, "multiple");
+            break;
+        case "tags":
+            result = HTSelects(col, prop.selectData[col.name], "tags");
+            break;
+        case "date":
+            result = HTDate(col, langId);
+            break;
+        case "time":
+            result = HTTime(col, langId);
+            break;
+        case "datetime":
+            result = HTDateTime(col, langId);
+            break;
+        case "encryption":
+            result = HTPassword(col, langId);
+            break;
+        case "color":
+            result = HTColor(col);
+            break;
+        case "cascader_table":
+            result = HTCascaderTable(col, prop);
+            break;
+        default:
+            result = HTInput(col, langId);
+            break;
+    }
+
+    return result;
 }
 
 export function showData(col, prop, langId = 0) {

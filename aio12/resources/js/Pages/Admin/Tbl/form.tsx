@@ -902,6 +902,7 @@ export default function formTable(props) {
                                 onDragEnter={onDragEnter}
                                 onDrop={(info) => onDropData(info)}
                                 treeData={formatGdata()}
+                                checkStrictly={true}
                                 // onSelect={onSelectColumn}
                             />
                         </Card>

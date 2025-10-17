@@ -32,7 +32,7 @@ return new class extends Migration
         MigrateService::createColumn02($videosData->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($videosData->id, 'data_id', 'data_id', 'INT', 'number', $order++, ['edit' => 0]);
         MigrateService::createColumn02($videosData->id, 'name_data', 'Tiêu đề', 'VARCHAR', 'text', $order++);
-        MigrateService::createColumn02($videosData->id, 'name_meta', '(alt) Mô tả ảnh đại diện ', 'TEXT', 'text', $order++);
+        
         MigrateService::createColumn02($videosData->id, 'description', 'Mô tả ngắn', 'LONGTEXT', 'textarea', $order++);
         MigrateService::createColumn02($videosData->id, 'video_lang', 'Mã nhúng video từ nguồn khác', 'TEXT', 'textarea', $order++, 
         ['col' => 24]);
