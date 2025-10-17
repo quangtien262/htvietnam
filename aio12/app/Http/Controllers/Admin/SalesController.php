@@ -109,7 +109,7 @@ class SalesController extends Controller
             ->whereBetween('ngay_tao', [$startDate, $endDate])
             ->selectRaw('DATE(ngay_tao) as date, SUM(thanh_toan) as revenue')
             ->groupBy('date')
-            ->orderBy('date', 'ASC')
+            ->orderBy('date', 'DESC')
             ->get()
             ->toArray();
 
@@ -252,11 +252,11 @@ class SalesController extends Controller
         $dataNhanVien = NhanVienTuVan::where('nhan_vien_tu_van.is_recycle_bin', '!=', 1)
             ->whereBetween('nhan_vien_tu_van.created_at', [$startDate, $endDate])
             ->selectRaw('
-                sum(hoa_don_chi_tiet.thanh_tien) as thanh_tien, 
-                COUNT(nhan_vien_tu_van.nhan_vien_id) as total_orders, 
-                MIN(nhan_vien_tu_van.id) as `key`, 
-                MAX(nhan_vien_tu_van.created_at) as created_at, 
-                admin_users.name as users_name, 
+                sum(hoa_don_chi_tiet.thanh_tien) as thanh_tien,
+                COUNT(nhan_vien_tu_van.nhan_vien_id) as total_orders,
+                MIN(nhan_vien_tu_van.id) as `key`,
+                MAX(nhan_vien_tu_van.created_at) as created_at,
+                admin_users.name as users_name,
                 admin_users.id as users_id,
                 admin_users.code as code'
             )
@@ -294,11 +294,11 @@ class SalesController extends Controller
         $dataNhanVien = NhanVienThucHien::where('nhan_vien_thuc_hien.is_recycle_bin', '!=', 1)
             ->whereBetween('nhan_vien_thuc_hien.created_at', [$startDate, $endDate])
             ->selectRaw('
-                sum(hoa_don_chi_tiet.thanh_tien) as thanh_tien, 
-                COUNT(nhan_vien_thuc_hien.nhan_vien_id) as total_orders, 
-                MIN(nhan_vien_thuc_hien.id) as `key`, 
-                MAX(nhan_vien_thuc_hien.created_at) as created_at, 
-                admin_users.name as users_name, 
+                sum(hoa_don_chi_tiet.thanh_tien) as thanh_tien,
+                COUNT(nhan_vien_thuc_hien.nhan_vien_id) as total_orders,
+                MIN(nhan_vien_thuc_hien.id) as `key`,
+                MAX(nhan_vien_thuc_hien.created_at) as created_at,
+                admin_users.name as users_name,
                 admin_users.id as users_id,
                 admin_users.code as code'
             )

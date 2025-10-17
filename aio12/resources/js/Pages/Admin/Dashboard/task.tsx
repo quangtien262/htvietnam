@@ -305,7 +305,6 @@ export default function Dashboard(props: DashboardProps) {
     return (
         <AdminLayout
             auth={props.auth}
-            header='Trang chủ'
             content={
                 <div>
                     <Tabs tabPosition="left" defaultActiveKey="1" items={items} />

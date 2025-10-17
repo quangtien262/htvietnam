@@ -13,6 +13,8 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
     Lfm::routes();
 });
 
+Route::get('/', [PagesController::class, 'index'])->name('home');
+
 // auth
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postLogin']);
@@ -26,7 +28,7 @@ Route::get('lang/change', [LangController::class, 'change'])->name('changeLang')
 
 Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [PagesController::class, 'index'])->name('home');
-    Route::get('/', [AdminController::class, 'index'])->name('home');
+    // Route::get('/', [AdminController::class, 'index'])->name('home');
     Route::group(['prefix' => 'adm'], function () {
             require __DIR__ . '/admin_route.php';
             require __DIR__ . '/admin_web_route.php';

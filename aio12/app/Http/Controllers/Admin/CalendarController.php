@@ -30,7 +30,7 @@ class CalendarController extends Controller
 
     public function addExpress(Request $request)
     {
-        // dd($request->datas);
+
         if (empty($request->datas)) {
             return $this->sendErrorResponse('empty');
         }
@@ -41,17 +41,8 @@ class CalendarController extends Controller
         $columns = Column::where('table_id', $table->id)->get();
         // save
         foreach ($request->datas as $datas) {
-            // $check = true;
-            // foreach($datas as $data) {
-            //     if ($data['name'] == 'name' && empty($data['value'])) {
-            //         $check = false;
-            //         break;
-            //     }
-            // }
-
-            // if (!$check) continue;
             $calendar = new Calendar();
-            foreach($datas as $key => $val) {
+            foreach ($datas as $key => $val) {
 
                 $calendar->{$key} = $val;
             }
@@ -63,7 +54,8 @@ class CalendarController extends Controller
         return $this->sendSuccessResponse([]);
     }
 
-    public function updateMeeting(Request $request) {
+    public function updateMeeting(Request $request)
+    {
         if (empty($request->id)) {
             return $this->sendErrorResponse('empty1');
         }

@@ -45,7 +45,7 @@ class PagesController extends Controller
             ->where('page_setting.menu_id', 0)
             ->orderBy('page_setting.sort_order', 'asc')
             ->get();
-       
+
         $param = [
             'config' => $config,
             'langId' => UserService::getLang(),
@@ -166,7 +166,7 @@ class PagesController extends Controller
             ->where('page_setting.menu_id', $menuId)
             ->orderBy('page_setting.sort_order', 'asc')
             ->get();
-        
+
         $menu = UserService::getMenuDetail($menuId);
         $param = [
             'config' => $config,
