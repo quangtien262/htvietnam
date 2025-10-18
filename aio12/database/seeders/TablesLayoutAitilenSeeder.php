@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
 
-class TablesLayout01Seeder extends Seeder
+class TablesLayoutAitilenSeeder extends Seeder
 {
 
     /**
@@ -19,40 +19,90 @@ class TablesLayout01Seeder extends Seeder
     {
         // truncate all
         // DB::table('products')->truncate();
-        DB::table('menus')->truncate();
-        DB::table('images')->truncate();
-        DB::table('news')->truncate();
-        DB::table('web_config')->truncate();
-        DB::table('doi_tac')->truncate();
-        DB::table('about')->truncate();
         DB::table('languages')->truncate();
+
+        DB::table('menus')->truncate();
+        DB::table('menus_data')->truncate();
+
+        DB::table('images')->truncate();
+        DB::table('images')->truncate();
+
+        DB::table('news')->truncate();
+        DB::table('news_data')->truncate();
+
+        DB::table('images')->truncate();
+        DB::table('images_data')->truncate();
+
+        DB::table('web_config')->truncate();
+        DB::table('web_config_data')->truncate();
+
+        DB::table('doi_tac')->truncate();
+        DB::table('doi_tac_data')->truncate();
+
+        DB::table('page_setting')->truncate();
+        DB::table('page_setting_data')->truncate();
+
+        // DB::table('block01')->truncate();
+        // DB::table('block01_data')->truncate();
+        DB::table('block02')->truncate();
+        DB::table('block02_data')->truncate();
+        DB::table('block03')->truncate();
+        DB::table('block03_data')->truncate();
+        DB::table('block04')->truncate();
+        DB::table('block04_data')->truncate();
+        DB::table('block05')->truncate();
+        DB::table('block05_data')->truncate();
+        DB::table('block06')->truncate();
+        DB::table('block06_data')->truncate();
+        // DB::table('block07')->truncate();
+        // DB::table('block07_data')->truncate();
+        // DB::table('block08')->truncate();
+        // DB::table('block08_data')->truncate();
+        // DB::table('block09')->truncate();
+        // DB::table('block09_data')->truncate();
 
         // create languages
         MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vi.png');
-        MigrateService::createLanguage('English', 'en', 0, '/images/languages/en.png');
-        MigrateService::createLanguage('Chinese', 'ch', 0, '/images/languages/ch.png');
 
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
         MigrateService::webconfig(
-            '01',
+            'Aitilen',
             [
-                'logo' => '/layouts/01/images/logo.png',
-                'phone' => '(84) 24 665 72208',
-                'email' => 'contact@gccgroup.vn',
-                'email02' => 'sales@gccgroup.vn',
-                'website' => 'www.gccgroup.vn',
-                'mst' => '5200886602',
-                'code_gg_map_factory' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7454.60715070508!2d106.1241353!3d20.9001027!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135a344312efcd9%3A0x2addc6e2ee7a6b83!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24gR0NDIFBMQVNUSUM!5e0!3m2!1svi!2s!4v1755735897811!5m2!1svi!2s" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
-                'code_gg_map_office' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d232.75097609136785!2d105.7463238!3d21.0320611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455df256e0ec5%3A0x183863e6b7216ec7!2zQ8O0bmcgdHkgY-G7lSBwaOG6p24ga2hvw6FuZyBz4bqjbiBHQ0M!5e0!3m2!1svi!2s!4v1755735862704!5m2!1svi!2s"  style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
-                'boxchat' => '<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="c5ca3664-9fb9-49ab-b905-0caa31a07c16";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>',
+                'logo' => '/layouts/aitilen/images/logo.jpg',
+                'phone' => '097.811.8710',
+                'email' => 'contact@aitilen.com',
+                'email02' => 'sales@aitilen.com',
+                'website' => 'www.aitilen.com',
+                'mst' => '097.811.8710',
             ],
             [
                 'office' => [
-                    'LK14, Hateco Green City, Foresa 4, phường Xuân Phương, TP. Hà Nội, Việt Nam',
-                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam',
-                    'LK14, Hateco Green City, Foresa 4, Xuan Phuong ward, Hanoi city, Vietnam'
+                    'Số 7 ngõ 68 đường Nguyễn Khuyến, Hà Đông, Hà Nội'
+                ],
+                'address_header' => [
+                    'Số 7/68 Nguyễn Khuyến'
+                ],
+                'address_header_description' => [
+                    'Hà Đông - Hà Nội'
+                ]
+            ]
+        );
+
+        MigrateService::webconfig(
+            'HTVietNam',
+            [
+                'logo' => '/layouts/HTVietNam/images/logo.png',
+                'phone' => '039.916.2342',
+                'email' => 'contact@htvietnam.vn',
+                'email02' => 'sales@htvietnam.vn',
+                'website' => 'www.htvietnam.vn',
+                'mst' => '039.916.2342',
+            ],
+            [
+                'office' => [
+                    'Số 7 ngõ 68 đường Nguyễn Khuyến, Hà Đông, Hà Nội'
                 ],
             ]
         );
@@ -65,45 +115,13 @@ class TablesLayout01Seeder extends Seeder
             'name_data' => ['Loai 02', 'Loai 02', 'Loai 02']
         ]);
 
-        // ứng dụng
-        DB::table('product_application')->truncate();
-        MigrateService::createData(
-            'product_application',
-            [],
-            [
-                'name_data' => ['Ép phun', 'Ép phun', 'Ép phun']
-            ]
-        );
-        MigrateService::createData(
-            'product_application',
-            [],
-            [
-                'name_data' => ['Vải không dệt', 'Vải không dệt', 'Vải không dệt']
-            ]
-        );
-
         // libs
 
         for ($i = 1; $i < 4; $i++) {
-            $images = [
-                'avatar' => '/layouts/01/images/libs/'.$i.'.jpg',
-                'images' => [
-                    '/layouts/01/images/libs/1.jpg',
-                    '/layouts/01/images/libs/2.jpg',
-                    '/layouts/01/images/libs/3.jpg',
-                    '/layouts/01/images/libs/4.jpg',
-                    '/layouts/01/images/libs/5.jpg',
-                    '/layouts/01/images/libs/6.jpg',
-                    '/layouts/01/images/libs/7.jpg',
-                    '/layouts/01/images/libs/8.jpg',
-                ]
-            ];
-            $images_str = json_encode($images);
             MigrateService::createData(
                 'library',
                 [
                     'menu_id' => 6,
-                    'images' => $images_str,
                 ],
                 [
                     'name_data' => ['Library 0' . $i, 'Library 0' . $i, 'Library 0' . $i],
@@ -113,9 +131,8 @@ class TablesLayout01Seeder extends Seeder
 
         //menu
         $this->createDataMenu();
-
         // product
-        // $this->createDataProduct();
+        $this->createDataProduct();
 
         //news
         $this->createNews();
@@ -207,7 +224,7 @@ class TablesLayout01Seeder extends Seeder
         ];
         $images = json_encode($imgs);
         MigrateService::createMenu(
-            ['Trang chủ', 'Home', '首页'],
+            ['Trang chủ'],
             'home',
             ['parent_id' => 0, 'sort_order' => $sortOrder++],
             [
@@ -215,23 +232,25 @@ class TablesLayout01Seeder extends Seeder
             ]
         );
         MigrateService::createMenu(
-            ['Giới thiệu', 'About', '关于'],
+            ['Giới thiệu'],
             'landingpage',
             ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images],
             ['content' => [$contentAbout, $contentAbout, $contentAbout], 'description' => [$desAbout, $desAbout, $desAbout]]
         );
-        $product = MigrateService::createMenu(['Sản Phẩm', 'Products', '产品'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
-        $media = MigrateService::createMenu(['Media', 'Media', '媒体'], 'video', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        $product = MigrateService::createMenu(['Phòng trống'], 'product', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        $apartment = MigrateService::createMenu(['Khu vực'], 'apartment', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
 
-        MigrateService::createMenu(['Video', 'Video', '视频'], 'video', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
-        MigrateService::createMenu(['Thư viện ảnh', 'Librarys', '图书馆'], 'libs', ['parent_id' => $media->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        $news = MigrateService::createMenu(['Aitilen News'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Thông báo chung'], 'news', ['parent_id' => $news->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Quy trình làm việc'], 'news', ['parent_id' => $news->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Tin tức'], 'news', ['parent_id' => $news->id, 'sort_order' => $sortOrder++, 'images' => $images]);
 
-
-        MigrateService::createMenu(['Tin Tức', 'News', '新闻'], 'news', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
-
+        $libs = MigrateService::createMenu(['Thư viện'], 'libs', ['parent_id' => 0, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Hình ảnh'], 'libs', ['parent_id' => $libs->id, 'sort_order' => $sortOrder++, 'images' => $images]);
+        MigrateService::createMenu(['Video'], 'libs', ['parent_id' => $libs->id, 'sort_order' => $sortOrder++, 'images' => $images]);
 
         MigrateService::createMenu(
-            ['Liên Hệ', 'Contact', '联系'],
+            ['Liên Hệ'],
             'landingpage',
             [
                 'parent_id' => 0,
@@ -239,11 +258,10 @@ class TablesLayout01Seeder extends Seeder
                 'images' => $images
             ],
             [
-                'name_data_description' => ['Hãy kết nối với chúng tôi', 'Let\'s connect with us'],
-                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.', 'Please fill in the information below so we can contact you.']
+                'name_data_description' => ['Hãy kết nối với chúng tôi'],
+                'description' => ['Vui lòng điền thông tin bên dưới để chúng tôi có thể liên hệ với bạn.']
             ]
         );
-
     }
 
     private function createNews()
@@ -334,13 +352,13 @@ class TablesLayout01Seeder extends Seeder
         Layout01::block03($sort_order++);
 
         // ứng dụng thực tế
-        Layout01::block04($sort_order++);
+        // Layout01::block04($sort_order++);
 
         // thông kê
-        Layout01::block05($sort_order++);
+        // Layout01::block05($sort_order++);
 
         // dự án đã làm
-        Layout01::block06($sort_order++);
+        // Layout01::block06($sort_order++);
 
         // news
         Layout01::news($sort_order++);
@@ -348,7 +366,7 @@ class TablesLayout01Seeder extends Seeder
         // contact
         Layout01::contact($sort_order++);
 
-        Layout01::doiTac($sort_order++);
+        // Layout01::doiTac($sort_order++);
     }
 
     private function createVideo()

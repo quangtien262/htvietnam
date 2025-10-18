@@ -9,7 +9,7 @@ class WebConfig extends Model {
 
     //
     protected $table = 'web_config';
-    
+
     static function query($langId = 0) {
         if(empty($langId)) {
             $langId = UserService::getLang()->id;

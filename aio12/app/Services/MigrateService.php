@@ -22,7 +22,7 @@ use App\Models\Web\ProductSetting;
 use App\Models\Web\WebConfigData;
 
 
-class 
+class
 MigrateService
 {
 
@@ -56,7 +56,7 @@ MigrateService
             'config_show_data'=>'', // cài đặt show data liên quan
             'search_position' => 1,
         ];
-        
+
         if(!empty($dataConfig)) {
             foreach($dataConfig as $key => $val) {
                 $data[$key] = $val;
@@ -204,7 +204,7 @@ MigrateService
             $layout = env('APP_LAYOUT');
         }
         $conf = [
-            'id' => 1,
+            // 'id' => 1,
             'layout' => $layout,
             'name' => 'HT Viet Nam Demo website',
             'logo' => 'https://htvietnam.vn/images/logo/logo_vn_noslogan.png',
@@ -848,7 +848,7 @@ MigrateService
             $dataLanguage = [
                 'data_id' => $data->id,
                 'languages_id' => $lang->id,
-            ]; 
+            ];
 
             // set other
             foreach ($datasLang as $k => $v) {
@@ -881,7 +881,7 @@ MigrateService
         self::createColumn02($table->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'updated_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0, 'is_view_detail' => 0]);
-        // self::createColumn02($table->id, 'history', 'Lịch sử thay đổi', 'INT', config('constant.config_table.type_edit.date'), $order++, 
+        // self::createColumn02($table->id, 'history', 'Lịch sử thay đổi', 'INT', config('constant.config_table.type_edit.date'), $order++,
         // ['edit' => 0, 'is_view_detail' => 0]);
     }
 
@@ -1101,7 +1101,7 @@ MigrateService
         return Column::where('table_id', $tableId)->where('name', $data['name'])->first();
     }
 
-    
+
     static function sortOrder($tableNames)
     {
         $order = 1;

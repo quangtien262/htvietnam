@@ -7,7 +7,9 @@
         <div class="flex-col hide-for-medium flex-right flex-grow">
             <ul class="nav header-nav header-bottom-nav nav-right  nav-size-medium nav-spacing-xlarge nav-uppercase">
                 <li class="header-search header-search-dropdown has-icon has-dropdown menu-item-has-children">
-                    <a href="#" aria-label="Search" class="is-small"><i class="icon-search"></i></a>
+                    <a href="#" aria-label="Search" class="is-small icon-menu ">
+                        <i class="icon-search"></i>
+                    </a>
                     <ul class="nav-dropdown nav-dropdown-simple">
                         <li class="header-search-form search-form html relative has-icon">
                             <div class="header-search-form-wrapper">
@@ -38,18 +40,18 @@
                     </ul>
                 </li>
                 <li class="account-item has-icon">
-                    @if (auth()->guard('admin_users')->check()) 
-                        <a class="nav-top-link nav-top-not-logged-in is-small" target="new" href="/adm">
+                    @if (auth()->guard('admin_users')->check())
+                        <a class="icon-menu nav-top-link nav-top-not-logged-in is-small" target="new" href="/adm">
                             <i class="icon-user"></i>
                         </a>
                     @else
                         {{-- <a class="nav-top-link nav-top-logged-in is-small" data-open="#logout-form-popup">
                             <i class="icon-user"></i>
                         </a> --}}
-                        <a class="nav-top-link nav-top-logged-in is-small" data-toggle="modal" data-target="#modalLogin">
+                        <a class="icon-menu nav-top-link nav-top-logged-in is-small" data-toggle="modal" data-target="#modalLogin">
                             <i class="icon-user"></i>
                         </a>
-                        
+
                     @endif
                 </li>
                 <li class="cart-item has-icon">
