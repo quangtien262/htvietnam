@@ -2477,8 +2477,8 @@ p {
 
 .nav>li.has-icon>a>i {
     min-width: 1em;
-    color: #0c57d7;
-    font-size: 40px;
+    color: #fff;
+    font-size: 25px;
 }
 
 .off-canvas-left.dark .mfp-content,
@@ -2490,9 +2490,18 @@ p {
     color: #fff !important;
 }
 #footer p {
-    color: #848485 !important;
+    color: #c9c2c2 !important;
 }
-
+.woocommerce-Tabs-panel, .woocommerce-Tabs-panel p {
+    font-size: 14px;
+    color: #000;
+}
+.woocommerce-Tabs-panel i.icon01 {
+    color: #038e26;
+}
+.section1, .section6 {
+    background: url(/layouts/01/images/contact-form-1.png) center no-repeat #fff;
+}
 @media only screen and (max-width: 48em) {
 
     /*************** ADD MOBILE ONLY CSS HERE  ***************/

@@ -108,6 +108,7 @@ return [
     'select_area' => '选择区域',
     'enter_your_name' => '输入您的姓名',
     'enter_your_email' => '输入您的电子邮件',
+    'enter_your_content' => '输入您的内容',
     'enter_your_message' => '输入您的留言',
     'title' => '标题',
     'other' => '其他',

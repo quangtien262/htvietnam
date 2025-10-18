@@ -103,6 +103,7 @@ return [
     'select_area' => 'Chọn khu vực',
     'enter_your_name' => 'Nhập tên của bạn',
     'enter_your_email' => 'Nhập email của bạn',
+    'enter_your_content' => 'Nhập nội dung',
     'enter_your_message' => 'Nhập nội dung của bạn',
     'title' => 'Tiêu đề',
     'other' => 'Khác',

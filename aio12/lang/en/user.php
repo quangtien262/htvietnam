@@ -109,6 +109,7 @@ return [
     'select_area' => 'Select area',
     'enter_your_name' => 'Enter your name',
     'enter_your_email' => 'Enter your email',
+    'enter_your_content' => 'Enter your content',
     'enter_your_message' => 'Enter your message',
     'title' => 'Title',
     'other' => 'Other',

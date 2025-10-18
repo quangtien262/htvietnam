@@ -9,23 +9,23 @@
             </div>
 
             <div class="form-confirm row _hidden">
-                    <div class="col large-12">
-                        <p><em class="_success">{{__('layout01.code_description')}}</em></p>
-                        <p>
-                            <span class="wpcf7-form-control-wrap" data-name="text-981">
-                                <input id="enter_code" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
-                                    aria-required="true" aria-invalid="false"
-                                    placeholder="{{ __('layout01.code_confirm') }}" value="" type="text"
-                                    name="enter_code" />
-                                <label class="error name_error _red" id="code_error"></label>
-                            </span>
+                <div class="col large-12">
+                    <p><em class="_success">{{__('layout01.code_description')}}</em></p>
+                    <p>
+                        <span class="wpcf7-form-control-wrap" data-name="text-981">
+                            <input id="enter_code" size="40"
+                                class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true"
+                                aria-invalid="false" placeholder="{{ __('layout01.code_confirm') }}" value=""
+                                type="text" name="enter_code" />
+                            <label class="error name_error _red" id="code_error"></label>
+                        </span>
 
-                        </p>
-                        <input id="btnDownload" class="wpcf7-form-control has-spinner  btn-submit" type="button"
-                            onclick="download()" data-wait="{{ __('user.sending') }}"
-                            data-id="contact01" id="btnContact01" value="{{ __('user.download') }}" />
-                    </div>
-                    
+                    </p>
+                    <input id="btnDownload" class="wpcf7-form-control has-spinner  btn-submit" type="button"
+                        onclick="download()" data-wait="{{ __('user.sending') }}" data-id="contact01" id="btnContact01"
+                        value="{{ __('user.download') }}" />
+                </div>
+
             </div>
 
             <form id="contactForm" action="{{ route('contact') }}" method="post" class="wpcf7-form init"
@@ -37,7 +37,8 @@
                     <div class="col large-6">
                         <p>
                             <span class="wpcf7-form-control-wrap" data-name="text-981">
-                                <input id="name" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
+                                <input id="name" size="40"
+                                    class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
                                     aria-required="true" aria-invalid="false"
                                     placeholder="{{ __('user.enter_your_name') }}" value="" type="text"
                                     name="contact[name]" />
@@ -49,35 +50,21 @@
                     <div class="col large-6">
                         <p>
                             <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                <input size="40" id="email"
+                                <input size="40" id="phone" class="wpcf7-form-control wpcf7-text" aria-invalid="false"
+                                    placeholder="{{ __('user.phone') }}" value="" type="text" name="contact[phone]" />
+                                <label class="error phone_error _red" id="phone_error" for="phone"></label>
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="col large-12">
+                        <p>
+                            <span class="wpcf7-form-control-wrap" data-name="email-745">
+                                <textarea size="40" id="content"
                                     class="wpcf7-form-control wpcf7-text wpcf7-email wpcf7-validates-as-email"
                                     aria-invalid="false" placeholder="{{ __('user.enter_your_email') }}" value=""
-                                    type="email" name="contact[email]" />
+                                    name="contact[textarea]"></textarea>
                                 <label class="error email_error _red" id="email_error" for="email"></label>
-                            </span>
-                        </p>
-                    </div>
-                    <div class="col large-6">
-                        <p>
-                            <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                <select id="area" class="wpcf7-form-control wpcf7-text" name="contact[area]">
-                                    <option value="">{{ __('user.select_area') }}</option>
-                                    <option value="1" selected>{{ __('user.vietnam') }}</option>
-                                    <option value="2">{{ __('user.english') }}</option>
-                                    <option value="3">{{ __('user.china') }}</option>
-                                    <option value="4">{{ __('user.other') }}</option>
-                                </select>
-                                <label class="error area_error _red" id="area_error" for="area"></label>
-                            </span>
-                        </p>
-                    </div>
-                    <div class="col large-6">
-                        <p>
-                            <span class="wpcf7-form-control-wrap" data-name="email-745">
-                                <input size="40" id="phone" class="wpcf7-form-control wpcf7-text" aria-invalid="false"
-                                    placeholder="{{ __('user.phone') }}" value="" type="text"
-                                    name="contact[phone]" />
-                                <label class="error phone_error _red" id="phone_error" for="phone"></label>
                             </span>
                         </p>
                     </div>
@@ -85,7 +72,7 @@
                         <p id="result" class="_success text-center"></p>
                         <input class="wpcf7-form-control has-spinner btn-submit" type="button"
                             onclick="sendContact('#contactForm')" data-wait="{{ __('user.sending') }}"
-                            data-id="contact01" id="btnContact01" value="{{ __('layout01.send_request') }}" />
+                            data-id="contact01" id="btnContact01" value="Gửi liên hệ" />
                     </div>
                 </div>
             </form>
@@ -94,7 +81,6 @@
 </div>
 
 <script>
-
     function download() {
         var code = $jq('#code').val();
         var enter_code = $jq('#enter_code').val();
@@ -117,7 +103,7 @@
         if(check == false){
             return false;
         }
-        
+
         $jq('#result').html('<img width="20px" src="/images/loading/loader.big.black.gif"/>Đang gửi yêu cầu.... ');
 
         var form = $jq(formID);
