@@ -135,12 +135,6 @@
     /* background: #000000; */
 }
 
-
-.ant-layout-sider-children {
-    background: #121A4F;
-
-}
-
 @media only screen and (max-width: 768px) {
     .Bell {
         display: none;
@@ -591,14 +585,6 @@ img {
 
 .ant-menu-overflow-item {
     position: relative !important;
-}
-
-.ant-menu-submenu-open ul li a {
-    color: #FFF !important;
-    font-family: 'Roboto', sans-serif;
-    font-size: 11px;
-    font-style: normal;
-    line-height: 20px
 }
 
 .menu-item-active {

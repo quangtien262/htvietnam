@@ -181,9 +181,10 @@ $location = app('Helper')->getLocation();
     </div>
 </section>
 
+
+
 <script>
     function sendContact(formID) {
-            var $jq = jQuery.noConflict();
 
             var validationForm = validationFormContact(formID);
             console.log('validationForm', validationForm);

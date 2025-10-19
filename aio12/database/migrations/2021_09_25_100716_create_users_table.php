@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('user_type')->default('Aitilen')->nullable(); // aitilen, HTVietNam
             $table->string('name')->nullable();
             $table->string('username')->nullable();
             $table->string('password')->nullable();
@@ -48,6 +49,12 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->text('merge_description')->nullable();
             $table->text('image')->nullable();
+
+
+            $table->text('cccd')->nullable();
+            $table->date('ngay_cap')->nullable();
+            $table->text('noi_cap')->nullable();
+            $table->text('hktt')->nullable();
 
 
             // cty
@@ -146,6 +153,104 @@ return new class extends Migration
             'text',
             $order_col++,
             ['require' => 1, 'show_in_list' => 1, 'is_view_detail' => 1]
+        );
+
+         MigrateService::createColumn02(
+            $tableId,
+            'email',
+            'Email',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'show_in_list' => 1, 'is_view_detail' => 1]
+        );
+
+        MigrateService::createColumn02(
+            $tableId,
+            'username',
+            'Tên đăng nhập',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'show_in_list' => 1]
+        );
+        MigrateService::createColumn02(
+            $tableId,
+            'password',
+            'Mật khẩu',
+            'VARCHAR',
+            'password',
+            $order_col++,
+            ['require' => 1, 'edit' => 0, 'show_in_list' => 0]
+        );
+
+        MigrateService::createColumn02(
+            $tableId,
+            'images',
+            'Hình ảnh',
+            'VARCHAR',
+            'image',
+            $order_col++,
+            ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
+        );
+
+        MigrateService::createColumn02(
+            $tableId,
+            'ngay_cap',
+            'Ngày cấp',
+            'DATE',
+            'date',
+            $order_col++,
+            ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
+        );
+
+        MigrateService::createColumn02(
+            $tableId,
+            'noi_cap',
+            'Nơi cấp',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
+        );
+
+        MigrateService::createColumn02(
+            $tableId,
+            'hktt',
+            'Hộ khẩu thường trú',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
+        );
+
+         MigrateService::createColumn02(
+            $tableId,
+            'note',
+            'Ghi chú',
+            'TEXT',
+            'textarea',
+            $order_col++,
+            ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
+        );
+
+         MigrateService::createColumn02(
+            $tableId,
+            'address',
+            'Địa chỉ',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'show_in_list' => 0, 'is_view_detail' => 1]
+        );
+        MigrateService::createColumn02(
+            $tableId,
+            'facebook',
+            'Facebook',
+            'VARCHAR',
+            'text',
+            $order_col++,
+            ['require' => 1, 'show_in_list' => 0, 'is_view_detail' => 1]
         );
 
         MigrateService::baseColumn($tbl);

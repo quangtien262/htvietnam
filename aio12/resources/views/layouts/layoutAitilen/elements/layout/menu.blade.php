@@ -6,6 +6,8 @@
         </div>
         <div class="flex-col hide-for-medium flex-right flex-grow">
             <ul class="nav header-nav header-bottom-nav nav-right  nav-size-medium nav-spacing-xlarge nav-uppercase">
+
+
                 <li class="header-search header-search-dropdown has-icon has-dropdown menu-item-has-children">
                     <a href="#" aria-label="Search" class="is-small"><i class="icon-search"></i></a>
                     <ul class="nav-dropdown nav-dropdown-simple">
@@ -36,42 +38,6 @@
                             </div>
                         </li>
                     </ul>
-                </li>
-                <li class="account-item has-icon">
-                    @if (auth()->guard('admin_users')->check()) 
-                        <a class="nav-top-link nav-top-not-logged-in is-small" target="new" href="/adm">
-                            <i class="icon-user"></i>
-                        </a>
-                    @else
-                        {{-- <a class="nav-top-link nav-top-logged-in is-small" data-open="#logout-form-popup">
-                            <i class="icon-user"></i>
-                        </a> --}}
-                        <a class="nav-top-link nav-top-logged-in is-small" data-toggle="modal" data-target="#modalLogin">
-                            <i class="icon-user"></i>
-                        </a>
-                        
-                    @endif
-                </li>
-                <li class="cart-item has-icon">
-                    {{-- <a href=""
-                        class="header-cart-link off-canvas-toggle nav-top-link is-small" data-open="#cart-popup"
-                        data-class="off-canvas-cart" title="Cart" data-pos="right">
-                        <i class="icon-shopping-cart" data-icon-label="0">
-                        </i>
-                    </a> --}}
-                    <!-- Cart Sidebar Popup -->
-                    {{-- <div id="cart-popup" class="mfp-hide widget_shopping_cart">
-                        <div class="cart-popup-inner inner-padding">
-                            <div class="cart-popup-title text-center">
-                                <h4 class="uppercase">Cart</h4>
-                                <div class="is-divider"></div>
-                            </div>
-                            <div class="widget_shopping_cart_content">
-                                <p class="woocommerce-mini-cart__empty-message">No products in the cart.</p>
-                            </div>
-                            <div class="cart-sidebar-content relative"></div>
-                        </div>
-                    </div> --}}
                 </li>
             </ul>
         </div>

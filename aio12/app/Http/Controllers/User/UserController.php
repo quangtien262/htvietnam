@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePassRequest;
 use App\Http\Requests\User\ChangeProfileRequest;
 use App\Http\Requests\User\TakePasswordRequest;
+use App\Models\Aitilen\HopDong;
 use App\Models\User;
 use App\Models\Web\Orders;
 use App\Models\Web\WebConfig;
+use App\Services\Admin\TblService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,14 +18,31 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function profile()
+    public function index()
     {
         $config = WebConfig::query()->find(1);
-        return view('user.profile.index',compact('config'));
+        $user = Auth::guard('web')->user();
+        // $hopDong = HopDong::where('user_id', $user->id)->count();
+        // hoa_don
+        $props = [
+            'config' => $config,
+            'user' => $user,
+        ];
+        return Inertia::render('User/Pages/home_aitilen', $props);
+    }
+    public function profile(Request $request)
+    {
+        $config = WebConfig::query()->find(1);
+        $user = Auth::guard('web')->user();
+        $props = [
+            'config' => $config,
+            'user' => $user,
+        ];
+        return Inertia::render('user/pages/home', $props);
     }
     public function edit()
     {

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Services\LandingpageData\Layout01;
+use App\Services\LandingpageData\LayoutAitilen;
 use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
@@ -141,22 +142,22 @@ class TablesLayoutAitilenSeeder extends Seeder
         $this->createVideo();
 
         // list block landing page
-        Layout01::createBlocks();
+        LayoutAitilen::createBlocks();
 
         // menu lien he
-        Layout01::contact(1, 8);
+        LayoutAitilen::contact(1, 8);
         // block about
         $sort_order = 1;
         $aboutId = 2;
         // giới thiệu
-        // Layout01::block07($sort_order++, $aboutId);
+        // LayoutAitilen::block07($sort_order++, $aboutId);
 
         // tầm nhìn
-        Layout01::block08($sort_order++, $aboutId);
+        LayoutAitilen::block08($sort_order++, $aboutId);
         // sứ mệnh
-        Layout01::block09($sort_order++, $aboutId);
+        LayoutAitilen::block09($sort_order++, $aboutId);
         // giá trị cốt lõi
-        Layout01::block08_02($sort_order++, $aboutId);
+        LayoutAitilen::block08_02($sort_order++, $aboutId);
 
 
         // block home
@@ -343,30 +344,30 @@ class TablesLayoutAitilenSeeder extends Seeder
     {
         $sort_order = 1;
         // slide
-        Layout01::images($sort_order++);
+        LayoutAitilen::images($sort_order++);
 
         // product
-        Layout01::products($sort_order++);
+        LayoutAitilen::products($sort_order++);
 
         // Why Choose Us
-        Layout01::block03($sort_order++);
+        LayoutAitilen::block03($sort_order++);
 
         // ứng dụng thực tế
-        // Layout01::block04($sort_order++);
+        // LayoutAitilen::block04($sort_order++);
 
         // thông kê
-        // Layout01::block05($sort_order++);
+        // LayoutAitilen::block05($sort_order++);
 
         // dự án đã làm
-        // Layout01::block06($sort_order++);
+        // LayoutAitilen::block06($sort_order++);
 
         // news
-        Layout01::news($sort_order++);
+        LayoutAitilen::news($sort_order++);
 
         // contact
-        Layout01::contact($sort_order++);
+        LayoutAitilen::contact($sort_order++);
 
-        // Layout01::doiTac($sort_order++);
+        // LayoutAitilen::doiTac($sort_order++);
     }
 
     private function createVideo()

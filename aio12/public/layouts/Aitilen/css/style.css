@@ -631,7 +631,9 @@ input[type="submit"].primary,
 input[type="reset"].button,
 input[type="button"].primary,
 .badge-inner {
-    background-color: #fcca03;
+    background-color: #a40c0a;
+    color: #fff;
+    font-weight: normal;
 }
 
 /* Border */
@@ -1625,7 +1627,7 @@ a.back-to-top {
 
 .tab-chuc-nang .nav,
 .woocommerce-tabs .nav {
-    border-bottom: 5px solid #fcca00;
+    border-bottom: 2px solid #a40c0a;
 }
 
 .tab-chuc-nang .nav li a,
@@ -1637,7 +1639,8 @@ a.back-to-top {
 
 .tab-chuc-nang .nav li.active a,
 .woocommerce-tabs .nav li.active a {
-    background: #fcca03;
+    background: #0c57d7;
+    color: #fff;
 }
 
 .portfolio-inner ul,
@@ -1933,7 +1936,7 @@ span.widget-title:after {
 .woocommerce-tabs .tab-panels {
     padding: 25px 30px;
     box-shadow: 0 4px 16px 0 rgb(51 51 51 / 10%);
-    border-bottom: 3px solid #fcca03;
+    border-bottom: 1px solid #a40c0a;
 }
 
 /* Custom CSS Mobile */
@@ -2359,13 +2362,13 @@ a:hover {
 }
 
 .btn-01 {
-    background-color: #fcca03;
+    background-color: #013b83;
     color: #000;
     font-weight: bold;
 }
 
 .btn-01:hover {
-    background-color: #cea607;
+    background-color: #013b83;
     color: #fff;
 }
 
@@ -2485,9 +2488,9 @@ p {
 .off-canvas-right.dark .mfp-content {
     background-color: #051d4b;
 }
-.icon-menu i {
+i.icon-menu {
     font-size: 30px !important;
-    color: #fff !important;
+    color: #013b83 !important;
 }
 #footer p {
     color: #c9c2c2 !important;
@@ -2499,8 +2502,64 @@ p {
 .woocommerce-Tabs-panel i.icon01 {
     color: #038e26;
 }
-.section1, .section6 {
+.section1, .section6, .modal-content {
     background: url(/layouts/01/images/contact-form-1.png) center no-repeat #fff;
+}
+.tai-khoan {
+    cursor: pointer;
+    line-height: 30px;
+}
+.tai-khoan:hover {
+    color: #a40c0a;
+}
+.title02 {
+    font-weight: bold;
+    color: #a40c0a;
+    margin-left: -10px;
+}
+.content-register {
+    height: 100%;
+    overflow: auto !important;
+}
+.tai-khoan02 {
+    width: 100px;
+    float: left;
+    line-height: 15px;
+    margin-top: 6px;
+    margin-bottom: -4px;
+}
+.btn-user {
+    background-color: #a40c0a ;
+    color: #fff !important;
+    font-weight: bold;
+    padding: 8px 7px;
+    width: 110px;
+    display: block;
+    text-align: center;
+    border-radius: 5px;
+    font-weight: normal;
+}
+.btn-login01 {
+    margin-top: -3px;
+}
+.btn-login02 {
+    background-color: #013b83 !important;
+}
+.btn-profile {
+    background-color: #0c57d7 !important;
+    width: 120px;
+    font-size: 13px;
+}
+.alert-danger {
+    color: #fff;
+}
+.js-form-success {
+    color: green !important;
+    font-weight: bold;
+}
+.hi {
+    color: #000;
+    font-weight: bold;
 }
 @media only screen and (max-width: 48em) {
 
@@ -2511,5 +2570,9 @@ p {
         width: 100%;
         flex-direction: column;
     }
+
+}
+
+@media screen and (max-width: 849px) {
 
 }

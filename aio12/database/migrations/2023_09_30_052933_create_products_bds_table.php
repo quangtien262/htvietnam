@@ -14,7 +14,7 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('products_bds', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->integer('product_application_id')->default(0)->nullable();
             // $table->text('product_type_ids_apply')->nullable();
             $table->integer('thoi_luong')->default(0)->nullable(); // dich vu
-            $table->integer('product_group_id')->default(0)->nullable(); // HH, dich vu, gói, 
+            $table->integer('product_group_id')->default(0)->nullable(); // HH, dich vu, gói,
             $table->text('product_group_ids_apply')->nullable(); // thẻ(chọn nhiều)
             $table->integer('thuong_hieu_id')->default(0)->nullable(); // HH, dich vu, gói, thẻ
             $table->integer('vi_tri_id')->default(0)->nullable(); // HH
@@ -113,13 +113,13 @@ return new class extends Migration {
 
             $table->string('file')->nullable();
 
-            $table->integer('is_parent')->default(0)->nullable(); // 
+            $table->integer('is_parent')->default(0)->nullable(); //
 
             MigrateService::createBaseColumn($table);
         });
 
         $tbl = MigrateService::createTable02(
-            'products',
+            'products_bds',
             'Sản phẩm',
             [
                 'is_multiple_language' => 1,
@@ -128,7 +128,7 @@ return new class extends Migration {
                 'form_data_type' => 1,
             ]
         );
-        // $tbl = Table::where('name', 'products')->first();
+        // $tbl = Table::where('name', 'products_bds')->first();
         $tableId = $tbl->id;
         $order_col = 1;
 
@@ -324,6 +324,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('products_bds');
     }
 };

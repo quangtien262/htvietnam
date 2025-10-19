@@ -7,87 +7,102 @@
 
     @include('common.meta')
 
-    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.countup.js?ver={{ env('APP_VERSION') }}' />
-    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.sticky-sidebar.js?ver={{ env('APP_VERSION') }}' />
-    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.tooltips.js?ver={{ env('APP_VERSION') }}' />
-    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.vendors-popups.js?ver={{ env('APP_VERSION') }}' />
-    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.vendors-slider.js?ver={{ env('APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.countup.js?ver={{ env(' APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.sticky-sidebar.js?ver={{ env(' APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.tooltips.js?ver={{ env(' APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.vendors-popups.js?ver={{ env(' APP_VERSION') }}' />
+    <link rel='prefetch' href='/layouts/Aitilen/js/chunk.vendors-slider.js?ver={{ env(' APP_VERSION') }}' />
 
 
 
 
 
     <link rel='stylesheet' href='/layouts/Aitilen/css/all.css' type='text/css' media='all' />
-    <link rel='stylesheet' href='/layouts/Aitilen/css/flatsome.css?ver={{ env('APP_VERSION') }}' type='text/css'
+    <link rel='stylesheet' href='/layouts/Aitilen/css/flatsome.css?ver={{ env(' APP_VERSION') }}' type='text/css'
         media='all' />
 
-    <link rel='stylesheet' href='/layouts/Aitilen/css/photoswipe.min.css?ver={{ env('APP_VERSION') }}' type='text/css'
+    <link rel='stylesheet' href='/layouts/Aitilen/css/photoswipe.min.css?ver={{ env(' APP_VERSION') }}' type='text/css'
         media='all' />
-    <link rel='stylesheet' href='/layouts/Aitilen/css/default-skin.min.css?ver={{ env('APP_VERSION') }}' type='text/css'
-        media='all' />
+    <link rel='stylesheet' href='/layouts/Aitilen/css/default-skin.min.css?ver={{ env(' APP_VERSION') }}'
+        type='text/css' media='all' />
 
-    <link rel='stylesheet' href='/layouts/Aitilen/css/flatsome-shop.css?ver={{ env('APP_VERSION') }}' type='text/css'
+    <link rel='stylesheet' href='/layouts/Aitilen/css/flatsome-shop.css?ver={{ env(' APP_VERSION') }}' type='text/css'
         media='all' />
     <link rel='stylesheet' href='/layouts/Aitilen/css/style.css?ver=3.0' type='text/css' media='all' />
     <link rel='stylesheet' href='/layouts/Aitilen/css/v4-shims.css' type='text/css' media='all' />
 
     <script src="/layouts/Aitilen/js/jquery.min.js?ver={{ env('APP_VERSION') }}" id="jquery-core-js"></script>
-    <script src="/layouts/Aitilen/js/jquery-migrate.min.js?ver={{ env('APP_VERSION') }}" id="jquery-migrate-js"></script>
+    <script src="/layouts/Aitilen/js/jquery-migrate.min.js?ver={{ env('APP_VERSION') }}" id="jquery-migrate-js">
+    </script>
 
     <link rel='stylesheet' href='/vendor/fontawesome-free-7.0.0-web/css/all.min.css' type='text/css' media='all' />
-    <link rel='stylesheet' href='/layouts/Aitilen/css/styles.css?ver={{ env('APP_VERSION') }}' type='text/css' media='all' />
+    <link rel='stylesheet' href='/layouts/Aitilen/css/styles.css?ver={{ env(' APP_VERSION') }}' type='text/css'
+        media='all' />
 </head>
 
-{{-- <body class="home page-template page-template-page-blank page-template-page-blank-php page page-id-2 theme-flatsome woocommerce-no-js lightbox"> --}}
+{{--
 
-<body class="product-template-default single single-product postid-808 theme-flatsome woocommerce woocommerce-page woocommerce-no-js lightbox">
+<body
+    class="home page-template page-template-page-blank page-template-page-blank-php page page-id-2 theme-flatsome woocommerce-no-js lightbox">
+    --}}
 
-    <a class="skip-link screen-reader-text" href="#main">Skip to content</a>
-    <div id="wrapper">
-        <header id="header" class="header has-sticky sticky-jump">
-            <div class="header-wrapper">
+    <body
+        class="product-template-default single single-product postid-808 theme-flatsome woocommerce woocommerce-page woocommerce-no-js lightbox">
 
-                {{-- header 01 --}}
-                @include('layouts.layoutAitilen.elements.layout.header01')
+        <a class="skip-link screen-reader-text" href="#main">Skip to content</a>
+        <div id="wrapper">
+            <header id="header" class="header has-sticky sticky-jump">
+                <div class="header-wrapper">
 
-                {{-- header 02 --}}
-                @include('layouts.layoutAitilen.elements.layout.header02')
+                    {{-- header 01 --}}
+                    @include('layouts.layoutAitilen.elements.layout.header01')
 
-                {{-- menu --}}
-                @include('layouts.layoutAitilen.elements.layout.menu')
+                    {{-- header 02 --}}
+                    @include('layouts.layoutAitilen.elements.layout.header02')
 
-                <div class="header-bg-container fill">
-                    <div class="header-bg-image fill"></div>
-                    <div class="header-bg-color fill"></div>
+                    {{-- menu --}}
+                    @include('layouts.layoutAitilen.elements.layout.menu')
+
+                    <div class="header-bg-container fill">
+                        <div class="header-bg-image fill"></div>
+                        <div class="header-bg-color fill"></div>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
 
-        <main id="main" class="">
-            <div id="content" role="main" class="content-area">
+            <main id="main" class="">
+                <div id="content" role="main" class="content-area">
 
-                {{-- content --}}
-                @yield('content')
+                    {{-- content --}}
+                    @yield('content')
 
-            </div>
-        </main>
+                </div>
+            </main>
 
-        @include('layouts.layoutAitilen.elements.layout.footer')
+            @include('layouts.layoutAitilen.elements.layout.footer')
 
-        @include('layouts.layoutAitilen.elements.layout.menu_mobile')
-    </div>
+            @include('layouts.layoutAitilen.elements.layout.menu_mobile')
+        </div>
 
 
 
-    @include('modal.login')
+        @include('modal.login')
+        @include('modal.register')
 
-    {{--
-    <script data-cfasync="false" src="/layouts/Aitilen/js/email-decode.min.js"></script> --}}
+        {{--
+        <script data-cfasync="false" src="/layouts/Aitilen/js/email-decode.min.js"></script> --}}
 
-    <script>
-        // Auto open lightboxes
+
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+        <script>
+            // Auto open lightboxes
         jQuery(document).ready(function($) {
+
+
             /* global flatsomeVars */
             'use strict'
             var cookieId = 'lightbox_enter-id-here'
@@ -124,18 +139,18 @@
                 cookie(cookieId, cookieValue, 365)
             }
         })
-    </script>
+        </script>
 
-    {{-- btn bottom ở đây --}}
+        {{-- btn bottom ở đây --}}
 
-    {{-- login --}}
+        {{-- login --}}
 
-    @include('layouts.layoutAitilen.elements.layout.popup_image')
-
-
+        @include('layouts.layoutAitilen.elements.layout.popup_image')
 
 
-    <script src="/layouts/Aitilen/js/index.js?ver=5.7.3" id="swv-js"></script>
+
+
+        <script src="/layouts/Aitilen/js/index.js?ver=5.7.3" id="swv-js"></script>
         <script id="contact-form-7-js-extra">
             var wpcf7 = {
                 "api": {
@@ -145,9 +160,9 @@
             }
         </script>
 
-    <script src="/layouts/Aitilen/js/jquery.blockUI.min.js?ver=2.7.0-wc.7.3.0" id="jquery-blockui-js"></script>
-    <script id="wc-add-to-cart-js-extra">
-        var wc_add_to_cart_params = {
+        <script src="/layouts/Aitilen/js/jquery.blockUI.min.js?ver=2.7.0-wc.7.3.0" id="jquery-blockui-js"></script>
+        <script id="wc-add-to-cart-js-extra">
+            var wc_add_to_cart_params = {
             "ajax_url": "\/wp-admin\/admin-ajax.php",
             "wc_ajax_url": "\/?wc-ajax=%%endpoint%%",
             "i18n_view_cart": "View cart",
@@ -155,12 +170,13 @@
             "is_cart": "",
             "cart_redirect_after_add": "no"
         }
-    </script>
-    <script src="/layouts/Aitilen/js/add-to-cart.min.js?ver=7.3.0" id="wc-add-to-cart-js"></script>
-    <script src="/layouts/Aitilen/js/js.cookie.min.js?ver=2.1.4-wc.7.3.0" id="js-cookie-js"></script>
+        </script>
+        <script src="/layouts/Aitilen/js/add-to-cart.min.js?ver=7.3.0" id="wc-add-to-cart-js"></script>
+        <script src="/layouts/Aitilen/js/js.cookie.min.js?ver=2.1.4-wc.7.3.0" id="js-cookie-js"></script>
 
         <script src="/layouts/Aitilen/js/photoswipe.min.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
-        <script src="/layouts/Aitilen/js/photoswipe-ui-default.min.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
+        <script src="/layouts/Aitilen/js/photoswipe-ui-default.min.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js">
+        </script>
 
         <script id="wc-single-product-js-extra">
             /* <![CDATA[ */
@@ -235,19 +251,20 @@
         </script>
 
         <script src="/layouts/Aitilen/js/flatsome.js?ver={{ env('APP_VERSION') }}" id="flatsome-js-js"></script>
-        <script src="/layouts/Aitilen/js/woocommerce.js?ver={{ env('APP_VERSION') }}" id="flatsome-theme-woocommerce-js-js">
+        <script src="/layouts/Aitilen/js/woocommerce.js?ver={{ env('APP_VERSION') }}"
+            id="flatsome-theme-woocommerce-js-js">
         </script>
 
 
 
 
-    <script src="/vendor/bootstrap4/js/bootstrap.min.js?ver={{ config('app.version') }}"></script>
+        <script src="/vendor/bootstrap4/js/bootstrap.min.js?ver={{ config('app.version') }}"></script>
 
-    <script src="/layouts/Aitilen/js/script01.js?ver={{ env('APP_VERSION') }}"></script>
+        <script src="/layouts/Aitilen/js/script01.js?ver={{ env('APP_VERSION') }}"></script>
 
-    {{-- location --}}
-    <script>
-        if (navigator.geolocation) {
+        {{-- location --}}
+        <script>
+            if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     var latitude = position.coords.latitude;
@@ -278,7 +295,7 @@
         } else {
             console.log("Trình duyệt không hỗ trợ lấy vị trí.");
         }
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>

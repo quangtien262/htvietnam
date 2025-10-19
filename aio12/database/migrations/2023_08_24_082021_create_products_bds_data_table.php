@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products_data', function (Blueprint $table) {
+        Schema::create('products_bds_data', function (Blueprint $table) {
             $table->id();
             $table->string('name_data')->nullable();
             $table->integer('languages_id')->nullable();
@@ -36,7 +36,7 @@ return new class extends Migration
         });
 
         $order = 1;
-        $productData = MigrateService::createTable02('products_data', 'products_data', ['is_edit' => 0]);
+        $productData = MigrateService::createTable02('products_bds_data', 'Sản phẩm', ['is_edit' => 0]);
         MigrateService::createColumn02(
             $productData->id,
             'name_data',
@@ -66,7 +66,7 @@ return new class extends Migration
             ['col' => 24, 'require' => 0]
         );
 
-        
+
         MigrateService::createColumn02(
             $productData->id,
             'content',
@@ -94,10 +94,10 @@ return new class extends Migration
             $order++,
             ['show_in_list' => 0, 'col' => 24]
         );
-        
+
         MigrateService::columnSEO($productData, $order++);
 
-        MigrateService::baseColumn($productData, 100, true);    
+        MigrateService::baseColumn($productData, 100, true);
 
     }
 
@@ -106,6 +106,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products_data');
+        Schema::dropIfExists('products_bds_data');
     }
 };
