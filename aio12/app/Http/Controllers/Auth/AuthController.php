@@ -37,11 +37,12 @@ class AuthController extends Controller
         if (Auth::guard('admin_users')->attempt($request->only('username', 'password'), true)) {
             //save table 2 session
             // $tables = TblService::getAdminMenu(0);
-            return $this->sendSuccessResponse(['role' => 'admin'], 'Đăng nhập thành công!');
+            return redirect()->route('dashboard')->with('status', 'Đăng nhập thành công');
+            // return $this->sendSuccessResponse(['role' => 'admin'], 'Đăng nhập thành công!');
         }
 
         if (Auth::guard('web')->attempt($request->only('username', 'password'), true)) {
-            return $this->sendSuccessResponse(['role' => 'user'], 'Đăng nhập thành công!');
+            return redirect()->route('user.index')->with('status', 'Đăng nhập thành công');
         }
 
         return back()->with('error', 'Tên đăng nhập hoặc mật khẩu không đúng');

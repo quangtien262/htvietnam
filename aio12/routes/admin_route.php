@@ -344,7 +344,7 @@ Route::group(['prefix' => 'pj'], function () {
     Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 
-//tasks
+//tasks: api
 Route::group(['prefix' => 'task'], function () {
     Route::post('api/sort-order/task-status', [TaskController::class, 'updateSortOrder_taskStatus'])->name('task.updateSortOrder_taskStatus');
     Route::put('update-sort-order/{id}', [TaskController::class, 'updateSortOrder'])->name('task.updateSortOrder');
@@ -357,7 +357,8 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('delete-comment', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
 });
 
-Route::group(['prefix' => 'cv'], function () {
+// task
+Route::group(['prefix' => 'tasks'], function () {
 
     Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
     Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');

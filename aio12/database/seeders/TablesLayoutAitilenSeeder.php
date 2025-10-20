@@ -65,6 +65,9 @@ class TablesLayoutAitilenSeeder extends Seeder
         // create languages
         MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vi.png');
 
+        $this->createApartment();
+        $this->createRoom();
+
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
@@ -412,5 +415,582 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'content' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM']
             ]
         );
+    }
+
+    private function createApartment()
+    {
+        DB::table('apartment')->truncate();
+        $this->command->info('migrate Apartment');
+        DB::table('apartment')->insert([
+            [
+                'name' => '30/185 Phùng Khoang',
+                'code' => '30185',
+                'gia_thue' => 32000000,
+                'tien_coc' => 30000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 10000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 32000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '10B/115 Đinh Công (65m2)',
+                'code' => '65',
+                'gia_thue' => 15000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 15000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '10C/115 Đinh Công (122m2)',
+                'code' => '122',
+                'gia_thue' => 23000000,
+                'tien_coc' => 21000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 23000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '10D/115 Đinh Công (85m2)',
+                'code' => '85',
+                'gia_thue' => 17000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 17000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '63/5/175 Đinh Công (100m2)',
+                'code' => '100',
+                'gia_thue' => 18000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 18000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '8b/3 Ao Sen',
+                'code' => '8B',
+                'gia_thue' => 28000000,
+                'tien_coc' => 23000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 28000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '30/17 Trung Văn',
+                'code' => '3017',
+                'gia_thue' => 41400000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 41400000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '32/17 Trung Văn',
+                'code' => '3217',
+                'gia_thue' => 27500000,
+                'tien_coc' => 27500000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 0,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 27500000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '17/22 Phố Lụa, Vạn Phúc, Hà Đông, HN',
+                'code' => '1722Lua',
+                'gia_thue' => 20000000,
+                'tien_coc' => 20000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 0,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 20000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '02/16 Vạn Phúc',
+                'code' => '0216VanPhuc',
+                'gia_thue' => 17000000,
+                'tien_coc' => 17000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 20000000,
+                'tien_mua_nhuong' => 10000000,
+                'gia_thue_tang' => 17000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '17/843 Quang Trung',
+                'code' => '843',
+                'gia_thue' => 10000000,
+                'tien_coc' => 10000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 75000000,
+                'gia_thue_tang' => 10000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '592 Quang Trung',
+                'code' => '592',
+                'gia_thue' => 14000000,
+                'tien_coc' => 14000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 55000000,
+                'gia_thue_tang' => 14000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '583 Nguyễn Trãi',
+                'code' => '583NT',
+                'gia_thue' => 10000000,
+                'tien_coc' => 10000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 10000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '15A/233 Phùng Khoang',
+                'code' => '15A',
+                'gia_thue' => 24000000,
+                'tien_coc' => 24000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 24000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '15B/233 Phùng Khoang',
+                'code' => '15B',
+                'gia_thue' => 37000000,
+                'tien_coc' => 37000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 37000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '46 Phùng Khoang',
+                'code' => '46PK',
+                'gia_thue' => 21000000,
+                'tien_coc' => 21000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 10000000,
+                'tien_mua_nhuong' => 120000000,
+                'gia_thue_tang' => 21000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '282 Định Công',
+                'code' => '282DC',
+                'gia_thue' => 10000000,
+                'tien_coc' => 10000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 10000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '8B/37/460 Khương Đình',
+                'code' => '37',
+                'gia_thue' => 16000000,
+                'tien_coc' => 16000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 16000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '40 Lê Quang Đạo',
+                'code' => '40LQD',
+                'gia_thue' => 40000000,
+                'tien_coc' => 40000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 1000000,
+                'tien_mua_nhuong' => 65000000,
+                'gia_thue_tang' => 40000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '25C Lê Quang Đạo',
+                'code' => '25C',
+                'gia_thue' => 23000000,
+                'tien_coc' => 40000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 16000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 23000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => '25B/127 Phùng Khoang',
+                'code' => '127',
+                'gia_thue' => 25000000,
+                'tien_coc' => 25000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 3000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 25000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ]);
+    }
+
+    private function createRoom()
+    {
+        $this->command->info('migrate Room');
+        DB::table('room')->truncate();
+        //30185
+        $apm = DB::table('apartment')->where('code', '30185')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+            ['name' => '602', 'apartment_id' => $apm->id],
+        ]);
+        //122
+        $apm = DB::table('apartment')->where('code', '122')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '403', 'apartment_id' => $apm->id],
+        ]);
+        //65
+        $apm = DB::table('apartment')->where('code', '65')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //85
+        $apm = DB::table('apartment')->where('code', '85')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //100
+        $apm = DB::table('apartment')->where('code', '100')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+        ]);
+        //8B
+        $apm = DB::table('apartment')->where('code', '8B')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+            ['name' => '701', 'apartment_id' => $apm->id],
+        ]);
+        //3017
+        $apm = DB::table('apartment')->where('code', '3017')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '204', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+            ['name' => '304', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '403', 'apartment_id' => $apm->id],
+            ['name' => '404', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '503', 'apartment_id' => $apm->id],
+            ['name' => '504', 'apartment_id' => $apm->id],
+        ]);
+        //3217
+        $apm = DB::table('apartment')->where('code', '3217')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+            ['name' => '602', 'apartment_id' => $apm->id],
+        ]);
+
+        //1722Lua
+        $apm = DB::table('apartment')->where('code', '1722Lua')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '204', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+            ['name' => '304', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '403', 'apartment_id' => $apm->id],
+            ['name' => '404', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '503', 'apartment_id' => $apm->id],
+            ['name' => '504', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+            ['name' => '602', 'apartment_id' => $apm->id],
+            ['name' => '603', 'apartment_id' => $apm->id],
+        ]);
+
+        //0216VanPhuc
+        $apm = DB::table('apartment')->where('code', '0216VanPhuc')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+        ]);
+
+        //843
+        $apm = DB::table('apartment')->where('code', '843')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+        ]);
+
+        //592
+        $apm = DB::table('apartment')->where('code', '592')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //583NT
+        $apm = DB::table('apartment')->where('code', '583NT')->first();
+        DB::table('room')->insert([
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+        ]);
+
+        //15A
+        $apm = DB::table('apartment')->where('code', '15A')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '103', 'apartment_id' => $apm->id],
+            ['name' => '104', 'apartment_id' => $apm->id],
+            ['name' => '105', 'apartment_id' => $apm->id],
+            ['name' => '106', 'apartment_id' => $apm->id],
+            ['name' => '107', 'apartment_id' => $apm->id],
+            ['name' => '108', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '204', 'apartment_id' => $apm->id],
+        ]);
+
+        //15B
+        $apm = DB::table('apartment')->where('code', '15B')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '103', 'apartment_id' => $apm->id],
+            ['name' => '104', 'apartment_id' => $apm->id],
+            ['name' => '105', 'apartment_id' => $apm->id],
+            ['name' => '106', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '203', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+            ['name' => '304', 'apartment_id' => $apm->id],
+            ['name' => '305', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+        ]);
+
+        //46PK
+        $apm = DB::table('apartment')->where('code', '46PK')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '102', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+        ]);
+
+        //282DC
+        $apm = DB::table('apartment')->where('code', '282DC')->first();
+        DB::table('room')->insert([
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //37
+        $apm = DB::table('apartment')->where('code', '37')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //40LQD
+        $apm = DB::table('apartment')->where('code', '40LQD')->first();
+        DB::table('room')->insert([
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '303', 'apartment_id' => $apm->id],
+            ['name' => '304', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '403', 'apartment_id' => $apm->id],
+            ['name' => '404', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '503', 'apartment_id' => $apm->id],
+            ['name' => '504', 'apartment_id' => $apm->id],
+        ]);
+
+        //25C
+        $apm = DB::table('apartment')->where('code', '25C')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+        ]);
+
+        //127
+        $apm = DB::table('apartment')->where('code', '127')->first();
+        DB::table('room')->insert([
+            ['name' => '101', 'apartment_id' => $apm->id],
+            ['name' => '201', 'apartment_id' => $apm->id],
+            ['name' => '202', 'apartment_id' => $apm->id],
+            ['name' => '301', 'apartment_id' => $apm->id],
+            ['name' => '302', 'apartment_id' => $apm->id],
+            ['name' => '401', 'apartment_id' => $apm->id],
+            ['name' => '402', 'apartment_id' => $apm->id],
+            ['name' => '501', 'apartment_id' => $apm->id],
+            ['name' => '502', 'apartment_id' => $apm->id],
+            ['name' => '601', 'apartment_id' => $apm->id],
+        ]);
     }
 }

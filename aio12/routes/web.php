@@ -16,13 +16,13 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
 Route::get('/', [PagesController::class, 'index'])->name('home');
 
 // auth
-Route::get('login', [AuthController::class, 'login'])->name('login');
-Route::post('login', [AuthController::class, 'postLogin']);
-Route::post('login', [AuthController::class, 'postLogin'])->name('postLogin_api');
-Route::get('register', [AuthController::class, 'register'])->name('register');
-Route::post('register', [AuthController::class, 'postRegister']);
+Route::get('adm/login', [AuthController::class, 'login'])->name('login');
+Route::post('adm/login', [AuthController::class, 'postLogin']);
+Route::post('account/login', [AuthController::class, 'postLogin'])->name('postLogin_api');
+Route::get('account/register', [AuthController::class, 'register'])->name('register');
+Route::post('account/register', [AuthController::class, 'postRegister']);
 Route::post('api/register', [AuthController::class, 'postRegister_api'])->name('postRegister_api');
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('account/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/get-token/{type}', [PagesController::class, 'getToken'])->name('get_token');
 
