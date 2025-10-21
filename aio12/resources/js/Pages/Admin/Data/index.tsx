@@ -109,6 +109,10 @@ export default function Dashboard(props: any) {
         },
     });
 
+    console.log('====================================');
+    console.log(props.searchData);
+    console.log('====================================');
+
     function setPagination(pagination) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),

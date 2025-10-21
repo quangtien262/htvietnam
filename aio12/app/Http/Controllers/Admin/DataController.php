@@ -170,7 +170,8 @@ class DataController extends Controller
 
         $pageSize = !empty($request->limit) ? $request->limit : $table->count_item_of_page;
         $datas = TblService::getDatas($table, $columns, $request->all(), $pageSize);
-
+        $searchData = $datas['searchData'];
+        $searchData['p'] = $request->p;
         $props = [
             'tableId' => $tableId,
             'tables' => $tables,
@@ -182,7 +183,7 @@ class DataController extends Controller
             'tableTabConfig' => $tableTabConfig,
             'tab_col_name' => $tab_col_name,
             'request' => $_GET,
-            'searchData' => $datas['searchData'],
+            'searchData' => $searchData,
             'menus' => TblService::getMenus($request->p),
             'p' => $request->p,
             'token' => csrf_token(),

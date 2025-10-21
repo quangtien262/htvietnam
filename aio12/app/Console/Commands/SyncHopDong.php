@@ -34,8 +34,8 @@ class SyncHopDong extends Command
         $this->info('Start import phòng...');
         $this->roomSync();
 
-        // $this->info('Start import số điện nước..');
-        // $this->dienNuocSync();
+        $this->info('Start import số điện nước..');
+        $this->dienNuocSync();
     }
 
     public function hopDongSync()
@@ -118,6 +118,49 @@ class SyncHopDong extends Command
                     'id' => $data['id'],
                     'apartment_id' => $data['house_id'] ?? null,
                     'name'  => $data['room_number'] ?? null,
+                ];
+                // throw $th;
+            }
+        }
+        if (!empty($dataError)) {
+
+            $this->error('OKKKK');
+        } else {
+            $this->info('Đã import xong room!');
+        }
+    }
+
+    private function dienNuocSync()
+    {
+
+        DB::table('room_dien_nuoc')->truncate();
+        $csv = storage_path('app/public/migrate/aitilen_consumption_meter_price_service.csv');
+        $dataError = [];
+        // Đọc file CSV thành mảng
+        $rows = array_map('str_getcsv', file($csv));
+        $header = array_map('trim', $rows[0]); // Dòng đầu là header
+
+        // Lặp qua từng dòng dữ liệu (bỏ dòng header)
+        foreach (array_slice($rows, 1) as $row) {
+            try {
+                $data = array_combine($header, $row);
+                // Insert vào bảng room (map đúng tên cột)
+                $dataInsert = [
+                    'id' => $data['id'],
+                    'name'  => $data['room_number'] ?? null,
+                    'room_id'  => $data['room_id'] ?? null,
+                    'apartment_id'  => $data['house_id'] ?? null,
+                    'hop_dong_id'  => $data['room_contract_id'] ?? null,
+                    'cur_number'  => $data['cur_number'] ?? null,
+                    'new_number'  => $data['new_number'] ?? null,
+                ];
+
+                DB::table('room_dien_nuoc')->insert($dataInsert);
+            } catch (\Throwable $th) {
+                $dataError[] = [
+                    'id' => $data['id'],
+                    'name'  => $data['room_number'] ?? null,
+                    'room_id'  => $data['room_id'] ?? null,
                 ];
                 // throw $th;
             }

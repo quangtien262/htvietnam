@@ -17,12 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('room_id')->nullable();
+            $table->string('apartment_id')->nullable();
             $table->string('hop_dong_id')->nullable();
-            $table->string('so_dien')->nullable();
-            $table->string('so_nuoc')->nullable();
-            $table->string('so_may_bom')->nullable();
-            $table->string('othe')->nullable();
+            $table->string('loai_dich_vu')->nullable();
+            $table->string('cur_number')->nullable();
+            $table->string('new_number')->nullable();
             $table->string('note')->nullable();
+
+
 
             MigrateService::createBaseColumn($table);
 

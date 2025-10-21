@@ -38,7 +38,7 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $aitilen, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $aitilen, 'name' => 'hoa_don_tien_phong', 'display_name' => 'Hóa đơn', 'table_name' => 'hoa_don_tien_phong', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $aitilen, 'name' => 'so_quy', 'display_name' => 'Sổ qũy', 'table_name' => 'so_quy', 'route' => 'soQuy', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'aitilen_hop_dong', 'display_name' => 'Hợp đồng', 'table_name' => 'aitilen_hop_dong', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $aitilen, 'name' => 'aitilen_hop_dong', 'display_name' => 'Hợp đồng', 'table_name' => 'hop_dong', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $aitilen, 'name' => 'apartment', 'display_name' => 'Tòa nhà', 'table_name' => 'apartment', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $aitilen, 'name' => 'website_aitilen', 'display_name' => 'Website', 'table_name' => '', 'route' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
         ]);
@@ -58,7 +58,6 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $websiteAitilen->id, 'name' => 'page_setting', 'display_name' => 'Landingpage', 'table_name' => 'page_setting', 'route' => 'adm.landingpage.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
             ['parent_id' => $websiteAitilen->id, 'name' => 'contact', 'display_name' => 'Liên hệ', 'table_name' => 'contact', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
         ]);
-
 
         // web
         $web = DB::table('admin_menu')->insertGetId(
