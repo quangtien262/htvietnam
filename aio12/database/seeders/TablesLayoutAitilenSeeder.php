@@ -66,7 +66,7 @@ class TablesLayoutAitilenSeeder extends Seeder
         MigrateService::createLanguage('Tiếng Việt', 'vi', 1, '/images/languages/vi.png');
 
         $this->createApartment();
-        $this->createRoom();
+        // $this->createRoom();
 
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
@@ -423,150 +423,7 @@ class TablesLayoutAitilenSeeder extends Seeder
         $this->command->info('migrate Apartment');
         DB::table('apartment')->insert([
             [
-                'name' => '30/185 Phùng Khoang',
-                'code' => '30185',
-                'gia_thue' => 32000000,
-                'tien_coc' => 30000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 10000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 32000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '10B/115 Đinh Công (65m2)',
-                'code' => '65',
-                'gia_thue' => 15000000,
-                'tien_coc' => 13000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 15000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '10C/115 Đinh Công (122m2)',
-                'code' => '122',
-                'gia_thue' => 23000000,
-                'tien_coc' => 21000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 23000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '10D/115 Đinh Công (85m2)',
-                'code' => '85',
-                'gia_thue' => 17000000,
-                'tien_coc' => 13000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 17000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '63/5/175 Đinh Công (100m2)',
-                'code' => '100',
-                'gia_thue' => 18000000,
-                'tien_coc' => 13000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 18000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '8b/3 Ao Sen',
-                'code' => '8B',
-                'gia_thue' => 28000000,
-                'tien_coc' => 23000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 5000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 28000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '30/17 Trung Văn',
-                'code' => '3017',
-                'gia_thue' => 41400000,
-                'tien_coc' => 13000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 41400000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '32/17 Trung Văn',
-                'code' => '3217',
-                'gia_thue' => 27500000,
-                'tien_coc' => 27500000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 0,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 27500000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '17/22 Phố Lụa, Vạn Phúc, Hà Đông, HN',
-                'code' => '1722Lua',
-                'gia_thue' => 20000000,
-                'tien_coc' => 20000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 0,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 20000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '02/16 Vạn Phúc',
-                'code' => '0216VanPhuc',
-                'gia_thue' => 17000000,
-                'tien_coc' => 17000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 20000000,
-                'tien_mua_nhuong' => 10000000,
-                'gia_thue_tang' => 17000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '17/843 Quang Trung',
-                'code' => '843',
-                'gia_thue' => 10000000,
-                'tien_coc' => 10000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 5000000,
-                'tien_mua_nhuong' => 75000000,
-                'gia_thue_tang' => 10000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'name' => '592 Quang Trung',
-                'code' => '592',
-                'gia_thue' => 14000000,
-                'tien_coc' => 14000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 5000000,
-                'tien_mua_nhuong' => 55000000,
-                'gia_thue_tang' => 14000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
+                'id' => 1,
                 'name' => '583 Nguyễn Trãi',
                 'code' => '583NT',
                 'gia_thue' => 10000000,
@@ -579,6 +436,163 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 3,
+                'name' => '30/185 Phùng Khoang',
+                'code' => '30185',
+                'gia_thue' => 32000000,
+                'tien_coc' => 30000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 10000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 32000000,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 17,
+                'name' => '10B/115 Đinh Công (65m2)',
+                'code' => '65',
+                'gia_thue' => 15000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 15000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 14,
+                'name' => '10C/115 Đinh Công (122m2)',
+                'code' => '122',
+                'gia_thue' => 23000000,
+                'tien_coc' => 21000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 23000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 16,
+                'name' => '10D/115 Đinh Công (85m2)',
+                'code' => '85',
+                'gia_thue' => 17000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 17000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 15,
+                'name' => '63/5/175 Đinh Công (100m2)',
+                'code' => '100',
+                'gia_thue' => 18000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 18000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 8,
+                'name' => '8b/3 Ao Sen',
+                'code' => '8B',
+                'gia_thue' => 28000000,
+                'tien_coc' => 23000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 28000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 6,
+                'name' => '30/17 Trung Văn',
+                'code' => '3017',
+                'gia_thue' => 41400000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 41400000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 7,
+                'name' => '32/17 Trung Văn',
+                'code' => '3217',
+                'gia_thue' => 27500000,
+                'tien_coc' => 27500000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 0,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 27500000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 9,
+                'name' => '17/22 Phố Lụa, Vạn Phúc, Hà Đông, HN',
+                'code' => '1722Lua',
+                'gia_thue' => 20000000,
+                'tien_coc' => 20000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 0,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 20000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 10,
+                'name' => '02/16 Vạn Phúc',
+                'code' => '0216VanPhuc',
+                'gia_thue' => 17000000,
+                'tien_coc' => 17000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 20000000,
+                'tien_mua_nhuong' => 10000000,
+                'gia_thue_tang' => 17000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 12,
+                'name' => '17/843 Quang Trung',
+                'code' => '843',
+                'gia_thue' => 10000000,
+                'tien_coc' => 10000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 75000000,
+                'gia_thue_tang' => 10000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 11,
+                'name' => '592 Quang Trung',
+                'code' => '592',
+                'gia_thue' => 14000000,
+                'tien_coc' => 14000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 5000000,
+                'tien_mua_nhuong' => 55000000,
+                'gia_thue_tang' => 14000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 29,
                 'name' => '15A/233 Phùng Khoang',
                 'code' => '15A',
                 'gia_thue' => 24000000,
@@ -591,6 +605,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 5,
                 'name' => '15B/233 Phùng Khoang',
                 'code' => '15B',
                 'gia_thue' => 37000000,
@@ -603,6 +618,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 18,
                 'name' => '46 Phùng Khoang',
                 'code' => '46PK',
                 'gia_thue' => 21000000,
@@ -615,6 +631,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 19,
                 'name' => '282 Định Công',
                 'code' => '282DC',
                 'gia_thue' => 10000000,
@@ -627,6 +644,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 20,
                 'name' => '8B/37/460 Khương Đình',
                 'code' => '37',
                 'gia_thue' => 16000000,
@@ -639,6 +657,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 27,
                 'name' => '40 Lê Quang Đạo',
                 'code' => '40LQD',
                 'gia_thue' => 40000000,
@@ -651,6 +670,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 26,
                 'name' => '25C Lê Quang Đạo',
                 'code' => '25C',
                 'gia_thue' => 23000000,
@@ -663,6 +683,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
+                'id' => 31,
                 'name' => '25B/127 Phùng Khoang',
                 'code' => '127',
                 'gia_thue' => 25000000,
@@ -671,6 +692,19 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'tien_moi_gioi' => 3000000,
                 'tien_mua_nhuong' => 0,
                 'gia_thue_tang' => 25000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 28,
+                'name' => '65 Chị Vân',
+                'code' => '65Van',
+                'gia_thue' => 23000000,
+                'tien_coc' => 40000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 16000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 23000000,
                 'created_at' => now(),
                 'updated_at' => now()
             ],

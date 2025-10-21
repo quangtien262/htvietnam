@@ -875,12 +875,14 @@ MigrateService
             self::createColumn02($table->id, 'languages_id', 'languages_id', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
             self::createColumn02($table->id, 'data_id', 'data_id', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
         }
+        // self::createColumn02($table->id, 'color', 'color', 'TEXT', 'color', $order++, ['edit' => $isEditColor, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'is_recycle_bin', 'is_recycle_bin', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0, 'is_view_detail' => 0]);
         self::createColumn02($table->id, 'updated_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0, 'is_view_detail' => 0]);
+
         // self::createColumn02($table->id, 'history', 'Lịch sử thay đổi', 'INT', config('constant.config_table.type_edit.date'), $order++,
         // ['edit' => 0, 'is_view_detail' => 0]);
     }

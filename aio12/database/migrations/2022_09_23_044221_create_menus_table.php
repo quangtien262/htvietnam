@@ -29,7 +29,8 @@ return new class extends Migration {
             $table->string('icon')->default(0)->nullable();
             $table->integer('is_active')->default(1)->nullable();
 
-
+            $table->string('color')->nullable();
+            $table->string('background')->nullable();
 
             $table->integer('create_by')->default(0)->nullable();
             $table->integer('is_recycle_bin')->default(0)->nullable();
@@ -101,11 +102,28 @@ return new class extends Migration {
             0,
             ['select_table_id' => $route->id, 'data_select' => '{"value":"name", "name":{"0":"display_name"}}']
         );
-        MigrateService::createColumn02($data->id, 'parent_id', 'Danh mục cha', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
+
+        MigrateService::createColumn02(
+            $data->id,
+            'color',
+            'Màu sắc chữ',
+            'VARCHAR',
+            'select',
+            0,
+            ['select_table_id' => $route->id, 'data_select' => '{"value":"name", "name":{"0":"display_name"}}']
+        );
+        MigrateService::createColumn02(
+            $data->id,
+            'background',
+            'Màu nền',
+            'VARCHAR',
+            'select',
+            0,
+            ['select_table_id' => $route->id, 'data_select' => '{"value":"name", "name":{"0":"display_name"}}']
+        );
+
+
+        MigrateService::baseColumn($data);
 
     }
 

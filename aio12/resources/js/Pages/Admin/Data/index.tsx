@@ -436,7 +436,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
+                            options={props.selectData[col.name]}
+                            // options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );
@@ -458,8 +459,8 @@ export default function Dashboard(props: any) {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                            // options={props.selectsData[col.name].selectbox}
-                            options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
+                            options={props.selectsData[col.name].selectbox}
+                            // options={Object.entries(props.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }))}
                         />
                     </Form.Item>
                 );

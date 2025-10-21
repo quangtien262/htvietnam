@@ -33,6 +33,8 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->text('description')->nullable();
 
+            $table->string('color')->nullable();
+
             MigrateService::createBaseColumn($table);
 
             Table::create([
@@ -44,7 +46,7 @@ return new class extends Migration
                 'type_show' => config('constant.type_show.basic'),
                 'count_item_of_page' => 30,
                 'is_edit' => 1, // 1 hiển thị ở menu; 0 không hiển thị
-                'form_data_type' => 1,
+                'form_data_type' => 2,
                 'have_delete' => 1,
                 'have_add_new' => 1,
 
@@ -57,15 +59,6 @@ return new class extends Migration
             $tbl = Table::where('name', 'apartment')->first();
             $tableId = $tbl->id;
             $order_col = 1;
-            MigrateService::createColumn02(
-                $tableId,
-                'id',
-                'id',
-                'INT',
-                'number',
-                $order_col++,
-                ['edit' => 0]
-            );
 
             MigrateService::createColumn02(
                 $tableId,

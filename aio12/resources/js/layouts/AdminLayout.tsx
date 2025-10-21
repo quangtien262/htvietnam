@@ -101,11 +101,11 @@ export default function Admin({
             //     key: '-1',
             //     // icon: <HomeOutlined />,
             // },
-            {
-                label: <a href={route("dashboard")}><DashboardOutlined /> Admin</a>,
-                key: '-2',
-                // icon: <HomeOutlined />,
-            },
+            // {
+            //     label: <a href={route("dashboard")}><DashboardOutlined /> Admin</a>,
+            //     key: '-2',
+            //     // icon: <HomeOutlined />,
+            // },
         ];
 
         if (!menus) {

@@ -15,13 +15,15 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('user_type')->default('Aitilen')->nullable(); // aitilen, HTVietNam
+            $table->string('user_type')->default('Aitilen')->nullable(); // Aitilen, HTVietNam
             $table->string('name')->nullable();
             $table->string('username')->nullable();
             $table->string('password')->nullable();
             $table->string('code')->nullable();
             $table->integer('year')->nullable();
             $table->date('ngay_sinh')->nullable();
+
+            $table->integer('user_status_id')->nullable();
 
             // thẻ vip
             $table->integer('tong_tien_da_nap')->default(0)->nullable();

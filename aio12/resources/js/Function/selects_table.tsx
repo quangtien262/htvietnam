@@ -6,7 +6,11 @@ import {numberFormat} from "./common";
 
 export function showSelect(col: any, record: any) {
     let result: React.ReactNode = '';
-    const color = record[col.name].info.color ? record[col.name].info.color : ''
+    let color = ''
+    if(record[col.name].info &&record[col.name].info.color) {
+        color = record[col.name].info.color;
+    }
+
     if(record[col.name] && record[col.name].info && record[col.name].info.name) {
         result = <Tag style={{ color: color }}>{ record[col.name].info.name }</Tag>;
     }
@@ -18,7 +22,11 @@ export function showSelect(col: any, record: any) {
 
 export function showSelects(record: any, col: any) {
     let result = [];
-    const color = record[col.name].info.color ? record[col.name].info.color : ''
+    let color = ''
+    if(record[col.name].info &&record[col.name].info.color) {
+        color = record[col.name].info.color;
+    }
+
     if(record[col.name] && record[col.name].info) {
         const item = record[col.name];
         for(const [key, val] of Object.entries(item.info)) {

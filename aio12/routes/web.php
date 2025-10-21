@@ -33,7 +33,7 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::get('hoa-don', [UserController::class, 'index'])->name('user.hoa_don');
         Route::get('hop-dong', [UserController::class, 'index'])->name('user.hop_dong');
-        Route::get('support', [UserController::class, 'index'])->name('user.support');
+        Route::get('supponrt', [UserController::class, 'index'])->name('user.support');
         Route::get('/logout', [UserController::class, 'logout'])->name('user.logout');
     });
 });

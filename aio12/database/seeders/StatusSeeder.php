@@ -92,7 +92,7 @@ class StatusSeeder extends Seeder
         DB::table('task_status')->truncate();
 
         // tạo sẵn 1 project mặc định để liên kết với task chung mà ko thuộc project nào
-        // status cho nhóm projects Aitilen
+        // status cho nhóm projects chung
         DB::table('project_status')->insert([
             ['name' => 'Chuẩn bị', 'parent_name' => 'all', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'EyeFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
             ['name' => 'Đang triển khai', 'parent_name' => 'all', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
@@ -119,37 +119,9 @@ class StatusSeeder extends Seeder
         ];
         DB::table('task_status')->insert($statusTaskOther);
 
-        // tạo sẵn 1 project Aitilen mặc định để liên kết với task chung trong aitilen ko thuộc project nào
-        // status cho nhóm projects Aitilen
-        DB::table('project_status')->insert([
-            ['name' => 'Chuẩn bị', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'EyeFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đang triển khai', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đã hoàn thành', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
-            ['name' => 'Hủy/Dừng', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'CloseCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
-        ]);
-        $dangTrienKhai = DB::table('project_status')->where('name', 'Đang triển khai')->where('parent_name', 'aitilen')->first();
-        $project = new Project();
-        $project->name = 'Dự án Aitilen';
-        $project->description = 'Các công việc chung của Aitilen';
-        $project->project_status_id = $dangTrienKhai->id;
-        $project->project_manager = 1;
-        $project->sort_order = 1;
-        $project->create_by = 1;
-        $project->parent_name = 'aitilen';
-        $project->save();
-        // status task chung aitilen
-        $idx = 1;
-        $statusTaskAitilen = [
-            ['name' => 'Chưa xử lý', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 1],
-            ['name' => 'Đang thực hiện', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 1],
-            ['name' => 'Hoàn thành', 'color' => '#fff', 'background' => '#0dc65aff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
-            ['name' => 'Hủy/Dừng', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
-        ];
-        DB::table('task_status')->insert($statusTaskAitilen);
-
         // tạo task demo cho project aitilen
         DB::table('tasks')->truncate();
-        $status = DB::table('task_status')->where('name', 'Chưa xử lý')->where('parent_name', 'aitilen')->first();
+        $status = DB::table('task_status')->where('name', 'Chưa xử lý')->where('parent_name', 'all')->first();
         DB::table('tasks')->insert([
             [
                 'name' => 'Điều tra và tham khảo các làm từ các bên khác về vấn đề VAT',
@@ -159,6 +131,10 @@ class StatusSeeder extends Seeder
             [
                 'name' => 'Mua thùng rác cho nhà 25b. chuyển từ ĐC sang cũng được',
                 'description' => '','project_id' => $project->id,'task_status_id' => $status->id,'nguoi_thuc_hien' => 4,'create_by' => 1,'sort_order' => 1,'parent_name' => 'aitilen',
+            ],
+            [
+                'name' => 'Chụp ảnh phòng 01 và 02 của nhà 127',
+                'description' => '','project_id' => $project->id,'task_status_id' => $status->id,'nguoi_thuc_hien' => 3,'create_by' => 1,'sort_order' => 1,'parent_name' => 'aitilen',
             ],
 
         ]);
@@ -479,20 +455,29 @@ class StatusSeeder extends Seeder
             ['name' => 'Thứ 7', 'sort_order' => 7]
         ]);
 
+        DB::table('nhap_hang_status')->truncate();
         DB::table('nhap_hang_status')->insert([
             ['name' => 'Đã nhập hàng'],
             ['name' => 'Lưu nháp'],
         ]);
 
+        DB::table('countries')->truncate();
         DB::table('countries')->insert([
             ['name' => 'Việt Nam'],
             ['name' => 'Hoa Kỳ'],
             ['name' => 'Trung Quốc'],
         ]);
 
+        DB::table('product_status')->truncate();
         DB::table('product_status')->insert([
             ['name' => 'Hiển thị trên web'],
             ['name' => 'Tạm ẩn'],
+        ]);
+
+        DB::table('user_status')->truncate();
+        DB::table('user_status')->insert([
+            ['name' => 'Đang sử dụng dịch vụ'],
+            ['name' => 'Đã dừng sử dụng dịch vụ'],
         ]);
     }
 }

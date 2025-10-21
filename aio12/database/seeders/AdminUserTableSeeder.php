@@ -75,5 +75,16 @@ class AdminUserTableSeeder extends Seeder
             'chi_nhanh_id' => 1,
             'admin_user_status_id' => 1
         ]);
+        AdminUser::create([
+            'code' => 'NV00005',
+            'username' => 'NgaLB',
+            // 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => '$2y$10$AgayGUGyViJqcEB4eaDGVOWKbjHPNdW4SPuHLAv.GsFzuLLuTwKve', // abcd@1234
+            'name' => 'NgaLB',
+            'email' => 'NgaLB@htvietnam.vn',
+            'permission_group_id' => 1,
+            'chi_nhanh_id' => 1,
+            'admin_user_status_id' => 1
+        ]);
     }
 }
