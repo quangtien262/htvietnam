@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('username')->nullable();
             $table->string('password')->nullable();
             $table->string('code')->nullable();
-            $table->integer('year')->nullable();
             $table->date('ngay_sinh')->nullable();
 
             $table->integer('user_status_id')->nullable();

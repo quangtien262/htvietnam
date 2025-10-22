@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('aitilen_dich_vu', function (Blueprint $table) {
+        Schema::create('aitilen_service', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('code')->nullable();
             $table->integer('price')->nullable();
             $table->integer('price_default')->nullable();
             $table->text('description')->nullable();
+            $table->integer('fix_price_service_id ')->nullable();
 
             MigrateService::createBaseColumn($table);
 
             Table::create([
                 //require
-                'name' => 'aitilen_dich_vu',
+                'name' => 'aitilen_service',
                 'display_name' => 'Dịch vụ',
                 'parent_id' => 0,
                 'sort_order' => 0,
@@ -41,7 +43,7 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'aitilen_dich_vu')->first();
+            $tbl = Table::where('name', 'aitilen_service')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02(
@@ -91,7 +93,6 @@ return new class extends Migration
             );
 
 
-
             MigrateService::baseColumn($tbl);
         });
     }
@@ -101,6 +102,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('aitilen_dich_vu');
+        Schema::dropIfExists('aitilen_service');
     }
 };

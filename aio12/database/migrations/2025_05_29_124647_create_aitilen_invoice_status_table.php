@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hoa_don_tien_phong_status', function (Blueprint $table) {
+        Schema::create('aitilen_invoice_status', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('description')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
 
             Table::create([
                 //require
-                'name' => 'hoa_don_tien_phong_status',
+                'name' => 'aitilen_invoice_status',
                 'display_name' => 'Trạng thái hóa đơn',
                 'parent_id' => 0,
                 'sort_order' => 0,
@@ -44,7 +44,7 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'hoa_don_tien_phong_status')->first();
+            $tbl = Table::where('name', 'aitilen_invoice_status')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++,
@@ -72,6 +72,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hoa_don_tien_phong_status');
+        Schema::dropIfExists('aitilen_invoice_status');
     }
 };

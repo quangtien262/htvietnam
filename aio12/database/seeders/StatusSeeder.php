@@ -479,5 +479,25 @@ class StatusSeeder extends Seeder
             ['name' => 'Đang sử dụng dịch vụ'],
             ['name' => 'Đã dừng sử dụng dịch vụ'],
         ]);
+
+        // DB::table('aitilen_service')->truncate();
+        // DB::table('aitilen_service')->insert([
+        //     ['id' => 1, 'name' => 'Nước', 'code' => 'NUOC'],
+        //     ['id' => 2, 'name' => 'Điện chung 02', 'code' => 'DIENCHUNG02'],
+        //     ['id' => 3, 'name' => 'Mạng Internet', 'code' => 'INTERNET'],
+        //     ['id' => 4, 'name' => 'Vệ sinh chung', 'code' => 'VESINHCHUNG'],
+        //     ['id' => 5, 'name' => 'Quản lý chung', 'code' => 'QUANLYCHUNG'],
+        //     ['id' => 6, 'name' => 'Máy giặt', 'code' => 'MAGIAT'],
+        //     ['id' => 9, 'name' => 'Thang máy', 'code' => 'THANGMAI'],
+        //     ['id' => 10, 'name' => 'Gửi xe', 'code' => 'GUIXE'],
+        //     ['id' => 11, 'name' => 'Tủ lạnh', 'code' => 'TULANH'],
+        //     ['id' => 12, 'name' => 'Tủ lạnh', 'code' => 'TULANH'],
+        //     ['id' => 16, 'name' => 'Điện chung', 'code' => 'DICHVUCHUNG'],
+        //     ['id' => 20, 'name' => 'Dịch vụ chung', 'code' => 'DICHVUCHUNG'],
+        //     ['id' => 21, 'name' => 'Xe đạp điện', 'code' => 'XEDAPDIEN'],
+        //     ['id' => 22, 'name' => 'Dịch vụ chung 300k', 'code' => 'DICHVUCHUNG300K'],
+        //     ['id' => 25, 'name' => 'Vệ sinh', 'code' => 'VESINH'],
+        //     ['id' => 26, 'name' => 'Internet', 'code' => 'INTERNET02'],
+        // ]);
     }
 }

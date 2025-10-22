@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hop_dong_dich_vu', function (Blueprint $table) {
+        Schema::create('contract_service', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
             $table->text('hop_dong_id')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
 
             Table::create([
                 //require
-                'name' => 'hop_dong_dich_vu',
+                'name' => 'contract_service',
                 'display_name' => 'Dịch vụ',
                 'parent_id' => 0,
                 'sort_order' => 0,
@@ -42,7 +42,7 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'hop_dong_dich_vu')->first();
+            $tbl = Table::where('name', 'contract_service')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
@@ -61,6 +61,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hop_dong_dich_vu');
+        Schema::dropIfExists('contract_service');
     }
 };
