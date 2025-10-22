@@ -284,14 +284,16 @@ class SyncHopDong extends Command
             if (count($row) !== count($header)) {
                 continue;
             }
+            $data = array_combine($header, $row);
+            if (!$this->isValidVietnamPhone($data['phone'])) {
+                continue;
+            }
             try {
-                $data = array_combine($header, $row);
                 // dd($data);
                 // Insert vào bảng room (map đúng tên cột)
                 // if ($data['active'] == False) {
                 //     continue;
                 // }
-
                 $dataInsert = [
                     'id' => $data['id'],
                     'name'  => $data['name'] ?? '',
@@ -341,5 +343,16 @@ class SyncHopDong extends Command
         $text = trim(str_replace('--', '', $text));
         // Loại bỏ khoảng trắng thừa
         return trim($text);
+    }
+
+    private function isValidVietnamPhone($phone)
+    {
+        // Chuẩn hóa: bỏ khoảng trắng, dấu +84 về 0
+        $phone = preg_replace('/\s+/', '', $phone);
+        if (strpos($phone, '+84') === 0) {
+            $phone = '0' . substr($phone, 3);
+        }
+        // Regex: bắt đầu bằng 0, tiếp theo là 9 hoặc 10 số
+        return preg_match('/^0[1-9][0-9]{8,9}$/', $phone);
     }
 }
