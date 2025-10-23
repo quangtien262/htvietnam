@@ -16,14 +16,13 @@ return new class extends Migration
         Schema::create('aitilen_invoice_service', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('description')->nullable();
-            $table->string('color')->default('#ffffff')->nullable();
-            $table->string('parent_name')->nullable();
-            $table->string('project_id')->nullable();
-            $table->string('background')->default('#64748b')->nullable();
-            $table->string('icon')->default('CaretRightOutlined')->nullable();
-            $table->integer('is_active')->default(1)->nullable();
-            $table->integer('is_default')->default(1)->nullable();
+            $table->integer('invoice_id')->nullable();
+            $table->integer('service_id')->nullable();
+            $table->integer('price')->nullable();
+            $table->string('per')->nullable();
+            $table->string('so_nguoi')->nullable();
+            $table->string('total')->nullable();
+
             MigrateService::createBaseColumn($table);
 
             Table::create([

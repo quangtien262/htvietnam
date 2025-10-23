@@ -6,8 +6,8 @@ export const DATE_TIME_SHOW = "HH:mm:ss DD/MM/YYYY";
 
 export const CHAM_CONG_DEFAULT = {checkin_h: '08',checkin_m: '30',checkout_h: '17',checkout_m: '30',note: '',type: 1,kpi: 0};
 
-export const TITLE =  { 
-    tasks: "QUẢN LÝ CÔNG VIỆC", 
+export const TITLE =  {
+    tasks: "QUẢN LÝ CÔNG VIỆC",
     projects: "QUẢN LÝ DỰ ÁN",
     all: "CÔNG VIỆC CHUNG",
     sale: "QUẢN LÝ BÁN HÀNG",
@@ -82,3 +82,11 @@ export const LOAI_CHUNG_TU = {
     product_khach_tra_hang: 'Khách trả hàng',
     product_tra_hang_ncc: 'Trả hàng NCC',
 };
+
+export const DON_VI_SERVICE = [
+    { value: "Phòng", label: "Phòng" },
+    { value: "Người", label: "Người" },
+    { value: "kWh", label: "kWh" },
+    { value: "m3", label: "m3" },
+    { value: "Xe", label: "Xe" },
+];

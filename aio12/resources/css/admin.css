@@ -1057,7 +1057,7 @@ table.table-salary {
 }
 
 table.table-salary th {
-    background-color: #ece8e8;
+    background-color: #d3e9ef;
     line-height: 30px;
 }
 
@@ -1258,4 +1258,10 @@ table.table05 tr th{
 }
 .text-normal {
     text-transform: none;
+}
+.text-left {
+    text-align: left;
+}
+.text-right {
+    text-align: right;
 }

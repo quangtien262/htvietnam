@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Admin\AutoGenService;
+use App\Services\Admin\TblService;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +38,8 @@ class SyncHopDong extends Command
         $this->info('Start import số điện nước..');
         $this->dienNuocSync();
 
-        $this->info('Start import service..');
-        $this->serviceSync();
+        // $this->info('Start import service..');
+        // $this->serviceSync();
 
         $this->info('Start import user..');
         $this->userSync();
@@ -60,6 +61,7 @@ class SyncHopDong extends Command
 
             try {
                 DB::table('contract')->insert([
+                    'contract_status_id'   => 1,
                     'id'   => $row[0] ?? null,
                     'name'   => $row[2] ?? null,
                     'code' => $row[1] ?? null,
@@ -92,7 +94,7 @@ class SyncHopDong extends Command
                     'updated_at'    => now(),
                 ]);
             } catch (\Throwable $th) {
-                dd($row);
+
             }
         }
 
@@ -118,6 +120,7 @@ class SyncHopDong extends Command
                     'id' => $data['id'],
                     'apartment_id' => $data['house_id'] ?? null,
                     'name'  => $data['room_number'] ?? null,
+                    'room_status_id'  => 1,
                 ]);
             } catch (\Throwable $th) {
                 $dataError[] = [
@@ -171,7 +174,6 @@ class SyncHopDong extends Command
             }
         }
         if (!empty($dataError)) {
-
             $this->error('OKKKK');
         } else {
             $this->info('Đã import xong room!');
@@ -191,13 +193,11 @@ class SyncHopDong extends Command
         foreach (array_slice($rows, 1) as $row) {
             try {
                 $data = array_combine($header, $row);
-                // dd($data);
                 // Insert vào bảng room (map đúng tên cột)
                 $dataInsert = [
                     'id' => $data['id'],
                     'name'  => $data['name'] ?? '',
                     'price_default'  => $data['price'] ?? 0,
-                    'fix_price_service_id'  => $data['price'] ?? 0,
                 ];
 
                 DB::table('aitilen_service')->insert($dataInsert);
@@ -219,57 +219,6 @@ class SyncHopDong extends Command
 
     private function userSync()
     {
-        DB::table('contract')->truncate();
-        $excelFilePath = storage_path('app/public/migrate/hopdong.xlsx');
-
-        // Đọc file excel
-        $rows = Excel::toArray([], $excelFilePath);
-
-        // $rows[0] là sheet đầu tiên, mỗi phần tử là 1 dòng (array)
-        $sheet = $rows[0];
-        // Giả sử dòng đầu là header, bắt đầu từ dòng thứ 2
-        foreach ($sheet as $index => $row) {
-            if ($index === 0) continue; // bỏ header
-
-            try {
-                DB::table('contract')->insert([
-                    'id'   => $row[0] ?? null,
-                    'name'   => $row[2] ?? null,
-                    'code' => $row[1] ?? null,
-                    'room_id' => $row[4] ?? null,
-                    'apartment_id' => $row[3] ?? null,
-                    'user_id' => $row[5] ?? null,
-
-                    'ho_ten' => $row[6] ?? '',
-                    'phone' => $row[9] ?? '',
-                    'email' => $row[7] ?? '',
-                    'cccd' => $row[10] ?? '',
-                    'ngay_cap' => $this->excelDateToDate($row[12] ?? null),
-                    'noi_cap' => $row[11] ?? null,
-                    'dob' => $this->excelDateToDate($row[8] ?? null),
-                    'hktt' => $row[13] ?? '',
-
-                    'ngay_ky' => $this->excelDateToDate($row[15] ?? null),
-                    'ngay_bat_dau' => $this->excelDateToDate($row[15] ?? null),
-                    'ngay_ket_thuc' => $this->excelDateToDate($row[16] ?? null),
-                    'gia_thue' => $row[18] ?? '',
-                    'tien_coc' => $row[17] ?? '',
-                    'ky_thanh_toan' => $row[19] ?? 1,
-                    'so_luong' => $row[14] ?? '',
-                    'ngay_thanh_toan' => $row[20] ?? '',
-
-                    'phi_moi_gioi' => $row[21] ?? '',
-                    'phi_quan_ly' => $row[22] ?? '',
-
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
-            } catch (\Throwable $th) {
-                dd($row);
-            }
-        }
-
-
         DB::table('users')->truncate();
         $csv = storage_path('app/public/migrate/res_partner.csv');
         $dataError = [];
@@ -279,23 +228,24 @@ class SyncHopDong extends Command
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
 
         $password = bcrypt('abc123');
+        $phoneError = [];
         foreach (array_slice($rows, 1) as $row) {
             // Bỏ qua dòng không đủ cột
             if (count($row) !== count($header)) {
                 continue;
             }
             $data = array_combine($header, $row);
+
             if (!$this->isValidVietnamPhone($data['phone'])) {
+                $phoneError[] = $data['phone'];
                 continue;
             }
+
             try {
-                // dd($data);
-                // Insert vào bảng room (map đúng tên cột)
-                // if ($data['active'] == False) {
-                //     continue;
-                // }
+                $code = 'KH' . TblService::formatNumberByLength($data['id'], 5);
                 $dataInsert = [
                     'id' => $data['id'],
+                    'code'  => $code,
                     'name'  => $data['name'] ?? '',
                     'username'  => $data['phone'] ?? null,
                     'password'  => $password,
@@ -311,20 +261,10 @@ class SyncHopDong extends Command
 
                 DB::table('users')->insert($dataInsert);
             } catch (\Throwable $th) {
-                $dataError[] = [
-                    'id' => $data['id'],
-                    'name'  => $data['room_number'] ?? null,
-                    'room_id'  => $data['room_id'] ?? null,
-                ];
-                // throw $th;
+
             }
         }
-        if (!empty($dataError)) {
-            // dd($dataError);
-            $this->error('OKKKK');
-        } else {
-            $this->info('Đã import xong room!');
-        }
+        $this->info('Đã import xong room!');
     }
 
     private function excelDateToDate($excelDate)
@@ -335,15 +275,6 @@ class SyncHopDong extends Command
         return $excelDate;
     }
 
-    private function extractNameFromSignature($html)
-    {
-        // Loại bỏ thẻ <p> và <br>
-        $text = strip_tags($html);
-        // Loại bỏ dấu -- nếu có
-        $text = trim(str_replace('--', '', $text));
-        // Loại bỏ khoảng trắng thừa
-        return trim($text);
-    }
 
     private function isValidVietnamPhone($phone)
     {

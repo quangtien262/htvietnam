@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->date('ngay_sinh')->nullable();
 
+
+            $table->text('cccd_front')->nullable();
+            $table->text('cccd_back')->nullable();
+
             $table->integer('user_status_id')->nullable();
 
             // thẻ vip

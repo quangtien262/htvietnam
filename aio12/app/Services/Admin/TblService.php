@@ -2143,7 +2143,6 @@ class TblService extends Service
             }
         }
         $datas = $datas->get();
-
         $result = [];
         foreach ($datas as $data) {
             $result[$data->id] = $data;

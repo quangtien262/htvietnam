@@ -456,3 +456,7 @@ Route::group(['prefix' => 'calendar'], function () {
     Route::post('update', [CalendarController::class, 'updateCalendar'])->name('calendar.update');
 });
 
+Route::group(['prefix' => 'aitilen'], function () {
+    Route::get('invoice', [AitilenController::class, 'invoiceList'])->name('aitilen.invoice');
+    Route::post('invoice/update', [AitilenController::class, 'updateInvoice'])->name('aitilen.invoice.update');
+});

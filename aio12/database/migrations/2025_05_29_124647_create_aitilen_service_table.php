@@ -17,10 +17,12 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('code')->nullable();
-            $table->integer('price')->nullable();
             $table->integer('price_default')->nullable();
+            $table->integer('price_total')->nullable(); // để tính tổng tiền dv tương ứng
+            $table->string('per_default')->nullable(); // Phòng/Người/Số/Khối
             $table->text('description')->nullable();
-            $table->integer('fix_price_service_id ')->nullable();
+            $table->integer('is_contract_default')->default(0)->nullable();
+            $table->integer('is_invoice_default')->default(0)->nullable();
 
             MigrateService::createBaseColumn($table);
 

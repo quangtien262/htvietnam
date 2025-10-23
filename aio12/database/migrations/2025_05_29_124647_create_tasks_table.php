@@ -39,6 +39,9 @@ return new class extends Migration
             $table->integer('is_weekly')->default(0)->nullable();
             $table->integer('is_monthly')->default(0)->nullable();
 
+            $table->integer('apartment_id')->default(null)->nullable();
+            $table->integer('room_id')->default(null)->nullable();
+
             MigrateService::createBaseColumn($table);
 
             Table::create([
@@ -73,18 +76,18 @@ return new class extends Migration
             MigrateService::createColumn02($tableId, 'project_id', 'Dự án', 'VARCHAR', 'number', $order_col++, ['show_in_list' => 1]);
 
             $status = Table::where('name', 'task_status')->first();
-            MigrateService::createColumn02($tableId, 'task_status_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+            MigrateService::createColumn02($tableId, 'task_status_id', 'Trạng thái', 'INT', 'select', $order_col++,
             ['show_in_list' => 1, 'select_table_id' => $status->id]);
 
             $adminUsers = Table::where('name', 'admin_users')->first();
             MigrateService::createColumn02($tableId, 'nguoi_thuc_hien', 'Người thực hiện', 'INT', 'select', $order_col++, ['show_in_list' => 1, 'select_table_id' => $adminUsers->id]);
             MigrateService::createColumn02($tableId, 'nguoi_theo_doi', 'Người làm cùng', 'TEXT', 'selects', $order_col++, ['show_in_list' => 1, 'select_table_id' => $adminUsers->id]);
 
-            MigrateService::createColumn02($tableId, 'start', 'Ngày bắt đầu', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            MigrateService::createColumn02($tableId, 'start', 'Ngày bắt đầu', 'DATE', config('constant.config_table.type_edit.date'), $order_col++,
             ['show_in_list' => 1]);
-            MigrateService::createColumn02($tableId, 'end', 'Ngày kết thúc', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            MigrateService::createColumn02($tableId, 'end', 'Ngày kết thúc', 'DATE', config('constant.config_table.type_edit.date'), $order_col++,
             ['show_in_list' => 1]);
-            MigrateService::createColumn02($tableId, 'actual', 'Ngày hoàn thành thực tế', 'DATE', config('constant.config_table.type_edit.date'), $order_col++, 
+            MigrateService::createColumn02($tableId, 'actual', 'Ngày hoàn thành thực tế', 'DATE', config('constant.config_table.type_edit.date'), $order_col++,
             ['show_in_list' => 1]);
             MigrateService::createColumn02($tableId, 'tags', 'Tags', 'TEXT', 'number', $order_col++, ['show_in_list' => 1]);
 
@@ -94,7 +97,7 @@ return new class extends Migration
 
 
             MigrateService::baseColumn($tbl);
-            
+
         });
     }
 

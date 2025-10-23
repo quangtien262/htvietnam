@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
 
             $table->text('name')->nullable();
-            $table->text('code')->nullable();
-            $table->text('aitilen_dich_vu_id')->nullable();
+            $table->string('code')->nullable();
+            $table->integer('aitilen_dich_vu_id')->nullable();
             $table->integer('room_id')->nullable(); // nv thực hiện
-            $table->text('apartment_id')->nullable(); // // json người theo dõi hoặc làm cùng
-
+            $table->integer('apartment_id')->nullable(); // // json người theo dõi hoặc làm cùng
+            $table->integer('contract_status_id')->nullable();
             // info
             $table->date('ngay_ky')->nullable();
             $table->date('ngay_bat_dau')->nullable();

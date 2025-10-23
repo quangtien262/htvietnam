@@ -99,7 +99,7 @@ class ProductController extends Controller
             'p' => $request->p ?? 0,
         ];
 
-        return Inertia::render('admin/Product/list', $viewData);
+        return Inertia::render('Admin/Product/list', $viewData);
     }
 
     public function createOrUpdate(Request $request, $pid = 0)
@@ -248,7 +248,7 @@ class ProductController extends Controller
             'token' => csrf_token(),
             'p' => $request->p ?? 0,
         ];
-        return Inertia::render('admin/Product/form', $viewData);
+        return Inertia::render('Admin/Product/form', $viewData);
     }
 
     private function getTonKhoDetail($productId)
@@ -428,7 +428,7 @@ class ProductController extends Controller
     public function kiemKho(Request $request)
     {
         $viewData = TblService::getDataIndexDefault('product_kiem_kho', $request, true, true);
-        return Inertia::render('admin/Product/kiem_kho', $viewData);
+        return Inertia::render('Admin/Product/kiem_kho', $viewData);
     }
 
     public function saveKiemKho(Request $rq)
@@ -553,7 +553,7 @@ class ProductController extends Controller
 
         $viewData = TblService::getDataIndexDefault('product_khach_tra_hang', $request, true, true);
 
-        return Inertia::render('admin/Product/khach_tra_hang', $viewData);
+        return Inertia::render('Admin/Product/khach_tra_hang', $viewData);
     }
 
     public function saveKhachTraHang(Request $rq)
@@ -769,7 +769,7 @@ class ProductController extends Controller
     {
         $viewData = TblService::getDataIndexDefault('product_tra_hang_ncc', $request, true, true);
         $viewData['p'] = $request->p ?? 0;
-        return Inertia::render('admin/Product/tra_hang_ncc', $viewData);
+        return Inertia::render('Admin/Product/tra_hang_ncc', $viewData);
     }
 
     public function saveTraHangNCC(Request $rq)
@@ -966,7 +966,7 @@ class ProductController extends Controller
     {
         $viewData = TblService::getDataIndexDefault('product_nhap_hang', $request, true, true);
         $viewData['p'] = $request->p ?? 0;
-        return Inertia::render('admin/Product/nhap_hang', $viewData);
+        return Inertia::render('Admin/Product/nhap_hang', $viewData);
     }
 
     public function saveNhapHang(Request $rq)
@@ -1147,7 +1147,7 @@ class ProductController extends Controller
     {
         $viewData = TblService::getDataIndexDefault('product_xuat_huy', $request, true, true);
         $viewData['p'] = $request->p ?? 0;
-        return Inertia::render('admin/Product/xuat_huy', $viewData);
+        return Inertia::render('Admin/Product/xuat_huy', $viewData);
     }
 
     public function saveXuatHuy(Request $rq)

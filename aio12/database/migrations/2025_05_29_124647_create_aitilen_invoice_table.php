@@ -18,12 +18,11 @@ return new class extends Migration
 
             $table->text('name')->nullable();
             $table->text('code')->nullable();
-            $table->text('aitilen_dich_vu_id')->nullable();
             $table->integer('room_id')->nullable();
             $table->text('apartment_id')->nullable();
             $table->text('user_id')->nullable();
             $table->text('aitilen_invoice_status_id')->nullable();
-            $table->text('hop_dong_id')->nullable();
+            $table->text('contract_id')->nullable();
             $table->integer('is_active')->default(0)->nullable();
             $table->text('note')->nullable();
 
@@ -31,17 +30,21 @@ return new class extends Migration
             $table->integer('tien_phong')->default(0)->nullable();
             $table->integer('tien_coc')->default(0)->nullable();
             $table->integer('tra_coc')->default(0)->nullable();
-            $table->integer('tien_dien')->default(0)->nullable();
-            $table->integer('tien_nuoc')->default(0)->nullable();
-            $table->integer('tien_vs')->default(0)->nullable();
-            $table->integer('tien_mang')->default(0)->nullable();
-            $table->integer('dien_chung')->default(0)->nullable();
-            $table->integer('nong_lanh')->default(0)->nullable();
-            $table->integer('xe_dap_dien')->default(0)->nullable();
-            $table->integer('tu_lanh')->default(0)->nullable();
-            $table->integer('thang_may')->default(0)->nullable();
-            $table->integer('quan_ly_chung')->default(0)->nullable();
-            $table->integer('ho_tro_gui_xe')->default(0)->nullable();
+
+            $table->text('services')->nullable(); // json dịch vụ
+
+
+            // $table->integer('tien_dien')->default(0)->nullable();
+            // $table->integer('tien_nuoc')->default(0)->nullable();
+            // $table->integer('tien_vs')->default(0)->nullable();
+            // $table->integer('tien_mang')->default(0)->nullable();
+            // $table->integer('dien_chung')->default(0)->nullable();
+            // $table->integer('nong_lanh')->default(0)->nullable();
+            // $table->integer('xe_dap_dien')->default(0)->nullable();
+            // $table->integer('tu_lanh')->default(0)->nullable();
+            // $table->integer('thang_may')->default(0)->nullable();
+            // $table->integer('quan_ly_chung')->default(0)->nullable();
+            // $table->integer('ho_tro_gui_xe')->default(0)->nullable();
 
             $table->integer('phi_bao_tri')->default(0)->nullable();
 
@@ -70,9 +73,10 @@ return new class extends Migration
             $table->integer('month')->default(0)->nullable();
             $table->integer('year')->default(0)->nullable();
 
-
-            $table->integer('so_luong')->default(0)->nullable();
             $table->date('ngay_hen_dong_tien')->nullable();
+
+            $table->integer('so_ngay_thue')->nullable();
+            $table->integer('so_nguoi')->nullable();
 
 
             //

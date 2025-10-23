@@ -617,7 +617,7 @@ div.ant-menu-submenu-popup ul.ant-menu-sub {
     padding: 14px;
 }
 .ant-picker{
-    
+
     padding: 0 10px 0 10px;
 }
 .th-log {
@@ -840,7 +840,7 @@ table.sub-table tr th{
 }
 .text-right {
     text-align: right;
-} 
+}
 .main-menu-header {
     float: right;
     margin-top: 12px;
@@ -909,7 +909,7 @@ table.table-salary {
     text-align: center;
 }
 table.table-salary th {
-    background-color: #ece8e8;
+    background-color: #d3e9ef;
     line-height: 30px;
 }
 table.table-salary tr td input {
@@ -935,7 +935,7 @@ tr.border-none td{
     font-weight: bold;
 }
 .form-item02 .ant-select {
-    width: 100% !important; 
+    width: 100% !important;
 }
 .ant-form-item-control-input-content textarea {
     height: 33px;
@@ -943,7 +943,7 @@ tr.border-none td{
 table.tbl-popup-confirm {
     width: 100%;
 }
-table.tbl-popup-confirm tr td{ 
+table.tbl-popup-confirm tr td{
     padding:7px 5px;
     border-bottom: 1px #ccc dashed;
 }
@@ -1023,7 +1023,7 @@ tr.tr-border td{
 .main-menu-header-letf {
     float: left;
 }
-ul.menu-header li:first-child{  
+ul.menu-header li:first-child{
     background-color: #fff;
     padding-left: 0px;
 }

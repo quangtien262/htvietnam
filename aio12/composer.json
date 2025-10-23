@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "4.x-dev",
         "spatie/laravel-medialibrary": "^11.14",
+        "thiagoalessio/tesseract_ocr": "^2.13",
         "tightenco/ziggy": "^2.4",
         "unisharp/laravel-filemanager": "^2.11"
     },

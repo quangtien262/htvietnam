@@ -22,7 +22,7 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function index()
+public function index()
     {
         $config = WebConfig::query()->find(1);
         $user = Auth::guard('web')->user();
@@ -137,5 +137,13 @@ class UserController extends Controller
             } catch (\Exception $e) {
             }
         }
+    }
+
+    function logout(Request $request)
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('home');
     }
 }

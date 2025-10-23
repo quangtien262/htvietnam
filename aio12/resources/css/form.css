@@ -106,7 +106,7 @@ table.table-customer tr td {
     border-left: 0px;
 }
 table.table-customer tr td:first-child {
-    
+
 }
 table.table-customer tr:last-child td {
     border-bottom: 1px solid #ccc !important;
@@ -352,7 +352,7 @@ table.table-normal-02 tr td input {
 }
 table.table-salary tr td{
     border-bottom: 1px #ccc dashed;
-} 
+}
 table.table-salary tr td .ant-form-item {
     margin-bottom: 10px;
 }
@@ -435,4 +435,11 @@ tr.ant-table-expanded-row {
 .ant-upload-list-item-image {
     min-height: 80px;
     min-width: 80px;
+}
+.form-item01 {
+    width: 100%;
+    height: 33px;
+}
+.form-item02 {
+    height: 33px;
 }

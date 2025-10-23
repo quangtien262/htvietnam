@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('room_status', function (Blueprint $table) {
+        Schema::create('contract_status', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('description')->nullable();
             $table->string('color')->default('#ffffff')->nullable();
+            $table->string('parent_name')->nullable();
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
@@ -26,8 +27,8 @@ return new class extends Migration
 
             Table::create([
                 //require
-                'name' => 'aitilen_invoice_status',
-                'display_name' => 'Trạng thái hóa đơn',
+                'name' => 'contract_status',
+                'display_name' => 'Trạng thái công việc',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),
@@ -42,7 +43,7 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'aitilen_invoice_status')->first();
+            $tbl = Table::where('name', 'contract_status')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02(
@@ -119,6 +120,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('room_status');
+        Schema::dropIfExists('contract_status');
     }
 };

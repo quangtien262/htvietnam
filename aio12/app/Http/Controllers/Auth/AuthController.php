@@ -12,6 +12,7 @@ use App\Services\Admin\TblService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
+use thiagoalessio\TesseractOCR\TesseractOCR;
 
 class AuthController extends Controller
 {
@@ -114,37 +115,151 @@ class AuthController extends Controller
      */
     public function postRegister_api(Request $request)
     {
-        // check exist email or username or phone
-        $existUser = User::where('email', $request->email)
-            ->orWhere('username', $request->username)
+        // Kiểm tra trùng email, username, phone
+        $existUser = User::where('username', $request->username)
             ->orWhere('phone', $request->phone)
             ->first();
         if ($existUser) {
-            return $this->sendErrorResponse('Email hoặc số điện thoại đã được đăng ký', []);
+            return $this->sendErrorResponse('Số điện thoại đã được đăng ký', []);
         }
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->username;
-        $user->username = $request->username;
-        $user->password = bcrypt($request->password);
-
-        $user->cccd = $request->cccd;
-        $user->ngay_cap = $request->ngay_cap;
-        $user->noi_cap = $request->noi_cap;
-        $user->hktt = $request->hktt;
-        $user->user_type = env('USER_TYPE', 'Aitilen');
-
-        $user->save();
-        if (Auth::guard('web')->attempt($request->only('email', 'password'), true)) {
-            try {
-                event(new Registered($user));
-            } catch (\Throwable $th) {
-                //throw $th;
+        // Trường hợp đăng ký bằng ảnh CCCD
+        if ($request->input_method === 'camera') {
+            if (!$request->hasFile('cccd_front') || !$request->hasFile('cccd_back')) {
+                return $this->sendErrorResponse('Vui lòng upload đủ 2 mặt ảnh CCCD', []);
             }
+
+            // Lưu file ảnh
+            $frontPath = $request->file('cccd_front')->store('cccd', 'public');
+            $backPath = $request->file('cccd_back')->store('cccd', 'public');
+            // Kiểm tra file tồn tại và lấy realpath (Windows cần chuyển \ -> /)
+            $frontFull = 'files/' . $frontPath;
+            $backFull  = 'files/' . $backPath;
+
+            if (!file_exists($frontFull) || !file_exists($backFull)) {
+                return $this->sendErrorResponse('File ảnh CCCD không tìm thấy trên server', []);
+            }
+
+            $frontReal = realpath($frontFull);
+            $backReal  = realpath($backFull);
+            // đảm bảo dùng dấu / để tránh một số kiểm tra của thư viện
+            $frontReal = str_replace('\\', '/', $frontReal);
+            $backReal  = str_replace('\\', '/', $backReal);
+
+            // Kiểm tra Tesseract có cài trên hệ thống
+            exec('tesseract --version', $tOut, $tRet);
+            if ($tRet !== 0) {
+                return $this->sendErrorResponse('Tesseract OCR chưa được cài hoặc không khả dụng trên server', []);
+            }
+
+            // Đọc thông tin từ ảnh CCCD bằng Tesseract OCR
+            $frontText = (new TesseractOCR($frontReal))->lang('vie')->run();
+            $backText  = (new TesseractOCR($backReal))->lang('vie')->run();
+            // echo $frontText;
+            // echo $backText;
+            // die;
+            $noi_cap = '';
+            if (preg_match('/Nơi cấp[:\- ]*(.+)/i', $backText, $matches)) {
+                $noi_cap = trim($matches[1]);
+            }
+
+            // Số CCCD
+            $cccd = '';
+            if (preg_match('/(?:ms|ss)[:\s]*([0-9]{9,12})/i', $frontText, $matches)) {
+                $cccd = $matches[1];
+            }
+            if (!$cccd && preg_match('/\b[0-9]{9,12}\b/', $frontText, $matches)) {
+                $cccd = $matches[0];
+            }
+
+            // Họ tên
+            $hoTen = '';
+            if (preg_match('/Họ và tên\s*\/\s*Full name:\s*([^\n]+)/iu', $frontText, $matches)) {
+                $hoTen = trim($matches[1]);
+            } elseif (preg_match('/Full name:\s*([^\n]+)/iu', $frontText, $matches)) {
+                $hoTen = trim($matches[1]);
+            }
+
+            // Ngày sinh
+            $ngaySinh = '';
+            if (preg_match('/Ngày sinh\s*\/\s*Dafe of birth:\s*(\d{2}\/\d{2}\/\d{4})/iu', $frontText, $matches)) {
+                $ngaySinh = $matches[1];
+            } elseif (preg_match('/Date of birth:\s*(\d{2}\/\d{2}\/\d{4})/iu', $frontText, $matches)) {
+                $ngaySinh = $matches[1];
+            }
+
+            // Nơi thường trú
+            $hktt = '';
+            if (preg_match('/Nơi thường trú\s*\/\s*Place of residence:\s*([^\n<]+)/iu', $frontText, $matches)) {
+                $hktt = trim($matches[1]);
+            } elseif (preg_match('/Place of residence:\s*([^\n<]+)/iu', $frontText, $matches)) {
+                $hktt = trim($matches[1]);
+            }
+
+            $ngay_cap = '';
+            if (preg_match('/Ngày cấp\s*[:\- ]*(\d{2}\/\d{2}\/\d{4})/iu', $backText, $matches)) {
+                $ngay_cap = $matches[1];
+            } elseif (preg_match('/Date of issue\s*[:\- ]*(\d{2}\/\d{2}\/\d{4})/iu', $backText, $matches)) {
+                $ngay_cap = $matches[1];
+            }
+
+            $hoTen = '';
+            if (preg_match('/Họ và tên\s*\/\s*Full name:\s*:?\s*([A-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯẠ-ỹ\s]+)\s*[\n\r]/iu', $frontText, $matches)) {
+                $hoTen = trim($matches[1]);
+            } elseif (preg_match('/Full name:\s*:?\s*([A-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯẠ-ỹ\s]+)\s*[\n\r]/iu', $frontText, $matches)) {
+                $hoTen = trim($matches[1]);
+            }
+
+            $user = new User();
+            $user->username = $request->username;
+            $user->phone = $request->username;
+            $user->password = bcrypt($request->password);
+            $user->user_type = env('USER_TYPE', 'Aitilen');
+            $user->cccd_front = $frontPath;
+            $user->cccd_back = $backPath;
+            $user->cccd = $cccd;
+            $user->name = $hoTen;
+
+            // Xử lý ngày cấp
+            if ($ngay_cap && preg_match('/\d{2}\/\d{2}\/\d{4}/', $ngay_cap)) {
+                $parts = explode('/', $ngay_cap);
+                $user->ngay_cap = $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+            } else {
+                $user->ngay_cap = null;
+            }
+
+            $user->noi_cap = $noi_cap;
+            $user->hktt = $hktt;
+            $user->save();
+
+            Auth::guard('web')->login($user);
+
+            return $this->sendSuccessResponse(['user' => $user], 'Đăng ký thành công bằng CCCD');
         }
-        return $this->sendSuccessResponse(['user' => $user], 'Đăng ký thành công');
+
+        // Trường hợp nhập thủ công
+        if ($request->input_method === 'manual') {
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone = $request->username;
+            $user->username = $request->username;
+            $user->password = bcrypt($request->password);
+
+            $user->cccd = $request->cccd;
+            $user->ngay_cap = $request->ngay_cap;
+            $user->noi_cap = $request->noi_cap;
+            $user->hktt = $request->hktt;
+            $user->user_type = env('USER_TYPE', 'Aitilen');
+
+            $user->save();
+
+            Auth::guard('web')->login($user);
+
+            return $this->sendSuccessResponse(['user' => $user], 'Đăng ký thành công');
+        }
+
+        return $this->sendErrorResponse('Vui lòng chọn phương thức đăng ký hợp lệ', []);
     }
 
     public function logout()

@@ -126,17 +126,53 @@ class StatusSeeder extends Seeder
             [
                 'name' => 'Điều tra và tham khảo các làm từ các bên khác về vấn đề VAT',
                 'description' => 'Tham khảo bên tingtong hoặc 1 vài bên khác xem nếu mình thuê cho nv công ty thì vấn đề VAT, thuế họ tính thế nào?',
-                'project_id' => $project->id,'task_status_id' => $status->id,'nguoi_thuc_hien' => 3,'create_by' => 1,'sort_order' => 1,'parent_name' => 'aitilen',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 3,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
             ],
             [
                 'name' => 'Mua thùng rác cho nhà 25b. chuyển từ ĐC sang cũng được',
-                'description' => '','project_id' => $project->id,'task_status_id' => $status->id,'nguoi_thuc_hien' => 4,'create_by' => 1,'sort_order' => 1,'parent_name' => 'aitilen',
+                'description' => '',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 4,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
             ],
             [
                 'name' => 'Chụp ảnh phòng 01 và 02 của nhà 127',
-                'description' => '','project_id' => $project->id,'task_status_id' => $status->id,'nguoi_thuc_hien' => 3,'create_by' => 1,'sort_order' => 1,'parent_name' => 'aitilen',
+                'description' => '',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 3,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
             ],
-
+            [
+                'name' => 'Ký hợp đồng với khách nhà 25B',
+                'description' => '',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 3,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
+            ],
+            [
+                'name' => 'Lắp camera cho nhà 40',
+                'description' => '',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 3,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
+            ],
         ]);
 
 
@@ -480,24 +516,44 @@ class StatusSeeder extends Seeder
             ['name' => 'Đã dừng sử dụng dịch vụ'],
         ]);
 
-        // DB::table('aitilen_service')->truncate();
-        // DB::table('aitilen_service')->insert([
-        //     ['id' => 1, 'name' => 'Nước', 'code' => 'NUOC'],
-        //     ['id' => 2, 'name' => 'Điện chung 02', 'code' => 'DIENCHUNG02'],
-        //     ['id' => 3, 'name' => 'Mạng Internet', 'code' => 'INTERNET'],
-        //     ['id' => 4, 'name' => 'Vệ sinh chung', 'code' => 'VESINHCHUNG'],
-        //     ['id' => 5, 'name' => 'Quản lý chung', 'code' => 'QUANLYCHUNG'],
-        //     ['id' => 6, 'name' => 'Máy giặt', 'code' => 'MAGIAT'],
-        //     ['id' => 9, 'name' => 'Thang máy', 'code' => 'THANGMAI'],
-        //     ['id' => 10, 'name' => 'Gửi xe', 'code' => 'GUIXE'],
-        //     ['id' => 11, 'name' => 'Tủ lạnh', 'code' => 'TULANH'],
-        //     ['id' => 12, 'name' => 'Tủ lạnh', 'code' => 'TULANH'],
-        //     ['id' => 16, 'name' => 'Điện chung', 'code' => 'DICHVUCHUNG'],
-        //     ['id' => 20, 'name' => 'Dịch vụ chung', 'code' => 'DICHVUCHUNG'],
-        //     ['id' => 21, 'name' => 'Xe đạp điện', 'code' => 'XEDAPDIEN'],
-        //     ['id' => 22, 'name' => 'Dịch vụ chung 300k', 'code' => 'DICHVUCHUNG300K'],
-        //     ['id' => 25, 'name' => 'Vệ sinh', 'code' => 'VESINH'],
-        //     ['id' => 26, 'name' => 'Internet', 'code' => 'INTERNET02'],
-        // ]);
+        DB::table('contract_status')->truncate();
+        DB::table('contract_status')->insert([
+            ['name' => 'Đang hoạt động', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Chờ xác nhận', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hết hạn', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hủy', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+        ]);
+
+        DB::table('room_status')->truncate();
+        DB::table('room_status')->insert([
+            ['name' => 'Đang hoạt động', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Tạm dừng', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Đã trả nhà', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+        ]);
+
+        DB::table('aitilen_invoice_status')->truncate();
+        DB::table('aitilen_invoice_status')->insert([
+            ['name' => 'Đã thanh toán', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Còn công nợ', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Chưa thanh toán', 'color' => '#ffffff', 'background' => '#a30404ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+        ]);
+
+        DB::table('aitilen_service')->truncate();
+        $idx = 1;
+        DB::table('aitilen_service')->insert([
+            ['name' => 'Điện', 'code' => 'DIEN', 'price_default' => 4000, 'is_invoice_default' => 0, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'kWh', 'price_total'=>0],
+            ['name' => 'Nước', 'code' => 'NUOC', 'price_default' => 100000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>100000],
+            ['name' => 'Mạng Internet', 'code' => 'INTERNET', 'price_default' => 100000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>100000],
+            ['name' => 'Vệ sinh chung', 'code' => 'VESINHCHUNG', 'price_default' => 30000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>30000],
+            ['name' => 'Điện chung', 'code' => 'DICHVUCHUNG', 'price_default' => 30000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>30000],
+            ['name' => 'Máy giặt', 'code' => 'MAGIAT', 'price_default' => 70000, 'is_invoice_default' => 0, 'is_contract_default' => 0, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>70000],
+            ['name' => 'Thang máy', 'code' => 'THANGMAY', 'price_default' => 50000, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>50000],
+            ['name' => 'Tủ lạnh', 'code' => 'TULANH', 'price_default' => 150000, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Phòng', 'price_total'=>150000],
+            ['name' => 'Xe đạp điện', 'code' => 'XEDAPDIEN', 'price_default' => 100000, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Xe', 'price_total'=>100000],
+            ['name' => 'Gửi xe', 'code' => 'GUIXE', 'price_default' => 150000, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Xe', 'price_total'=>150000],
+            ['name' => 'Quản lý chung', 'code' => 'QUANLYCHUNG', 'price_default' => 100000, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Phòng', 'price_total'=>100000],
+            ['name' => 'Dịch vụ chung', 'code' => 'DICHVUCHUNG', 'price_default' => 150000, 'is_invoice_default' => 0, 'is_contract_default' => 0,'sort_order' => $idx++, 'per_default' => 'Phòng', 'price_total'=>150000],
+            ['name' => 'Giảm giá', 'code' => 'GIAMGIA', 'price_default' => 0, 'is_invoice_default' => 0, 'is_contract_default' => 0,   'sort_order' => $idx++, 'per_default' => 'Phòng', 'price_total'=>0],
+        ]);
     }
 }
