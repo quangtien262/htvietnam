@@ -415,7 +415,7 @@ table.table-sub-small {
 }
 
 tr.ant-table-expanded-row {
-    background-color: #f8fdff;
+    background: url(/layouts/01/images/contact-form-1.png) center no-repeat #fbfffc;
 }
 #basic {
     width: 100%;
@@ -442,4 +442,13 @@ tr.ant-table-expanded-row {
 }
 .form-item02 {
     height: 33px;
+}
+table.table-info01 tr th{
+    background-color: #a6b7cc;
+    font-weight: bold;
+    padding: 7px 10px;
+}
+table.table-info01 tr td{
+    padding: 7px 10px;
+    border-bottom: 1px #ccc dashed;
 }

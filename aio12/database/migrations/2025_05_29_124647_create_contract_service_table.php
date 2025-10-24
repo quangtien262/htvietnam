@@ -16,17 +16,19 @@ return new class extends Migration
         Schema::create('contract_service', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
-            $table->text('hop_dong_id')->nullable();
-            $table->integer('dich_vu_id')->nullable(); // nv thực hiện
+            $table->text('contract_id')->nullable();
+            $table->integer('service_id')->nullable(); // nv thực hiện
             $table->integer('price')->nullable(); // json người theo dõi hoặc làm cùng
-            $table->integer('price_by')->nullable();
+            $table->string('per')->nullable();
+            $table->string('so_nguoi')->nullable();
+            $table->string('total')->nullable();
 
             MigrateService::createBaseColumn($table);
 
             Table::create([
                 //require
                 'name' => 'contract_service',
-                'display_name' => 'Dịch vụ',
+                'display_name' => 'Dịch vụ theo hợp đồng',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),

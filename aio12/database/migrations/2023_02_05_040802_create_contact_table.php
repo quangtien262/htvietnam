@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('content')->nullable();
             $table->string('country_id')->nullable();
             $table->string('is_view')->nullable();
+
+            $table->text('services')->nullable();
             
             MigrateService::createBaseColumn($table);
         });

@@ -449,19 +449,6 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id' => 17,
-                'name' => '10B/115 Đinh Công (65m2)',
-                'code' => '65',
-                'gia_thue' => 15000000,
-                'tien_coc' => 13000000,
-                'ky_thanh_toan' => 3,
-                'tien_moi_gioi' => 2000000,
-                'tien_mua_nhuong' => 0,
-                'gia_thue_tang' => 15000000,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
                 'id' => 14,
                 'name' => '10C/115 Đinh Công (122m2)',
                 'code' => '122',
@@ -471,6 +458,19 @@ class TablesLayoutAitilenSeeder extends Seeder
                 'tien_moi_gioi' => 2000000,
                 'tien_mua_nhuong' => 0,
                 'gia_thue_tang' => 23000000,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => 17,
+                'name' => '10B/115 Đinh Công (65m2)',
+                'code' => '65',
+                'gia_thue' => 15000000,
+                'tien_coc' => 13000000,
+                'ky_thanh_toan' => 3,
+                'tien_moi_gioi' => 2000000,
+                'tien_mua_nhuong' => 0,
+                'gia_thue_tang' => 15000000,
                 'created_at' => now(),
                 'updated_at' => now()
             ],

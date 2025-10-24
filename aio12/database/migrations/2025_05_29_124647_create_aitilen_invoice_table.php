@@ -26,6 +26,11 @@ return new class extends Migration
             $table->integer('is_active')->default(0)->nullable();
             $table->text('note')->nullable();
 
+            $table->integer('month')->nullable();
+            $table->integer('year')->nullable();
+
+            $table->text('QRcode')->nullable();
+
             // info
             $table->integer('tien_phong')->default(0)->nullable();
             $table->integer('tien_coc')->default(0)->nullable();
@@ -69,9 +74,6 @@ return new class extends Migration
             //
             $table->integer('tong_so_dien')->default(0)->nullable();
             $table->integer('tong_so_nuoc')->default(0)->nullable();
-
-            $table->integer('month')->default(0)->nullable();
-            $table->integer('year')->default(0)->nullable();
 
             $table->date('ngay_hen_dong_tien')->nullable();
 

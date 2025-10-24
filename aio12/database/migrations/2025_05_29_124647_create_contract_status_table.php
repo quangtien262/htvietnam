@@ -17,12 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('description')->nullable();
-            $table->string('color')->default('#ffffff')->nullable();
             $table->string('parent_name')->nullable();
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
             $table->integer('is_default')->default(1)->nullable();
+
+            
+            $table->string('color')->default('#ffffff')->nullable(); 
             MigrateService::createBaseColumn($table);
 
             Table::create([

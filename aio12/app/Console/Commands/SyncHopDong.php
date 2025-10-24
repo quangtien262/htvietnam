@@ -56,10 +56,11 @@ class SyncHopDong extends Command
         // $rows[0] là sheet đầu tiên, mỗi phần tử là 1 dòng (array)
         $sheet = $rows[0];
         // Giả sử dòng đầu là header, bắt đầu từ dòng thứ 2
-        foreach ($sheet as $index => $row) {
-            if ($index === 0) continue; // bỏ header
+        try {
+            foreach ($sheet as $index => $row) {
+                if ($index === 0) continue; // bỏ header
 
-            try {
+
                 DB::table('contract')->insert([
                     'contract_status_id'   => 1,
                     'id'   => $row[0] ?? null,
@@ -68,7 +69,6 @@ class SyncHopDong extends Command
                     'room_id' => $row[4] ?? null,
                     'apartment_id' => $row[3] ?? null,
                     'user_id' => $row[5] ?? null,
-
                     'ho_ten' => $row[6] ?? '',
                     'phone' => $row[9] ?? '',
                     'email' => $row[7] ?? '',
@@ -78,24 +78,22 @@ class SyncHopDong extends Command
                     'dob' => $this->excelDateToDate($row[8] ?? null),
                     'hktt' => $row[13] ?? '',
 
-                    'ngay_ky' => $this->excelDateToDate($row[15] ?? null),
-                    'ngay_bat_dau' => $this->excelDateToDate($row[15] ?? null),
-                    'ngay_ket_thuc' => $this->excelDateToDate($row[16] ?? null),
+                    'start_date' => $this->excelDateToDate($row[15] ?? null),
+                    'end_date' => $this->excelDateToDate($row[16] ?? null),
                     'gia_thue' => $row[18] ?? '',
                     'tien_coc' => $row[17] ?? '',
                     'ky_thanh_toan' => $row[19] ?? 1,
-                    'so_luong' => $row[14] ?? '',
-                    'ngay_thanh_toan' => $row[20] ?? '',
+                    'so_nguoi' => $row[14] ?? '',
+                    'ngay_hen_dong_tien' => $row[20] ?? '',
 
                     'phi_moi_gioi' => $row[21] ?? '',
-                    'phi_quan_ly' => $row[22] ?? '',
 
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ]);
-            } catch (\Throwable $th) {
-
             }
+        } catch (\Throwable $th) {
+            throw $th;
         }
 
         $this->info('Đã import xong hợp đồng!');
@@ -112,25 +110,99 @@ class SyncHopDong extends Command
         $header = array_map('trim', $rows[0]); // Dòng đầu là header
 
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
-        foreach (array_slice($rows, 1) as $row) {
-            try {
+        try {
+            foreach (array_slice($rows, 1) as $row) {
                 $data = array_combine($header, $row);
                 // Insert vào bảng room (map đúng tên cột)
+                $name = '';
+                $apm = $data['house_id'];
+                switch ($apm) {
+                    case 1:
+                        $name = $data['room_number'] . '/583';
+                        break;
+                    case 3:
+                        $name = $data['room_number'] . '/30/185';
+                        break;
+                    case 14:
+                        $name = $data['room_number'] . '/10C/115(122m2)';
+                        break;
+                    case 17:
+                        $name = $data['room_number'] . '/10B/115(65m2)';
+                        break;
+                    case 16:
+                        $name = $data['room_number'] . '/10D/115(85m2)';
+                        break;
+                    case 15:
+                        $name = $data['room_number'] . '/63(100m2)';
+                        break;
+                    case 8:
+                        $name = $data['room_number'] . '/8B';
+                        break;
+                    case 6:
+                        $name = $data['room_number'] . '/30/17TV';
+                        break;
+                    case 7:
+                        $name = $data['room_number'] . '/32/17TV';
+                        break;
+                    case 9:
+                        $name = $data['room_number'] . '/17/22Lụa';
+                        break;
+                    case 12:
+                        $name = $data['room_number'] . '/17/843QT';
+                        break;
+                    case 11:
+                        $name = $data['room_number'] . '/592QT';
+                        break;
+                    case 29:
+                        $name = $data['room_number'] . '/15A';
+                        break;
+                    case 11:
+                        $name = $data['room_number'] . '/15B';
+                        break;
+                    case 5:
+                        $name = $data['room_number'] . '/592QT';
+                        break;
+                    case 18:
+                        $name = $data['room_number'] . '/46PK';
+                        break;
+                    case 19:
+                        $name = $data['room_number'] . '/282DC';
+                        break;
+                    case 20:
+                        $name = $data['room_number'] . '/37KD';
+                        break;
+                    case 27:
+                        $name = $data['room_number'] . '/40LQD';
+                        break;
+                    case 26:
+                        $name = $data['room_number'] . '/25C';
+                        break;
+                    case 31:
+                        $name = $data['room_number'] . '/25B';
+                        break;
+                    case 28:
+                        $name = $data['room_number'] . '/65Van';
+                        break;
+                    default:
+                        $apm = null;
+                        break;
+                }
                 DB::table('room')->insert([
                     'id' => $data['id'],
                     'apartment_id' => $data['house_id'] ?? null,
-                    'name'  => $data['room_number'] ?? null,
+                    'name'  => $name,
                     'room_status_id'  => 1,
                 ]);
-            } catch (\Throwable $th) {
-                $dataError[] = [
-                    'id' => $data['id'],
-                    'apartment_id' => $data['house_id'] ?? null,
-                    'name'  => $data['room_number'] ?? null,
-                ];
-                // throw $th;
             }
+        } catch (\Throwable $th) {
+            $dataError[] = [
+                'id' => $data['id'],
+                'apartment_id' => $data['house_id'] ?? null,
+                'name'  => $data['room_number'] ?? null,
+            ];
+            // throw $th;
         }
+
         if (!empty($dataError)) {
 
             $this->error('OKKKK');
@@ -220,6 +292,8 @@ class SyncHopDong extends Command
     private function userSync()
     {
         DB::table('users')->truncate();
+        // reset auto increment
+        DB::statement('ALTER TABLE users AUTO_INCREMENT = 1;');
         $csv = storage_path('app/public/migrate/res_partner.csv');
         $dataError = [];
         // Đọc file CSV thành mảng
@@ -236,13 +310,13 @@ class SyncHopDong extends Command
             }
             $data = array_combine($header, $row);
 
-            if (!$this->isValidVietnamPhone($data['phone'])) {
-                $phoneError[] = $data['phone'];
-                continue;
-            }
+            // if (!$this->isValidVietnamPhone($data['phone'])) {
+            //     $phoneError[] = $data['phone'];
+            //     continue;
+            // }
 
             try {
-                $code = 'KH' . TblService::formatNumberByLength($data['id'], 5);
+                $code = 'KHA' . TblService::formatNumberByLength($data['id'], 5);
                 $dataInsert = [
                     'id' => $data['id'],
                     'code'  => $code,
@@ -257,11 +331,12 @@ class SyncHopDong extends Command
                     'ngay_cap'  => $data['p_id_issued_date'] ?? null,
                     'noi_cap'  => $data['p_id_issued_by'] ?? null,
                     'hktt'  => $data['p_id_permanent_residence'] ?? null,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
                 ];
 
                 DB::table('users')->insert($dataInsert);
             } catch (\Throwable $th) {
-
             }
         }
         $this->info('Đã import xong room!');

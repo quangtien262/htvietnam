@@ -72,7 +72,7 @@ export function toLowerCaseNonAccentVietnamese(str) {
   str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
   str = str.replace(/đ/g, "d");
   // Some system encode vietnamese combining accent as individual utf-8 characters
-  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
+  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
   str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
   // str = str.replace(/@|#|$|%|^|&|*|(|)|'|"|,|.|\/|\\|`|/g, "-");
   str = str.replace(/ /g, '-');
@@ -99,7 +99,7 @@ export function toNonAccentVietnamese(str) {
   str = str.replace(/Đ/g, "D");
   str = str.replace(/đ/g, "d");
   // Some system encode vietnamese combining accent as individual utf-8 characters
-  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
+  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
   str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
   return str;
 }
@@ -270,24 +270,25 @@ export function options(data, haveCode = false) {
 }
 
 // key ko bắt đầu từ số 0
-export function optionEntries(data, haveCode = false){
-  return Object.entries(data).map(([key, value]) => {
-    
+export function optionEntries(data: any, haveCode = false){
+  return Object.entries(data).map(([key, value]: [string, any]) => {
+
     let label = value.name;
     if(haveCode) {
       label = value.code + ' - ' + value.name;
     }
     return {
-      value: value.id,
+      value: value.id.toString(),
       label: label,
+      info: value,
     }
   })
 }
 
 // key ko bắt đầu từ số 0
-export function objEntries(data, haveCode = false) {
- const result = Object.entries(data).map(([key, value]) => {  
+export function objEntries(data: any, haveCode = false) {
+ const result = Object.entries(data).map(([key, value]) => {
     return value
-  });  
+  });
   return result;
 }

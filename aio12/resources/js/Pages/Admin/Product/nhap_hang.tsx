@@ -64,7 +64,7 @@ import {
 import { showSelects, showSelect } from '../../../Function/selects_table';
 import { routeQLKho } from "../../../Function/config_route";
 
-export default function Dashboard(props) {
+export default function Dashboard(props: any) {
     sessionStorage.clear();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);

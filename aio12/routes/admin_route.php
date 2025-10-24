@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AitilenController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CongNoController;
+use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\FileController;
@@ -459,4 +460,12 @@ Route::group(['prefix' => 'calendar'], function () {
 Route::group(['prefix' => 'aitilen'], function () {
     Route::get('invoice', [AitilenController::class, 'invoiceList'])->name('aitilen.invoice');
     Route::post('invoice/update', [AitilenController::class, 'updateInvoice'])->name('aitilen.invoice.update');
+    Route::post('invoice/save-qr', [AitilenController::class, 'saveQrCode'])->name('aitilen.invoice.saveQr'); // pending
+    Route::post('invoice/change-status', [AitilenController::class, 'changeInvoiceStatus'])->name('aitilen.invoice.changeStatus');
+});
+
+Route::group(['prefix' => 'contract'], function () {
+    Route::get('/', [ContractController::class, 'index'])->name('contract.index');
+    Route::post('update', [ContractController::class, 'update'])->name('contract.update');
+    Route::post('change-status', [ContractController::class, 'changeStatus'])->name('contract.changeStatus');
 });

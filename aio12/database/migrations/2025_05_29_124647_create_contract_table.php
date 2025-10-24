@@ -18,19 +18,23 @@ return new class extends Migration
 
             $table->text('name')->nullable();
             $table->string('code')->nullable();
-            $table->integer('aitilen_dich_vu_id')->nullable();
+            $table->integer('aitilen_service_id')->nullable();
+            $table->integer('aitilen_invoice_id')->nullable();
             $table->integer('room_id')->nullable(); // nv thực hiện
             $table->integer('apartment_id')->nullable(); // // json người theo dõi hoặc làm cùng
             $table->integer('contract_status_id')->nullable();
             // info
-            $table->date('ngay_ky')->nullable();
-            $table->date('ngay_bat_dau')->nullable();
-            $table->date('ngay_ket_thuc')->nullable();
-            $table->integer('gia_thue')->nullable();
-            $table->integer('tien_coc')->nullable();
-            $table->integer('ky_thanh_toan')->nullable();
-            $table->integer('so_luong')->nullable();
-            $table->integer('ngay_thanh_toan')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+
+            $table->integer('gia_thue')->default(0)->nullable();
+            $table->integer('tien_coc')->default(0)->nullable();
+            $table->integer('ky_thanh_toan')->default(1)->nullable();
+            $table->integer('so_nguoi')->default(1)->nullable();
+            $table->integer('ngay_hen_dong_tien')->default(5)->nullable();
+
+            $table->text('services')->nullable();
+            $table->integer('total')->default(0)->nullable();
 
             // khach hang
             $table->integer('user_id')->default(0)->nullable();
@@ -45,8 +49,6 @@ return new class extends Migration
 
             //
             $table->string('phi_moi_gioi')->nullable();
-            $table->string('phi_quan_ly')->nullable();
-
 
             $table->text('note')->nullable();
 

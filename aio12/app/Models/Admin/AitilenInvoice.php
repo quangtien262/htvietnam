@@ -18,15 +18,17 @@ class AitilenInvoice extends Model
             'users.name as ten_khach_hang',
             'users.code as ma_khach_hang',
             'users.phone as phone',
+            'contract.name as hop_dong_name',
         )
+        ->leftJoin('contract', 'contract.id', 'aitilen_invoice.contract_id')
         ->leftJoin('users', 'users.id', 'aitilen_invoice.user_id');
 
         // check thùng rác
-        // if($showRecycle) {
-        //     $data=$data->where('aitilen_invoice.is_recycle_bin', 1);
-        // } else {
-        //     $data=$data->where('aitilen_invoice.is_recycle_bin', '!=', 1);
-        // }
+        if($showRecycle) {
+            $data=$data->where('aitilen_invoice.is_recycle_bin', 1);
+        } else {
+            $data=$data->where('aitilen_invoice.is_recycle_bin', '!=', 1);
+        }
 
         // check hóa đơn nháp
         if($showDraft) {
@@ -36,5 +38,46 @@ class AitilenInvoice extends Model
         }
         $data = $data->orderBy('aitilen_invoice.created_at', 'asc');
         return $data;
+    }
+
+    static function getInvoice($dataFilter = []) {
+        $datas = AitilenInvoice::baseQuery();
+        // filter
+        if(!empty($dataFilter['keyword'])) {
+            $keyword = $dataFilter['keyword'];
+            $datas = $datas->where(function($query) use ($keyword) {
+                $query->where('aitilen_invoice.name', 'like', '%'.$keyword.'%')
+                    ->orWhere('users.name', 'like', '%'.$keyword.'%')
+                    ->orWhere('users.code', 'like', '%'.$keyword.'%')
+                    ->orWhere('users.phone', 'like', '%'.$keyword.'%');
+            });
+        }
+        if(!empty($dataFilter['contract'])) {
+            $datas = $datas->where('aitilen_invoice.contract_id', $dataFilter['contract']);
+        }
+        if(!empty($dataFilter['room'])) {
+            $datas = $datas->where('aitilen_invoice.room_id', $dataFilter['room']);
+        }
+        if(!empty($dataFilter['status'])) {
+            $datas = $datas->where('aitilen_invoice.aitilen_invoice_status_id', $dataFilter['status']);
+        }
+        if(!empty($dataFilter['apm'])) {
+            $datas = $datas->where('aitilen_invoice.apartment_id', $dataFilter['apm']);
+        }
+
+        if(!empty($dataFilter['month'])) {
+            $datas = $datas->where('aitilen_invoice.month', '>=', $dataFilter['month']);
+        }
+        if(!empty($dataFilter['year'])) {
+            $datas = $datas->where('aitilen_invoice.year', '>=', $dataFilter['year']);
+        }
+        
+
+
+
+
+        $datas = $datas->paginate(220);
+
+        return $datas;
     }
 }

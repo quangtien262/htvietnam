@@ -1265,3 +1265,49 @@ table.table05 tr th{
 .text-right {
     text-align: right;
 }
+.text-center {
+    text-align: center;
+}
+.btn-info {
+    background-color: #1677ff;
+    color: #fff;
+}
+.banking-qr-container {
+    background: none;
+    border: 0px solid !important;
+}
+ul.ul-info li {
+    list-style: none;
+    margin-left: -40px;
+    border-bottom: 1px #ccc dashed;
+    padding: 11px 0px;
+}
+.main-content02 {
+    padding: 20px;
+    border-radius: 6px;
+    width: 100%;
+    background: #fff;
+}
+.form-item02 {
+    background: #fff;
+    width: 100%;
+}
+.list-search {
+    background: #fff;
+    margin-left: -5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.list-search ul li {
+    background-color: #ffffff;
+}
+.input-none {
+    border: 0px !important;
+    box-shadow: none !important;
+}
+.float-btn-option {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    z-index: 1000;
+}

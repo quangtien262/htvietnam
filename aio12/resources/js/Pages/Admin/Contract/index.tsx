@@ -57,8 +57,7 @@ export default function Dashboard(props: any) {
     const formDataDefault = {
         so_ngay_thue: daysInMonth_default,
         so_nguoi: 1,
-        ngay_hen_dong_tien: dayjs().date(5),
-        date: dayjs().year(props.searchData.year).month(props.searchData.month - 1),
+        ngay_hen_dong_tien: 5,
     };
 
     const dataService_empty = {
@@ -121,14 +120,12 @@ export default function Dashboard(props: any) {
 
     const onFinishFormEdit = (values: any) => {
         console.log('dataService', dataService);
-        if (values.ngay_hen_dong_tien) {
-            values.ngay_hen_dong_tien = values.ngay_hen_dong_tien.format('YYYY-MM-DD');
-        }
 
-        if (values.date) {
-            values.month = values.date.format('MM');
-            values.year = values.date.format('YYYY');
-            delete values.date;
+        if (values.start_date) {
+            values.start_date = values.start_date.format('YYYY-MM-DD');
+        }
+        if (values.end_date) {
+            values.end_date = values.end_date.format('YYYY-MM-DD');
         }
 
         values.services = dataService;
@@ -136,15 +133,13 @@ export default function Dashboard(props: any) {
         values.total =dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
-        values.tra_coc = tienTraCoc;
-        values.giam_gia = tienGiamGia;
 
         setLoadingTable(true);
         // save
-        axios.post(route('aitilen.invoice.update'), values).then((response) => {
+        axios.post(route('contract.update'), values).then((response) => {
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
-                location.reload();
+                // location.reload();
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
@@ -156,14 +151,14 @@ export default function Dashboard(props: any) {
 
     const columns = [
         {
-            title: 'Phòng',
-            dataIndex: 'room_name',
+            title: 'Khach hàng',
+            dataIndex: 'khach_hang',
             key: 'id',
             render: (text: any, record: any) => {
                 return <>
+                    {record.id}
+                    {record.ho_ten ? <Tag color="green">{record.ho_ten}</Tag> : ''}
                     <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
-                    {record.ten_khach_hang ? <Tag color="green">{record.ten_khach_hang}</Tag> : ''}
-                    {record.is_active ? <Tag color="cyan">Active</Tag> : <Tag color="red">Unactive</Tag>}
                 </>;
             }
         },
@@ -173,9 +168,9 @@ export default function Dashboard(props: any) {
             key: 'ma_khach_hang',
             render: (text: any, record: any) => {
                 return <>
-                    {record.aitilen_invoice_status_id
+                    {record.contract_status_id
                         ?
-                        <Tag color={props.status[record.aitilen_invoice_status_id].background}>{props.status[record.aitilen_invoice_status_id].name}</Tag>
+                        <Tag color={props.status[record.contract_status_id].background}>{props.status[record.contract_status_id].name}</Tag>
                         :
                         <Tag>Chưa xác định</Tag>
                     }
@@ -206,7 +201,7 @@ export default function Dashboard(props: any) {
                                             // Cập nhật lại bảng nếu cần
                                             let newData = dataSource.map((item: any) => {
                                                 if (item.id === record.id) {
-                                                    return { ...item, aitilen_invoice_status_id: value };
+                                                    return { ...item, contract_status_id: value };
                                                 }
                                                 return item;
                                             });
@@ -235,14 +230,14 @@ export default function Dashboard(props: any) {
             key: 'dich_vu',
             render: (text: any, record: any) => {
                 return <>
-                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
+                    {/* <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
                     {record.services.map((service: any, idx: number) => {
                         return <Tag color="blue" key={idx}>
                             {service.name}: {numberFormat(service.price_total)}
                         </Tag>
-                    })}
+                    })} */}
                 </>;
             }
         },
@@ -252,17 +247,13 @@ export default function Dashboard(props: any) {
         setDataAction(record);
         setIsOpenFormEdit(true);
         formEdit.setFieldsValue({
-            date: dayjs().year(record.year).month(record.month - 1), // kỳ hợp đồng
             contract_id: record.contract_id.toString(),
             room_id: record.room_id.toString(),
-            aitilen_invoice_status_id: record.aitilen_invoice_status_id.toString(),
-            ngay_hen_dong_tien: record.ngay_hen_dong_tien ? dayjs(record.ngay_hen_dong_tien) : dayjs().date(5),
-            so_ngay_thue: record.so_ngay_thue,
+            contract_status_id: record.contract_status_id.toString(),
+            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
             so_nguoi: record.so_nguoi,
             tien_phong: record.tien_phong,
             tien_coc: record.tien_coc,
-            tra_coc: record.tra_coc,
-            giam_gia: record.giam_gia,
         });
         setDataService(record.services);
         setSoNguoi(record.so_nguoi);
@@ -313,14 +304,14 @@ export default function Dashboard(props: any) {
             </div>
             <Row>
                 <Col span={10}>
-                    <HTBankingQR
+                    {/* <HTBankingQR
                         bankCode="TPB"
                         accountNumber="00299941001"
                         accountName="LUU QUANG TIEN"
                         amount={record.total}
                         description="2013017"
                         csrf_token={props.csrf_token}
-                    />
+                    /> */}
                 </Col>
                 <Col span={14}>
                     <ul className="ul-info">
@@ -553,13 +544,11 @@ export default function Dashboard(props: any) {
 
     const inFinishSearch = (values: any) => {
         values.p = props.p;
-        if (values.date) {
-            values.month = values.date.format('MM');
-            values.year = values.date.format('YYYY');
-            delete values.date;
+        if (values.end_date) {
+            values.end_date = values.end_date.format('YYYY-MM');
         }
 
-        router.get(route('aitilen.invoice'), values);
+        router.get(route('contract.index'), values);
     }
 
     function initialsFormSearch() {
@@ -572,9 +561,8 @@ export default function Dashboard(props: any) {
 
     function initialsFormatData() {
         let result: any = {
-            date: dayjs().year(props.searchData.year).month(props.searchData.month - 1),
             so_nguoi: 1,
-            ngay_hen_dong_tien: dayjs().date(5),
+            ngay_hen_dong_tien: 5,
             so_ngay_thue: daysInMonth_default,
         };
         return result;
@@ -588,7 +576,7 @@ export default function Dashboard(props: any) {
                     <div>
 
                         <Divider orientation="left">
-                            Danh sách hóa đơn
+                            Danh sách hợp đồng
                         </Divider>
 
                         <Row>
@@ -615,10 +603,10 @@ export default function Dashboard(props: any) {
                                                 </>,
                                             },
                                             {
-                                                title: <span> Thời gian</span>,
+                                                title: <span> Thời hạn</span>,
                                                 description: <>
                                                     <Form.Item
-                                                        name="date"
+                                                        name="end_date"
                                                     >
                                                         <DatePicker
                                                             picker="month"
@@ -698,30 +686,6 @@ export default function Dashboard(props: any) {
                                                         }
                                                     />
                                                 </Form.Item>,
-                                            },
-                                            {
-                                                title: 'Hợp đồng',
-                                                description: <>
-                                                    <Form.Item
-                                                        name="contract"
-                                                    >
-                                                        <Select
-                                                            showSearch
-                                                            allowClear={true}
-                                                            style={{ width: "100%" }}
-                                                            placeholder="Chọn hợp đồng"
-                                                            optionFilterProp="children"
-                                                            allowClear={true}
-                                                            options={optionEntries(props.contract)}
-                                                            onChange={() => formSearch.submit()}
-                                                            filterOption={(input, option) =>
-                                                                (option?.label ?? "")
-                                                                    .toLowerCase()
-                                                                    .includes(input.toLowerCase())
-                                                            }
-                                                        />
-                                                    </Form.Item>
-                                                </>,
                                             },
                                         ]}
                                         renderItem={(item, index) => (
@@ -830,12 +794,12 @@ export default function Dashboard(props: any) {
                             </ul>
                         </Modal>
 
-                        <Modal title={dataAction.id === 0 ? "Thêm mới hóa đơn" : "Chỉnh sửa hóa đơn"}
+                        <Modal title={dataAction.id === 0 ? "Thêm mới hợp đồng" : "Chỉnh sửa hợp đồng"}
                             open={isOpenFormEdit}
                             onOk={() => {
                                 formEdit.submit();
                             }}
-                            okText="Xác nhận Tạo hóa đơn "
+                            okText="Tạo hợp đồng "
                             cancelText="Hủy"
                             maskClosable={false}
                             width={1000}
@@ -847,28 +811,23 @@ export default function Dashboard(props: any) {
                                 initialValues={initialsFormatData()}
                             >
                                 <Row gutter={24}>
-
-                                    <Col span={6}>
+                                    <Col span={12}>
                                         <Form.Item
-                                            name="contract_id"
-                                            label="Hợp đồng"
+                                            name="user_id"
+                                            label="Khách hàng"
+                                            rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
                                         >
                                             <Select
                                                 showSearch
                                                 style={{ width: "100%" }}
-                                                placeholder="Chọn hợp đồng"
+                                                placeholder="Chọn khách hàng"
                                                 optionFilterProp="children"
-                                                allowClear={true}
-                                                options={optionEntries(props.contract)}
                                                 filterOption={(input, option) =>
                                                     (option?.label ?? "")
                                                         .toLowerCase()
                                                         .includes(input.toLowerCase())
                                                 }
-                                                onChange={(value, user: any) => {
-                                                    console.log('========', user);
-                                                    formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id : null);
-                                                }}
+                                                options={props.users}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -893,9 +852,9 @@ export default function Dashboard(props: any) {
                                         </Form.Item>
                                     </Col>
 
-                                    <Col span={12}>
+                                    <Col span={6}>
                                         <Form.Item
-                                            name="aitilen_invoice_status_id"
+                                            name="contract_status_id"
                                             label="Trạng thái"
                                             rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
                                         >
@@ -916,14 +875,39 @@ export default function Dashboard(props: any) {
 
                                     <Col span={6}>
                                         <Form.Item
-                                            name="date"
-                                            label={<><span>Kỳ HĐ</span> {showInfo('Thay đổi tháng, sẽ update lại tiền dịch vụ tương ứng với số ngày trên tháng')}</>}
+                                            name="start_date"
+                                            label={<><span>Ngày bắt đầu</span> {showInfo('Ngày bắt đầu hợp đồng')}</>}
                                             rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
                                         >
                                             <DatePicker className="form-item01"
-                                                picker="month"
                                                 style={{ width: "100%" }}
-                                                format="MM/YYYY"
+                                                format="DD/MM/YYYY"
+                                                placeholder={"Chọn tháng/năm"}
+                                                onChange={(value) => {
+                                                    let day = 0;
+                                                    if (value) {
+                                                        // value là kiểu dayjs, lấy số ngày của tháng đã chọn
+                                                        day = value.daysInMonth()
+                                                    } else {
+                                                        day = dayjs().daysInMonth();
+                                                    }
+                                                    setDaysInMonth(day);
+                                                    // Cập nhật lại số tiền
+                                                    total(soNgayThue, dataService, day, soNguoi);
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+
+                                    <Col span={6}>
+                                        <Form.Item
+                                            name="end_date"
+                                            label={<><span>Ngày kết thúc</span> {showInfo('Ngày kết thúc hợp đồng')}</>}
+                                            rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
+                                        >
+                                            <DatePicker className="form-item01"
+                                                style={{ width: "100%" }}
+                                                format="DD/MM/YYYY"
                                                 placeholder={"Chọn tháng/năm"}
                                                 onChange={(value) => {
                                                     let day = 0;
@@ -944,17 +928,18 @@ export default function Dashboard(props: any) {
                                     <Col span={6}>
                                         <Form.Item
                                             name="ngay_hen_dong_tien"
-                                            label={<><span>Ngày đóng tiền</span> {showInfo('Ngày hẹn đóng tiền')}</>}
+                                            label={<><span>Ngày đóng tiền</span> {showInfo('Ngày hẹn đóng tiền của kỳ thanh toán')}</>}
                                             rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
                                         >
-                                            <DatePicker className="form-item01" />
+                                            <InputNumber min={1} max={31} className="form-item01" />
                                         </Form.Item>
                                     </Col>
 
                                     <Col span={6}>
                                         <Form.Item
                                             name="so_nguoi"
-                                            label="Số người ở "
+                                            label="Số người ở"
+                                            rules={[{ required: true, message: 'Vui lòng chọn số người ở' }]}
                                         >
                                             <InputNumber className="form-item01"
                                                 min={1}
@@ -964,19 +949,6 @@ export default function Dashboard(props: any) {
                                                     total(soNgayThue, dataService, daysInMonth, v);
                                                 }}
                                             />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="so_ngay_thue"
-                                            label={<span>Số ngày thuê <em className="text-normal">/{daysInMonth}</em> {showInfo('<Số ngày thuê> / <Tổng số ngày trong tháng> Thay đổi số ngày sẽ update lại số tiền dịch vụ trong tháng')}</span>}
-                                        >
-                                            <InputNumber className="form-item01"
-                                                onChange={(value) => {
-                                                    const v = value ?? daysInMonth;
-                                                    setSoNgayThue(v);
-                                                    total(v, dataService, daysInMonth, soNguoi);
-                                                }} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
@@ -1061,57 +1033,10 @@ export default function Dashboard(props: any) {
 
                                                 <tr>
                                                     <td colSpan={3} className="text-right">
-                                                        <b>Tổng tiền phòng & dịch vụ:</b>
+                                                        <b>Tổng tiền phòng, cọc & dịch vụ dự tính:</b>
                                                     </td>
                                                     <td className="text-left">
                                                         <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc)}</b>
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td colSpan={3} className="text-right">
-                                                        <b>Trả cọc:</b>
-                                                    </td>
-                                                    <td className="text-left">
-                                                        <InputNumber className="input-number-normal input-none"
-                                                            value={tienTraCoc}
-                                                            min={0}
-                                                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                            onChange={(value) => {
-                                                                setTienTraCoc(value);
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td colSpan={3} className="text-right">
-                                                        <b>Giảm giá:</b>
-                                                    </td>
-                                                    <td className="text-left">
-                                                        <InputNumber className="input-number-normal input-none"
-                                                            value={tienGiamGia}
-                                                            min={0}
-                                                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                            onChange={(value) => {
-                                                                setTienGiamGia(value);
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Input.TextArea
-                                                            rows={2}
-                                                            placeholder="Ghi chú giảm giá"
-                                                        />
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <td colSpan={3} className="text-right">
-                                                        <b>Tổng cộng:</b>
-                                                    </td>
-                                                    <td className="text-left">
-                                                        <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0))}</b>
                                                     </td>
                                                     <td></td>
                                                 </tr>

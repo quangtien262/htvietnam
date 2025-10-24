@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models\Admin;
 
 use App\Casts\Json;
@@ -9,9 +10,10 @@ class SoQuy extends Model
 {
     protected $table = 'so_quy';
 
-    static function saveSoQuy_NhapHang($soTien, $nhapHang) {
-        $now =date('d/m/Y H:i:s');
-        $nowDB =date('Y-m-d H:i:s');
+    static function saveSoQuy_NhapHang($soTien, $nhapHang)
+    {
+        $now = date('d/m/Y H:i:s');
+        $nowDB = date('Y-m-d H:i:s');
         $soQuy = new SoQuy();
         $soQuy->name = 'Thanh toán trả nợ cho nhà cung cấp (Nhập hàng)';
         $soQuy->loai_chung_tu = 'product_nhap_hang';
@@ -33,15 +35,16 @@ class SoQuy extends Model
         $soQuy->save();
     }
 
-    static function saveSoQuy_KhachTraHang($soTien, $khachTraHang) {
-        $nowDB =date('Y-m-d H:i:s');
+    static function saveSoQuy_KhachTraHang($soTien, $khachTraHang)
+    {
+        $nowDB = date('Y-m-d H:i:s');
         $soQuy = new SoQuy();
         $soQuy->name = 'Thanh toán trả nợ cho khách hàng (Trả hàng)';
         $soQuy->loai_chung_tu = 'product_khach_tra_hang';
         $soQuy->chung_tu_id = $khachTraHang->id;
         $soQuy->ma_chung_tu = $khachTraHang->code;
         $soQuy->chi_nhanh_id = $khachTraHang->chi_nhanh_id;
-        
+
         $soQuy->khach_hang_id = $khachTraHang->khach_hang_id;
 
         $soQuy->nhan_vien_id = $khachTraHang->nhan_vien_id;
@@ -58,15 +61,16 @@ class SoQuy extends Model
         return $soQuy;
     }
 
-    static function saveSoQuy_TraHangNCC($soTien, $traHangNCC) {
-        $nowDB =date('Y-m-d H:i:s');
+    static function saveSoQuy_TraHangNCC($soTien, $traHangNCC)
+    {
+        $nowDB = date('Y-m-d H:i:s');
         $soQuy = new SoQuy();
         $soQuy->name = 'Thanh toán thu nợ cho nhà cung cấp (Trả hàng)';
         $soQuy->loai_chung_tu = 'product_tra_hang_ncc';
         $soQuy->chung_tu_id = $traHangNCC->id;
         $soQuy->ma_chung_tu = $traHangNCC->code;
         $soQuy->chi_nhanh_id = $traHangNCC->chi_nhanh_id;
-        
+
         $soQuy->khach_hang_id = $traHangNCC->khach_hang_id;
 
         $soQuy->nhan_vien_id = $traHangNCC->nhan_vien_id;
@@ -83,15 +87,16 @@ class SoQuy extends Model
         return $soQuy;
     }
 
-    static function saveSoQuy_hoaDon($soTien, $hoaDon) {
-        $nowDB =date('Y-m-d H:i:s');
+    static function saveSoQuy_hoaDon($soTien, $hoaDon)
+    {
+        $nowDB = date('Y-m-d H:i:s');
         $soQuy = new SoQuy();
         $soQuy->name = 'Khách thanh toán công nợ (Hóa đơn bán lẻ)';
         $soQuy->loai_chung_tu = 'hoa_don';
         $soQuy->chung_tu_id = $hoaDon->id;
         $soQuy->ma_chung_tu = $hoaDon->code;
         $soQuy->chi_nhanh_id = $hoaDon->chi_nhanh_id;
-        
+
         $soQuy->khach_hang_id = $hoaDon->khach_hang_id;
 
         $soQuy->nhan_vien_id = $hoaDon->nhan_vien_id;
@@ -104,6 +109,38 @@ class SoQuy extends Model
 
         $soQuy->save();
         $soQuy->code = 'SQ' . TblService::formatNumberByLength($soQuy->id, 5);
+        $soQuy->save();
+        return $soQuy;
+    }
+
+    static function saveSoQuy_hoaDonAitilen($invoice)
+    {
+        $nowDB = date('Y-m-d H:i:s');
+        // check tồn tại sổ quỹ cho hóa đơn này chưa
+        $existingSoQuy = SoQuy::where('loai_chung_tu', 'aitilen_invoice')
+            ->where('chung_tu_id', $invoice->id)
+            ->first();
+        if ($existingSoQuy) {
+            $soQuy = $existingSoQuy;
+        } else {
+            $soQuy = new SoQuy();
+        }
+        $soQuy->name = 'Khách thanh toán hóa đơn tiền phòng';
+        $soQuy->loai_chung_tu = 'aitilen_invoice';
+        $soQuy->chung_tu_id = $invoice->id;
+        $soQuy->ma_chung_tu = $invoice->code;
+        $soQuy->khach_hang_id = $invoice->user_id;
+        $soQuy->nhan_vien_id = $invoice->create_by;
+        $soQuy->so_tien = $invoice->total;
+        $soQuy->so_quy_status_id = $invoice->aitilen_invoice_status_id;
+        $soQuy->so_quy_type_id = config('constant.so_quy_type.khach_tt_hdon');
+        $soQuy->thoi_gian = $nowDB;
+        $soQuy->nhom_nguoi_nhan_id = config('constant.nhom_nguoi_nhan.cty'); // 1 là khách hàng
+
+        $soQuy->save();
+        if (empty($soQuy->code)) {
+            $soQuy->code = 'SQ' . TblService::formatNumberByLength($soQuy->id, 5);
+        }
         $soQuy->save();
         return $soQuy;
     }

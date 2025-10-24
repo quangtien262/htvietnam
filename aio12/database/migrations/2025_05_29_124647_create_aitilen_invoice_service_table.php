@@ -28,7 +28,7 @@ return new class extends Migration
             Table::create([
                 //require
                 'name' => 'aitilen_invoice_service',
-                'display_name' => 'Trạng thái hóa đơn',
+                'display_name' => 'Dịch vụ theo hóa đơn',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),

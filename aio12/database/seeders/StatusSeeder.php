@@ -533,9 +533,9 @@ class StatusSeeder extends Seeder
 
         DB::table('aitilen_invoice_status')->truncate();
         DB::table('aitilen_invoice_status')->insert([
-            ['name' => 'Đã thanh toán', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Còn công nợ', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
-            ['name' => 'Chưa thanh toán', 'color' => '#ffffff', 'background' => '#a30404ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Đã thanh toán', 'color' => '#079c48ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Chưa thanh toán', 'color' => '#a30404ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Còn công nợ', 'color' => '#c2c205ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
         ]);
 
         DB::table('aitilen_service')->truncate();

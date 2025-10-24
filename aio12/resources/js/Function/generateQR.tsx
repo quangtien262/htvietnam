@@ -66,6 +66,8 @@ export function HTBankingQR(props: {
     amount?: number;
     description?: string;
     template?: string;
+    csrf_token: string;
+    invoice_id?: string;
 }) {
     const [qrData, setQrData] = useState('');
     const [isVisible, setIsVisible] = useState(false);
@@ -483,6 +485,26 @@ export function HTBankingQR(props: {
                 try {
                     const data = await generateQRWithCache(); // ĐỔI TÊN Ở ĐÂY
                     setQrData(data || '');
+
+                    // Gọi API lưu vào DB
+                    // if (data) {
+                    //     fetch(route('aitilen.invoice.saveQr'), {
+                    //         method: 'POST',
+                    //         headers: {
+                    //             'Content-Type': 'application/json',
+                    //             'X-CSRF-TOKEN': props.csrf_token
+                    //         },
+                    //         body: JSON.stringify({
+                    //             bankCode: props.bankCode,
+                    //             accountNumber: props.accountNumber,
+                    //             accountName: props.accountName,
+                    //             amount: props.amount || 0,
+                    //             description: props.description || '',
+                    //             qrData: data,
+                    //         }),
+                    //     });
+                    // }
+
                 } catch (error) {
                     console.error('Generate QR Error:', error);
                     setQrData('');
@@ -518,51 +540,35 @@ export function HTBankingQR(props: {
     return (
         <Card className="banking-qr-container" size="small">
             <div className="bank-info" style={{ marginBottom: 16 }}>
-                <Row gutter={[8, 8]}>
+                <Row>
                     <Col span={24}>
-                        <Text strong><BankOutlined /> Ngân hàng:</Text> {bankInfo?.name || props.bankCode}
+                        {loading ? (
+                            <Spin size="large" />
+                        ) : qrData ? (
+                            <>
+                                <QRCodeSVG
+                                    id="qr-code-svg"
+                                    value={qrData}
+                                    size={180}
+                                    // bgColor="#ffffff"
+                                    // fgColor="#000000"
+                                    level="M"
+                                />
+                            </>
+                        ) : (
+                            <Text type="danger">Không thể tạo mã QR</Text>
+                        )}
                     </Col>
-                    <Col span={24}>
-                        <Text strong>Số tài khoản:</Text> <Text code>{props.accountNumber}</Text>
-                    </Col>
-                    <Col span={24}>
-                        <Text strong>Chủ tài khoản:</Text> <Text>{props.accountName}</Text>
-                    </Col>
-                    {props.amount && (
-                        <Col span={24}>
-                            <Text strong><DollarOutlined /> Số tiền:</Text>
-                            <Text style={{ color: '#f5222d', fontWeight: 'bold' }}>
-                                {numberFormat(props.amount)} VNĐ
-                            </Text>
-                        </Col>
-                    )}
-                    {props.description && (
-                        <Col span={24}>
-                            <Text strong>Nội dung:</Text> <Text italic>"{props.description}"</Text>
-                        </Col>
-                    )}
                 </Row>
             </div>
 
-            <Space wrap>
-                <Button
-                    type="primary"
-                    icon={<QrcodeOutlined />}
-                    onClick={showQR}
-                    loading={loading}
-                >
-                    Tạo mã QR
-                </Button>
-                <Tooltip title="Tải xuống QR">
-                    <Button
-                        icon={<DownloadOutlined />}
-                        onClick={() => downloadQRCode(bankInfo?.name || props.bankCode)}
-                        disabled={!qrData}
-                    >
-                        Tải xuống
-                    </Button>
-                </Tooltip>
-            </Space>
+            <Button className='text-center btn-info'
+                icon={<DownloadOutlined />}
+                onClick={() => downloadQRCode(bankInfo?.name || props.bankCode)}
+                disabled={!qrData}
+            >
+                Tải xuống
+            </Button>
 
             <Modal
                 title={
