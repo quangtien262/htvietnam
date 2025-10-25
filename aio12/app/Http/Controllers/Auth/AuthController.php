@@ -57,15 +57,11 @@ class AuthController extends Controller
         if (Auth::guard('admin_users')->attempt($request->only('username', 'password'), true)) {
             //save table 2 session
             // $tables = TblService::getAdminMenu(0);
-            return redirect()
-                ->intended(route('dashboard'))
-                ->with('status', 'You are Logged in as Admin!');
+            return $this->sendSuccessResponse(['role' => 'admin'], 'You are Logged in as admin!');
         }
 
         if (Auth::guard('web')->attempt($request->only('username', 'password'), true)) {
-            return redirect()
-                ->intended(route('home'))
-                ->with('status', 'You are Logged in as web!');
+            return $this->sendSuccessResponse(['role' => 'user'], 'You are Logged in as user!');
         }
 
         return back()->with('error', 'Tên đăng nhập hoặc mật khẩu không đúng');

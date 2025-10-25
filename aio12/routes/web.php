@@ -18,7 +18,7 @@ Route::get('/', [PagesController::class, 'index'])->name('home');
 // auth
 Route::get('adm/login', [AuthController::class, 'login'])->name('login');
 Route::post('adm/login', [AuthController::class, 'postLogin']);
-Route::post('account/login', [AuthController::class, 'postLogin'])->name('postLogin_api');
+Route::post('account/login', [AuthController::class, 'postLogin_api'])->name('postLogin_api');
 Route::get('account/register', [AuthController::class, 'register'])->name('register');
 Route::post('account/register', [AuthController::class, 'postRegister']);
 Route::post('api/register', [AuthController::class, 'postRegister_api'])->name('postRegister_api');

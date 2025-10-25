@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
 
-            <form action="{{ route('postLogin_api') }}" method="post">
+            <form id="formLogin" action="{{ route('postLogin_api') }}" method="post">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">{{ __('user.login_account') }}</h5>
@@ -35,7 +35,7 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    var loginForm = document.querySelector('#modalLogin form');
+    var loginForm = document.querySelector('#formLogin');
     if (!loginForm) return;
 
     loginForm.addEventListener('submit', function (e) {
@@ -71,14 +71,16 @@
         var oldText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang đăng nhập...';
-
+        var csrfToken = loginForm.querySelector('input[name="_token"]').value;
         fetch(loginForm.action, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
             },
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         })
         .then(function(response) {
             return response.json();
