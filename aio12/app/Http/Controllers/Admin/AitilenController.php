@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\AitilenDienNuoc;
 use App\Models\Admin\AitilenInvoice;
 use App\Models\Admin\AitilenInvoiceService;
 use App\Models\Admin\AitilenService;
@@ -49,12 +50,12 @@ class AitilenController extends Controller
 
     public function invoiceList(Request $request)
     {
-        
+
         $searchData = $request->all();
-        if(empty($request->month)) {
+        if (empty($request->month)) {
             $searchData['month'] = now()->month;
         }
-        if(empty($request->year)) {
+        if (empty($request->year)) {
             $searchData['year'] = now()->year;
         }
         $datas = AitilenInvoice::getInvoice($searchData);
@@ -103,7 +104,7 @@ class AitilenController extends Controller
                 return $this->sendErrorResponse('Hóa đơn không tồn tại !');
             }
         }
-        
+
         $invoice->name = $request->name;
         $invoice->aitilen_invoice_status_id = $request->aitilen_invoice_status_id;
         $invoice->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
@@ -118,17 +119,17 @@ class AitilenController extends Controller
         $invoice->tra_coc = $request->tra_coc;
         $invoice->giam_gia = $request->giam_gia;
 
-        if(!empty($request->contract_id)) {
+        if (!empty($request->contract_id)) {
             $contract = Contract::find($request->contract_id);
-            if($contract) {
+            if ($contract) {
                 $invoice->contract_id = $contract->id;
                 $invoice->user_id = $contract->user_id;
             }
         }
 
-        if(!empty($request->room_id)) {
+        if (!empty($request->room_id)) {
             $room = Room::find($request->room_id);
-            if($room) {
+            if ($room) {
                 $invoice->apartment_id = $room->apartment_id;
                 $invoice->room_id = $room->id;
             }
@@ -171,7 +172,38 @@ class AitilenController extends Controller
         $invoice->aitilen_invoice_status_id = $request->status_id;
         $invoice->save();
         // update sổ quỹ
-        SoQuy::saveSoQuy_hoaDonAitilen( $invoice);
+        SoQuy::saveSoQuy_hoaDonAitilen($invoice);
         return $this->sendSuccessResponse($invoice, 'Cập nhật trạng thái hóa đơn thành công!');
+    }
+    public function dienNuoc(Request $request)
+    {
+        $searchData = $request->all();
+        $month = date('m');
+        if (!empty($request->month)) {
+            $month = $request->month;
+        }
+
+        $year = date('Y');
+        if (!empty($request->year)) {
+            $year =  $request->year;
+        }
+
+
+        $searchData['month'] = $month;
+        $searchData['year'] = $year;
+        $data = AitilenDienNuoc::where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        $room = TblService::formatData('room', ['room_status_id' => 1]);
+
+        $props = [
+            'searchData' => $searchData,
+            'data' => $data,
+            'room' => $room,
+            'csrf_token' => csrf_token(),
+            'p' => $request->p ?? 0,
+        ];
+        return Inertia::render('Admin/Aitilen/dien_nuoc', $props);
     }
 }

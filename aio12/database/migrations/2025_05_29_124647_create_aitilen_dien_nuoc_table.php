@@ -13,31 +13,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('room_dien_nuoc', function (Blueprint $table) {
+        Schema::create('aitilen_dien_nuoc', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('room_id')->nullable();
-            $table->string('apartment_id')->nullable();
-            $table->string('hop_dong_id')->nullable();
-            $table->string('loai_dich_vu')->nullable();
-            $table->string('cur_number')->nullable();
-            $table->string('new_number')->nullable();
-            $table->string('note')->nullable();
+            $table->integer('month')->nullable();
+            $table->integer('year')->nullable();
+            $table->integer('room_id')->nullable();
 
-
-
+            $table->integer('dien_start')->nullable();
+            $table->integer('dien_end')->nullable();
+            
+            $table->integer('nuoc_start')->nullable();
+            $table->integer('nuoc_end')->nullable();
+            
+            $table->integer('nonglanh_start')->nullable();
+            $table->integer('nonglanh_end')->nullable();
+            
+            $table->integer('maybom_start')->nullable();
+            $table->integer('maybom_end')->nullable();
+            
             MigrateService::createBaseColumn($table);
 
             Table::create([
                 //require
-                'name' => 'room_dien_nuoc',
+                'name' => 'aitilen_dien_nuoc',
                 'display_name' => 'Dịch vụ',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),
                 'count_item_of_page' => 30,
                 'is_edit' => 1, // 1 hiển thị ở menu; 0 không hiển thị
-                'form_data_type' => 2,
+                'form_data_type' => 1,
                 'have_delete' => 1,
                 'have_add_new' => 1,
 
@@ -47,7 +53,7 @@ return new class extends Migration
                 'table_data' => '',
                 'is_label' => 0,
             ]);
-            $tbl = Table::where('name', 'room_dien_nuoc')->first();
+            $tbl = Table::where('name', 'aitilen_dien_nuoc')->first();
             $tableId = $tbl->id;
             $order_col = 1;
             MigrateService::createColumn02(
@@ -70,22 +76,32 @@ return new class extends Migration
             );
             MigrateService::createColumn02(
                 $tableId,
-                'color',
-                'Màu sắc đánh dấu',
+                'price',
+                'Giá',
                 'INT',
-                'VARCHAR',
+                'number',
                 $order_col++,
-                ['show_in_list' => 0]
+                ['show_in_list' => 1]
             );
             MigrateService::createColumn02(
                 $tableId,
-                'background',
-                'Màu nền đánh dấu',
+                'price_default',
+                'Giá gốc',
                 'INT',
-                'VARCHAR',
+                'number',
                 $order_col++,
-                ['show_in_list' => 0]
+                ['show_in_list' => 1]
             );
+            MigrateService::createColumn02(
+                $tableId,
+                'description',
+                'Mô tả',
+                'TEXT',
+                'text',
+                $order_col++,
+                ['show_in_list' => 1]
+            );
+
 
             MigrateService::baseColumn($tbl);
         });
@@ -96,6 +112,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('room_dien_nuoc');
+        Schema::dropIfExists('aitilen_dien_nuoc');
     }
 };

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Admin\AitilenDienNuoc;
 use App\Models\Admin\Contract;
 use App\Models\Admin\ContractService;
 use App\Services\Admin\AutoGenService;
@@ -48,8 +49,8 @@ class SyncHopDong extends Command
         $this->userSync();
 
 
-        $this->info('Start import hợp đồng ser...');
-        $this->hopDongService();
+        // $this->info('dien_nuoc');
+        // $this->hopDongService();
     }
 
     public function hopDongSync()
@@ -123,7 +124,9 @@ class SyncHopDong extends Command
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
 
         foreach (array_slice($rows, 1) as $data) {
-
+            if (in_array($data[1], [3, 4, 21, 22, 23, 24, 25])) {
+                continue;
+            }
             try {
                 // $data = array_combine($header, $rows);
                 // Insert vào bảng room (map đúng tên cột)
@@ -196,6 +199,9 @@ class SyncHopDong extends Command
                     case 28:
                         $name = $data[2] . '/65Van';
                         break;
+                    case 10:
+                        $name = $data[2] . '/02/16VP';
+                        break;
                     default:
                         $apm = null;
                         break;
@@ -221,13 +227,7 @@ class SyncHopDong extends Command
                 throw $th;
             }
         }
-
-        if (!empty($dataError)) {
-
-            $this->error('OKKKK');
-        } else {
-            $this->info('Đã import xong room!');
-        }
+        $this->info('Đã import xong room!');
     }
 
     private function hopDongService()
@@ -241,8 +241,8 @@ class SyncHopDong extends Command
 
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
         $per = [
-            'per_person' => 'Nguoi',
-            'per_room' => 'Phong',
+            'per_person' => 'Person',
+            'per_room' => 'Room',
         ];
         // save
         foreach (array_slice($rows, 1) as $row) {
@@ -281,14 +281,14 @@ class SyncHopDong extends Command
         $contacts = Contract::get();
         foreach ($contacts as $contract) {
             $services = ContractService::select(
-                    'contract_service.id as contract_service_id',
-                    'contract_service.contract_id',
-                    'contract_service.service_id',
-                    'aitilen_service.name',
-                    'contract_service.price',
-                    'contract_service.per',
-                    'aitilen_service.name as service_name',
-                )
+                'contract_service.id as contract_service_id',
+                'contract_service.contract_id',
+                'contract_service.service_id',
+                'aitilen_service.name',
+                'contract_service.price',
+                'contract_service.per',
+                'aitilen_service.name as service_name',
+            )
                 ->where('contract_id', $contract->id)
                 ->leftJoin('aitilen_service', 'aitilen_service.id', '=', 'contract_service.service_id')
                 ->get()->toArray();
@@ -310,7 +310,7 @@ class SyncHopDong extends Command
 
     private function dienNuocSync()
     {
-        DB::table('room_dien_nuoc')->truncate();
+        DB::table('aitilen_dien_nuoc')->truncate();
         $csv = storage_path('app/public/migrate/aitilen_consumption_meter_price_service.csv');
         $dataError = [];
         // Đọc file CSV thành mảng
@@ -321,25 +321,62 @@ class SyncHopDong extends Command
         foreach (array_slice($rows, 1) as $row) {
             try {
                 $data = array_combine($header, $row);
-                // Insert vào bảng room (map đúng tên cột)
-                $dataInsert = [
-                    'id' => $data['id'],
-                    'name'  => $data['room_number'] ?? null,
-                    'room_id'  => $data['room_id'] ?? null,
-                    'apartment_id'  => $data['house_id'] ?? null,
-                    'hop_dong_id'  => $data['room_contract_id'] ?? null,
-                    'cur_number'  => $data['cur_number'] ?? null,
-                    'new_number'  => $data['new_number'] ?? null,
-                ];
 
-                DB::table('room_dien_nuoc')->insert($dataInsert);
+                if ($data['room_id'] == 'NULL') {
+                    continue;
+                }
+                // Insert vào bảng room (map đúng tên cột)
+
+                if (!empty($data['write_date'])) {
+                    $date = \Carbon\Carbon::parse($data['write_date']);
+                    if ($date->month != 9) {
+                        continue;
+                        // Chỉ insert khi đúng tháng 9/2025
+                        // ...insert code ở đây...
+                    }
+                }
+
+
+                $dienNuoc = AitilenDienNuoc::where('room_id', $data['room_id'])->first();
+
+                if (empty($dienNuoc)) {
+                    $dienNuoc = new AitilenDienNuoc();
+                }
+
+                $dienNuoc->month = 9;
+                $dienNuoc->year = 2025;
+
+                $dienNuoc->room_id = $data['room_id'] ?? null;
+
+                $dichVu = trim(mb_substr($data['name'], 0, 3, 'UTF-8'));
+                // dd($dichVu);
+                switch ($dichVu) {
+                    case 'Điệ':
+                        $dienNuoc->dien_start = $data['cur_number'] ?? 0;
+                        $dienNuoc->dien_end = $data['new_number'] ?? 0;
+                        break;
+                    case 'Nướ':
+                        $dienNuoc->nuoc_start = $data['cur_number'] ?? 0;
+                        $dienNuoc->nuoc_end = $data['new_number'] ?? 0;
+                        break;
+                    case 'WC':
+                        $dienNuoc->nonglanh_start = $data['cur_number'] ?? 0;
+                        $dienNuoc->nonglanh_end = $data['new_number'] ?? 0;
+                        break;
+                    case 'ele':
+                        $dienNuoc->maybom_start = $data['cur_number'] ?? 0;
+                        $dienNuoc->maybom_end = $data['new_number'] ?? 0;
+                        break;
+
+                    default:
+                        dd($dichVu);
+                        break;
+                }
+
+                $dienNuoc->save();
             } catch (\Throwable $th) {
-                $dataError[] = [
-                    'id' => $data['id'],
-                    'name'  => $data['room_number'] ?? null,
-                    'room_id'  => $data['room_id'] ?? null,
-                ];
-                // throw $th;
+
+                throw $th;
             }
         }
         if (!empty($dataError)) {

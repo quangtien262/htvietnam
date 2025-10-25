@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->text('name')->nullable();
+            $table->text('images')->nullable(); // ảnh hđồng 
             $table->string('code')->nullable();
             $table->integer('aitilen_service_id')->nullable();
             $table->integer('aitilen_invoice_id')->nullable();

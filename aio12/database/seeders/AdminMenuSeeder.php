@@ -46,6 +46,7 @@ class AdminMenuSeeder extends Seeder
         DB::table('admin_menu')->insert([
             ['parent_id' => $toaNha->id, 'name' => 'apartment', 'display_name' => 'Tòa nhà', 'table_name' => 'apartment', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $toaNha->id, 'name' => 'room', 'display_name' => 'Phòng', 'table_name' => 'room', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $toaNha->id, 'name' => 'aitilen_dien_nuoc', 'display_name' => 'Chốt Điện/Nước', 'table_name' => 'aitilen_dien_nuoc', 'route' => 'aitilen.service.dienNuoc', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
         ]);
 
         $websiteAitilen = DB::table('admin_menu')->where('name', 'website_aitilen')->first();

@@ -462,6 +462,7 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('invoice/update', [AitilenController::class, 'updateInvoice'])->name('aitilen.invoice.update');
     Route::post('invoice/save-qr', [AitilenController::class, 'saveQrCode'])->name('aitilen.invoice.saveQr'); // pending
     Route::post('invoice/change-status', [AitilenController::class, 'changeInvoiceStatus'])->name('aitilen.invoice.changeStatus');
+    Route::get('service/dien-nuoc', [AitilenController::class, 'dienNuoc'])->name('aitilen.service.dienNuoc');
 });
 
 Route::group(['prefix' => 'contract'], function () {
