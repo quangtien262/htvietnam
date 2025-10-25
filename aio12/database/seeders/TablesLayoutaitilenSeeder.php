@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
 
-class TablesLayoutaitilenSeeder extends Seeder
+class TablesLayoutAitilenSeeder extends Seeder
 {
 
     /**
@@ -74,7 +74,7 @@ class TablesLayoutaitilenSeeder extends Seeder
         MigrateService::webconfig(
             'Aitilen',
             [
-                'logo' => '/layouts/aitilen/images/logo.jpg',
+                'logo' => '/layouts/Aitilen/images/logo.jpg',
                 'phone' => '097.811.8710',
                 'email' => 'contact@aitilen.com',
                 'email02' => 'sales@aitilen.com',
