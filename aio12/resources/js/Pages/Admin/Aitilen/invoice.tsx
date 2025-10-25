@@ -867,7 +867,7 @@ export default function Dashboard(props: any) {
                                                 }
                                                 onChange={(value, user: any) => {
                                                     console.log('========', user);
-                                                    formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id : null);
+                                                    formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id.toString() : null);
                                                 }}
                                             />
                                         </Form.Item>

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Admin\Contract;
+use App\Models\Admin\ContractService;
 use App\Services\Admin\AutoGenService;
 use App\Services\Admin\TblService;
 use Illuminate\Console\Command;
@@ -29,6 +31,7 @@ class SyncHopDong extends Command
      */
     public function handle()
     {
+
         $this->info('Start import hợp đồng...');
         $this->hopDongSync();
 
@@ -43,6 +46,10 @@ class SyncHopDong extends Command
 
         $this->info('Start import user..');
         $this->userSync();
+
+
+        $this->info('Start import hợp đồng ser...');
+        $this->hopDongService();
     }
 
     public function hopDongSync()
@@ -60,11 +67,15 @@ class SyncHopDong extends Command
             foreach ($sheet as $index => $row) {
                 if ($index === 0) continue; // bỏ header
 
+                $name = '';
+                if (!empty($row[2])) {
+                    $name = $this->ucwords_unicode($row[2]);
+                }
 
                 DB::table('contract')->insert([
                     'contract_status_id'   => 1,
                     'id'   => $row[0] ?? null,
-                    'name'   => $row[2] ?? null,
+                    'name'   => $name,
                     'code' => $row[1] ?? null,
                     'room_id' => $row[4] ?? null,
                     'apartment_id' => $row[3] ?? null,
@@ -103,104 +114,112 @@ class SyncHopDong extends Command
     {
 
         DB::table('room')->truncate();
-        $csv = storage_path('app/public/migrate/aitilen_room.csv');
+        $csv = storage_path('app/public/migrate/aitilen_room_2.csv');
         $dataError = [];
         // Đọc file CSV thành mảng
         $rows = array_map('str_getcsv', file($csv));
         $header = array_map('trim', $rows[0]); // Dòng đầu là header
 
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
-        try {
-            foreach (array_slice($rows, 1) as $row) {
-                $data = array_combine($header, $row);
+
+        foreach (array_slice($rows, 1) as $data) {
+
+            try {
+                // $data = array_combine($header, $rows);
                 // Insert vào bảng room (map đúng tên cột)
                 $name = '';
-                $apm = $data['house_id'];
+                $apm = $data[1];
                 switch ($apm) {
                     case 1:
-                        $name = $data['room_number'] . '/583';
+                        $name = $data[2] . '/583';
                         break;
                     case 3:
-                        $name = $data['room_number'] . '/30/185';
+                        $name = $data[2] . '/30/185';
                         break;
                     case 14:
-                        $name = $data['room_number'] . '/10C/115(122m2)';
+                        $name = $data[2] . '/10C/115(122m2)';
                         break;
                     case 17:
-                        $name = $data['room_number'] . '/10B/115(65m2)';
+                        $name = $data[2] . '/10B/115(65m2)';
                         break;
                     case 16:
-                        $name = $data['room_number'] . '/10D/115(85m2)';
+                        $name = $data[2] . '/10D/115(85m2)';
                         break;
                     case 15:
-                        $name = $data['room_number'] . '/63(100m2)';
+                        $name = $data[2] . '/63(100m2)';
                         break;
                     case 8:
-                        $name = $data['room_number'] . '/8B';
+                        $name = $data[2] . '/8B';
                         break;
                     case 6:
-                        $name = $data['room_number'] . '/30/17TV';
+                        $name = $data[2] . '/30/17TV';
                         break;
                     case 7:
-                        $name = $data['room_number'] . '/32/17TV';
+                        $name = $data[2] . '/32/17TV';
                         break;
                     case 9:
-                        $name = $data['room_number'] . '/17/22Lụa';
+                        $name = $data[2] . '/17/22Lụa';
                         break;
                     case 12:
-                        $name = $data['room_number'] . '/17/843QT';
+                        $name = $data[2] . '/17/843QT';
                         break;
                     case 11:
-                        $name = $data['room_number'] . '/592QT';
+                        $name = $data[2] . '/592QT';
                         break;
                     case 29:
-                        $name = $data['room_number'] . '/15A';
+                        $name = $data[2] . '/15A';
                         break;
                     case 11:
-                        $name = $data['room_number'] . '/15B';
+                        $name = $data[2] . '/15B';
                         break;
                     case 5:
-                        $name = $data['room_number'] . '/592QT';
+                        $name = $data[2] . '/592QT';
                         break;
                     case 18:
-                        $name = $data['room_number'] . '/46PK';
+                        $name = $data[2] . '/46PK';
                         break;
                     case 19:
-                        $name = $data['room_number'] . '/282DC';
+                        $name = $data[2] . '/282DC';
                         break;
                     case 20:
-                        $name = $data['room_number'] . '/37KD';
+                        $name = $data[2] . '/37KD';
                         break;
                     case 27:
-                        $name = $data['room_number'] . '/40LQD';
+                        $name = $data[2] . '/40LQD';
                         break;
                     case 26:
-                        $name = $data['room_number'] . '/25C';
+                        $name = $data[2] . '/25C';
                         break;
                     case 31:
-                        $name = $data['room_number'] . '/25B';
+                        $name = $data[2] . '/25B';
                         break;
                     case 28:
-                        $name = $data['room_number'] . '/65Van';
+                        $name = $data[2] . '/65Van';
                         break;
                     default:
                         $apm = null;
                         break;
                 }
                 DB::table('room')->insert([
-                    'id' => $data['id'],
-                    'apartment_id' => $data['house_id'] ?? null,
+                    'id' => $data[0],
+                    'apartment_id' => $data[1] ?? null,
                     'name'  => $name,
                     'room_status_id'  => 1,
                 ]);
+            } catch (\Throwable $th) {
+                echo 'Header count: ' . count($header);
+                echo "\n";
+                echo 'Rows count: ' . count($data);
+                echo "\n";
+                echo $th->getMessage();
+                dd($data);
+                // $dataError[] = [
+                //     'id' => $data['id'],
+                //     'apartment_id' => $data['house_id'] ?? null,
+                //     'name'  => $data['room_number'] ?? null,
+                // ];
+                throw $th;
             }
-        } catch (\Throwable $th) {
-            $dataError[] = [
-                'id' => $data['id'],
-                'apartment_id' => $data['house_id'] ?? null,
-                'name'  => $data['room_number'] ?? null,
-            ];
-            // throw $th;
         }
 
         if (!empty($dataError)) {
@@ -209,6 +228,84 @@ class SyncHopDong extends Command
         } else {
             $this->info('Đã import xong room!');
         }
+    }
+
+    private function hopDongService()
+    {
+        DB::table('contract_service')->truncate();
+        $csv = storage_path('app/public/migrate/room_contract_fix_price_service.csv');
+        $dataError = [];
+        // Đọc file CSV thành mảng
+        $rows = array_map('str_getcsv', file($csv));
+        $header = array_map('trim', $rows[0]); // Dòng đầu là header
+
+        // Lặp qua từng dòng dữ liệu (bỏ dòng header)
+        $per = [
+            'per_person' => 'Nguoi',
+            'per_room' => 'Phong',
+        ];
+        // save
+        foreach (array_slice($rows, 1) as $row) {
+
+            try {
+                $data = array_combine($header, $row);
+
+                if (empty($data['room_contract_id']) || $data['room_contract_id'] == 'NULL') {
+                    continue;
+                }
+
+                DB::table('contract_service')->insert([
+                    'contract_id' => $data['room_contract_id'] ?? null,
+                    'service_id'  => $data['fix_price_service_id'] ?? null,
+                    'price'  => $data['price'] ?? 0,
+                    'per'  => $per[$data['type']] ?? '',
+                ]);
+            } catch (\Throwable $th) {
+                echo 'Header count: ' . count($header);
+                echo "\n";
+                echo 'Rows count: ' . count($row);
+                echo "\n";
+                echo $th->getMessage();
+                dd($row);
+                // $dataError[] = [
+                //     'id' => $data['id'],
+                //     'apartment_id' => $data['house_id'] ?? null,
+                //     'name'  => $data['room_number'] ?? null,
+                // ];
+                throw $th;
+            }
+        }
+
+        $this->info('------ hợp đồng dịch vụ...');
+        // update service 2 hdong
+        $contacts = Contract::get();
+        foreach ($contacts as $contract) {
+            $services = ContractService::select(
+                    'contract_service.id as contract_service_id',
+                    'contract_service.contract_id',
+                    'contract_service.service_id',
+                    'aitilen_service.name',
+                    'contract_service.price',
+                    'contract_service.per',
+                    'aitilen_service.name as service_name',
+                )
+                ->where('contract_id', $contract->id)
+                ->leftJoin('aitilen_service', 'aitilen_service.id', '=', 'contract_service.service_id')
+                ->get()->toArray();
+
+            // $serviceNames = [];
+            // foreach($services as $service) {
+            //     $svc = DB::table('aitilen_service')->where('id', $service['service_id'])->first();
+            //     $serviceNames[] = $service;
+            //     $serviceNames['service_name'] = $svc ? $svc->name : '';
+            // }
+            $hopdong = Contract::find($contract->id);
+            $hopdong->services = $services;
+            $hopdong->save();
+        }
+
+        $this->info('Đã import xong!');
+        dd($hopdong->id);
     }
 
     private function dienNuocSync()
@@ -317,10 +414,15 @@ class SyncHopDong extends Command
 
             try {
                 $code = 'KHA' . TblService::formatNumberByLength($data['id'], 5);
+                $name = '';
+                if (!empty($data['name'])) {
+                    $name = $this->ucwords_unicode($data['name']);
+                }
+
                 $dataInsert = [
                     'id' => $data['id'],
                     'code'  => $code,
-                    'name'  => $data['name'] ?? '',
+                    'name'  => $name,
                     'username'  => $data['phone'] ?? null,
                     'password'  => $password,
                     'ngay_sinh'  => $data['p_birthday'] ?? null,
@@ -337,6 +439,12 @@ class SyncHopDong extends Command
 
                 DB::table('users')->insert($dataInsert);
             } catch (\Throwable $th) {
+                // $dataError[] = [
+                //     'id' => $data['id'],
+                //     'name'  => $data['name'] ?? null,
+                //     'phone'  => $data['phone'] ?? null,
+                // ];
+                // throw $th;
             }
         }
         $this->info('Đã import xong room!');
@@ -360,5 +468,10 @@ class SyncHopDong extends Command
         }
         // Regex: bắt đầu bằng 0, tiếp theo là 9 hoặc 10 số
         return preg_match('/^0[1-9][0-9]{8,9}$/', $phone);
+    }
+
+    private function ucwords_unicode($str)
+    {
+        return mb_convert_case($str, MB_CASE_TITLE, "UTF-8");
     }
 }

@@ -35,10 +35,10 @@ class AdminMenuSeeder extends Seeder
         );
         DB::table('admin_menu')->insert([
             ['parent_id' => $aitilen, 'name' => 'aitilen_dashboard', 'display_name' => 'Báo cáo', 'table_name' => '', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $aitilen, 'name' => 'aitilen_invoice', 'display_name' => 'Hóa đơn', 'table_name' => 'aitilen_invoice', 'route' => 'aitilen.invoice', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'so_quy', 'display_name' => 'Sổ qũy', 'table_name' => 'so_quy', 'route' => 'soQuy', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $aitilen, 'name' => 'aitilen_contract', 'display_name' => 'Hợp đồng', 'table_name' => 'contract', 'route' => 'contract.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $aitilen, 'name' => 'so_quy', 'display_name' => 'Sổ qũy', 'table_name' => 'so_quy', 'route' => 'soQuy', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $aitilen, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $aitilen, 'name' => 'apartment', 'display_name' => 'Tòa nhà', 'table_name' => 'apartment', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $aitilen, 'name' => 'website_aitilen', 'display_name' => 'Website', 'table_name' => '', 'route' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
         ]);

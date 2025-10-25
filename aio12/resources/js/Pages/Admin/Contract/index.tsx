@@ -151,14 +151,14 @@ export default function Dashboard(props: any) {
 
     const columns = [
         {
-            title: 'Khach hàng',
+            title: 'Khách hàng',
             dataIndex: 'khach_hang',
             key: 'id',
             render: (text: any, record: any) => {
                 return <>
-                    {record.id}
-                    {record.ho_ten ? <Tag color="green">{record.ho_ten}</Tag> : ''}
-                    <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
+                    <b>{record.ho_ten ? <span>{record.ho_ten}</span> : ''}</b>
+                    <br />
+                    {props.room[record.room_id] ? <Tag color="blue">{props.room[record.room_id].name}</Tag> : ''}
                 </>;
             }
         },
@@ -230,14 +230,14 @@ export default function Dashboard(props: any) {
             key: 'dich_vu',
             render: (text: any, record: any) => {
                 return <>
-                    {/* <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
-                    <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
+                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
+                    <Tag color="purple">tiền phòng: {numberFormat(record.gia_thue)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
                     {record.services.map((service: any, idx: number) => {
                         return <Tag color="blue" key={idx}>
-                            {service.name}: {numberFormat(service.price_total)}
+                            {service.service_name}: {numberFormat(service.price)}
                         </Tag>
-                    })} */}
+                    })}
                 </>;
             }
         },

@@ -20,7 +20,7 @@ class ContractController extends Controller
     public function index(Request $request)
     {
         $searchData = $request->all();
-        
+
         $datas = Contract::getContract($searchData);
 
         $pageConfig = [
@@ -32,20 +32,20 @@ class ContractController extends Controller
         ];
 
         // select
-        $room = TblService::formatData('room', ['room_status_id' => 1]);
+        $room = TblService::formatData('room', []);
         $status = TblService::formatData('contract_status', []);
         $service = TblService::formatData('aitilen_service');
         $apm = TblService::formatData('apartment');
         $serviceDefault = AitilenService::where('is_invoice_default', 1)
             ->orderBy('sort_order', 'asc')->get()->toArray();
-        
-        
+
+
         $users_db = User::orderBy('id', 'desc')->get();
         $users_select = [];
         foreach ($users_db as $user) {
             $users_select[] = [
-                'value' => $user->id.'',
-                'label' => '['.$user->code.']' . $user->name . ' - ' . $user->created_at->format('d/m/Y'),
+                'value' => $user->id . '',
+                'label' => '[' . $user->code . ']' . $user->name . ' - ' . $user->created_at->format('d/m/Y'),
             ];
         }
 
@@ -65,8 +65,13 @@ class ContractController extends Controller
         return Inertia::render('Admin/Contract/index', $props);
     }
 
+    private function ucwords_unicode($str)
+    {
+        return mb_convert_case($str, MB_CASE_TITLE, "UTF-8");
+    }
+
     public function update(Request $request)
-    {  
+    {
         // save hoa don
         if (empty($request->id)) {
             $data = new Contract();
@@ -76,10 +81,14 @@ class ContractController extends Controller
                 return $this->sendErrorResponse('Hợp đồng không tồn tại !');
             }
         }
-        $user = User::find($data->user_id);
+        $user = User::find($request->user_id);
+        $hoTen = '';
         if (!empty($user)) {
+            if (!empty($user->name)) {
+                $hoTen = $this->ucwords_unicode($user->name);
+            }
             $data->user_id = $request->user_id;
-            $data->ho_ten = $user->name;
+            $data->ho_ten = $hoTen;
             $data->dob = $user->dob;
             $data->phone = $user->phone;
             $data->email = $user->email;
@@ -88,20 +97,21 @@ class ContractController extends Controller
             $data->noi_cap = $user->noi_cap;
             $data->hktt = $user->hktt;
         }
-        $data->name = $request->name;
+        if (!empty($request->room_id)) {
+            $room = Room::find($request->room_id);
+            if ($room) {
+                $data->apartment_id = $room->apartment_id;
+                $data->room_id = $room->id;
+                $data->name = $hoTen . ' - ' . $room->name;
+            }
+        }
         $data->contract_status_id = $request->contract_status_id;
         $data->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
         $data->so_nguoi = $request->so_nguoi;
         $data->total = $request->total;
         $data->services = $request->services;
 
-        if (!empty($request->room_id)) {
-            $room = Room::find($request->room_id);
-            if ($room) {
-                $data->apartment_id = $room->apartment_id;
-                $data->room_id = $room->id;
-            }
-        }
+
         // set create_by
         $adminUser = auth()->guard('admin_users')->user();
         $data->create_by = $adminUser->id;
@@ -120,7 +130,7 @@ class ContractController extends Controller
                 return $this->sendErrorResponse('Hóa đơn không tồn tại !');
             }
         }
-        
+
         $invoice->name = $request->name;
         $invoice->aitilen_invoice_status_id = $request->aitilen_invoice_status_id;
         $invoice->ngay_hen_dong_tien = $request->start_date;
@@ -138,14 +148,14 @@ class ContractController extends Controller
         $invoice->month = $date->format('m');
         $invoice->year = $date->format('Y');
 
-        
+
         if ($user) {
             $invoice->user_id = $user->id;
         }
 
-        if(!empty($request->room_id)) {
+        if (!empty($request->room_id)) {
             $room = Room::find($request->room_id);
-            if($room) {
+            if ($room) {
                 $invoice->apartment_id = $room->apartment_id;
                 $invoice->room_id = $room->id;
             }

@@ -56,7 +56,7 @@ class Contract extends Model
         }
 
 
-        $datas = $datas->orderBy('contract.id', 'desc')->paginate(10);
+        $datas = $datas->orderBy('contract.created_at', 'desc')->paginate(20);
         return $datas;
     }
 }

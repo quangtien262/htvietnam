@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('contract_service', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->nullable();
-            $table->text('contract_id')->nullable();
+            $table->string('name')->nullable();
+            $table->integer('contract_id')->nullable();
             $table->integer('service_id')->nullable(); // nv thực hiện
             $table->integer('price')->nullable(); // json người theo dõi hoặc làm cùng
             $table->string('per')->nullable();
-            $table->string('so_nguoi')->nullable();
-            $table->string('total')->nullable();
+            $table->integer('so_nguoi')->nullable();
+            $table->integer('total')->nullable();
 
             MigrateService::createBaseColumn($table);
 
