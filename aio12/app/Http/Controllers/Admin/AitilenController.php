@@ -103,6 +103,7 @@ class AitilenController extends Controller
                 return $this->sendErrorResponse('Hóa đơn không tồn tại !');
             }
         }
+        
         $invoice->name = $request->name;
         $invoice->aitilen_invoice_status_id = $request->aitilen_invoice_status_id;
         $invoice->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;

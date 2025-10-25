@@ -672,9 +672,6 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        onChange={(value, user: any) => {
-
-                                                        }}
                                                     />
                                                 </Form.Item>,
                                             },
