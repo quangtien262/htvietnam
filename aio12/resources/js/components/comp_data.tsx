@@ -42,6 +42,7 @@ import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../Function/sun_config';
 import { a } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
+import { log } from "console";
 
 const { TextArea } = Input;
 
@@ -59,6 +60,8 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
             distance: 10,
         },
     });
+
+    console.log('dataAction', dataAction);
     // Chỉ cho phép file ảnh
     const beforeUpload = (file: any) => {
         const isImage = file.type.startsWith('image/');
@@ -582,8 +585,9 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
     };
 
     const onFinishFormEdit = (values: any) => {
-        // setLoadingSubmit(true);
-        values.id = dataAction.data.id;
+
+        // setLoadingSubmit(true);s
+
         for (const [key, val] of Object.entries(formEdit.getFieldValue())) {
             if (!values[key]) {
                 values[key] = val;
@@ -599,7 +603,10 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
 
         values = formatValueForm(dataAction.columns, values);
 
-        console.log('va', values);
+        values.id = dataAction.data.id;
+
+        // console.log('va', values);
+        // return;
         // values.tiny_images = tinyImageName;
 
 
@@ -678,6 +685,31 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
         return values;
     }
 
+    let initValues = {};
+    dataAction.columns.map((col) => {
+        if (col.type_edit === "date" && dataAction.data[col.name]) {
+            initValues[col.name] = dayjs(dataAction.data[col.name], DATE_FORMAT);
+            return;
+        }
+        if (col.type_edit === "datetime" && dataAction.data[col.name]) {
+            initValues[col.name] = dayjs(dataAction.data[col.name], DATE_TIME_FORMAT);
+            return;
+        }
+        if (col.type_edit === "time" && dataAction.data[col.name]) {
+            initValues[col.name] = dayjs(dataAction.data[col.name], TIME_FORMAT);
+            return;
+        }
+        // todo: info selects
+        if (col.type_edit === "select" && dataAction.data[col.name]) {
+            initValues[col.name] = dataAction.data[col.name].id;
+            return;
+        }
+        initValues[col.name] = dataAction.data[col.name];
+        console.log(col.name, dataAction.data[col.name]);
+
+    });
+    formEdit.setFieldsValue(initValues);
+
     return <>
         <Form
             name="basic"
@@ -685,7 +717,7 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
             form={formEdit}
             onFinish={onFinishFormEdit}
             autoComplete="off"
-        // initialValues={formChamCong}
+        // initialValues={initialValues}
         >
             <Row>
 
@@ -700,14 +732,14 @@ export function contentFormData(dataAction: any, imagesData: any[], onSuccess: a
                 </Row>
 
                 <Col span={24} className="main-btn-popup">
-                    <Button className="btn-popup" >
+                    {/* <Button className="btn-popup" >
                         <CloseSquareOutlined />
                         Hủy
                     </Button>
-                    <span> </span>
+                    <span> </span> */}
                     <Button className="btn-popup" type="primary" htmlType="submit" loading={loadingSubmit}>
                         <CopyOutlined />
-                        Lưu
+                        Lưu dữ liệu
                     </Button>
                 </Col>
             </Row>
@@ -723,11 +755,11 @@ type DisplayName = {
 };
 /**
  * Form thêm nhanh dữ liệu cho các bảng đơn giản
- * @param tableName 
- * @param displayName 
- * @param route 
- * @param onSuccess 
- * @returns 
+ * @param tableName
+ * @param displayName
+ * @param route
+ * @param onSuccess
+ * @returns
  */
 export function formAddExpress(tableName: string, displayName: DisplayName = {}, route: string, onSuccess: any) {
     const [formExpress] = Form.useForm();

@@ -109,11 +109,7 @@ export default function Dashboard(props: any) {
         },
     });
 
-    console.log('====================================');
-    console.log(props.searchData);
-    console.log('====================================');
-
-    function setPagination(pagination) {
+    function setPagination(pagination: { page?: number; pageSize?: number }) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),
             pagination
@@ -680,14 +676,14 @@ export default function Dashboard(props: any) {
             return;
         }
 
-
-
         if (props.table.is_show_btn_edit === 1 && inArray(props.table.id, props.userPermission.table_edit)) {
             if (props.table.form_data_type === 2) {
-                return <Button onClick={() => { editData(record) }} type="button" className="icon-edit"><EditOutlined /> </Button>
+                return <Button onClick={() => {
+                    editData(record);
+                }} type="button" className="icon-edit"><EditOutlined /> </Button>;
             }
             return <Link href={route("data.edit", { tableId: props.tableId, dataId: record.id, p: props.p })}>
-                <Button type="button" className="icon-edit"><EditOutlined /> </Button>
+                <Button type="button" className="icon-edit"><EditOutlined />  </Button>
             </Link>
         }
     }
@@ -1121,6 +1117,9 @@ export default function Dashboard(props: any) {
             .then((response) => {
 
                 if (response.data.status_code == 200) {
+                    console.log('=ZZZ');
+                    console.log(response.data.data);
+                    console.log('=======');
                     setDataAction(response.data.data);
                     console.log('response.data.data.imagesData', response.data.data.imagesData);
 
@@ -1135,6 +1134,7 @@ export default function Dashboard(props: any) {
     }
 
     function addNewData() {
+        setDataAction([]);
         setIsOpenFormEdit(true);
         axios
             .post(route("data.api.info", { tableId: props.table.id, dataId: 0, p: props.p }))
@@ -1423,7 +1423,6 @@ export default function Dashboard(props: any) {
                             width={1000}
                         >
                             {contentFormData(dataAction, fileList, (result: any) => {
-                                setDataAction([]);
                                 setLoadingTable(false);
                                 setIsOpenFormEdit(false);
                                 // update state datasource

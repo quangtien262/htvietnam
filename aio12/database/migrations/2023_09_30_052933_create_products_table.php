@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->integer('product_application_id')->default(0)->nullable();
             // $table->text('product_type_ids_apply')->nullable();
             $table->integer('thoi_luong')->default(0)->nullable(); // dich vu
-            $table->integer('product_group_id')->default(0)->nullable(); // HH, dich vu, gói, 
+            $table->integer('product_group_id')->default(0)->nullable(); // HH, dich vu, gói,
             $table->text('product_group_ids_apply')->nullable(); // thẻ(chọn nhiều)
             $table->integer('thuong_hieu_id')->default(0)->nullable(); // HH, dich vu, gói, thẻ
             $table->integer('vi_tri_id')->default(0)->nullable(); // HH
@@ -113,7 +113,7 @@ return new class extends Migration {
 
             $table->string('file')->nullable();
 
-            $table->integer('is_parent')->default(0)->nullable(); // 
+            $table->integer('is_parent')->default(0)->nullable(); //
 
             MigrateService::createBaseColumn($table);
         });
@@ -167,6 +167,7 @@ return new class extends Migration {
             $order_col++,
             ['edit' => 0]
         );
+
         MigrateService::createColumn02(
             $tableId,
             'code',
@@ -174,7 +175,7 @@ return new class extends Migration {
             'VARCHAR',
             'text',
             $order_col++,
-            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 1, 'require' => 1, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
+            ['parent_id' => $hh->id, 'show_in_list' => 1, 'edit' => 1, 'require' => 0, 'auto_generate_code' => '{"edit":0, "prefix":"HH", "length":5}']
         );
 
         MigrateService::createColumn02(
@@ -296,15 +297,15 @@ return new class extends Migration {
             ['parent_id' => $hh->id, 'edit' => 0]
         );
 
-        MigrateService::createColumn02(
-            $tableId,
-            'file',
-            'File tài liệu',
-            'text',
-            'image',
-            $order_col++,
-            ['parent_id' => $hh->id, 'col' => 24]
-        );
+        // MigrateService::createColumn02(
+        //     $tableId,
+        //     'file',
+        //     'File tài liệu',
+        //     'text',
+        //     'image',
+        //     $order_col++,
+        //     ['parent_id' => $hh->id, 'col' => 24]
+        // );
 
         MigrateService::createColumn02(
             $tableId,

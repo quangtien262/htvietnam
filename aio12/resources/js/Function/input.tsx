@@ -89,12 +89,15 @@ export function formatValueForm(columns: any, values: any) {
 
 export function HTSelect(col: any, prop: any, langId = 0) {
     const [colData, setColData] = useState(col);
-    const [optionsData, setOptionsData] = useState(Object.entries(prop.selectData[col.name] ? prop.selectData[col.name] : {}).map(([key, val]: [string, any]) => {
-        return {
-            label: val,
-            value: key
-        };
-    }));
+
+    // const [optionsData, setOptionsData] = useState(Object.entries(prop.selectData[col.name] ? prop.selectData[col.name] : {}).map(([key, val]: [string, any]) => {
+    //     return {
+    //         label: val,
+    //         value: key
+    //     };
+    // }));
+    const [optionsData, setOptionsData] = useState(prop.selectData[col.name]);
+
     const [isOpenAddExpress, setIsOpenAddExpress] = useState(false);
     const [loadingBtnAdd, setLoadingBtnAdd] = useState(false);
     const [formData] = Form.useForm();
@@ -103,6 +106,8 @@ export function HTSelect(col: any, prop: any, langId = 0) {
 
     const onFinish = (values: any) => {
         values.table_id = selectTableId;
+
+
         axios.post(route('data.tblSelect.save'), values)
             .then((response) => {
                 if (response.status === 200) {
@@ -236,13 +241,13 @@ export function HTSelect02(col, prop, langId = 0) {
             {label}
         </div>
     }
+    // const optionsData = Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }));
+    console.log('select', prop.selectData[col.name]);
 
-    const optionsData = Object.entries(prop.selectData[col.name]).map(([key, value]) => ({ label: value, value: key }));
-    // return
+    const optionsData = prop.selectData[col.name];
     return <Col key={col.name} sm={{ span: 12 }} md={{ span: 24 }} lg={{ span: col.col }}>
 
         <Form.Item name={name} rules={checkRule(col)} label={label}>
-
             <Select showSearch className='ht-select'
                 style={{ width: '100%' }}
                 placeholder="Search to Select"

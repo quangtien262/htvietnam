@@ -609,15 +609,6 @@ class TblService extends Service
             $dataOld = [];
             $data = TblModel::model($table->name);
         }
-        $is_uploadImage = false;
-        $is_uploadImages = false;
-        $colImage = '';
-        $colImages = '';
-
-        $is_uploadFiles = false;
-        $is_uploadFile = false;
-        $colFile = '';
-        $colFiles = '';
         if (empty($dataId)) {
             $data->create_by = \Auth::guard('admin_users')->user()->id;
         }
