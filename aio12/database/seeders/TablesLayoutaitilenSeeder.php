@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Services\MigrateService;
 use Illuminate\Support\Facades\DB;
 
-class TablesLayoutAitilenSeeder extends Seeder
+class TablesLayoutaitilenSeeder extends Seeder
 {
 
     /**
