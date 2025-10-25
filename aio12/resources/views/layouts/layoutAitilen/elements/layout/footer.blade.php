@@ -112,23 +112,41 @@
                     </div>
                 </div>
 
+                 @php
+                $newsFooter = app('DataService')->getNewsByConditions([], [], 4);
+                $productsFooter = app('Helper')->getProducts([], $orderBy = ['id' => 'desc'], 4);
+                @endphp
+
                 <div id="col-1439219474" class="col medium-6 small-12 large-4 col-sm-12">
                     <div class="col-inner icon-box-text last-reset">
-                        <h3 class="title">{{ __('user.title_office_footer') }}</h3>
-                        <p class="address-footer">{!! !empty($config->office) ? nl2br($config->office) : '' !!}</p>
-                        <div>
-                            {!! !empty($config->code_gg_map_office) ? nl2br($config->code_gg_map_office) : '' !!}
-                        </div>
+                        <h3 class="title">Phòng mới</h3>
+
+                        @foreach ($productsFooter as $pro)
+                            <div class="footer-news-item">
+                                <i class="fa-solid fa-arrow-right"></i>
+                                <a href="{{ app('Helper')->getLinkProduct($pro) }}"
+                                    class="footer-news-title">{{ $pro->name_data }}</a>
+                                <span
+                                    class="footer-news-date">{{ $pro->created_at->format('d/m/Y') }}</span>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
+
+
                 <div id="col-389608184" class="col medium-6 small-12 large-4 col-sm-12">
                     <div class="col-inner icon-box-text last-reset">
-                        <h3 class="title">{{ __('user.title_factory_footer') }}</h3>
-                        <p class="address-footer">{!! !empty($config->factory) ? nl2br($config->factory) : '' !!}</p>
-                        <div>
-                            {!! !empty($config->code_gg_map_factory) ? nl2br($config->code_gg_map_factory) : '' !!}
-                        </div>
+                        <h3 class="title">Quy trình thực hiện</h3>
+                        @foreach ($newsFooter as $item)
+                            <div class="footer-news-item">
+                                <i class="fa-solid fa-arrow-right"></i>
+                                <a href="{{ app('Helper')->getLinkNews($item) }}"
+                                    class="footer-news-title">{{ $item->name }}</a>
+                                <span
+                                    class="footer-news-date">{{ $item->created_at->format('d/m/Y') }}</span>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>

@@ -174,7 +174,7 @@ class LayoutAitilen extends Land
             [
                 'name' => 'images',
                 'display_name' => 'Hình ảnh',
-                'image' => '/layouts/01/images/block/banner.png',
+                'image' => '/layouts/Aitilen/images/block/banner.png',
                 'sort_order' => $sort_order
             ]
         );
@@ -183,7 +183,7 @@ class LayoutAitilen extends Land
             [
                 'name' => 'news',
                 'display_name' => 'news',
-                'image' => '/layouts/01/images/block/news.png',
+                'image' => '/layouts/Aitilen/images/block/news.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -192,7 +192,7 @@ class LayoutAitilen extends Land
             [
                 'name' => 'products',
                 'display_name' => 'Product',
-                'image' => '/layouts/01/images/block/product.png',
+                'image' => '/layouts/Aitilen/images/block/product.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -201,7 +201,7 @@ class LayoutAitilen extends Land
             [
                 'name' => 'doiTac',
                 'display_name' => 'Đối tác',
-                'image' => '/layouts/01/images/block/doi-tac.png',
+                'image' => '/layouts/Aitilen/images/block/doi-tac.png',
                 'sort_order' => $sort_order++
             ]
         );
@@ -217,7 +217,7 @@ class LayoutAitilen extends Land
                 [
                     'name' => $name,
                     'display_name' => $name,
-                    'image' => '/layouts/01/images/block/' . $i . '.png',
+                    'image' => '/layouts/Aitilen/images/block/' . $i . '.png',
                     'sort_order' => $sort_order++
                 ]
             );
@@ -244,19 +244,19 @@ class LayoutAitilen extends Land
                 'name_data' => ['Banner', 'Banner', 'Banner'],
             ]
         );
-        for ($i = 1; $i < 5; $i++) {
+        for ($i = 1; $i < 2; $i++) {
             MigrateService::createImages(
                 ['slide', 'slide'],
-                '/layouts/01/images/slide0' . $i . '.jpg',
+                '/layouts/Aitilen/images/slide0' . $i . '.jpg',
                 1,
                 [
                     'menu_id' => $menuId,
                     'page_setting_id' => $page->id
                 ],
                 [
-                    'name_data' => ['Slide 0' . $i, 'Slide 0' . $i, 'Slide 0' . $i],
-                    'description' => ['description 0' . $i, 'description 0' . $i, 'description 0' . $i],
-                    'content' => ['content 0' . $i, 'content 0' . $i, 'content 0' . $i],
+                    'name_data' => ['An tâm trọ, vững bước tương lai!'],
+                    'description' => ['description 0' . $i],
+                    'content' => ['content 0' . $i],
                 ]
             );
         }
@@ -291,7 +291,7 @@ class LayoutAitilen extends Land
             'page_setting',
             [
                 'name' => 'products',
-                'display_name' => 'Sản phẩm nổi bật',
+                'display_name' => 'Phòng nổi bật',
                 'block_type' => 'products',
                 'sort_order' => $sortOrder,
                 'table_data' => 'products',
@@ -300,12 +300,10 @@ class LayoutAitilen extends Land
                 'menu_id' => $menuId
             ],
             [
-                'name_data' => ['Sản phẩm nổi bật', 'Featured Products', '特色产品'],
-                'description' => ['Danh sách sản phẩm bán chạy nhất', 'List of hottest products', '最热门产品列表'],
+                'name_data' => ['Phòng nổi bật', 'Featured Products', '特色产品'],
+                'description' => ['Danh sách phòng nổi bật'],
                 'content' => [
-                    'Chúng tôi xin giới thiệu danh sách những mặt hàng được khách hàng tin tưởng lựa chọn nhiều nhất, thể hiện chất lượng và uy tín của công ty trên thị trường.',
-                    'We would like to introduce a list of the most trusted and chosen products by customers, reflecting the company\'s quality and reputation in the market.',
-                    '我们为您介绍客户最信赖和选择最多的产品，体现了公司在市场上的品质与信誉。'
+                    'Dưới đây là danh sách các  phòng nổi bật mà chúng tôi muốn giới thiệu đến bạn. Mỗi phòng đều được thiết kế với sự chăm chút tỉ mỉ, mang lại không gian thoải mái và tiện nghi cho khách hàng.',
                 ],
             ]
         );
@@ -314,17 +312,21 @@ class LayoutAitilen extends Land
     static function block03($sortOrder = 0, $menuId = 0)
     {
         $imgs = [
-            '/layouts/01/images/block3/11.jpg',
-            '/layouts/01/images/block3/12.jpg',
-            '/layouts/01/images/block3/13.jpg',
+            '/layouts/Aitilen/images/block3/11.jpg',
+            '/layouts/Aitilen/images/block3/12.jpg',
+            '/layouts/Aitilen/images/block3/13.jpg',
         ];
         $images = [
             'avatar' => $imgs[0],
             'images' => $imgs
         ];
-        $content03_vi = 'Chúng tôi tự hào là đối tác tin cậy của nhiều khách hàng và doanh nghiệp nhờ vào đội ngũ chuyên gia giàu kinh nghiệm, quy trình làm việc chuyên nghiệp và cam kết mang lại giá trị bền vững. Với các giải pháp tối ưu, sản phẩm chất lượng cao cùng dịch vụ hậu mãi tận tâm, chúng tôi luôn nỗ lực đáp ứng mọi nhu cầu và vượt qua sự mong đợi của khách hàng. Lựa chọn chúng tôi, bạn sẽ nhận được sự đồng hành uy tín trên hành trình phát triển và thành công.';
-        $content03_en = 'We are proud to be a trusted partner of many customers and businesses thanks to our team of experienced experts, professional working processes, and commitment to delivering sustainable value. With optimal solutions, high-quality products, and dedicated after-sales service, we always strive to meet all customer needs and exceed their expectations. Choosing us, you will receive reliable companionship on the journey of development and success.';
-        $content03_ch = '我们自豪地成为许多客户和企业的可信赖合作伙伴，这得益于我们经验丰富的专家团队、专业的工作流程以及对提供可持续价值的承诺。凭借优化的解决方案、高质量的产品和贴心的售后服务，我们始终努力满足客户的所有需求并超越他们的期望。选择我们，您将获得在发展和成功之旅中的可靠伴侣。';
+        $content03_vi = 'Aitilen là hệ thống chung cư mini trên khắp các quận trung tâm tại Hà Nội:
+<br /> - Cầu giấy
+<br /> - Thanh Xuân
+<br /> - Hoàng Mai
+<br /> - Nam Từ Liêm
+<br /> Tại đây quý khách có thể đặt phòng online và xem chi tiết hình ảnh các phòng của các chung cư mini mà chúng tôi đang cung cấp';
+
         $page = MigrateService::createData(
             'page_setting',
             [
@@ -339,18 +341,17 @@ class LayoutAitilen extends Land
                 'images' => json_encode($images),
             ],
             [
-                'name_data' => ['Tại sao nên chọn chúng tôi', 'Why Choose Us', '为什么选择我们'],
-                'description' => ['Chúng tôi luôn đặt uy tín và chất lượng lên hàng đầu', 'We always place reputation and quality first', '我们始终将声誉和质量放在首位'],
-                'content' => [$content03_vi, $content03_en, $content03_ch]
+                'name_data' => ['Giới thiệu về AITILEN'],
+                'description' => ['Hệ thống CCMN/Phòng trọ uy tín tại Hà Nội'],
+                'content' => [$content03_vi]
             ]
         );
     }
 
     static function contact($sortOrder = 0, $menuId = 0)
     {
+
         $contentContact_vi = 'Hãy gửi những thắc mắc của bạn cho chúng tôi. Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn';
-        $contentContact_en = 'Please send your inquiries to us. We are always ready to listen and assist you';
-        $contentContact_ch = '请将您的询问发送给我们。我们始终准备倾听和协助您';
         $page = MigrateService::createData(
             'page_setting',
             [
@@ -362,9 +363,9 @@ class LayoutAitilen extends Land
                 'table_data' => 'contact',
             ],
             [
-                'name_data' => ['Liên hệ', 'Contact', '联系'],
-                'description' => ['KẾT NỐI VỚI GCC', 'CONNECT WITH GCC', '与GCC联系'],
-                'content' => [$contentContact_vi, $contentContact_en, $contentContact_ch]
+                'name_data' => ['Liên hệ'],
+                'description' => ['KẾT NỐI VỚI GCC'],
+                'content' => [$contentContact_vi]
             ]
         );
 
@@ -373,23 +374,23 @@ class LayoutAitilen extends Land
             ['icon' => '<i class="far fa-map"></i>', 'page_setting_id' => $page->id],
             [
                 'name_data' => ['VĂN PHÒNG CÔNG TY', 'COMPANY OFFICE', '公司办公室'],
-                'content' => ['LK14, Hateco Green City, Foresa 4, phường Xuân Phương, TP. Hà Nội, Việt Nam', 'LK14, Hateco Green City, Foresa 4, Xuan Phuong Ward, Hanoi, Vietnam', 'LK14, Hateco Green City, Foresa 4, 轩芳区, 河内, 越南']
+                'content' => ['Số 7 ngõ 68 đường Nguyễn Khuyến, phường Hà Đông, TP Hà Nội ']
             ]
         );
         MigrateService::createData(
             'block_contact01',
             ['icon' => '<i class="fas fa-phone-volume"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' => ['GỌI NGAY 24/7', 'CALL NOW 24/7', '全天候24/7呼叫'],
-                'content' => ['Hotline: <a href="tel:+8402432008888">+84 024 3200 8888</a>', 'Hotline: <a href="tel:+8402432008888">+84 024 3200 8888</a>', '热线：<a href="tel:+8402432008888">+84 024 3200 8888</a>']
+                'name_data' => ['GỌI NGAY 24/7'],
+                'content' => ['Hotline: <a href="tel:039.916.1342">039.916.1342</a>']
             ]
         );
         MigrateService::createData(
             'block_contact01',
             ['icon' => '<i class="fas fa-envelope"></i>', 'page_setting_id' => $page->id],
             [
-                'name_data' => ['GỬI EMAIL', 'SEND EMAIL', '发送电子邮件'],
-                'content' => ['Email: <a href="mailto:contact@aitilen.com">contact@aitilen.com</a>', 'Email: <a href="mailto:contact@aitilen.com">contact@aitilen.com</a>', '电子邮件：<a href="mailto:contact@aitilen.com">contact@aitilen.com</a>']
+                'name_data' => ['GỬI EMAIL', 'SEND EMAIL'],
+                'content' => ['Email: <a href="mailto:contact@aitilen.com">contact@aitilen.com</a>', 'Email: <a href="mailto:contact@aitilen.com">contact@aitilen.com</a>']
             ]
         );
 
@@ -422,7 +423,7 @@ class LayoutAitilen extends Land
 
         // content data
         for ($i = 1; $i <= 6; $i++) {
-            $img = '/layouts/01/images/brand/' . $i . '.png';
+            $img = '/layouts/Aitilen/images/brand/' . $i . '.png';
             MigrateService::createData(
                 'doi_tac',
                 [
@@ -437,7 +438,6 @@ class LayoutAitilen extends Land
                     'name_data' => ['Đối tác ', 'Partner', '合作伙伴'],
                 ]
             );
-
         }
     }
 
@@ -466,7 +466,7 @@ class LayoutAitilen extends Land
 
         MigrateService::createData(
             'block04',
-            ['image' => '/layouts/01/gcc/icon1.png', 'page_setting_id' => $page->id],
+            ['image' => '/layouts/Aitilen/gcc/icon1.png', 'page_setting_id' => $page->id],
             [
                 'name_data' => ['THỔI PHIM', 'Blown Film', '吹膜'],
                 'description' => [
@@ -478,7 +478,7 @@ class LayoutAitilen extends Land
         );
         MigrateService::createData(
             'block04',
-            ['image' => '/layouts/01/gcc/icon2.png', 'page_setting_id' => $page->id],
+            ['image' => '/layouts/Aitilen/gcc/icon2.png', 'page_setting_id' => $page->id],
             [
                 'name_data' => ['DỆT PP', 'PP Woven Fabric', 'PP编织布'],
                 'description' => [
@@ -490,7 +490,7 @@ class LayoutAitilen extends Land
         );
         MigrateService::createData(
             'block04',
-            ['image' => '/layouts/01/gcc/icon3.png', 'page_setting_id' => $page->id],
+            ['image' => '/layouts/Aitilen/gcc/icon3.png', 'page_setting_id' => $page->id],
             [
                 'name_data' => ['SẢN XUẤT SẢN PHẨM BẰNG NHỰA', 'PLASTIC PRODUCT MANUFACTURING', '塑料产品制造'],
                 'description' => [
@@ -503,7 +503,7 @@ class LayoutAitilen extends Land
 
         MigrateService::createData(
             'block04',
-            ['image' => '/layouts/01/gcc/icon4.png', 'page_setting_id' => $page->id],
+            ['image' => '/layouts/Aitilen/gcc/icon4.png', 'page_setting_id' => $page->id],
             [
                 'name_data' => ['SẢN XUẤT VẢI KHÔNG DỆT', 'NON-WOVEN FABRIC MANUFACTURING', '无纺布生产'],
                 'description' => [
@@ -617,7 +617,7 @@ class LayoutAitilen extends Land
         );
         MigrateService::createData(
             'block05',
-            [ 'page_setting_id' => $page->id],
+            ['page_setting_id' => $page->id],
             [
                 'name_data' => ['Số lượng khách hàng', 'Number of Customers', '客户数量'],
                 'description' => ['368', '368 Customers', '368客户']
@@ -625,7 +625,7 @@ class LayoutAitilen extends Land
         );
         MigrateService::createData(
             'block05',
-            [ 'page_setting_id' => $page->id],
+            ['page_setting_id' => $page->id],
             [
                 'name_data' => ['Số Quốc gia đã xuất khẩu', 'Number of Exporting Countries', '出口国家数量'],
                 'description' => ['59', '59 Countries', '59个国家']
@@ -658,8 +658,8 @@ class LayoutAitilen extends Land
                 'block_type' => 'block06',
                 'table_data' => 'block06',
                 'images' => json_encode([
-                    'avatar' => '/layouts/01/images/bg/services.jpg',
-                    'images' => ['/layouts/01/images/bg/services.jpg']
+                    'avatar' => '/layouts/Aitilen/images/bg/services.jpg',
+                    'images' => ['/layouts/Aitilen/images/bg/services.jpg']
                 ])
             ],
             [
@@ -709,7 +709,7 @@ class LayoutAitilen extends Land
                 'sort_order' => $sortOrder,
                 'block_type' => 'block08',
                 'table_data' => 'block08',
-                'image' => '/layouts/01/images/about/3.jpg'
+                'image' => '/layouts/Aitilen/images/about/3.jpg'
             ],
             [
                 'name_data' => ['Tầm nhìn', 'Vision', '愿景'],
@@ -742,7 +742,7 @@ For society: Harmonize business interests with social interests; actively contri
                 'sort_order' => $sortOrder,
                 'block_type' => 'block08',
                 'table_data' => 'block08',
-                'image' => '/layouts/01/images/about/2.jpg'
+                'image' => '/layouts/Aitilen/images/about/2.jpg'
             ],
             [
                 'name_data' => ['Giá trị cốt lõi', 'Core values', '核心价值观'],
@@ -767,7 +767,7 @@ For society: Harmonize business interests with social interests; actively contri
                 'sort_order' => $sortOrder,
                 'block_type' => 'block09',
                 'table_data' => 'block09',
-                'image' => '/layouts/01/images/about/1.jpg'
+                'image' => '/layouts/Aitilen/images/about/1.jpg'
             ],
             [
                 'name_data' => ['Sứ mệnh', 'Mission', '使命'],

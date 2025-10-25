@@ -43,6 +43,14 @@ class TablesLayoutAitilenSeeder extends Seeder
         DB::table('page_setting')->truncate();
         DB::table('page_setting_data')->truncate();
 
+
+        DB::table('products')->truncate();
+        DB::table('products_data')->truncate();
+
+        // landingpage block
+        DB::table('block_contact01')->truncate();
+        DB::table('block_contact01_data')->truncate();
+
         // DB::table('block01')->truncate();
         // DB::table('block01_data')->truncate();
         DB::table('block02')->truncate();
@@ -71,11 +79,12 @@ class TablesLayoutAitilenSeeder extends Seeder
         // config admin menu
         MigrateService::showInAdminMenu(['menus', 'products', 'news', 'images', 'languages', 'email_maketting', 'users', 'admin_users', 'web_config', 'permission_group', 'block', 'block_info']);
 
+        //097.811.8710
         MigrateService::webconfig(
             'Aitilen',
             [
                 'logo' => '/layouts/Aitilen/images/logo.jpg',
-                'phone' => '097.811.8710',
+                'phone' => '039.916.1342',
                 'email' => 'contact@aitilen.com',
                 'email02' => 'sales@aitilen.com',
                 'website' => 'www.aitilen.com',
@@ -170,40 +179,56 @@ class TablesLayoutAitilenSeeder extends Seeder
     private function createDataProduct()
     {
         $this->command->info('migrate Product');
-        $imgs = [
-            '/layouts/01/product-test/1.png',
-            '/layouts/01/product-test/2.png',
-            '/layouts/01/product-test/3.png',
+        $imgs1 = [
+            '/layouts/Aitilen/product-test/1.jpg',
+            '/layouts/Aitilen/product-test/11.jpg',
+            '/layouts/Aitilen/product-test/12.jpg',
+        ];
+        $imgs2 = [
+            '/layouts/Aitilen/product-test/2.jpg',
+            '/layouts/Aitilen/product-test/21.jpg',
+            '/layouts/Aitilen/product-test/22.jpg',
+        ];
+        $imgs3 = [
+            '/layouts/Aitilen/product-test/3.jpg',
+            '/layouts/Aitilen/product-test/31.jpg',
+            '/layouts/Aitilen/product-test/32.jpg',
+        ];
+        $imgs4 = [
+            '/layouts/Aitilen/product-test/4.jpg',
+            '/layouts/Aitilen/product-test/41.jpg',
+            '/layouts/Aitilen/product-test/42.jpg',
+            '/layouts/Aitilen/product-test/43.jpg',
         ];
 
-        $file = 'layouts/01/product-test/3.png';
+        $file = 'layouts/Aitilen/product-test/3.jpg';
 
         MigrateService::createProduct(
-            ['HẠT NHỰA MÀU', 'Color Masterbatch', '塑料粒颗颜色'],
+            ['QUANG TRUNG - HÀ NỘI'],
             12000,
-            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
+            ['avatar' => '/layouts/Aitilen/product-test/1.jpg', 'images' => $imgs1],
             ['content 01'],
             ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1],
-            ['name_data' => ['Hạt nhựa màu', 'Color Masterbatch', '塑料粒颗颜色']]
+            ['name_data' => ['QUANG TRUNG - HÀ NỘI']]
         );
         MigrateService::createProduct(
-            ['HẠT CHỐNG ẨM', 'Color Masterbatch', '塑料粒颗颜色'],
+            ['VẠN PHÚC - HÀ ĐÔNG'],
             13000,
-            ['avatar' => '/layouts/01/product-test/2.png', 'images' => $imgs],
+            ['avatar' => '/layouts/Aitilen/product-test/2.jpg', 'images' => $imgs2],
             [],
             ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
         MigrateService::createProduct(
-            ['CHẤT ĐỘN FILLER MASTERBATCH', 'Color Masterbatch', '塑料粒颗颜色'],
+            ['ĐỊNH CÔNG - HOÀNG MAI'],
             13000,
-            ['avatar' => '/layouts/01/product-test/3.png', 'images' => $imgs],
+            ['avatar' => '/layouts/Aitilen/product-test/3.jpg', 'images' => $imgs3],
             [],
             ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
         MigrateService::createProduct(
-            ['CHẤT ĐỘN FILLER MASTERBATCH 02', 'Color Masterbatch', '塑料粒颗颜色'],
+            ['PHÙNG KHOANG - ĐẠI MỖ'],
             13000,
-            ['avatar' => '/layouts/01/product-test/1.png', 'images' => $imgs],
+            ['avatar' => '/layouts/Aitilen/product-test/1.jpg', 'images' => $imgs4],
             [],
             ['menu_id' => 3, 'file' => $file, 'product_type_id' => 1, 'product_application_id' => 1]
         );
@@ -223,8 +248,8 @@ class TablesLayoutAitilenSeeder extends Seeder
 
         $desAbout = '<p class="big" style="text-align: center;">HT có nhiều kinh nghiệm và giải pháp tối ưu trong lĩnh vực keo dán gạch,<br/>keo chà ron, phụ gia và hóa chất xây dựng</p>';
         $imgs = [
-            'avatar' => '/layouts/01/images/bg/img3.jpg',
-            'images' => ['/layouts/01/images/bg/img3.jpg']
+            'avatar' => '/layouts/Aitilen/images/bg/img3.jpg',
+            'images' => ['/layouts/Aitilen/images/bg/img3.jpg']
         ];
         $images = json_encode($imgs);
         MigrateService::createMenu(
@@ -312,7 +337,7 @@ class TablesLayoutAitilenSeeder extends Seeder
                 ';
         MigrateService::createNews(
             ['Cách chà ron gạch lát nền và ốp tường nhà hiệu quả'],
-            '/layouts/01/images/new-1.jpg',
+            '/layouts/Aitilen/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 7],
             ['description' => ['Chà ron gạch lát nền là công đoạn cuối cùng khá quan trọng trong lát nền', 'description en']]
@@ -320,7 +345,7 @@ class TablesLayoutAitilenSeeder extends Seeder
 
         MigrateService::createNews(
             ['Vì sao nên sử dụng keo chà ron khi lát gạc', 'description en'],
-            '/layouts/01/images/new-1.jpg',
+            '/layouts/Aitilen/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 7],
             ['description' => ['Keo chà ron hiện nay được xem là sản phẩm được khá nhiều người ưa', 'description en']]
@@ -328,7 +353,7 @@ class TablesLayoutAitilenSeeder extends Seeder
 
         MigrateService::createNews(
             ['Keo chà ron cho nhà tắm, hồ bơi', 'description en'],
-            '/layouts/01/images/new-1.jpg',
+            '/layouts/Aitilen/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
@@ -336,7 +361,7 @@ class TablesLayoutAitilenSeeder extends Seeder
 
         MigrateService::createNews(
             ['bí quyết chống thấm hoàn hảo', 'description en'],
-            '/layouts/01/images/new-1.jpg',
+            '/layouts/Aitilen/images/new-1.jpg',
             [$content, $content],
             ['menu_id' => 7],
             ['description' => ['Chà ron hay còn gọi là chít mạch đối với mỗi công trình là quy', 'description en']]
@@ -381,7 +406,7 @@ class TablesLayoutAitilenSeeder extends Seeder
             'video',
             [
                 'menu_id' => 5,
-                'image' => '/layouts/01/product-test/3.png'
+                'image' => '/layouts/Aitilen/product-test/3.png'
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
@@ -394,7 +419,7 @@ class TablesLayoutAitilenSeeder extends Seeder
             'video',
             [
                 'menu_id' => 5,
-                'image' => '/layouts/01/product-test/3.png'
+                'image' => '/layouts/Aitilen/product-test/3.png'
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
@@ -407,7 +432,7 @@ class TablesLayoutAitilenSeeder extends Seeder
             'video',
             [
                 'menu_id' => 5,
-                'image' => '/layouts/01/product-test/3.png'
+                'image' => '/layouts/Aitilen/product-test/3.png'
             ],
             [
                 'name_data' => ['GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM', 'GIỚI THIỆU - CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG HT VIỆT NAM'],
