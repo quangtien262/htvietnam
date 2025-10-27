@@ -235,7 +235,7 @@ export function projectConfig(
                 console.log('Thứ tự mới:', orderKeys);
                 console.log('tbl.currentName', tbl.currentName);
                 // send 2 server:
-                axios.post(route('data.sortOrder02', [tbl.currentName]), { order: orderKeys })
+                axios.post(route('data.sortOrder02'), { data: orderKeys, tableName: tbl.currentName })
 
                 return newOrder;
             });
@@ -602,11 +602,11 @@ export function projectInfo(props: any,
     }
 
     const onFinishFormComment = async (values: any) => {
-        // setIsLoadingBtn(true);
+        setIsLoadingBtn(true);
         console.log(commentAction);
         // return
-        axios.post(route('task.addComment'), {
-            task_id: dataAction.id,
+        axios.post(route('project.addComment'), {
+            project_id: dataAction.id,
             content: values.content,
             id: commentAction.id
         }).then(response => {
@@ -620,32 +620,12 @@ export function projectInfo(props: any,
         });
     }
 
-    function editComment(id: number, columnName: string, value: any) {
-        axios.post(route('data.fastEditByTableName'), {
-            tbl_name: 'task_comments',
-            id: id,
-            value: value,
-            task_id: dataAction.id,
-            column_name: columnName,
-        }).then(response => {
-            setIsLoadingBtn(false);
-            message.success('Cập nhật thành công');
-            const dataSuccess = {
-                checklist: response.data.data.list,
-                checklist_percent: response.data.data.percent
-            };
-            onSuccess(dataSuccess);
-        }).catch(error => {
-            message.error('Cập nhật thất bại');
-        });
-    }
-
     const removeChecklistByIndex = (indexToRemove: number, id: number) => {
         axios.post(route('data.fastEditByTableName'), {
             column_name: 'is_recycle_bin',
-            tbl_name: 'task_checklist',
+            tbl_name: 'project_checklist',
             id: id,
-            task_id: dataAction.id,
+            project_id: dataAction.id,
             value: 1
         }).then(response => {
             setIsLoadingBtn(false);
@@ -1026,10 +1006,10 @@ export function projectInfo(props: any,
                                             }
                                             axios.post(route('data.fastEditByTableName'), {
                                                 column_name: 'is_checked',
-                                                tbl_name: 'task_checklist',
+                                                tbl_name: 'project_checklist',
                                                 id: item.id,
                                                 value: status,
-                                                task_id: dataAction.id,
+                                                project_id: dataAction.id,
                                             }).then(response => {
                                                 message.success('Cập nhật thứ tự thành công');
                                                 onSuccess({ checklist: response.data.data.list, checklist_percent: response.data.data.percent });

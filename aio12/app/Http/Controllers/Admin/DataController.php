@@ -767,9 +767,8 @@ class DataController extends Controller
      * @param  \App\Models\Blog  $blog
      * @return \Illuminate\Http\Response
      */
-    public function updateSortOrder02(Request $request, $tableId)
+    public function updateSortOrder02(Request $request)
     {
-        // dd($request->all());
         if (empty($request->data)) {
             return false;
         }
@@ -783,9 +782,6 @@ class DataController extends Controller
                 'sort_order' => $i,
             ];
             TblService::updateData($request->tableName, $id, $dataUpdate);
-            if (!empty($data['children'])) {
-                $this->updateSortOrderData($tableId, $data['children'], $data['key']);
-            }
         }
         return $this->sendSuccessResponse('success', 'Update successfully', 200);
     }
@@ -933,6 +929,7 @@ class DataController extends Controller
         if ($request->tbl_name == 'project_checklist') {
             $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
             $percent = TblService::getChecklistPercent($checklist);
+            // dd($checklist);
             return $this->sendSuccessResponse(['list' => $checklist, 'percent' => $percent, 'data' => $data]);
         }
 

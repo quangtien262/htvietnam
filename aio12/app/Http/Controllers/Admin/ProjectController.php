@@ -255,14 +255,14 @@ class ProjectController extends Controller
         $admin = Auth::guard('admin_users')->user();
 
         // save
-        $comment = new TaskComment();
+        $comment = new ProjectComment();
         $comment->content = $request->content;
         $comment->project_id = $request->project_id;
         $comment->create_by = $admin->id;
         $comment->save();
 
         // get all
-        $comments = TaskComment::getByProject($request->project_id);
+        $comments = ProjectComment::getByProject($request->project_id);
 
         return $this->sendSuccessResponse($comments);
     }
