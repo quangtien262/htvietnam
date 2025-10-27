@@ -1084,37 +1084,37 @@ export default function Dashboard(props: any) {
             });
     };
 
-    const columns2: ColumnsType<any> = [
-        {
-            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
-                return <b>{text}</b>
-            }
-        },
-        {
-            title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
-                return showTypeMeeting(record);
-            }
-        },
-        {
-            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-                return showNguoiThucHien(record);
-            }
-        },
-        {
-            title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
-                return <>
-                    {
-                        props.meetingStatus[record.meeting_status_id] ? (
-                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
-                            </Tag>
-                        ) : null
-                    }
-                </>
-            }
-        },
-    ];
+    // const columns2: ColumnsType<any> = [
+    //     {
+    //         title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+    //             return <b>{text}</b>
+    //         }
+    //     },
+    //     {
+    //         title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
+    //             return showTypeMeeting(record);
+    //         }
+    //     },
+    //     {
+    //         title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
+    //             return showNguoiThucHien(record);
+    //         }
+    //     },
+    //     {
+    //         title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
+    //             return <>
+    //                 {
+    //                     props.meetingStatus[record.meeting_status_id] ? (
+    //                         <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+    //                             <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+    //                             <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+    //                         </Tag>
+    //                     ) : null
+    //                 }
+    //             </>
+    //         }
+    //     },
+    // ];
 
 
     return (
@@ -1266,7 +1266,132 @@ export default function Dashboard(props: any) {
                         </Modal>
 
                         {/* pageContent */}
+                        <div>
 
+
+                                <div style={{ marginBottom: 16 }}>
+                                    {/* confirm delete */}
+                                    {/* <Modal
+                                        title="Xác nhận xóa"
+                                        open={isOpenConfirmDelete}
+                                        onOk={deletes}
+                                        onCancel={handleCancelDelete}
+                                    // confirmLoading={loadingBtnDelete}
+                                    >
+                                        <p>
+                                            Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
+                                            được <br />{" "}
+                                            <b>(Số lượng {selectedRowKeys.length})</b>
+                                        </p>
+                                    </Modal> */}
+
+                                    {/* modal confirm export curent */}
+                                    {/* <Modal
+                                        title="Xác nhận export excel"
+                                        open={isOpenConfirmExportExcel}
+                                        onOk={exportExcel}
+                                        onCancel={handleCancelExport}
+                                        confirmLoading={loadingBtnExport}
+                                    >
+                                        <p>
+                                            Xuất dữ liệu ra file excel{" "}
+                                            <b>
+                                                (Số lượng{" "}
+                                                {hasSelected
+                                                    ? selectedRowKeys.length
+                                                    : props.pageConfig.total}
+                                                )
+                                            </b>
+                                        </p>
+                                    </Modal> */}
+
+                                    {/* modal confirm export all */}
+                                    {/* <Modal
+                                        title="Xác nhận export excel"
+                                        open={isOpenConfirmExportAllExcel}
+                                        onOk={exportAllDBExcel}
+                                        onCancel={handleCancelAllExport}
+                                        confirmLoading={loadingBtnExport}
+                                    >
+                                        <p>
+                                            Xuất tất cả dữ liệu ra file excel{" "}
+                                            <b>(Số lượng {props.pageConfig.total})</b>
+                                        </p>
+                                    </Modal> */}
+
+                                    {/* modal form import */}
+                                    {/* <Modal
+                                        title="Chọn file cần nhập liệu"
+                                        open={isOpenConfirmImportExcel}
+                                        onCancel={handleCancelImport}
+                                        confirmLoading={loadingBtnExport}
+                                        footer=""
+                                    >
+                                        <Upload {...uploadConfig}>
+                                            <Button icon={<UploadOutlined />}>
+                                                Select File
+                                            </Button>
+                                        </Upload>
+                                        <Button
+                                            type="primary"
+                                            onClick={handleUpload}
+                                            loading={uploading}
+                                            style={{
+                                                marginTop: 16,
+                                            }}
+                                        >
+                                            {uploading ? "Uploading" : "Start Upload"}
+                                        </Button>
+                                        <Button onClick={handleCancelImport}>Hủy</Button>
+                                    </Modal> */}
+
+
+                                    <Space className="_right">
+                                        {/* {checkShowBtnDelete()}
+
+                                        {btnIndex()}
+
+                                        {checkShowBtnExcel()} */}
+                                    </Space>
+
+                                    {/* page name */}
+                                    <b className="title-page">Meeting.</b>
+
+                                    {/* Show số lượng item/page */}
+                                    {/* <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
+                                        {props.pageConfig.count}/{props.pageConfig.total} )
+                                    </em> */}
+                                </div>
+
+                                <hr />
+                                <br />
+
+                                <Row>
+                                    <Col sm={{ span: 7 }}>
+                                        {/* {searchLeft()} */}
+                                    </Col>
+                                    <Col sm={{ span: 17 }}>
+                                        {/* <Table
+                                            size="small"
+                                            components={{
+                                                body: {
+                                                    cell: EditableCell,
+                                                },
+                                            }}
+                                            loading={loadingTable}
+                                            pagination={tableParams.pagination}
+                                            dataSource={dataSource}
+                                            columns={columns2}
+                                            rowSelection={rowSelection}
+                                            expandable={{
+                                                expandedRowRender,
+                                                defaultExpandedRowKeys: ['1'],
+                                            }}
+
+                                        /> */}
+                                    </Col>
+                                </Row>
+                        </div>
                         {/* end pageContent */}
 
                         <Drawer
