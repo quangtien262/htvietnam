@@ -1358,9 +1358,9 @@ export default function Dashboard(props: any) {
                                     <b className="title-page">Meeting.</b>
 
                                     {/* Show số lượng item/page */}
-                                    <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
+                                    {/* <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
                                         {props.pageConfig.count}/{props.pageConfig.total} )
-                                    </em>
+                                    </em> */}
                                 </div>
 
                                 <hr />
