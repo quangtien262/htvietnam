@@ -17,13 +17,15 @@ return new class extends Migration
             $table->id();
 
             $table->text('name')->nullable();
-            $table->text('images')->nullable(); // ảnh hđồng 
+            $table->text('images')->nullable(); // ảnh hđồng
             $table->string('code')->nullable();
-            $table->integer('aitilen_service_id')->nullable();
             $table->integer('aitilen_invoice_id')->nullable();
             $table->integer('room_id')->nullable(); // nv thực hiện
             $table->integer('apartment_id')->nullable(); // // json người theo dõi hoặc làm cùng
             $table->integer('contract_status_id')->nullable();
+
+            $table->integer('aitilen_service_id')->nullable();
+
             // info
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

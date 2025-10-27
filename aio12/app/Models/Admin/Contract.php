@@ -51,6 +51,9 @@ class Contract extends Model
         if(!empty($dataFilter['room'])) {
             $datas = $datas->where('contract.room_id', $dataFilter['room']);
         }
+        if(!empty($dataFilter['apm'])) {
+            $datas = $datas->whereIn('contract.apartment_id', $dataFilter['apm']);
+        }
         if(!empty($dataFilter['end_date'])) {
             $datas = $datas->where('contract.end_date', 'like', '%'.$dataFilter['end_date'].'%');
         }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { cloneDeep, initial, set } from "lodash";
+import type { CheckboxProps } from 'antd';
 import {
     Button, List,
     Table, DatePicker,
-    message, FloatButton,
+    message, Flex,
     Modal, Space,
     Form,
     Input,
@@ -24,16 +25,10 @@ import {
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
-    CloudOutlined, MehOutlined, DownOutlined,
+    PlusSquareOutlined, MehOutlined, DownOutlined,
     RiseOutlined, CloseCircleOutlined,
     PlusCircleOutlined, CheckOutlined,
-    DeleteOutlined, CheckCircleOutlined,
-    EditOutlined, CloseSquareOutlined,
-    EyeOutlined, PlusSquareOutlined,
-    ClockCircleOutlined, FormOutlined,
-    FileTextOutlined,
-    UserOutlined,
-    CaretRightOutlined, FileAddOutlined
+    DeleteOutlined, FileAddOutlined, FormOutlined
 } from "@ant-design/icons";
 
 import { optionEntries, showInfo } from "../../../Function/common";
@@ -50,27 +45,31 @@ import { DON_VI_SERVICE } from "../../../Function/constant";
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../../Function/common";
 
 import dayjs from "dayjs";
+import { on } from 'events';
+const CheckboxGroup = Checkbox.Group;
 const daysInMonth_default = dayjs().daysInMonth();
-const { RangePicker } = DatePicker;
 export default function Dashboard(props: any) {
 
-    const formDataDefault = {
-        so_ngay_thue: daysInMonth_default,
-        so_nguoi: 1,
-        ngay_hen_dong_tien: 5,
-    };
-
     const dataService_empty = {
-        name: null,
-        price_default: 0,
-        per_default: 'Người',
-        price_total: 0,
-        note: '',
+        id: 0,
+        room_id: null,
+        dien_start: 0,
+        dien_end: 0,
+        nuoc_start: 0,
+        nuoc_end: 0,
+        nonglanh_start: 0,
+        nonglanh_end: 0,
+        maybom_start: 0,
+        maybom_end: 0,
     };
     const itemService_default = props.serviceDefault;
 
 
-    const [dataService, setDataService] = useState(itemService_default);
+    const [dataService, setDataService] = useState([
+        { ...dataService_empty },
+        { ...dataService_empty },
+        { ...dataService_empty }
+    ]);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
@@ -84,7 +83,7 @@ export default function Dashboard(props: any) {
     const [daysInMonth, setDaysInMonth] = useState(daysInMonth_default);
     const [soNgayThue, setSoNgayThue] = useState(daysInMonth_default);
     const [tienTraCoc, setTienTraCoc] = useState(0);
-    const [tienGiamGia, setTienGiamGia] = useState(0);
+    const [dateEdit, setDateEdit] = useState<dayjs.Dayjs | null>(null);
 
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
@@ -92,14 +91,73 @@ export default function Dashboard(props: any) {
     // upload excel
     const [fileList, setFileList] = useState([]);
 
-    const [uploading, setUploading] = useState(false);
+    const [isModalDataThang, setIsModalDataThang] = useState(false);
 
     const [formEdit] = Form.useForm();
+
     const [dataAction, setDataAction] = useState({ id: 0 });
+    const [datasAction, setDatasAction] = useState([]);
+
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
 
     const [isDraft, setIsDraft] = useState(2);
     const [note_applyAll, setNote_applyAll] = useState(false);
+
+    // add số điện nước
+    const plainOptions = ['dien', 'nuoc', 'maybom', 'nonglanh'];
+    const defaultCheckedList = ['dien'];
+
+    const [checkedList, setCheckedList] = useState<string[]>(defaultCheckedList);
+
+    const checkAll = plainOptions.length === checkedList.length;
+    const indeterminate = checkedList.length > 0 && checkedList.length < plainOptions.length;
+
+    const onChange = (list: string[]) => {
+        setCheckedList(list);
+    };
+
+    const onCheckAllChange: CheckboxProps['onChange'] = (e) => {
+        setCheckedList(e.target.checked ? plainOptions : []);
+    };
+
+    function submitFormEdit() {
+        console.log('dataService', dataService);
+        if (!dateEdit) {
+            message.error("Vui lòng chọn tháng/năm");
+            return;
+        }
+        let isValid = false;
+        dataService.forEach((item: any, index: number) => {
+            if (item.room_id) {
+                isValid = true;
+                return;
+            }
+        });
+        if (!isValid) {
+            message.error("Vui lòng chọn ít nhất 1 phòng");
+            return;
+        }
+        // return;
+        axios.post(route('aitilen.service.saveDienNuoc'), {
+            datas: dataService,
+            month: dateEdit.month() + 1,
+            year: dateEdit.year(),
+        }).then((response) => {
+            console.log('response', response);
+
+            if (response.data.status_code === 200) {
+                message.success("Đã lưu dữ liệu thành công");
+                location.reload();
+            } else {
+                message.error("Đã lưu dữ liệu thất bại");
+            }
+            setLoadingTable(false);
+        }).catch((error) => {
+            message.error("Lưu dữ liệu thất bại");
+        });
+
+    }
+
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -118,263 +176,116 @@ export default function Dashboard(props: any) {
         );
     }
 
-    const onFinishFormEdit = (values: any) => {
-        console.log('dataService', dataService);
+    function fastEditRecord(id: number, field: string, value: any) {
+        console.log('va', value);
 
-        if (values.start_date) {
-            values.start_date = values.start_date.format('YYYY-MM-DD');
-        }
-        if (values.end_date) {
-            values.end_date = values.end_date.format('YYYY-MM-DD');
-        }
-
-        values.services = dataService;
-        values.id = dataAction.id;
-        values.total =dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
-        values.tien_phong = tienPhong;
-        values.tien_coc = tienCoc;
-
-        setLoadingTable(true);
-        // save
-        axios.post(route('contract.update'), values).then((response) => {
+        axios.post(route('aitilen.service.fastEditDienNuoc'), {
+            id: id,
+            field: field,
+            value: value,
+        }).then((response) => {
+            console.log('response', response);
             if (response.data.status_code === 200) {
-                message.success("Đã lưu dữ liệu thành công");
-                // location.reload();
+                message.success("Đã cập nhật dữ liệu thành công");
+                // update dataSource
+                let data_tmp = cloneDeep(dataSource);
+                data_tmp.forEach((item: any, index: number) => {
+                    if (item.id === id) {
+                        item[field] = value;
+                    }
+                });
+                setDataSource(data_tmp);
             } else {
-                message.error("Đã lưu dữ liệu thất bại");
+                message.error("Đã cập nhật dữ liệu thất bại1");
             }
             setLoadingTable(false);
         }).catch((error) => {
-            message.error("Lưu dữ liệu thất bại");
+            console.log(error);
+
+            message.error("Cập nhật dữ liệu thất bại2");
         });
-    };
+    }
+
 
     const columns = [
         {
-            title: 'Khách hàng',
-            dataIndex: 'khach_hang',
+            title: 'Phòng',
+            dataIndex: 'room_id',
             key: 'id',
             render: (text: any, record: any) => {
                 return <>
-                    <b>{record.ho_ten ? <span>{record.ho_ten}</span> : ''}</b>
-                    <br />
                     {props.room[record.room_id] ? <Tag color="blue">{props.room[record.room_id].name}</Tag> : ''}
                 </>;
             }
         },
         {
-            title: 'Trạng thái',
-            dataIndex: 'ma_khach_hang',
-            key: 'ma_khach_hang',
+            title: <span>Số điện/nước {showInfo('Chỉ hiển thị nếu có sẵn chỉ số đầu')}</span>,
+            dataIndex: 'room_id',
+            key: 'id',
             render: (text: any, record: any) => {
                 return <>
-                    {record.contract_status_id
-                        ?
-                        <Tag color={props.status[record.contract_status_id].background}>{props.status[record.contract_status_id].name}</Tag>
-                        :
-                        <Tag>Chưa xác định</Tag>
-                    }
-                    <Popconfirm title="Chỉnh sửa hóa đơn"
-                        showCancel={false}
+                    <Popconfirm
+                        title={<><FormOutlined /> Sửa nhanh</>}
                         okText="Đóng"
-                        description={<div>
-                            <Select
-                                showSearch
-                                style={{ width: "100%" }}
-                                placeholder="Chọn phòng"
-                                optionFilterProp="children"
-                                options={optionEntries(props.status)}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "")
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
-                                }
-                                onChange={(value) => {
-                                    // Gọi API đổi trạng thái hóa đơn
-                                    axios.post(route('aitilen.invoice.changeStatus'), {
-                                        id: record.id,
-                                        status_id: value,
-                                    }).then((res) => {
-                                        console.log('res', res);
-                                        if (res.data.status_code === 200) {
-                                            message.success('Đã đổi trạng thái thành công');
-                                            // Cập nhật lại bảng nếu cần
-                                            let newData = dataSource.map((item: any) => {
-                                                if (item.id === record.id) {
-                                                    return { ...item, contract_status_id: value };
-                                                }
-                                                return item;
-                                            });
-                                            setDataSource(newData);
-                                        } else {
-                                            message.error(res.data.message || 'Đổi trạng thái thất bại');
-                                        }
-                                    }).catch(() => {
-                                        message.error('Đổi trạng thái thất bại');
-                                    });
-                                }}
+                        showCancel={false}
+                        icon={null}
+                        description={<>
+                            <InputNumber addonBefore="Điện cuối"
+                                onBlur={(e) => fastEditRecord(record.id, 'dien_end', e.target.value)}
                             />
-                        </div>}>
-                        <a className="float-btn-option"><FormOutlined /></a>
+                        </>}
+                    >
+                        {record.dien_start ? <Tag className="_point" color="blue">Điện:{record.dien_start}-{record.dien_end}</Tag> : ''}
                     </Popconfirm>
-                </>;
-            }
-        },
-        {
-            title: <>
-                <span>Dịch vụ</span>
-                <span> | </span>
-                <a> <RiseOutlined /> Xem thống kê</a>
-            </>,
-            dataIndex: 'dich_vu',
-            key: 'dich_vu',
-            render: (text: any, record: any) => {
-                return <>
-                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
-                    <Tag color="purple">tiền phòng: {numberFormat(record.gia_thue)} </Tag>
-                    {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
-                    {record.services.map((service: any, idx: number) => {
-                        return <Tag color="blue" key={idx}>
-                            {service.service_name}: {numberFormat(service.price)}
-                        </Tag>
-                    })}
+
+                    <Popconfirm
+                        title={<><FormOutlined /> Sửa nhanh</>}
+                        okText="Đóng"
+                        showCancel={false}
+                        icon={null}
+                        description={<>
+                            <InputNumber addonBefore="Nước cuối"
+                                onBlur={(e) => fastEditRecord(record.id, 'nuoc_end', e.target.value)}
+                            />
+                        </>}
+                    >
+                        {record.nuoc_start ? <Tag className="_point" color="green">Nước:{record.nuoc_start}-{record.nuoc_end}</Tag> : ''}
+
+                    </Popconfirm>
+
+                    <Popconfirm
+                        title={<><FormOutlined /> Sửa nhanh</>}
+                        okText="Đóng"
+                        showCancel={false}
+                        icon={null}
+                        description={<>
+                            <InputNumber addonBefore="Nóng lạnh cuối"
+                                onBlur={(e) => fastEditRecord(record.id, 'nonglanh_end', e.target.value)}
+                            />
+                        </>}
+                    >
+                        {record.nonglanh_start ? <Tag className="_point" color="orange">Nóng lạnh:{record.nonglanh_start}-{record.nonglanh_end}</Tag> : ''}
+                    </Popconfirm>
+
+                    <Popconfirm
+                        title={<><FormOutlined /> Sửa nhanh</>}
+                        okText="Đóng"
+                        showCancel={false}
+                        icon={null}
+                        description={<>
+                            <InputNumber addonBefore="Máy bơm cuối"
+                                onBlur={(e) => fastEditRecord(record.id, 'maybom_end', e.target.value)}
+                            />
+                        </>}
+                    >
+                        {record.maybom_start ? <Tag className="_point" color="yellow">Máy bơm:{record.maybom_start}-{record.maybom_end}</Tag> : ''}
+                    </Popconfirm>
+
+
                 </>;
             }
         },
     ];
-
-    function setDataEdit(record: any) {
-        setDataAction(record);
-        setIsOpenFormEdit(true);
-        formEdit.setFieldsValue({
-            contract_id: record.contract_id.toString(),
-            room_id: record.room_id.toString(),
-            contract_status_id: record.contract_status_id.toString(),
-            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
-            so_nguoi: record.so_nguoi,
-            tien_phong: record.tien_phong,
-            tien_coc: record.tien_coc,
-        });
-        setDataService(record.services);
-        setSoNguoi(record.so_nguoi);
-        setTienPhong(record.tien_phong);
-        setTienCoc(record.tien_coc);
-        setTienTraCoc(record.tra_coc);
-        setTienGiamGia(record.giam_gia);
-    }
-
-    const expandedRowRender = (record: any, index: number) => {
-
-        const items: MenuProps['items'] = [
-            {
-                label: <a onClick={() => {
-                    setDataEdit(record);
-                }}
-                >Cập nhật</a>,
-                key: '1',
-                icon: <EditOutlined />,
-            },
-            {
-                label: <a onClick={() => { setDataAction(record) }}>Active</a>,
-                key: '2',
-                icon: <CheckCircleOutlined />,
-            },
-            {
-                label: 'Hủy hóa đơn',
-                key: '3',
-                icon: <CloseSquareOutlined />,
-                danger: true,
-                disabled: false,
-            },
-        ];
-
-        const menuProps = {
-            items,
-        };
-        return <>
-            <div className="float-btn-option">
-                <Dropdown menu={menuProps}>
-                    <Button>
-                        <Space>
-                            Thao tác
-                            <DownOutlined />
-                        </Space>
-                    </Button>
-                </Dropdown>
-            </div>
-            <Row>
-                <Col span={10}>
-                    {record.images ? <Image width={150} src={record.images} /> : <Image className="image-list" src='/images/contract-updating.png'></Image>} 
-                    {/* <HTBankingQR
-                        bankCode="TPB"
-                        accountNumber="00299941001"
-                        accountName="LUU QUANG TIEN"
-                        amount={record.total}
-                        description="2013017"
-                        csrf_token={props.csrf_token}
-                    /> */}
-                </Col>
-                <Col span={14}>
-                    <ul className="ul-info">
-                        <li><b><CaretRightOutlined /> Tiêu đề:</b> {record.name}</li>
-                        <li><b><FileTextOutlined /> Mã hóa đơn:</b> {record.code}</li>
-                        <li><b><FileTextOutlined /> Kỳ hóa đơn:</b> {record.month}/{record.year}</li>
-                        <li><b><UserOutlined /> Khách hàng:</b> {record.ten_khach_hang}</li>
-                        <li><b><CloudOutlined /> Phòng:</b> {props.room[record.room_id] ? props.room[record.room_id].name : ''}</li>
-                        <li><b><MehOutlined /> Số người ở:</b> {record.so_nguoi}</li>
-                        <li><b><ClockCircleOutlined /> Ngày hẹn đóng tiền:</b> {record.ngay_hen_dong_tien}</li>
-                    </ul>
-                </Col>
-                <Col span={24}>
-                    <table className="table-info01">
-                        <thead>
-                            <tr>
-                                <th className="text-left">Dịch vụ</th>
-                                <th className="text-right">Giá</th>
-                                <th className="text-right">Đơn vị</th>
-                                <th className="text-right">Thành tiền</th>
-                                <th>Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td className="text-left">Tiền phòng</td>
-                                <td className="text-right">{numberFormat(record.gia_thue)}</td>
-                                <td className="text-right">Phòng</td>
-                                <td className="text-right"><b>{numberFormat(record.gia_thue)}</b></td>
-                                <td></td>
-                            </tr>
-                            {record.tien_coc ? <tr>
-                                <td className="text-left">Tiền cọc</td>
-                                <td className="text-right">{numberFormat(record.tien_coc)}</td>
-                                <td className="text-right">VNĐ</td>
-                                <td className="text-right"><b>{numberFormat(record.tien_coc)}</b></td>
-                                <td></td>
-                            </tr> : ''}
-                            {record.services.map((service: any, idx: number) => {
-                                return <tr key={idx}>
-                                    <td className="text-left">{service.name}</td>
-                                    <td className="text-right">{numberFormat(service.price)}</td>
-                                    <td className="text-right">{service.per}</td>
-                                    <td className="text-right"><b>{numberFormat(service.price_total)}</b></td>
-                                    <td>{service.note}</td>
-                                </tr>
-                            })}
-
-                            <tr>
-                                <td colSpan={3} className="text-right _red"><b>Tổng</b></td>
-                                <td className="text-right _red"><b>{numberFormat(record.total)}</b></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </Col>
-            </Row>
-        </>;
-    };
-
-    // state expandedRowRender
-    const [expandable, setExpandable] = useState({ expandedRowRender, defaultExpandedRowKeys: ['1'] });
 
 
     const EditableCell = (props: any) => {
@@ -414,142 +325,22 @@ export default function Dashboard(props: any) {
         setDataService(dataDetail_tmp);
     }
 
-    function totalItem(data: any, idx: number) {
-        const soNgayEffective = soNgayThue ?? daysInMonth;
-        if (['kWh', 'm3', 'Xe'].includes(data.per_default)) {
-            return <b>0</b>;
-        }
-        let total = (data.price_default ?? 0);
-        if (data.per_default === 'Người') {
-            total = total * soNguoi;
-        }
-        // tính số tiền theo ngày tương ứng
-        // total = (total / daysInMonth) * soNgayEffective;
-
-        // Làm tròn lên hàng nghìn
-        total = Math.ceil(total / 100) * 100;
-
-        let dataService_tmp = cloneDeep(dataService);
-        dataService_tmp[idx].price_total = total;
-        setDataService(dataService_tmp);
-    }
-
-    function total(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
-        // let dataService_tmp = cloneDeep(dataService);
-        dataService_new.forEach((data: any, idx: number) => {
-            let total = (data.price_default ?? 0);
-            if (['kWh', 'm3'].includes(data.per_default)) {
-                total = 0;;
-            } else {
-                if (data.per_default === 'Người') {
-                    total = total * soNguoi_new;
-                }
-            }
-            // tính số tiền theo ngày tương ứng
-            total = (total * soNgay / tongSoNgay);
-
-            // Làm tròn lên hàng nghìn
-            total = Math.ceil(total);
-            dataService_new[idx].price_total = total;
-        });
-        setDataService(dataService_new);
-    }
-
-    function showFormDataDetail() {
-        return dataService.map((data: any, idx: number) => {
-            return <tr key={idx}>
-                {/* chon dịch vụ */}
-                <td>
-                    <Select className="select03"
-                        placeholder="Chọn dich vụ"
-                        optionFilterProp="children"
-                        onChange={(value, info) => {
-                            let isError = false;
-
-                            // check duplication
-                            if (isError) {
-                                return false;
-                            }
-
-                            let data_tmp = cloneDeep(dataService);
-                            data_tmp[idx].aitilen_service_id = value;
-                            setDataService(data_tmp);
-                        }}
-                        allowClear={true}
-                        value={data.id}
-                        options={optionEntries(props.service)}
-                    />
-
-                </td>
-
-                {/* giá */}
-                <td className="td-input">
-                    <InputNumber min={0}
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        value={data.price_default} onChange={(value) => {
-                            let data_tmp = cloneDeep(dataService);
-                            data_tmp[idx].price_default = value;
-                            total(soNgayThue, data_tmp, daysInMonth, soNguoi);
-                        }} />
-                </td>
-
-                {/* đơn vị */}
-                <td>
-                    <Select className="select03"
-                        placeholder="Đơn vị"
-                        optionFilterProp="children"
-                        onChange={(value) => {
-                            let data_tmp = cloneDeep(dataService);
-                            data_tmp[idx].per_default = value;
-                            total(soNgayThue, data_tmp, daysInMonth, soNguoi);
-                        }}
-                        value={data.per_default}
-                        options={DON_VI_SERVICE}
-                    />
-                </td>
-
-                {/* Tổng */}
-                <td className="td-input">
-                    <b>{numberFormat(data.price_total)}</b>
-                </td>
-
-                {/* ghi chú */}
-                <td className="td-input">
-                    <Input value={data.note} onChange={(e) => {
-                        let data_tmp = cloneDeep(dataService);
-                        if (note_applyAll) {
-                            data_tmp.forEach((item, index) => {
-                                item.note = e.target.value ?? '';
-                            });
-                            setDataService(data_tmp);
-                        } else {
-                            data_tmp[idx].note = e.target.value ?? '';
-                            setDataService(data_tmp);
-                        }
-                    }} />
-                </td>
-                <td>
-                    <a className="btn-delete02"
-                        onClick={() => {
-                            let dataDetail_tmp = cloneDeep(dataService);
-                            dataDetail_tmp = removeByIndex(dataDetail_tmp, idx);
-                            total(soNgayThue, dataDetail_tmp, daysInMonth, soNguoi);
-                        }}
-                    >
-                        <CloseCircleOutlined />
-                    </a>
-                </td>
-            </tr>
-        });
-    }
-
     const inFinishSearch = (values: any) => {
         values.p = props.p;
         if (values.end_date) {
             values.end_date = values.end_date.format('YYYY-MM');
         }
+        if (!values.month) {
+            values.month = props.searchData.month;
+        }
+        if (!values.year) {
+            values.year = props.searchData.year;
+        }
+        if (!values.room && props.searchData.room) {
+            values.room = props.searchData.room;
+        }
 
-        router.get(route('contract.index'), values);
+        router.get(route('aitilen.service.dienNuoc'), values);
     }
 
     function initialsFormSearch() {
@@ -569,6 +360,102 @@ export default function Dashboard(props: any) {
         return result;
     }
 
+    // Hàm cập nhật giá trị cho từng trường của từng hàng
+    function handleChangeInput(index: number, field: string, value: number) {
+        let data_tmp = cloneDeep(dataService);
+        data_tmp[index][field] = value;
+        setDataService(data_tmp);
+    }
+
+    const items = [
+        {
+            key: '1',
+            label: <div onClick={() => { setIsOpenFormEdit(true) }}>
+                <PlusSquareOutlined />
+                Thêm nhanh
+            </div>,
+        },
+        {
+            key: '2',
+            label: <div onClick={() => setIsModalDataThang(true)}>
+                <FileAddOutlined /> Tạo data tháng
+            </div>,
+        },
+    ];
+
+    function openQuickEditFromSelection() {
+        if (!selectedRowKeys.length) {
+            message.warning('Vui lòng chọn ít nhất 1 dòng');
+            return;
+        }
+
+        // Dựng map id -> record để truy xuất nhanh
+        const mapById = new Map<string, any>(
+            (dataSource || []).map((item: any) => [String(item.id), item])
+        );
+
+        // Lấy bản ghi đầy đủ theo đúng thứ tự người dùng đã chọn
+        const selectedRecords: any[] = selectedRowKeys
+            .map((k) => mapById.get(String(k)))
+            .filter(Boolean);
+
+        if (!selectedRecords.length) {
+            message.warning('Không tìm thấy bản ghi phù hợp trong lựa chọn');
+            return;
+        }
+
+        // Kiểm tra tất cả bản ghi phải cùng tháng/năm
+        const monthYearSet = new Set(
+            selectedRecords.map((r: any) => {
+                const m = Number(r?.month ?? props.searchData?.month);
+                const y = Number(r?.year ?? props.searchData?.year);
+                return `${y}-${m}`;
+            })
+        );
+
+        if (monthYearSet.size > 1) {
+            message.error('Vui lòng chọn các bản ghi cùng tháng/năm');
+            return;
+        }
+
+        // Set lại dateEdit theo tháng/năm chung
+        const [onlyPair] = Array.from(monthYearSet);
+        const [yStr, mStr] = onlyPair.split('-');
+        const yNum = Number(yStr);
+        const mNum = Number(mStr);
+        if (yNum && mNum) {
+            setDateEdit(dayjs(`${yNum}-${String(mNum).padStart(2, '0')}`));
+        }
+
+        // Chuẩn hóa data đưa vào form nhanh
+        const selectedRows = selectedRecords.map((r: any) => ({
+            id: r.id,
+            room_id: r.room_id.toString() ?? null,
+            dien_start: Number(r.dien_start ?? 0),
+            dien_end: Number(r.dien_end ?? 0),
+            nuoc_start: Number(r.nuoc_start ?? 0),
+            nuoc_end: Number(r.nuoc_end ?? 0),
+            nonglanh_start: Number(r.nonglanh_start ?? 0),
+            nonglanh_end: Number(r.nonglanh_end ?? 0),
+            maybom_start: Number(r.maybom_start ?? 0),
+            maybom_end: Number(r.maybom_end ?? 0),
+        }));
+
+        setDataService(selectedRows);
+        setIsOpenFormEdit(true);
+    }
+
+    const items02 = [
+        {
+            key: '1',
+            label: <a onClick={() => openQuickEditFromSelection()}><FormOutlined /> Sửa nhanh</a>,
+        },
+        {
+            key: '2',
+            label: <a onClick={() => setIsModalXoaOpen(true)}><DeleteOutlined /> Xóa</a>,
+        },
+    ];
+
     return (
         <div>
             <AdminLayout
@@ -577,76 +464,77 @@ export default function Dashboard(props: any) {
                     <div>
 
                         <Divider orientation="left">
-                            Danh sách hợp đồng
+                            Danh sách số điện/nước {props.searchData.month && props.searchData.year ? `tháng ${props.searchData.month}/${props.searchData.year}` : ''}
                         </Divider>
 
                         <Row>
                             {/* search  */}
-                            <Col span={6} className="main-search-left">
+                            <Col span={24} className="main-search-left">
                                 <Form form={formSearch} layout="vertical"
                                     onFinish={inFinishSearch}
                                     initialValues={initialsFormSearch()}
                                 >
                                     {/* <div className="form-item02">
-                                        
+
                                     </div> */}
                                     <List
                                         className="list-search"
                                         dataSource={[
                                             {
-                                                title: <span> Từ khóa</span>,
-                                                description: <>
-                                                    <Form.Item
-                                                        name="keyword"
+                                                title: <div>
+                                                    <span>Chọn Tòa nhà </span>
+
+                                                    <Popconfirm
+                                                        title="Tìm kiếm nâng cao"
+                                                        okText="Đóng"
+                                                        showCancel={false}
+                                                        icon={null}
+                                                        description={<>
+                                                            <Form.Item
+                                                                name="room"
+                                                            >
+                                                                <Select
+                                                                    showSearch
+                                                                    addonBefore="Phòng"
+                                                                    allowClear={true}
+                                                                    style={{ width: "100%" }}
+                                                                    placeholder="Chọn phòng"
+                                                                    optionFilterProp="children"
+                                                                    options={optionEntries(props.room)}
+                                                                    onChange={() => formSearch.submit()}
+                                                                    filterOption={(input, option) =>
+                                                                        (option?.label ?? "")
+                                                                            .toLowerCase()
+                                                                            .includes(input.toLowerCase())
+                                                                    }
+                                                                />
+                                                            </Form.Item>
+
+                                                            {/* month */}
+
+
+                                                            <Form.Item
+                                                                name="month"
+                                                            >
+                                                                <InputNumber addonBefore="Tháng" onBlur={() => formSearch.submit()} />
+                                                            </Form.Item>
+
+                                                            {/* year */}
+                                                            <Form.Item
+                                                                name="year"
+                                                            >
+                                                                <InputNumber addonBefore="Năm" onBlur={() => formSearch.submit()} />
+                                                            </Form.Item>
+                                                        </>}
+                                                        onConfirm={() => {
+                                                            formSearch.setFieldsValue({ apm: [] });
+                                                            formSearch.submit();
+                                                        }}
                                                     >
-                                                        <Input allowClear={true} placeholder="Từ khóa" onBlur={() => formSearch.submit()} />
-                                                    </Form.Item>
-                                                </>,
-                                            },
-                                            {
-                                                title: <span> Thời hạn</span>,
-                                                description: <>
-                                                    <Form.Item
-                                                        name="end_date"
-                                                    >
-                                                        <DatePicker
-                                                            picker="month"
-                                                            onChange={() => formSearch.submit()}
-                                                            style={{ width: "100%" }}
-                                                            format="MM/YYYY"
-                                                            placeholder={"Chọn tháng/năm"}
-                                                        />
-                                                    </Form.Item>
-                                                </>,
-                                            },
-                                            {
-                                                title: <span> Trạng thái</span>,
-                                                description: <>
-                                                    <Form.Item
-                                                        name="status"
-                                                    >
-                                                        <Select
-                                                            onChange={() => formSearch.submit()}
-                                                            showSearch
-                                                            allowClear={true}
-                                                            style={{ width: "100%" }}
-                                                            placeholder="Chọn phòng"
-                                                            optionFilterProp="children"
-                                                            filterOption={(input, option) =>
-                                                                (option?.label ?? "")
-                                                                    .toLowerCase()
-                                                                    .includes(input.toLowerCase())
-                                                            }
-                                                            options={optionEntries(props.status)}
-                                                        />
-                                                    </Form.Item>
-                                                </>,
-                                            },
-                                            {
-                                                title: 'Tòa nhà',
-                                                description: <Form.Item
-                                                    name="apm"
-                                                >
+                                                        <a className="_right">Nâng cao</a>
+                                                    </Popconfirm>
+                                                </div>,
+                                                description: <Form.Item name="apm">
                                                     <Select
                                                         showSearch
                                                         allowClear={true}
@@ -656,27 +544,6 @@ export default function Dashboard(props: any) {
                                                         placeholder="Chọn tòa nhà"
                                                         optionFilterProp="children"
                                                         options={optionEntries(props.apm)}
-                                                        filterOption={(input, option) =>
-                                                            (option?.label ?? "")
-                                                                .toLowerCase()
-                                                                .includes(input.toLowerCase())
-                                                        }
-                                                    />
-                                                </Form.Item>,
-                                            },
-                                            {
-                                                title: 'Phòng',
-                                                description: <Form.Item
-                                                    name="room"
-                                                >
-                                                    <Select
-                                                        showSearch
-                                                        allowClear={true}
-                                                        style={{ width: "100%" }}
-                                                        placeholder="Chọn phòng"
-                                                        optionFilterProp="children"
-                                                        options={optionEntries(props.room)}
-                                                        onChange={() => formSearch.submit()}
                                                         filterOption={(input, option) =>
                                                             (option?.label ?? "")
                                                                 .toLowerCase()
@@ -699,49 +566,35 @@ export default function Dashboard(props: any) {
                             </Col>
 
                             {/* content */}
-                            <Col span={18} className="main-content02">
+                            <Col span={24} className="main-content02">
                                 <Row>
+                                    {/* thao tác */}
                                     <Col className="text-left" span={12}>
-                                        <Button className="btn-success _left"
-                                            icon={<CheckOutlined />}
+                                        <Dropdown
                                             disabled={!hasSelected}
-                                            loading={loadingBtnDelete}
-                                            onClick={() => { setIsModalXoaOpen(true); }}
-                                        >
-                                            Active {hasSelected ? `${selectedRowKeys.length}` : ''}
-                                        </Button>
-                                        <span> </span>
-                                        <Button type="primary"
-                                            icon={<DeleteOutlined />}
-                                            disabled={!hasSelected}
-                                            loading={loadingBtnDelete}
-                                            onClick={() => { setIsModalXoaOpen(true); }}
-                                        >
-                                            Xóa {hasSelected ? `${selectedRowKeys.length}` : ''}
-                                        </Button>
+                                            className="btn-dropdown _left"
+                                            menu={{ items: items02 }}>
+                                            <Button type="primary">
+                                                <Space>
+                                                    Thao tác {hasSelected ? `(${selectedRowKeys.length})` : ''}
+                                                    <DownOutlined />
+                                                </Space>
+                                            </Button>
+                                        </Dropdown>
                                     </Col>
 
+                                    {/* Thêm nhanh */}
                                     <Col className="text-right" span={12}>
-
-                                        <Button style={{ marginLeft: 8 }} type="primary"
-                                            icon={<FileAddOutlined />}
+                                        <Dropdown.Button type="primary"
+                                            className="btn-dropdown _right"
                                             onClick={() => {
                                                 setIsOpenFormEdit(true);
                                                 setDataAction({ id: 0 });
                                             }}
+                                            menu={{ items }}
                                         >
-                                            Tạo nhanh hóa đơn tháng
-                                        </Button>
-
-                                        <Button style={{ marginLeft: 8 }} type="primary"
-                                            icon={<PlusSquareOutlined />}
-                                            onClick={() => {
-                                                setIsOpenFormEdit(true);
-                                                setDataAction({ id: 0 });
-                                            }}
-                                        >
-                                            Thêm mới
-                                        </Button>
+                                            <PlusCircleOutlined /> Thêm nhanh
+                                        </Dropdown.Button>
                                     </Col>
 
                                     <Col span={24}><br /></Col>
@@ -760,9 +613,6 @@ export default function Dashboard(props: any) {
                                     dataSource={dataSource}
                                     columns={columns}
                                     rowSelection={rowSelection}
-                                    // rowClassName="editable-row"
-                                    // className="table-index"
-                                    expandable={expandable}
                                 />
                             </Col>
 
@@ -772,7 +622,9 @@ export default function Dashboard(props: any) {
                         <Modal title="Xác nhận xóa"
                             open={isModalXoaOpen}
                             onOk={async () => {
-                                const result = await callApi(route('hoa_don.huyHoaDon.nhapHang', [idAction]));
+                                const query = (selectedRowKeys || []).map(k => `ids[]=${encodeURIComponent(String(k))}`).join('&');
+                                const url = query ? `${route('aitilen.service.deleteDienNuoc')}?${query}` : route('aitilen.service.deleteDienNuoc');
+                                const result = await callApi(url);
                                 if (result.status === 200) {
                                     message.success("Đã hủy đơn thành công");
                                     location.reload();
@@ -780,275 +632,202 @@ export default function Dashboard(props: any) {
                                     message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
                                 }
                             }}
-                            okText="Xác nhận hủy đơn"
+                            okText="Xác nhận xóa"
                             cancelText="Hủy"
                             maskClosable={true}
                             // confirmLoading={confirmLoading}
                             onCancel={() => { setIsModalXoaOpen(false); }}>
                             <ul>
                                 <li>Các thông tin về data này sẽ bị chuyển đến thùng rác</li>
-                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                                <li>Bạn có thể phục hồi lại data này trong mục Thùng rác</li>
                             </ul>
                         </Modal>
 
-                        <Modal title={dataAction.id === 0 ? "Thêm mới hợp đồng" : "Chỉnh sửa hợp đồng"}
+                        {/* Xác nhận tạo data tháng */}
+                        <Modal title="Xác nhận tạo data tháng"
+                            open={isModalDataThang}
+
+                            onOk={async () => {
+                                const result = await callApi(route('hoa_don.huyHoaDon.nhapHang', [idAction]));
+                                if (result.status === 200) {
+                                    message.success("Đã tạo data tháng thành công");
+                                    location.reload();
+                                } else {
+                                    message.error("Đã tạo data tháng thất bại, vui lòng tải lại trình duyệt và thử lại");
+                                }
+                            }}
+                            okText="Xác nhận"
+                            cancelText="Hủy"
+                            maskClosable={true}
+                            onCancel={() => { setIsModalDataThang(false); }}>
+                            <p><b>Chọn tháng cần tạo:</b> <DatePicker picker="month" /></p>
+                            <p><b>LƯU Ý:</b></p>
+                            <ul>
+                                <li>Tạo dữ liệu số điện nước dựa theo số liệu của tháng trước đó</li>
+                                <li>Dữ liệu có sẵn sẽ bị ghi đè</li>
+                                <li>Dữ liệu bị ghi đè sẽ không thể phục hồi</li>
+                            </ul>
+                        </Modal>
+
+                        <Modal title={dataAction.id === 0 ? "Thêm mới" : "Cập nhật"}
                             open={isOpenFormEdit}
                             onOk={() => {
-                                formEdit.submit();
+                                submitFormEdit();
                             }}
-                            okText="Tạo hợp đồng "
+                            okText="Lưu dữ liệu "
                             cancelText="Hủy"
                             maskClosable={false}
                             width={1000}
                             onCancel={() => { setIsOpenFormEdit(false); }}>
-                            <Form
-                                form={formEdit}
-                                layout="vertical"
-                                onFinish={onFinishFormEdit}
-                                initialValues={initialsFormatData()}
-                            >
-                                <Row gutter={24}>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="user_id"
-                                            label="Khách hàng"
-                                            rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
-                                        >
-                                            <Select
-                                                showSearch
-                                                style={{ width: "100%" }}
-                                                placeholder="Chọn khách hàng"
-                                                optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
-                                                options={props.users}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="room_id"
-                                            label="Phòng"
-                                            rules={[{ required: true, message: 'Vui lòng chọn phòng' }]}
-                                        >
-                                            <Select
-                                                showSearch
-                                                style={{ width: "100%" }}
-                                                placeholder="Chọn phòng"
-                                                optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
-                                                options={optionEntries(props.room)}
-                                            />
-                                        </Form.Item>
-                                    </Col>
 
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="contract_status_id"
-                                            label="Trạng thái"
-                                            rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
-                                        >
-                                            <Select
-                                                showSearch
-                                                style={{ width: "100%" }}
-                                                placeholder="Chọn phòng"
-                                                optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
-                                                options={optionEntries(props.status)}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="start_date"
-                                            label={<><span>Ngày bắt đầu</span> {showInfo('Ngày bắt đầu hợp đồng')}</>}
-                                            rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                                        >
-                                            <DatePicker className="form-item01"
-                                                style={{ width: "100%" }}
-                                                format="DD/MM/YYYY"
-                                                placeholder={"Chọn tháng/năm"}
-                                                onChange={(value) => {
-                                                    let day = 0;
-                                                    if (value) {
-                                                        // value là kiểu dayjs, lấy số ngày của tháng đã chọn
-                                                        day = value.daysInMonth()
-                                                    } else {
-                                                        day = dayjs().daysInMonth();
+                            <span>Chọn tháng/năm</span>
+                            <DatePicker picker="month" value={dateEdit} onChange={(date) => setDateEdit(date)} />
+                            <p> </p>
+                            <b>Chọn loại data:</b>
+                            <em>
+                                <span> ( </span>
+                                <Checkbox indeterminate={indeterminate}
+                                    onChange={onCheckAllChange}
+                                    checked={checkAll}>
+                                </Checkbox>
+                                <span> Chọn tất cả )</span>
+                            </em>
+                            <br />
+                            <CheckboxGroup options={plainOptions} value={checkedList} onChange={onChange} />
+                            <table className="table-salary" style={{ width: '100%' }}>
+                                <thead>
+                                    <tr>
+                                        <th>Phòng</th>
+                                        {checkedList.includes('dien') && (
+                                            <>
+                                                <th>Số điện</th>
+                                            </>
+                                        )}
+                                        {checkedList.includes('nuoc') && (
+                                            <>
+                                                <th>Số nước</th>
+                                            </>
+                                        )}
+                                        {checkedList.includes('nonglanh') && (
+                                            <>
+                                                <th>Nóng lạnh</th>
+                                            </>
+                                        )}
+                                        {checkedList.includes('maybom') && (
+                                            <>
+                                                <th>Máy bơm</th>
+                                            </>
+                                        )}
+                                        <th>Xóa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dataService.map((item: any, index: number) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <Select
+                                                    showSearch
+                                                    style={{ width: "100%" }}
+                                                    placeholder="Chọn phòng"
+                                                    optionFilterProp="children"
+                                                    options={optionEntries(props.room)}
+                                                    value={item.room_id}
+                                                    onChange={(value) => handleChangeInput(index, 'room_id', value)}
+                                                    filterOption={(input, option) =>
+                                                        (option?.label ?? "")
+                                                            .toLowerCase()
+                                                            .includes(input.toLowerCase())
                                                     }
-                                                    setDaysInMonth(day);
-                                                    // Cập nhật lại số tiền
-                                                    total(soNgayThue, dataService, day, soNguoi);
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="end_date"
-                                            label={<><span>Ngày kết thúc</span> {showInfo('Ngày kết thúc hợp đồng')}</>}
-                                            rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                                        >
-                                            <DatePicker className="form-item01"
-                                                style={{ width: "100%" }}
-                                                format="DD/MM/YYYY"
-                                                placeholder={"Chọn tháng/năm"}
-                                                onChange={(value) => {
-                                                    let day = 0;
-                                                    if (value) {
-                                                        // value là kiểu dayjs, lấy số ngày của tháng đã chọn
-                                                        day = value.daysInMonth()
-                                                    } else {
-                                                        day = dayjs().daysInMonth();
-                                                    }
-                                                    setDaysInMonth(day);
-                                                    // Cập nhật lại số tiền
-                                                    total(soNgayThue, dataService, day, soNguoi);
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="ngay_hen_dong_tien"
-                                            label={<><span>Ngày đóng tiền</span> {showInfo('Ngày hẹn đóng tiền của kỳ thanh toán')}</>}
-                                            rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                                        >
-                                            <InputNumber min={1} max={31} className="form-item01" />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col span={6}>
-                                        <Form.Item
-                                            name="so_nguoi"
-                                            label="Số người ở"
-                                            rules={[{ required: true, message: 'Vui lòng chọn số người ở' }]}
-                                        >
-                                            <InputNumber className="form-item01"
-                                                min={1}
-                                                onChange={(value) => {
-                                                    const v = value ?? 1;
-                                                    setSoNguoi(v);
-                                                    total(soNgayThue, dataService, daysInMonth, v);
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <table className="table-salary">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        <span>Chọn dịch vụ</span>
-                                                    </th>
-                                                    <th>Giá</th>
-                                                    <th>Đơn vị</th>
-                                                    <th>Thành tiền</th>
-                                                    <th>
-                                                        Mô tả thêm
-                                                        {showInfo('Mô tả thêm cho dịch vụ, nếu chọn áp dụng tất cả, thì ghi chú này sẽ được áp dụng cho tất cả các dịch vụ')}
-                                                        <br />
-                                                        <Checkbox checked={note_applyAll}
-                                                            onChange={(e) => { setNote_applyAll(e.target.checked) }}
-                                                        >
-                                                            <a className="text-normal">Áp dụng tất cả</a>
-                                                        </Checkbox>
-                                                    </th>
-                                                    <th>Xóa</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-
-                                                <tr>
-                                                    <td>Tiền phòng</td>
+                                                />
+                                            </td>
+                                            {checkedList.includes('dien') && (
+                                                <>
                                                     <td>
-                                                        <Form.Item
-                                                            name="tien_phong"
-                                                        >
-                                                            <InputNumber
-                                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                                onChange={(value) => {
-                                                                    setTienPhong(value ?? 0);
-                                                                }}
-                                                            />
-                                                        </Form.Item>
+                                                        <InputNumber
+                                                            value={item.dien_start}
+                                                            onChange={(value) => handleChangeInput(index, 'dien_start', value)}
+                                                            addonBefore="start"
+                                                        />
+                                                        <InputNumber
+                                                            value={item.dien_end}
+                                                            onChange={(value) => handleChangeInput(index, 'dien_end', value)}
+                                                            addonBefore="end"
+                                                        />
                                                     </td>
-                                                    <td>Tháng</td>
-                                                    <td><b>{numberFormat(tienPhong)}</b></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền cọc</td>
+                                                </>
+                                            )}
+                                            {checkedList.includes('nuoc') && (
+                                                <>
                                                     <td>
-                                                        <Form.Item
-                                                            name="tien_coc"
-                                                        >
-                                                            <InputNumber
-                                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                                onChange={(value) => {
-                                                                    setTienCoc(value ?? 0);
-                                                                }}
-                                                            />
-                                                        </Form.Item>
+                                                        <InputNumber
+                                                            value={item.nuoc_start}
+                                                            onChange={(value) => handleChangeInput(index, 'nuoc_start', value)}
+                                                            addonBefore="start"
+                                                        />
+                                                        <InputNumber
+                                                            value={item.nuoc_end}
+                                                            onChange={(value) => handleChangeInput(index, 'nuoc_end', value)}
+                                                            addonBefore="end"
+                                                        />
                                                     </td>
-                                                    <td>VNĐ</td>
-                                                    <td><b>{numberFormat(tienCoc)}</b></td>
-                                                    <td></td>
-                                                </tr>
-
-                                                {showFormDataDetail()}
-
-                                                <tr>
-                                                    <td colSpan={6} className="main-result-submitform">
-                                                        <ul>
-                                                            {/* {result} */}
-                                                        </ul>
+                                                </>
+                                            )}
+                                            {checkedList.includes('nonglanh') && (
+                                                <>
+                                                    <td>
+                                                        <InputNumber
+                                                            value={item.nonglanh_start}
+                                                            onChange={(value) => handleChangeInput(index, 'nonglanh_start', value)}
+                                                            addonBefore="start"
+                                                        />
+                                                        <InputNumber
+                                                            value={item.nonglanh_end}
+                                                            onChange={(value) => handleChangeInput(index, 'nonglanh_end', value)}
+                                                            addonBefore="end"
+                                                        />
                                                     </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <td colSpan={6} className="text-left">
-                                                        <a className="add-item01" onClick={() => addSub()}>
-                                                            <span className="icon-b"><PlusCircleOutlined /> Thêm dịch vụ</span>
-                                                        </a>
+                                                </>
+                                            )}
+                                            {checkedList.includes('maybom') && (
+                                                <>
+                                                    <td>
+                                                        <InputNumber
+                                                            value={item.maybom_start}
+                                                            onChange={(value) => handleChangeInput(index, 'maybom_start', value)}
+                                                            addonBefore="start"
+                                                        />
+                                                        <InputNumber
+                                                            value={item.maybom_end}
+                                                            onChange={(value) => handleChangeInput(index, 'maybom_end', value)}
+                                                            addonBefore="end"
+                                                        />
                                                     </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <td colSpan={3} className="text-right">
-                                                        <b>Tổng tiền phòng, cọc & dịch vụ dự tính:</b>
-                                                    </td>
-                                                    <td className="text-left">
-                                                        <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc)}</b>
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
-
-
-                                            </tbody>
-
-                                            {/* {showTotalDetail()} */}
-
-
-                                        </table>
-                                    </Col>
-                                </Row>
-                            </Form>
+                                                </>
+                                            )}
+                                            <td>
+                                                <Button
+                                                    onClick={() => {
+                                                        let data_tmp = cloneDeep(dataService);
+                                                        data_tmp.splice(index, 1);
+                                                        setDataService(data_tmp);
+                                                    }}
+                                                >
+                                                    <DeleteOutlined /> Xóa
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <div style={{ marginTop: 16, textAlign: "left" }}>
+                                <Button
+                                    type="dashed"
+                                    icon={<PlusCircleOutlined />}
+                                    onClick={addSub}
+                                >
+                                    Thêm hàng
+                                </Button>
+                            </div>
                         </Modal>
 
                     </div>

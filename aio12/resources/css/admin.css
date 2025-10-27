@@ -1311,3 +1311,6 @@ ul.ul-info li {
     right: 10px;
     z-index: 1000;
 }
+.btn-dropdown {
+    width: auto !important;
+}

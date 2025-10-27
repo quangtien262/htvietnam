@@ -463,10 +463,13 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('invoice/save-qr', [AitilenController::class, 'saveQrCode'])->name('aitilen.invoice.saveQr'); // pending
     Route::post('invoice/change-status', [AitilenController::class, 'changeInvoiceStatus'])->name('aitilen.invoice.changeStatus');
     Route::get('service/dien-nuoc', [AitilenController::class, 'dienNuoc'])->name('aitilen.service.dienNuoc');
+    Route::post('service/save-dien-nuoc', [AitilenController::class, 'saveDienNuoc'])->name('aitilen.service.saveDienNuoc');
+    Route::post('service/fast-edit-dien-nuoc', [AitilenController::class, 'fastEditDienNuoc'])->name('aitilen.service.fastEditDienNuoc');
+    Route::post('service/delete-dien-nuoc', [AitilenController::class, 'deleteDienNuoc'])->name('aitilen.service.deleteDienNuoc');
 });
 
 Route::group(['prefix' => 'contract'], function () {
     Route::get('/', [ContractController::class, 'index'])->name('contract.index');
     Route::post('update', [ContractController::class, 'update'])->name('contract.update');
-    Route::post('change-status', [ContractController::class, 'changeStatus'])->name('contract.changeStatus');
+    Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
 });

@@ -177,33 +177,126 @@ class AitilenController extends Controller
     }
     public function dienNuoc(Request $request)
     {
+
         $searchData = $request->all();
-        $month = date('m');
+        $searchData['month'] = date('m');
         if (!empty($request->month)) {
-            $month = $request->month;
+            $searchData['month'] = $request->month;
         }
 
-        $year = date('Y');
+        $searchData['year'] = date('Y');
         if (!empty($request->year)) {
-            $year =  $request->year;
+            $searchData['year'] =  $request->year;
         }
-
-
-        $searchData['month'] = $month;
-        $searchData['year'] = $year;
-        $data = AitilenDienNuoc::where('month', $month)
-            ->where('year', $year)
-            ->first();
+        $datas = AitilenDienNuoc::getDatas($searchData);
 
         $room = TblService::formatData('room', ['room_status_id' => 1]);
+        $apm = TblService::formatData('apartment');
+
+        $pageConfig = [
+            'currentPage' => $datas->currentPage(),
+            'perPage' => $datas->perPage(),
+            'total' => $datas->total(),
+            'lastPage' => $datas->lastPage(),
+            'count' => count($datas->items()),
+        ];
 
         $props = [
             'searchData' => $searchData,
-            'data' => $data,
+            'datas' => $datas->items(),
             'room' => $room,
+            'apm' => $apm,
             'csrf_token' => csrf_token(),
             'p' => $request->p ?? 0,
+            'pageConfig' => $pageConfig,
         ];
         return Inertia::render('Admin/Aitilen/dien_nuoc', $props);
+    }
+
+    function saveDienNuoc(Request $request)
+    {
+        if(empty($request->month) || empty($request->year)) {
+            return $this->sendErrorResponse('Chưa chọn tháng/năm!');
+        }
+        $datas = $request->datas;
+
+        foreach($datas as $data) {
+            if(empty($data['room_id'])) {
+                continue;
+            }
+            if (empty($data['id'])) {
+                $dienNuoc = new AitilenDienNuoc();
+            } else {
+                $dienNuoc = AitilenDienNuoc::find($data['id']);
+                if (!$dienNuoc) {
+                    $dienNuoc = new AitilenDienNuoc();
+                }
+            }
+            $room = Room::find($data['room_id']);
+            if (!$room) {
+                continue;
+            }
+            $dienNuoc->year = $request->year;
+            $dienNuoc->month = $request->month;
+            $dienNuoc->apartment_id = $room->apartment_id;
+            $dienNuoc->room_id = $data['room_id'] ?? null;
+
+            $dienNuoc->dien_start = $data['dien_start'] ?? null;
+            $dienNuoc->dien_end = $data['dien_end'] ?? null;
+
+            $dienNuoc->nuoc_start = $data['nuoc_start'] ?? null;
+            $dienNuoc->nuoc_end = $data['nuoc_end'] ?? null;
+
+            $dienNuoc->nonglanh_start = $data['nonglanh_start'] ?? null;
+            $dienNuoc->nonglanh_end = $data['nonglanh_end'] ?? null;
+
+            $dienNuoc->maybom_start = $data['maybom_start'] ?? null;
+            $dienNuoc->maybom_end = $data['maybom_end'] ?? null;
+
+            $dienNuoc->save();
+        }
+        return $this->sendSuccessResponse([], 'Lưu dữ liệu thành công!');
+    }
+
+    public function deleteDienNuoc(Request $request) {
+        if(empty($request->ids)) {
+            return $this->sendErrorResponse('Dữ liệu không tồn tại!');
+        }
+        foreach($request->ids as $id) {
+            $dienNuoc = AitilenDienNuoc::find($id);
+            if ($dienNuoc) {
+                $dienNuoc->is_recycle_bin = 1;
+                $dienNuoc->save();
+            }
+        }
+        return $this->sendSuccessResponse([], 'Xóa dữ liệu thành công!');
+    }
+
+    public function fastEditDienNuoc(Request $request)
+    {
+        if (empty($request->id) || empty($request->field) || !isset($request->value)) {
+            return $this->sendErrorResponse('Dữ liệu không hợp lệ');
+        }
+        $dienNuoc = AitilenDienNuoc::find($request->id);
+        if (!$dienNuoc) {
+            return $this->sendErrorResponse('Dữ liệu không tồn tại!');
+        }
+        $field = $request->field;
+        $value = $request->value;
+
+        if (!in_array($field, [
+            'room_id',
+            'dien_start', 'dien_end',
+            'nuoc_start', 'nuoc_end',
+            'nonglanh_start', 'nonglanh_end',
+            'maybom_start', 'maybom_end',
+        ])) {
+            return $this->sendErrorResponse('Trường dữ liệu không hợp lệ!');
+        }
+
+        $dienNuoc->{$field} = $value;
+        $dienNuoc->save();
+
+        return $this->sendSuccessResponse($dienNuoc, 'Cập nhật dữ liệu thành công!');
     }
 }

@@ -16,22 +16,25 @@ return new class extends Migration
         Schema::create('aitilen_dien_nuoc', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+
             $table->integer('month')->nullable();
             $table->integer('year')->nullable();
+
             $table->integer('room_id')->nullable();
+            $table->integer('apartment_id')->nullable();
 
             $table->integer('dien_start')->nullable();
             $table->integer('dien_end')->nullable();
-            
+
             $table->integer('nuoc_start')->nullable();
             $table->integer('nuoc_end')->nullable();
-            
+
             $table->integer('nonglanh_start')->nullable();
             $table->integer('nonglanh_end')->nullable();
-            
+
             $table->integer('maybom_start')->nullable();
             $table->integer('maybom_end')->nullable();
-            
+
             MigrateService::createBaseColumn($table);
 
             Table::create([

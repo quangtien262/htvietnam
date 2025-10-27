@@ -36,7 +36,7 @@ class ContractController extends Controller
         $status = TblService::formatData('contract_status', []);
         $service = TblService::formatData('aitilen_service');
         $apm = TblService::formatData('apartment');
-        $serviceDefault = AitilenService::where('is_invoice_default', 1)
+        $serviceDefault = AitilenService::where('is_contract_default', 1)
             ->orderBy('sort_order', 'asc')->get()->toArray();
 
 
@@ -45,7 +45,7 @@ class ContractController extends Controller
         foreach ($users_db as $user) {
             $users_select[] = [
                 'value' => $user->id . '',
-                'label' => '[' . $user->code . ']' . $user->name . ' - ' . $user->created_at->format('d/m/Y'),
+                'label' => '[' . $user->id . ']' . $user->name . ' - ' . $user->created_at->format('d/m/Y'),
             ];
         }
 
@@ -198,7 +198,29 @@ class ContractController extends Controller
             $invoiceService->save();
         }
 
+        $contract = Contract::baseQuery()->find($data->id);
 
-        return $this->sendSuccessResponse([], 'Cập nhật hóa đơn thành công!');
+        return $this->sendSuccessResponse($contract, 'Cập nhật hóa đơn thành công!');
+    }
+
+    /**
+     * fastEdit
+     *
+     * @param Request $request: id, column, value
+     * @return void
+     */
+    function fastEdit(Request $request)
+    {
+        if (empty($request->id) || empty($request->column) || empty($request->value)) {
+            return $this->sendErrorResponse('Dữ liệu truyền vào không hợp lệ !');
+        }
+        $data = Contract::find($request->id);
+        if (!$data) {
+            return $this->sendErrorResponse('Hợp đồng không tồn tại !');
+        }
+        $data->{$request->column} = $request->value;
+        $data->save();
+
+        return $this->sendSuccessResponse([], 'Cập nhật hợp đồng thành công!');
     }
 }

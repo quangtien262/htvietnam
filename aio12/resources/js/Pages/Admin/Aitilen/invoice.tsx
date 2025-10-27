@@ -133,7 +133,7 @@ export default function Dashboard(props: any) {
 
         values.services = dataService;
         values.id = dataAction.id;
-        values.total =dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
         values.tra_coc = tienTraCoc;
@@ -580,6 +580,34 @@ export default function Dashboard(props: any) {
         return result;
     }
 
+    const items: MenuProps['items'] = [
+        {
+            label: <a onClick={() => {
+                setIsOpenFormEdit(true);
+                setDataAction({ id: 0 });
+            }}
+            >Thêm mới</a>,
+            key: '1',
+            icon: <EditOutlined />,
+        },
+        {
+            label: <a onClick={() => { setDataAction(record) }}>Active tất cả</a>,
+            key: '2',
+            icon: <CheckCircleOutlined />,
+        },
+        {
+            label: 'Tạo nhanh hóa đơn tháng',
+            key: '3',
+            icon: <CloseSquareOutlined />,
+            danger: true,
+            disabled: false,
+        },
+    ];
+
+    const menuProps = {
+        items,
+    };
+
     return (
         <div>
             <AdminLayout
@@ -599,7 +627,7 @@ export default function Dashboard(props: any) {
                                     initialValues={initialsFormSearch()}
                                 >
                                     {/* <div className="form-item02">
-                                        
+
                                     </div> */}
                                     <List
                                         className="list-search"
@@ -758,25 +786,16 @@ export default function Dashboard(props: any) {
 
                                     <Col className="text-right" span={12}>
 
-                                        <Button style={{ marginLeft: 8 }} type="primary"
-                                            icon={<FileAddOutlined />}
+                                        <Dropdown.Button type="primary"
+                                            className="btn-dropdown _right"
                                             onClick={() => {
                                                 setIsOpenFormEdit(true);
                                                 setDataAction({ id: 0 });
                                             }}
+                                            menu={{ items }}
                                         >
-                                            Tạo nhanh hóa đơn tháng
-                                        </Button>
-
-                                        <Button style={{ marginLeft: 8 }} type="primary"
-                                            icon={<PlusSquareOutlined />}
-                                            onClick={() => {
-                                                setIsOpenFormEdit(true);
-                                                setDataAction({ id: 0 });
-                                            }}
-                                        >
-                                            Thêm mới
-                                        </Button>
+                                            <PlusCircleOutlined /> Thêm nhanh
+                                        </Dropdown.Button>
                                     </Col>
 
                                     <Col span={24}><br /></Col>
@@ -863,7 +882,6 @@ export default function Dashboard(props: any) {
                                                         .includes(input.toLowerCase())
                                                 }
                                                 onChange={(value, user: any) => {
-                                                    console.log('========', user);
                                                     formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id.toString() : null);
                                                 }}
                                             />

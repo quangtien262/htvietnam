@@ -124,7 +124,7 @@ class SyncHopDong extends Command
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
 
         foreach (array_slice($rows, 1) as $data) {
-            if (in_array($data[1], [3, 4, 21, 22, 23, 24, 25])) {
+            if (in_array($data[1], [4, 21, 22, 23, 24, 25])) {
                 continue;
             }
             try {
@@ -172,11 +172,8 @@ class SyncHopDong extends Command
                     case 29:
                         $name = $data[2] . '/15A';
                         break;
-                    case 11:
-                        $name = $data[2] . '/15B';
-                        break;
                     case 5:
-                        $name = $data[2] . '/592QT';
+                        $name = $data[2] . '/15B';
                         break;
                     case 18:
                         $name = $data[2] . '/46PK';
@@ -338,7 +335,7 @@ class SyncHopDong extends Command
 
 
                 $dienNuoc = AitilenDienNuoc::where('room_id', $data['room_id'])->first();
-
+                $room = DB::table('room')->where('id', $data['room_id'])->first();
                 if (empty($dienNuoc)) {
                     $dienNuoc = new AitilenDienNuoc();
                 }
@@ -347,6 +344,7 @@ class SyncHopDong extends Command
                 $dienNuoc->year = 2025;
 
                 $dienNuoc->room_id = $data['room_id'] ?? null;
+                $dienNuoc->apartment_id = $room->apartment_id ?? null;
 
                 $dichVu = trim(mb_substr($data['name'], 0, 3, 'UTF-8'));
                 // dd($dichVu);
@@ -425,67 +423,68 @@ class SyncHopDong extends Command
 
     private function userSync()
     {
+        /////////////////////////////////////save user  /////////////////////////////////////
+
         DB::table('users')->truncate();
+
         // reset auto increment
         DB::statement('ALTER TABLE users AUTO_INCREMENT = 1;');
-        $csv = storage_path('app/public/migrate/res_partner.csv');
-        $dataError = [];
+
+        $csv = storage_path('app/public/migrate/user.csv');
         // Đọc file CSV thành mảng
         $rows = array_map('str_getcsv', file($csv));
         $header = array_map('trim', $rows[0]); // Dòng đầu là header
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
-
-        $password = bcrypt('abc123');
+        // dd($header);
+        // $password = bcrypt('abc123');
+        $password = '123';
         $phoneError = [];
-        foreach (array_slice($rows, 1) as $row) {
-            // Bỏ qua dòng không đủ cột
-            if (count($row) !== count($header)) {
-                continue;
-            }
-            $data = array_combine($header, $row);
+        foreach (array_slice($rows, 1) as $data) {
 
             // if (!$this->isValidVietnamPhone($data['phone'])) {
             //     $phoneError[] = $data['phone'];
             //     continue;
             // }
 
+            if($data[0] ==1 ) {
+                continue;
+            }
+
             try {
-                $code = 'KHA' . TblService::formatNumberByLength($data['id'], 5);
+                $code = 'KHA' . TblService::formatNumberByLength($data[0], 5);
                 $name = '';
-                if (!empty($data['name'])) {
-                    $name = $this->ucwords_unicode($data['name']);
+                if (!empty($data[3])) {
+                    $name = $this->ucwords_unicode($data[3]);
                 }
 
                 $dataInsert = [
-                    'id' => $data['id'],
-                    'code'  => $code,
-                    'name'  => $name,
-                    'username'  => $data['phone'] ?? null,
-                    'password'  => $password,
-                    'ngay_sinh'  => $data['p_birthday'] ?? null,
-                    'user_status_id'  => 1,
-                    'phone'  => $data['phone'] ?? null,
-                    'email'  => $data['email'] ?? null,
-                    'cccd'  => $data['p_id_number'] ?? null,
-                    'ngay_cap'  => $data['p_id_issued_date'] ?? null,
-                    'noi_cap'  => $data['p_id_issued_by'] ?? null,
-                    'hktt'  => $data['p_id_permanent_residence'] ?? null,
+                    'id' => $data[0], //
+                    'code'  => $code, //
+                    'name'  => $name, //
+                    'username'  => $data[4] ?? null, //
+                    'password'  => $password, //
+                    'ngay_sinh'  => empty($data[5]) || $data[5] == "NULL" ? null : $data[5], //
+                    'user_status_id'  => 1, //
+                    'phone'  => $data[4] ?? null, //
+                    // 'email'  => $data[27] ?? null, //
+                    'cccd'  => $data[6] ?? null, //
+                    'ngay_cap'  => empty($data[8]) || $data[8] == "NULL" ? null : $data[8], //
+                    'noi_cap'  => $data[7] ?? null, //
+                    'hktt'  => $data[9] ?? null, //
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ];
 
                 DB::table('users')->insert($dataInsert);
             } catch (\Throwable $th) {
-                // $dataError[] = [
-                //     'id' => $data['id'],
-                //     'name'  => $data['name'] ?? null,
-                //     'phone'  => $data['phone'] ?? null,
-                // ];
-                // throw $th;
+                // dd($data);
+                throw $th;
             }
         }
-        $this->info('Đã import xong room!');
+        $this->info('Đã import xong users!');
     }
+
+
 
     private function excelDateToDate($excelDate)
     {

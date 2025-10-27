@@ -31,7 +31,7 @@ import {
     EditOutlined, CloseSquareOutlined,
     EyeOutlined, PlusSquareOutlined,
     ClockCircleOutlined, FormOutlined,
-    FileTextOutlined,
+    FileTextOutlined, InsertRowAboveOutlined,
     UserOutlined,
     CaretRightOutlined, FileAddOutlined
 } from "@ant-design/icons";
@@ -61,16 +61,24 @@ export default function Dashboard(props: any) {
     };
 
     const dataService_empty = {
-        name: null,
+        id: null,
         price_default: 0,
         per_default: 'Người',
         price_total: 0,
+        note: '',
+    };
+    const dataService_thangMay = {
+        id: '7',
+        price_default: 50000,
+        per_default: 'Người',
+        price_total: 50000,
         note: '',
     };
     const itemService_default = props.serviceDefault;
 
 
     const [dataService, setDataService] = useState(itemService_default);
+
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
@@ -85,6 +93,8 @@ export default function Dashboard(props: any) {
     const [soNgayThue, setSoNgayThue] = useState(daysInMonth_default);
     const [tienTraCoc, setTienTraCoc] = useState(0);
     const [tienGiamGia, setTienGiamGia] = useState(0);
+
+    const [isOpenFormEditService, setIsOpenFormEditService] = useState(false);
 
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
@@ -130,7 +140,7 @@ export default function Dashboard(props: any) {
 
         values.services = dataService;
         values.id = dataAction.id;
-        values.total =dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
 
@@ -139,7 +149,24 @@ export default function Dashboard(props: any) {
         axios.post(route('contract.update'), values).then((response) => {
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
-                // location.reload();
+                setIsOpenFormEdit(false);
+                console.log('response.data.data', response.data.data);
+
+                if(dataAction.id == 0) {
+                    // add data
+                    const newData = {
+                        ...response.data.data,
+                        id: response.data.data.id
+                    };
+                    setDataSource([...dataSource, newData]);
+                } else {
+                    // update data
+                    const updatedData = {
+                        ...response.data.data,
+                        id: dataAction.id
+                    };
+                    setDataSource(dataSource.map(item => item.id === dataAction.id ? updatedData : item));
+                }
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
@@ -191,9 +218,10 @@ export default function Dashboard(props: any) {
                                 }
                                 onChange={(value) => {
                                     // Gọi API đổi trạng thái hóa đơn
-                                    axios.post(route('aitilen.invoice.changeStatus'), {
+                                    axios.post(route('contract.fastEdit'), {
                                         id: record.id,
-                                        status_id: value,
+                                        column: 'contract_status_id',
+                                        value: value,
                                     }).then((res) => {
                                         console.log('res', res);
                                         if (res.data.status_code === 200) {
@@ -229,38 +257,83 @@ export default function Dashboard(props: any) {
             dataIndex: 'dich_vu',
             key: 'dich_vu',
             render: (text: any, record: any) => {
+                // chuẩn hóa services: có thể là mảng hoặc JSON string
+                const services: any[] = Array.isArray(record.services)
+                    ? record.services
+                    : (parseJson(record.services) || []);
+
                 return <>
                     <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.gia_thue)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
-                    {record.services.map((service: any, idx: number) => {
-                        return <Tag color="blue" key={idx}>
-                            {service.service_name}: {numberFormat(service.price)}
-                        </Tag>
+
+                    {services.map((service: any, idx: number) => {
+                        const serviceName = service.name ?? service.service_name ?? 'Dịch vụ';
+                        const price = service.price ?? service.price_default ?? 0;
+                        return (
+                            <Tag color="blue" key={idx}>
+                                {serviceName}: {numberFormat(price)}
+                            </Tag>
+                        );
                     })}
+
+                    {/* fast edit dv */}
+                    <a className="float-btn-option" onClick={() => { setDataEdit(record); }}>
+                        <FormOutlined />
+                    </a>
                 </>;
             }
         },
     ];
 
     function setDataEdit(record: any) {
+        console.log(record);
         setDataAction(record);
         setIsOpenFormEdit(true);
+
+        // helper parse an toàn
+        const toDayjs = (d: any) => (d ? dayjs(d) : undefined);
+        console.log('record.user_id', record.user_id);
+
         formEdit.setFieldsValue({
-            contract_id: record.contract_id.toString(),
-            room_id: record.room_id.toString(),
-            contract_status_id: record.contract_status_id.toString(),
-            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
-            so_nguoi: record.so_nguoi,
-            tien_phong: record.tien_phong,
+            id: record.id?.toString(),
+            room_id: record.room_id?.toString(),
+            contract_status_id: record.contract_status_id?.toString(),
+
+            // convert sang dayjs
+            // ...existing code...
+            // start_date: record.start_date,
+            // end_date: record.end_date,
+            start_date: toDayjs(record.start_date),
+            end_date: toDayjs(record.end_date),
+
+            gia_thue: record.gia_thue,
             tien_coc: record.tien_coc,
+            ky_thanh_toan: record.ky_thanh_toan,
+            so_nguoi: record.so_nguoi,
+            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
+            total: record.total,
+
+            user_id: record.user_id.toString(),
+            ho_ten: record.ho_ten,
+            dob: record.dob ? dayjs(record.dob) : undefined,
+            phone: record.phone,
+            email: record.email,
+            cccd: record.cccd,
+            ngay_cap: record.ngay_cap ? dayjs(record.ngay_cap) : undefined,
+            noi_cap: record.noi_cap,
+            hktt: record.hktt,
+
+            note: record.note,
+            phi_moi_gioi: record.phi_moi_gioi,
         });
-        setDataService(record.services);
+        console.log('record.services', record.services);
+
         setSoNguoi(record.so_nguoi);
-        setTienPhong(record.tien_phong);
+        setTienPhong(record.gia_thue);
         setTienCoc(record.tien_coc);
-        setTienTraCoc(record.tra_coc);
-        setTienGiamGia(record.giam_gia);
+        setDataService(record.services ? (Array.isArray(record.services) ? record.services : parseJson(record.services)) : []);
+
     }
 
     const expandedRowRender = (record: any, index: number) => {
@@ -304,22 +377,13 @@ export default function Dashboard(props: any) {
             </div>
             <Row>
                 <Col span={10}>
-                    {record.images ? <Image width={150} src={record.images} /> : <Image className="image-list" src='/images/contract-updating.png'></Image>} 
-                    {/* <HTBankingQR
-                        bankCode="TPB"
-                        accountNumber="00299941001"
-                        accountName="LUU QUANG TIEN"
-                        amount={record.total}
-                        description="2013017"
-                        csrf_token={props.csrf_token}
-                    /> */}
+                    {record.images ? <Image width={150} src={record.images} /> : <Image className="image-list" src='/images/contract-updating.png'></Image>}
                 </Col>
                 <Col span={14}>
                     <ul className="ul-info">
                         <li><b><CaretRightOutlined /> Tiêu đề:</b> {record.name}</li>
-                        <li><b><FileTextOutlined /> Mã hóa đơn:</b> {record.code}</li>
-                        <li><b><FileTextOutlined /> Kỳ hóa đơn:</b> {record.month}/{record.year}</li>
-                        <li><b><UserOutlined /> Khách hàng:</b> {record.ten_khach_hang}</li>
+                        <li><b><FileTextOutlined /> Mã Hợp đồng:</b> {record.code}</li>
+                        <li><b><UserOutlined /> Khách hàng:</b> {record.ho_ten}</li>
                         <li><b><CloudOutlined /> Phòng:</b> {props.room[record.room_id] ? props.room[record.room_id].name : ''}</li>
                         <li><b><MehOutlined /> Số người ở:</b> {record.so_nguoi}</li>
                         <li><b><ClockCircleOutlined /> Ngày hẹn đóng tiền:</b> {record.ngay_hen_dong_tien}</li>
@@ -351,15 +415,27 @@ export default function Dashboard(props: any) {
                                 <td className="text-right"><b>{numberFormat(record.tien_coc)}</b></td>
                                 <td></td>
                             </tr> : ''}
-                            {record.services.map((service: any, idx: number) => {
-                                return <tr key={idx}>
-                                    <td className="text-left">{service.name}</td>
-                                    <td className="text-right">{numberFormat(service.price)}</td>
-                                    <td className="text-right">{service.per}</td>
-                                    <td className="text-right"><b>{numberFormat(service.price_total)}</b></td>
-                                    <td>{service.note}</td>
-                                </tr>
-                            })}
+
+                            {/* show services */}
+                            {(() => {
+                                if (record.services) {
+                                    return record.services.map((service: any, idx: number) => {
+                                        const serviceName = service.name ?? service.service_name ?? 'Dịch vụ';
+                                        const per = service.per ?? service.per_default ?? '';
+                                        const price = service.price ?? service.price_default ?? 0;
+                                        const priceTotal = service.price_total ?? price;
+                                        return (
+                                            <tr key={idx}>
+                                                <td className="text-left">{serviceName}</td>
+                                                <td className="text-right">{numberFormat(price)}</td>
+                                                <td className="text-right">{per}</td>
+                                                <td className="text-right"><b>{numberFormat(priceTotal)}</b></td>
+                                                <td>{service.note ?? ''}</td>
+                                            </tr>
+                                        );
+                                    });
+                                }
+                            })()}
 
                             <tr>
                                 <td colSpan={3} className="text-right _red"><b>Tổng</b></td>
@@ -476,7 +552,7 @@ export default function Dashboard(props: any) {
                             setDataService(data_tmp);
                         }}
                         allowClear={true}
-                        value={data.id}
+                        value={data.id.toString()}
                         options={optionEntries(props.service)}
                     />
 
@@ -503,7 +579,7 @@ export default function Dashboard(props: any) {
                             data_tmp[idx].per_default = value;
                             total(soNgayThue, data_tmp, daysInMonth, soNguoi);
                         }}
-                        value={data.per_default}
+                        value={data.per_default.toString()}
                         options={DON_VI_SERVICE}
                     />
                 </td>
@@ -588,7 +664,7 @@ export default function Dashboard(props: any) {
                                     initialValues={initialsFormSearch()}
                                 >
                                     {/* <div className="form-item02">
-                                        
+
                                     </div> */}
                                     <List
                                         className="list-search"
@@ -722,22 +798,17 @@ export default function Dashboard(props: any) {
                                     </Col>
 
                                     <Col className="text-right" span={12}>
-
-                                        <Button style={{ marginLeft: 8 }} type="primary"
-                                            icon={<FileAddOutlined />}
-                                            onClick={() => {
-                                                setIsOpenFormEdit(true);
-                                                setDataAction({ id: 0 });
-                                            }}
-                                        >
-                                            Tạo nhanh hóa đơn tháng
-                                        </Button>
-
                                         <Button style={{ marginLeft: 8 }} type="primary"
                                             icon={<PlusSquareOutlined />}
                                             onClick={() => {
                                                 setIsOpenFormEdit(true);
                                                 setDataAction({ id: 0 });
+                                                setDataService(props.serviceDefault);
+                                                formEdit.resetFields();
+                                                setSoNguoi(1);
+                                                setTienCoc(0);
+                                                setTienPhong(0);
+                                                setDaysInMonth(daysInMonth_default);
                                             }}
                                         >
                                             Thêm mới
@@ -792,6 +863,7 @@ export default function Dashboard(props: any) {
                             </ul>
                         </Modal>
 
+                        {/* form thêm sửa */}
                         <Modal title={dataAction.id === 0 ? "Thêm mới hợp đồng" : "Chỉnh sửa hợp đồng"}
                             open={isOpenFormEdit}
                             onOk={() => {
@@ -955,6 +1027,26 @@ export default function Dashboard(props: any) {
                                                 <tr>
                                                     <th>
                                                         <span>Chọn dịch vụ</span>
+                                                        <br />
+                                                        <a onClick={() => {
+                                                            // Clone, không mutate props
+                                                            const defaultServices = [...(props.serviceDefault || [])];
+
+                                                            // Thêm thang máy cho các tòa 8,7,27 (nếu chưa có)
+                                                            if (dataAction.apartment_id && [8, 7, 27].includes(Number(dataAction.apartment_id))) {
+                                                                const hasElevator = defaultServices.some(
+                                                                    (s: any) => (s?.code === 'THANG_MAY') || (String(s?.name || '').toLowerCase() === 'thang máy')
+                                                                );
+                                                                if (!hasElevator) {
+                                                                    defaultServices.push({
+                                                                        ...dataService_thangMay,
+                                                                    });
+                                                                }
+                                                            }
+
+                                                            setDataService(defaultServices);
+                                                        }}
+                                                        ><InsertRowAboveOutlined /> Mặc định</a>
                                                     </th>
                                                     <th>Giá</th>
                                                     <th>Đơn vị</th>
@@ -978,7 +1070,7 @@ export default function Dashboard(props: any) {
                                                     <td>Tiền phòng</td>
                                                     <td>
                                                         <Form.Item
-                                                            name="tien_phong"
+                                                            name="gia_thue"
                                                         >
                                                             <InputNumber
                                                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -1042,9 +1134,6 @@ export default function Dashboard(props: any) {
 
                                             </tbody>
 
-                                            {/* {showTotalDetail()} */}
-
-
                                         </table>
                                     </Col>
                                 </Row>
@@ -1054,6 +1143,6 @@ export default function Dashboard(props: any) {
                     </div>
                 }
             />
-        </div>
+        </div >
     );
 }
