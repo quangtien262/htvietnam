@@ -1094,12 +1094,14 @@ export default function Dashboard(props: any) {
         },
         {
             title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
-                return showTypeMeeting(record);
+                return '123';
+                // return showTypeMeeting(record);
             }
         },
         {
             title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-                return showNguoiThucHien(record);
+                return  '456';
+                // return showNguoiThucHien(record);
             }
         },
         {
