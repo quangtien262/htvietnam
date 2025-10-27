@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->text('name')->nullable();
             $table->text('content')->nullable();
-            $table->text('task_id')->nullable();
+            $table->text('project_id')->nullable();
             $table->string('parent_name')->nullable();
 
             MigrateService::createBaseColumn($table);
@@ -25,7 +25,7 @@ return new class extends Migration
             Table::create([
                 //require
                 'name' => 'project_comment',
-                'display_name' => 'Comment công việc',
+                'display_name' => 'Comment dự án',
                 'parent_id' => 0,
                 'sort_order' => 0,
                 'type_show' => config('constant.type_show.basic'),

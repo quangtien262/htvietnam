@@ -13,8 +13,8 @@ use App\Models\Admin\Column;
 use App\Models\Admin\Meeting;
 use App\Models\Admin\Project;
 use App\Models\Admin\ProjectChecklist;
+use App\Models\Admin\ProjectComment;
 use App\Models\Admin\Task;
-use App\Models\Admin\TaskComment;
 use App\Models\Admin\TaskLog;
 use App\Models\AdminUser;
 use App\Services\Admin\TblModel;
@@ -30,7 +30,7 @@ class ProjectController extends Controller
         // get project info
         $project = Project::find($projectId);
         // get all comments
-        $comments = TaskComment::getByTask($projectId);
+        $comments = ProjectComment::getByProject($projectId);
         // get all checklist
         $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $projectId)->orderBy('id', 'desc')->get()->toArray();
         // $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
@@ -38,6 +38,7 @@ class ProjectController extends Controller
         $percent = TblService::getChecklistPercent($checklist);
         // tasks
         $tasks = Task::getTaskByProject($projectId);
+
 
         return $this->sendSuccessResponse([
             'checklist' => $checklist,
@@ -248,14 +249,19 @@ class ProjectController extends Controller
 
     public function addComment(Request $request)
     {
-        if (empty($request->content) || empty($request->task_id)) {
+        // dd($request->all());
+        if (empty($request->content) || empty($request->project_id)) {
             return $this->sendErrorResponse('empty');
         }
 
         $admin = Auth::guard('admin_users')->user();
 
         // save
-        $comment = new ProjectComment();
+        if(!empty($request->id)){
+            $comment = ProjectComment::find($request->id);
+        }else{
+            $comment = new ProjectComment();
+        }
         $comment->content = $request->content;
         $comment->project_id = $request->project_id;
         $comment->create_by = $admin->id;
@@ -276,10 +282,10 @@ class ProjectController extends Controller
         $dataSort = json_decode($request->data, true);
         $this->updateSortOrderSetting($dataSort, $request->table_name);
 
-        // get tasks
-        $tasks = Project::getProjectByStatus($request, $request->parent_name);
+        // get Project
+        $project = Project::getProjectByStatus($request, $request->parent_name);
 
-        return $this->sendSuccessResponse($tasks);
+        return $this->sendSuccessResponse($project);
     }
 
     public function addExpress(Request $request, $parentName)
@@ -306,9 +312,9 @@ class ProjectController extends Controller
         }
 
         // get all
-        $tasks = Project::getProjectByStatus($request, $parentName);
+        $project = Project::getProjectByStatus($request, $parentName);
 
-        return $this->sendSuccessResponse($tasks);
+        return $this->sendSuccessResponse($project);
     }
 
     private function updateSortOrderSetting($dataSort, $tableName, $indexStart = 100, $parentId = 0)
@@ -471,8 +477,8 @@ class ProjectController extends Controller
             ];
             TblService::updateData($request->currentName, $id, $dataUpdate);
         }
-        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
-        $status = TblService::formatData('task_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
+        $columns = Project::getProjectByStatus($request->searchData, $request->parentName);
+        $status = TblService::formatData('project_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
         return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status]);
     }
 }

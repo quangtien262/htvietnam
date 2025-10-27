@@ -579,7 +579,7 @@ export default function Dashboard(props: any) {
         return <Row key={record.id}>
             <Col span={12} style={{ background: '#e9f4f9', padding: '10px', marginBottom: '10px' }}   >
                 <List
-                    header={<b>Thông tin cuộc họp <a className="_right" onClick={() => {
+                    header={<b> <a onClick={() => {
                         let meetingType = [];
                         if (record.is_daily) {
                             meetingType.push('is_daily');
@@ -598,9 +598,11 @@ export default function Dashboard(props: any) {
                         setIsModalEdit(true);
                         setMeetingDataAction(record);
                         formMeetingEdit.setFieldsValue({ name: record.name });
-                        formMeetingEdit.setFieldsValue({ meeting_status_id: record.meeting_status_id });
+                        formMeetingEdit.setFieldsValue({ meeting_status_id: record.meeting_status_id.toString() });
                         formMeetingEdit.setFieldsValue({ meeting_type: meetingType });
-                    }}><EditFilled /></a></b>}
+                    }}><EditFilled /> Thông tin cuộc họp</a>
+
+                    </b>}
                     bordered
                     dataSource={info}
                     renderItem={(item: any) => (
@@ -1292,7 +1294,7 @@ export default function Dashboard(props: any) {
                             onOk={async () => {
                                 formMeetingEdit.submit();
                             }}
-                            okText="Xác nhận hủy đơn"
+                            okText="Cập nhật"
                             cancelText="Hủy"
                             confirmLoading={confirmLoading}
                             maskClosable={false}

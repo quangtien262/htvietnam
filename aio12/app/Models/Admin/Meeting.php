@@ -78,7 +78,7 @@ class Meeting extends Model
         $meeting->is_weekly = $request->column_name == 'is_weekly' ? $request->value : $data->is_weekly;
         $meeting->is_monthly = $request->column_name == 'is_monthly' ? $request->value : $data->is_monthly;
 
-        if(empty($data->is_daily) && empty($data->is_weekly) && empty($data->is_monthly)) {
+        if (empty($data->is_daily) && empty($data->is_weekly) && empty($data->is_monthly)) {
             $meeting->is_recycle_bin = 1; // đóng nếu không có lịch họp
         } else {
             $meeting->is_recycle_bin = 0; // mở nếu có lịch họp
@@ -87,18 +87,21 @@ class Meeting extends Model
         $meeting->save();
     }
 
-    static function getMeeting($searchData) {
+    static function getMeeting($searchData)
+    {
         $query = self::baseQuery();
         if (!empty($searchData['meeting'])) {
-            if (in_array('daily', $searchData['meeting'])) {
-                $query->where('meeting.is_daily', 1);
-            }
-            if (in_array('weekly', $searchData['meeting'])) {
-                $query->where('meeting.is_weekly', 1);
-            }
-            if (in_array('monthly', $searchData['meeting'])) {
-                $query->where('meeting.is_monthly', 1);
-            }
+            $query->where(function ($q) use ($searchData) {
+                if (in_array('daily', $searchData['meeting'])) {
+                    $q->orWhere('meeting.is_daily', 1);
+                }
+                if (in_array('weekly', $searchData['meeting'])) {
+                    $q->orWhere('meeting.is_weekly', 1);
+                }
+                if (in_array('monthly', $searchData['meeting'])) {
+                    $q->orWhere('meeting.is_monthly', 1);
+                }
+            });
         }
         if (!empty($searchData['result'])) {
             $query->whereIn('meeting.meeting_status_id', $searchData['result']);
