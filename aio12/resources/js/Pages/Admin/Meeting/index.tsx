@@ -1271,7 +1271,7 @@ export default function Dashboard(props: any) {
 
                                 <div style={{ marginBottom: 16 }}>
                                     {/* confirm delete */}
-                                    <Modal
+                                    {/* <Modal
                                         title="Xác nhận xóa"
                                         open={isOpenConfirmDelete}
                                         onOk={deletes}
@@ -1283,10 +1283,10 @@ export default function Dashboard(props: any) {
                                             được <br />{" "}
                                             <b>(Số lượng {selectedRowKeys.length})</b>
                                         </p>
-                                    </Modal>
+                                    </Modal> */}
 
                                     {/* modal confirm export curent */}
-                                    <Modal
+                                    {/* <Modal
                                         title="Xác nhận export excel"
                                         open={isOpenConfirmExportExcel}
                                         onOk={exportExcel}
@@ -1303,10 +1303,10 @@ export default function Dashboard(props: any) {
                                                 )
                                             </b>
                                         </p>
-                                    </Modal>
+                                    </Modal> */}
 
                                     {/* modal confirm export all */}
-                                    <Modal
+                                    {/* <Modal
                                         title="Xác nhận export excel"
                                         open={isOpenConfirmExportAllExcel}
                                         onOk={exportAllDBExcel}
@@ -1317,10 +1317,10 @@ export default function Dashboard(props: any) {
                                             Xuất tất cả dữ liệu ra file excel{" "}
                                             <b>(Số lượng {props.pageConfig.total})</b>
                                         </p>
-                                    </Modal>
+                                    </Modal> */}
 
                                     {/* modal form import */}
-                                    <Modal
+                                    {/* <Modal
                                         title="Chọn file cần nhập liệu"
                                         open={isOpenConfirmImportExcel}
                                         onCancel={handleCancelImport}
@@ -1343,11 +1343,9 @@ export default function Dashboard(props: any) {
                                             {uploading ? "Uploading" : "Start Upload"}
                                         </Button>
                                         <Button onClick={handleCancelImport}>Hủy</Button>
-                                    </Modal>
+                                    </Modal> */}
 
-                                    <Space>
 
-                                    </Space>
                                     <Space className="_right">
                                         {/* {checkShowBtnDelete()}
 
