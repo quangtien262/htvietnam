@@ -706,7 +706,7 @@ export default function Dashboard(props: any) {
                                                             showSearch
                                                             allowClear={true}
                                                             style={{ width: "100%" }}
-                                                            placeholder="Chọn phòng"
+                                                            placeholder="Trạng thái hợp đồng"
                                                             optionFilterProp="children"
                                                             filterOption={(input, option) =>
                                                                 (option?.label ?? "")
