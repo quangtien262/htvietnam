@@ -1084,37 +1084,37 @@ export default function Dashboard(props: any) {
             });
     };
 
-    const columns2: ColumnsType<any> = [
-        {
-            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
-                return <b>{text}</b>
-            }
-        },
-        {
-            title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
-                return showTypeMeeting(record);
-            }
-        },
-        {
-            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-                return showNguoiThucHien(record);
-            }
-        },
-        {
-            title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
-                return <>
-                    {
-                        props.meetingStatus[record.meeting_status_id] ? (
-                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
-                            </Tag>
-                        ) : null
-                    }
-                </>
-            }
-        },
-    ];
+    // const columns2: ColumnsType<any> = [
+    //     {
+    //         title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+    //             return <b>{text}</b>
+    //         }
+    //     },
+    //     {
+    //         title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
+    //             return showTypeMeeting(record);
+    //         }
+    //     },
+    //     {
+    //         title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
+    //             return showNguoiThucHien(record);
+    //         }
+    //     },
+    //     {
+    //         title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
+    //             return <>
+    //                 {
+    //                     props.meetingStatus[record.meeting_status_id] ? (
+    //                         <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+    //                             <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+    //                             <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+    //                         </Tag>
+    //                     ) : null
+    //                 }
+    //             </>
+    //         }
+    //     },
+    // ];
 
 
     return (
@@ -1381,7 +1381,7 @@ export default function Dashboard(props: any) {
                                             loading={loadingTable}
                                             pagination={tableParams.pagination}
                                             dataSource={dataSource}
-                                            columns={columns2}
+                                            // columns={columns2}
                                             rowSelection={rowSelection}
                                             expandable={{
                                                 expandedRowRender,
