@@ -6,7 +6,7 @@ use App\Casts\Json;
 use App\Services\User\UserService;
 use Illuminate\Database\Eloquent\Model;
 
-class Service extends Model {
+class Services extends Model {
 
     //
     protected $table = 'services';
