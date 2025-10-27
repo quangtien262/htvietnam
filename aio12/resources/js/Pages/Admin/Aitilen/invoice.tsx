@@ -736,7 +736,6 @@ export default function Dashboard(props: any) {
                                                             style={{ width: "100%" }}
                                                             placeholder="Chọn hợp đồng"
                                                             optionFilterProp="children"
-                                                            allowClear={true}
                                                             options={optionEntries(props.contract)}
                                                             onChange={() => formSearch.submit()}
                                                             filterOption={(input, option) =>

@@ -1258,239 +1258,238 @@ export default function Dashboard(props: any) {
                 auth={props.auth}
                 current={props.table}
                 content={
-                    <span>ok</span>
-                    // <div>
+                    <div>
 
-                    //     <Modal title="Xác nhận xóa"
-                    //         open={isModalXoaOpen}
-                    //         onOk={async () => {
-                    //             setConfirmLoading(true);
-                    //             const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
-                    //             if (result.status === 200) {
-                    //                 message.success("Đã hủy đơn thành công");
-                    //                 location.reload();
-                    //             } else {
-                    //                 setConfirmLoading(false);
-                    //                 message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                    //             }
-                    //         }}
-                    //         okText="Xác nhận hủy đơn"
-                    //         cancelText="Hủy"
-                    //         loading={true}
-                    //         maskClosable={true}
-                    //         // confirmLoading={confirmLoading}
-                    //         onCancel={() => { setIsModalXoaOpen(false); }}>
-                    //         <ul>
-                    //             <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
-                    //             <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                    //             <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
-                    //         </ul>
-                    //     </Modal>
+                        <Modal title="Xác nhận xóa"
+                            open={isModalXoaOpen}
+                            onOk={async () => {
+                                setConfirmLoading(true);
+                                const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
+                                if (result.status === 200) {
+                                    message.success("Đã hủy đơn thành công");
+                                    location.reload();
+                                } else {
+                                    setConfirmLoading(false);
+                                    message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                                }
+                            }}
+                            okText="Xác nhận hủy đơn"
+                            cancelText="Hủy"
+                            loading={true}
+                            maskClosable={true}
+                            // confirmLoading={confirmLoading}
+                            onCancel={() => { setIsModalXoaOpen(false); }}>
+                            <ul>
+                                <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
+                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
+                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                            </ul>
+                        </Modal>
 
-                    //     <Modal title="Cập nhật meeting"
-                    //         width={1000}
-                    //         open={isModalEdit}
-                    //         onOk={async () => {
-                    //             formMeetingEdit.submit();
-                    //         }}
-                    //         okText="Xác nhận hủy đơn"
-                    //         cancelText="Hủy"
-                    //         confirmLoading={confirmLoading}
-                    //         maskClosable={false}
-                    //         onCancel={() => { setIsModalEdit(false); }}>
+                        <Modal title="Cập nhật meeting"
+                            width={1000}
+                            open={isModalEdit}
+                            onOk={async () => {
+                                formMeetingEdit.submit();
+                            }}
+                            okText="Xác nhận hủy đơn"
+                            cancelText="Hủy"
+                            confirmLoading={confirmLoading}
+                            maskClosable={false}
+                            onCancel={() => { setIsModalEdit(false); }}>
 
-                    //         <Form form={formMeetingEdit}
-                    //             component={false}
-                    //             layout="vertical"
-                    //             onFinish={(values) => {
-                    //                 setConfirmLoading(true);
-                    //                 // xử lý dữ liệu trước khi submit
-                    //                 values.description = editor.current['description'].getContents(false);
-                    //                 values.id = meetingDataAction.id;
-                    //                 values.searchData = props.searchData;
-                    //                 // call api
-                    //                 axios.post(route('meeting.updateMeeting'), values).then((res) => {
-                    //                     if (res.data.status_code === 200) {
-                    //                         message.success("Lưu dữ liệu thành công");
-                    //                         setIsModalEdit(false);
-                    //                         setConfirmLoading(false);
-                    //                         setDataSource(res.data.data);
-                    //                     } else {
-                    //                         message.error("Lưu dữ liệu thất bại");
-                    //                         setConfirmLoading(false);
-                    //                     }
-                    //                     setConfirmLoading(false);
-                    //                 }).catch((error) => {
-                    //                     message.error("Lưu dữ liệu thất bại");
-                    //                     setConfirmLoading(false);
-                    //                 });
-                    //             }}
-                    //         >
-                    //             <Row gutter={16}>
-                    //                 <Col span={24}>
-                    //                     <Form.Item
-                    //                         name="name"
-                    //                         label="Tiêu đề"
-                    //                         rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
-                    //                     >
-                    //                         <Input placeholder="Nhập tiêu đề" />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //             </Row>
-                    //             <Row gutter={16}>
-                    //                 <Col span={12}>
-                    //                     <Form.Item
-                    //                         name="meeting_type"
-                    //                         label="Loại cuộc họp"
-                    //                         rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
-                    //                     >
-                    //                         <Select
-                    //                             showSearch
-                    //                             mode='multiple'
-                    //                             style={{ width: "100%" }}
-                    //                             placeholder="Chọn loại cuộc họp"
-                    //                             optionFilterProp="children"
-                    //                             filterOption={(input, option) =>
-                    //                                 (option?.label ?? "")
-                    //                                     .toLowerCase()
-                    //                                     .includes(input.toLowerCase())
-                    //                             }
-                    //                             options={[
-                    //                                 { label: 'Daily', value: 'is_daily' },
-                    //                                 { label: 'Weekly', value: 'is_weekly' },
-                    //                                 { label: 'Monthly', value: 'is_monthly' },
-                    //                                 { label: 'Yearly', value: 'is_yearly' },
-                    //                             ]}
-                    //                         />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //                 <Col span={12}>
-                    //                     <Form.Item
-                    //                         name="meeting_status_id"
-                    //                         label="Trạng thái cuộc họp"
-                    //                         rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
-                    //                     >
-                    //                         <Select
-                    //                             showSearch
-                    //                             style={{ width: "100%" }}
-                    //                             placeholder="Chọn trạng thái cuộc họp"
-                    //                             optionFilterProp="children"
-                    //                             filterOption={(input, option) =>
-                    //                                 (option?.label ?? "")
-                    //                                     .toLowerCase()
-                    //                                     .includes(input.toLowerCase())
-                    //                             }
-                    //                             options={optionEntries(props.meetingStatus)}
-                    //                         />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //             </Row>
-                    //             <Row gutter={16}>
-                    //                 <Col span={24}>
+                            <Form form={formMeetingEdit}
+                                component={false}
+                                layout="vertical"
+                                onFinish={(values) => {
+                                    setConfirmLoading(true);
+                                    // xử lý dữ liệu trước khi submit
+                                    values.description = editor.current['description'].getContents(false);
+                                    values.id = meetingDataAction.id;
+                                    values.searchData = props.searchData;
+                                    // call api
+                                    axios.post(route('meeting.updateMeeting'), values).then((res) => {
+                                        if (res.data.status_code === 200) {
+                                            message.success("Lưu dữ liệu thành công");
+                                            setIsModalEdit(false);
+                                            setConfirmLoading(false);
+                                            setDataSource(res.data.data);
+                                        } else {
+                                            message.error("Lưu dữ liệu thất bại");
+                                            setConfirmLoading(false);
+                                        }
+                                        setConfirmLoading(false);
+                                    }).catch((error) => {
+                                        message.error("Lưu dữ liệu thất bại");
+                                        setConfirmLoading(false);
+                                    });
+                                }}
+                            >
+                                <Row gutter={16}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name="name"
+                                            label="Tiêu đề"
+                                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
+                                        >
+                                            <Input placeholder="Nhập tiêu đề" />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="meeting_type"
+                                            label="Loại cuộc họp"
+                                            rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
+                                        >
+                                            <Select
+                                                showSearch
+                                                mode='multiple'
+                                                style={{ width: "100%" }}
+                                                placeholder="Chọn loại cuộc họp"
+                                                optionFilterProp="children"
+                                                filterOption={(input, option) =>
+                                                    (option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
+                                                }
+                                                options={[
+                                                    { label: 'Daily', value: 'is_daily' },
+                                                    { label: 'Weekly', value: 'is_weekly' },
+                                                    { label: 'Monthly', value: 'is_monthly' },
+                                                    { label: 'Yearly', value: 'is_yearly' },
+                                                ]}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="meeting_status_id"
+                                            label="Trạng thái cuộc họp"
+                                            rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
+                                        >
+                                            <Select
+                                                showSearch
+                                                style={{ width: "100%" }}
+                                                placeholder="Chọn trạng thái cuộc họp"
+                                                optionFilterProp="children"
+                                                filterOption={(input, option) =>
+                                                    (option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
+                                                }
+                                                options={optionEntries(props.meetingStatus)}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col span={24}>
 
-                    //                     <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
-                    //                         setContents={meetingDataAction.description ? meetingDataAction.description : ''}
-                    //                         onImageUpload={handleImageUpload}
-                    //                         onImageUploadError={handleImageUploadError}
-                    //                         onResizeEditor={handleOnResizeEditor}
-                    //                         imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
-                    //                         setOptions={optionSunEditor}
-                    //                     />
-                    //                 </Col>
-                    //             </Row>
-                    //         </Form>
-                    //     </Modal>
+                                        <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
+                                            setContents={meetingDataAction.description ? meetingDataAction.description : ''}
+                                            onImageUpload={handleImageUpload}
+                                            onImageUploadError={handleImageUploadError}
+                                            onResizeEditor={handleOnResizeEditor}
+                                            imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
+                                            setOptions={optionSunEditor}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Modal>
 
-                    //     {contextHolder}
+                        {contextHolder}
 
-                    //     {pageContent}
+                        {pageContent}
 
-                    //     <Drawer
-                    //         title="Chi tiết dự án"
-                    //         placement="right"
-                    //         open={openProjectDetail}
-                    //         // size={'large'}
-                    //         onClose={() => setOpenProjectDetail(false)}
-                    //         width="90%"
-                    //     >
-                    //         {projectInfo(props,
-                    //             projectAction,
-                    //             projectComments,
-                    //             projectChecklist,
-                    //             projectChecklistPercent,
-                    //             (result: any) => {
-                    //                 // set data action, dùng cho case fast edit
-                    //                 if (result.dataAction) {
-                    //                     setProjectDataAction(result.dataAction);
-                    //                 }
+                        <Drawer
+                            title="Chi tiết dự án"
+                            placement="right"
+                            open={openProjectDetail}
+                            // size={'large'}
+                            onClose={() => setOpenProjectDetail(false)}
+                            width="90%"
+                        >
+                            {projectInfo(props,
+                                projectAction,
+                                projectComments,
+                                projectChecklist,
+                                projectChecklistPercent,
+                                (result: any) => {
+                                    // set data action, dùng cho case fast edit
+                                    if (result.dataAction) {
+                                        setProjectDataAction(result.dataAction);
+                                    }
 
-                    //                 // set checklist
-                    //                 if (result.checklist) {
-                    //                     setProjectChecklist(result.checklist);
-                    //                 }
+                                    // set checklist
+                                    if (result.checklist) {
+                                        setProjectChecklist(result.checklist);
+                                    }
 
-                    //                 // set percent
-                    //                 if (result.checklist_percent !== undefined) {
-                    //                     setProjectChecklistPercent(result.checklist_percent);
-                    //                 }
-                    //                 // set comments
-                    //                 if (result.comments) {
-                    //                     setProjectComments(result.comments);
-                    //                 }
+                                    // set percent
+                                    if (result.checklist_percent !== undefined) {
+                                        setProjectChecklistPercent(result.checklist_percent);
+                                    }
+                                    // set comments
+                                    if (result.comments) {
+                                        setProjectComments(result.comments);
+                                    }
 
-                    //                 if (result.isClosed) {
-                    //                     setOpenProjectDetail(false);
-                    //                 }
-                    //             })}
+                                    if (result.isClosed) {
+                                        setOpenProjectDetail(false);
+                                    }
+                                })}
 
-                    //         <br />
-                    //     </Drawer>
+                            <br />
+                        </Drawer>
 
-                    //     <Drawer
-                    //         title="Chi tiết công việc"
-                    //         placement="right"
-                    //         open={openTaskDetail}
-                    //         onClose={() => setOpenTaskDetail(false)}
-                    //         width="90%"
-                    //     >
-                    //         {taskInfo(props,
-                    //             taskAction,
-                    //             taskComments,
-                    //             taskChecklist,
-                    //             taskChecklistPercent,
-                    //             taskLog,
-                    //             priority,
-                    //             (result: any) => {
-                    //                 // set columns, dùng cho case fast edit
-                    //                 // if (result.columns) {
-                    //                 //     setDataSource(result.columns);
-                    //                 // }
+                        <Drawer
+                            title="Chi tiết công việc"
+                            placement="right"
+                            open={openTaskDetail}
+                            onClose={() => setOpenTaskDetail(false)}
+                            width="90%"
+                        >
+                            {taskInfo(props,
+                                taskAction,
+                                taskComments,
+                                taskChecklist,
+                                taskChecklistPercent,
+                                taskLog,
+                                priority,
+                                (result: any) => {
+                                    // set columns, dùng cho case fast edit
+                                    // if (result.columns) {
+                                    //     setDataSource(result.columns);
+                                    // }
 
-                    //                 // set data action, dùng cho case fast edit
-                    //                 if (result.data) {
-                    //                     setTaskAction(result.data);
-                    //                 }
+                                    // set data action, dùng cho case fast edit
+                                    if (result.data) {
+                                        setTaskAction(result.data);
+                                    }
 
-                    //                 // set checklist
-                    //                 if (result.checklist) {
-                    //                     setTaskChecklist(result.checklist);
-                    //                 }
+                                    // set checklist
+                                    if (result.checklist) {
+                                        setTaskChecklist(result.checklist);
+                                    }
 
-                    //                 // set percent
-                    //                 if (result.checklist_percent !== undefined) {
-                    //                     setTaskChecklistPercent(result.checklist_percent);
-                    //                 }
-                    //                 // set comments
-                    //                 if (result.comments) {
-                    //                     setTaskComments(result.comments);
-                    //                 }
+                                    // set percent
+                                    if (result.checklist_percent !== undefined) {
+                                        setTaskChecklistPercent(result.checklist_percent);
+                                    }
+                                    // set comments
+                                    if (result.comments) {
+                                        setTaskComments(result.comments);
+                                    }
 
-                    //             })}
+                                })}
 
-                    //         <br />
+                            <br />
 
-                    //     </Drawer>
-                    // </div>
+                        </Drawer>
+                    </div>
                 }
             />
         </div>
