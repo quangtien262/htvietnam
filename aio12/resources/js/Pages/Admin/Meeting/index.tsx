@@ -48,8 +48,8 @@ import dayjs from "dayjs";
 
 import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant'
 
-// import { taskConfig, taskInfo } from "../Task/task_config";
-// import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
+import { taskConfig, taskInfo } from "../Task/task_config";
+import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
 
 
 import { smartSearch02, showDataSearch, showDataSearch02 } from "../../../Function/input";
@@ -1086,173 +1086,173 @@ export default function Dashboard(props: any) {
             });
     };
 
-    // const columns2: ColumnsType<any> = [
-    //     {
-    //         title: 'Name', dataIndex: 'name', render: (text, record: any) => {
-    //             return <b>{text}</b>
-    //         }
-    //     },
-    //     {
-    //         title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
-    //             return showTypeMeeting(record);
-    //         }
-    //     },
-    //     {
-    //         title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-    //             return showNguoiThucHien(record);
-    //         }
-    //     },
-    //     {
-    //         title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
-    //             return <>
-    //                 {
-    //                     props.meetingStatus[record.meeting_status_id] ? (
-    //                         <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-    //                             <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-    //                             <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
-    //                         </Tag>
-    //                     ) : null
-    //                 }
-    //             </>
-    //         }
-    //     },
-    // ];
+    const columns2 = [
+        {
+            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                return <b>{text}</b>
+            }
+        },
+        {
+            title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
+                return showTypeMeeting(record);
+            }
+        },
+        {
+            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
+                return showNguoiThucHien(record);
+            }
+        },
+        {
+            title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
+                return <>
+                    {
+                        props.meetingStatus[record.meeting_status_id] ? (
+                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+                            </Tag>
+                        ) : null
+                    }
+                </>
+            }
+        },
+    ];
 
-    // const pageContent = (
-    //     <div>
+    const pageContent = (
+        <div>
 
-    //         <Form form={form} component={false}>
-    //             <div style={{ marginBottom: 16 }}>
-    //                 {/* confirm delete */}
-    //                 <Modal
-    //                     title="Xác nhận xóa"
-    //                     open={isOpenConfirmDelete}
-    //                     onOk={deletes}
-    //                     onCancel={handleCancelDelete}
-    //                 // confirmLoading={loadingBtnDelete}
-    //                 >
-    //                     <p>
-    //                         Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
-    //                         được <br />{" "}
-    //                         <b>(Số lượng {selectedRowKeys.length})</b>
-    //                     </p>
-    //                 </Modal>
+            <Form form={form} component={false}>
+                <div style={{ marginBottom: 16 }}>
+                    {/* confirm delete */}
+                    <Modal
+                        title="Xác nhận xóa"
+                        open={isOpenConfirmDelete}
+                        onOk={deletes}
+                        onCancel={handleCancelDelete}
+                    // confirmLoading={loadingBtnDelete}
+                    >
+                        <p>
+                            Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
+                            được <br />{" "}
+                            <b>(Số lượng {selectedRowKeys.length})</b>
+                        </p>
+                    </Modal>
 
-    //                 {/* modal confirm export curent */}
-    //                 <Modal
-    //                     title="Xác nhận export excel"
-    //                     open={isOpenConfirmExportExcel}
-    //                     onOk={exportExcel}
-    //                     onCancel={handleCancelExport}
-    //                     confirmLoading={loadingBtnExport}
-    //                 >
-    //                     <p>
-    //                         Xuất dữ liệu ra file excel{" "}
-    //                         <b>
-    //                             (Số lượng{" "}
-    //                             {hasSelected
-    //                                 ? selectedRowKeys.length
-    //                                 : props.pageConfig.total}
-    //                             )
-    //                         </b>
-    //                     </p>
-    //                 </Modal>
+                    {/* modal confirm export curent */}
+                    <Modal
+                        title="Xác nhận export excel"
+                        open={isOpenConfirmExportExcel}
+                        onOk={exportExcel}
+                        onCancel={handleCancelExport}
+                        confirmLoading={loadingBtnExport}
+                    >
+                        <p>
+                            Xuất dữ liệu ra file excel{" "}
+                            <b>
+                                (Số lượng{" "}
+                                {hasSelected
+                                    ? selectedRowKeys.length
+                                    : props.pageConfig.total}
+                                )
+                            </b>
+                        </p>
+                    </Modal>
 
-    //                 {/* modal confirm export all */}
-    //                 <Modal
-    //                     title="Xác nhận export excel"
-    //                     open={isOpenConfirmExportAllExcel}
-    //                     onOk={exportAllDBExcel}
-    //                     onCancel={handleCancelAllExport}
-    //                     confirmLoading={loadingBtnExport}
-    //                 >
-    //                     <p>
-    //                         Xuất tất cả dữ liệu ra file excel{" "}
-    //                         <b>(Số lượng {props.pageConfig.total})</b>
-    //                     </p>
-    //                 </Modal>
+                    {/* modal confirm export all */}
+                    <Modal
+                        title="Xác nhận export excel"
+                        open={isOpenConfirmExportAllExcel}
+                        onOk={exportAllDBExcel}
+                        onCancel={handleCancelAllExport}
+                        confirmLoading={loadingBtnExport}
+                    >
+                        <p>
+                            Xuất tất cả dữ liệu ra file excel{" "}
+                            <b>(Số lượng {props.pageConfig.total})</b>
+                        </p>
+                    </Modal>
 
-    //                 {/* modal form import */}
-    //                 <Modal
-    //                     title="Chọn file cần nhập liệu"
-    //                     open={isOpenConfirmImportExcel}
-    //                     onCancel={handleCancelImport}
-    //                     confirmLoading={loadingBtnExport}
-    //                     footer=""
-    //                 >
-    //                     <Upload {...uploadConfig}>
-    //                         <Button icon={<UploadOutlined />}>
-    //                             Select File
-    //                         </Button>
-    //                     </Upload>
-    //                     <Button
-    //                         type="primary"
-    //                         onClick={handleUpload}
-    //                         loading={uploading}
-    //                         style={{
-    //                             marginTop: 16,
-    //                         }}
-    //                     >
-    //                         {uploading ? "Uploading" : "Start Upload"}
-    //                     </Button>
-    //                     <Button onClick={handleCancelImport}>Hủy</Button>
-    //                 </Modal>
+                    {/* modal form import */}
+                    <Modal
+                        title="Chọn file cần nhập liệu"
+                        open={isOpenConfirmImportExcel}
+                        onCancel={handleCancelImport}
+                        confirmLoading={loadingBtnExport}
+                        footer=""
+                    >
+                        <Upload {...uploadConfig}>
+                            <Button icon={<UploadOutlined />}>
+                                Select File
+                            </Button>
+                        </Upload>
+                        <Button
+                            type="primary"
+                            onClick={handleUpload}
+                            loading={uploading}
+                            style={{
+                                marginTop: 16,
+                            }}
+                        >
+                            {uploading ? "Uploading" : "Start Upload"}
+                        </Button>
+                        <Button onClick={handleCancelImport}>Hủy</Button>
+                    </Modal>
 
-    //                 <Space>
+                    <Space>
 
-    //                 </Space>
-    //                 <Space className="_right">
-    //                     {checkShowBtnDelete()}
+                    </Space>
+                    <Space className="_right">
+                        {checkShowBtnDelete()}
 
-    //                     {btnIndex()}
+                        {btnIndex()}
 
-    //                     {checkShowBtnExcel()}
-    //                 </Space>
+                        {checkShowBtnExcel()}
+                    </Space>
 
-    //                 {/* page name */}
-    //                 <b className="title-page">Meeting.</b>
+                    {/* page name */}
+                    <b className="title-page">Meeting.</b>
 
-    //                 {/* Show số lượng item/page */}
-    //                 <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
-    //                     {props.pageConfig.count}/{props.pageConfig.total} )
-    //                 </em>
-    //             </div>
+                    {/* Show số lượng item/page */}
+                    <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
+                        {props.pageConfig.count}/{props.pageConfig.total} )
+                    </em>
+                </div>
 
-    //             <hr />
-    //             <br />
+                <hr />
+                <br />
 
-    //             <Row>
-    //                 <Col sm={{ span: 7 }}>
-    //                     {searchLeft()}
-    //                 </Col>
-    //                 <Col sm={{ span: 17 }}>
-    //                     <Table
-    //                         size="small"
-    //                         // scroll={{ x: 1500, y: 7000 }}
-    //                         components={{
-    //                             body: {
-    //                                 cell: EditableCell,
-    //                             },
-    //                         }}
-    //                         loading={loadingTable}
-    //                         pagination={tableParams.pagination}
-    //                         // dataSource={formatData(dataSource)}
-    //                         dataSource={dataSource}
-    //                         columns={columns2}
-    //                         rowSelection={rowSelection}
-    //                         // rowClassName="editable-row"
-    //                         // className="table-index"
-    //                         expandable={{
-    //                             expandedRowRender,
-    //                             defaultExpandedRowKeys: ['1'],
-    //                         }}
+                <Row>
+                    <Col sm={{ span: 7 }}>
+                        {searchLeft()}
+                    </Col>
+                    <Col sm={{ span: 17 }}>
+                        <Table
+                            size="small"
+                            // scroll={{ x: 1500, y: 7000 }}
+                            components={{
+                                body: {
+                                    cell: EditableCell,
+                                },
+                            }}
+                            loading={loadingTable}
+                            pagination={tableParams.pagination}
+                            // dataSource={formatData(dataSource)}
+                            dataSource={dataSource}
+                            columns={columns2}
+                            rowSelection={rowSelection}
+                            // rowClassName="editable-row"
+                            // className="table-index"
+                            expandable={{
+                                expandedRowRender,
+                                defaultExpandedRowKeys: ['1'],
+                            }}
 
-    //                     />
-    //                 </Col>
-    //             </Row>
-    //         </Form>
-    //     </div>
-    // );
+                        />
+                    </Col>
+                </Row>
+            </Form>
+        </div>
+    );
 
     return (
         <div>
@@ -1260,239 +1260,238 @@ export default function Dashboard(props: any) {
                 auth={props.auth}
                 current={props.table}
                 content={
-                    <div>ok</div>
-                    // <div>
+                    <div>
 
-                    //     <Modal title="Xác nhận xóa"
-                    //         open={isModalXoaOpen}
-                    //         onOk={async () => {
-                    //             setConfirmLoading(true);
-                    //             const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
-                    //             if (result.status === 200) {
-                    //                 message.success("Đã hủy đơn thành công");
-                    //                 location.reload();
-                    //             } else {
-                    //                 setConfirmLoading(false);
-                    //                 message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                    //             }
-                    //         }}
-                    //         okText="Xác nhận hủy đơn"
-                    //         cancelText="Hủy"
-                    //         loading={true}
-                    //         maskClosable={true}
-                    //         // confirmLoading={confirmLoading}
-                    //         onCancel={() => { setIsModalXoaOpen(false); }}>
-                    //         <ul>
-                    //             <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
-                    //             <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                    //             <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
-                    //         </ul>
-                    //     </Modal>
+                        <Modal title="Xác nhận xóa"
+                            open={isModalXoaOpen}
+                            onOk={async () => {
+                                setConfirmLoading(true);
+                                const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
+                                if (result.status === 200) {
+                                    message.success("Đã hủy đơn thành công");
+                                    location.reload();
+                                } else {
+                                    setConfirmLoading(false);
+                                    message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                                }
+                            }}
+                            okText="Xác nhận hủy đơn"
+                            cancelText="Hủy"
+                            loading={true}
+                            maskClosable={true}
+                            // confirmLoading={confirmLoading}
+                            onCancel={() => { setIsModalXoaOpen(false); }}>
+                            <ul>
+                                <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
+                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
+                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                            </ul>
+                        </Modal>
 
-                    //     <Modal title="Cập nhật meeting"
-                    //         width={1000}
-                    //         open={isModalEdit}
-                    //         onOk={async () => {
-                    //             formMeetingEdit.submit();
-                    //         }}
-                    //         okText="Xác nhận hủy đơn"
-                    //         cancelText="Hủy"
-                    //         confirmLoading={confirmLoading}
-                    //         maskClosable={false}
-                    //         onCancel={() => { setIsModalEdit(false); }}>
+                        <Modal title="Cập nhật meeting"
+                            width={1000}
+                            open={isModalEdit}
+                            onOk={async () => {
+                                formMeetingEdit.submit();
+                            }}
+                            okText="Xác nhận hủy đơn"
+                            cancelText="Hủy"
+                            confirmLoading={confirmLoading}
+                            maskClosable={false}
+                            onCancel={() => { setIsModalEdit(false); }}>
 
-                    //         <Form form={formMeetingEdit}
-                    //             component={false}
-                    //             layout="vertical"
-                    //             onFinish={(values) => {
-                    //                 setConfirmLoading(true);
-                    //                 // xử lý dữ liệu trước khi submit
-                    //                 values.description = editor.current['description'].getContents(false);
-                    //                 values.id = meetingDataAction.id;
-                    //                 values.searchData = props.searchData;
-                    //                 // call api
-                    //                 axios.post(route('meeting.updateMeeting'), values).then((res) => {
-                    //                     if (res.data.status_code === 200) {
-                    //                         message.success("Lưu dữ liệu thành công");
-                    //                         setIsModalEdit(false);
-                    //                         setConfirmLoading(false);
-                    //                         setDataSource(res.data.data);
-                    //                     } else {
-                    //                         message.error("Lưu dữ liệu thất bại");
-                    //                         setConfirmLoading(false);
-                    //                     }
-                    //                     setConfirmLoading(false);
-                    //                 }).catch((error) => {
-                    //                     message.error("Lưu dữ liệu thất bại");
-                    //                     setConfirmLoading(false);
-                    //                 });
-                    //             }}
-                    //         >
-                    //             <Row gutter={16}>
-                    //                 <Col span={24}>
-                    //                     <Form.Item
-                    //                         name="name"
-                    //                         label="Tiêu đề"
-                    //                         rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
-                    //                     >
-                    //                         <Input placeholder="Nhập tiêu đề" />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //             </Row>
-                    //             <Row gutter={16}>
-                    //                 <Col span={12}>
-                    //                     <Form.Item
-                    //                         name="meeting_type"
-                    //                         label="Loại cuộc họp"
-                    //                         rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
-                    //                     >
-                    //                         <Select
-                    //                             showSearch
-                    //                             mode='multiple'
-                    //                             style={{ width: "100%" }}
-                    //                             placeholder="Chọn loại cuộc họp"
-                    //                             optionFilterProp="children"
-                    //                             filterOption={(input, option) =>
-                    //                                 (option?.label ?? "")
-                    //                                     .toLowerCase()
-                    //                                     .includes(input.toLowerCase())
-                    //                             }
-                    //                             options={[
-                    //                                 { label: 'Daily', value: 'is_daily' },
-                    //                                 { label: 'Weekly', value: 'is_weekly' },
-                    //                                 { label: 'Monthly', value: 'is_monthly' },
-                    //                                 { label: 'Yearly', value: 'is_yearly' },
-                    //                             ]}
-                    //                         />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //                 <Col span={12}>
-                    //                     <Form.Item
-                    //                         name="meeting_status_id"
-                    //                         label="Trạng thái cuộc họp"
-                    //                         rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
-                    //                     >
-                    //                         <Select
-                    //                             showSearch
-                    //                             style={{ width: "100%" }}
-                    //                             placeholder="Chọn trạng thái cuộc họp"
-                    //                             optionFilterProp="children"
-                    //                             filterOption={(input, option) =>
-                    //                                 (option?.label ?? "")
-                    //                                     .toLowerCase()
-                    //                                     .includes(input.toLowerCase())
-                    //                             }
-                    //                             options={optionEntries(props.meetingStatus)}
-                    //                         />
-                    //                     </Form.Item>
-                    //                 </Col>
-                    //             </Row>
-                    //             <Row gutter={16}>
-                    //                 <Col span={24}>
+                            <Form form={formMeetingEdit}
+                                component={false}
+                                layout="vertical"
+                                onFinish={(values) => {
+                                    setConfirmLoading(true);
+                                    // xử lý dữ liệu trước khi submit
+                                    values.description = editor.current['description'].getContents(false);
+                                    values.id = meetingDataAction.id;
+                                    values.searchData = props.searchData;
+                                    // call api
+                                    axios.post(route('meeting.updateMeeting'), values).then((res) => {
+                                        if (res.data.status_code === 200) {
+                                            message.success("Lưu dữ liệu thành công");
+                                            setIsModalEdit(false);
+                                            setConfirmLoading(false);
+                                            setDataSource(res.data.data);
+                                        } else {
+                                            message.error("Lưu dữ liệu thất bại");
+                                            setConfirmLoading(false);
+                                        }
+                                        setConfirmLoading(false);
+                                    }).catch((error) => {
+                                        message.error("Lưu dữ liệu thất bại");
+                                        setConfirmLoading(false);
+                                    });
+                                }}
+                            >
+                                <Row gutter={16}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name="name"
+                                            label="Tiêu đề"
+                                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
+                                        >
+                                            <Input placeholder="Nhập tiêu đề" />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="meeting_type"
+                                            label="Loại cuộc họp"
+                                            rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
+                                        >
+                                            <Select
+                                                showSearch
+                                                mode='multiple'
+                                                style={{ width: "100%" }}
+                                                placeholder="Chọn loại cuộc họp"
+                                                optionFilterProp="children"
+                                                filterOption={(input, option) =>
+                                                    (option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
+                                                }
+                                                options={[
+                                                    { label: 'Daily', value: 'is_daily' },
+                                                    { label: 'Weekly', value: 'is_weekly' },
+                                                    { label: 'Monthly', value: 'is_monthly' },
+                                                    { label: 'Yearly', value: 'is_yearly' },
+                                                ]}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="meeting_status_id"
+                                            label="Trạng thái cuộc họp"
+                                            rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
+                                        >
+                                            <Select
+                                                showSearch
+                                                style={{ width: "100%" }}
+                                                placeholder="Chọn trạng thái cuộc họp"
+                                                optionFilterProp="children"
+                                                filterOption={(input, option) =>
+                                                    (option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
+                                                }
+                                                options={optionEntries(props.meetingStatus)}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col span={24}>
 
-                    //                     <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
-                    //                         setContents={meetingDataAction.description ? meetingDataAction.description : ''}
-                    //                         onImageUpload={handleImageUpload}
-                    //                         onImageUploadError={handleImageUploadError}
-                    //                         onResizeEditor={handleOnResizeEditor}
-                    //                         imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
-                    //                         setOptions={optionSunEditor}
-                    //                     />
-                    //                 </Col>
-                    //             </Row>
-                    //         </Form>
-                    //     </Modal>
+                                        <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
+                                            setContents={meetingDataAction.description ? meetingDataAction.description : ''}
+                                            onImageUpload={handleImageUpload}
+                                            onImageUploadError={handleImageUploadError}
+                                            onResizeEditor={handleOnResizeEditor}
+                                            imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
+                                            setOptions={optionSunEditor}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Modal>
 
-                    //     {contextHolder}
+                        {contextHolder}
 
-                    //     {pageContent}
+                        {pageContent}
 
-                    //     <Drawer
-                    //         title="Chi tiết dự án"
-                    //         placement="right"
-                    //         open={openProjectDetail}
-                    //         // size={'large'}
-                    //         onClose={() => setOpenProjectDetail(false)}
-                    //         width="90%"
-                    //     >
-                    //         {projectInfo(props,
-                    //             projectAction,
-                    //             projectComments,
-                    //             projectChecklist,
-                    //             projectChecklistPercent,
-                    //             (result: any) => {
-                    //                 // set data action, dùng cho case fast edit
-                    //                 if (result.dataAction) {
-                    //                     setProjectDataAction(result.dataAction);
-                    //                 }
+                        <Drawer
+                            title="Chi tiết dự án"
+                            placement="right"
+                            open={openProjectDetail}
+                            // size={'large'}
+                            onClose={() => setOpenProjectDetail(false)}
+                            width="90%"
+                        >
+                            {projectInfo(props,
+                                projectAction,
+                                projectComments,
+                                projectChecklist,
+                                projectChecklistPercent,
+                                (result: any) => {
+                                    // set data action, dùng cho case fast edit
+                                    if (result.dataAction) {
+                                        setProjectDataAction(result.dataAction);
+                                    }
 
-                    //                 // set checklist
-                    //                 if (result.checklist) {
-                    //                     setProjectChecklist(result.checklist);
-                    //                 }
+                                    // set checklist
+                                    if (result.checklist) {
+                                        setProjectChecklist(result.checklist);
+                                    }
 
-                    //                 // set percent
-                    //                 if (result.checklist_percent !== undefined) {
-                    //                     setProjectChecklistPercent(result.checklist_percent);
-                    //                 }
-                    //                 // set comments
-                    //                 if (result.comments) {
-                    //                     setProjectComments(result.comments);
-                    //                 }
+                                    // set percent
+                                    if (result.checklist_percent !== undefined) {
+                                        setProjectChecklistPercent(result.checklist_percent);
+                                    }
+                                    // set comments
+                                    if (result.comments) {
+                                        setProjectComments(result.comments);
+                                    }
 
-                    //                 if (result.isClosed) {
-                    //                     setOpenProjectDetail(false);
-                    //                 }
-                    //             })}
+                                    if (result.isClosed) {
+                                        setOpenProjectDetail(false);
+                                    }
+                                })}
 
-                    //         <br />
-                    //     </Drawer>
+                            <br />
+                        </Drawer>
 
-                    //     <Drawer
-                    //         title="Chi tiết công việc"
-                    //         placement="right"
-                    //         open={openTaskDetail}
-                    //         onClose={() => setOpenTaskDetail(false)}
-                    //         width="90%"
-                    //     >
-                    //         {taskInfo(props,
-                    //             taskAction,
-                    //             taskComments,
-                    //             taskChecklist,
-                    //             taskChecklistPercent,
-                    //             taskLog,
-                    //             priority,
-                    //             (result: any) => {
-                    //                 // set columns, dùng cho case fast edit
-                    //                 // if (result.columns) {
-                    //                 //     setDataSource(result.columns);
-                    //                 // }
+                        <Drawer
+                            title="Chi tiết công việc"
+                            placement="right"
+                            open={openTaskDetail}
+                            onClose={() => setOpenTaskDetail(false)}
+                            width="90%"
+                        >
+                            {taskInfo(props,
+                                taskAction,
+                                taskComments,
+                                taskChecklist,
+                                taskChecklistPercent,
+                                taskLog,
+                                priority,
+                                (result: any) => {
+                                    // set columns, dùng cho case fast edit
+                                    // if (result.columns) {
+                                    //     setDataSource(result.columns);
+                                    // }
 
-                    //                 // set data action, dùng cho case fast edit
-                    //                 if (result.data) {
-                    //                     setTaskAction(result.data);
-                    //                 }
+                                    // set data action, dùng cho case fast edit
+                                    if (result.data) {
+                                        setTaskAction(result.data);
+                                    }
 
-                    //                 // set checklist
-                    //                 if (result.checklist) {
-                    //                     setTaskChecklist(result.checklist);
-                    //                 }
+                                    // set checklist
+                                    if (result.checklist) {
+                                        setTaskChecklist(result.checklist);
+                                    }
 
-                    //                 // set percent
-                    //                 if (result.checklist_percent !== undefined) {
-                    //                     setTaskChecklistPercent(result.checklist_percent);
-                    //                 }
-                    //                 // set comments
-                    //                 if (result.comments) {
-                    //                     setTaskComments(result.comments);
-                    //                 }
+                                    // set percent
+                                    if (result.checklist_percent !== undefined) {
+                                        setTaskChecklistPercent(result.checklist_percent);
+                                    }
+                                    // set comments
+                                    if (result.comments) {
+                                        setTaskComments(result.comments);
+                                    }
 
-                    //             })}
+                                })}
 
-                    //         <br />
+                            <br />
 
-                    //     </Drawer>
-                    // </div>
+                        </Drawer>
+                    </div>
                 }
             />
         </div>
