@@ -1268,7 +1268,7 @@ export default function Dashboard(props: any) {
                         {/* pageContent */}
                         <div>
 
-                            <Form form={form} component={false}>
+
                                 <div style={{ marginBottom: 16 }}>
                                     {/* confirm delete */}
                                     <Modal
@@ -1393,7 +1393,6 @@ export default function Dashboard(props: any) {
                                         /> */}
                                     </Col>
                                 </Row>
-                            </Form>
                         </div>
                         {/* end pageContent */}
 
