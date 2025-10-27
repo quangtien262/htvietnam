@@ -1084,37 +1084,37 @@ export default function Dashboard(props: any) {
             });
     };
 
-    // const columns2: ColumnsType<any> = [
-    //     {
-    //         title: 'Name', dataIndex: 'name', render: (text, record: any) => {
-    //             return <b>{text}</b>
-    //         }
-    //     },
-    //     {
-    //         title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
-    //             return showTypeMeeting(record);
-    //         }
-    //     },
-    //     {
-    //         title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-    //             return showNguoiThucHien(record);
-    //         }
-    //     },
-    //     {
-    //         title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
-    //             return <>
-    //                 {
-    //                     props.meetingStatus[record.meeting_status_id] ? (
-    //                         <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-    //                             <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-    //                             <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
-    //                         </Tag>
-    //                     ) : null
-    //                 }
-    //             </>
-    //         }
-    //     },
-    // ];
+    const columns2: ColumnsType<any> = [
+        {
+            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                return <b>{text}</b>
+            }
+        },
+        {
+            title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
+                return showTypeMeeting(record);
+            }
+        },
+        {
+            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
+                return showNguoiThucHien(record);
+            }
+        },
+        {
+            title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
+                return <>
+                    {
+                        props.meetingStatus[record.meeting_status_id] ? (
+                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+                            </Tag>
+                        ) : null
+                    }
+                </>
+            }
+        },
+    ];
 
 
     return (
@@ -1271,7 +1271,7 @@ export default function Dashboard(props: any) {
 
                                 <div style={{ marginBottom: 16 }}>
                                     {/* confirm delete */}
-                                    {/* <Modal
+                                    <Modal
                                         title="Xác nhận xóa"
                                         open={isOpenConfirmDelete}
                                         onOk={deletes}
@@ -1283,10 +1283,10 @@ export default function Dashboard(props: any) {
                                             được <br />{" "}
                                             <b>(Số lượng {selectedRowKeys.length})</b>
                                         </p>
-                                    </Modal> */}
+                                    </Modal>
 
                                     {/* modal confirm export curent */}
-                                    {/* <Modal
+                                    <Modal
                                         title="Xác nhận export excel"
                                         open={isOpenConfirmExportExcel}
                                         onOk={exportExcel}
@@ -1303,10 +1303,10 @@ export default function Dashboard(props: any) {
                                                 )
                                             </b>
                                         </p>
-                                    </Modal> */}
+                                    </Modal>
 
                                     {/* modal confirm export all */}
-                                    {/* <Modal
+                                    <Modal
                                         title="Xác nhận export excel"
                                         open={isOpenConfirmExportAllExcel}
                                         onOk={exportAllDBExcel}
@@ -1317,10 +1317,10 @@ export default function Dashboard(props: any) {
                                             Xuất tất cả dữ liệu ra file excel{" "}
                                             <b>(Số lượng {props.pageConfig.total})</b>
                                         </p>
-                                    </Modal> */}
+                                    </Modal>
 
                                     {/* modal form import */}
-                                    {/* <Modal
+                                    <Modal
                                         title="Chọn file cần nhập liệu"
                                         open={isOpenConfirmImportExcel}
                                         onCancel={handleCancelImport}
@@ -1343,24 +1343,24 @@ export default function Dashboard(props: any) {
                                             {uploading ? "Uploading" : "Start Upload"}
                                         </Button>
                                         <Button onClick={handleCancelImport}>Hủy</Button>
-                                    </Modal> */}
+                                    </Modal>
 
 
                                     <Space className="_right">
-                                        {/* {checkShowBtnDelete()}
+                                        {checkShowBtnDelete()}
 
                                         {btnIndex()}
 
-                                        {checkShowBtnExcel()} */}
+                                        {checkShowBtnExcel()}
                                     </Space>
 
                                     {/* page name */}
                                     <b className="title-page">Meeting.</b>
 
                                     {/* Show số lượng item/page */}
-                                    {/* <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
+                                    <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
                                         {props.pageConfig.count}/{props.pageConfig.total} )
-                                    </em> */}
+                                    </em>
                                 </div>
 
                                 <hr />
@@ -1371,7 +1371,7 @@ export default function Dashboard(props: any) {
                                         {/* {searchLeft()} */}
                                     </Col>
                                     <Col sm={{ span: 17 }}>
-                                        {/* <Table
+                                        <Table
                                             size="small"
                                             components={{
                                                 body: {
@@ -1388,7 +1388,7 @@ export default function Dashboard(props: any) {
                                                 defaultExpandedRowKeys: ['1'],
                                             }}
 
-                                        /> */}
+                                        />
                                     </Col>
                                 </Row>
                         </div>
