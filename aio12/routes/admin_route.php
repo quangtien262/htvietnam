@@ -73,6 +73,8 @@ Route::group(['prefix' => 'data'], function () {
     Route::post('delete/{tableId}', [DataController::class, 'destroyData'])->name('data.delete');
     Route::post('search/{tableId}', [DataController::class, 'search'])->name('data.search');
     Route::post('update-sort-order/{tableId}', [DataController::class, 'updateSortOrder'])->name('data.update_sort_order');
+    Route::post('update-sort-order/{tableId}', [DataController::class, 'updateSortOrder02'])->name('data.update_sort_order_02');
+
     Route::get('/export/{tableId}', [DataController::class, 'exportExcel'])->name('data.export');
 
     Route::post('/update-current-col', [DataController::class, 'updateCurrentColumn'])->name('data.updateCurrentColumn');
@@ -322,7 +324,7 @@ Route::post('tat-toan-cong-no', [HoaDonController::class, 'tatToanCongNo'])->nam
 
 Route::group(['prefix' => 'project'], function () {
     Route::put('update-sort-order/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
-
+    Route::post('sort-order/project-status', [ProjectController::class, 'updateSortOrderStatus'])->name('project.updateSortOrderStatus');
     Route::post('fast-edit', [ProjectController::class, 'fastEditProject'])->name('project.fastEditProject');
     Route::post('delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
     Route::post('add-checklist', [ProjectController::class, 'addChecklist'])->name('project.addChecklist');

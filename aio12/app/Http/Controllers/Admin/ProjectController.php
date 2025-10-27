@@ -56,6 +56,7 @@ class ProjectController extends Controller
     public function index(Request $request, $parentName)
     {
         $table = Table::where('name', $parentName)->first();
+        $tableStatus = Table::where('name', 'project_status')->first();
         $status = TblService::formatData('project_status', ['parent_name' => $parentName]);
         $type = TblService::formatData('project_type', ['parent_name' => $parentName]);
         $users = TblService::formatData('admin_users');
@@ -90,6 +91,7 @@ class ProjectController extends Controller
             'p' => $_GET['p'] ?? 0,
             'display' => $display,
             'searchData' => $searchData,
+            'tableStatusID' => $tableStatus->id,
         ];
 
         if ($display == 'list') {
@@ -454,5 +456,23 @@ class ProjectController extends Controller
         }
         $datas = Project::getDatas($request->parentName, $request->searchData);
         return $this->sendSuccessResponse(['dataAction' => $data, 'datas' => $datas['data']], 'Update successfully', 200);
+    }
+
+
+
+    public function updateSortOrderStatus(Request $request)
+    {
+        if (empty($request->order)) {
+            return $this->sendErrorResponse('empty');
+        }
+        foreach ($request->order as $i => $id) {
+            $dataUpdate = [
+                'sort_order' => $i + 1,
+            ];
+            TblService::updateData($request->currentName, $id, $dataUpdate);
+        }
+        $columns = Task::getTaskByStatus($request->searchData, $request->parentName);
+        $status = TblService::formatData('task_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
+        return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status]);
     }
 }

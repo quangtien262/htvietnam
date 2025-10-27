@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
+import { DndContext } from '@dnd-kit/core';
+import { Link, router } from "@inertiajs/react";
+import axios from "axios";
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
     Button,
-    Table,
+    Table, Popconfirm,
     message,
     Modal, Drawer,
     Form,
@@ -10,27 +21,33 @@ import {
     Row, Col,
     Tag, Checkbox,
     Select,
-    Input,
+    Input,ColorPicker
 } from "antd";
-import { Link, router } from "@inertiajs/react";
-import axios from "axios";
 import {
     SettingOutlined,
     SettingFilled,
     PlusCircleFilled,
+    CopyOutlined, PlusCircleOutlined, HolderOutlined, DownOutlined,
+    EditOutlined, DeleteOutlined, SnippetsFilled, EditFilled, CheckOutlined,
+    CheckSquareFilled, PlusSquareFilled, InfoCircleFilled, PushpinFilled,
+    HddFilled, UserOutlined, UsergroupAddOutlined,
+    ClockCircleFilled, FlagFilled, ScheduleFilled, DiffFilled, FileSyncOutlined,
+    FileSearchOutlined, FileMarkdownOutlined, ProfileOutlined,
 } from "@ant-design/icons";
 
 import "../../../../css/task.css";
 
+
 import { callApi } from "../../../Function/api";
 
-import { projectConfig, formProject, getProjectDetail, projectInfo } from "./project_config";
-
+// import { projectConfig, formProject, getProjectDetail, projectInfo } from "./project_config";
+import { formProject, getProjectDetail, projectInfo } from "./project_config";
 import { DATE_FORMAT, TITLE } from '../../../Function/constant';
 import { icon } from "../../../components/comp_icon";
 
 const CheckboxGroup = Checkbox.Group;
-export default function Dashboard(props) {
+const { TextArea } = Input;
+export default function Dashboard(props: any) {
     sessionStorage.clear();
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -58,6 +75,228 @@ export default function Dashboard(props) {
 
     const [openDetail, setOpenDetail] = useState(false);
 
+    // start project config
+    function projectConfig(
+        datas: any,
+        tbl: TblType,
+        columns: columnType
+    ) {
+        const [isModalAddExpress, setIsModalAddExpress] = useState(false);
+        const [dataSource, setDataSource] = React.useState<DataType[]>(datas);
+        const [formExpress] = Form.useForm();
+
+        let name = 'Tiêu đề';
+        let description = 'Mô tả';
+        let color = 'Màu đánh dấu';
+        if (columns.name) {
+            name = columns.name;
+        }
+        if (columns.description) {
+            description = columns.description;
+        }
+        if (columns.color) {
+            color = columns.color;
+        }
+
+        const onfinish = (values: any) => {
+            if (values.background && typeof values.background === 'object') {
+                values.background = values.background.toHexString();;
+            }
+            if (values.color && typeof values.color === 'object') {
+                values.color = values.color.toHexString();;
+            }
+
+            values.id = dataAction.id;
+            axios.post(route('project.editConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
+                message.success('Thêm mới thành công');
+                setDataSource(response.data.data.data);
+                setStatusData(response.data.data.data);
+                setIsModalAddExpress(false);
+                formExpress.resetFields();
+            }).catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        //////////////////////////////////////
+
+        interface RowContextProps {
+            setActivatorNodeRef?: (element: HTMLElement | null) => void;
+            listeners?: SyntheticListenerMap;
+        }
+
+        const RowContext = React.createContext<RowContextProps>({});
+
+        const DragHandle: React.FC = () => {
+            const { setActivatorNodeRef, listeners } = useContext(RowContext);
+            return (
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<HolderOutlined />}
+                    style={{ cursor: 'move' }}
+                    ref={setActivatorNodeRef}
+                    {...listeners}
+                />
+            );
+        };
+
+        const handleDelete = (key: React.Key) => {
+            // const newData = dataSource.filter((item) => item.key !== key);
+            // setDataSource(newData);
+            axios.post(route('project.deleteConfig', [tbl.parentName, tbl.currentName]), { id: key }).then((response) => {
+                message.success('Xóa thành công');
+                setDataSource(response.data.data.data);
+                setStatusData(response.data.data.data);
+            }).catch((error) => {
+                console.error('Error:', error);
+            });
+        };
+
+        const columns2: TableColumnsType = [
+            { key: 'sort', align: 'center', width: 80, render: () => <DragHandle /> },
+            {
+                title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                    // console.log('record', record);
+
+                    return <span style={{ background: record.background, color: record.color, padding: '2px 5px', borderRadius: 3 }}>{text}</span>
+                }
+            },
+            { title: 'Description', dataIndex: 'description' },
+            {
+                title: 'Thao tác',
+                dataIndex: 'operation',
+                render: (_, record) =>
+                    dataSource.length >= 1 ? (
+                        <>
+                            <a onClick={() => {
+                                console.log('record', record);
+                                setIsModalAddExpress(true);
+                                setDataAction(record);
+                                formExpress.setFieldsValue(record);
+                            }}><EditOutlined /></a>
+                            <span> | </span>
+                            <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.key)}>
+                                <a><DeleteOutlined /></a>
+                            </Popconfirm>
+                        </>
+                    ) : null,
+            },
+        ];
+
+        interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+            'data-row-key': string;
+        }
+
+        const Row: React.FC<RowProps> = (props) => {
+            const {
+                attributes,
+                listeners,
+                setNodeRef,
+                setActivatorNodeRef,
+                transform,
+                transition,
+                isDragging,
+            } = useSortable({ id: props['data-row-key'] });
+
+            const style: React.CSSProperties = {
+                ...props.style,
+                transform: CSS.Translate.toString(transform),
+                transition,
+                ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+            };
+
+            const contextValue = useMemo<RowContextProps>(
+                () => ({ setActivatorNodeRef, listeners }),
+                [setActivatorNodeRef, listeners],
+            );
+
+            return (
+                <RowContext.Provider value={contextValue}>
+                    <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+                </RowContext.Provider>
+            );
+        };
+
+        const onDragEnd2 = ({ active, over }: DragEndEvent) => {
+
+            console.log('tbl', tbl);
+            if (active.id !== over?.id) {
+                setDataSource((prevState) => {
+                    const activeIndex = prevState.findIndex((record) => record.key === active?.id);
+                    const overIndex = prevState.findIndex((record) => record.key === over?.id);
+                    const newOrder = arrayMove(prevState, activeIndex, overIndex);
+
+                    // Lấy danh sách key/id theo thứ tự mới
+                    const orderKeys = newOrder.map(item => item.key);
+                    console.log('Thứ tự mới:', orderKeys);
+                    console.log('tbl.currentName', tbl.currentName);
+                    // send 2 server:
+                    // axios.post(route('data.sortOrder02', [tbl.currentName]), { order: orderKeys })
+                    axios.post(route('data.update_sort_order_02', [props.tableStatusID]), { data: orderKeys, tableName: 'project_status' })
+
+                    return newOrder;
+                });
+            }
+        };
+
+        return (
+            <div>
+                {/* modal thên/sửa */}
+                <Modal title="Thêm mới"
+                    open={isModalAddExpress}
+                    footer={null}
+                    onCancel={() => setIsModalAddExpress(false)}
+                >
+                    <Form layout="vertical" onFinish={onfinish} form={formExpress}>
+                        <Form.Item label={name} name="name" rules={[{ required: true, message: 'Vui lòng nhập ' + name }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label='Mô tả' name="description">
+                            <TextArea />
+                        </Form.Item>
+                        <Form.Item label='Tìm kiếm mặc định' name="color">
+                            <Checkbox>Mặc định luôn lọc theo trường này</Checkbox>
+                        </Form.Item>
+                        <Form.Item label='Màu nền' name="background">
+                            <ColorPicker showText />
+                        </Form.Item>
+                        <Form.Item label='Màu chữ' name="color">
+                            <ColorPicker showText />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            <CopyOutlined />
+                            Thêm mới
+                        </Button>
+                    </Form>
+                </Modal>
+
+                {/* btn thêm mới */}
+                <Button type="dashed"
+                    onClick={() => {
+                        setIsModalAddExpress(true)
+                        setDataAction(dataActionDefault);
+                        formExpress.setFieldsValue(dataActionDefault);
+                        formExpress.setFieldsValue(dataActionDefault);
+                    }}
+                    style={{ marginBottom: 16 }}>
+                    <PlusCircleOutlined /> Thêm mới
+                </Button>
+
+                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd2}>
+                    <SortableContext items={dataSource.map((i) => i.key)} strategy={verticalListSortingStrategy}>
+                        <Table
+                            rowKey="key"
+                            components={{ body: { row: Row } }}
+                            columns={columns2}
+                            dataSource={dataSource}
+                        />
+                    </SortableContext>
+                </DndContext>
+            </div>
+        );
+    }
+    // end project config
 
     // import excel
     const [tableParams, setTableParams] = useState({
@@ -76,8 +315,6 @@ export default function Dashboard(props) {
             pagination
         );
     }
-
-
 
     function closeModalAdd() {
         setIsModalAddOpen(false);
@@ -420,9 +657,6 @@ export default function Dashboard(props) {
                                     description: 'Mô tả ',
                                     color: 'Màu chữ',
                                     background: 'Màu nền',
-                                }, (data: any) => {
-                                    setStatusData(data.data);
-                                    // setColumns(data.columns);
                                 })}
 
                                 <Row>

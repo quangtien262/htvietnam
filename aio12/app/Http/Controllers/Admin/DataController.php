@@ -751,8 +751,42 @@ class DataController extends Controller
         if (empty($request->data)) {
             return false;
         }
-        $dataSort = json_decode($request->data, true);
+        if (is_array($request->data)) {
+            $dataSort = $request->data;
+        } else {
+            $dataSort = json_decode($request->data, true);
+        }
         $this->updateSortOrderData($tableId, $dataSort);
+        return $this->sendSuccessResponse('success', 'Update successfully', 200);
+    }
+
+    /**
+     * sắp xếp thứ tự dạng bảng, chỉ có 1 cấp parent_id = 0;
+     *
+     * @param  \Illuminate\Http\Request  $request: data: ids, tableName
+     * @param  \App\Models\Blog  $blog
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSortOrder02(Request $request, $tableId)
+    {
+        // dd($request->all());
+        if (empty($request->data)) {
+            return false;
+        }
+        if (is_array($request->data)) {
+            $dataSort = $request->data;
+        } else {
+            $dataSort = json_decode($request->data, true);
+        }
+        foreach ($dataSort as $i => $id) {
+            $dataUpdate = [
+                'sort_order' => $i,
+            ];
+            TblService::updateData($request->tableName, $id, $dataUpdate);
+            if (!empty($data['children'])) {
+                $this->updateSortOrderData($tableId, $data['children'], $data['key']);
+            }
+        }
         return $this->sendSuccessResponse('success', 'Update successfully', 200);
     }
 

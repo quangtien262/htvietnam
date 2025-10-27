@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from "@/layouts/AdminLayout";
 import {
-    Button,
+    Button,Timeline,
     Table, Drawer,
     message,
     Modal,
     Form,
-    Input,
+    Input, DatePicker,
     List,
     Popconfirm,
     Checkbox,
     Row, Col,
-    Space,
-    notification,
-    Divider,
-    Tag,
-    Upload,
+    Space, Popover,
+    Divider, Progress,
+    Tag, Flex,
+    Empty,
     Dropdown,
     Select,
     Tree, // thêm
@@ -23,16 +22,16 @@ import {
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
-    EditFilled,
-    FormOutlined,
-    SearchOutlined,
-    PlusCircleOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    EyeOutlined,
+    EditFilled, ProfileOutlined, CheckSquareFilled, PlusSquareFilled, CopyOutlined,
+    FireFilled, FileMarkdownOutlined, FlagFilled, SnippetsFilled,
+    CaretRightFilled, FileSearchOutlined, ScheduleFilled,
+    PlusCircleOutlined, FileSyncOutlined, HddFilled,
+    DeleteOutlined, DiffFilled, PushpinFilled, DownOutlined,
+    EditOutlined, UsergroupAddOutlined, UserOutlined,
+    EyeOutlined, InfoCircleFilled,
     CheckOutlined,
     CloseSquareOutlined,
-    UploadOutlined,
+    ClockCircleFilled,
     SettingOutlined, // thêm
 } from "@ant-design/icons";
 
@@ -48,24 +47,24 @@ import { optionSunEditor } from '../../../Function/sun_config';
 
 import dayjs from "dayjs";
 
-import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant'
 
-import { taskConfig, taskInfo } from "../Task/task_config";
-import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
-
+// import { taskConfig, taskInfo } from "../Task/task_config";
+// import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
 
 import { smartSearch02, showDataSearch, showDataSearch02 } from "../../../Function/input";
-
+import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../../Function/constant";
 import { icon as iconRaw } from "../../../components/comp_icon";
-import { optionEntries, formatGdata_column, onDrop, nl2br, parseJson, showInfo, inArray } from "../../../Function/common";
+import {
+    optionEntries, formatGdata_column, objEntries,
+    onDrop, nl2br, parseJson, showInfo
+} from "../../../Function/common";
+
 const icon: Record<string, React.ReactElement> = iconRaw;
 const CheckboxGroup = Checkbox.Group;
 export default function Dashboard(props: any) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-    const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [loadingBtnSearch, setLoadingBtnSearch] = useState(false);
+
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
     const [dataSource, setDataSource] = useState(props.dataSource);
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
@@ -75,13 +74,6 @@ export default function Dashboard(props: any) {
     const [formMeetingEdit] = Form.useForm();
     const editor = useRef<{ [key: string]: any }>({});
 
-    const [isDraft, setIsDraft] = useState(2);
-
-    // upload excel
-    const [fileList, setFileList] = useState([]);
-    const [uploading, setUploading] = useState(false);
-
-    const [formEdit] = Form.useForm();
     const [meetingDataAction, setMeetingDataAction] = useState({ id: 0 });
     const [idAction, setIdAction] = useState(0);
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
@@ -89,7 +81,7 @@ export default function Dashboard(props: any) {
     const [projectChecklist, setProjectChecklist] = useState([]);
     const [projectChecklistPercent, setProjectChecklistPercent] = useState(0);
     const [projectComments, setProjectComments] = useState([]);
-    const [projectAction, setProjectDataAction] = useState({ id: 0 });
+    const [projectAction, setProjectAction] = useState({ id: 0 });
     const [openProjectDetail, setOpenProjectDetail] = useState(false);
 
     const [openTaskDetail, setOpenTaskDetail] = useState(false);
@@ -100,24 +92,11 @@ export default function Dashboard(props: any) {
     const [priority, setPriority] = useState([]);
     const [taskLog, setTaskLog] = useState([]);
 
-    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [isModalEdit, setIsModalEdit] = useState(false);
 
 
     const [confirmLoading, setConfirmLoading] = useState(false);
 
-
-
-
-
-    // import excel
-    const [loadingBtnExport, setLoadingBtnExport] = useState(false);
-    const [isOpenConfirmExportExcel, setIsOpenConfirmExportExcel] =
-        useState(false);
-    const [isOpenConfirmExportAllExcel, setIsOpenConfirmExportAllExcel] =
-        useState(false);
-    const [isOpenConfirmImportExcel, setIsOpenConfirmImportExcel] =
-        useState(false);
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -148,109 +127,1900 @@ export default function Dashboard(props: any) {
     }
     // end suneditor
 
+
+    function taskInfo() {
+        const [formDesc] = Form.useForm();
+        const [formTitle] = Form.useForm();
+        const [formComment] = Form.useForm();
+        const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+        const [isApplyAll, setIsApplyAll] = useState(false);
+        const [isModalComment, setIsModalComment] = useState(false);
+        const [commentAction, setCommentAction] = useState({ id: 0 });
+        const [checkListAction, setCheckListAction] = useState({ id: 0 });
+
+        const [isModalChecklist, setIsModalChecklist] = useState(false);
+
+
+        // formChecklist
+        const formChecklist_default = { name: '', content: '', admin_user_id: null };
+        const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
+        const status = props.taskStatus;
+
+
+        const onFinishFormDesc = async (values: any) => {
+            updateTaskByColumn(taskAction.id, 'description', values.description);
+        }
+
+        const onFinishFormComment = async (values: any) => {
+            // setIsLoadingBtn(true);
+            console.log(commentAction);
+            // return
+            axios.post(route('task.addComment'), {
+                task_id: taskAction.id,
+                content: values.content,
+                id: commentAction.id
+            }).then(response => {
+                setIsModalComment(false);
+                formComment.resetFields();
+                setIsLoadingBtn(false);
+                message.success('Đã thêm comment');
+                // onSuccess({ comments: response.data.data });
+                setTaskComments(response.data.data);
+            }).catch(error => {
+                message.error('Thêm comment thất bại');
+            });
+        }
+
+        function editComment(id: number, columnName: string, value: any) {
+            axios.post(route('data.fastEditByTableName'), {
+                tbl_name: 'task_comments',
+                id: id,
+                value: value,
+                task_id: taskAction.id,
+                column_name: columnName,
+            }).then(response => {
+                setIsLoadingBtn(false);
+                message.success('Cập nhật thành công');
+                // const dataSuccess = {
+                //     checklist: response.data.data.list,
+                //     checklist_percent: response.data.data.percent
+                // };
+                // onSuccess(dataSuccess);
+                setTaskChecklist(response.data.data.list);
+                setTaskChecklistPercent(response.data.data.percent);
+            }).catch(error => {
+                message.error('Cập nhật thất bại');
+            });
+        }
+
+        const removeChecklistByIndex = (indexToRemove: number, id: number) => {
+            axios.post(route('data.fastEditByTableName'), {
+                column_name: 'is_recycle_bin',
+                tbl_name: 'task_checklist',
+                id: id,
+                task_id: taskAction.id,
+                value: 1
+            }).then(response => {
+                setIsLoadingBtn(false);
+                message.success('Xóa checklist thành công');
+                console.log('response.data.data', response.data.data);
+
+                // const successData = {
+                //     checklist: response.data.data.list,
+                //     checklist_percent: response.data.data.percent
+                // };
+                // onSuccess(successData);
+                setTaskChecklist(response.data.data.list);
+                setTaskChecklistPercent(response.data.data.percent);
+            }).catch(error => {
+                message.error('Xóa checklist thất bại');
+            });
+        };
+
+        // xóa task
+        const handleDelete = (id: number, status: number) => {
+            const params = {
+                parentName: props.parentName,
+                pid: props.pid,
+                searchData: props.searchData,
+                p: props.p
+            };
+            axios.post(route('task.delete', id), params).then(response => {
+                // setColumns(response.data.data);
+            }).catch(error => {
+                message.error('Xóa thất bại');
+            });
+
+            // setOpenDetail(false);
+            message.success("Đã xóa thành công");
+        };
+
+        function updateTaskByColumn(id: number, columnName: string, value: any) {
+            axios.post(route('task.fastEditTask'), {
+                column_name: columnName,
+                id: taskAction.id,
+                value: value,
+                parentName: props.parentName,
+                searchData: props.searchData,
+                display: props.display
+            }).then(response => {
+                setIsLoadingBtn(false);
+                // setColumns(response.data.data);
+                message.success('Cập nhật thành công');
+                // onSuccess({
+                //     dataAction_column: { col: columnName, val: value },
+                //     columns: response.data.data.datas,
+                //     data: response.data.data.data,
+                // });
+                setTaskAction(response.data.data);
+
+
+            }).catch(error => {
+                message.error('Cập nhật thất bại');
+            });
+        }
+
+        function removeFormChecklist(key) {
+            setFormChecklist(prev =>
+                prev.filter((_, index) => index !== key)
+            );
+        }
+
+        function createChecklist() {
+            setIsLoadingBtn(true);
+            axios.post(route("task.addChecklist"), {
+                data: formChecklist,
+                task_id: taskAction.id,
+                checklist_id: checkListAction.id,
+            }).then((response) => {
+                console.log(response.data.data);
+
+                setIsLoadingBtn(false);
+                setIsModalChecklist(false);
+                message.success("Tạo checklist thành công");
+
+                // update state
+                // const successData = {
+                //     checklist: response.data.data.checklist,
+                //     checklist_percent: response.data.data.percent
+                // };
+                // onSuccess(successData);
+                setTaskChecklist(response.data.data.list);
+                setTaskChecklistPercent(response.data.data.percent);
+            }).catch((error) => {
+                message.error("Tạo checklist thất bại");
+            });
+        }
+
+
+        {/* form Thêm checklist */ }
+        function formAddTaskChecklist(users, task) {
+            function addFormCheckList() {
+                setFormChecklist(prev => [...prev, formChecklist_default]);
+            }
+
+            function updateChecklistByIndex(indexToUpdate, updatedData) {
+                setFormChecklist(prev =>
+                    prev.map((item, index) =>
+                        index === indexToUpdate ? { ...item, ...updatedData } : item
+                    )
+                );
+            }
+
+            return <table className="table-sub">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Mô tả</th>
+                        <th>
+                            Người thực hiện
+                            <br />
+                            <Checkbox checked={isApplyAll}
+                                onChange={(e) => setIsApplyAll(e.target.checked)}
+                            >
+                                Áp dụng tất cả
+                            </Checkbox>
+                        </th>
+                        <th>Xóa</th>
+                    </tr>
+                </thead>
+                {
+                    formChecklist.map((item, key) => {
+                        return <tbody key={key}>
+                            <tr>
+                                <td>
+                                    <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+                                </td>
+                                <td>
+                                    <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
+                                </td>
+                                <td>
+                                    <Select
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        value={item.admin_user_id}
+                                        options={optionEntries(users)}
+                                        onChange={(value) => {
+                                            if (!isApplyAll) {
+                                                updateChecklistByIndex(key, { admin_user_id: value });
+                                            }
+                                            setFormChecklist(prev =>
+                                                prev.map(item => ({
+                                                    ...item,
+                                                    admin_user_id: value
+                                                }))
+                                            );
+                                            return;
+
+                                        }}
+                                    />
+                                </td>
+                                {
+                                    checkListAction.id === 0 ? (
+                                        <td>
+                                            <span onClick={() => removeFormChecklist(key)}
+                                                title="Xóa"
+                                                className="icon-large cursor"
+                                                key="list-loadmore-more">
+                                                <DeleteOutlined />
+                                            </span>
+                                        </td>
+                                    ) : null
+                                }
+
+                            </tr>
+
+                        </tbody>
+                    })
+                }
+
+                <tbody>
+                    {
+                        checkListAction.id === 0 ? (
+                            <tr>
+                                <td colSpan={4}>
+                                    <a className="add-item01" onClick={() => addFormCheckList()}>
+                                        <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        ) : null
+                    }
+
+                    <tr>
+                        <td colSpan={4}>
+                            <Row className="main-modal-footer01">
+                                <Col span={24} className="main-btn-popup">
+                                    <span> </span>
+                                    <Button className="btn-popup"
+                                        loading={isLoadingBtn}
+                                        type="primary"
+                                        onClick={() => createChecklist()}
+                                    >
+                                        <CheckOutlined />
+                                        Lưu Checklist
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        }
+
+
+        return <Row>
+            {/* Thêm checklist */}
+            <Modal title="Thêm checklist"
+                open={isModalChecklist}
+                onCancel={() => setIsModalChecklist(false)}
+                footer={[]}
+                width={1000}
+            >
+                {formAddTaskChecklist(props.users, taskAction)}
+            </Modal>
+
+            {/* form comment */}
+            <Modal title="Thêm comment"
+                open={isModalComment}
+                onCancel={() => setIsModalComment(false)}
+                footer={[]}
+            >
+                <Form
+                    name="formComment"
+                    form={formComment}
+                    layout="vertical"
+                    onFinish={onFinishFormComment}
+                    autoComplete="off"
+                >
+                    <Form.Item className="edit-description" name='content' label=''>
+                        <Input.TextArea rows={4} />
+                    </Form.Item>
+
+                    <Button type="primary" htmlType="submit" loading={isLoadingBtn}>
+                        <CopyOutlined />
+                        Lưu comment
+                    </Button>
+                </Form>
+            </Modal>
+
+            <Col sm={16}>
+                {/* tiêu đề */}
+                <h3>
+                    {taskAction.name}
+                    <Popconfirm placement="bottomLeft"
+                        title="Sửa tiêu đề"
+                        trigger="click"
+                        onConfirm={() => {
+                            formTitle.submit();
+                        }}
+                        description={
+                            <Form
+                                name="formTitle"
+                                form={formTitle}
+                                layout="vertical"
+                                onFinish={(values) => {
+                                    updateTaskByColumn(taskAction.id, 'name', values.name);
+                                }}
+                                autoComplete="off"
+                                initialValues={{ name: taskAction.name }}
+                            >
+                                <Form.Item className="edit-description" name='name' label=''>
+                                    <Input />
+                                </Form.Item>
+                            </Form>
+                        }
+                    >
+                        <a onClick={(e) => formTitle.setFieldValue('name', taskAction.name)} className="_right">
+                            <EditOutlined />
+                        </a>
+                    </Popconfirm>
+                </h3>
+                <p className="description01">Tạo bởi: {props.users[taskAction.create_by] ? props.users[taskAction.create_by].name : ''}</p>
+
+                {/* Mô tả */}
+                <Divider orientation="left">
+                    <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                    <span> | </span>
+                    <Popconfirm
+                        icon={<EditFilled />}
+                        title="Sửa mô tả"
+                        okButtonProps={{ loading: isLoadingBtn }}
+                        onConfirm={() => formDesc.submit()}
+                        description={
+                            <Form
+                                name="formDesc"
+                                form={formDesc}
+                                layout="vertical"
+                                onFinish={onFinishFormDesc}
+                                autoComplete="off"
+                                initialValues={{ description: taskAction.description }}
+                            >
+                                <Form.Item className="edit-description" name='description' label=''>
+                                    <Input.TextArea rows={4} />
+                                </Form.Item>
+                            </Form>
+                        }
+                    >
+                        <span className="desc cursor"> <EditFilled /> Sửa</span>
+                    </Popconfirm>
+
+                </Divider>
+                <div>
+                    <p className="description01">{taskAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : taskAction.description}</p>
+                </div>
+
+                {/* Checklist */}
+                <div>
+                    <Divider orientation="left">
+                        <span className="title-desc"><CheckSquareFilled /> Checklist</span>
+                        <span> | </span>
+                        <span className="desc cursor" onClick={() => {
+                            setCheckListAction({ id: 0 });
+                            setIsModalChecklist(true);
+                            setFormChecklist([formChecklist_default, formChecklist_default, formChecklist_default]);
+                        }}> <PlusSquareFilled /> Thêm</span>
+                    </Divider>
+                    <Flex gap="small" vertical>
+                        <Progress percent={taskChecklistPercent} status={taskChecklistPercent === 100 ? "success" : "active"} />
+                    </Flex>
+
+                    <List
+                        className="demo-loadmore-list"
+                        itemLayout="horizontal"
+                        pagination={{
+                            pageSize: 10, //  số item mỗi trang
+                        }}
+                        dataSource={!taskChecklist ? [] : taskChecklist.map((item) => { return item; })}
+                        locale={{ emptyText: 'Danh sách checklist trống' }}
+                        renderItem={(item, key) => (
+                            <List.Item
+                                actions={[
+                                    <span>{item.nguoi_thuc_hien_name ? <Tag color="cyan">{item.nguoi_thuc_hien_name}</Tag> : ''}</span>,
+
+                                    <a title="Sửa checklist này"
+                                        onClick={() => {
+                                            setIsModalChecklist(true);
+                                            setCheckListAction(item);
+                                            setFormChecklist([{ id: item.id, name: item.name, content: item.content, admin_user_id: item.nguoi_thuc_hien }]);
+                                        }}
+                                        className="icon-large"
+                                        key="list-loadmore-edit">
+                                        <EditOutlined />
+                                    </a>,
+
+                                    <Popconfirm
+                                        icon={<DeleteOutlined />}
+                                        title="Xác nhận xóa"
+                                        description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                        onConfirm={() => {
+                                            removeChecklistByIndex(key, item.id);
+                                        }}
+                                    >
+                                        <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                    </Popconfirm>
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Checkbox checked={item.is_checked ? true : false}
+                                            onChange={(e) => {
+                                                let status = 0;
+                                                if (e.target.checked) {
+                                                    status = 1;
+                                                }
+                                                axios.post(route('data.fastEditByTableName'), {
+                                                    column_name: 'is_checked',
+                                                    tbl_name: 'task_checklist',
+                                                    id: item.id,
+                                                    value: status,
+                                                    task_id: taskAction.id,
+                                                }).then(response => {
+                                                    message.success('Cập nhật thứ tự thành công');
+                                                    // onSuccess({ checklist: response.data.data.list, checklist_percent: response.data.data.percent });
+                                                    setTaskChecklist(response.data.data.list);
+                                                    setTaskChecklistPercent(response.data.data.percent);
+                                                }).catch(error => {
+                                                    message.error('Cập nhật thứ tự thất bại');
+                                                });
+                                            }}
+                                        />
+                                    }
+                                    title={
+                                        <div>
+                                            <b style={{ color: item.is_checked ? 'green' : '#000', fontWeight: item.is_checked ? 'normal' : 'bold' }}>
+                                                {item.name}
+                                            </b>
+                                        </div>
+                                    }
+                                    description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : ''}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </div>
+
+                {/* Comment */}
+                <div>
+                    <Divider orientation="left">
+                        <span className="title-desc"><CheckSquareFilled /> Comment</span>
+                        <span> | </span>
+                        <span className="desc cursor"
+                            onClick={() => {
+                                setCommentAction({ id: 0 });
+                                setIsModalComment(true);
+                                formComment.resetFields();
+                            }}
+                        >
+                            <PlusSquareFilled />
+                            Thêm
+                        </span>
+
+                    </Divider>
+
+                    <List
+                        className="demo-loadmore-list"
+                        itemLayout="horizontal"
+                        pagination={{
+                            pageSize: 5, // 👉 số item mỗi trang
+                        }}
+                        dataSource={!taskComments ? [] : taskComments.map((item) => { return item; })}
+                        renderItem={(item: any) => (
+                            <List.Item
+                                actions={[
+                                    <a title="Sửa comment này"
+                                        className="icon-large"
+                                        key="list-loadmore-edit"
+                                        onClick={() => {
+                                            setIsModalComment(true);
+                                            setCommentAction(item);
+                                            formComment.setFieldValue('content', item.content);
+                                        }}
+                                    >
+                                        <EditOutlined />
+                                    </a>,
+                                    <Popconfirm
+                                        icon={<DeleteOutlined />}
+                                        title="Xác nhận xóa"
+                                        description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                        onConfirm={() => {
+                                            axios.post(route('task.deleteComment'), { id: item.id }).then(response => {
+                                                message.success('Xóa comment thành công');
+                                                // onSuccess({ comments: response.data.data });
+                                                setTaskComments(response.data.data);
+                                            }).catch(error => {
+                                                message.error('Xóa comment thất bại');
+                                            });
+                                        }}
+                                    >
+                                        <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                    </Popconfirm>
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={<div>
+                                    </div>
+                                    }
+                                    title={<div>
+                                        <b>{item.admin_users_name}</b>
+                                        <em className="text-normal date01"> {dayjs(item.created_at).format(DATE_TIME_SHOW)}</em>
+                                    </div>
+                                    }
+                                    description={
+                                        <div>
+                                            <p>{item.content}</p>
+                                        </div>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </div>
+            </Col>
+
+            {/* right */}
+            <Col sm={8}>
+                <List
+                    header={<b><InfoCircleFilled /> Thông tin chi tiết</b>}
+                    footer={<div></div>}
+                    bordered
+                    dataSource={[
+                        // status
+                        <div className="item03">
+                            <a><PushpinFilled /> </a>
+                            <span>Trạng thái: </span>
+                            {
+                                !taskAction.task_status_id
+                                    ?
+                                    <span className="value-list">Chưa xác định</span>
+                                    :
+                                    <>
+                                        <Tag style={{ color: status[taskAction.task_status_id].color, background: status[taskAction.task_status_id].background }}>
+                                            <span>{icon[status[taskAction.task_status_id].icon]} </span>
+                                            <span> {status[taskAction.task_status_id].name}</span>
+                                        </Tag>
+                                    </>
+                            }
+                            <Popover placement="bottomLeft"
+                                title="Chọn trạng thái"
+                                trigger="click"
+                                content={
+                                    <List
+                                        itemLayout="horizontal"
+                                        dataSource={objEntries(status)}
+                                        renderItem={(item: any, key) => (
+                                            <p style={{ color: item.background }}
+                                                className="cursor"
+                                                onClick={() => {
+                                                    updateTaskByColumn(taskAction.id, 'task_status_id', item.id);
+                                                }}
+                                            >
+                                                {icon[item.icon]} {item.name}
+                                            </p>
+                                        )}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <DownOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // độ ưu tiên
+                        <div className="item03">
+                            <a><FireFilled /> </a>
+                            <span>Độ ưu tiên: </span>
+                            {
+                                !taskAction.task_priority_id
+                                    ?
+                                    <span className="value-list">Chưa xác định</span>
+                                    :
+                                    <Tag style={{ color: priority[taskAction.task_priority_id].color }}>{priority[taskAction.task_priority_id].name} </Tag>
+
+                            }
+                            <Popover placement="bottomLeft"
+                                title="Chọn mức độ ưu tiên"
+                                trigger="click"
+                                content={
+                                    <List
+                                        itemLayout="horizontal"
+                                        dataSource={objEntries(priority)}
+                                        renderItem={(item: any, key: number) => (
+                                            <p style={{ color: item.color }}
+                                                className="cursor"
+                                                onClick={() => {
+                                                    updateTaskByColumn(taskAction.id, 'task_priority_id', item.id);
+                                                }}
+                                            >
+                                                <CaretRightFilled /> {item.name}
+                                            </p>
+                                        )}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <DownOutlined />
+                                </a>
+                            </Popover>
+
+                        </div>,
+
+                        // người thực hiện
+                        <div className="item03">
+                            <a><UserOutlined /> </a>
+                            <span>Người thực hiện: </span>
+                            <Popover placement="bottomLeft"
+                                title="Chọn người thực hiện"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        value={taskAction.nguoi_thuc_hien}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        options={optionEntries(props.users)}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            updateTaskByColumn(taskAction.id, 'nguoi_thuc_hien', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                            <p>
+                                {
+                                    !taskAction.nguoi_thuc_hien
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <Tag style={{ color: '#03ba56ff' }}>{props.users[taskAction.nguoi_thuc_hien].name} </Tag>
+                                }
+                            </p>
+
+                        </div>,
+
+                        // Chọn người Làm cùng hoặc theo dõi
+                        <div className="item03">
+                            <a><UsergroupAddOutlined /> </a>
+                            Làm cùng hoặc theo dõi:
+                            <Popover placement="bottomLeft"
+                                title="Chọn người Làm cùng hoặc theo dõi"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        mode="multiple"
+                                        style={{ width: "100%" }}
+                                        value={taskAction.nguoi_theo_doi}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        options={optionEntries(props.users)}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            console.log(value);
+
+                                            updateTaskByColumn(taskAction.id, 'nguoi_theo_doi', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+
+                            <p>
+                                {
+                                    !taskAction.nguoi_theo_doi
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <div>
+                                            {taskAction.nguoi_theo_doi.map((item, key) => (
+                                                <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            ))}
+                                        </div>
+                                }
+                            </p>
+                        </div>,
+
+                        // Tags
+                        <div className="item03">
+                            <a><HddFilled /> </a>
+                            <span>Tags: </span>
+                            <Popover placement="bottomLeft"
+                                title="Thêm tags"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        mode="tags"
+                                        style={{ width: "100%" }}
+                                        value={taskAction.tags}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        // options={optionEntries([])}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            console.log(value);
+
+                                            updateTaskByColumn(taskAction.id, 'tags', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                            <p>
+                                {
+                                    !taskAction.tags
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <div>
+                                            {taskAction.tags.map((item, key) => (
+                                                <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
+                                            ))}
+                                        </div>
+                                }
+                            </p>
+                        </div>,
+
+                        // Thời gian
+                        <div className="item03">
+                            <b><PushpinFilled />  Thời gian: </b>
+                        </div>,
+
+                        // Ngày tạo
+                        <div>
+                            <a><ClockCircleFilled /> </a>
+                            Ngày tạo:
+                            <span className="value-list"> {taskAction.created_at ? dayjs(taskAction.created_at).format(DATE_SHOW) : ''}</span>
+                        </div>,
+                        // Ngày cập nhật
+                        <div className="item03">
+                            <a><FlagFilled /> </a>
+                            Bắt đầu:
+                            <span className="value-list"> {taskAction.start ? dayjs(taskAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày bắt đầu"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(taskAction.id, 'start', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // ngày hoàn thành
+                        <div className="item03">
+                            <a><ScheduleFilled /> </a>
+                            Hoàn thành:
+                            <span className="value-list"> {taskAction.end ? dayjs(taskAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày hoàn thành"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(taskAction.id, 'end', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // ngày thực tế
+                        <div className="item03">
+                            <a><CheckSquareFilled /> </a>
+                            Thực tế:
+                            <span className="value-list"> {taskAction.actual ? dayjs(taskAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày hoàn thành"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(taskAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+
+                        <div className="item03">
+                            <b><DiffFilled />  Thêm vào meeting: </b>
+                            <Popover placement="bottomLeft"
+                                title="Thêm vào meeting"
+                                trigger="click"
+                                content={
+                                    <Row>
+                                        <Col span={24}>
+                                            <Checkbox value="1"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(taskAction.id, 'is_daily', status);
+                                                }}
+                                                checked={taskAction.is_daily}>Daily</Checkbox>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Checkbox value="is_weekly"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(taskAction.id, 'is_weekly', status);
+                                                }}
+                                                checked={taskAction.is_weekly}>Weekly</Checkbox>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Checkbox value="1"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(taskAction.id, 'is_monthly', status);
+                                                }}
+                                                checked={taskAction.is_monthly}>Monthly</Checkbox>
+                                        </Col>
+                                    </Row>
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // daily
+                        <div className="item03">
+                            <a><FileSyncOutlined /> </a>
+                            Daily:
+                            <span className="value-list"> {taskAction.is_daily ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // weekly
+                        <div className="item03">
+                            <a><FileSearchOutlined /> </a>
+                            Weekly:
+                            <span className="value-list"> {taskAction.is_weekly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // monthly
+                        <div className="item03">
+                            <a><FileMarkdownOutlined /> </a>
+                            Monthly:
+                            <span className="value-list"> {taskAction.is_monthly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // delete
+                        <div className="item03">
+                            <Popconfirm
+                                icon={<DeleteOutlined />}
+                                title="Xác nhận xóa"
+                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                onConfirm={() => {
+                                    handleDelete(taskAction.id, status);
+                                }}
+                            >
+                                <Button className="_right"><DeleteOutlined /> Xóa </Button>
+                            </Popconfirm>
+                        </div>
+
+                    ]}
+                    renderItem={(item) => (
+                        <List.Item>{item}</List.Item>
+                    )}
+                />
+
+                <div><br /></div>
+
+                <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
+                <Timeline
+                    items={taskLog.map((item) => {
+                        return {
+                            color: item.color ? item.color : 'blue',
+                            children: (
+                                <div>
+                                    <p>{item.name}</p>
+                                    <span className="text-normal date01">{dayjs(item.created_at).format(DATE_TIME_FORMAT)}</span>
+                                </div>
+                            ),
+                        }
+                    })}
+                />
+            </Col>
+        </Row>
+    }
+
+    function projectInfo() {
+        const [formDesc] = Form.useForm();
+        const [formTitle] = Form.useForm();
+        const [formComment] = Form.useForm();
+        const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+        const [isApplyAll, setIsApplyAll] = useState(false);
+        const [isModalComment, setIsModalComment] = useState(false);
+        const [commentAction, setCommentAction] = useState({ id: 0 });
+        const [checkListAction, setCheckListAction] = useState({ id: 0 });
+        const [isModalChecklist, setIsModalChecklist] = useState(false);
+
+        // const projectComments = projectComments;
+        // formChecklist
+        const formChecklist_default = { name: '', content: '', admin_user_id: null };
+        const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
+        const status = props.projectStatus;
+
+
+        const onFinishFormDesc = async (values: any) => {
+            updateTaskByColumn(projectAction.id, 'description', values.description);
+        }
+        const onFinishFormComment = async (values: any) => {
+            // setIsLoadingBtn(true);
+            console.log(commentAction);
+            // return
+            axios.post(route('task.addComment'), {
+                task_id: projectAction.id,
+                content: values.content,
+                id: commentAction.id
+            }).then(response => {
+                setIsModalComment(false);
+                formComment.resetFields();
+                setIsLoadingBtn(false);
+                message.success('Đã thêm comment');
+                setProjectComments(response.data.data);
+            }).catch(error => {
+                message.error('Thêm comment thất bại');
+            });
+        }
+
+        function editComment(id: number, columnName: string, value: any) {
+            axios.post(route('data.fastEditByTableName'), {
+                tbl_name: 'task_comments',
+                id: id,
+                value: value,
+                task_id: projectAction.id,
+                column_name: columnName,
+            }).then(response => {
+                setIsLoadingBtn(false);
+                message.success('Cập nhật thành công');
+                setProjectChecklist(response.data.data.list);
+                setProjectChecklistPercent(response.data.data.percent);
+            }).catch(error => {
+                message.error('Cập nhật thất bại');
+            });
+        }
+
+        const removeChecklistByIndex = (indexToRemove: number, id: number) => {
+            axios.post(route('data.fastEditByTableName'), {
+                column_name: 'is_recycle_bin',
+                tbl_name: 'task_checklist',
+                id: id,
+                task_id: projectAction.id,
+                value: 1
+            }).then(response => {
+                setIsLoadingBtn(false);
+                message.success('Xóa checklist thành công');
+                console.log('response.data.data', response.data.data);
+
+                setProjectChecklist(response.data.data.list);
+                setProjectChecklistPercent(response.data.data.percent);
+            }).catch(error => {
+                message.error('Xóa checklist thất bại');
+            });
+        };
+
+        // xóa task
+        const handleDelete = (id: number, status: number) => {
+            const params = {
+                parentName: props.parentName,
+                pid: props.pid,
+                searchData: props.searchData,
+                p: props.p
+            };
+            axios.post(route('project.delete', id), params).then(response => {
+                message.success('Đã xóa thành công');
+
+                setOpenProjectDetail(false);
+                setProjectChecklistPercent(response.data.data.percent);
+                // const dataSuccess = {
+                //     isClosed: true,
+                //     datas: response.data.data.datas,
+                // }
+            }).catch(error => {
+                message.error('Xóa thất bại');
+            });
+
+            // setOpenDetail(false);
+            message.success("Đã xóa thành công");
+        };
+
+        function updateTaskByColumn(id: number, columnName: string, value: any) {
+            axios.post(route('project.fastEditProject'), {
+                column_name: columnName,
+                id: projectAction.id,
+                value: value,
+                parentName: props.parentName,
+                searchData: props.searchData,
+                display: props.display
+            }).then(response => {
+                setIsLoadingBtn(false);
+                message.success('Cập nhật thành công');
+                setProjectAction(response.data.data.dataAction);
+            }).catch(error => {
+                message.error('Cập nhật thất bại');
+            });
+        }
+
+        function removeFormChecklist(key) {
+            setFormChecklist(prev =>
+                prev.filter((_, index) => index !== key)
+            );
+        }
+
+        function createChecklist() {
+            setIsLoadingBtn(true);
+            axios.post(route("project.addChecklist"), {
+                data: formChecklist,
+                project_id: projectAction.id,
+                checklist_id: checkListAction.id,
+            }).then((response) => {
+                console.log(response.data.data);
+
+                setIsLoadingBtn(false);
+                setIsModalChecklist(false);
+                message.success("Tạo checklist thành công");
+
+                // update state
+                setProjectChecklist(response.data.data.checklist);
+                setProjectChecklistPercent(response.data.data.percent);
+            }).catch((error) => {
+                message.error("Tạo checklist thất bại");
+            });
+        }
+
+
+        {/* form Thêm checklist */ }
+        function formAddTaskChecklist(users, task) {
+            function addFormCheckList() {
+                setFormChecklist(prev => [...prev, formChecklist_default]);
+            }
+
+            function updateChecklistByIndex(indexToUpdate, updatedData) {
+                setFormChecklist(prev =>
+                    prev.map((item, index) =>
+                        index === indexToUpdate ? { ...item, ...updatedData } : item
+                    )
+                );
+            }
+
+            return <table className="table-sub">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Mô tả</th>
+                        <th>
+                            Người thực hiện
+                            <br />
+                            <Checkbox checked={isApplyAll}
+                                onChange={(e) => setIsApplyAll(e.target.checked)}
+                            >
+                                Áp dụng tất cả
+                            </Checkbox>
+                        </th>
+                        <th>Xóa</th>
+                    </tr>
+                </thead>
+                {
+                    formChecklist.map((item, key) => {
+                        return <tbody key={key}>
+                            <tr>
+                                <td>
+                                    <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+                                </td>
+                                <td>
+                                    <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
+                                </td>
+                                <td>
+                                    <Select
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        value={item.admin_user_id}
+                                        options={optionEntries(users)}
+                                        onChange={(value) => {
+                                            if (!isApplyAll) {
+                                                updateChecklistByIndex(key, { admin_user_id: value });
+                                            }
+                                            setFormChecklist(prev =>
+                                                prev.map(item => ({
+                                                    ...item,
+                                                    admin_user_id: value
+                                                }))
+                                            );
+                                            return;
+
+                                        }}
+                                    />
+                                </td>
+                                {
+                                    checkListAction.id === 0 ? (
+                                        <td>
+                                            <span onClick={() => removeFormChecklist(key)}
+                                                title="Xóa"
+                                                className="icon-large cursor"
+                                                key="list-loadmore-more">
+                                                <DeleteOutlined />
+                                            </span>
+                                        </td>
+                                    ) : null
+                                }
+
+                            </tr>
+
+                        </tbody>
+                    })
+                }
+
+                <tbody>
+                    {
+                        checkListAction.id === 0 ? (
+                            <tr>
+                                <td colSpan={4}>
+                                    <a className="add-item01" onClick={() => addFormCheckList()}>
+                                        <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        ) : null
+                    }
+
+                    <tr>
+                        <td colSpan={4}>
+                            <Row className="main-modal-footer01">
+                                <Col span={24} className="main-btn-popup">
+                                    <span> </span>
+                                    <Button className="btn-popup"
+                                        loading={isLoadingBtn}
+                                        type="primary"
+                                        onClick={() => createChecklist()}
+                                    >
+                                        <CheckOutlined />
+                                        Lưu Checklist
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        }
+
+
+        return <Row>
+            {/* Thêm checklist */}
+            <Modal title="Thêm checklist"
+                open={isModalChecklist}
+                onCancel={() => setIsModalChecklist(false)}
+                footer={[]}
+                width={1000}
+            >
+                {formAddTaskChecklist(props.users, projectAction)}
+            </Modal>
+
+            {/* form comment */}
+            <Modal title="Thêm comment"
+                open={isModalComment}
+                onCancel={() => setIsModalComment(false)}
+                footer={[]}
+            >
+                <Form
+                    name="formComment"
+                    form={formComment}
+                    layout="vertical"
+                    onFinish={onFinishFormComment}
+                    autoComplete="off"
+                >
+                    <Form.Item className="edit-description" name='content' label=''>
+                        <Input.TextArea rows={4} />
+                    </Form.Item>
+
+                    <Button type="primary" htmlType="submit" loading={isLoadingBtn}>
+                        <CopyOutlined />
+                        Lưu comment
+                    </Button>
+                </Form>
+            </Modal>
+
+            <Col sm={16}>
+                {/* tiêu đề */}
+                <h3>
+                    {projectAction.name}
+                    <Popconfirm placement="bottomLeft"
+                        title="Sửa tiêu đề"
+                        trigger="click"
+                        onConfirm={() => {
+                            formTitle.submit();
+                        }}
+                        description={
+                            <Form
+                                name="formTitle"
+                                form={formTitle}
+                                layout="vertical"
+                                onFinish={(values) => {
+                                    updateTaskByColumn(projectAction.id, 'name', values.name);
+                                }}
+                                autoComplete="off"
+                                initialValues={{ name: projectAction.name }}
+                            >
+                                <Form.Item className="edit-description" name='name' label=''>
+                                    <Input />
+                                </Form.Item>
+                            </Form>
+                        }
+                    >
+                        <a onClick={(e) => formTitle.setFieldValue('name', projectAction.name)} className="_right">
+                            <EditOutlined />
+                        </a>
+                    </Popconfirm>
+                </h3>
+                <p className="description01">Tạo bởi: {props.users[projectAction.create_by] ? props.users[projectAction.create_by].name : ''}</p>
+
+                {/* Mô tả */}
+                <Divider orientation="left">
+                    <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                    <span> | </span>
+                    <Popconfirm
+                        icon={<EditFilled />}
+                        title="Sửa mô tả"
+                        okButtonProps={{ loading: isLoadingBtn }}
+                        onConfirm={() => formDesc.submit()}
+                        description={
+                            <Form
+                                name="formDesc"
+                                form={formDesc}
+                                layout="vertical"
+                                onFinish={onFinishFormDesc}
+                                autoComplete="off"
+                                initialValues={{ description: projectAction.description }}
+                            >
+                                <Form.Item className="edit-description" name='description' label=''>
+                                    <Input.TextArea rows={4} />
+                                </Form.Item>
+                            </Form>
+                        }
+                    >
+                        <span className="desc cursor"> <EditFilled /> Sửa</span>
+                    </Popconfirm>
+
+                </Divider>
+                <div>
+                    <p className="description01">{projectAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : projectAction.description}</p>
+                </div>
+
+                {/* Checklist */}
+                <div>
+                    <Divider orientation="left">
+                        <span className="title-desc"><CheckSquareFilled /> Checklist</span>
+                        <span> | </span>
+                        <span className="desc cursor" onClick={() => {
+                            setCheckListAction({ id: 0 });
+                            setIsModalChecklist(true);
+                            setFormChecklist([formChecklist_default, formChecklist_default, formChecklist_default]);
+                        }}> <PlusSquareFilled /> Thêm</span>
+                    </Divider>
+                    <Flex gap="small" vertical>
+                        <Progress percent={projectChecklistPercent} status={projectChecklistPercent === 100 ? "success" : "active"} />
+                    </Flex>
+
+                    <List
+                        className="demo-loadmore-list"
+                        itemLayout="horizontal"
+                        pagination={{
+                            pageSize: 10, //  số item mỗi trang
+                        }}
+                        dataSource={!projectChecklist ? [] : projectChecklist.map((item) => { return item; })}
+                        locale={{ emptyText: 'Danh sách checklist trống' }}
+                        renderItem={(item, key) => (
+                            <List.Item
+                                actions={[
+                                    <span>{item.nguoi_thuc_hien_name ? <Tag color="blue">{item.nguoi_thuc_hien_name}</Tag> : ''}</span>,
+
+                                    <a title="Sửa checklist này"
+                                        onClick={() => {
+                                            setIsModalChecklist(true);
+                                            setCheckListAction(item);
+                                            setFormChecklist([{ id: item.id, name: item.name, content: item.content, admin_user_id: item.nguoi_thuc_hien }]);
+                                        }}
+                                        className="icon-large"
+                                        key="list-loadmore-edit">
+                                        <EditOutlined />
+                                    </a>,
+
+                                    <Popconfirm
+                                        icon={<DeleteOutlined />}
+                                        title="Xác nhận xóa"
+                                        description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                        onConfirm={() => {
+                                            removeChecklistByIndex(key, item.id);
+                                        }}
+                                    >
+                                        <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                    </Popconfirm>
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Checkbox checked={item.is_checked ? true : false}
+                                            onChange={(e) => {
+                                                let status = 0;
+                                                if (e.target.checked) {
+                                                    status = 1;
+                                                }
+                                                axios.post(route('data.fastEditByTableName'), {
+                                                    column_name: 'is_checked',
+                                                    tbl_name: 'task_checklist',
+                                                    id: item.id,
+                                                    value: status,
+                                                    task_id: projectAction.id,
+                                                }).then(response => {
+                                                    message.success('Cập nhật thứ tự thành công');
+
+                                                    setProjectChecklist(response.data.data.list);
+                                                    setProjectChecklistPercent(response.data.data.percent);
+                                                }).catch(error => {
+                                                    message.error('Cập nhật thứ tự thất bại');
+                                                });
+                                            }}
+                                        />
+                                    }
+                                    title={
+                                        <div>
+                                            <b style={{ color: item.is_checked ? 'green' : '#000', fontWeight: item.is_checked ? 'normal' : 'bold' }}>
+                                                {item.name}
+                                            </b>
+                                        </div>
+                                    }
+                                    description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : ''}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </div>
+
+                {/* Comment */}
+                <div>
+                    <Divider orientation="left">
+                        <span className="title-desc"><CheckSquareFilled /> Comment</span>
+                        <span> | </span>
+                        <span className="desc cursor"
+                            onClick={() => {
+                                setCommentAction({ id: 0 });
+                                setIsModalComment(true);
+                                formComment.resetFields();
+                            }}
+                        >
+                            <PlusSquareFilled />
+                            Thêm
+                        </span>
+
+                    </Divider>
+
+                    <List
+                        className="demo-loadmore-list"
+                        itemLayout="horizontal"
+                        pagination={{
+                            pageSize: 5, // 👉 số item mỗi trang
+                        }}
+                        dataSource={!projectComments ? [] : projectComments.map((item) => { return item; })}
+                        renderItem={(item: any) => (
+                            <List.Item
+                                actions={[
+                                    <a title="Sửa comment này"
+                                        className="icon-large"
+                                        key="list-loadmore-edit"
+                                        onClick={() => {
+                                            setIsModalComment(true);
+                                            setCommentAction(item);
+                                            formComment.setFieldValue('content', item.content);
+                                        }}
+                                    >
+                                        <EditOutlined />
+                                    </a>,
+                                    <Popconfirm
+                                        icon={<DeleteOutlined />}
+                                        title="Xác nhận xóa"
+                                        description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                        onConfirm={() => {
+                                            axios.post(route('task.deleteComment'), { id: item.id }).then(response => {
+                                                message.success('Xóa comment thành công');
+                                            }).catch(error => {
+                                                message.error('Xóa comment thất bại');
+                                            });
+                                        }}
+                                    >
+                                        <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                                    </Popconfirm>
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={<div>
+                                    </div>
+                                    }
+                                    title={<div>
+                                        <b>{item.admin_users_name}</b>
+                                        <em className="text-normal date01"> {dayjs(item.created_at).format(DATE_TIME_SHOW)}</em>
+                                    </div>
+                                    }
+                                    description={
+                                        <div>
+                                            <p>{item.content}</p>
+                                        </div>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </div>
+            </Col>
+
+            {/* right */}
+            <Col sm={8}>
+                <List
+                    header={<b><InfoCircleFilled /> Thông tin chi tiết</b>}
+                    footer={<div></div>}
+                    bordered
+                    dataSource={[
+                        // status
+                        <div className="item03">
+                            <a><PushpinFilled /> </a>
+                            <span>Trạng thái: </span>
+                            {
+                                !projectAction.project_status_id
+                                    ?
+                                    <span className="value-list">Chưa xác định</span>
+                                    :
+                                    <>
+                                        <Tag style={{ color: status[projectAction.project_status_id].color, background: status[projectAction.project_status_id].background }}>
+                                            <span>{icon[status[projectAction.project_status_id].icon]} </span>
+                                            <span> {status[projectAction.project_status_id].name}</span>
+                                        </Tag>
+                                    </>
+                            }
+                            <Popover placement="bottomLeft"
+                                title="Chọn trạng thái"
+                                trigger="click"
+                                content={
+                                    <List
+                                        itemLayout="horizontal"
+                                        dataSource={objEntries(status)}
+                                        renderItem={(item: any, key) => (
+                                            <p style={{ color: item.background }}
+                                                className="cursor"
+                                                onClick={() => {
+                                                    updateTaskByColumn(projectAction.id, 'project_status_id', item.id);
+                                                }}
+                                            >
+                                                {icon[item.icon]} {item.name}
+                                            </p>
+                                        )}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <DownOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // người thực hiện
+                        <div className="item03">
+                            <a><UserOutlined /> </a>
+                            <span>Quản lý: </span>
+                            <Popover placement="bottomLeft"
+                                title="Chọn người quản lý"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        style={{ width: "100%" }}
+                                        value={projectAction.project_manager}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        options={optionEntries(props.users)}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            updateTaskByColumn(projectAction.id, 'project_manager', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                            <p>
+                                {
+                                    !projectAction.project_manager
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <Tag color="cyan">{props.users[projectAction.project_manager].name} </Tag>
+                                }
+                            </p>
+
+                        </div>,
+
+                        // Chọn người Làm cùng hoặc theo dõi
+                        <div className="item03">
+                            <a><UsergroupAddOutlined /> </a>
+                            Làm cùng hoặc theo dõi:
+                            <Popover placement="bottomLeft"
+                                title="Chọn người Làm cùng hoặc theo dõi"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        mode="multiple"
+                                        style={{ width: "100%" }}
+                                        value={projectAction.nguoi_theo_doi}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        options={optionEntries(props.users)}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            console.log(value);
+
+                                            updateTaskByColumn(projectAction.id, 'nguoi_theo_doi', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+
+                            <p>
+                                {
+                                    !projectAction.nguoi_theo_doi
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <div>
+                                            {projectAction.nguoi_theo_doi.map((item, key) => (
+                                                <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            ))}
+                                        </div>
+                                }
+                            </p>
+                        </div>,
+
+                        // Tags
+                        <div className="item03">
+                            <a><HddFilled /> </a>
+                            <span>Tags: </span>
+                            <Popover placement="bottomLeft"
+                                title="Thêm tags"
+                                trigger="click"
+                                content={
+                                    <Select
+                                        showSearch
+                                        mode="tags"
+                                        style={{ width: "100%" }}
+                                        value={projectAction.tags}
+                                        placeholder="Chọn nhân viên thực hiện"
+                                        optionFilterProp="children"
+                                        // options={optionEntries([])}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        onChange={(value) => {
+                                            console.log(value);
+
+                                            updateTaskByColumn(projectAction.id, 'tags', value);
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                            <p>
+                                {
+                                    !projectAction.tags
+                                        ?
+                                        <span className="value-list">Chưa xác định</span>
+                                        :
+                                        <div>
+                                            {projectAction.tags.map((item, key) => (
+                                                <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
+                                            ))}
+                                        </div>
+                                }
+                            </p>
+                        </div>,
+
+                        // Thời gian
+                        <div className="item03">
+                            <b><PushpinFilled />  Thời gian: </b>
+                        </div>,
+
+                        // Ngày tạo
+                        <div>
+                            <a><ClockCircleFilled /> </a>
+                            Ngày tạo:
+                            <span className="value-list"> {projectAction.created_at ? dayjs(projectAction.created_at).format(DATE_SHOW) : ''}</span>
+                        </div>,
+                        // Ngày cập nhật
+                        <div className="item03">
+                            <a><FlagFilled /> </a>
+                            Bắt đầu:
+                            <span className="value-list"> {projectAction.start ? dayjs(projectAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày bắt đầu"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(projectAction.id, 'start', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // ngày hoàn thành
+                        <div className="item03">
+                            <a><ScheduleFilled /> </a>
+                            Hoàn thành:
+                            <span className="value-list"> {projectAction.end ? dayjs(projectAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày hoàn thành"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(projectAction.id, 'end', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // ngày thực tế
+                        <div className="item03">
+                            <a><CheckSquareFilled /> </a>
+                            Thực tế:
+                            <span className="value-list"> {projectAction.actual ? dayjs(projectAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                            <Popover placement="bottomLeft"
+                                title="Ngày hoàn thành"
+                                trigger="click"
+                                content={
+                                    <DatePicker format='DD/MM/YYYY'
+                                        onChange={(date) => {
+                                            updateTaskByColumn(projectAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                        }}
+                                    />
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+
+                        <div className="item03">
+                            <b><DiffFilled />  Thêm vào meeting: </b>
+                            <Popover placement="bottomLeft"
+                                title="Thêm vào meeting"
+                                trigger="click"
+                                content={
+                                    <Row>
+                                        <Col span={24}>
+                                            <Checkbox value="1"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(projectAction.id, 'is_daily', status);
+                                                }}
+                                                checked={projectAction.is_daily}>Daily</Checkbox>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Checkbox value="is_weekly"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(projectAction.id, 'is_weekly', status);
+                                                }}
+                                                checked={projectAction.is_weekly}>Weekly</Checkbox>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Checkbox value="1"
+                                                onChange={(e) => {
+                                                    let status = 0;
+                                                    if (e.target.checked) {
+                                                        status = 1;
+                                                    }
+                                                    updateTaskByColumn(projectAction.id, 'is_monthly', status);
+                                                }}
+                                                checked={projectAction.is_monthly}>Monthly</Checkbox>
+                                        </Col>
+                                    </Row>
+                                }
+                            >
+                                <a onClick={(e) => e.preventDefault()} className="_right">
+                                    <EditOutlined />
+                                </a>
+                            </Popover>
+                        </div>,
+
+                        // daily
+                        <div className="item03">
+                            <a><FileSyncOutlined /> </a>
+                            Daily:
+                            <span className="value-list"> {projectAction.is_daily ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // weekly
+                        <div className="item03">
+                            <a><FileSearchOutlined /> </a>
+                            Weekly:
+                            <span className="value-list"> {projectAction.is_weekly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // monthly
+                        <div className="item03">
+                            <a><FileMarkdownOutlined /> </a>
+                            Monthly:
+                            <span className="value-list"> {projectAction.is_monthly ? 'Có' : 'Không'}</span>
+                        </div>,
+
+                        // delete
+                        <div className="item03">
+                            <Popconfirm
+                                icon={<DeleteOutlined />}
+                                title="Xác nhận xóa"
+                                description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                onConfirm={() => {
+                                    handleDelete(projectAction.id, status);
+                                }}
+                            >
+                                <Button className="_right"><DeleteOutlined /> Xóa </Button>
+                            </Popconfirm>
+                        </div>
+
+                    ]}
+                    renderItem={(item) => (
+                        <List.Item>{item}</List.Item>
+                    )}
+                />
+
+                <div><br /></div>
+
+                <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
+                {/* <Timeline
+                    items={props.logs.map((item) => {
+                        return {
+                            color: item.color ? item.color : 'blue',
+                            children: (
+                                <div>
+                                    <p>{item.name}</p>
+                                    <span className="text-normal date01">{dayjs(item.created_at).format(DATE_TIME_FORMAT)}</span>
+                                </div>
+                            ),
+                        }
+                    })}
+                /> */}
+            </Col>
+        </Row>
+    }
+
+
     function setPagination(pagination) {
         router.get(
             route("data.index", [props.table.id, props.searchData]),
             pagination
         );
     }
-
-    const [api, contextHolder] = notification.useNotification();
-
-    const onFinishFormEdit = (values: any) => {
-
-        setLoading(true);
-        values.is_draft = isDraft;
-
-        values.id = idAction;
-
-        values = formatValueForm(props.columns, values);
-
-        // save
-        axios.post(route("ncc.save"), values).then((response) => {
-            console.log('res', response);
-            if (response.data.status_code === 200) {
-                message.success("Đã lưu dữ liệu thành công");
-                location.reload();
-            } else {
-                message.error("Đã lưu dữ liệu thất bại");
-            }
-            setLoadingTable(false);
-        }).catch((error) => {
-            message.error("Lưu dữ liệu thất bại");
-        });
-    };
-
-    function formatValueForm(columns, values) {
-        for (const [key, col] of Object.entries(columns)) {
-            if (col.edit !== 1) {
-                // values[col.name] = '';
-                continue;
-            }
-            if (col.type_edit === "tiny" && editor.current[col.name]) {
-                values[col.name] = editor.current[col.name].getContents();
-            }
-            if (col.type_edit === "permission_list") {
-                values[col.name] = isCheckAllPermission
-                    ? props.permissionList_all
-                    : permissionList;
-            }
-            if (col.type_edit === "date") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_FORMAT);
-            }
-            if (col.type_edit === "datetime") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_TIME_FORMAT);
-            }
-            if (col.type_edit === "time") {
-                values[col.name] = !values[col.name] ? '' : values[col.name].format(TIME_FORMAT);
-            }
-            // if (col.type_edit === "selects_table") {
-            //     values[col.name] = dataSourceSelectTbl[col.name].datas.dataSource;
-            // }
-            if (col.type_edit === "color") {
-                values[col.name] = values[col.name].toHexString();
-            }
-
-            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
-                if (fileList && fileList.length > 0) {
-                    let images = fileList.map((file) => {
-                        if (!file.status) {
-                            return false;
-                        }
-                        if (file.status === "uploading") {
-                            setIsStopSubmit(true);
-                            return false;
-                        }
-
-                        if (file.status === "OK") {
-                            return {
-                                name: file.name,
-                                status: file.status,
-                                url: file.url,
-                            };
-                        }
-                        if (file.status === "done") {
-                            return {
-                                name: file.response.data.fileName,
-                                status: file.status,
-                                url: file.response.data.filePath,
-                            };
-                        }
-                    });
-
-                    // values.images = JSON.stringify(images);
-                    values[col.name] = images;
-                } else {
-                    values[col.name] = "";
-                    values[col.name] = "";
-                }
-            }
-
-        }
-        return values;
-    }
-
-
     //
     const EditableCell = ({
         editing,
@@ -267,7 +2037,6 @@ export default function Dashboard(props: any) {
     };
     //
     const deletes = () => {
-        setLoadingBtnDelete(true); // ajax request after empty completing
         setLoadingTable(true);
         axios
             .post(route("data.delete", [props.table.id]), {
@@ -288,12 +2057,10 @@ export default function Dashboard(props: any) {
                     setSelectedRowKeys([]);
                     message.error("Xóa thất bại");
                 }
-                setLoadingBtnDelete(false);
                 setIsOpenConfirmDelete(false);
                 setLoadingTable(false);
             })
             .catch((error) => {
-                setLoadingBtnDelete(false);
                 setSelectedRowKeys([]);
                 setIsOpenConfirmDelete(false);
                 setLoadingTable(false);
@@ -318,48 +2085,6 @@ export default function Dashboard(props: any) {
         setIsOpenConfirmDelete(false);
     };
 
-    const handleUpload = () => {
-        const formData = new FormData();
-        fileList.forEach((file) => {
-            formData.append("files[]", file);
-        });
-        setUploading(true);
-        // You can use any AJAX library you like
-        fetch(route("data.import", [props.table.id]), {
-            method: "POST",
-            body: formData,
-        })
-            .then((res) => res.json())
-            .then(() => {
-                setFileList([]);
-                message.success("Upload thành công, đang tải lại dữ liệu");
-                router.get(
-                    route("data.index", [props.table.id, props.searchData]),
-                    pagination
-                );
-            })
-            .catch(() => {
-                message.error("upload failed.");
-            })
-            .finally(() => {
-                setUploading(false);
-            });
-    };
-
-    const uploadConfig = {
-        onRemove: (file) => {
-            const index = fileList.indexOf(file);
-            const newFileList = fileList.slice();
-            newFileList.splice(index, 1);
-            setFileList(newFileList);
-        },
-        beforeUpload: (file) => {
-            setFileList([...fileList, file]);
-            return false;
-        },
-        fileList,
-    };
-
     const onFinishSearch = (values: any) => {
         values.p = props.p;
         router.get(route("meeting.index"), values);
@@ -369,46 +2094,36 @@ export default function Dashboard(props: any) {
         console.log("Failed:", errorInfo);
     };
 
-    const listItemsSearch02 = props.columns.map((col) =>
-        showDataSearch02(col, props)
-    );
-
-
-    const confirmExport = () => {
-        setIsOpenConfirmExportExcel(true);
-    };
-
-    function checkShowBtnDelete() {
-        let result = [];
-        if (inArray(props.table.id, props.userPermission.table_delete)) {
-            result.push(<Button
-                key="delete"
-                type="primary"
-                onClick={confirmDelete}
-                disabled={!hasSelected}
-                loading={loadingBtnDelete}
-            >
-                <DeleteOutlined />
-                Xóa {hasSelected ? `(${selectedRowKeys.length})` : ""}
-            </Button>);
-        }
-
-        return result;
-    }
-
     function initialValueSearch() {
         // props.searchData
         let result = props.searchData;
         return result;
     }
 
-    const handleCancelExport = () => {
-        setIsOpenConfirmExportExcel(false);
-    };
-
-    //Export file excel
-
-
+    function onClickItem(record: any) {
+        if (record.data_type === 'projects') {
+            setOpenProjectDetail(true);
+            axios.post(route('project.getProjectInfo', record.data_id)).then((res) => {
+                console.log('res', res);
+                setProjectChecklist(res.data.data.checklist);
+                setProjectChecklistPercent(res.data.data.percent);
+                setProjectComments(res.data.data.comments);
+                setProjectAction(res.data.data.project);
+            });
+        }
+        if (record.data_type === 'tasks') {
+            setOpenTaskDetail(true);
+            axios.post(route('task.getTaskInfo', record.data_id)).then((res) => {
+                console.log(res);
+                setTaskChecklist(res.data.data.checklist);
+                setTaskChecklistPercent(res.data.data.percent);
+                setTaskComments(res.data.data.comments);
+                setTaskAction(res.data.data.task);
+                setPriority(res.data.data.priority);
+                setTaskLog(res.data.data.logs);
+            });
+        }
+    }
 
     function searchLeft() {
         if (props.table.search_position !== 1) {
@@ -1160,7 +2875,6 @@ export default function Dashboard(props: any) {
                         />
                     </Modal>
 
-                    {contextHolder}
                     {pageContent}
 
                     <Drawer
@@ -1171,35 +2885,8 @@ export default function Dashboard(props: any) {
                         onClose={() => setOpenProjectDetail(false)}
                         width="90%"
                     >
-                        {projectInfo(props,
-                            projectAction,
-                            projectComments,
-                            projectChecklist,
-                            projectChecklistPercent,
-                            (result: any) => {
-                                // set data action, dùng cho case fast edit
-                                if (result.dataAction) {
-                                    setProjectDataAction(result.dataAction);
-                                }
+                        {projectInfo()}
 
-                                // set checklist
-                                if (result.checklist) {
-                                    setProjectChecklist(result.checklist);
-                                }
-
-                                // set percent
-                                if (result.checklist_percent !== undefined) {
-                                    setProjectChecklistPercent(result.checklist_percent);
-                                }
-                                // set comments
-                                if (result.comments) {
-                                    setProjectComments(result.comments);
-                                }
-
-                                if (result.isClosed) {
-                                    setOpenProjectDetail(false);
-                                }
-                            })}
 
                         <br />
                     </Drawer>
@@ -1211,39 +2898,7 @@ export default function Dashboard(props: any) {
                         onClose={() => setOpenTaskDetail(false)}
                         width="90%"
                     >
-                        {taskInfo(props,
-                            taskAction,
-                            taskComments,
-                            taskChecklist,
-                            taskChecklistPercent,
-                            taskLog,
-                            priority,
-                            (result: any) => {
-                                // set columns, dùng cho case fast edit
-                                // if (result.columns) {
-                                //     setDataSource(result.columns);
-                                // }
-
-                                // set data action, dùng cho case fast edit
-                                if (result.data) {
-                                    setTaskAction(result.data);
-                                }
-
-                                // set checklist
-                                if (result.checklist) {
-                                    setTaskChecklist(result.checklist);
-                                }
-
-                                // set percent
-                                if (result.checklist_percent !== undefined) {
-                                    setTaskChecklistPercent(result.checklist_percent);
-                                }
-                                // set comments
-                                if (result.comments) {
-                                    setTaskComments(result.comments);
-                                }
-
-                            })}
+                        {taskInfo()}
 
                         <br />
 
