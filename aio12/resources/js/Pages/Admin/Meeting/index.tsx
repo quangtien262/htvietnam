@@ -48,8 +48,8 @@ import dayjs from "dayjs";
 
 import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant'
 
-import { taskConfig, taskInfo } from "../Task/task_config";
-import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
+// import { taskConfig, taskInfo } from "../Task/task_config";
+// import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
 
 
 import { smartSearch02, showDataSearch, showDataSearch02 } from "../../../Function/input";
@@ -1417,7 +1417,7 @@ export default function Dashboard(props: any) {
                             onClose={() => setOpenProjectDetail(false)}
                             width="90%"
                         >
-                            {projectInfo(props,
+                            {/* {projectInfo(props,
                                 projectAction,
                                 projectComments,
                                 projectChecklist,
@@ -1445,7 +1445,7 @@ export default function Dashboard(props: any) {
                                     if (result.isClosed) {
                                         setOpenProjectDetail(false);
                                     }
-                                })}
+                                })} */}
 
                             <br />
                         </Drawer>
@@ -1457,7 +1457,7 @@ export default function Dashboard(props: any) {
                             onClose={() => setOpenTaskDetail(false)}
                             width="90%"
                         >
-                            {taskInfo(props,
+                            {/* {taskInfo(props,
                                 taskAction,
                                 taskComments,
                                 taskChecklist,
@@ -1489,7 +1489,7 @@ export default function Dashboard(props: any) {
                                         setTaskComments(result.comments);
                                     }
 
-                                })}
+                                })} */}
 
                             <br />
 
