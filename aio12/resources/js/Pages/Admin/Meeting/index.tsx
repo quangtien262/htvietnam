@@ -1106,16 +1106,17 @@ export default function Dashboard(props: any) {
         },
         {
             title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
-                return <>
-                    {
-                        props.meetingStatus[record.meeting_status_id] ? (
-                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
-                            </Tag>
-                        ) : null
-                    }
-                </>
+                return '789';
+                // return <>
+                //     {
+                //         props.meetingStatus[record.meeting_status_id] ? (
+                //             <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+                //                 <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+                //                 <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+                //             </Tag>
+                //         ) : null
+                //     }
+                // </>
             }
         },
     ];
