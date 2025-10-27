@@ -1373,9 +1373,8 @@ export default function Dashboard(props: any) {
                                         {/* {searchLeft()} */}
                                     </Col>
                                     <Col sm={{ span: 17 }}>
-                                        <Table
+                                        {/* <Table
                                             size="small"
-                                            // scroll={{ x: 1500, y: 7000 }}
                                             components={{
                                                 body: {
                                                     cell: EditableCell,
@@ -1383,18 +1382,15 @@ export default function Dashboard(props: any) {
                                             }}
                                             loading={loadingTable}
                                             pagination={tableParams.pagination}
-                                            // dataSource={formatData(dataSource)}
                                             dataSource={dataSource}
                                             columns={columns2}
                                             rowSelection={rowSelection}
-                                            // rowClassName="editable-row"
-                                            // className="table-index"
                                             expandable={{
                                                 expandedRowRender,
                                                 defaultExpandedRowKeys: ['1'],
                                             }}
 
-                                        />
+                                        /> */}
                                     </Col>
                                 </Row>
                             </Form>
