@@ -1370,7 +1370,7 @@ export default function Dashboard(props: any) {
 
                                 <Row>
                                     <Col sm={{ span: 7 }}>
-                                        {searchLeft()}
+                                        {/* {searchLeft()} */}
                                     </Col>
                                     <Col sm={{ span: 17 }}>
                                         <Table
