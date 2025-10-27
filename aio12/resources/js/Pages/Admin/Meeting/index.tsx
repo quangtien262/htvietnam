@@ -1265,6 +1265,7 @@ export default function Dashboard(props: any) {
                             </Form>
                         </Modal>
 
+                        {/* pageContent */}
                         <div>
 
                             <Form form={form} component={false}>
@@ -1348,11 +1349,11 @@ export default function Dashboard(props: any) {
 
                                     </Space>
                                     <Space className="_right">
-                                        {checkShowBtnDelete()}
+                                        {/* {checkShowBtnDelete()}
 
                                         {btnIndex()}
 
-                                        {checkShowBtnExcel()}
+                                        {checkShowBtnExcel()} */}
                                     </Space>
 
                                     {/* page name */}
@@ -1398,6 +1399,7 @@ export default function Dashboard(props: any) {
                                 </Row>
                             </Form>
                         </div>
+                        {/* end pageContent */}
 
                         <Drawer
                             title="Chi tiết dự án"
