@@ -35,9 +35,6 @@ interface AdminProps {
 }
 
 export default function Admin({
-    auth,
-    header,
-    current = { id: 0, parent_id: 0 },
     content,
 }: AdminProps) {
     const isMobile = window.innerWidth < 768;
