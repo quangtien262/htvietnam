@@ -7,11 +7,11 @@ use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\PagesController;
 use App\Http\Controllers\User\UserController;
-use UniSharp\LaravelFilemanager\Lfm;
 
-Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
-    Lfm::routes();
-});
+// use UniSharp\LaravelFilemanager\Lfm;
+// Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+//     Lfm::routes();
+// });
 
 Route::get('/', [PagesController::class, 'index'])->name('home');
 

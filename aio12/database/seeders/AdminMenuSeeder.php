@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin\Project;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -33,15 +34,30 @@ class AdminMenuSeeder extends Seeder
                 'sort_order' => $order++
             ]
         );
+        $aitilenSales = Project::where('parent_name', 'aitilen-sales')->first();
+        $dayphong = Project::where('parent_name', 'day-phong')->first();
         DB::table('admin_menu')->insert([
             ['parent_id' => $aitilen, 'name' => 'aitilen_dashboard', 'display_name' => 'Báo cáo', 'table_name' => '', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'aitilen_invoice', 'display_name' => 'Hóa đơn', 'table_name' => 'aitilen_invoice', 'route' => 'aitilen.invoice', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'aitilen_contract', 'display_name' => 'Hợp đồng', 'table_name' => 'contract', 'route' => 'contract.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'so_quy', 'display_name' => 'Sổ qũy', 'table_name' => 'so_quy', 'route' => 'soQuy', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
-            ['parent_id' => $aitilen, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+            ['parent_id' => $aitilen, 'name' => 'aitilen_tai_chinh', 'display_name' => 'Giao dịch', 'table_name' => '', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
+
+
+            ['parent_id' => $aitilen, 'name' => 'aitilen_tasks', 'display_name' => 'Tasks', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/all/list?pid=1&p=' . $aitilen],
+            ['parent_id' => $aitilen, 'name' => 'aitilen_day_phong', 'display_name' => 'Đẩy phòng', 'table_name' => 'tasks', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/day-phong/list?pid='. $dayphong->id .'&p=' . $aitilen],
+            ['parent_id' => $aitilen, 'name' => 'aitilen_sale', 'display_name' => 'Sales', 'table_name' => 'tasks', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/aitilen-sales/list?pid='. $aitilenSales->id .'&p=' . $aitilen],
+
             ['parent_id' => $aitilen, 'name' => 'apartment', 'display_name' => 'Tòa nhà', 'table_name' => 'apartment', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $aitilen, 'name' => 'users', 'display_name' => 'Khách hàng', 'table_name' => 'users', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $aitilen, 'name' => 'website_aitilen', 'display_name' => 'Website', 'table_name' => '', 'route' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
         ]);
+
+        $taiChinh = DB::table('admin_menu')->where('name', 'aitilen_tai_chinh')->first();
+        DB::table('admin_menu')->insert([
+            ['parent_id' => $taiChinh->id, 'name' => 'aitilen_invoice', 'display_name' => 'Hóa đơn', 'table_name' => 'aitilen_invoice', 'route' => 'aitilen.invoice', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $taiChinh->id, 'name' => 'aitilen_contract', 'display_name' => 'Hợp đồng', 'table_name' => 'contract', 'route' => 'contract.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+            ['parent_id' => $taiChinh->id, 'name' => 'so_quy', 'display_name' => 'Sổ qũy', 'table_name' => 'so_quy', 'route' => 'soQuy', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
+        ]);
+
+
         $toaNha = DB::table('admin_menu')->where('name', 'apartment')->first();
         DB::table('admin_menu')->insert([
             ['parent_id' => $toaNha->id, 'name' => 'apartment', 'display_name' => 'Tòa nhà', 'table_name' => 'apartment', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
@@ -166,7 +182,7 @@ class AdminMenuSeeder extends Seeder
         DB::table('admin_menu')->insert([
             ['parent_id' => $congViec, 'name' => 'task.dashboard', 'display_name' => 'Dashboard', 'table_name' => '', 'route' => 'task.dashboard', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $congViec, 'name' => 'projects', 'display_name' => 'Dự án', 'table_name' => 'projects', 'route' => 'project.list', 'parameter' => 'projects', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
-            ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/all/list?pid=1&p=' . $congViec],
+            ['parent_id' => $congViec, 'name' => 'tasks', 'display_name' => 'Công việc chung', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/all/list?pid=1&p=' . $congViec],
             ['parent_id' => $congViec, 'name' => 'meeting', 'display_name' => 'Meeting', 'table_name' => 'meeting', 'route' => 'meeting.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
             ['parent_id' => $congViec, 'name' => 'calendar', 'display_name' => 'Lịch', 'table_name' => 'calendar', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
             ['parent_id' => $congViec, 'name' => 'note', 'display_name' => 'Ghi chú', 'table_name' => 'aitilen_note', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
