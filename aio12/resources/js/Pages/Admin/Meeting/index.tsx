@@ -1217,7 +1217,7 @@ export default function meeting(props: any) {
                         {searchLeft()}
                     </Col>
                     <Col sm={{ span: 17 }}>
-                        <Table
+                        {/* <Table
                             size="small"
                             // scroll={{ x: 1500, y: 7000 }}
                             components={{
@@ -1238,7 +1238,7 @@ export default function meeting(props: any) {
                                 defaultExpandedRowKeys: ['1'],
                             }}
 
-                        />
+                        /> */}
                     </Col>
                 </Row>
             </Form>
