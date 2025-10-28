@@ -1247,10 +1247,7 @@ export default function meeting(props: any) {
 
     return (
         <div>
-            <AdminLayout
-                auth={props.auth}
-                current={props.table}
-                content={
+            <AdminLayout content={
                     <div>
 
                         <Modal title="Xác nhận xóa"
@@ -1395,7 +1392,7 @@ export default function meeting(props: any) {
 
                         {/* {pageContent} */}
 
-                        {/* <Drawer
+                        <Drawer
                             title="Chi tiết dự án"
                             placement="right"
                             open={openProjectDetail}
@@ -1479,7 +1476,7 @@ export default function meeting(props: any) {
 
                             <br />
 
-                        </Drawer> */}
+                        </Drawer>
                     </div>
                 }
             />
