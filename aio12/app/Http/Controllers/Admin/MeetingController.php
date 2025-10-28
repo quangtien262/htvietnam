@@ -78,7 +78,7 @@ class MeetingController extends Controller
         return Inertia::render('Admin/Meeting/index', $props);
     }
 
-    public function fetchIndex(Request $request)
+    public function fetchIndexData(Request $request)
     {
         $table = Table::where('name', 'meeting')->first();
         $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get()->toArray();

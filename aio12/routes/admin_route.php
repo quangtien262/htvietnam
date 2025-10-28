@@ -445,10 +445,11 @@ Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus')
 
 Route::group(['prefix' => 'meeting'], function () {
     Route::get('/', [MeetingController::class, 'index'])->name('meeting.index');
+    Route::post('/fetch/index', [MeetingController::class, 'fetchIndexData'])->name('meeting.fetchIndexData');
     Route::post('add-express', [MeetingController::class, 'addExpress'])->name('meeting.addExpress');
     Route::post('delete', [MeetingController::class, 'deleteMeeting'])->name('meeting.delete');
     Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
-    Route::post('update}', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
+    Route::post('update', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
 });
 
 Route::group(['prefix' => 'calendar'], function () {

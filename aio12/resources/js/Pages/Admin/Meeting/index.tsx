@@ -94,14 +94,15 @@ export default function meeting(props: any) {
 
     const [confirmLoading, setConfirmLoading] = useState(false);
 
+    const [searchData, setSearchData] = useState([]);
     const [meetingStatus, setMeetingStatus] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
-    const [searchData, setSearchData] = useState([]);
+    const [projectStatus, setProjectStatus] = useState([]);
+    const [taskStatus, setTaskStatus] = useState([]);
+    // const [users, setUsers] = useState([]);
 
-    // useEffect(() => {
-    //     setMeetingStatus(props.meetingStatus);
-    // }, [props.meetingStatus]);
+
 
 
 
@@ -114,6 +115,33 @@ export default function meeting(props: any) {
             onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
     });
+
+    useEffect(() => {
+        axios.post(route('meeting.fetchIndexData', {})).then((res) => {
+            console.log('res.data.data', res.data.data);
+            setDataSource(res.data.data.dataSource);
+            setMeetingStatus(res.data.data.meetingStatus);
+            setTasks(res.data.data.tasks);
+            setUsers(res.data.data.users);
+
+            setSearchData(res.data.data.searchData || {
+                sm_keyword: '',
+                meeting: [],
+                result: [],
+            });
+        }).catch((err) => {
+            console.error(err);
+            setMeetingStatus([]);
+            setTasks([]);
+            setUsers([]);
+            setSearchData({
+                sm_keyword: '',
+                meeting: [],
+                result: [],
+            });
+        });
+    }, [props.meetingStatus]);
+
 
 
     // suneditor
@@ -637,35 +665,35 @@ export default function meeting(props: any) {
     function showNguoiThucHien(record: any) {
         let result = [];
         let isLine01 = false;
-        if (props.users[record.task_nguoi_thuc_hien]) {
+        if (users[record.task_nguoi_thuc_hien]) {
             isLine01 = true;
-            result.push(<Tag color="cyan">{props.users[record.task_nguoi_thuc_hien].name}</Tag>);
+            result.push(<Tag color="cyan">{users[record.task_nguoi_thuc_hien].name}</Tag>);
         }
-        if (props.users[record.project_manager]) {
+        if (users[record.project_manager]) {
             isLine01 = true;
-            result.push(<Tag color="cyan">{props.users[record.project_manager].name}</Tag>);
+            result.push(<Tag color="cyan">{users[record.project_manager].name}</Tag>);
         }
 
-        if (props.taskStatus[record.task_status_id]) {
+        if (taskStatus[record.task_status_id]) {
             if (isLine01) {
                 result.push(<br />);
             }
             result.push(
-                <Tag style={{ color: props.taskStatus[record.task_status_id]?.color, background: props.taskStatus[record.task_status_id]?.background }}>
-                    <span>{icon[props.taskStatus[record.task_status_id]?.icon]} </span>
-                    <span> {props.taskStatus[record.task_status_id]?.name}</span>
+                <Tag style={{ color: taskStatus[record.task_status_id]?.color, background: taskStatus[record.task_status_id]?.background }}>
+                    <span>{icon[taskStatus[record.task_status_id]?.icon]} </span>
+                    <span> {taskStatus[record.task_status_id]?.name}</span>
                 </Tag>
             );
         }
 
-        if (props.projectStatus[record.project_status_id]) {
+        if (projectStatus[record.project_status_id]) {
             if (isLine01) {
                 result.push(<br />);
             }
             result.push(
-                <Tag style={{ color: props.projectStatus[record.project_status_id]?.color, background: props.projectStatus[record.project_status_id]?.background }}>
-                    <span>{icon[props.projectStatus[record.project_status_id]?.icon]} </span>
-                    <span> {props.projectStatus[record.project_status_id]?.name}</span>
+                <Tag style={{ color: projectStatus[record.project_status_id]?.color, background: projectStatus[record.project_status_id]?.background }}>
+                    <span>{icon[projectStatus[record.project_status_id]?.icon]} </span>
+                    <span> {projectStatus[record.project_status_id]?.name}</span>
                 </Tag>
             );
         }
@@ -693,10 +721,10 @@ export default function meeting(props: any) {
             title: 'Kết quả', dataIndex: 'status', render: (text: any, record: any) => {
                 return <>
                     {
-                        props.meetingStatus[record.meeting_status_id] ? (
-                            <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
-                                <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
-                                <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
+                        meetingStatus[record.meeting_status_id] ? (
+                            <Tag style={{ color: meetingStatus[record.meeting_status_id]?.color, background: meetingStatus[record.meeting_status_id]?.background }}>
+                                <span>{icon[meetingStatus[record.meeting_status_id]?.icon]} </span>
+                                <span> {meetingStatus[record.meeting_status_id]?.name}</span>
                             </Tag>
                         ) : null
                     }
