@@ -366,29 +366,6 @@ export default function meeting(props: any) {
         showDataSearch02(col, props)
     );
 
-
-    const confirmExport = () => {
-        setIsOpenConfirmExportExcel(true);
-    };
-
-    function checkShowBtnDelete() {
-        let result = [];
-        if (inArray(props.table.id, props.userPermission.table_delete)) {
-            result.push(<Button
-                key="delete"
-                type="primary"
-                onClick={confirmDelete}
-                disabled={!hasSelected}
-                loading={loadingBtnDelete}
-            >
-                <DeleteOutlined />
-                Xóa {hasSelected ? `(${selectedRowKeys.length})` : ""}
-            </Button>);
-        }
-
-        return result;
-    }
-
     function initialValueSearch() {
         // props.searchData
         let result = props.searchData;
@@ -431,49 +408,6 @@ export default function meeting(props: any) {
         setIsOpenConfirmExportAllExcel(false);
         setLoadingBtnExport(false);
     };
-
-    const items = [
-        {
-            key: 1,
-            label: (
-                <a
-                    type="primary"
-                    onClick={confirmAllExport}
-                // loading={loadingBtnExport}
-                >
-                    Xuất tất cả ra excel
-                </a>
-            ),
-        },
-        {
-            key: 2,
-            label: (
-                <a
-                    type="primary"
-                    onClick={confirmImport}
-                // loading={loadingBtnExport}
-                >
-                    Nhập dữ liệu từ excel
-                </a>
-            ),
-        },
-    ];
-
-    function checkShowBtnExcel() {
-        if (props.table.export === 1 && props.table.import === 1) {
-            return (
-                <Dropdown menu={{ items }} placement="bottom" arrow>
-                    <Button type="primary">Excel</Button>
-                </Dropdown>
-            );
-        }
-        if (props.table.export === 1) {
-            return (<Button onClick={confirmAllExport} type="primary">Xuất Excel</Button>);
-        }
-        if (props.table.import === 1) {
-            return (<Button onClick={confirmImport} type="primary">Nhập từ Excel</Button>);
-        }
-    }
 
     function searchLeft() {
         if (props.table.search_position !== 1) {
@@ -845,135 +779,6 @@ export default function meeting(props: any) {
         formEdit.resetFields();
     }
 
-    function btnAddNew() {
-
-        return <div>
-
-            <Button type="primary" onClick={() => addNewData()}>
-                <PlusCircleOutlined />
-                Thêm mới
-            </Button>
-
-            {/* modal them moi */}
-            <Modal
-                title={"Thêm nhanh nội dung meeting"}
-                open={isOpenFormEdit}
-                onCancel={cancelEdit}
-                footer={[]}
-                width={1000}
-            >
-                {formAddExpress(props.users)}
-            </Modal>
-
-        </div>
-    }
-
-    function btnIndex(id = 0) {
-        const [loadingBtn, setLoadingBtn] = useState(false);
-
-
-        function btnFromRoute() {
-            let result;
-            if (
-                props.table.add_btn_from_route &&
-                props.table.add_btn_from_route != "" &&
-                props.table.add_btn_from_route !== null
-            ) {
-                const routes = parseJson(props.table.add_btn_from_route);
-                if (!routes) {
-                    return "";
-                }
-
-                result = Object.values(routes).map((rt) => {
-                    return (
-                        <Link href={route(rt.name)}>
-                            <Button
-                                type="primary"
-                                loading={loadingBtn}
-                                className={rt.class}
-                            >
-                                <PlusCircleOutlined />
-                                {rt.display_name}
-                            </Button>
-                        </Link>
-                    );
-                });
-            }
-            return result;
-        }
-
-        function btnSetting() {
-            const [openSetting, setOpenSetting] = useState(false);
-            const [isLoadOK, setIsLoadOK] = useState(false);
-            const [gData, setGData] = useState(props.columnData);
-
-            const setting = (e) => {
-                setOpenSetting(true);
-            };
-            const cancelSetting = () => {
-                setOpenSetting(false);
-            };
-
-            function loadData() {
-                setOpenSetting(true);
-            }
-            function onDropData(info) {
-                const result = onDrop(info, gData);
-                setGData(result);
-                axios
-                    .post(route("column.update_sort_order"), {
-                        data: JSON.stringify(result),
-                    })
-                    .then((response) => {
-                        setLoadingBtn(false);
-                        message.success("Cập nhật thứ tự thành công");
-                    })
-                    .catch((error) => {
-                        message.error("Cập nhật thứ tự thất bại");
-                    });
-            }
-
-            return (
-                <div>
-                    <Modal
-                        title={<div>Cài đặt <hr />{showsettingMenu(props.tableSetting)}<hr /></div>}
-                        open={openSetting}
-                        onOk={setting}
-                        onCancel={cancelSetting}
-                        footer={[]}
-                    >
-                        <Tree
-                            className="draggable-tree tree-modal"
-                            draggable
-                            blockNode
-                            onDrop={(info) => onDropData(info)}
-                            treeData={formatGdata_column(gData)}
-                        />
-                    </Modal>
-                    <Button
-                        type="primary"
-                        loading={loadingBtn}
-                        onClick={() => loadData()}
-                        className="_right"
-                    >
-                        <SettingOutlined />
-                    </Button>
-                </div>
-            )
-        }
-
-        return (
-            <Space className="_right">
-
-                {btnFromRoute()}
-
-                {btnAddNew()}
-
-                {props.table.setting_shotcut === 1 ? btnSetting() : ''}
-            </Space>
-        );
-    }
-
     function onClickItem(record: any) {
         if (record.data_type === 'projects') {
             setOpenProjectDetail(true);
@@ -1193,11 +998,33 @@ export default function meeting(props: any) {
 
                     </Space>
                     <Space className="_right">
-                        {checkShowBtnDelete()}
+                        <Button
+                            key="delete"
+                            type="primary"
+                            onClick={confirmDelete}
+                            disabled={!hasSelected}
+                            loading={loadingBtnDelete}
+                        >
+                            <DeleteOutlined />
+                            Xóa {hasSelected ? `(${selectedRowKeys.length})` : ""}
+                        </Button>
 
-                        {/* {btnIndex()} */}
 
-                        {checkShowBtnExcel()}
+                        <Button type="primary" onClick={() => addNewData()}>
+                            <PlusCircleOutlined />
+                            Thêm mới
+                        </Button>
+
+                        {/* modal them moi */}
+                        <Modal
+                            title={"Thêm nhanh nội dung meeting"}
+                            open={isOpenFormEdit}
+                            onCancel={cancelEdit}
+                            footer={[]}
+                            width={1000}
+                        >
+                            {formAddExpress(props.users)}
+                        </Modal>
                     </Space>
 
                     {/* page name */}
@@ -1248,151 +1075,151 @@ export default function meeting(props: any) {
     return (
         <div>
             <AdminLayout content={
-                    <div>
+                <div>
 
-                        <Modal title="Xác nhận xóa"
-                            open={isModalXoaOpen}
-                            onOk={async () => {
+                    <Modal title="Xác nhận xóa"
+                        open={isModalXoaOpen}
+                        onOk={async () => {
+                            setConfirmLoading(true);
+                            const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
+                            if (result.status === 200) {
+                                message.success("Đã hủy đơn thành công");
+                                location.reload();
+                            } else {
+                                setConfirmLoading(false);
+                                message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                            }
+                        }}
+                        okText="Xác nhận hủy đơn"
+                        cancelText="Hủy"
+                        loading={true}
+                        maskClosable={true}
+                        // confirmLoading={confirmLoading}
+                        onCancel={() => { setIsModalXoaOpen(false); }}>
+                        <ul>
+                            <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
+                            <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
+                            <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
+                        </ul>
+                    </Modal>
+
+                    <Modal title="Cập nhật meeting"
+                        width={1000}
+                        open={isModalEdit}
+                        onOk={async () => {
+                            formMeetingEdit.submit();
+                        }}
+                        okText="Cập nhật"
+                        cancelText="Hủy"
+                        confirmLoading={confirmLoading}
+                        maskClosable={false}
+                        onCancel={() => { setIsModalEdit(false); }}>
+
+                        <Form form={formMeetingEdit}
+                            component={false}
+                            layout="vertical"
+                            onFinish={(values) => {
                                 setConfirmLoading(true);
-                                const result = await callApi(route('hoa_don.huyHoaDon.xuatHuy', [idAction]));
-                                if (result.status === 200) {
-                                    message.success("Đã hủy đơn thành công");
-                                    location.reload();
-                                } else {
-                                    setConfirmLoading(false);
-                                    message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                                }
-                            }}
-                            okText="Xác nhận hủy đơn"
-                            cancelText="Hủy"
-                            loading={true}
-                            maskClosable={true}
-                            // confirmLoading={confirmLoading}
-                            onCancel={() => { setIsModalXoaOpen(false); }}>
-                            <ul>
-                                <li>Các thông tin về hóa đơn này sẽ bị chuyển đến thùng rác</li>
-                                <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
-                                <li>Bạn cũng có thể mở lại đơn này ở trong mục Thùng rác</li>
-                            </ul>
-                        </Modal>
-
-                        <Modal title="Cập nhật meeting"
-                            width={1000}
-                            open={isModalEdit}
-                            onOk={async () => {
-                                formMeetingEdit.submit();
-                            }}
-                            okText="Cập nhật"
-                            cancelText="Hủy"
-                            confirmLoading={confirmLoading}
-                            maskClosable={false}
-                            onCancel={() => { setIsModalEdit(false); }}>
-
-                            <Form form={formMeetingEdit}
-                                component={false}
-                                layout="vertical"
-                                onFinish={(values) => {
-                                    setConfirmLoading(true);
-                                    // xử lý dữ liệu trước khi submit
-                                    values.description = editor.current['description'].getContents(false);
-                                    values.id = meetingDataAction.id;
-                                    values.searchData = props.searchData;
-                                    // call api
-                                    axios.post(route('meeting.updateMeeting'), values).then((res) => {
-                                        if (res.data.status_code === 200) {
-                                            message.success("Lưu dữ liệu thành công");
-                                            setIsModalEdit(false);
-                                            setConfirmLoading(false);
-                                            setDataSource(res.data.data);
-                                        } else {
-                                            message.error("Lưu dữ liệu thất bại");
-                                            setConfirmLoading(false);
-                                        }
+                                // xử lý dữ liệu trước khi submit
+                                values.description = editor.current['description'].getContents(false);
+                                values.id = meetingDataAction.id;
+                                values.searchData = props.searchData;
+                                // call api
+                                axios.post(route('meeting.updateMeeting'), values).then((res) => {
+                                    if (res.data.status_code === 200) {
+                                        message.success("Lưu dữ liệu thành công");
+                                        setIsModalEdit(false);
                                         setConfirmLoading(false);
-                                    }).catch((error) => {
+                                        setDataSource(res.data.data);
+                                    } else {
                                         message.error("Lưu dữ liệu thất bại");
                                         setConfirmLoading(false);
-                                    });
-                                }}
-                            >
-                                <Row gutter={16}>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name="name"
-                                            label="Tiêu đề"
-                                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
-                                        >
-                                            <Input placeholder="Nhập tiêu đề" />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="meeting_type"
-                                            label="Loại cuộc họp"
-                                            rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
-                                        >
-                                            <Select
-                                                showSearch
-                                                mode='multiple'
-                                                style={{ width: "100%" }}
-                                                placeholder="Chọn loại cuộc họp"
-                                                optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
-                                                options={[
-                                                    { label: 'Daily', value: 'is_daily' },
-                                                    { label: 'Weekly', value: 'is_weekly' },
-                                                    { label: 'Monthly', value: 'is_monthly' },
-                                                    { label: 'Yearly', value: 'is_yearly' },
-                                                ]}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="meeting_status_id"
-                                            label="Trạng thái cuộc họp"
-                                            rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
-                                        >
-                                            <Select
-                                                showSearch
-                                                style={{ width: "100%" }}
-                                                placeholder="Chọn trạng thái cuộc họp"
-                                                optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
-                                                options={optionEntries(props.meetingStatus)}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col span={24}>
-
-                                        <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
-                                            setContents={meetingDataAction.description ? meetingDataAction.description : ''}
-                                            onImageUpload={handleImageUpload}
-                                            onImageUploadError={handleImageUploadError}
-                                            onResizeEditor={handleOnResizeEditor}
-                                            imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
-                                            setOptions={optionSunEditor}
+                                    }
+                                    setConfirmLoading(false);
+                                }).catch((error) => {
+                                    message.error("Lưu dữ liệu thất bại");
+                                    setConfirmLoading(false);
+                                });
+                            }}
+                        >
+                            <Row gutter={16}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="name"
+                                        label="Tiêu đề"
+                                        rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
+                                    >
+                                        <Input placeholder="Nhập tiêu đề" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="meeting_type"
+                                        label="Loại cuộc họp"
+                                        rules={[{ required: true, message: 'Vui lòng chọn loại cuộc họp' }]}
+                                    >
+                                        <Select
+                                            showSearch
+                                            mode='multiple'
+                                            style={{ width: "100%" }}
+                                            placeholder="Chọn loại cuộc họp"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? "")
+                                                    .toLowerCase()
+                                                    .includes(input.toLowerCase())
+                                            }
+                                            options={[
+                                                { label: 'Daily', value: 'is_daily' },
+                                                { label: 'Weekly', value: 'is_weekly' },
+                                                { label: 'Monthly', value: 'is_monthly' },
+                                                { label: 'Yearly', value: 'is_yearly' },
+                                            ]}
                                         />
-                                    </Col>
-                                </Row>
-                            </Form>
-                        </Modal>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="meeting_status_id"
+                                        label="Trạng thái cuộc họp"
+                                        rules={[{ required: true, message: 'Vui lòng chọn trạng thái cuộc họp' }]}
+                                    >
+                                        <Select
+                                            showSearch
+                                            style={{ width: "100%" }}
+                                            placeholder="Chọn trạng thái cuộc họp"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? "")
+                                                    .toLowerCase()
+                                                    .includes(input.toLowerCase())
+                                            }
+                                            options={optionEntries(props.meetingStatus)}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={24}>
 
-                        {pageContent}
+                                    <SunEditor getSunEditorInstance={(sunEditor) => { editor.current['description'] = sunEditor }}
+                                        setContents={meetingDataAction.description ? meetingDataAction.description : ''}
+                                        onImageUpload={handleImageUpload}
+                                        onImageUploadError={handleImageUploadError}
+                                        onResizeEditor={handleOnResizeEditor}
+                                        imageUploadHandler={(xmlHttpRequest: any, info: any, core: any) => imageUploadHandler(xmlHttpRequest, info, core, 'description')}
+                                        setOptions={optionSunEditor}
+                                    />
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Modal>
 
-                        {/* <Drawer
+                    {pageContent}
+
+                    {/* <Drawer
                             title="Chi tiết dự án"
                             placement="right"
                             open={openProjectDetail}
@@ -1477,8 +1304,8 @@ export default function meeting(props: any) {
                             <br />
 
                         </Drawer> */}
-                    </div>
-                }
+                </div>
+            }
             />
         </div>
     );
