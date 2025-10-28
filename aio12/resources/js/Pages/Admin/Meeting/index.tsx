@@ -566,215 +566,215 @@ export default function meeting(props: any) {
         setIsOpenFormEdit(false);
     }
 
-    function FormAddExpress() {
-        const formAddExpress_default = {
-            name: '',
-            meeting_type: 'is_daily',
-            meeting_status_id: 1,
-            task_id: null
-        };
-        const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default, formAddExpress_default]);
-        const [status_applyAll, setStatus_applyAll] = useState(true);
+    // function formAddExpress() {
+    //     const formAddExpress_default = {
+    //         name: '',
+    //         meeting_type: 'is_daily',
+    //         meeting_status_id: 1,
+    //         task_id: null
+    //     };
+    //     const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default, formAddExpress_default]);
+    //     const [status_applyAll, setStatus_applyAll] = useState(true);
 
-        function remove(key: number) {
-            setFormAddExpress(prev =>
-                prev.filter((_, index) => index !== key)
-            );
-        }
+    //     function remove(key: number) {
+    //         setFormAddExpress(prev =>
+    //             prev.filter((_, index) => index !== key)
+    //         );
+    //     }
 
-        function updateformAddExpres(idx: number, key: string, val: any) {
-            if (key === 'meeting_status_id' && status_applyAll) {
-                setFormAddExpress(prev =>
-                    prev.map(item => ({
-                        ...item,
-                        [key]: val
-                    }))
-                );
-                return;
-            }
+    //     function updateformAddExpres(idx: number, key: string, val: any) {
+    //         if (key === 'meeting_status_id' && status_applyAll) {
+    //             setFormAddExpress(prev =>
+    //                 prev.map(item => ({
+    //                     ...item,
+    //                     [key]: val
+    //                 }))
+    //             );
+    //             return;
+    //         }
 
-            let updated = [...formAddExpress]; // sao chép mảng
-            updated[idx] = { ...updated[idx], [key]: val }; // cập nhật phần tử
-            setFormAddExpress(updated); // cập nhật state
-        };
+    //         let updated = [...formAddExpress]; // sao chép mảng
+    //         updated[idx] = { ...updated[idx], [key]: val }; // cập nhật phần tử
+    //         setFormAddExpress(updated); // cập nhật state
+    //     };
 
-        function addExpress() {
-            // validation form
-            let isValid = true;
-            formAddExpress.forEach((item, index) => {
-                if (item.name && item.name.trim() !== '' && !item.meeting_status_id) {
-                    isValid = false;
-                    message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
-                }
-            });
-            if (!isValid) return;
+    //     function addExpress() {
+    //         // validation form
+    //         let isValid = true;
+    //         formAddExpress.forEach((item, index) => {
+    //             if (item.name && item.name.trim() !== '' && !item.meeting_status_id) {
+    //                 isValid = false;
+    //                 message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
+    //             }
+    //         });
+    //         if (!isValid) return;
 
-            setIsLoadingBtn(true);
-            axios.post(route("meeting.addExpress"), {
-                datas: formAddExpress,
-                searchData: props.searchData
-            }).then((response) => {
-                setDataSource(response.data.data);
-                message.success("Tạo mới thành công");
-                setIsLoadingBtn(false);
-                setIsOpenFormEdit(false)
-            }).catch((error) => {
-                message.error("Tạo mới thất bại");
-            });
-        }
+    //         setIsLoadingBtn(true);
+    //         axios.post(route("meeting.addExpress"), {
+    //             datas: formAddExpress,
+    //             searchData: props.searchData
+    //         }).then((response) => {
+    //             setDataSource(response.data.data);
+    //             message.success("Tạo mới thành công");
+    //             setIsLoadingBtn(false);
+    //             setIsOpenFormEdit(false)
+    //         }).catch((error) => {
+    //             message.error("Tạo mới thất bại");
+    //         });
+    //     }
 
-        return <div>
-            <table className="table-sub">
-                <thead>
-                    <tr>
-                        <th>
-                            <span>Tiêu đề </span>
-                            {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
-                        </th>
-                        <th>
-                            <span>Chọn công việc cần họp </span>
-                            {showInfo('Chọn công việc đã tạo sẵn trước đó')}
-                        </th>
-                        <th>
-                            <span>Meeting </span>
-                            {showInfo('Loại cuộc họp')}
-                            <br />
-                            <Checkbox checked={status_applyAll}
-                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                            >
-                                <em>Áp dụng tất cả</em>
-                            </Checkbox>
-                        </th>
-                        <th>
-                            <span>Trạng thái </span>
-                            {showInfo('Trạng thái cuộc họp')}
-                            <br />
-                            <Checkbox checked={status_applyAll}
-                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                            >
-                                <em>Áp dụng tất cả</em>
-                            </Checkbox>
-                        </th>
-                        <th>Xóa</th>
-                    </tr>
-                </thead>
-                {/* form Thêm task express */}
-                {
-                    formAddExpress.map((item, key) => {
+    //     return <div>
+    //         <table className="table-sub">
+    //             <thead>
+    //                 <tr>
+    //                     <th>
+    //                         <span>Tiêu đề </span>
+    //                         {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
+    //                     </th>
+    //                     <th>
+    //                         <span>Chọn công việc cần họp </span>
+    //                         {showInfo('Chọn công việc đã tạo sẵn trước đó')}
+    //                     </th>
+    //                     <th>
+    //                         <span>Meeting </span>
+    //                         {showInfo('Loại cuộc họp')}
+    //                         <br />
+    //                         <Checkbox checked={status_applyAll}
+    //                             onChange={(e) => { setStatus_applyAll(e.target.checked) }}
+    //                         >
+    //                             <em>Áp dụng tất cả</em>
+    //                         </Checkbox>
+    //                     </th>
+    //                     <th>
+    //                         <span>Trạng thái </span>
+    //                         {showInfo('Trạng thái cuộc họp')}
+    //                         <br />
+    //                         <Checkbox checked={status_applyAll}
+    //                             onChange={(e) => { setStatus_applyAll(e.target.checked) }}
+    //                         >
+    //                             <em>Áp dụng tất cả</em>
+    //                         </Checkbox>
+    //                     </th>
+    //                     <th>Xóa</th>
+    //                 </tr>
+    //             </thead>
+    //             {/* form Thêm task express */}
+    //             {
+    //                 formAddExpress.map((item, key) => {
 
-                        return <tbody key={key}>
-                            <tr>
-                                <td>
-                                    <Input.TextArea value={item.name}
-                                        placeholder="Nhập tiêu đề"
-                                        onChange={(e) => {
-                                            updateformAddExpres(key, 'name', e.target.value);
-                                        }}
-                                    />
-                                </td>
-                                <td>
-                                    <Select
-                                        showSearch
-                                        style={{ width: "100%" }}
-                                        placeholder="Chọn trạng thái"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? "")
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
-                                        options={[
-                                            { label: 'Daily', value: 'is_daily' },
-                                            { label: 'Weekly', value: 'is_weekly' },
-                                            { label: 'Monthly', value: 'is_monthly' },
-                                            { label: 'Yearly', value: 'is_yearly' },
-                                        ]}
-                                        value={item.meeting_type}
-                                        onChange={(val) => {
-                                            updateformAddExpres(key, 'meeting_type', val);
-                                        }}
-                                    />
-                                </td>
-                                <td>
-                                    <Select
-                                        showSearch
-                                        style={{ width: "100%" }}
-                                        placeholder="Chọn trạng thái"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? "")
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
-                                        options={optionEntries(props.meetingStatus)}
-                                        value={item.meeting_status_id}
-                                        onChange={(val) => {
-                                            updateformAddExpres(key, 'meeting_status_id', val);
-                                        }}
-                                    />
-                                </td>
-                                <td>
-                                    <Select
-                                        showSearch
-                                        style={{ width: "100%" }}
-                                        placeholder="Chọn công việc"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? "")
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
-                                        options={props.tasks.map((task: any) => ({
-                                            label: task.name,
-                                            value: task.id
-                                        }))}
-                                        value={item.task_id}
-                                        onChange={(val) => {
-                                            updateformAddExpres(key, 'task_id', val);
-                                        }}
-                                    />
-                                </td>
-                                <td>
-                                    <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                                </td>
-                            </tr>
+    //                     return <tbody key={key}>
+    //                         <tr>
+    //                             <td>
+    //                                 <Input.TextArea value={item.name}
+    //                                     placeholder="Nhập tiêu đề"
+    //                                     onChange={(e) => {
+    //                                         updateformAddExpres(key, 'name', e.target.value);
+    //                                     }}
+    //                                 />
+    //                             </td>
+    //                             <td>
+    //                                 <Select
+    //                                     showSearch
+    //                                     style={{ width: "100%" }}
+    //                                     placeholder="Chọn trạng thái"
+    //                                     optionFilterProp="children"
+    //                                     filterOption={(input, option) =>
+    //                                         (option?.label ?? "")
+    //                                             .toLowerCase()
+    //                                             .includes(input.toLowerCase())
+    //                                     }
+    //                                     options={[
+    //                                         { label: 'Daily', value: 'is_daily' },
+    //                                         { label: 'Weekly', value: 'is_weekly' },
+    //                                         { label: 'Monthly', value: 'is_monthly' },
+    //                                         { label: 'Yearly', value: 'is_yearly' },
+    //                                     ]}
+    //                                     value={item.meeting_type}
+    //                                     onChange={(val) => {
+    //                                         updateformAddExpres(key, 'meeting_type', val);
+    //                                     }}
+    //                                 />
+    //                             </td>
+    //                             <td>
+    //                                 <Select
+    //                                     showSearch
+    //                                     style={{ width: "100%" }}
+    //                                     placeholder="Chọn trạng thái"
+    //                                     optionFilterProp="children"
+    //                                     filterOption={(input, option) =>
+    //                                         (option?.label ?? "")
+    //                                             .toLowerCase()
+    //                                             .includes(input.toLowerCase())
+    //                                     }
+    //                                     options={optionEntries(props.meetingStatus)}
+    //                                     value={item.meeting_status_id}
+    //                                     onChange={(val) => {
+    //                                         updateformAddExpres(key, 'meeting_status_id', val);
+    //                                     }}
+    //                                 />
+    //                             </td>
+    //                             <td>
+    //                                 <Select
+    //                                     showSearch
+    //                                     style={{ width: "100%" }}
+    //                                     placeholder="Chọn công việc"
+    //                                     optionFilterProp="children"
+    //                                     filterOption={(input, option) =>
+    //                                         (option?.label ?? "")
+    //                                             .toLowerCase()
+    //                                             .includes(input.toLowerCase())
+    //                                     }
+    //                                     options={props.tasks.map((task: any) => ({
+    //                                         label: task.name,
+    //                                         value: task.id
+    //                                     }))}
+    //                                     value={item.task_id}
+    //                                     onChange={(val) => {
+    //                                         updateformAddExpres(key, 'task_id', val);
+    //                                     }}
+    //                                 />
+    //                             </td>
+    //                             <td>
+    //                                 <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+    //                             </td>
+    //                         </tr>
 
-                        </tbody>
-                    })
-                }
+    //                     </tbody>
+    //                 })
+    //             }
 
-                <tbody>
-                    <tr>
-                        <td colSpan={4}>
-                            <a className="add-item01">
-                                <span className="icon-b" onClick={() => setFormAddExpress(prev => [...prev, formAddExpress_default])}>
-                                    <PlusCircleOutlined /> Thêm meeting
-                                </span>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colSpan={4}>
-                            <Row className="main-modal-footer01">
-                                <Col span={24} className="main-btn-popup">
-                                    <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
-                                        <CheckOutlined />
-                                        TẠO NHANH
-                                    </Button>
-                                    <span> </span>
-                                    <Button className="btn-popup" onClick={() => setIsOpenFormEdit(false)} loading={isLoadingBtn}>
-                                        <CloseSquareOutlined />
-                                        ĐÓNG
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </td>
-                    </tr>
-                </tbody>
+    //             <tbody>
+    //                 <tr>
+    //                     <td colSpan={4}>
+    //                         <a className="add-item01">
+    //                             <span className="icon-b" onClick={() => setFormAddExpress(prev => [...prev, formAddExpress_default])}>
+    //                                 <PlusCircleOutlined /> Thêm meeting
+    //                             </span>
+    //                         </a>
+    //                     </td>
+    //                 </tr>
+    //                 <tr>
+    //                     <td colSpan={4}>
+    //                         <Row className="main-modal-footer01">
+    //                             <Col span={24} className="main-btn-popup">
+    //                                 <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
+    //                                     <CheckOutlined />
+    //                                     TẠO NHANH
+    //                                 </Button>
+    //                                 <span> </span>
+    //                                 <Button className="btn-popup" onClick={() => setIsOpenFormEdit(false)} loading={isLoadingBtn}>
+    //                                     <CloseSquareOutlined />
+    //                                     ĐÓNG
+    //                                 </Button>
+    //                             </Col>
+    //                         </Row>
+    //                     </td>
+    //                 </tr>
+    //             </tbody>
 
-            </table>
-        </div>
-    }
+    //         </table>
+    //     </div>
+    // }
 
     function addNewData() {
         setIsOpenFormEdit(true);
@@ -936,66 +936,6 @@ export default function meeting(props: any) {
                         </p>
                     </Modal>
 
-                    {/* modal confirm export curent */}
-                    <Modal
-                        title="Xác nhận export excel"
-                        open={isOpenConfirmExportExcel}
-                        onOk={exportExcel}
-                        onCancel={handleCancelExport}
-                        confirmLoading={loadingBtnExport}
-                    >
-                        <p>
-                            Xuất dữ liệu ra file excel{" "}
-                            <b>
-                                (Số lượng{" "}
-                                {hasSelected
-                                    ? selectedRowKeys.length
-                                    : props.pageConfig.total}
-                                )
-                            </b>
-                        </p>
-                    </Modal>
-
-                    {/* modal confirm export all */}
-                    <Modal
-                        title="Xác nhận export excel"
-                        open={isOpenConfirmExportAllExcel}
-                        onOk={exportAllDBExcel}
-                        onCancel={handleCancelAllExport}
-                        confirmLoading={loadingBtnExport}
-                    >
-                        <p>
-                            Xuất tất cả dữ liệu ra file excel{" "}
-                            <b>(Số lượng {props.pageConfig.total})</b>
-                        </p>
-                    </Modal>
-
-                    {/* modal form import */}
-                    <Modal
-                        title="Chọn file cần nhập liệu"
-                        open={isOpenConfirmImportExcel}
-                        onCancel={handleCancelImport}
-                        confirmLoading={loadingBtnExport}
-                        footer=""
-                    >
-                        <Upload {...uploadConfig}>
-                            <Button icon={<UploadOutlined />}>
-                                Select File
-                            </Button>
-                        </Upload>
-                        <Button
-                            type="primary"
-                            onClick={handleUpload}
-                            loading={uploading}
-                            style={{
-                                marginTop: 16,
-                            }}
-                        >
-                            {uploading ? "Uploading" : "Start Upload"}
-                        </Button>
-                        <Button onClick={handleCancelImport}>Hủy</Button>
-                    </Modal>
-
                     <Space>
 
                     </Space>
@@ -1027,7 +967,7 @@ export default function meeting(props: any) {
                         >
                             {/* Render the formAddExpress function result */}
                             {/* {formAddExpress()} */}
-                            <FormAddExpress />
+                            {/* <FormAddExpress /> */}
                         </Modal>
                     </Space>
 
@@ -1080,7 +1020,7 @@ export default function meeting(props: any) {
         <div>
             <AdminLayout content={
                 <div>
-
+{/*
                     <Modal title="Xác nhận xóa"
                         open={isModalXoaOpen}
                         onOk={async () => {
@@ -1107,7 +1047,7 @@ export default function meeting(props: any) {
                         </ul>
                     </Modal>
 
-                    {/* <Modal title="Cập nhật meeting"
+                    <Modal title="Cập nhật meeting"
                         width={1000}
                         open={isModalEdit}
                         onOk={async () => {
