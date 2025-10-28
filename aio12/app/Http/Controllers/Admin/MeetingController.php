@@ -36,8 +36,7 @@ class MeetingController extends Controller
         }
 
         $datas = Meeting::getMeeting($searchData);
-        // dd($datas);
-        // phân trang
+
         $pageConfig = [
             'currentPage' => $datas->currentPage(),
             'perPage' => $datas->perPage(),
@@ -57,11 +56,12 @@ class MeetingController extends Controller
             'pageConfig' => $pageConfig,
         ];
 
-        $props['taskStatus'] = TblService::formatData('task_status');
+
         $props['projectStatus'] = TblService::formatData('project_status');
         $props['meetingStatus'] = TblService::formatData('meeting_status');
         $props['users'] = TblService::formatData('admin_users');
 
+        $props['taskStatus'] = TblService::formatData('task_status');
         $taskStatusDefault = [];
         foreach ($props['taskStatus'] as $ts) {
             if ($ts->is_default == 1) {
@@ -124,7 +124,8 @@ class MeetingController extends Controller
         return $this->sendSuccessResponse($datas['data']);
     }
 
-    public function updateMeeting(Request $request) {
+    public function updateMeeting(Request $request)
+    {
         if (empty($request->id)) {
             return $this->sendErrorResponse('empty1');
         }

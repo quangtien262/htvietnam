@@ -18,7 +18,6 @@ import {
     Upload,
     Dropdown,
     Select,
-    Tree,
 } from "antd";
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
@@ -29,8 +28,7 @@ import {
     EyeOutlined,
     CheckOutlined,
     CloseSquareOutlined,
-    UploadOutlined,
-    SettingOutlined
+    UploadOutlined
 } from "@ant-design/icons";
 
 import type { ColumnsType } from "antd/es/table";
@@ -43,7 +41,7 @@ import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../../../Function/sun_config';
 
-import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from '../../../Function/constant'
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant'
 
 import { taskInfo } from "../Task/task_config";
 import { projectInfo } from "../Project/project_config";
@@ -55,335 +53,6 @@ import { icon as iconRaw } from "../../../components/comp_icon";
 import { optionEntries, formatGdata_column, onDrop, nl2br, parseJson, showInfo, inArray } from "../../../Function/common";
 const icon: Record<string, React.ReactElement> = iconRaw;
 const CheckboxGroup = Checkbox.Group;
-
-function FormAddExpress({ users, meetingStatus, tasks, searchData, setDataSource, setIsOpenFormEdit }) {
-    const formAddExpress_default = {
-        name: '',
-        meeting_type: 'is_daily',
-        meeting_status_id: 1,
-        task_id: null
-    };
-    const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default, formAddExpress_default]);
-    const [status_applyAll, setStatus_applyAll] = useState(true);
-    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
-
-    function remove(key: number) {
-        setFormAddExpress(prev =>
-            prev.filter((_, index) => index !== key)
-        );
-    }
-
-    function updateformAddExpres(idx: number, key: string, val: any) {
-        if (key === 'meeting_status_id' && status_applyAll) {
-            setFormAddExpress(prev =>
-                prev.map(item => ({
-                    ...item,
-                    [key]: val
-                }))
-            );
-            return;
-        }
-
-        let updated = [...formAddExpress];
-        updated[idx] = { ...updated[idx], [key]: val };
-        setFormAddExpress(updated);
-    };
-
-    function addExpress() {
-        let isValid = true;
-        formAddExpress.forEach((item) => {
-            if (item.name && item.name.trim() !== '' && !item.meeting_status_id) {
-                isValid = false;
-                message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
-            }
-        });
-        if (!isValid) return;
-
-        setIsLoadingBtn(true);
-        axios.post(route("meeting.addExpress"), {
-            datas: formAddExpress,
-            searchData: searchData
-        }).then((response) => {
-            setDataSource(response.data.data);
-            message.success("Tạo mới thành công");
-            setIsLoadingBtn(false);
-            setIsOpenFormEdit(false);
-        }).catch(() => {
-            message.error("Tạo mới thất bại");
-            setIsLoadingBtn(false);
-        });
-    }
-
-    return (
-        <div>
-            <table className="table-sub">
-                <thead>
-                    <tr>
-                        <th>
-                            <span>Tiêu đề </span>
-                            {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
-                        </th>
-                        <th>
-                            <span>Chọn công việc cần họp </span>
-                            {showInfo('Chọn công việc đã tạo sẵn trước đó')}
-                        </th>
-                        <th>
-                            <span>Meeting </span>
-                            {showInfo('Loại cuộc họp')}
-                            <br />
-                            <Checkbox checked={status_applyAll}
-                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                            >
-                                <em>Áp dụng tất cả</em>
-                            </Checkbox>
-                        </th>
-                        <th>
-                            <span>Trạng thái </span>
-                            {showInfo('Trạng thái cuộc họp')}
-                            <br />
-                            <Checkbox checked={status_applyAll}
-                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                            >
-                                <em>Áp dụng tất cả</em>
-                            </Checkbox>
-                        </th>
-                        <th>Xóa</th>
-                    </tr>
-                </thead>
-                {formAddExpress.map((item, key) => (
-                    <tbody key={key}>
-                        <tr>
-                            <td>
-                                <Input.TextArea value={item.name}
-                                    placeholder="Nhập tiêu đề"
-                                    onChange={(e) => {
-                                        updateformAddExpres(key, 'name', e.target.value);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn trạng thái"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={[
-                                        { label: 'Daily', value: 'is_daily' },
-                                        { label: 'Weekly', value: 'is_weekly' },
-                                        { label: 'Monthly', value: 'is_monthly' },
-                                        { label: 'Yearly', value: 'is_yearly' },
-                                    ]}
-                                    value={item.meeting_type}
-                                    onChange={(val) => {
-                                        updateformAddExpres(key, 'meeting_type', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn trạng thái"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(meetingStatus)}
-                                    value={item.meeting_status_id}
-                                    onChange={(val) => {
-                                        updateformAddExpres(key, 'meeting_status_id', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn công việc"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={tasks.map((task: any) => ({
-                                        label: task.name,
-                                        value: task.id
-                                    }))}
-                                    value={item.task_id}
-                                    onChange={(val) => {
-                                        updateformAddExpres(key, 'task_id', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                            </td>
-                        </tr>
-                    </tbody>
-                ))}
-                <tbody>
-                    <tr>
-                        <td colSpan={4}>
-                            <a className="add-item01">
-                                <span className="icon-b" onClick={() => setFormAddExpress(prev => [...prev, formAddExpress_default])}>
-                                    <PlusCircleOutlined /> Thêm meeting
-                                </span>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colSpan={4}>
-                            <Row className="main-modal-footer01">
-                                <Col span={24} className="main-btn-popup">
-                                    <Button className="btn-popup" type="primary" onClick={addExpress} loading={isLoadingBtn}>
-                                        <CheckOutlined />
-                                        TẠO NHANH
-                                    </Button>
-                                    <span> </span>
-                                    <Button className="btn-popup" onClick={() => setIsOpenFormEdit(false)} loading={isLoadingBtn}>
-                                        <CloseSquareOutlined />
-                                        ĐÓNG
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-function BtnAddNew({ setIsOpenFormEdit, setDataSource, users, meetingStatus, tasks, searchData }) {
-    return (
-        <div>
-            <Button type="primary" onClick={() => setIsOpenFormEdit(true)}>
-                <PlusCircleOutlined />
-                Thêm mới
-            </Button>
-            <Modal
-                title={"Thêm nhanh nội dung meeting"}
-                open={setIsOpenFormEdit}
-                onCancel={() => setIsOpenFormEdit(false)}
-                footer={[]}
-                width={1000}
-            >
-                <FormAddExpress
-                    users={users}
-                    meetingStatus={meetingStatus}
-                    tasks={tasks}
-                    searchData={searchData}
-                    setDataSource={setDataSource}
-                    setIsOpenFormEdit={setIsOpenFormEdit}
-                />
-            </Modal>
-        </div>
-    );
-}
-
-function BtnSetting({ tableSetting, columnData }) {
-    const [openSetting, setOpenSetting] = useState(false);
-    const [loadingBtn, setLoadingBtn] = useState(false);
-    const [gData, setGData] = useState(columnData);
-
-    function onDropData(info) {
-        const result = onDrop(info, gData);
-        setGData(result);
-        axios
-            .post(route("column.update_sort_order"), {
-                data: JSON.stringify(result),
-            })
-            .then(() => {
-                setLoadingBtn(false);
-                message.success("Cập nhật thứ tự thành công");
-            })
-            .catch(() => {
-                message.error("Cập nhật thứ tự thất bại");
-            });
-    }
-
-    return (
-        <div>
-            <Modal
-                title={<div>Cài đặt <hr /><hr /></div>}
-                open={openSetting}
-                onOk={() => setOpenSetting(false)}
-                onCancel={() => setOpenSetting(false)}
-                footer={[]}
-            >
-                <Tree
-                    className="draggable-tree tree-modal"
-                    draggable
-                    blockNode
-                    onDrop={onDropData}
-                    treeData={formatGdata_column(gData)}
-                />
-            </Modal>
-            <Button
-                type="primary"
-                loading={loadingBtn}
-                onClick={() => setOpenSetting(true)}
-                className="_right"
-            >
-                <SettingOutlined />
-            </Button>
-        </div>
-    );
-}
-
-function BtnIndex({ table, tableSetting, columnData, setIsOpenFormEdit, setDataSource, users, meetingStatus, tasks, searchData }) {
-    function btnFromRoute() {
-        let result = null;
-        if (
-            table.add_btn_from_route &&
-            table.add_btn_from_route !== "" &&
-            table.add_btn_from_route !== null
-        ) {
-            const routes = parseJson(table.add_btn_from_route);
-            if (!routes) {
-                return "";
-            }
-            result = Object.values(routes).map((rt, idx) => (
-                <Link href={route(rt.name)} key={idx}>
-                    <Button
-                        type="primary"
-                        className={rt.class}
-                    >
-                        <PlusCircleOutlined />
-                        {rt.display_name}
-                    </Button>
-                </Link>
-            ));
-        }
-        return result;
-    }
-
-    return (
-        <Space className="_right">
-            {btnFromRoute()}
-            <BtnAddNew
-                setIsOpenFormEdit={setIsOpenFormEdit}
-                setDataSource={setDataSource}
-                users={users}
-                meetingStatus={meetingStatus}
-                tasks={tasks}
-                searchData={searchData}
-            />
-            {table.setting_shotcut === 1 ? (
-                <BtnSetting tableSetting={tableSetting} columnData={columnData} />
-            ) : null}
-        </Space>
-    );
-}
-
 export default function meeting(props: any) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
@@ -447,7 +116,7 @@ export default function meeting(props: any) {
         pagination: {
             current: props.pageConfig.currentPage,
             pageSize: props.pageConfig.perPage,
-            position: ["bottomRight"], // sửa lại
+            position: ["bottonRight"],
             total: props.pageConfig.total,
             onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
@@ -659,10 +328,7 @@ export default function meeting(props: any) {
                 message.success("Upload thành công, đang tải lại dữ liệu");
                 router.get(
                     route("data.index", [props.table.id, props.searchData]),
-                    {
-                        page: tableParams.pagination.current,
-                        pageSize: tableParams.pagination.pageSize,
-                    }
+                    pagination
                 );
             })
             .catch(() => {
@@ -873,7 +539,7 @@ export default function meeting(props: any) {
             <div>{showTypeMeeting(record, <em></em>)}</div>,
             <div>
                 {props.meetingStatus[record.meeting_status_id] ? (
-                    <Tag style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+                    <Tag key={record.id} style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
                         <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
                         <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
                     </Tag>
@@ -934,8 +600,8 @@ export default function meeting(props: any) {
                     </b>}
                     bordered
                     dataSource={info}
-                    renderItem={(item: any) => (
-                        <List.Item>
+                    renderItem={(item: any, idx: number) => (
+                        <List.Item key={idx}>
                             {item}
                         </List.Item>
                     )}
@@ -1196,14 +862,7 @@ export default function meeting(props: any) {
                 footer={[]}
                 width={1000}
             >
-                <FormAddExpress
-                    users={props.users}
-                    meetingStatus={props.meetingStatus}
-                    tasks={props.tasks}
-                    searchData={props.searchData}
-                    setDataSource={setDataSource}
-                    setIsOpenFormEdit={setIsOpenFormEdit}
-                />
+                {formAddExpress(props.users)}
             </Modal>
 
         </div>
@@ -1345,19 +1004,15 @@ export default function meeting(props: any) {
         let isMeetting = false;
         if (record.is_daily === 1) {
             isMeetting = true;
-            result.push(<Tag color="blue">Daily</Tag>);
+            result.push(<Tag color="blue" key="daily">Daily</Tag>);
         }
         if (record.is_weekly === 1) {
-            if (isMeetting) {
-                result.push(style);
-            }
-            result.push(<Tag color="green">Weekly</Tag>);
+            if (isMeetting) result.push(React.cloneElement(style, { key: "weekly-br" }));
+            result.push(<Tag color="green" key="weekly">Weekly</Tag>);
         }
         if (record.is_monthly === 1) {
-            if (isMeetting) {
-                result.push(style);
-            }
-            result.push(<Tag color="purple">Monthly</Tag>);
+            if (isMeetting) result.push(React.cloneElement(style, { key: "monthly-br" }));
+            result.push(<Tag color="purple" key="monthly">Monthly</Tag>);
         }
         return result;
     }
@@ -1454,149 +1109,141 @@ export default function meeting(props: any) {
         },
     ];
 
-    const pageContent = (
-        <div>
+    // const pageContent = (
+    //     <div>
 
-            <Form form={form} component={false}>
-                <div style={{ marginBottom: 16 }}>
-                    {/* confirm delete */}
-                    <Modal
-                        title="Xác nhận xóa"
-                        open={isOpenConfirmDelete}
-                        onOk={deletes}
-                        onCancel={handleCancelDelete}
-                    // confirmLoading={loadingBtnDelete}
-                    >
-                        <p>
-                            Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
-                            được <br />{" "}
-                            <b>(Số lượng {selectedRowKeys.length})</b>
-                        </p>
-                    </Modal>
+    //         <Form form={form} component={false}>
+    //             <div style={{ marginBottom: 16 }}>
+    //                 {/* confirm delete */}
+    //                 <Modal
+    //                     title="Xác nhận xóa"
+    //                     open={isOpenConfirmDelete}
+    //                     onOk={deletes}
+    //                     onCancel={handleCancelDelete}
+    //                 // confirmLoading={loadingBtnDelete}
+    //                 >
+    //                     <p>
+    //                         Dữ liệu đã xóa sẽ <b>không thể khôi phục</b> lại
+    //                         được <br />{" "}
+    //                         <b>(Số lượng {selectedRowKeys.length})</b>
+    //                     </p>
+    //                 </Modal>
 
-                    {/* modal confirm export curent */}
-                    <Modal
-                        title="Xác nhận export excel"
-                        open={isOpenConfirmExportExcel}
-                        onOk={exportExcel}
-                        onCancel={handleCancelExport}
-                        confirmLoading={loadingBtnExport}
-                    >
-                        <p>
-                            Xuất dữ liệu ra file excel{" "}
-                            <b>
-                                (Số lượng{" "}
-                                {hasSelected
-                                    ? selectedRowKeys.length
-                                    : props.pageConfig.total}
-                                )
-                            </b>
-                        </p>
-                    </Modal>
+    //                 {/* modal confirm export curent */}
+    //                 <Modal
+    //                     title="Xác nhận export excel"
+    //                     open={isOpenConfirmExportExcel}
+    //                     onOk={exportExcel}
+    //                     onCancel={handleCancelExport}
+    //                     confirmLoading={loadingBtnExport}
+    //                 >
+    //                     <p>
+    //                         Xuất dữ liệu ra file excel{" "}
+    //                         <b>
+    //                             (Số lượng{" "}
+    //                             {hasSelected
+    //                                 ? selectedRowKeys.length
+    //                                 : props.pageConfig.total}
+    //                             )
+    //                         </b>
+    //                     </p>
+    //                 </Modal>
 
-                    {/* modal confirm export all */}
-                    <Modal
-                        title="Xác nhận export excel"
-                        open={isOpenConfirmExportAllExcel}
-                        onOk={exportAllDBExcel}
-                        onCancel={handleCancelAllExport}
-                        confirmLoading={loadingBtnExport}
-                    >
-                        <p>
-                            Xuất tất cả dữ liệu ra file excel{" "}
-                            <b>(Số lượng {props.pageConfig.total})</b>
-                        </p>
-                    </Modal>
+    //                 {/* modal confirm export all */}
+    //                 <Modal
+    //                     title="Xác nhận export excel"
+    //                     open={isOpenConfirmExportAllExcel}
+    //                     onOk={exportAllDBExcel}
+    //                     onCancel={handleCancelAllExport}
+    //                     confirmLoading={loadingBtnExport}
+    //                 >
+    //                     <p>
+    //                         Xuất tất cả dữ liệu ra file excel{" "}
+    //                         <b>(Số lượng {props.pageConfig.total})</b>
+    //                     </p>
+    //                 </Modal>
 
-                    {/* modal form import */}
-                    <Modal
-                        title="Chọn file cần nhập liệu"
-                        open={isOpenConfirmImportExcel}
-                        onCancel={handleCancelImport}
-                        confirmLoading={loadingBtnExport}
-                        footer=""
-                    >
-                        <Upload {...uploadConfig}>
-                            <Button icon={<UploadOutlined />}>
-                                Select File
-                            </Button>
-                        </Upload>
-                        <Button
-                            type="primary"
-                            onClick={handleUpload}
-                            loading={uploading}
-                            style={{
-                                marginTop: 16,
-                            }}
-                        >
-                            {uploading ? "Uploading" : "Start Upload"}
-                        </Button>
-                        <Button onClick={handleCancelImport}>Hủy</Button>
-                    </Modal>
+    //                 {/* modal form import */}
+    //                 <Modal
+    //                     title="Chọn file cần nhập liệu"
+    //                     open={isOpenConfirmImportExcel}
+    //                     onCancel={handleCancelImport}
+    //                     confirmLoading={loadingBtnExport}
+    //                     footer=""
+    //                 >
+    //                     <Upload {...uploadConfig}>
+    //                         <Button icon={<UploadOutlined />}>
+    //                             Select File
+    //                         </Button>
+    //                     </Upload>
+    //                     <Button
+    //                         type="primary"
+    //                         onClick={handleUpload}
+    //                         loading={uploading}
+    //                         style={{
+    //                             marginTop: 16,
+    //                         }}
+    //                     >
+    //                         {uploading ? "Uploading" : "Start Upload"}
+    //                     </Button>
+    //                     <Button onClick={handleCancelImport}>Hủy</Button>
+    //                 </Modal>
 
-                    <Space>
+    //                 <Space>
 
-                    </Space>
-                    <Space className="_right">
-                        {checkShowBtnDelete()}
-                        <BtnIndex
-                            table={props.table}
-                            tableSetting={props.tableSetting}
-                            columnData={props.columnData}
-                            setIsOpenFormEdit={setIsOpenFormEdit}
-                            setDataSource={setDataSource}
-                            users={props.users}
-                            meetingStatus={props.meetingStatus}
-                            tasks={props.tasks}
-                            searchData={props.searchData}
-                        />
-                        {checkShowBtnExcel()}
-                    </Space>
+    //                 </Space>
+    //                 <Space className="_right">
+    //                     {checkShowBtnDelete()}
 
-                    {/* page name */}
-                    <b className="title-page">Meeting.</b>
+    //                     {btnIndex()}
 
-                    {/* Show số lượng item/page */}
-                    <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
-                        {props.pageConfig.count}/{props.pageConfig.total} )
-                    </em>
-                </div>
+    //                     {checkShowBtnExcel()}
+    //                 </Space>
 
-                <hr />
-                <br />
+    //                 {/* page name */}
+    //                 <b className="title-page">Meeting.</b>
 
-                <Row>
-                    <Col sm={{ span: 7 }}>
-                        {searchLeft()}
-                    </Col>
-                    <Col sm={{ span: 17 }}>
-                        <Table
-                            size="small"
-                            // scroll={{ x: 1500, y: 7000 }}
-                            components={{
-                                body: {
-                                    cell: EditableCell,
-                                },
-                            }}
-                            loading={loadingTable}
-                            pagination={tableParams.pagination}
-                            // dataSource={formatData(dataSource)}
-                            dataSource={dataSource}
-                            columns={columns2}
-                            rowSelection={rowSelection}
-                            // rowClassName="editable-row"
-                            // className="table-index"
-                            expandable={{
-                                expandedRowRender,
-                                defaultExpandedRowKeys: ['1'],
-                            }}
+    //                 {/* Show số lượng item/page */}
+    //                 <em> ( Trang {props.pageConfig.currentPage}, hiển thị{" "}
+    //                     {props.pageConfig.count}/{props.pageConfig.total} )
+    //                 </em>
+    //             </div>
 
-                        />
-                    </Col>
-                </Row>
-            </Form>
-        </div>
-    );
+    //             <hr />
+    //             <br />
+
+    //             <Row>
+    //                 <Col sm={{ span: 7 }}>
+    //                     {searchLeft()}
+    //                 </Col>
+    //                 <Col sm={{ span: 17 }}>
+    //                     <Table
+    //                         size="small"
+    //                         // scroll={{ x: 1500, y: 7000 }}
+    //                         components={{
+    //                             body: {
+    //                                 cell: EditableCell,
+    //                             },
+    //                         }}
+    //                         loading={loadingTable}
+    //                         pagination={tableParams.pagination}
+    //                         // dataSource={formatData(dataSource)}
+    //                         dataSource={dataSource}
+    //                         columns={columns2}
+    //                         rowSelection={rowSelection}
+    //                         // rowClassName="editable-row"
+    //                         // className="table-index"
+    //                         expandable={{
+    //                             expandedRowRender,
+    //                             defaultExpandedRowKeys: ['1'],
+    //                         }}
+
+    //                     />
+    //                 </Col>
+    //             </Row>
+    //         </Form>
+    //     </div>
+    // );
 
     return (
         <div>
@@ -1746,11 +1393,9 @@ export default function meeting(props: any) {
                             </Form>
                         </Modal>
 
-                        {contextHolder}
+                        {/* {pageContent} */}
 
-                        {pageContent}
-
-                        <Drawer
+                        {/* <Drawer
                             title="Chi tiết dự án"
                             placement="right"
                             open={openProjectDetail}
@@ -1834,7 +1479,7 @@ export default function meeting(props: any) {
 
                             <br />
 
-                        </Drawer>
+                        </Drawer> */}
                     </div>
                 }
             />
