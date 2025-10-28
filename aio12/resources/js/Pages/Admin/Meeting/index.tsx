@@ -18,20 +18,19 @@ import {
     Upload,
     Dropdown,
     Select,
+    Tree,
 } from "antd";
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import {
     EditFilled,
-    FormOutlined,
-    SearchOutlined,
     PlusCircleOutlined,
     DeleteOutlined,
-    EditOutlined,
     EyeOutlined,
     CheckOutlined,
     CloseSquareOutlined,
-    UploadOutlined
+    UploadOutlined,
+    SettingOutlined
 } from "@ant-design/icons";
 
 import type { ColumnsType } from "antd/es/table";
@@ -44,21 +43,348 @@ import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../../../Function/sun_config';
 
-import dayjs from "dayjs";
+import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from '../../../Function/constant'
 
-import { DATE_FORMAT, DATE_TIME_FORMAT } from '../../../Function/constant'
-
-import { taskConfig, taskInfo } from "../Task/task_config";
-import { projectConfig, formProject, getProjectDetail, projectInfo } from "../Project/project_config";
+import { taskInfo } from "../Task/task_config";
+import { projectInfo } from "../Project/project_config";
 
 
-import { smartSearch02, showDataSearch, showDataSearch02 } from "../../../Function/input";
+import { showDataSearch02 } from "../../../Function/input";
 
 import { icon as iconRaw } from "../../../components/comp_icon";
 import { optionEntries, formatGdata_column, onDrop, nl2br, parseJson, showInfo, inArray } from "../../../Function/common";
 const icon: Record<string, React.ReactElement> = iconRaw;
 const CheckboxGroup = Checkbox.Group;
-export default function Dashboard(props: any) {
+
+function FormAddExpress({ users, meetingStatus, tasks, searchData, setDataSource, setIsOpenFormEdit }) {
+    const formAddExpress_default = {
+        name: '',
+        meeting_type: 'is_daily',
+        meeting_status_id: 1,
+        task_id: null
+    };
+    const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default, formAddExpress_default]);
+    const [status_applyAll, setStatus_applyAll] = useState(true);
+    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+
+    function remove(key: number) {
+        setFormAddExpress(prev =>
+            prev.filter((_, index) => index !== key)
+        );
+    }
+
+    function updateformAddExpres(idx: number, key: string, val: any) {
+        if (key === 'meeting_status_id' && status_applyAll) {
+            setFormAddExpress(prev =>
+                prev.map(item => ({
+                    ...item,
+                    [key]: val
+                }))
+            );
+            return;
+        }
+
+        let updated = [...formAddExpress];
+        updated[idx] = { ...updated[idx], [key]: val };
+        setFormAddExpress(updated);
+    };
+
+    function addExpress() {
+        let isValid = true;
+        formAddExpress.forEach((item) => {
+            if (item.name && item.name.trim() !== '' && !item.meeting_status_id) {
+                isValid = false;
+                message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
+            }
+        });
+        if (!isValid) return;
+
+        setIsLoadingBtn(true);
+        axios.post(route("meeting.addExpress"), {
+            datas: formAddExpress,
+            searchData: searchData
+        }).then((response) => {
+            setDataSource(response.data.data);
+            message.success("Tạo mới thành công");
+            setIsLoadingBtn(false);
+            setIsOpenFormEdit(false);
+        }).catch(() => {
+            message.error("Tạo mới thất bại");
+            setIsLoadingBtn(false);
+        });
+    }
+
+    return (
+        <div>
+            <table className="table-sub">
+                <thead>
+                    <tr>
+                        <th>
+                            <span>Tiêu đề </span>
+                            {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
+                        </th>
+                        <th>
+                            <span>Chọn công việc cần họp </span>
+                            {showInfo('Chọn công việc đã tạo sẵn trước đó')}
+                        </th>
+                        <th>
+                            <span>Meeting </span>
+                            {showInfo('Loại cuộc họp')}
+                            <br />
+                            <Checkbox checked={status_applyAll}
+                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
+                            >
+                                <em>Áp dụng tất cả</em>
+                            </Checkbox>
+                        </th>
+                        <th>
+                            <span>Trạng thái </span>
+                            {showInfo('Trạng thái cuộc họp')}
+                            <br />
+                            <Checkbox checked={status_applyAll}
+                                onChange={(e) => { setStatus_applyAll(e.target.checked) }}
+                            >
+                                <em>Áp dụng tất cả</em>
+                            </Checkbox>
+                        </th>
+                        <th>Xóa</th>
+                    </tr>
+                </thead>
+                {formAddExpress.map((item, key) => (
+                    <tbody key={key}>
+                        <tr>
+                            <td>
+                                <Input.TextArea value={item.name}
+                                    placeholder="Nhập tiêu đề"
+                                    onChange={(e) => {
+                                        updateformAddExpres(key, 'name', e.target.value);
+                                    }}
+                                />
+                            </td>
+                            <td>
+                                <Select
+                                    showSearch
+                                    style={{ width: "100%" }}
+                                    placeholder="Chọn trạng thái"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? "")
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                    options={[
+                                        { label: 'Daily', value: 'is_daily' },
+                                        { label: 'Weekly', value: 'is_weekly' },
+                                        { label: 'Monthly', value: 'is_monthly' },
+                                        { label: 'Yearly', value: 'is_yearly' },
+                                    ]}
+                                    value={item.meeting_type}
+                                    onChange={(val) => {
+                                        updateformAddExpres(key, 'meeting_type', val);
+                                    }}
+                                />
+                            </td>
+                            <td>
+                                <Select
+                                    showSearch
+                                    style={{ width: "100%" }}
+                                    placeholder="Chọn trạng thái"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? "")
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                    options={optionEntries(meetingStatus)}
+                                    value={item.meeting_status_id}
+                                    onChange={(val) => {
+                                        updateformAddExpres(key, 'meeting_status_id', val);
+                                    }}
+                                />
+                            </td>
+                            <td>
+                                <Select
+                                    showSearch
+                                    style={{ width: "100%" }}
+                                    placeholder="Chọn công việc"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? "")
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                    options={tasks.map((task: any) => ({
+                                        label: task.name,
+                                        value: task.id
+                                    }))}
+                                    value={item.task_id}
+                                    onChange={(val) => {
+                                        updateformAddExpres(key, 'task_id', val);
+                                    }}
+                                />
+                            </td>
+                            <td>
+                                <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                ))}
+                <tbody>
+                    <tr>
+                        <td colSpan={4}>
+                            <a className="add-item01">
+                                <span className="icon-b" onClick={() => setFormAddExpress(prev => [...prev, formAddExpress_default])}>
+                                    <PlusCircleOutlined /> Thêm meeting
+                                </span>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan={4}>
+                            <Row className="main-modal-footer01">
+                                <Col span={24} className="main-btn-popup">
+                                    <Button className="btn-popup" type="primary" onClick={addExpress} loading={isLoadingBtn}>
+                                        <CheckOutlined />
+                                        TẠO NHANH
+                                    </Button>
+                                    <span> </span>
+                                    <Button className="btn-popup" onClick={() => setIsOpenFormEdit(false)} loading={isLoadingBtn}>
+                                        <CloseSquareOutlined />
+                                        ĐÓNG
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+function BtnAddNew({ setIsOpenFormEdit, setDataSource, users, meetingStatus, tasks, searchData }) {
+    return (
+        <div>
+            <Button type="primary" onClick={() => setIsOpenFormEdit(true)}>
+                <PlusCircleOutlined />
+                Thêm mới
+            </Button>
+            <Modal
+                title={"Thêm nhanh nội dung meeting"}
+                open={setIsOpenFormEdit}
+                onCancel={() => setIsOpenFormEdit(false)}
+                footer={[]}
+                width={1000}
+            >
+                <FormAddExpress
+                    users={users}
+                    meetingStatus={meetingStatus}
+                    tasks={tasks}
+                    searchData={searchData}
+                    setDataSource={setDataSource}
+                    setIsOpenFormEdit={setIsOpenFormEdit}
+                />
+            </Modal>
+        </div>
+    );
+}
+
+function BtnSetting({ tableSetting, columnData }) {
+    const [openSetting, setOpenSetting] = useState(false);
+    const [loadingBtn, setLoadingBtn] = useState(false);
+    const [gData, setGData] = useState(columnData);
+
+    function onDropData(info) {
+        const result = onDrop(info, gData);
+        setGData(result);
+        axios
+            .post(route("column.update_sort_order"), {
+                data: JSON.stringify(result),
+            })
+            .then(() => {
+                setLoadingBtn(false);
+                message.success("Cập nhật thứ tự thành công");
+            })
+            .catch(() => {
+                message.error("Cập nhật thứ tự thất bại");
+            });
+    }
+
+    return (
+        <div>
+            <Modal
+                title={<div>Cài đặt <hr /><hr /></div>}
+                open={openSetting}
+                onOk={() => setOpenSetting(false)}
+                onCancel={() => setOpenSetting(false)}
+                footer={[]}
+            >
+                <Tree
+                    className="draggable-tree tree-modal"
+                    draggable
+                    blockNode
+                    onDrop={onDropData}
+                    treeData={formatGdata_column(gData)}
+                />
+            </Modal>
+            <Button
+                type="primary"
+                loading={loadingBtn}
+                onClick={() => setOpenSetting(true)}
+                className="_right"
+            >
+                <SettingOutlined />
+            </Button>
+        </div>
+    );
+}
+
+function BtnIndex({ table, tableSetting, columnData, setIsOpenFormEdit, setDataSource, users, meetingStatus, tasks, searchData }) {
+    function btnFromRoute() {
+        let result = null;
+        if (
+            table.add_btn_from_route &&
+            table.add_btn_from_route !== "" &&
+            table.add_btn_from_route !== null
+        ) {
+            const routes = parseJson(table.add_btn_from_route);
+            if (!routes) {
+                return "";
+            }
+            result = Object.values(routes).map((rt, idx) => (
+                <Link href={route(rt.name)} key={idx}>
+                    <Button
+                        type="primary"
+                        className={rt.class}
+                    >
+                        <PlusCircleOutlined />
+                        {rt.display_name}
+                    </Button>
+                </Link>
+            ));
+        }
+        return result;
+    }
+
+    return (
+        <Space className="_right">
+            {btnFromRoute()}
+            <BtnAddNew
+                setIsOpenFormEdit={setIsOpenFormEdit}
+                setDataSource={setDataSource}
+                users={users}
+                meetingStatus={meetingStatus}
+                tasks={tasks}
+                searchData={searchData}
+            />
+            {table.setting_shotcut === 1 ? (
+                <BtnSetting tableSetting={tableSetting} columnData={columnData} />
+            ) : null}
+        </Space>
+    );
+}
+
+export default function meeting(props: any) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
@@ -121,7 +447,7 @@ export default function Dashboard(props: any) {
         pagination: {
             current: props.pageConfig.currentPage,
             pageSize: props.pageConfig.perPage,
-            position: ["bottonRight"],
+            position: ["bottomRight"], // sửa lại
             total: props.pageConfig.total,
             onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
@@ -333,7 +659,10 @@ export default function Dashboard(props: any) {
                 message.success("Upload thành công, đang tải lại dữ liệu");
                 router.get(
                     route("data.index", [props.table.id, props.searchData]),
-                    pagination
+                    {
+                        page: tableParams.pagination.current,
+                        pageSize: tableParams.pagination.pageSize,
+                    }
                 );
             })
             .catch(() => {
@@ -867,7 +1196,14 @@ export default function Dashboard(props: any) {
                 footer={[]}
                 width={1000}
             >
-                {formAddExpress(props.users)}
+                <FormAddExpress
+                    users={props.users}
+                    meetingStatus={props.meetingStatus}
+                    tasks={props.tasks}
+                    searchData={props.searchData}
+                    setDataSource={setDataSource}
+                    setIsOpenFormEdit={setIsOpenFormEdit}
+                />
             </Modal>
 
         </div>
@@ -1203,9 +1539,17 @@ export default function Dashboard(props: any) {
                     </Space>
                     <Space className="_right">
                         {checkShowBtnDelete()}
-
-                        {btnIndex()}
-
+                        <BtnIndex
+                            table={props.table}
+                            tableSetting={props.tableSetting}
+                            columnData={props.columnData}
+                            setIsOpenFormEdit={setIsOpenFormEdit}
+                            setDataSource={setDataSource}
+                            users={props.users}
+                            meetingStatus={props.meetingStatus}
+                            tasks={props.tasks}
+                            searchData={props.searchData}
+                        />
                         {checkShowBtnExcel()}
                     </Space>
 
