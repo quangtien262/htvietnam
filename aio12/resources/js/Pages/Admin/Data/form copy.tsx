@@ -28,7 +28,7 @@ import { chamCongCellRender, getH, getM } from '../../../Function/calendar';
 
 // SunEditor
 import SunEditor from 'suneditor-react';
-import 'suneditor/dist/css/suneditor.min.css';
+// import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../../../Function/sun_config';
 
 // css
@@ -294,8 +294,8 @@ export default function Dashboard(props) {
         setFileList(newFileList);
     };
 
-    
-    
+
+
     function showDataImages(col) {
         const data = props.data;
         let result;
