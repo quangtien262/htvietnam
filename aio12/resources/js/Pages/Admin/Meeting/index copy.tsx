@@ -59,8 +59,11 @@ export default function meeting(props: any) {
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const [showProject, setShowProject] = useState(false);
+    const [showTask, setShowTask] = useState(false);
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
-    const [dataSource, setDataSource] = useState([]);
+    const [dataSource, setDataSource] = useState(props.dataSource);
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
 
     const [form] = Form.useForm();
@@ -68,6 +71,11 @@ export default function meeting(props: any) {
     const [formMeetingEdit] = Form.useForm();
     const editor = useRef<{ [key: string]: any }>({});
 
+    const [isDraft, setIsDraft] = useState(2);
+
+    // upload excel
+    const [fileList, setFileList] = useState([]);
+    const [uploading, setUploading] = useState(false);
 
     const [formEdit] = Form.useForm();
     const [meetingDataAction, setMeetingDataAction] = useState({ id: 0 });
@@ -94,23 +102,25 @@ export default function meeting(props: any) {
 
     const [confirmLoading, setConfirmLoading] = useState(false);
 
-    const [meetingStatus, setMeetingStatus] = useState([]);
-    const [tasks, setTasks] = useState([]);
-    const [users, setUsers] = useState([]);
-    const [searchData, setSearchData] = useState([]);
-
-    // useEffect(() => {
-    //     setMeetingStatus(props.meetingStatus);
-    // }, [props.meetingStatus]);
 
 
+
+
+    // import excel
+    const [loadingBtnExport, setLoadingBtnExport] = useState(false);
+    const [isOpenConfirmExportExcel, setIsOpenConfirmExportExcel] =
+        useState(false);
+    const [isOpenConfirmExportAllExcel, setIsOpenConfirmExportAllExcel] =
+        useState(false);
+    const [isOpenConfirmImportExcel, setIsOpenConfirmImportExcel] =
+        useState(false);
 
     const [tableParams, setTableParams] = useState({
         pagination: {
-            current: 1,
-            pageSize: 1,
+            current: props.pageConfig.currentPage,
+            pageSize: props.pageConfig.perPage,
             position: ["bottonRight"],
-            total: 1,
+            total: props.pageConfig.total,
             onChange: (page, pageSize) => setPagination({ page, pageSize }),
         },
     });
@@ -135,14 +145,106 @@ export default function meeting(props: any) {
     // end suneditor
 
     function setPagination(pagination) {
-        return pagination;
-        // router.get(
-        //     route("data.index", [props.table.id, props.searchData]),
-        //     pagination
-        // );
+        router.get(
+            route("data.index", [props.table.id, props.searchData]),
+            pagination
+        );
     }
 
+    const [api, contextHolder] = notification.useNotification();
 
+    const onFinishFormEdit = (values: any) => {
+
+        setLoading(true);
+        values.is_draft = isDraft;
+
+        values.id = idAction;
+
+        values = formatValueForm(props.columns, values);
+
+        // save
+        axios.post(route("ncc.save"), values).then((response) => {
+            console.log('res', response);
+            if (response.data.status_code === 200) {
+                message.success("Đã lưu dữ liệu thành công");
+                location.reload();
+            } else {
+                message.error("Đã lưu dữ liệu thất bại");
+            }
+            setLoadingTable(false);
+        }).catch((error) => {
+            message.error("Lưu dữ liệu thất bại");
+        });
+    };
+
+    function formatValueForm(columns, values) {
+        for (const [key, col] of Object.entries(columns)) {
+            if (col.edit !== 1) {
+                // values[col.name] = '';
+                continue;
+            }
+            if (col.type_edit === "tiny" && editor.current[col.name]) {
+                values[col.name] = editor.current[col.name].getContents();
+            }
+            if (col.type_edit === "permission_list") {
+                values[col.name] = isCheckAllPermission
+                    ? props.permissionList_all
+                    : permissionList;
+            }
+            if (col.type_edit === "date") {
+                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_FORMAT);
+            }
+            if (col.type_edit === "datetime") {
+                values[col.name] = !values[col.name] ? '' : values[col.name].format(DATE_TIME_FORMAT);
+            }
+            if (col.type_edit === "time") {
+                values[col.name] = !values[col.name] ? '' : values[col.name].format(TIME_FORMAT);
+            }
+            // if (col.type_edit === "selects_table") {
+            //     values[col.name] = dataSourceSelectTbl[col.name].datas.dataSource;
+            // }
+            if (col.type_edit === "color") {
+                values[col.name] = values[col.name].toHexString();
+            }
+
+            if (['images', 'image', 'image_crop', 'images_crop'].includes(col.type_edit)) {
+                if (fileList && fileList.length > 0) {
+                    let images = fileList.map((file) => {
+                        if (!file.status) {
+                            return false;
+                        }
+                        if (file.status === "uploading") {
+                            setIsStopSubmit(true);
+                            return false;
+                        }
+
+                        if (file.status === "OK") {
+                            return {
+                                name: file.name,
+                                status: file.status,
+                                url: file.url,
+                            };
+                        }
+                        if (file.status === "done") {
+                            return {
+                                name: file.response.data.fileName,
+                                status: file.status,
+                                url: file.response.data.filePath,
+                            };
+                        }
+                    });
+
+                    // values.images = JSON.stringify(images);
+                    values[col.name] = images;
+                } else {
+                    values[col.name] = "";
+                    values[col.name] = "";
+                }
+            }
+
+        }
+        return values;
+    }
 
 
     //
@@ -212,6 +314,48 @@ export default function meeting(props: any) {
         setIsOpenConfirmDelete(false);
     };
 
+    const handleUpload = () => {
+        const formData = new FormData();
+        fileList.forEach((file) => {
+            formData.append("files[]", file);
+        });
+        setUploading(true);
+        // You can use any AJAX library you like
+        fetch(route("data.import", [props.table.id]), {
+            method: "POST",
+            body: formData,
+        })
+            .then((res) => res.json())
+            .then(() => {
+                setFileList([]);
+                message.success("Upload thành công, đang tải lại dữ liệu");
+                router.get(
+                    route("data.index", [props.table.id, props.searchData]),
+                    pagination
+                );
+            })
+            .catch(() => {
+                message.error("upload failed.");
+            })
+            .finally(() => {
+                setUploading(false);
+            });
+    };
+
+    const uploadConfig = {
+        onRemove: (file) => {
+            const index = fileList.indexOf(file);
+            const newFileList = fileList.slice();
+            newFileList.splice(index, 1);
+            setFileList(newFileList);
+        },
+        beforeUpload: (file) => {
+            setFileList([...fileList, file]);
+            return false;
+        },
+        fileList,
+    };
+
     const onFinishSearch = (values: any) => {
         values.p = props.p;
         router.get(route("meeting.index"), values);
@@ -221,6 +365,52 @@ export default function meeting(props: any) {
         console.log("Failed:", errorInfo);
     };
 
+    const listItemsSearch02 = props.columns.map((col) =>
+        showDataSearch02(col, props)
+    );
+
+    function initialValueSearch() {
+        // props.searchData
+        let result = props.searchData;
+        return result;
+    }
+
+    const handleCancelExport = () => {
+        setIsOpenConfirmExportExcel(false);
+    };
+
+    //Export file excel
+    const confirmAllExport = () => {
+        setIsOpenConfirmExportAllExcel(true);
+    };
+    const confirmImport = () => {
+        setIsOpenConfirmImportExcel(true);
+    };
+    const handleCancelImport = () => {
+        setIsOpenConfirmImportExcel(false);
+    };
+
+    const handleCancelAllExport = () => {
+        setIsOpenConfirmExportAllExcel(false);
+    };
+
+    const exportExcel = () => {
+        setLoadingBtnExport(true);
+        router.get(route("data.export", [props.tableId]), {
+            ids: selectedRowKeys,
+        });
+        setIsOpenConfirmExportExcel(false);
+        setLoadingBtnExport(false);
+    };
+
+    const exportAllDBExcel = () => {
+        setLoadingBtnExport(true);
+        router.get(route("data.export", [props.tableId]), {
+            search: props.request,
+        });
+        setIsOpenConfirmExportAllExcel(false);
+        setLoadingBtnExport(false);
+    };
 
     function searchLeft() {
         if (props.table.search_position !== 1) {
@@ -235,6 +425,7 @@ export default function meeting(props: any) {
                 onFinishFailed={onFinishSearchFailed}
                 autoComplete="off"
                 form={formSearch}
+                initialValues={initialValueSearch()}
                 onBlur={(e) => { formSearch.submit(); }}
             >
                 <Row gutter={24} className="main-search-left">
@@ -264,7 +455,7 @@ export default function meeting(props: any) {
                     <Col span={24}>
                         <Form.Item name='result' label='Trạng thái'>
                             <CheckboxGroup className="item-status"
-                                options={meetingStatus ? optionEntries(meetingStatus) : []}
+                                options={Object.entries(props.meetingStatus).map(([key, val]: [string, any]) => ({ label: val.name, value: key }))}
                                 onChange={(e) => formSearch.submit()}
                             />
                         </Form.Item>
@@ -284,10 +475,10 @@ export default function meeting(props: any) {
             <div><b>Tiêu đề: </b> {record.name}</div>,
             <div>{showTypeMeeting(record, <em></em>)}</div>,
             <div>
-                {meetingStatus[record.meeting_status_id] ? (
-                    <Tag key={record.id} style={{ color: meetingStatus[record.meeting_status_id]?.color, background: meetingStatus[record.meeting_status_id]?.background }}>
-                        <span>{icon[meetingStatus[record.meeting_status_id]?.icon]} </span>
-                        <span> {meetingStatus[record.meeting_status_id]?.name}</span>
+                {props.meetingStatus[record.meeting_status_id] ? (
+                    <Tag key={record.id} style={{ color: props.meetingStatus[record.meeting_status_id]?.color, background: props.meetingStatus[record.meeting_status_id]?.background }}>
+                        <span>{icon[props.meetingStatus[record.meeting_status_id]?.icon]} </span>
+                        <span> {props.meetingStatus[record.meeting_status_id]?.name}</span>
                     </Tag>
                 ) : null}
             </div>
@@ -300,7 +491,7 @@ export default function meeting(props: any) {
             detail.push(<div><b>Tiêu đề: </b> <a onClick={() => onClickItem(record)}>{record.project_name}</a></div>);
             // project_manager
             detail.push(<div><b>Quản lý: </b>
-                {users[record.project_manager] ? <Tag style={{ color: '#000' }}>{users[record.project_manager].name}</Tag> : ''}
+                {props.users[record.project_manager] ? <Tag style={{ color: '#000' }}>{props.users[record.project_manager].name}</Tag> : ''}
             </div>);
             detail.push(<div><b>Bắt đầu: </b>{record.project_start}</div>);
             detail.push(<div><b>Kết thúc: </b>{record.project_end}</div>);
@@ -309,7 +500,7 @@ export default function meeting(props: any) {
         if (record.data_type === 'tasks') {
             detail.push(<div><b>Tiêu đề: </b><a onClick={() => onClickItem(record)}>{record.task_name}</a></div>);
             detail.push(<div><b>Người làm: </b>
-                {users[record.task_nguoi_thuc_hien] ? <Tag style={{ color: '#000' }}>{users[record.task_nguoi_thuc_hien].name}</Tag> : ''}
+                {props.users[record.task_nguoi_thuc_hien] ? <Tag style={{ color: '#000' }}>{props.users[record.task_nguoi_thuc_hien].name}</Tag> : ''}
             </div>);
             detail.push(<div><b>Bắt đầu: </b>{record.task_start}</div>);
             detail.push(<div><b>Kết thúc: </b>{record.task_end}</div>);
@@ -422,7 +613,7 @@ export default function meeting(props: any) {
             setIsLoadingBtn(true);
             axios.post(route("meeting.addExpress"), {
                 datas: formAddExpress,
-                searchData: searchData
+                searchData: props.searchData
             }).then((response) => {
                 setDataSource(response.data.data);
                 message.success("Tạo mới thành công");
@@ -516,7 +707,7 @@ export default function meeting(props: any) {
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        options={optionEntries(meetingStatus)}
+                                        options={optionEntries(props.meetingStatus)}
                                         value={item.meeting_status_id}
                                         onChange={(val) => {
                                             updateformAddExpres(key, 'meeting_status_id', val);
@@ -534,7 +725,7 @@ export default function meeting(props: any) {
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        options={tasks.map((task: any) => ({
+                                        options={props.tasks.map((task: any) => ({
                                             label: task.name,
                                             value: task.id
                                         }))}
@@ -672,6 +863,27 @@ export default function meeting(props: any) {
 
         return <>{result}</>;
     }
+
+    function onFinishInputFastEdit(value: any, colName: any, record: any) {
+        // set value
+        value.column_name = colName;
+        value.id = record.id;
+        value.search = props.request;
+
+        axios
+            .post(route("data.fastEdit", [props.table.id]), value)
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    message.success("Đã lưu thành công!");
+                    setDataSource(response.data.data);
+                } else {
+                    message.error("Cập nhật thất bại");
+                }
+            })
+            .catch((error) => {
+                message.error("Cập nhật thất bại");
+            });
+    };
 
     const columns2: ColumnsType<any> = [
         {

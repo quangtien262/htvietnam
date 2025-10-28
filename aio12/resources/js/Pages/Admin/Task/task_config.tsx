@@ -311,6 +311,7 @@ export function taskInfo(props: any,
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
     const status = props.taskStatus;
+    // const [status, setStatus] = useState([]);
 
 
     const onFinishFormDesc = async (values: any) => {
