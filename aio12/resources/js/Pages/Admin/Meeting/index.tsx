@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import AdminLayout from "@/layouts/AdminLayout";
 import {
     Button,
@@ -57,8 +57,10 @@ export default function meeting(props: any) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
+
     const [loading, setLoading] = useState(false);
-    const [loadingBtnSearch, setLoadingBtnSearch] = useState(false);
+    const [showProject, setShowProject] = useState(false);
+    const [showTask, setShowTask] = useState(false);
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
     const [dataSource, setDataSource] = useState(props.dataSource);
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
@@ -564,7 +566,7 @@ export default function meeting(props: any) {
         setIsOpenFormEdit(false);
     }
 
-    function formAddExpress() {
+    function FormAddExpress() {
         const formAddExpress_default = {
             name: '',
             meeting_type: 'is_daily',
@@ -1025,6 +1027,7 @@ export default function meeting(props: any) {
                         >
                             {/* Render the formAddExpress function result */}
                             {/* {formAddExpress()} */}
+                            <FormAddExpress />
                         </Modal>
                     </Space>
 
@@ -1045,7 +1048,7 @@ export default function meeting(props: any) {
                         {searchLeft()}
                     </Col>
                     <Col sm={{ span: 17 }}>
-                        {/* <Table
+                        <Table
                             size="small"
                             // scroll={{ x: 1500, y: 7000 }}
                             components={{
@@ -1066,7 +1069,7 @@ export default function meeting(props: any) {
                                 defaultExpandedRowKeys: ['1'],
                             }}
 
-                        /> */}
+                        />
                     </Col>
                 </Row>
             </Form>
@@ -1104,7 +1107,7 @@ export default function meeting(props: any) {
                         </ul>
                     </Modal>
 
-                    <Modal title="Cập nhật meeting"
+                    {/* <Modal title="Cập nhật meeting"
                         width={1000}
                         open={isModalEdit}
                         onOk={async () => {
@@ -1216,19 +1219,21 @@ export default function meeting(props: any) {
                                 </Col>
                             </Row>
                         </Form>
-                    </Modal>
+                    </Modal> */}
 
                     {pageContent}
 
-                    {/* <Drawer
-                            title="Chi tiết dự án"
-                            placement="right"
-                            open={openProjectDetail}
-                            // size={'large'}
-                            onClose={() => setOpenProjectDetail(false)}
-                            width="90%"
-                        >
-                            {projectInfo(props,
+                    <Drawer
+                        title="Chi tiết dự án"
+                        placement="right"
+                        open={openProjectDetail}
+                        // size={'large'}
+                        onClose={() => setOpenProjectDetail(false)}
+                        width="90%"
+                    >
+
+                        <Suspense fallback={<div>Đang tải...</div>}>
+                            {showProject && projectInfo(props,
                                 projectAction,
                                 projectComments,
                                 projectChecklist,
@@ -1256,55 +1261,60 @@ export default function meeting(props: any) {
                                     if (result.isClosed) {
                                         setOpenProjectDetail(false);
                                     }
-                                })}
+                                })
+                            }
+                        </Suspense>
 
-                            <br />
-                        </Drawer>
 
-                        <Drawer
-                            title="Chi tiết công việc"
-                            placement="right"
-                            open={openTaskDetail}
-                            onClose={() => setOpenTaskDetail(false)}
-                            width="90%"
-                        >
-                            {taskInfo(props,
-                                taskAction,
-                                taskComments,
-                                taskChecklist,
-                                taskChecklistPercent,
-                                taskLog,
-                                priority,
-                                (result: any) => {
-                                    // set columns, dùng cho case fast edit
-                                    // if (result.columns) {
-                                    //     setDataSource(result.columns);
-                                    // }
+                        <br />
+                    </Drawer>
 
-                                    // set data action, dùng cho case fast edit
-                                    if (result.data) {
-                                        setTaskAction(result.data);
-                                    }
+                    <Drawer
+                        title="Chi tiết công việc"
+                        placement="right"
+                        open={openTaskDetail}
+                        onClose={() => setOpenTaskDetail(false)}
+                        width="90%"
+                    >
 
-                                    // set checklist
-                                    if (result.checklist) {
-                                        setTaskChecklist(result.checklist);
-                                    }
+                        {showTask && taskInfo(props,
+                            taskAction,
+                            taskComments,
+                            taskChecklist,
+                            taskChecklistPercent,
+                            taskLog,
+                            priority,
+                            (result: any) => {
+                                // set columns, dùng cho case fast edit
+                                // if (result.columns) {
+                                //     setDataSource(result.columns);
+                                // }
 
-                                    // set percent
-                                    if (result.checklist_percent !== undefined) {
-                                        setTaskChecklistPercent(result.checklist_percent);
-                                    }
-                                    // set comments
-                                    if (result.comments) {
-                                        setTaskComments(result.comments);
-                                    }
+                                // set data action, dùng cho case fast edit
+                                if (result.data) {
+                                    setTaskAction(result.data);
+                                }
 
-                                })}
+                                // set checklist
+                                if (result.checklist) {
+                                    setTaskChecklist(result.checklist);
+                                }
 
-                            <br />
+                                // set percent
+                                if (result.checklist_percent !== undefined) {
+                                    setTaskChecklistPercent(result.checklist_percent);
+                                }
+                                // set comments
+                                if (result.comments) {
+                                    setTaskComments(result.comments);
+                                }
 
-                        </Drawer> */}
+                            })
+                        }
+
+                        <br />
+
+                    </Drawer>
                 </div>
             }
             />
