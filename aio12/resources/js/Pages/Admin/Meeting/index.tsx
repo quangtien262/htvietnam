@@ -1193,11 +1193,11 @@ export default function meeting(props: any) {
 
                     </Space>
                     <Space className="_right">
-                        {/* {checkShowBtnDelete()}
+                        {checkShowBtnDelete()}
 
                         {btnIndex()}
 
-                        {checkShowBtnExcel()} */}
+                        {checkShowBtnExcel()}
                     </Space>
 
                     {/* page name */}
