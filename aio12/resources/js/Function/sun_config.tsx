@@ -1,4 +1,4 @@
-import plugins from 'suneditor/src/plugins';
+// import plugins from 'suneditor/src/plugins';
 import SunEditor, { buttonList } from "suneditor-react";
 
 export const optionSunEditor = {
@@ -23,7 +23,7 @@ export const optionSunEditor = {
     //     image,
     //     link,
     // ],
-    plugins: plugins,
+    // plugins: plugins,
     buttonList: [
         ['undo', 'redo'],
         ['font', 'fontSize', 'formatBlock'],
