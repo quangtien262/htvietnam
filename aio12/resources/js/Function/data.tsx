@@ -67,7 +67,7 @@ const { Text } = Typography;
 // SunEditor
 import SunEditor from 'suneditor-react';
 import SunEditorCore from "suneditor/src/lib/core";
-// import 'suneditor/dist/css/suneditor.min.css';
+import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from './sun_config';
 
 // dayjs

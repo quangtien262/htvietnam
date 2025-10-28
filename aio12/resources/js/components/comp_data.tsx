@@ -39,7 +39,7 @@ import { checkRule, showData02, showDataSelectTable } from '../Function/data';
 
 // SunEditor
 import SunEditor from 'suneditor-react';
-// import 'suneditor/dist/css/suneditor.min.css';
+import 'suneditor/dist/css/suneditor.min.css';
 import { optionSunEditor } from '../Function/sun_config';
 import { a } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 import { log } from "console";
