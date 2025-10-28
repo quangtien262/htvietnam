@@ -564,7 +564,7 @@ export default function meeting(props: any) {
         setIsOpenFormEdit(false);
     }
 
-    function formAddExpress(users: any) {
+    function formAddExpress() {
         const formAddExpress_default = {
             name: '',
             meeting_type: 'is_daily',
@@ -1023,7 +1023,8 @@ export default function meeting(props: any) {
                             footer={[]}
                             width={1000}
                         >
-                            {formAddExpress(props.users)}
+                            {/* Render the formAddExpress function result */}
+                            {formAddExpress()}
                         </Modal>
                     </Space>
 
