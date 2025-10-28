@@ -46,6 +46,15 @@ export default function Admin({
     const params = new URLSearchParams(window.location.search);
     const p = params.get('p'); // sẽ là string hoặc null
 
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+    // Lấy token từ cookie và gắn vào header
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    console.log('token', token);
+
+    if (token) {
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    }
     useEffect(() => {
         axios.post(route('getMenus', { p: p }))
             .then((res) => {
@@ -60,16 +69,16 @@ export default function Admin({
 
     function getLinkRoute(menu: any) {
         if (menu.route && menu.route === 'data.tblName') {
-            return route(menu.route, {tblName: menu.table_name, p: p });
+            return route(menu.route, { tblName: menu.table_name, p: p });
         }
 
         // đôi với route task.list thì format này có thể áp dụng cho trường hợp là QL công việc, quy trình sale, cskh ...
-        if(menu.route === 'task.list' || menu.route === 'project.list') {
-            return route(menu.route, {parentName:menu.table_name, p: p});
+        if (menu.route === 'task.list' || menu.route === 'project.list') {
+            return route(menu.route, { parentName: menu.table_name, p: p });
         }
 
 
-        return route(menu.route, { p: p});
+        return route(menu.route, { p: p });
     }
 
     function getLinkMenu(menu: any) {
