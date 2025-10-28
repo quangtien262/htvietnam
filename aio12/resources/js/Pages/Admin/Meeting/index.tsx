@@ -1195,7 +1195,7 @@ export default function meeting(props: any) {
                     <Space className="_right">
                         {checkShowBtnDelete()}
 
-                        {btnIndex()}
+                        {/* {btnIndex()} */}
 
                         {checkShowBtnExcel()}
                     </Space>
