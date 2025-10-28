@@ -605,6 +605,7 @@ export function projectInfo(props: any,
         setIsLoadingBtn(true);
         console.log(commentAction);
         // return
+
         axios.post(route('project.addComment'), {
             project_id: dataAction.id,
             content: values.content,

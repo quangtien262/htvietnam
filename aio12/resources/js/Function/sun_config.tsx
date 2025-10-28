@@ -1,5 +1,5 @@
-// import plugins from 'suneditor/src/plugins';
-// import SunEditor, { buttonList } from "suneditor-react";
+import plugins from 'suneditor/src/plugins';
+import SunEditor, { buttonList } from "suneditor-react";
 
 export const optionSunEditor = {
     showPathLabel: false,
