@@ -758,44 +758,7 @@ export default function Dashboard(props: any) {
                                 onClose={() => setOpenDetail(false)}
                                 width="90%"
                             >
-                                {taskInfo(props,
-                                    users, 
-                                    dataAction,
-                                    comments,
-                                    checklist,
-                                    checklistPercent,
-                                    taskLog,
-                                    priority,
-                                    status,
-                                    (result: any) => {
-                                        // set columns, dùng cho case fast edit
-                                        if (result.columns) {
-                                            setColumns(result.columns);
-                                        }
-
-                                        // set data action, dùng cho case fast edit
-                                        if (result.dataAction_column) {
-                                            setDataAction({
-                                                ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
-                                                [result.dataAction_column.col]: result.dataAction_column.val,
-                                            });
-                                        }
-
-                                        // set checklist
-                                        if (result.checklist) {
-                                            setChecklist(result.checklist);
-                                        }
-
-                                        // set percent
-                                        if (result.checklist_percent !== undefined) {
-                                            setChecklistPercent(result.checklist_percent);
-                                        }
-                                        // set comments
-                                        if (result.comments) {
-                                            setComments(result.comments);
-                                        }
-
-                                    })}
+                               
 
                                 <br />
 
