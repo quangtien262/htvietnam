@@ -58,17 +58,17 @@ class TaskController extends Controller
      */
     public function index(Request $request, $parentName)
     {
-        $display = 'kanban'; // kanban, list
-        if ($request->display) {
-            $display = $request->display;
-        }
+        // $display = 'kanban'; // kanban, list
+        // if ($request->display) {
+        //     $display = $request->display;
+        // }
         // $project = Project::projectDetail($request->pid);
         $props = [
-            'parentName' => $parentName,
-            'display' => $display,
+            // 'parentName' => $parentName,
+            // 'display' => $display,
             // 'project' => $project,
-            'pid' => $request->pid ? $request->pid : 0,
-            'p' => $request->p ? $request->p : 1,
+            // 'pid' => $request->pid ? $request->pid : 0,
+            // 'p' => $request->p ? $request->p : 1,
         ];
         return Inertia::render('Admin/Task/index_kanban', $props);
     }
