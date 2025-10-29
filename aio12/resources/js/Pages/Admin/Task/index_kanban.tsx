@@ -8,8 +8,7 @@ import {
     message,
     Modal,
     Form,
-    Input,
-    Select, Checkbox,
+    Select,
     Row,
     Space,
     Tag,
@@ -19,23 +18,17 @@ import {
 import {
     RollbackOutlined,
     ToolFilled,
-    DeleteOutlined,
-    CheckOutlined,
-    CloseSquareOutlined,
     ApartmentOutlined,
     SettingFilled, InsertRowAboveOutlined,
-    PlusCircleFilled, PlusCircleOutlined
+    PlusCircleFilled
 } from "@ant-design/icons";
 
 import "../../../../css/task.css";
-
-import { optionEntries, showInfo } from "../../../Function/common";
 import { callApi } from "../../../Function/api";
 import { icon } from "../../../components/comp_icon";
 import { taskConfig, taskInfo } from "./task_config";
 import { updateTask } from "../../../Function/api";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
 
 import TaskFormModal from "./TaskFormModal";
 import TaskExpressForm from "./TaskExpressForm";
