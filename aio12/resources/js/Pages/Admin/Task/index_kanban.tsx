@@ -104,10 +104,6 @@ export default function Dashboard(props: any) {
         return search;
     }
 
-    function closeModalAdd() {
-        setIsModalAddOpen(false);
-    }
-
 
     function closePopupStatus() {
         setIsShowStatusSetting(false);
@@ -151,8 +147,6 @@ export default function Dashboard(props: any) {
                 setIsLoadingBtn(false);
             });
     }
-
-
 
     // di chuyển item trong mảng
     function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
@@ -296,7 +290,7 @@ export default function Dashboard(props: any) {
                     {/* Thêm mới task */}
                     <Modal title="Thêm mới"
                         open={isModalAddOpen}
-                        onCancel={() => closeModalAdd()}
+                        onCancel={() => setIsModalAddOpen(false)}
                         footer={[]}
                         width={{
                             xs: '90%',
@@ -308,8 +302,6 @@ export default function Dashboard(props: any) {
                         }}
                     >
                         <TaskFormModal
-                            open={isModalAddOpen}
-                            onClose={closeModalAdd}
                             formData={formData}
                             onFinishData={onFinishData}
                             initialValues={initialValuesForm()}

@@ -20,8 +20,7 @@ import {
 import { optionEntries } from "../../../Function/common";
 
 export default function TaskFormModal({
-    open,
-    onClose,
+    setIsModalAddOpen,
     formData,
     onFinishData,
     initialValues,
@@ -200,7 +199,7 @@ export default function TaskFormModal({
                 <Col sm={{ span: 24 }}>
                     <Col span={24} className="main-btn-popup">
                         <Button className="btn-popup"
-                            onClick={onClose}
+                            onClick={() => setIsModalAddOpen(false)}
                         >
                             <CloseSquareOutlined />
                             Hủy
