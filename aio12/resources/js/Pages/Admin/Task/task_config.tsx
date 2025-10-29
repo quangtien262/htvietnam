@@ -36,9 +36,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../../Function/common";
 import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
-import "../../../../css/list02.css";
-import "../../../../css/task.css";
-import "../../../../css/form.css";
+
 
 const { TextArea } = Input;
 interface columnType {
