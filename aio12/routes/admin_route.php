@@ -48,6 +48,11 @@ Route::post('thu-ngan/ca-info', [HoaDonController::class, 'caInfo'])->name('thuN
 Route::get('permission-denied', [AdminController::class, 'permissionDenied'])->name('admin.permission_denied');
 Route::get('page-not-found', [AdminController::class, 'pageNotFound'])->name('admin.page_not_found');
 
+// API data
+Route::group(['prefix' => 'api'], function () {
+    Route::get('data-select', [DataController::class, 'dataSelect'])->name('api.dataSelect');
+    Route::get('data-key', [DataController::class, 'getDataKeyValue'])->name('api.getDataKeyValue');
+});
 
 // data
 Route::group(['prefix' => 'data'], function () {

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from "react";
+import React, { useState, useContext, useMemo, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import {
@@ -590,11 +590,23 @@ export function projectInfo(props: any,
 
     const [isModalChecklist, setIsModalChecklist] = useState(false);
 
+    const [users, setUsers] = useState<any>([]);
+    const [status, setStatus] = useState<any>([]);
+
 
     // formChecklist
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-    const status = props.projectStatus;
+
+    useEffect(() => {
+        axios.post(route('api.dataSelect'), ['users', 'status']).then((res) => {
+            console.log('res.data.data', res.data.data);
+            setUsers(res.data.data.users);
+            setStatus(res.data.data.status);
+        }).catch((err) => {
+            console.error(err);
+        });
+    }, [props.meetingStatus]);
 
 
     const onFinishFormDesc = async (values: any) => {
@@ -912,7 +924,7 @@ export function projectInfo(props: any,
                     </a>
                 </Popconfirm>
             </h3>
-            <p className="description01">Tạo bởi: {props.users[dataAction.create_by] ? props.users[dataAction.create_by].name : ''}</p>
+            <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
             {/* Mô tả */}
             <Divider orientation="left">
@@ -1128,9 +1140,9 @@ export function projectInfo(props: any,
                                 <span className="value-list">Chưa xác định</span>
                                 :
                                 <>
-                                    <Tag style={{ color: status[dataAction.project_status_id].color, background: status[dataAction.project_status_id].background }}>
-                                        <span>{icon[status[dataAction.project_status_id].icon]} </span>
-                                        <span> {status[dataAction.project_status_id].name}</span>
+                                    <Tag style={{ color: status[dataAction.project_status_id]?.color, background: status[dataAction.project_status_id]?.background }}>
+                                        <span>{icon[status[dataAction.project_status_id]?.icon]} </span>
+                                        <span> {status[dataAction.project_status_id]?.name}</span>
                                     </Tag>
                                 </>
                         }
@@ -1174,7 +1186,7 @@ export function projectInfo(props: any,
                                     value={dataAction.project_manager}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
-                                    options={optionEntries(props.users)}
+                                    options={optionEntries(users)}
                                     filterOption={(input, option) =>
                                         (option?.label ?? "")
                                             .toLowerCase()
@@ -1196,7 +1208,7 @@ export function projectInfo(props: any,
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
-                                    <Tag color="cyan">{props.users[dataAction.project_manager].name} </Tag>
+                                    <Tag color="cyan">{users[dataAction.project_manager].name} </Tag>
                             }
                         </p>
 

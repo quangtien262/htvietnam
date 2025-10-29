@@ -1232,4 +1232,54 @@ class DataController extends Controller
 
         return $this->sendSuccessResponse($datas);
     }
+
+    function getDataKeyValue(Request $request)
+    {
+        if(empty($request->table_names)){
+            return $this->sendErrorResponse('Table name is required');
+        }
+        $result = [];
+        foreach($request->table_names as $tableName){
+            $data = DB::table($tableName)->orderBy('sort_order', 'desc')->get();
+            $item = [];
+            foreach ($data as $item) {
+                $item[$item->id] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'color' => isset($item->color) ? $item->color : ''   ,
+                    'background' => isset($item->background) ? $item->background : '',
+                ];
+            }
+            $result[$tableName] = $item;
+        }
+        return $this->sendSuccessResponse($result, 'successfully');
+    }
+
+    /**
+     * Tra về data select cho nhiều bảng, với format chuẩn select của antd value label
+     *
+     * @param Request $request
+     * @return void
+     */
+    function dataSelect(Request $request) {
+        if(empty($request->table_names)) {
+            return $this->sendErrorResponse('Table name is required');
+        }
+        $result = [];
+        foreach($request->table_names as $tableName) {
+            $data = DB::table($tableName)->orderBy('sort_order', 'desc')->get();
+            $item = [];
+            foreach ($data as $item) {
+                $item[] = [
+                    'value' => $item->id,
+                    'label' => $item->name,
+                    'color' => isset($item->color) ? $item->color : ''   ,
+                    'background' => isset($item->background) ? $item->background : '',
+                ];
+            }
+            $result[$tableName] = $item;
+        }
+        return $this->sendSuccessResponse($result, 'successfully');
+    }
+
 }

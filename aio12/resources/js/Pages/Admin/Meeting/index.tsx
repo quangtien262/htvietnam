@@ -123,7 +123,6 @@ export default function meeting(props: any) {
             setMeetingStatus(res.data.data.meetingStatus);
             setTasks(res.data.data.tasks);
             setUsers(res.data.data.users);
-
             setSearchData(res.data.data.searchData || {
                 sm_keyword: '',
                 meeting: [],
@@ -131,14 +130,6 @@ export default function meeting(props: any) {
             });
         }).catch((err) => {
             console.error(err);
-            setMeetingStatus([]);
-            setTasks([]);
-            setUsers([]);
-            setSearchData({
-                sm_keyword: '',
-                meeting: [],
-                result: [],
-            });
         });
     }, [props.meetingStatus]);
 
@@ -974,7 +965,7 @@ export default function meeting(props: any) {
 
                     {pageContent}
 
-                    {/* <Drawer
+                    <Drawer
                         title="Chi tiết dự án"
                         placement="right"
                         open={openProjectDetail}
@@ -1016,7 +1007,7 @@ export default function meeting(props: any) {
 
 
                         <br />
-                    </Drawer> */}
+                    </Drawer>
 
                     {/* <Drawer
                         title="Chi tiết công việc 1"
