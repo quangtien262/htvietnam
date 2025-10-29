@@ -27,8 +27,8 @@ import "../../../../css/task.css";
 import { callApi } from "../../../Function/api";
 import { icon } from "../../../components/comp_icon";
 import { taskConfig, taskInfo } from "./task_config";
-import { updateTask } from "../../../Function/api";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+// import { updateTask } from "../../../Function/api";
+// import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 // import TaskFormModal from "./TaskFormModal";
 // import TaskExpressForm from "./TaskExpressForm";
@@ -251,7 +251,7 @@ export default function Dashboard(props: any) {
                     >
                         <div>
 
-                            {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
+                            {/* {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
                                 name: 'Trạng thái',
                                 description: 'Mô tả ',
                                 color: 'Màu chữ',
@@ -259,7 +259,7 @@ export default function Dashboard(props: any) {
                             }, (result: any) => {
                                 setStatusData(result.status);
                                 setColumns(result.columns);
-                            })}
+                            })} */}
 
                             <Row>
                                 <Col sm={24} className="text-center">
