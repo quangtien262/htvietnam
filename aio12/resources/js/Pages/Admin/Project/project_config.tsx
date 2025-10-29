@@ -599,14 +599,15 @@ export function projectInfo(props: any,
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
 
     useEffect(() => {
-        axios.post(route('api.dataSelect'), ['users', 'status']).then((res) => {
-            console.log('res.data.data', res.data.data);
+        console.log('zzzssss');
+        
+        axios.post(route('api.getDataKeyValue'), {table_names:['users', 'project_status']}).then((res) => {
             setUsers(res.data.data.users);
-            setStatus(res.data.data.status);
+            setStatus(res.data.data.project_status);
         }).catch((err) => {
             console.error(err);
         });
-    }, [props.meetingStatus]);
+    }, []);
 
 
     const onFinishFormDesc = async (values: any) => {
@@ -1229,7 +1230,7 @@ export function projectInfo(props: any,
                                     value={dataAction.nguoi_theo_doi}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
-                                    options={optionEntries(props.users)}
+                                    options={optionEntries(users)}
                                     filterOption={(input, option) =>
                                         (option?.label ?? "")
                                             .toLowerCase()
@@ -1256,7 +1257,7 @@ export function projectInfo(props: any,
                                     :
                                     <div>
                                         {dataAction.nguoi_theo_doi.map((item, key) => (
-                                            <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            <Tag color="cyan" key={key}>{users[item] ? users[item].name : ''} </Tag>
                                         ))}
                                     </div>
                             }

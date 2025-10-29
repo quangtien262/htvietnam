@@ -50,8 +50,8 @@ Route::get('page-not-found', [AdminController::class, 'pageNotFound'])->name('ad
 
 // API data
 Route::group(['prefix' => 'api'], function () {
-    Route::get('data-select', [DataController::class, 'dataSelect'])->name('api.dataSelect');
-    Route::get('data-key', [DataController::class, 'getDataKeyValue'])->name('api.getDataKeyValue');
+    Route::post('data-select', [DataController::class, 'dataSelect'])->name('api.dataSelect');
+    Route::post('data-key', [DataController::class, 'getDataKeyValue'])->name('api.getDataKeyValue');
 });
 
 // data
@@ -363,11 +363,13 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
     Route::post('add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
     Route::post('delete-comment', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
+
+
+    Route::post('api/list', [TaskController::class, 'index_api'])->name('task.api.list');
 });
 
 // task
 Route::group(['prefix' => 'tasks'], function () {
-
     Route::get('dashboard', [TaskController::class, 'dashboard'])->name('task.dashboard');
     Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
     Route::post('{parentName}/add', [TaskController::class, 'store'])->name('task.add');

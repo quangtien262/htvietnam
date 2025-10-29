@@ -1,4 +1,4 @@
-import React, { useState,  useContext, useMemo } from "react";
+import React, { useState,  useContext, useMemo,useEffect } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 import {
@@ -288,12 +288,14 @@ export function taskConfig(
 }
 
 export function taskInfo(props: any,
+    users: any,
     dataAction: any,
     comments: any,
     checklist: any,
     checklistPercent: any,
     taskLog: any,
     priority: any,
+    status: any,
     onSuccess: (data: any) => void) {
     const [formDesc] = Form.useForm();
     const [formTitle] = Form.useForm();
@@ -307,11 +309,10 @@ export function taskInfo(props: any,
     const [isModalChecklist, setIsModalChecklist] = useState(false);
 
 
+    console.log('checklist', checklist);
     // formChecklist
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-    const status = props.taskStatus;
-    // const [status, setStatus] = useState([]);
 
 
     const onFinishFormDesc = async (values: any) => {
@@ -403,7 +404,7 @@ export function taskInfo(props: any,
             id: dataAction.id,
             value: value,
             parentName: props.parentName,
-            searchData: props.searchData,
+            searchData: props.searchData ? props.searchData : {},
             display: props.display
         }).then(response => {
             setIsLoadingBtn(false);
@@ -453,12 +454,12 @@ export function taskInfo(props: any,
 
 
     {/* form Thêm checklist */ }
-    function formAddTaskChecklist(users, task) {
+    function formAddTaskChecklist(users: any) {
         function addFormCheckList() {
             setFormChecklist(prev => [...prev, formChecklist_default]);
         }
 
-        function updateChecklistByIndex(indexToUpdate, updatedData) {
+        function updateChecklistByIndex(indexToUpdate: number, updatedData: any) {
             setFormChecklist(prev =>
                 prev.map((item, index) =>
                     index === indexToUpdate ? { ...item, ...updatedData } : item
@@ -584,7 +585,7 @@ export function taskInfo(props: any,
             footer={[]}
             width={1000}
         >
-            {formAddTaskChecklist(props.users, dataAction)}
+            {formAddTaskChecklist(users)}
         </Modal>
 
         {/* form comment */}
@@ -643,7 +644,7 @@ export function taskInfo(props: any,
                     </a>
                 </Popconfirm>
             </h3>
-            <p className="description01">Tạo bởi: {props.users[dataAction.create_by] ? props.users[dataAction.create_by].name : ''}</p>
+            <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
             {/* Mô tả */}
             <Divider orientation="left">
@@ -698,7 +699,8 @@ export function taskInfo(props: any,
                     pagination={{
                         pageSize: 10, //  số item mỗi trang
                     }}
-                    dataSource={!checklist ? [] : checklist.map((item) => { return item; })}
+                    
+                    dataSource={!checklist ? [] : checklist.map((item: any) => { return item; })}
                     locale={{ emptyText: 'Danh sách checklist trống' }}
                     renderItem={(item, key) => (
                         <List.Item
@@ -789,7 +791,7 @@ export function taskInfo(props: any,
                     pagination={{
                         pageSize: 5, // 👉 số item mỗi trang
                     }}
-                    dataSource={!comments ? [] : comments.map((item) => { return item; })}
+                    dataSource={!comments ? [] : comments.map((item: any) => { return item; })}
                     renderItem={(item: any) => (
                         <List.Item
                             actions={[
@@ -944,7 +946,7 @@ export function taskInfo(props: any,
                                     value={dataAction.nguoi_thuc_hien}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
-                                    options={optionEntries(props.users)}
+                                    options={optionEntries(users)}
                                     filterOption={(input, option) =>
                                         (option?.label ?? "")
                                             .toLowerCase()
@@ -966,7 +968,7 @@ export function taskInfo(props: any,
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
-                                    <Tag style={{ color: '#03ba56ff' }}>{props.users[dataAction.nguoi_thuc_hien].name} </Tag>
+                                    <Tag style={{ color: '#03ba56ff' }}>{users[dataAction.nguoi_thuc_hien].name} </Tag>
                             }
                         </p>
 
@@ -987,7 +989,7 @@ export function taskInfo(props: any,
                                     value={dataAction.nguoi_theo_doi}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
-                                    options={optionEntries(props.users)}
+                                    options={optionEntries(users)}
                                     filterOption={(input, option) =>
                                         (option?.label ?? "")
                                             .toLowerCase()
@@ -1014,7 +1016,7 @@ export function taskInfo(props: any,
                                     :
                                     <div>
                                         {dataAction.nguoi_theo_doi.map((item, key) => (
-                                            <Tag color="cyan" key={key}>{props.users[item] ? props.users[item].name : ''} </Tag>
+                                            <Tag color="cyan" key={key}>{users[item] ? users[item].name : ''} </Tag>
                                         ))}
                                     </div>
                             }

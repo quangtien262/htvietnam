@@ -58,10 +58,80 @@ class TaskController extends Controller
      */
     public function index(Request $request, $parentName)
     {
+        // $table = Table::where('name', $parentName)->first();
 
-        $table = Table::where('name', $parentName)->first();
+        // $project = Project::projectDetail($request->pid);
 
+        // $priority = TblService::formatData('task_priority', ['parent_name' => $parentName]);
+        // $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
+
+        // $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
+        // $admin = Auth::guard('admin_users')->user();
+
+        // $statusTable = Table::where('name', 'task_status')->first();
+        // $statusData = DB::table('task_status')
+        //     ->select('sort_order as sort', 'id as key', 'task_status.*')
+        //     ->where('is_recycle_bin', 0)
+        //     ->where('parent_name', $parentName)
+        //     ->orderBy('sort_order', 'asc')
+        //     ->get()
+        //     ->toArray();
+        // $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
+        // $users_byID = [];
+        // foreach ($users as $u) {
+        //     $users_byID[$u['id']] = $u;
+        // }
+        // // get chi nhanh
+
+        // $display = 'kanban'; // kanban, list
+        // if ($request->display) {
+        //     $display = $request->display;
+        // }
+
+        // $props = [
+        //     'table' => $table,
+        //     'project' => $project,
+        //     'taskStatus' => $status,
+        //     'users' => $users_byID,
+        //     'priority' => $priority,
+        //     'type' => $type,
+        //     'admin' => $admin,
+        //     'statusData' => $statusData,
+        //     'statusTable' => $statusTable,
+        //     'parentName' => $parentName,
+        //     'display' => 'kanban',
+        //     'pid' => $request->pid ? $request->pid : 0,
+        //     'display' => $display,
+        //     'p' => $request->p ? $request->p : 1,
+        // ];
+
+        // if ($display == 'list') {
+        //     $props['searchData'] = $this->getSearchData($request, $status);
+        //     $props['dataSource'] = Task::getDatas($parentName, $props['searchData']);
+        //     return Inertia::render('Admin/Task/index_list', $props);
+        // }
+
+        // $props['datas'] = Task::getTaskByStatus($request->all(), $parentName);
+
+        $display = 'kanban'; // kanban, list
+        if ($request->display) {
+            $display = $request->display;
+        }
         $project = Project::projectDetail($request->pid);
+        $props = [
+            'parentName' => $parentName,
+            'display' => $display,
+            'project' => $project,
+            'pid' => $request->pid ? $request->pid : 0,
+            'p' => $request->p ? $request->p : 1,
+        ];
+        return Inertia::render('Admin/Task/index_kanban', $props);
+    }
+
+    public function index_api(Request $request)
+    {
+        $parentName = $request->parentName;
+        $table = Table::where('name', $parentName)->first();
 
         $priority = TblService::formatData('task_priority', ['parent_name' => $parentName]);
         $type = TblService::formatData('task_type', ['parent_name' => $parentName]);
@@ -84,14 +154,8 @@ class TaskController extends Controller
         }
         // get chi nhanh
 
-        $display = 'kanban'; // kanban, list
-        if ($request->display) {
-            $display = $request->display;
-        }
-
         $props = [
             'table' => $table,
-            'project' => $project,
             'taskStatus' => $status,
             'users' => $users_byID,
             'priority' => $priority,
@@ -99,22 +163,19 @@ class TaskController extends Controller
             'admin' => $admin,
             'statusData' => $statusData,
             'statusTable' => $statusTable,
-            'parentName' => $parentName,
-            'display' => 'kanban',
-            'pid' => $request->pid ? $request->pid : 0,
-            'display' => $display,
-            'p' => $request->p ? $request->p : 1,
         ];
 
-        if ($display == 'list') {
+        if ($request->display == 'list') {
             $props['searchData'] = $this->getSearchData($request, $status);
             $props['dataSource'] = Task::getDatas($parentName, $props['searchData']);
-            return Inertia::render('Admin/Task/index_list', $props);
+            return $this->sendSuccessResponse($props);
         }
 
         $props['datas'] = Task::getTaskByStatus($request->all(), $parentName);
-        return Inertia::render('Admin/Task/index', $props);
+        return $this->sendSuccessResponse($props);
     }
+
+
 
     private function getSearchData($request, $status)
     {
@@ -305,11 +366,11 @@ class TaskController extends Controller
         $data->{$request->column_name} = $request->value;
         $data->save();
 
-        if(in_array($request->column_name, ['is_daily', 'is_weekly', 'is_monthly'])) {
+        if (in_array($request->column_name, ['is_daily', 'is_weekly', 'is_monthly'])) {
             Meeting::saveMeeting($data, $request, 'tasks');
         }
 
-        if($request->display == 'kanban') {
+        if ($request->display == 'kanban') {
             $datas = Task::getTaskByStatus($request->all(), $request->parentName);
             return $this->sendSuccessResponse(['datas' => $datas, 'data' => $data], 'Update successfully', 200);
         }

@@ -100,11 +100,6 @@ export default function meeting(props: any) {
     const [users, setUsers] = useState([]);
     const [projectStatus, setProjectStatus] = useState([]);
     const [taskStatus, setTaskStatus] = useState([]);
-    // const [users, setUsers] = useState([]);
-
-
-
-
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -116,22 +111,18 @@ export default function meeting(props: any) {
         },
     });
 
-    useEffect(() => {
-        axios.post(route('meeting.fetchIndexData', {})).then((res) => {
+    function fetchData(request = {}) {
+        axios.post(route('meeting.fetchIndexData'), {table_name:['task_status', 'users']}).then((res) => {
             console.log('res.data.data', res.data.data);
             setDataSource(res.data.data.dataSource);
             setMeetingStatus(res.data.data.meetingStatus);
             setTasks(res.data.data.tasks);
             setUsers(res.data.data.users);
-            setSearchData(res.data.data.searchData || {
-                sm_keyword: '',
-                meeting: [],
-                result: [],
-            });
         }).catch((err) => {
             console.error(err);
         });
-    }, [props.meetingStatus]);
+    }
+    useEffect(() => {fetchData(props.searchData)}, []);
 
 
 
@@ -321,8 +312,11 @@ export default function meeting(props: any) {
             detail.push(<div><b>Quản lý: </b>
                 {users[record.project_manager] ? <Tag style={{ color: '#000' }}>{users[record.project_manager].name}</Tag> : ''}
             </div>);
-            detail.push(<div><b>Bắt đầu: </b>{record.project_start}</div>);
-            detail.push(<div><b>Kết thúc: </b>{record.project_end}</div>);
+            detail.push(<div><b>
+                Thời gian: </b>
+                {record.project_start ? <Tag>{dayjs(record.project_start).format(DATE_TIME_SHOW)}</Tag> : '?'}
+                {record.project_end ? <Tag>{dayjs(record.project_end).format(DATE_TIME_SHOW)}</Tag> : '?'}
+            </div>);
         }
 
         if (record.data_type === 'tasks') {
@@ -624,7 +618,6 @@ export default function meeting(props: any) {
         if (record.data_type === 'tasks') {
             setOpenTaskDetail(true);
             axios.post(route('task.getTaskInfo', record.data_id)).then((res) => {
-                console.log(res);
                 setTaskChecklist(res.data.data.checklist);
                 setTaskChecklistPercent(res.data.data.percent);
                 setTaskComments(res.data.data.comments);
@@ -653,45 +646,6 @@ export default function meeting(props: any) {
         return result;
     }
 
-    function showNguoiThucHien(record: any) {
-        let result = [];
-        let isLine01 = false;
-        if (users[record.task_nguoi_thuc_hien]) {
-            isLine01 = true;
-            result.push(<Tag color="cyan">{users[record.task_nguoi_thuc_hien].name}</Tag>);
-        }
-        if (users[record.project_manager]) {
-            isLine01 = true;
-            result.push(<Tag color="cyan">{users[record.project_manager].name}</Tag>);
-        }
-
-        if (taskStatus[record.task_status_id]) {
-            if (isLine01) {
-                result.push(<br />);
-            }
-            result.push(
-                <Tag style={{ color: taskStatus[record.task_status_id]?.color, background: taskStatus[record.task_status_id]?.background }}>
-                    <span>{icon[taskStatus[record.task_status_id]?.icon]} </span>
-                    <span> {taskStatus[record.task_status_id]?.name}</span>
-                </Tag>
-            );
-        }
-
-        if (projectStatus[record.project_status_id]) {
-            if (isLine01) {
-                result.push(<br />);
-            }
-            result.push(
-                <Tag style={{ color: projectStatus[record.project_status_id]?.color, background: projectStatus[record.project_status_id]?.background }}>
-                    <span>{icon[projectStatus[record.project_status_id]?.icon]} </span>
-                    <span> {projectStatus[record.project_status_id]?.name}</span>
-                </Tag>
-            );
-        }
-
-        return <>{result}</>;
-    }
-
     const columns2: ColumnsType<any> = [
         {
             title: 'Name', dataIndex: 'name', render: (text, record: any) => {
@@ -701,11 +655,6 @@ export default function meeting(props: any) {
         {
             title: 'Meeting', dataIndex: 'Meeting', render: (text, record: any) => {
                 return showTypeMeeting(record);
-            }
-        },
-        {
-            title: 'Người làm', dataIndex: 'nguoi_thuc_hien', render: (text, record: any) => {
-                return showNguoiThucHien(record);
             }
         },
         {
@@ -1009,19 +958,18 @@ export default function meeting(props: any) {
                         <br />
                     </Drawer>
 
-                    {/* <Drawer
+                    <Drawer
                         title="Chi tiết công việc 1"
                         placement="right"
                         open={openTaskDetail}
                         onClose={() => {
                             setOpenTaskDetail(false);
-                            // setShowTask(true);
-                            // setShowProject(true);
                         }}
                         width="90%"
                     >
 
                         {taskInfo(props,
+                            users,
                             taskAction,
                             taskComments,
                             taskChecklist,
@@ -1058,7 +1006,7 @@ export default function meeting(props: any) {
 
                         <br />
 
-                    </Drawer> */}
+                    </Drawer>
                 </div>
             }
             />

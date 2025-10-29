@@ -274,18 +274,27 @@ export function optionEntries(data: any, haveCode = false) {
     if (!data) {
         return [];
     }
-    return Object.entries(data).map(([key, value]: [string, any]) => {
+    try {
+        return Object.entries(data).map(([key, value]: [string, any]) => {
+            if (!value || value.id === undefined || value.id === null) {
+                // Nếu value hoặc value.id không tồn tại, bỏ qua phần tử này
+                return null;
+            }
+            let label = value.name;
+            if (haveCode) {
+                label = value.code + ' - ' + value.name;
+            }
+            return {
+                value: value.id.toString(),
+                label: label,
+                info: value,
+            }
+        })
+    } catch (error) {
+        console.error('optionEntries:', data);
+        console.log('optionEntries error', error);
+    }
 
-        let label = value.name;
-        if (haveCode) {
-            label = value.code + ' - ' + value.name;
-        }
-        return {
-            value: value.id.toString(),
-            label: label,
-            info: value,
-        }
-    })
 }
 
 // key ko bắt đầu từ số 0

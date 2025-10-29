@@ -23,57 +23,20 @@ class MeetingController extends Controller
     public function index(Request $request)
     {
         $table = Table::where('name', 'meeting')->first();
-        // $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get()->toArray();
 
-        // $userPermission = TblService::getPermission();
-
-        // $searchData = $request->all();
-        // if (empty($request->meeting)) {
-        //     $searchData['meeting'] = ['daily'];
-        // }
-        // if (empty($request->result)) {
-        //     $searchData['result'] = ['1'];
-        // }
-
-        // $datas = Meeting::getMeeting($searchData);
-
-        // $pageConfig = [
-        //     'currentPage' => $datas->currentPage(),
-        //     'perPage' => $datas->perPage(),
-        //     'total' => $datas->total(),
-        //     'lastPage' => $datas->lastPage(),
-        // ];
-        // $datas = $datas->toArray();
-        // $pageConfig['count'] = count($datas['data']);
-        // // end phân trang
-
-        // $props = [
-        //     'table' => $table,
-        //     'columns' => $columns,
-        //     'dataSource' => $datas['data'],
-        //     'userPermission' => $userPermission,
-        //     'searchData' => $searchData,
-        //     'pageConfig' => $pageConfig,
-        // ];
-
-
-        // $props['projectStatus'] = TblService::formatData('project_status');
-        // $props['meetingStatus'] = TblService::formatData('meeting_status');
-        // $props['users'] = TblService::formatData('admin_users');
-
-        // $props['taskStatus'] = TblService::formatData('task_status');
-        // $taskStatusDefault = [];
-        // foreach ($props['taskStatus'] as $ts) {
-        //     if ($ts->is_default == 1) {
-        //         $taskStatusDefault[] = $ts->id;
-        //     }
-        // }
-        // $props['tasks'] = Task::where('is_recycle_bin', 0)
-        //     ->whereIn('tasks.task_status_id', $taskStatusDefault)
-        //     ->get();
-
-        $props['p'] = $request->p ? $request->p : 0;
-        $props['table'] = $table;
+        $searchData = $request->all();
+        if (empty($request->meeting)) {
+            $searchData['meeting'] = ['daily'];
+        }
+        if (empty($request->result)) {
+            $searchData['result'] = ['1'];
+        }
+        
+        $props = [
+            'table' => $table,
+            'searchData' => $searchData,
+            'p' => $request->p ?? 0,
+        ];
 
         return Inertia::render('Admin/Meeting/index', $props);
     }

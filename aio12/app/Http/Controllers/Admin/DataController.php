@@ -1240,17 +1240,17 @@ class DataController extends Controller
         }
         $result = [];
         foreach($request->table_names as $tableName){
-            $data = DB::table($tableName)->orderBy('sort_order', 'desc')->get();
-            $item = [];
+            $data = DB::table($tableName)->where('is_recycle_bin', 0)->orderBy('sort_order', 'desc')->get();
+            $i = [];
             foreach ($data as $item) {
-                $item[$item->id] = [
+                $i[$item->id] = [
                     'id' => $item->id,
                     'name' => $item->name,
                     'color' => isset($item->color) ? $item->color : ''   ,
                     'background' => isset($item->background) ? $item->background : '',
                 ];
             }
-            $result[$tableName] = $item;
+            $result[$tableName] = $i;
         }
         return $this->sendSuccessResponse($result, 'successfully');
     }
@@ -1267,17 +1267,17 @@ class DataController extends Controller
         }
         $result = [];
         foreach($request->table_names as $tableName) {
-            $data = DB::table($tableName)->orderBy('sort_order', 'desc')->get();
-            $item = [];
+            $data = DB::table($tableName)->where('is_recycle_bin', 0)->orderBy('sort_order', 'desc')->get();
+            $i = [];
             foreach ($data as $item) {
-                $item[] = [
+                $i[] = [
                     'value' => $item->id,
                     'label' => $item->name,
                     'color' => isset($item->color) ? $item->color : ''   ,
                     'background' => isset($item->background) ? $item->background : '',
                 ];
             }
-            $result[$tableName] = $item;
+            $result[$tableName] = $i;
         }
         return $this->sendSuccessResponse($result, 'successfully');
     }

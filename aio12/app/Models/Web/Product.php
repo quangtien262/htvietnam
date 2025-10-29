@@ -41,6 +41,7 @@ class Product extends Model {
         )
         ->leftJoin('products_data', 'products_data.data_id', '=', 'products.id')
         ->where('products_data.languages_id', $langId)
+        ->where('products.is_recycle_bin', 0)
         ->where('products.product_status_id', 1); // ẩn/hiện
         
         return $query;

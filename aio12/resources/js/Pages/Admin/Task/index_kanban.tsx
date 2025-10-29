@@ -61,10 +61,20 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 
 export default function Dashboard(props: any) {
-    const [status, setStatus] = useState(props.taskStatus);
-    const [statusData, setStatusData] = useState(props.statusData);
+    const search = {
+        p: props.p,
+        pid: props.pid,
+        display: props.display,
+        parentName: props.parentName
+    };
+    const [status, setStatus] = useState([]);
+    const [statusData, setStatusData] = useState([]);
+
 
     const [taskLog, setTaskLog] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [priority, setPriority] = useState([]);
+    const [type, setType] = useState([]);
 
     const [isModalAddExpress, setIsModalAddExpress] = useState(false);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -91,7 +101,22 @@ export default function Dashboard(props: any) {
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
     const [isModalAddOpen, setIsModalAddOpen] = useState(false);
 
-    const [columns, setColumns] = useState(props.datas);
+    const [columns, setColumns] = useState([]);
+
+    function fetchData(request = {}) {
+        axios.post(route('task.api.list'), request).then((res) => {
+            console.log('res.data.data', res.data.data);
+            setColumns(res.data.data.datas);
+            setStatus(res.data.data.taskStatus);
+            setStatusData(res.data.data.statusData);
+            setUsers(res.data.data.users);
+            setPriority(res.data.data.priority);
+            setType(res.data.data.type);
+        }).catch((err) => {
+            console.error(err);
+        });
+    }
+    useEffect(() => { fetchData(search) }, []);
 
     function formAddTaskExpress(users: any) {
         const formAddTaskExpress_default = {
@@ -413,7 +438,7 @@ export default function Dashboard(props: any) {
     };
 
     function initialValuesForm() {
-        return props.searchData;
+        return search;
     }
 
     function closeModalAdd() {
@@ -436,10 +461,7 @@ export default function Dashboard(props: any) {
 
     return (
         <div>
-            <AdminLayout
-                auth={props.auth}
-                current={props.table}
-                content={
+            <AdminLayout content={
 
                     <div>
                         {/* modal xóa */}
@@ -462,7 +484,7 @@ export default function Dashboard(props: any) {
                         >
                             <div>
 
-                                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: props.searchData, pid: props.pid }, {
+                                {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
                                     name: 'Trạng thái',
                                     description: 'Mô tả ',
                                     color: 'Màu chữ',
@@ -493,7 +515,7 @@ export default function Dashboard(props: any) {
                             footer={[]}
                             width={1000}
                         >
-                            {formAddTaskExpress(props.users)}
+                            {formAddTaskExpress(users)}
                         </Modal>
 
                         {/* Thêm mới task */}
@@ -570,7 +592,7 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        options={optionEntries(props.users)}
+                                                        options={optionEntries(users)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -587,7 +609,7 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        options={optionEntries(props.users)}
+                                                        options={optionEntries(users)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -621,7 +643,7 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        options={optionEntries(props.priority)}
+                                                        options={optionEntries(priority)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -637,7 +659,7 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        options={optionEntries(props.type)}
+                                                        options={optionEntries(type)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -668,7 +690,7 @@ export default function Dashboard(props: any) {
                                                                 .toLowerCase()
                                                                 .includes(input.toLowerCase())
                                                         }
-                                                        options={optionEntries(props.users)}
+                                                        options={optionEntries(users)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -728,7 +750,7 @@ export default function Dashboard(props: any) {
                                     className="_right"
                                     value={props.display}
                                     onChange={(value) => {
-                                        router.get(route('task.list', [props.parentName]), {  p:props.p, pid: props.pid, display: value });
+                                        router.get(route('task.list', [props.parentName]), { p: props.p, pid: props.pid, display: value });
                                     }}
                                     style={{ width: 150, marginRight: 8 }}
                                 >
@@ -742,7 +764,7 @@ export default function Dashboard(props: any) {
                                 >
                                     <SettingFilled /> Cài đặt trạng thái
                                 </Button>
-                                    <span> </span>
+                                <span> </span>
                                 {/* Thêm mới */}
                                 <Button type="primary"
                                     className="_right btn-submit01"
@@ -804,9 +826,9 @@ export default function Dashboard(props: any) {
                                             filterSort={(optionA, optionB) =>
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
-                                            options={Object.keys(props.users).map((key) => ({
-                                                label: props.users[key].name,
-                                                value: props.users[key].id.toString()
+                                            options={Object.keys(users).map((key) => ({
+                                                label: users[key].name,
+                                                value: users[key].id.toString()
                                             }))}
                                             onChange={(e) => formSearch.submit()} />
                                     </Form.Item>
@@ -825,9 +847,9 @@ export default function Dashboard(props: any) {
                                             filterSort={(optionA, optionB) =>
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
-                                            options={Object.keys(props.users).map((key) => ({
-                                                label: props.users[key].name,
-                                                value: props.users[key].id.toString()
+                                            options={Object.keys(users).map((key) => ({
+                                                label: users[key].name,
+                                                value: users[key].id.toString()
                                             }))}
                                             onChange={(e) => formSearch.submit()} />
                                     </Form.Item>
@@ -846,9 +868,9 @@ export default function Dashboard(props: any) {
                                             filterSort={(optionA, optionB) =>
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
-                                            options={Object.keys(props.priority).map((key) => ({
-                                                label: props.priority[key].name,
-                                                value: props.priority[key].id.toString()
+                                            options={Object.keys(priority).map((key) => ({
+                                                label: priority[key].name,
+                                                value: priority[key].id.toString()
                                             }))}
                                             onChange={(e) => formSearch.submit()} />
                                     </Form.Item>
@@ -911,7 +933,6 @@ export default function Dashboard(props: any) {
                                                                                         setOpenDetail(true);
                                                                                         setDataAction(task);
                                                                                         const res = await callApi(route('task.getTaskInfo', [task.id]));
-                                                                                        console.log(res);
                                                                                         setChecklist(res.data.data.checklist);
                                                                                         setChecklistPercent(res.data.data.percent);
                                                                                         setComments(res.data.data.comments);
@@ -921,13 +942,13 @@ export default function Dashboard(props: any) {
                                                                                         }
                                                                                     }}
                                                                                 >
-                                                                                    {props.priority[task.task_priority_id] ? <Tag color={props.priority[task.task_priority_id].color}>{props.priority[task.task_priority_id].name}</Tag> : ''}
+                                                                                    {priority[task.task_priority_id] ? <Tag color={priority[task.task_priority_id].color}>{priority[task.task_priority_id].name}</Tag> : ''}
                                                                                     {task.name}
                                                                                 </h3>
 
                                                                                 <p className="description01">{task.description}</p>
 
-                                                                                {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{props.users[task.nguoi_thuc_hien].name}</Tag>}
+                                                                                {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{users[task.nguoi_thuc_hien].name}</Tag>}
                                                                                 <p className="deadline"><em>{task.end ? dayjs(task.end).format('DD/MM/YYYY') : ''}</em></p>
                                                                             </div>
 
@@ -954,12 +975,14 @@ export default function Dashboard(props: any) {
                                 width="90%"
                             >
                                 {taskInfo(props,
+                                    users, 
                                     dataAction,
                                     comments,
                                     checklist,
                                     checklistPercent,
                                     taskLog,
-                                    props.priority,
+                                    priority,
+                                    status,
                                     (result: any) => {
                                         // set columns, dùng cho case fast edit
                                         if (result.columns) {
