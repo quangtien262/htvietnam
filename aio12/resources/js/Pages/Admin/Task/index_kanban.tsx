@@ -99,45 +99,45 @@ export default function Dashboard(props: any) {
     useEffect(() => { fetchData(search) }, []);
 
     // form data
-    const onFinishData = async (values: any) => {
-        // setIsLoadingBtn(true);
-        values.typeSubmit = typeSubmit;
-        if (values.start) {
-            values.start = values.start.format('YYYY-MM-DD');
-        }
-        if (values.end) {
-            values.end = values.end.format('YYYY-MM-DD');
-        }
-        values.pid = props.pid;
-        // const res = await createTask(values);
-        axios.post(route('task.add', { parentName: props.parentName }), values)
-            .then(response => {
-                setIsLoadingBtn(false);
-                setColumns(response.data.data);
-                message.success("Đã lưu dữ liệu thành công");
+    // const onFinishData = async (values: any) => {
+    //     // setIsLoadingBtn(true);
+    //     values.typeSubmit = typeSubmit;
+    //     if (values.start) {
+    //         values.start = values.start.format('YYYY-MM-DD');
+    //     }
+    //     if (values.end) {
+    //         values.end = values.end.format('YYYY-MM-DD');
+    //     }
+    //     values.pid = props.pid;
+    //     // const res = await createTask(values);
+    //     axios.post(route('task.add', { parentName: props.parentName }), values)
+    //         .then(response => {
+    //             setIsLoadingBtn(false);
+    //             setColumns(response.data.data);
+    //             message.success("Đã lưu dữ liệu thành công");
 
-                // reset form
-                formData.resetFields();
+    //             // reset form
+    //             formData.resetFields();
 
-                // case lưu và đóng, đóng modal sau khu lưu thành công
-                if (typeSubmit === 'save') {
-                    setIsModalAddOpen(false);
-                }
-            })
-            .catch(error => {
-                setIsLoadingBtn(false);
-            });
-    }
+    //             // case lưu và đóng, đóng modal sau khu lưu thành công
+    //             if (typeSubmit === 'save') {
+    //                 setIsModalAddOpen(false);
+    //             }
+    //         })
+    //         .catch(error => {
+    //             setIsLoadingBtn(false);
+    //         });
+    // }
 
 
 
     // di chuyển item trong mảng
-    function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
-        const result = [...array];
-        const [removed] = result.splice(fromIndex, 1);
-        result.splice(toIndex, 0, removed);
-        return result;
-    }
+    // function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
+    //     const result = [...array];
+    //     const [removed] = result.splice(fromIndex, 1);
+    //     result.splice(toIndex, 0, removed);
+    //     return result;
+    // }
 
     // const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
     //     const { source, destination } = result;
@@ -281,7 +281,7 @@ export default function Dashboard(props: any) {
                         footer={[]}
                         width={1000}
                     >
-                        <TaskExpressForm
+                        {/* <TaskExpressForm
                             users={users}
                             status={status}
                             parentName={props.parentName}
@@ -289,7 +289,8 @@ export default function Dashboard(props: any) {
                             setIsLoadingBtn={setIsLoadingBtn}
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
-                        />
+                        /> */}
+
                     </Modal>
 
                     {/* Thêm mới task */}
