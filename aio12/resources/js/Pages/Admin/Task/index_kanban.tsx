@@ -80,24 +80,23 @@ export default function Dashboard(props: any) {
 
     const [columns, setColumns] = useState([]);
     const [isReady, setIsReady] = useState(false);
-    
-    // function fetchData(request = {}) {
-    //     axios.post(route('task.api.list'), request).then((res) => {
-    //         setIsReady(true);
+    function fetchData(request = {}) {
+        axios.post(route('task.api.list'), request).then((res) => {
+            setIsReady(true);
 
-    //         console.log('res.data.data', res.data.data);
-    //         setColumns(res.data.data.datas);
-    //         setStatus(res.data.data.taskStatus);
-    //         setStatusData(res.data.data.statusData);
-    //         setUsers(res.data.data.users);
-    //         setPriority(res.data.data.priority);
-    //         setType(res.data.data.type);
-    //     }).catch((err) => {
-    //         console.error(err);
-    //     });
-    // }
+            console.log('res.data.data', res.data.data);
+            setColumns(res.data.data.datas);
+            setStatus(res.data.data.taskStatus);
+            setStatusData(res.data.data.statusData);
+            setUsers(res.data.data.users);
+            setPriority(res.data.data.priority);
+            setType(res.data.data.type);
+        }).catch((err) => {
+            console.error(err);
+        });
+    }
 
-    // useEffect(() => { fetchData(search) }, []);
+    useEffect(() => { fetchData(search) }, []);
 
     // form data
     const onFinishData = async (values: any) => {
@@ -128,6 +127,16 @@ export default function Dashboard(props: any) {
             .catch(error => {
                 setIsLoadingBtn(false);
             });
+    }
+
+
+
+    // di chuyển item trong mảng
+    function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
+        const result = [...array];
+        const [removed] = result.splice(fromIndex, 1);
+        result.splice(toIndex, 0, removed);
+        return result;
     }
 
     const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
@@ -193,79 +202,6 @@ export default function Dashboard(props: any) {
         });
 
     };
-
-
-    // di chuyển item trong mảng
-    function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
-        const result = [...array];
-        const [removed] = result.splice(fromIndex, 1);
-        result.splice(toIndex, 0, removed);
-        return result;
-    }
-
-    // const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
-    //     const { source, destination } = result;
-    //     if (!destination) return;
-
-    //     if (source.droppableId === destination.droppableId && source.index === destination.index) {
-    //         return;
-    //     }
-
-    //     // Sao chép mảng gốc
-    //     const newDatas = [...columns];
-
-    //     // lấy index của cột
-    //     const source_index = columns.findIndex(item => item.status.id === +source.droppableId);
-    //     const destination_index = columns.findIndex(item => item.status.id === +destination.droppableId);
-
-    //     // data cần di chuyển
-    //     const itemToMove = newDatas[source_index].datas[source.index];
-
-    //     // trường hợp sắp xếp thứ tự trên cùng 1 cột
-    //     if (source.droppableId === destination.droppableId) {
-    //         // sắp xếp lại thứ tự của data
-    //         newDatas[source_index].datas = moveItemInArray(newDatas[source_index].datas, source.index, destination.index);
-
-    //         // save 2 state
-    //         setColumns(newDatas); // Cập nhật state
-
-    //         // lọc ra ids là danh sách id của data sau khi đã sắp xếp
-    //         const ids = newDatas[destination_index].datas.map(item => item.id);
-    //         // save 2 db
-    //         await updateTask(itemToMove.id, {
-    //             task_status_id: destination.droppableId,
-    //             ids: ids,
-    //             parentName: props.parentName,
-    //             pid: props.pid,
-    //         });
-
-    //         return;
-    //     }
-
-    //     // trường hợp di chuyển sang cột khác
-
-    //     // Xoá khỏi vị trí cũ
-    //     newDatas[source_index].datas = newDatas[source_index].datas.filter((_, i) => i !== source.index);
-
-    //     // Thêm vào vị trí mới
-    //     newDatas[destination_index].datas = [...newDatas[destination_index].datas, itemToMove];
-    //     // sắp xếp lại thứ tự của data
-    //     const lastIndex = newDatas[destination_index].datas.length - 1;
-    //     newDatas[destination_index].datas = moveItemInArray(newDatas[destination_index].datas, lastIndex, destination.index);
-
-
-    //     // Cập nhật state
-    //     setColumns(newDatas);
-
-    //     // lọc ra ids là danh sách id của data sau khi đã sắp xếp
-    //     const ids = newDatas[destination_index].datas.map(item => item.id);
-
-    //     await updateTask(itemToMove.id, {
-    //         task_status_id: destination.droppableId,
-    //         ids: ids
-    //     });
-
-    // };
 
     function initialValuesForm() {
         return search;
@@ -354,7 +290,6 @@ export default function Dashboard(props: any) {
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
                         />
-
                     </Modal>
 
                     {/* Thêm mới task */}
@@ -384,7 +319,6 @@ export default function Dashboard(props: any) {
                             type={type}
                             setTypeSubmit={setTypeSubmit}
                         />
-
                     </Modal>
 
                     {/* title */}
@@ -457,7 +391,7 @@ export default function Dashboard(props: any) {
                         {/* content DND */}
                         <Row>
                             <div>
-                                <TaskKanbanBoard
+                                {/* <TaskKanbanBoard
                                     columns={columns}
                                     onDragEnd={onDragEnd}
                                     icon={icon}
@@ -470,11 +404,11 @@ export default function Dashboard(props: any) {
                                     setComments={setComments}
                                     setTaskLog={setTaskLog}
                                     formDesc={formDesc}
-                                />
+                                /> */}
                             </div>
                         </Row>
 
-                        <Drawer
+                        {/* <Drawer
                             title="Chi tiết công việc"
                             placement="right"
                             open={openDetail}
@@ -523,7 +457,7 @@ export default function Dashboard(props: any) {
 
                             <br />
 
-                        </Drawer>
+                        </Drawer> */}
 
                     </div>
                 </div >

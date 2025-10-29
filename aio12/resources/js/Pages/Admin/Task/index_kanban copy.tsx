@@ -80,65 +80,64 @@ export default function Dashboard(props: any) {
 
     const [columns, setColumns] = useState([]);
     const [isReady, setIsReady] = useState(false);
-    
-    // function fetchData(request = {}) {
-    //     axios.post(route('task.api.list'), request).then((res) => {
-    //         setIsReady(true);
+    function fetchData(request = {}) {
+        axios.post(route('task.api.list'), request).then((res) => {
+            setIsReady(true);
 
-    //         console.log('res.data.data', res.data.data);
-    //         setColumns(res.data.data.datas);
-    //         setStatus(res.data.data.taskStatus);
-    //         setStatusData(res.data.data.statusData);
-    //         setUsers(res.data.data.users);
-    //         setPriority(res.data.data.priority);
-    //         setType(res.data.data.type);
-    //     }).catch((err) => {
-    //         console.error(err);
-    //     });
-    // }
+            console.log('res.data.data', res.data.data);
+            setColumns(res.data.data.datas);
+            setStatus(res.data.data.taskStatus);
+            setStatusData(res.data.data.statusData);
+            setUsers(res.data.data.users);
+            setPriority(res.data.data.priority);
+            setType(res.data.data.type);
+        }).catch((err) => {
+            console.error(err);
+        });
+    }
 
-    // useEffect(() => { fetchData(search) }, []);
+    useEffect(() => { fetchData(search) }, []);
 
     // form data
-    // const onFinishData = async (values: any) => {
-    //     // setIsLoadingBtn(true);
-    //     values.typeSubmit = typeSubmit;
-    //     if (values.start) {
-    //         values.start = values.start.format('YYYY-MM-DD');
-    //     }
-    //     if (values.end) {
-    //         values.end = values.end.format('YYYY-MM-DD');
-    //     }
-    //     values.pid = props.pid;
-    //     // const res = await createTask(values);
-    //     axios.post(route('task.add', { parentName: props.parentName }), values)
-    //         .then(response => {
-    //             setIsLoadingBtn(false);
-    //             setColumns(response.data.data);
-    //             message.success("Đã lưu dữ liệu thành công");
+    const onFinishData = async (values: any) => {
+        // setIsLoadingBtn(true);
+        values.typeSubmit = typeSubmit;
+        if (values.start) {
+            values.start = values.start.format('YYYY-MM-DD');
+        }
+        if (values.end) {
+            values.end = values.end.format('YYYY-MM-DD');
+        }
+        values.pid = props.pid;
+        // const res = await createTask(values);
+        axios.post(route('task.add', { parentName: props.parentName }), values)
+            .then(response => {
+                setIsLoadingBtn(false);
+                setColumns(response.data.data);
+                message.success("Đã lưu dữ liệu thành công");
 
-    //             // reset form
-    //             formData.resetFields();
+                // reset form
+                formData.resetFields();
 
-    //             // case lưu và đóng, đóng modal sau khu lưu thành công
-    //             if (typeSubmit === 'save') {
-    //                 setIsModalAddOpen(false);
-    //             }
-    //         })
-    //         .catch(error => {
-    //             setIsLoadingBtn(false);
-    //         });
-    // }
+                // case lưu và đóng, đóng modal sau khu lưu thành công
+                if (typeSubmit === 'save') {
+                    setIsModalAddOpen(false);
+                }
+            })
+            .catch(error => {
+                setIsLoadingBtn(false);
+            });
+    }
 
 
 
     // di chuyển item trong mảng
-    // function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
-    //     const result = [...array];
-    //     const [removed] = result.splice(fromIndex, 1);
-    //     result.splice(toIndex, 0, removed);
-    //     return result;
-    // }
+    function moveItemInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
+        const result = [...array];
+        const [removed] = result.splice(fromIndex, 1);
+        result.splice(toIndex, 0, removed);
+        return result;
+    }
 
     const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
         const { source, destination } = result;
@@ -282,7 +281,7 @@ export default function Dashboard(props: any) {
                         footer={[]}
                         width={1000}
                     >
-                        {/* <TaskExpressForm
+                        <TaskExpressForm
                             users={users}
                             status={status}
                             parentName={props.parentName}
@@ -290,8 +289,7 @@ export default function Dashboard(props: any) {
                             setIsLoadingBtn={setIsLoadingBtn}
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
-                        /> */}
-
+                        />
                     </Modal>
 
                     {/* Thêm mới task */}
@@ -308,7 +306,7 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        {/* <TaskFormModal
+                        <TaskFormModal
                             open={isModalAddOpen}
                             onClose={closeModalAdd}
                             formData={formData}
@@ -320,8 +318,7 @@ export default function Dashboard(props: any) {
                             priority={priority}
                             type={type}
                             setTypeSubmit={setTypeSubmit}
-                        /> */}
-
+                        />
                     </Modal>
 
                     {/* title */}
@@ -380,13 +377,13 @@ export default function Dashboard(props: any) {
                     </Divider>
 
                     {/* form search */}
-                    {/* <TaskSearchForm
+                    <TaskSearchForm
                         formSearch={formSearch}
                         users={users}
                         priority={priority}
                         initialValuesForm={initialValuesForm}
                         onFinishSearch={onFinishSearch}
-                    /> */}
+                    />
 
                     {/* {/* content */}
                     <div className="tasks-container">
@@ -394,7 +391,7 @@ export default function Dashboard(props: any) {
                         {/* content DND */}
                         <Row>
                             <div>
-                                {/* <TaskKanbanBoard
+                                <TaskKanbanBoard
                                     columns={columns}
                                     onDragEnd={onDragEnd}
                                     icon={icon}
@@ -407,11 +404,11 @@ export default function Dashboard(props: any) {
                                     setComments={setComments}
                                     setTaskLog={setTaskLog}
                                     formDesc={formDesc}
-                                /> */}
+                                />
                             </div>
                         </Row>
 
-                        {/* <Drawer
+                        <Drawer
                             title="Chi tiết công việc"
                             placement="right"
                             open={openDetail}
@@ -460,7 +457,7 @@ export default function Dashboard(props: any) {
 
                             <br />
 
-                        </Drawer> */}
+                        </Drawer>
 
                     </div>
                 </div >
