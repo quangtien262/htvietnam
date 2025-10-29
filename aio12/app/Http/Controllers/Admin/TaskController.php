@@ -62,11 +62,11 @@ class TaskController extends Controller
         if ($request->display) {
             $display = $request->display;
         }
-        $project = Project::projectDetail($request->pid);
+        // $project = Project::projectDetail($request->pid);
         $props = [
             'parentName' => $parentName,
             'display' => $display,
-            'project' => $project,
+            // 'project' => $project,
             'pid' => $request->pid ? $request->pid : 0,
             'p' => $request->p ? $request->p : 1,
         ];

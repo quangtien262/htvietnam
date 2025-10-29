@@ -520,10 +520,10 @@ export default function Dashboard(props: any) {
                         
                         {/* title */}
                         <Row>
-                            <Col sm={{ span: 8 }}>
-                                <Link href={route('project.list', { parentName: props.parentName, p: props.p })}> <Button icon={<RollbackOutlined />}> Back </Button> </Link>
+                            <Col sm={{ span: 8 }}>proooooooo
+                                {/* <Link href={route('project.list', { parentName: props.parentName, p: props.p })}> <Button icon={<RollbackOutlined />}> Back </Button> </Link>
                                 <span> </span>
-                                <a><b className="title-page">{props.project.name} </b></a>
+                                <a><b className="title-page">{props.project.name} </b></a> */}
                             </Col>
 
                             <Col sm={{ span: 16 }}>
