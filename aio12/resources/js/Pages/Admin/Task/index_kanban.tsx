@@ -30,10 +30,10 @@ import { taskConfig, taskInfo } from "./task_config";
 import { updateTask } from "../../../Function/api";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-import TaskFormModal from "./TaskFormModal";
-import TaskExpressForm from "./TaskExpressForm";
-import TaskSearchForm from "./TaskSearchForm";
-import TaskKanbanBoard from "./TaskKanbanBoard";
+// import TaskFormModal from "./TaskFormModal";
+// import TaskExpressForm from "./TaskExpressForm";
+// import TaskSearchForm from "./TaskSearchForm";
+// import TaskKanbanBoard from "./TaskKanbanBoard";
 
 
 export default function Dashboard(props: any) {
@@ -80,23 +80,24 @@ export default function Dashboard(props: any) {
 
     const [columns, setColumns] = useState([]);
     const [isReady, setIsReady] = useState(false);
-    function fetchData(request = {}) {
-        axios.post(route('task.api.list'), request).then((res) => {
-            setIsReady(true);
+    
+    // function fetchData(request = {}) {
+    //     axios.post(route('task.api.list'), request).then((res) => {
+    //         setIsReady(true);
 
-            console.log('res.data.data', res.data.data);
-            setColumns(res.data.data.datas);
-            setStatus(res.data.data.taskStatus);
-            setStatusData(res.data.data.statusData);
-            setUsers(res.data.data.users);
-            setPriority(res.data.data.priority);
-            setType(res.data.data.type);
-        }).catch((err) => {
-            console.error(err);
-        });
-    }
+    //         console.log('res.data.data', res.data.data);
+    //         setColumns(res.data.data.datas);
+    //         setStatus(res.data.data.taskStatus);
+    //         setStatusData(res.data.data.statusData);
+    //         setUsers(res.data.data.users);
+    //         setPriority(res.data.data.priority);
+    //         setType(res.data.data.type);
+    //     }).catch((err) => {
+    //         console.error(err);
+    //     });
+    // }
 
-    useEffect(() => { fetchData(search) }, []);
+    // useEffect(() => { fetchData(search) }, []);
 
     // form data
     // const onFinishData = async (values: any) => {
