@@ -376,13 +376,13 @@ export default function Dashboard(props: any) {
                     </Divider>
 
                     {/* form search */}
-                    {/* <TaskSearchForm
+                    <TaskSearchForm
                         formSearch={formSearch}
                         users={users}
                         priority={priority}
                         initialValuesForm={initialValuesForm}
                         onFinishSearch={onFinishSearch}
-                    /> */}
+                    />
 
                     {/* {/* content */}
                     <div className="tasks-container">
