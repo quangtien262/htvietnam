@@ -70,7 +70,16 @@ class TaskController extends Controller
             'pid' => $request->pid ? $request->pid : 0,
             'p' => $request->p ? $request->p : 1,
         ];
-        return Inertia::render('Admin/Task/index_kanban', $props);
+        try {
+            return Inertia::render('Admin/Task/index_kanban', $props);
+            // code xử lý
+        } catch (\Exception $e) {
+            return Inertia::render('Admin/Task/index_kanban', [
+                'error' => $e->getMessage(),
+                // ...other props...
+            ]);
+        }
+        
     }
 
     public function index_api(Request $request)
