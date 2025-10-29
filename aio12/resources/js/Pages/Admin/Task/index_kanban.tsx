@@ -300,7 +300,7 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        {/* <TaskFormModal
+                        <TaskFormModal
                             formData={formData}
                             onFinishData={onFinishData}
                             initialValues={initialValuesForm()}
@@ -311,7 +311,7 @@ export default function Dashboard(props: any) {
                             type={type}
                             setTypeSubmit={setTypeSubmit}
                             setIsModalAddOpen={setIsModalAddOpen}
-                        /> */}
+                        />
                     </Modal>
 
                     {/* title */}
