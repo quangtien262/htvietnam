@@ -7,9 +7,7 @@ import {
     message,
     Modal,
     Form,
-    Input, Timeline,
-    Popconfirm,
-    Popover,
+    Input, 
     Select, Checkbox,
     Row,
     Space, Flex, Progress,
@@ -103,20 +101,20 @@ export default function Dashboard(props: any) {
 
     const [columns, setColumns] = useState([]);
 
-    function fetchData(request = {}) {
-        axios.post(route('task.api.list'), request).then((res) => {
-            console.log('res.data.data', res.data.data);
-            setColumns(res.data.data.datas);
-            setStatus(res.data.data.taskStatus);
-            setStatusData(res.data.data.statusData);
-            setUsers(res.data.data.users);
-            setPriority(res.data.data.priority);
-            setType(res.data.data.type);
-        }).catch((err) => {
-            console.error(err);
-        });
-    }
-    useEffect(() => { fetchData(search) }, []);
+    // function fetchData(request = {}) {
+    //     axios.post(route('task.api.list'), request).then((res) => {
+    //         console.log('res.data.data', res.data.data);
+    //         setColumns(res.data.data.datas);
+    //         setStatus(res.data.data.taskStatus);
+    //         setStatusData(res.data.data.statusData);
+    //         setUsers(res.data.data.users);
+    //         setPriority(res.data.data.priority);
+    //         setType(res.data.data.type);
+    //     }).catch((err) => {
+    //         console.error(err);
+    //     });
+    // }
+    // useEffect(() => { fetchData(search) }, []);
 
     function formAddTaskExpress(users: any) {
         const formAddTaskExpress_default = {
