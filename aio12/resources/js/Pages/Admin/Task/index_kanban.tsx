@@ -280,7 +280,7 @@ export default function Dashboard(props: any) {
                         footer={[]}
                         width={1000}
                     >
-                        {/* <TaskExpressForm
+                        <TaskExpressForm
                             users={users}
                             status={status}
                             parentName={props.parentName}
@@ -288,7 +288,7 @@ export default function Dashboard(props: any) {
                             setIsLoadingBtn={setIsLoadingBtn}
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
-                        /> */}
+                        />
                     </Modal>
 
                     {/* Thêm mới task */}
@@ -305,7 +305,7 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        {/* <TaskFormModal
+                        <TaskFormModal
                             open={isModalAddOpen}
                             onClose={closeModalAdd}
                             formData={formData}
@@ -317,7 +317,7 @@ export default function Dashboard(props: any) {
                             priority={priority}
                             type={type}
                             setTypeSubmit={setTypeSubmit}
-                        /> */}
+                        />
                     </Modal>
 
                     {/* title */}
@@ -376,13 +376,13 @@ export default function Dashboard(props: any) {
                     </Divider>
 
                     {/* form search */}
-                    {/* <TaskSearchForm
+                    <TaskSearchForm
                         formSearch={formSearch}
                         users={users}
                         priority={priority}
                         initialValuesForm={initialValuesForm}
                         onFinishSearch={onFinishSearch}
-                    /> */}
+                    />
 
                     {/* {/* content */}
                     <div className="tasks-container">
@@ -407,7 +407,7 @@ export default function Dashboard(props: any) {
                             </div>
                         </Row>
 
-                        {/* <Drawer
+                        <Drawer
                             title="Chi tiết công việc"
                             placement="right"
                             open={openDetail}
@@ -456,7 +456,7 @@ export default function Dashboard(props: any) {
 
                             <br />
 
-                        </Drawer> */}
+                        </Drawer>
 
                     </div>
                 </div >
