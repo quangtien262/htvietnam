@@ -252,7 +252,7 @@ export default function Dashboard(props: any) {
                     >
                         <div>
 
-                            {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
+                            {/* {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
                                 name: 'Trạng thái',
                                 description: 'Mô tả ',
                                 color: 'Màu chữ',
@@ -260,7 +260,7 @@ export default function Dashboard(props: any) {
                             }, (result: any) => {
                                 setStatusData(result.status);
                                 setColumns(result.columns);
-                            })}
+                            })} */}
 
                             <Row>
                                 <Col sm={24} className="text-center">
@@ -380,13 +380,13 @@ export default function Dashboard(props: any) {
                     </Divider>
 
                     {/* form search */}
-                    {/* <TaskSearchForm
+                    <TaskSearchForm
                         formSearch={formSearch}
                         users={users}
                         priority={priority}
                         initialValuesForm={initialValuesForm}
                         onFinishSearch={onFinishSearch}
-                    /> */}
+                    />
 
                     {/* {/* content */}
                     <div className="tasks-container">
