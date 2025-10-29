@@ -36,7 +36,6 @@ import TaskKanbanBoard from "./TaskKanbanBoard";
 import "../../../../css/list02.css";
 import "../../../../css/task.css";
 import "../../../../css/form.css";
-import { set } from 'lodash';
 
 
 export default function Dashboard(props: any) {
