@@ -305,7 +305,7 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        {/* <TaskFormModal
+                        <TaskFormModal
                             open={isModalAddOpen}
                             onClose={closeModalAdd}
                             formData={formData}
@@ -317,7 +317,7 @@ export default function Dashboard(props: any) {
                             priority={priority}
                             type={type}
                             setTypeSubmit={setTypeSubmit}
-                        /> */}
+                        />
                     </Modal>
 
                     {/* title */}
@@ -415,7 +415,7 @@ export default function Dashboard(props: any) {
                             onClose={() => setOpenDetail(false)}
                             width="90%"
                         >
-                            {taskInfo(props,
+                            {/* {taskInfo(props,
                                 users,
                                 dataAction,
                                 comments,
@@ -452,7 +452,7 @@ export default function Dashboard(props: any) {
                                         setComments(result.comments);
                                     }
 
-                                })}
+                                })} */}
 
                             <br />
 
