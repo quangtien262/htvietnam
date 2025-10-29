@@ -58,6 +58,12 @@ class TaskController extends Controller
      */
     public function index(Request $request, $parentName)
     {
+        $customValue = session('custom_key');
+        if (!$customValue) {
+            return  to_route('task.list', ['parentName' => $parentName])->with('custom_key', true);;
+        }
+
+
         $display = 'kanban'; // kanban, list
         if ($request->display) {
             $display = $request->display;
