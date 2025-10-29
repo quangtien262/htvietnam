@@ -27,13 +27,13 @@ import "../../../../css/task.css";
 import { callApi } from "../../../Function/api";
 import { icon } from "../../../components/comp_icon";
 import { taskConfig, taskInfo } from "./task_config";
-// import { updateTask } from "../../../Function/api";
-// import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { updateTask } from "../../../Function/api";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-// import TaskFormModal from "./TaskFormModal";
-// import TaskExpressForm from "./TaskExpressForm";
-// import TaskSearchForm from "./TaskSearchForm";
-// import TaskKanbanBoard from "./TaskKanbanBoard";
+import TaskFormModal from "./TaskFormModal";
+import TaskExpressForm from "./TaskExpressForm";
+import TaskSearchForm from "./TaskSearchForm";
+import TaskKanbanBoard from "./TaskKanbanBoard";
 
 
 export default function Dashboard(props: any) {
