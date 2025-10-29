@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Link, router } from "@inertiajs/react";
 import axios from "axios";
+import dayjs from "dayjs";
 import {
     Button,
     message,
@@ -10,52 +11,35 @@ import {
     Input,
     Select, Checkbox,
     Row,
-    Space, Flex, Progress,
+    Space,
     Tag,
-    DatePicker,
-    Empty,
-    notification,
     Divider,
-    Col, Drawer,
-    Radio, List
+    Col, Drawer
 } from "antd";
 import {
-    BarsOutlined, FlagFilled,
-    DownOutlined, RollbackOutlined,
-    ToolFilled, ProfileOutlined,
+    RollbackOutlined,
+    ToolFilled,
     DeleteOutlined,
-    EditOutlined, EyeOutlined, CaretRightFilled,
-    DiffFilled, SettingOutlined,
-    InfoCircleFilled, FireFilled,
-    PlusSquareFilled, CheckSquareFilled,
-    CheckOutlined, HddFilled,
+    CheckOutlined,
     CloseSquareOutlined,
-    FileSearchOutlined, FileSyncOutlined,
-    SnippetsFilled, ClockCircleFilled,
-    FileMarkdownOutlined, UserOutlined, UsergroupAddOutlined,
-    ApartmentOutlined, PushpinFilled,
+    ApartmentOutlined,
     SettingFilled, InsertRowAboveOutlined,
-    HomeOutlined, PlusCircleFilled, PlusCircleOutlined
+    PlusCircleFilled, PlusCircleOutlined
 } from "@ant-design/icons";
 
 import "../../../../css/task.css";
 
 import { optionEntries, showInfo } from "../../../Function/common";
 import { callApi } from "../../../Function/api";
-import { DATE_FORMAT, DATE_SHOW, DATE_TIME_FORMAT, TITLE } from "../../../Function/constant";
 import { icon } from "../../../components/comp_icon";
-import { formAddExpress } from "../../../components/comp_data";
 import { taskConfig, taskInfo } from "./task_config";
-
-import {
-    getTasks,
-    createTask,
-    updateTask,
-    deleteTask,
-} from "../../../Function/api";
-import { cloneDeep, set } from "lodash";
-import dayjs from "dayjs";
+import { updateTask } from "../../../Function/api";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
+
+import TaskFormModal from "./TaskFormModal";
+import TaskExpressForm from "./TaskExpressForm";
+import TaskSearchForm from "./TaskSearchForm";
 
 
 export default function Dashboard(props: any) {
@@ -72,9 +56,6 @@ export default function Dashboard(props: any) {
             }
         });
     }, []);
-
-
-
 
     const search = {
         p: props.p,
@@ -135,211 +116,6 @@ export default function Dashboard(props: any) {
     }
     useEffect(() => { fetchData(search) }, []);
 
-    if (!isReady) {
-        return <div>Đang tải dữ liệu...</div>;
-    }
-    return 'xxx';
-
-    function formAddTaskExpress(users: any) {
-        const formAddTaskExpress_default = {
-            name: '',
-            description: '',
-            nguoi_thuc_hien: null,
-            task_status_id: null
-        };
-        const [formAddTaskExpress, setFormAddTaskExpress] = useState([formAddTaskExpress_default, formAddTaskExpress_default, formAddTaskExpress_default]);
-        const [nguoiThucHien_applyAll, setNguoiThucHien_applyAll] = useState(true);
-        const [status_applyAll, setStatus_applyAll] = useState(true);
-
-        function remove(key) {
-            setFormAddTaskExpress(prev =>
-                prev.filter((_, index) => index !== key)
-            );
-        }
-
-        function updateformAddTaskExpres(idx: number, key: string, val: any) {
-            if (key === 'nguoi_thuc_hien' && nguoiThucHien_applyAll) {
-                setFormAddTaskExpress(prev =>
-                    prev.map(item => ({
-                        ...item,
-                        [key]: val
-                    }))
-                );
-                return;
-            }
-
-            if (key === 'task_status_id' && status_applyAll) {
-                setFormAddTaskExpress(prev =>
-                    prev.map(item => ({
-                        ...item,
-                        [key]: val
-                    }))
-                );
-                return;
-            }
-
-            let updated = [...formAddTaskExpress]; // sao chép mảng
-            updated[idx] = { ...updated[idx], [key]: val }; // cập nhật phần tử
-            setFormAddTaskExpress(updated); // cập nhật state
-        };
-
-        function addExpress() {
-            // validation form
-            let isValid = true;
-
-            formAddTaskExpress.forEach((item, index) => {
-                if (item.name && item.name.trim() !== '' && !item.task_status_id) {
-                    isValid = false;
-                    message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
-                }
-            });
-            if (!isValid) return;
-
-            setIsLoadingBtn(true);
-            axios.post(route("task.addTaskExpress", [props.parentName]), {
-                datas: formAddTaskExpress,
-                pid: props.pid
-            }).then((response) => {
-                setIsLoadingBtn(false);
-                setIsModalAddExpress(false);
-                setColumns(response.data.data);
-            }).catch((error) => {
-                message.error("Tạo mới thất bại");
-            });
-        }
-
-        return <table className="table-sub">
-            <thead>
-                <tr>
-                    <th>
-                        <span>Tiêu đề </span>
-                        {showInfo('Chỉ lưu những công việc có nhập nội dung cho tiêu đề. nếu bỏ trống tiêu đề thì sẽ bỏ qua')}
-                    </th>
-                    <th>
-                        <span>Mô tả </span>
-                        {showInfo('Mô tả ngắn về công việc (nếu có)')}
-                    </th>
-                    <th>
-                        <span>Trạng thái </span>
-                        {showInfo('Trạng thái hoặc tiến độ hiện tại của công việc, chọn áp dụng tất cả thì sẽ được áp dụng cho tất cả cho các trạng thái khác giống như trạng thái mà bạn vừa chọn')}
-                        <br />
-                        <Checkbox checked={status_applyAll}
-                            onChange={(e) => { setStatus_applyAll(e.target.checked) }}
-                        >
-                            <em>Áp dụng tất cả</em>
-                        </Checkbox>
-                    </th>
-                    <th>
-                        <span>Người thực hiện </span>
-                        {showInfo('Chọn người làm chính cho công việc này, chọn áp dụng tất cả thì sẽ được áp dụng cho tất cả cho các "Người thực hiện" đều giống như lựa chọn mà bạn vừa chọn')}
-                        <br />
-                        <Checkbox checked={nguoiThucHien_applyAll}
-                            onChange={(e) => { setNguoiThucHien_applyAll(e.target.checked) }}
-                        >
-                            <em>Áp dụng tất cả</em>
-                        </Checkbox>
-                    </th>
-                    <th>Xóa</th>
-                </tr>
-            </thead>
-            {/* form Thêm task express */}
-            {
-                formAddTaskExpress.map((item, key) => {
-
-                    return <tbody key={key}>
-                        <tr>
-                            <td>
-                                <Input value={item.name}
-                                    placeholder="Nhập tiêu đề"
-                                    onChange={(e) => {
-                                        updateformAddTaskExpres(key, 'name', e.target.value);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Input.TextArea value={item.description}
-                                    placeholder="Nhập mô tả ngắn"
-                                    onChange={(e) => {
-                                        updateformAddTaskExpres(key, 'description', e.target.value);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn trạng thái"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(status)}
-                                    value={item.task_status_id}
-                                    onChange={(val) => {
-                                        updateformAddTaskExpres(key, 'task_status_id', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn nhân viên thực hiện"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(users)}
-                                    value={item.nguoi_thuc_hien}
-                                    onChange={(val) => {
-                                        updateformAddTaskExpres(key, 'nguoi_thuc_hien', val);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                                <span onClick={() => remove(key)} title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                })
-            }
-
-            <tbody>
-                <tr>
-                    <td colSpan={4}>
-                        <a className="add-item01">
-                            <span className="icon-b" onClick={() => setFormAddTaskExpress(prev => [...prev, formAddTaskExpress_default])}>
-                                <PlusCircleOutlined /> Thêm mới
-                            </span>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={4}>
-                        <Row className="main-modal-footer01">
-                            <Col span={24} className="main-btn-popup">
-                                <Button className="btn-popup" type="primary" onClick={() => addExpress()} loading={isLoadingBtn}>
-                                    <CheckOutlined />
-                                    TẠO MỚI
-                                </Button>
-                                <span> </span>
-                                <Button className="btn-popup" onClick={() => setIsModalAddExpress(false)} loading={isLoadingBtn}>
-                                    <CloseSquareOutlined />
-                                    ĐÓNG
-                                </Button>
-                            </Col>
-                        </Row>
-                    </td>
-                </tr>
-            </tbody>
-
-        </table>
-    }
 
     // form data
     const onFinishData = async (values: any) => {
@@ -382,7 +158,6 @@ export default function Dashboard(props: any) {
         // const res = await getTasks();
         // const grouped = {1:[],2:[],3:[],4:[]};
         // res.data.forEach((task) => grouped[task.status].push(task));
-
         // setColumns(grouped);
     };
 
@@ -537,7 +312,15 @@ export default function Dashboard(props: any) {
                         footer={[]}
                         width={1000}
                     >
-                        {formAddTaskExpress(users)}
+                        <TaskExpressForm
+                            users={users}
+                            status={status}
+                            parentName={props.parentName}
+                            pid={props.pid}
+                            setIsLoadingBtn={setIsLoadingBtn}
+                            setIsModalAddExpress={setIsModalAddExpress}
+                            setColumns={setColumns}
+                        />
                     </Modal>
 
                     {/* Thêm mới task */}
@@ -554,207 +337,19 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        <Form
-                            name="htvn"
-                            form={formData}
-                            layout="vertical"
-                            onFinish={onFinishData}
-                            autoComplete="off"
+                        <TaskFormModal
+                            open={isModalAddOpen}
+                            onClose={closeModalAdd}
+                            formData={formData}
+                            onFinishData={onFinishData}
                             initialValues={initialValuesForm()}
-                            className="form-popup"
-                        >
-
-                            <Row>
-                                <Col sm={24}>
-                                    <Form.Item name='task_status_id' label='Chọn trạng thái' rules={[{ required: true, message: 'Vui lòng nhập trạng thái công việc', }]}>
-                                        <Radio.Group
-                                            block
-                                            optionType="button"
-                                            buttonStyle="solid"
-                                            defaultValue={1}
-                                            options={Object.entries(status).map(([key, value]) => {
-                                                return {
-                                                    value: value.id,
-                                                    label: value.name,
-                                                    key: value.id,
-                                                }
-                                            })}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                {/* Nội dung chi tiết */}
-                                <Col sm={{ span: 16 }}>
-                                    <Row>
-                                        <Col sm={{ span: 24 }} className="main-item-form">
-                                            <div>
-                                                <Divider orientation="left"><Space>Nội dung chi tiết</Space></Divider>
-                                            </div>
-                                        </Col>
-
-                                        <Col sm={{ span: 24 }}>
-                                            {/* Tên công việc */}
-                                            <Form.Item className="item-form-textarea" name='name' label="Tên công việc" rules={[{ required: true, message: 'Vui lòng nhập tên công việc', }]}>
-                                                <Input />
-                                            </Form.Item>
-                                        </Col>
-
-
-                                        <Col sm={{ span: 24 }}>
-                                            <Form.Item className="item-form" name='nguoi_thuc_hien' label="Người thực hiện">
-                                                <Select
-                                                    showSearch
-                                                    style={{ width: "100%" }}
-                                                    placeholder="Chọn nhân viên thực hiện"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) =>
-                                                        (option?.label ?? "")
-                                                            .toLowerCase()
-                                                            .includes(input.toLowerCase())
-                                                    }
-                                                    options={optionEntries(users)}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col sm={{ span: 24 }}>
-                                            <Form.Item className="item-form" name='nguoi_theo_doi' label="Người phối hợp thực hiện hoặc theo dõi">
-                                                <Select showSearch
-                                                    mode="multiple"
-                                                    style={{ width: "100%" }}
-                                                    placeholder="Người phối hợp thực hiện hoặc theo dõi"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) =>
-                                                        (option?.label ?? "")
-                                                            .toLowerCase()
-                                                            .includes(input.toLowerCase())
-                                                    }
-                                                    options={optionEntries(users)}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col sm={{ span: 24 }}>
-                                            {/* Mô tả chi tiết */}
-                                            <Form.Item className="item-form-textarea" name='description' label="Mô tả thêm">
-                                                <Input.TextArea rows={4} />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-                                </Col>
-
-                                {/* Cài đặt */}
-                                <Col sm={{ span: 8 }}>
-                                    <Row>
-                                        <Col sm={{ span: 24 }} className="main-item-form">
-                                            <div>
-                                                <Divider orientation="left"><Space>Cài đặt</Space></Divider>
-                                            </div>
-                                        </Col>
-                                        {/* Độ ưu tiên */}
-                                        <Col sm={{ span: 24 }}>
-                                            <Form.Item className="item-form" name='task_priority_id' label="Độ ưu tiên">
-                                                <Select showSearch
-                                                    style={{ width: "100%" }}
-                                                    placeholder="Chọn mức độ ưu tiên"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) =>
-                                                        (option?.label ?? "")
-                                                            .toLowerCase()
-                                                            .includes(input.toLowerCase())
-                                                    }
-                                                    options={optionEntries(priority)}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                        {/* Loại công việc */}
-                                        <Col sm={{ span: 24 }}>
-                                            <Form.Item className="item-form" name='task_type_ids' label="Loại công việc">
-                                                <Select showSearch
-                                                    style={{ width: "100%" }}
-                                                    placeholder="Chọn loại công việc"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) =>
-                                                        (option?.label ?? "")
-                                                            .toLowerCase()
-                                                            .includes(input.toLowerCase())
-                                                    }
-                                                    options={optionEntries(type)}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        {/* Ngày bắt đầu */}
-                                        <Col sm={{ span: 24 }} className="main-item-form">
-                                            <Form.Item className="item-form" name='start' label="Ngày bắt đầu">
-                                                <DatePicker format='DD/MM/YYYY' />
-                                            </Form.Item>
-                                        </Col>
-
-                                        {/* Ngày hoàn thành */}
-                                        <Col sm={{ span: 24 }} className="main-item-form">
-                                            <Form.Item className="item-form" name='end' label="Ngày hoàn thành">
-                                                <DatePicker format='DD/MM/YYYY' />
-                                            </Form.Item>
-                                        </Col>
-
-                                        {/* Người giao việc */}
-                                        <Col sm={{ span: 24 }} className="main-item-form">
-                                            <Form.Item className="item-form" name='nguoi_tạo' label="Người giao việc">
-                                                <Select showSearch
-                                                    style={{ width: "100%" }}
-                                                    placeholder="Chọn mức độ ưu tiên"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) =>
-                                                        (option?.label ?? "")
-                                                            .toLowerCase()
-                                                            .includes(input.toLowerCase())
-                                                    }
-                                                    options={optionEntries(users)}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col sm={{ span: 24 }}></Col>
-                                    </Row>
-                                </Col>
-
-                                {/* footer */}
-                                <Col sm={{ span: 24 }}>
-                                    <Col span={24} className="main-btn-popup">
-                                        <Button className="btn-popup"
-                                            onClick={() => closeModalAdd(false)}
-                                        >
-                                            <CloseSquareOutlined />
-                                            Hủy
-                                        </Button>
-                                        <span> </span>
-                                        <Button className="btn-popup btn-success" type="primary" loading={isLoadingBtn}
-                                            onClick={() => {
-                                                setTypeSubmit('save');
-                                                formData.submit();
-                                            }}
-                                        >
-                                            <CheckOutlined />
-                                            Lưu và đóng
-                                        </Button>
-                                        <span> </span>
-                                        <Button className="btn-popup" type="primary"
-                                            loading={isLoadingBtn}
-                                            onClick={() => {
-                                                setTypeSubmit('save_continue');
-                                                formData.submit();
-                                            }}
-                                        >
-                                            <PlusCircleOutlined />
-                                            Lưu và thêm mới
-                                        </Button>
-                                    </Col>
-                                </Col>
-                            </Row>
-                        </Form>
+                            isLoadingBtn={isLoadingBtn}
+                            status={status}
+                            users={users}
+                            priority={priority}
+                            type={type}
+                            setTypeSubmit={setTypeSubmit}
+                        />
                     </Modal>
 
                     {/* title */}
@@ -813,92 +408,13 @@ export default function Dashboard(props: any) {
                     </Divider>
 
                     {/* form search */}
-                    <Form
-                        name="formSearch"
-                        form={formSearch}
-                        layout="vertical"
-                        onFinish={onFinishSearch}
-                        // onFinishFailed={onFinishFailedChamCong}
-                        autoComplete="off"
-                        initialValues={initialValuesForm()}
-                        className="form-popup"
-                    >
-                        <Row>
-                            <Col sm={6}>
-                                <Form.Item name="keyword" label="Từ khóa">
-                                    <Input placeholder="Nhập từ khóa"
-                                        onBlur={() => formSearch.submit()}
-                                        allowClear={true}
-                                        onClear={() => formSearch.submit()}
-                                    />
-                                </Form.Item>
-                            </Col>
-
-                            <Col sm={6}>
-                                <Form.Item name="pic" label="Người làm chính">
-                                    <Select
-                                        allowClear={true}
-                                        onClear={() => formSearch.submit()}
-                                        showSearch
-                                        placeholder="Chọn người làm chính"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                        filterSort={(optionA, optionB) =>
-                                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                                        }
-                                        options={Object.keys(users).map((key) => ({
-                                            label: users[key].name,
-                                            value: users[key].id.toString()
-                                        }))}
-                                        onChange={(e) => formSearch.submit()} />
-                                </Form.Item>
-                            </Col>
-
-                            <Col sm={6}>
-                                <Form.Item name="support" label="Người làm cùng">
-                                    <Select showSearch
-                                        allowClear={true}
-                                        onClear={() => formSearch.submit()}
-                                        placeholder="Chọn người làm cùng"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                        filterSort={(optionA, optionB) =>
-                                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                                        }
-                                        options={Object.keys(users).map((key) => ({
-                                            label: users[key].name,
-                                            value: users[key].id.toString()
-                                        }))}
-                                        onChange={(e) => formSearch.submit()} />
-                                </Form.Item>
-                            </Col>
-
-                            <Col sm={6}>
-                                <Form.Item name="priority" label="Mức độ ưu tiên">
-                                    <Select showSearch
-                                        allowClear={true}
-                                        onClear={() => formSearch.submit()}
-                                        placeholder="Chọn mức độ ưu tiên"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                        filterSort={(optionA, optionB) =>
-                                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                                        }
-                                        options={Object.keys(priority).map((key) => ({
-                                            label: priority[key].name,
-                                            value: priority[key].id.toString()
-                                        }))}
-                                        onChange={(e) => formSearch.submit()} />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Form>
+                    <TaskSearchForm
+                        formSearch={formSearch}
+                        users={users}
+                        priority={priority}
+                        initialValuesForm={initialValuesForm}
+                        onFinishSearch={onFinishSearch}
+                    />
 
                     {/* {/* content */}
                     <div className="tasks-container">
