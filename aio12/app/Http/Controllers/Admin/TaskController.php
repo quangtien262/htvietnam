@@ -58,12 +58,6 @@ class TaskController extends Controller
      */
     public function index(Request $request, $parentName)
     {
-        $customValue = session('custom_key');
-        if (!$customValue) {
-            return  to_route('task.list', ['parentName' => $parentName])->with('custom_key', true);;
-        }
-
-
         $display = 'kanban'; // kanban, list
         if ($request->display) {
             $display = $request->display;
@@ -76,16 +70,9 @@ class TaskController extends Controller
             'pid' => $request->pid ? $request->pid : 0,
             'p' => $request->p ? $request->p : 1,
         ];
-        try {
-            return Inertia::render('Admin/Task/index_kanban', $props);
-            // code xử lý
-        } catch (\Exception $e) {
-            return Inertia::render('Admin/Task/index_kanban', [
-                'error' => $e->getMessage(),
-                // ...other props...
-            ]);
-        }
-        
+
+        return Inertia::render('Admin/Task/index_kanban', $props);
+
     }
 
     public function index_api(Request $request)

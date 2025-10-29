@@ -33,22 +33,10 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import TaskFormModal from "./TaskFormModal";
 import TaskExpressForm from "./TaskExpressForm";
 import TaskSearchForm from "./TaskSearchForm";
+import TaskKanbanBoard from "./TaskKanbanBoard";
 
 
 export default function Dashboard(props: any) {
-    useEffect(() => {
-        window.addEventListener("pageshow", (event) => {
-            // Nếu event.persisted là true thì là reload từ cache (refresh)
-            // Nếu performance.navigation.type === 0 thì là enter thẳng vào link
-            if (performance && performance.navigation && performance.navigation.type === 0) {
-                console.log("User vừa enter thẳng vào link này!");
-                alert("User vừa enter thẳng vào link này!");
-            } else if (event.persisted) {
-                console.log("User vừa refresh lại trang!");
-                alert("User vừa refresh lại trang!");
-            }
-        });
-    }, []);
 
     const search = {
         p: props.p,
@@ -107,8 +95,8 @@ export default function Dashboard(props: any) {
             console.error(err);
         });
     }
-    useEffect(() => { fetchData(search) }, []);
 
+    useEffect(() => { fetchData(search) }, []);
 
     // form data
     const onFinishData = async (values: any) => {
@@ -141,18 +129,6 @@ export default function Dashboard(props: any) {
             });
     }
 
-
-    useEffect(() => {
-        fetchTasks();
-    }, []);
-
-    // get task data
-    const fetchTasks = async () => {
-        // const res = await getTasks();
-        // const grouped = {1:[],2:[],3:[],4:[]};
-        // res.data.forEach((task) => grouped[task.status].push(task));
-        // setColumns(grouped);
-    };
 
 
     // di chuyển item trong mảng
@@ -415,85 +391,20 @@ export default function Dashboard(props: any) {
                         {/* content DND */}
                         <Row>
                             <div>
-                                <DragDropContext onDragEnd={onDragEnd}>
-                                    <div style={{ display: "flex", gap: "5px" }}>
-                                        {Object.entries(columns).map(([idx, value]) => (
-                                            <Droppable key={idx} droppableId={value.status.id.toString()} index={idx}>
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.droppableProps}
-                                                        style={{
-                                                            backgroundColor: snapshot.isDraggingOver
-                                                                ? "#e0f7fa"
-                                                                : "#f1f1f1",
-                                                            borderRadius: 8,
-                                                            width: 280,
-                                                            minHeight: 500
-                                                        }}
-                                                        className={`main-task bg-gray-100 rounded p-4 min-h-[400px] ${snapshot.isDraggingOver ? "bg-blue-100" : ""}`}
-                                                    >
-
-                                                        {/* show status name */}
-                                                        <p className="title-task"
-                                                            style={{
-                                                                backgroundColor: value.status.background ? value.status.background : '#64748b',
-                                                                color: value.status.color ? value.status.color : '#64748b',
-                                                            }}
-                                                        >
-                                                            {value.status.icon ? icon[value.status.icon] : ''}
-                                                            <span> </span>
-                                                            {value.status.name}
-                                                        </p>
-
-                                                        {value.datas.map((task, index) => (
-                                                            <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                                                                {(provided, snapshot) => (
-                                                                    <div
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}
-                                                                        style={{
-                                                                            ...provided.draggableProps.style,
-                                                                        }}
-                                                                        className={`item-task bg-white p-3 mb-2 rounded shadow ${snapshot.isDragging ? "bg-blue-200" : ""}`}
-                                                                    >
-                                                                        <div className="">
-                                                                            <h3 className="title04 click"
-                                                                                onClick={async () => {
-                                                                                    setOpenDetail(true);
-                                                                                    setDataAction(task);
-                                                                                    const res = await callApi(route('task.getTaskInfo', [task.id]));
-                                                                                    setChecklist(res.data.data.checklist);
-                                                                                    setChecklistPercent(res.data.data.percent);
-                                                                                    setComments(res.data.data.comments);
-                                                                                    setTaskLog(res.data.data.logs);
-                                                                                    if (formDesc) {
-                                                                                        formDesc.setFieldValue('description', task.description);
-                                                                                    }
-                                                                                }}
-                                                                            >
-                                                                                {priority[task.task_priority_id] ? <Tag color={priority[task.task_priority_id].color}>{priority[task.task_priority_id].name}</Tag> : ''}
-                                                                                {task.name}
-                                                                            </h3>
-
-                                                                            <p className="description01">{task.description}</p>
-
-                                                                            {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{users[task.nguoi_thuc_hien].name}</Tag>}
-                                                                            <p className="deadline"><em>{task.end ? dayjs(task.end).format('DD/MM/YYYY') : ''}</em></p>
-                                                                        </div>
-
-                                                                    </div>
-                                                                )}
-                                                            </Draggable>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                    </div>
-                                                )}
-                                            </Droppable>
-                                        ))}
-                                    </div>
-                                </DragDropContext>
+                                <TaskKanbanBoard
+                                    columns={columns}
+                                    onDragEnd={onDragEnd}
+                                    icon={icon}
+                                    priority={priority}
+                                    users={users}
+                                    setOpenDetail={setOpenDetail}
+                                    setDataAction={setDataAction}
+                                    setChecklist={setChecklist}
+                                    setChecklistPercent={setChecklistPercent}
+                                    setComments={setComments}
+                                    setTaskLog={setTaskLog}
+                                    formDesc={formDesc}
+                                />
                             </div>
                         </Row>
 
