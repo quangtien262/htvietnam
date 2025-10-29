@@ -32,8 +32,8 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import TaskFormModal from "./TaskFormModal";
 import TaskExpressForm from "./TaskExpressForm";
-// import TaskSearchForm from "./TaskSearchForm";
-// import TaskKanbanBoard from "./TaskKanbanBoard";
+import TaskSearchForm from "./TaskSearchForm";
+import TaskKanbanBoard from "./TaskKanbanBoard";
 
 
 export default function Dashboard(props: any) {
