@@ -236,7 +236,37 @@ export default function Dashboard(props: any) {
                     </Modal>
 
                     {/* Cài đặt trạng thái */}
-                    
+                    <Modal title="Cài đặt trạng thái"
+                        className="status-setting"
+                        open={isShowStatusSetting}
+                        onCancel={() => closePopupStatus()}
+                        footer={[]}
+                    >
+                        <div>
+
+                            {/* {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: search, pid: props.pid }, {
+                                name: 'Trạng thái',
+                                description: 'Mô tả ',
+                                color: 'Màu chữ',
+                                background: 'Màu nền',
+                            }, (result: any) => {
+                                setStatusData(result.status);
+                                setColumns(result.columns);
+                            })} */}
+
+                            <Row>
+                                <Col sm={24} className="text-center">
+                                    <br />
+                                    <Button type="primary"
+                                        className="btn-submit01"
+                                        onClick={() => closePopupStatus()}>
+                                        Đóng
+                                    </Button>
+                                </Col>
+                            </Row>
+
+                        </div>
+                    </Modal>
 
                     {/* Thêm nhanh công việc */}
                     <Modal title="Thêm nhanh"
@@ -270,7 +300,7 @@ export default function Dashboard(props: any) {
                             xxl: '40%',
                         }}
                     >
-                        <TaskFormModal
+                        {/* <TaskFormModal
                             formData={formData}
                             onFinishData={onFinishData}
                             initialValues={initialValuesForm()}
@@ -281,7 +311,7 @@ export default function Dashboard(props: any) {
                             type={type}
                             setTypeSubmit={setTypeSubmit}
                             setIsModalAddOpen={setIsModalAddOpen}
-                        />
+                        /> */}
                     </Modal>
 
                     {/* title */}
