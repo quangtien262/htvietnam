@@ -138,6 +138,7 @@ export default function Dashboard(props: any) {
     if (!isReady) {
         return <div>Đang tải dữ liệu...</div>;
     }
+    return 'xxx';
 
     function formAddTaskExpress(users: any) {
         const formAddTaskExpress_default = {
