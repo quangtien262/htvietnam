@@ -276,7 +276,7 @@ export default function Dashboard(props: any) {
                         footer={[]}
                         width={1000}
                     >
-                        <TaskExpressForm
+                        {/* <TaskExpressForm
                             users={users}
                             status={status}
                             parentName={props.parentName}
@@ -284,7 +284,7 @@ export default function Dashboard(props: any) {
                             setIsLoadingBtn={setIsLoadingBtn}
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
-                        />
+                        /> */}
                     </Modal>
 
                     {/* Thêm mới task */}
