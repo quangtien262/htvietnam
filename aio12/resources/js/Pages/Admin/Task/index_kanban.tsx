@@ -407,7 +407,7 @@ export default function Dashboard(props: any) {
                             </div>
                         </Row>
 
-                        {/* <Drawer
+                        <Drawer
                             title="Chi tiết công việc"
                             placement="right"
                             open={openDetail}
@@ -456,7 +456,7 @@ export default function Dashboard(props: any) {
 
                             <br />
 
-                        </Drawer> */}
+                        </Drawer>
 
                     </div>
                 </div >
