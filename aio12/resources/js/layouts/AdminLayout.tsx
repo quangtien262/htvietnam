@@ -50,7 +50,6 @@ export default function Admin({
 
     // Lấy token từ cookie và gắn vào header
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    console.log('token', token);
 
     if (token) {
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
