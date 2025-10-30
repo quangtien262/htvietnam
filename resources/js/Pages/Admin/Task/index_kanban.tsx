@@ -848,11 +848,7 @@ export default function Dashboard(props: any) {
                                 <Col sm={16}>
                                     {/* tiêu đề */}
                                     <div>
-                                        <Button className="btn-edit-title"><EditOutlined /></Button>
-                                    </div>
-                                    <div>
                                         <h3>{dataAction.name}</h3>
-
                                     </div>
 
 
