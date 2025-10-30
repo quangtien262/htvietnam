@@ -853,7 +853,7 @@ export default function Dashboard(props: any) {
                                         <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
-                                            onConfirm={confirmEditTitle}
+                                            // onConfirm={confirmEditTitle}
                                             description="1111"
                                         >
                                             <Button className="_right">
