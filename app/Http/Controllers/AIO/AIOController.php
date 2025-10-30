@@ -24,6 +24,6 @@ class AIOController extends Controller
         $param = [
             //
         ];
-        return View('AIO.Pages.dashboard', $param);
+        return View('AIO.pages.dashboard', $param);
     }
 }
