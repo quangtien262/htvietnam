@@ -41,6 +41,12 @@ Route::middleware('auth:web')->group(function () {
 Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [PagesController::class, 'index'])->name('home');
     // Route::get('/', [AdminController::class, 'index'])->name('home');
+
+    Route::group(['prefix' => 'aio'], function () {
+        require __DIR__ . '/aio.php';
+    });
+
+
     Route::group(['prefix' => 'adm'], function () {
         require __DIR__ . '/admin_route.php';
         require __DIR__ . '/admin_web_route.php';

@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\SoQuyController;
 use App\Http\Controllers\Admin\TaiSanController;
 use App\Http\Controllers\Admin\TaskController;
 
-Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
 
 
 Route::get('/', [AdminController::class, 'index'])->name('dashboard__01');

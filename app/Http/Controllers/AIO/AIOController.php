@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\AIO;
 
 use App\Models\Admin\ChiNhanh;
 use Illuminate\Http\Request;
@@ -21,6 +21,9 @@ class AIOController extends Controller
 
     public function dashboard()
     {
-        return Inertia::render('Admin/Pages/index', $param);
+        $param = [
+            //
+        ];
+        return View('AIO.Pages.dashboard', $param);
     }
 }
