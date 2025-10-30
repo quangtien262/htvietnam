@@ -2289,7 +2289,7 @@ class TblService extends Service
 
 
 
-    protected function getDataSelect02($tableName, $conditions)
+    protected function getDataSelect02($tableName, $conditions = [])
     {
         $data = DB::table($tableName)->where('is_recycle_bin', 0);
         if (!empty($conditions)) {
@@ -2297,7 +2297,7 @@ class TblService extends Service
                 $data = $data->where($key, $val);
             }
         }
-        $data = $data->orderBy('sort_order', 'desc')->get();
+        $data = $data->orderBy('sort_order', 'asc')->get();
         $result = [];
         $i = [];
         foreach ($data as $item) {
@@ -2308,6 +2308,6 @@ class TblService extends Service
                 'background' => isset($item->background) ? $item->background : '',
             ];
         }
-        $result[$tableName] = $i;
+        return $i;
     }
 }

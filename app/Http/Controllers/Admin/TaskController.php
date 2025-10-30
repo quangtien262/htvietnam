@@ -77,14 +77,15 @@ class TaskController extends Controller
 
     public function index_api(Request $request)
     {
+        // dd($request->all());
         $parentName = $request->parentName;
         $table = Table::where('name', $parentName)->first();
 
-        $priority = TblService::getDataSelect02('task_priority', ['parent_name' => $parentName]);
+        $status = TblService::getDataSelect02('task_status', ['parent_name' => $parentName]);
         $type = TblService::getDataSelect02('task_type', ['parent_name' => $parentName]);
+        $priority = TblService::getDataSelect02('task_priority', ['parent_name' => $parentName]);
 
         // $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
-        $status = TblService::getDataSelect02('task_status', ['parent_name' => $parentName]);
         $admin = Auth::guard('admin_users')->user();
 
         $statusTable = Table::where('name', 'task_status')->first();

@@ -100,14 +100,6 @@ export default function Dashboard(props: any) {
 
     useEffect(() => { fetchData(search) }, []);
 
-    function initialValuesForm() {
-        return search;
-    }
-
-    function closeModalAdd() {
-        setIsModalAddOpen(false);
-    }
-
 
     function closePopupStatus() {
         setIsShowStatusSetting(false);

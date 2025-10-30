@@ -111,7 +111,7 @@ export default function TaskExpressForm({
                         {showInfo('Chọn người làm chính cho công việc này, chọn áp dụng tất cả thì sẽ được áp dụng cho tất cả cho các "Người thực hiện" đều giống như lựa chọn mà bạn vừa chọn')}
                         <br />
                         <Checkbox checked={nguoiThucHien_applyAll}
-                            onChange={(e) => { setNguoiThucHien_applyAll(e.target.checked) }}
+                            onChange={(e) => setNguoiThucHien_applyAll(e.target.checked)}
                         >
                             <em>Áp dụng tất cả</em>
                         </Checkbox>
@@ -125,17 +125,13 @@ export default function TaskExpressForm({
                         <td>
                             <Input value={item.name}
                                 placeholder="Nhập tiêu đề"
-                                onChange={(e) => {
-                                    updateformAddTaskExpres(key, 'name', e.target.value);
-                                }}
+                                onChange={(e) => updateformAddTaskExpres(key, 'name', e.target.value)}
                             />
                         </td>
                         <td>
                             <Input.TextArea value={item.description}
                                 placeholder="Nhập mô tả ngắn"
-                                onChange={(e) => {
-                                    updateformAddTaskExpres(key, 'description', e.target.value);
-                                }}
+                                onChange={(e) => updateformAddTaskExpres(key, 'description', e.target.value)}
                             />
                         </td>
                         <td>
@@ -151,9 +147,7 @@ export default function TaskExpressForm({
                                 }
                                 options={status}
                                 value={item.task_status_id}
-                                onChange={(val) => {
-                                    updateformAddTaskExpres(key, 'task_status_id', val);
-                                }}
+                                onChange={(val) => updateformAddTaskExpres(key, 'task_status_id', val)}
                             />
                         </td>
                         <td>
@@ -169,9 +163,7 @@ export default function TaskExpressForm({
                                 }
                                 options={users}
                                 value={item.nguoi_thuc_hien}
-                                onChange={(val) => {
-                                    updateformAddTaskExpres(key, 'nguoi_thuc_hien', val);
-                                }}
+                                onChange={(val) => updateformAddTaskExpres(key, 'nguoi_thuc_hien', val)}
                             />
                         </td>
                         <td>
