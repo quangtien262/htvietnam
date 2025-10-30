@@ -847,11 +847,13 @@ export default function Dashboard(props: any) {
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
-                                    <h3>
-                                        {dataAction.name}
-                                    </h3>
-
+                                    <div>
+                                        <h3>{dataAction.name}</h3>
                                         <a className="_right"><EditOutlined /></a>
+                                    </div>
+
+
+
 
 
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
