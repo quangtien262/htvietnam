@@ -885,7 +885,7 @@ export default function Dashboard(props: any) {
                                     </div>
 
                                     {/* Checklist */}
-                                    {/* <div>
+                                    <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Checklist</span>
                                             <span> | </span>
@@ -972,7 +972,7 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div> */}
+                                    </div>
 
                                     {/* Comment */}
                                     {/* <div>
