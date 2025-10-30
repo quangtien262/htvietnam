@@ -57,7 +57,7 @@ export default function TaskFormModal({
                 className="form-popup"
             >
                 <Row>
-                    <Col sm={24}>
+                    {/* <Col sm={24}>
                         <Form.Item name='task_status_id' label='Chọn trạng thái' rules={[{ required: true, message: 'Vui lòng nhập trạng thái công việc', }]}>
                             <Radio.Group
                                 block
@@ -71,7 +71,8 @@ export default function TaskFormModal({
                                 }))}
                             />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
+
                 </Row>
 
                 <Row>
