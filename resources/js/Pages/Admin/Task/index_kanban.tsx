@@ -850,10 +850,10 @@ export default function Dashboard(props: any) {
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                        <Button className="_right">
+                                    </h3>
+                                    <Button className="_right">
                                                 <EditOutlined />
                                             </Button>
-                                    </h3>
                                     {/* <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p> */}
 
                                     {/* Mô tả */}
