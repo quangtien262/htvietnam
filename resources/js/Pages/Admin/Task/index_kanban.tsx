@@ -854,8 +854,8 @@ export default function Dashboard(props: any) {
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
-                                        <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                                        <span> | </span>
+                                        {/* <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                                        <span> | </span> */}
                                         {/* <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
