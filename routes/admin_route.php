@@ -450,7 +450,7 @@ Route::group(['prefix' => 'bds'], function () {
     Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
 });
 
-Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');
+
 
 
 Route::group(['prefix' => 'meeting'], function () {

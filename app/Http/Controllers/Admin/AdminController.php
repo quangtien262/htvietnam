@@ -19,6 +19,15 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
 
+    function getMenusDashboard(Request $request)
+    {
+        $menus = AdminMenu::where('parent_id', 0)
+            ->where('is_active', 1)
+            ->orderBy('sort_order', 'asc')
+            ->get();
+        return $this->sendSuccessResponse($menus);
+    }
+
     public function dashboard()
     {
         $tables = TblService::getAdminMenu(0);
@@ -65,16 +74,16 @@ class AdminController extends Controller
             ->orderByDesc('created_at')
             ->limit(10)
             ->get();
-        
+
         // get 20 log mới nhất
         $logs = Log::orderBy('id', 'desc')->limit(20)->get();
-        
+
         $param = [
             'viewStats' => $viewStats,
             // 'viewStatsIp' => $viewStatsIp,
             'contacts' => $contacts,
             'orders' => $orders,
-            'logs' => $logs, 
+            'logs' => $logs,
             'menus' => TblService::getMenus($request->p),
             'p' => $request->p
         ];
@@ -246,5 +255,5 @@ class AdminController extends Controller
         $menus = TblService::getMenus($request->p);
         return $this->sendSuccessResponse($menus);
     }
-    
+
 }

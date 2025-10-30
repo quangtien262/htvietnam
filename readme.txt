@@ -14,6 +14,8 @@ Tải bản cài đặt tại: https://github.com/tesseract-ocr/tesseract
 Cài đặt và thêm đường dẫn thư mục chứa tesseract.exe vào biến môi trường PATH.
 
 
+# xoa cache:
+php artisan cache:clear; php artisan config:clear; php artisan route:clear; php artisan view:clear
 
 
 #Contructor AIO

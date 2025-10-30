@@ -1,3 +1,5 @@
+@extends('AIO.aio_layout')
 
-
-dsad
+@section('content')
+<div id="react-root"></div>
+@endsection

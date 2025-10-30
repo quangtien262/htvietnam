@@ -23,12 +23,6 @@ use Illuminate\Support\Facades\Auth;
 class TaskController extends Controller
 {
 
-    public function dashboard(Request $request)
-    {
-        $viewData = [];
-        return Inertia::render('Admin/Dashboard/task', $viewData);
-    }
-
     public function getTaskInfo(Request $request, $taskId = 0)
     {
         if (empty($taskId)) {
@@ -51,54 +45,23 @@ class TaskController extends Controller
     }
 
     /**
-     * Summary of index
-     * @param \Illuminate\Http\Request $request
-     * @param mixed $parentName
-     * @return \Inertia\Response
+     * get all data
+     *
+     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $parentName)
-    {
-        $display = 'kanban'; // kanban, list
-        if ($request->display) {
-            $display = $request->display;
-        }
-        $project = Project::projectDetail($request->pid);
-        $props = [
-            'parentName' => $parentName,
-            'display' => $display,
-            'project' => $project,
-            'pid' => $request->pid ? $request->pid : 0,
-            'p' => $request->p ? $request->p : 1,
-            'searchData' => [
-                'parentName' => $parentName,
-                'display' => $display,
-                'pid' => $request->pid ? $request->pid : 0,
-                'keyword' => $request->keyword ? $request->keyword : '',
-                'priority' => $request->priority ? $request->priority : [],
-                'type' => $request->type ? $request->type : [],
-                'pic' => $request->pic ? $request->pic : [],
-                'status' => $request->status ? $request->status : [],
-            ],
-        ];
-
-        return Inertia::render('Admin/Task/index_kanban', $props);
-
-    }
-
-    public function index_api(Request $request)
+    public function listApi(Request $request)
     {
         // dd($request->all());
         $parentName = $request->parentName;
-        $table = Table::where('name', $parentName)->first();
 
-        // $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
-        $status = TblService::getDataSelect02('task_status', ['parent_name' => $parentName]);
+        $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
+        $taskStatus = TblService::getDataSelect02('task_status', ['parent_name' => $parentName]);
         $type = TblService::getDataSelect02('task_type', ['parent_name' => $parentName]);
         $priority = TblService::getDataSelect02('task_priority', ['parent_name' => $parentName]);
         $users = TblService::getDataSelect02('users');
         $admin = Auth::guard('admin_users')->user();
 
-        $statusTable = Table::where('name', 'task_status')->first();
+        // $statusTable = Table::where('name', 'task_status')->first();
         $statusData = DB::table('task_status')
             ->select('sort_order as sort', 'id as key', 'task_status.*')
             ->where('is_recycle_bin', 0)
@@ -107,23 +70,15 @@ class TaskController extends Controller
             ->get()
             ->toArray();
 
-
-        // $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
-        // $users_byID = [];
-        // foreach ($users as $u) {
-        //     $users_byID[$u['id']] = $u;
-        // }
-        // get chi nhanh
-
         $props = [
-            'table' => $table,
-            'taskStatus' => $status,
+            'taskStatus' => $taskStatus,
             'users' => $users,
             'priority' => $priority,
             'type' => $type,
             'admin' => $admin,
             'statusData' => $statusData,
-            'statusTable' => $statusTable,
+            // 'statusTable' => $statusTable,
+            'parentName' => $parentName,
         ];
 
         if ($request->display == 'list') {

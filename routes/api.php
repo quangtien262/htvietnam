@@ -20,9 +20,12 @@ use App\Http\Controllers\Admin\TblController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+
 Route::post('/data/import/{tableId}', [DataController::class, 'importExcel'])->name('data.import');
 
 // Route::post('/data/upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
