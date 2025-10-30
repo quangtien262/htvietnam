@@ -713,33 +713,33 @@ export default function Dashboard(props: any) {
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                        <Popconfirm placement="bottomLeft"
+                                        {/* <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={() => {
                                                 formTitle.submit();
                                             }}
-                                            // description={
-                                            //     <Form
-                                            //         name="formTitle"
-                                            //         form={formTitle}
-                                            //         layout="vertical"
-                                            //         onFinish={(values) => {
-                                            //             updateTaskByColumn(dataAction.id, 'name', values.name);
-                                            //         }}
-                                            //         autoComplete="off"
-                                            //         initialValues={{ name: dataAction.name }}
-                                            //     >
-                                            //         <Form.Item className="edit-description" name='name' label=''>
-                                            //             <Input />
-                                            //         </Form.Item>
-                                            //     </Form>
-                                            // }
+                                            description={
+                                                <Form
+                                                    name="formTitle"
+                                                    form={formTitle}
+                                                    layout="vertical"
+                                                    onFinish={(values) => {
+                                                        updateTaskByColumn(dataAction.id, 'name', values.name);
+                                                    }}
+                                                    autoComplete="off"
+                                                    initialValues={{ name: dataAction.name }}
+                                                >
+                                                    <Form.Item className="edit-description" name='name' label=''>
+                                                        <Input />
+                                                    </Form.Item>
+                                                </Form>
+                                            }
                                         >
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
                                             </a>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
                                     </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
@@ -1318,9 +1318,9 @@ export default function Dashboard(props: any) {
                                             </div>
 
                                         ]}
-                                        renderItem={(item) => (
-                                            <List.Item>{item}</List.Item>
-                                        )}
+                                        // renderItem={(item) => (
+                                        //     <List.Item>{item}</List.Item>
+                                        // )}
                                     />
 
                                     <div><br /></div>
