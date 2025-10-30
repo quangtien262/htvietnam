@@ -2306,6 +2306,7 @@ class TblService extends Service
                 'label' => $item->name,
                 'color' => isset($item->color) ? $item->color : '',
                 'background' => isset($item->background) ? $item->background : '',
+                'icon' => isset($item->icon) ? $item->icon : '',
             ];
         }
         return $i;

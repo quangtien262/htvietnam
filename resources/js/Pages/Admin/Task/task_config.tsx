@@ -306,8 +306,6 @@ export function taskInfo(props: any,
 
     const [isModalChecklist, setIsModalChecklist] = useState(false);
 
-
-    console.log('checklist', checklist);
     // formChecklist
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
@@ -697,7 +695,7 @@ export function taskInfo(props: any,
                     pagination={{
                         pageSize: 10, //  số item mỗi trang
                     }}
-                    
+
                     dataSource={!checklist ? [] : checklist.map((item: any) => { return item; })}
                     locale={{ emptyText: 'Danh sách checklist trống' }}
                     renderItem={(item, key) => (

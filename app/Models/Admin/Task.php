@@ -24,13 +24,15 @@ class Task extends Model
             'tasks.end as end',
             'tasks.actual as actual',
             'tasks.project_id as project_id',
+
             'tasks.nguoi_thuc_hien as nguoi_thuc_hien',
             'tasks.nguoi_theo_doi as nguoi_theo_doi',
+
             'tasks.task_priority_id as task_priority_id',
             'tasks.task_status_id as task_status_id',
             'tasks.task_type_ids as task_type_ids',
-            'tasks.tags as tags',
 
+            'tasks.tags as tags',
 
             'task_status.name as task_status_name',
             'task_status.color as task_status_color',

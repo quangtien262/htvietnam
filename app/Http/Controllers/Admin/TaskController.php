@@ -69,6 +69,16 @@ class TaskController extends Controller
             'project' => $project,
             'pid' => $request->pid ? $request->pid : 0,
             'p' => $request->p ? $request->p : 1,
+            'searchData' => [
+                'parentName' => $parentName,
+                'display' => $display,
+                'pid' => $request->pid ? $request->pid : 0,
+                'keyword' => $request->keyword ? $request->keyword : '',
+                'priority' => $request->priority ? $request->priority : [],
+                'type' => $request->type ? $request->type : [],
+                'pic' => $request->pic ? $request->pic : [],
+                'status' => $request->status ? $request->status : [],
+            ],
         ];
 
         return Inertia::render('Admin/Task/index_kanban', $props);
