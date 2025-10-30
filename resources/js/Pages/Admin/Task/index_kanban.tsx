@@ -686,7 +686,7 @@ export default function Dashboard(props: any) {
                                 </Modal>
 
                                 {/* form comment */}
-                                {/* <Modal title="Thêm comment"
+                                <Modal title="Thêm comment"
                                     open={isModalComment}
                                     onCancel={() => setIsModalComment(false)}
                                     footer={[]}
@@ -707,13 +707,13 @@ export default function Dashboard(props: any) {
                                             Lưu comment
                                         </Button>
                                     </Form>
-                                </Modal> */}
+                                </Modal>
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                        <Popconfirm placement="bottomLeft"
+                                        {/* <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={() => {
@@ -739,7 +739,7 @@ export default function Dashboard(props: any) {
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
                                             </a>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
                                     </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
