@@ -294,7 +294,7 @@ export default function Dashboard(props: any) {
                     </Modal>
 
                     {/* Thêm mới task */}
-                    <TaskFormModal
+                    {/* <TaskFormModal
                         open={isModalAddOpen}
                         onClose={closeModalAdd}
                         formData={formData}
@@ -306,7 +306,7 @@ export default function Dashboard(props: any) {
                         priority={priority}
                         type={type}
                         setTypeSubmit={setTypeSubmit}
-                    />
+                    /> */}
                     {/* title */}
                     <Row>
                         <Col sm={{ span: 8 }}>
