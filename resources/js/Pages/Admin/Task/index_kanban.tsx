@@ -48,7 +48,7 @@ import { set } from "lodash";
 
 
 export default function Dashboard(props: any) {
-    const searchData = props.searchData || {};
+    const searchData = props.searchData;
     const [status, setStatus] = useState([]);
     const [statusData, setStatusData] = useState([]);
     const [taskLog, setTaskLog] = useState([]);
@@ -388,119 +388,122 @@ export default function Dashboard(props: any) {
 
 
     {/* form Thêm checklist */ }
-    // function formAddTaskChecklist(users: any) {
+    function formAddTaskChecklist(users: any) {
 
 
-    //     return <table className="table-sub">
-    //         <thead>
-    //             <tr>
-    //                 <th>Tiêu đề</th>
-    //                 <th>Mô tả</th>
-    //                 <th>
-    //                     Người thực hiện
-    //                     <br />
-    //                     <Checkbox checked={isApplyAll}
-    //                         onChange={(e) => setIsApplyAll(e.target.checked)}
-    //                     >
-    //                         Áp dụng tất cả
-    //                     </Checkbox>
-    //                 </th>
-    //                 <th>Xóa</th>
-    //             </tr>
-    //         </thead>
-    //         {
-    //             formChecklist.map((item, key) => {
-    //                 return <tbody key={key}>
-    //                     <tr>
-    //                         <td>
-    //                             <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
-    //                         </td>
-    //                         <td>
-    //                             <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
-    //                         </td>
-    //                         <td>
-    //                             <Select
-    //                                 showSearch
-    //                                 style={{ width: "100%" }}
-    //                                 placeholder="Chọn nhân viên thực hiện"
-    //                                 optionFilterProp="children"
-    //                                 filterOption={(input, option) =>
-    //                                     (option?.label ?? "")
-    //                                         .toLowerCase()
-    //                                         .includes(input.toLowerCase())
-    //                                 }
-    //                                 value={item.admin_user_id}
-    //                                 options={users}
-    //                                 onChange={(value) => {
-    //                                     if (!isApplyAll) {
-    //                                         updateChecklistByIndex(key, { admin_user_id: value });
-    //                                     }
-    //                                     setFormChecklist(prev =>
-    //                                         prev.map(item => ({
-    //                                             ...item,
-    //                                             admin_user_id: value
-    //                                         }))
-    //                                     );
-    //                                     return;
+        return <table className="table-sub">
+            <thead>
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Mô tả</th>
+                    <th>
+                        Người thực hiện
+                        <br />
+                        <Checkbox checked={isApplyAll}
+                            onChange={(e) => setIsApplyAll(e.target.checked)}
+                        >
+                            Áp dụng tất cả
+                        </Checkbox>
+                    </th>
+                    <th>Xóa</th>
+                </tr>
+            </thead>
+            {
+                formChecklist.map((item, key) => {
+                    return <tbody key={key}>
+                        <tr>
+                            <td>
+                                <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+                            </td>
+                            <td>
+                                <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
+                            </td>
+                            <td>
+                                <Select
+                                    showSearch
+                                    style={{ width: "100%" }}
+                                    placeholder="Chọn nhân viên thực hiện"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? "")
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                    value={item.admin_user_id}
+                                    options={users}
+                                    onChange={(value) => {
+                                        if (!isApplyAll) {
+                                            updateChecklistByIndex(key, { admin_user_id: value });
+                                        }
+                                        setFormChecklist(prev =>
+                                            prev.map(item => ({
+                                                ...item,
+                                                admin_user_id: value
+                                            }))
+                                        );
+                                        return;
 
-    //                                 }}
-    //                             />
-    //                         </td>
-    //                         {
-    //                             checkListAction.id === 0 ? (
-    //                                 <td>
-    //                                     <span onClick={() => removeFormChecklist(key)}
-    //                                         title="Xóa"
-    //                                         className="icon-large cursor"
-    //                                         key="list-loadmore-more">
-    //                                         <DeleteOutlined />
-    //                                     </span>
-    //                                 </td>
-    //                             ) : null
-    //                         }
+                                    }}
+                                />
+                            </td>
+                            {
+                                checkListAction.id === 0 ? (
+                                    <td>
+                                        <span onClick={() => removeFormChecklist(key)}
+                                            title="Xóa"
+                                            className="icon-large cursor"
+                                            key="list-loadmore-more">
+                                            <DeleteOutlined />
+                                        </span>
+                                    </td>
+                                ) : null
+                            }
 
-    //                     </tr>
+                        </tr>
 
-    //                 </tbody>
-    //             })
-    //         }
+                    </tbody>
+                })
+            }
 
-    //         <tbody>
-    //             {
-    //                 checkListAction.id === 0 ? (
-    //                     <tr>
-    //                         <td colSpan={4}>
-    //                             <a className="add-item01" onClick={() => addFormCheckList()}>
-    //                                 <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
-    //                             </a>
-    //                         </td>
-    //                     </tr>
-    //                 ) : null
-    //             }
+            <tbody>
+                {
+                    checkListAction.id === 0 ? (
+                        <tr>
+                            <td colSpan={4}>
+                                <a className="add-item01" onClick={() => addFormCheckList()}>
+                                    <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
+                                </a>
+                            </td>
+                        </tr>
+                    ) : null
+                }
 
-    //             <tr>
-    //                 <td colSpan={4}>
-    //                     <Row className="main-modal-footer01">
-    //                         <Col span={24} className="main-btn-popup">
-    //                             <span> </span>
-    //                             <Button className="btn-popup"
-    //                                 loading={isLoadingBtn}
-    //                                 type="primary"
-    //                                 onClick={() => createChecklist()}
-    //                             >
-    //                                 <CheckOutlined />
-    //                                 Lưu Checklist
-    //                             </Button>
-    //                         </Col>
-    //                     </Row>
-    //                 </td>
-    //             </tr>
-    //         </tbody>
+                <tr>
+                    <td colSpan={4}>
+                        <Row className="main-modal-footer01">
+                            <Col span={24} className="main-btn-popup">
+                                <span> </span>
+                                <Button className="btn-popup"
+                                    loading={isLoadingBtn}
+                                    type="primary"
+                                    onClick={() => createChecklist()}
+                                >
+                                    <CheckOutlined />
+                                    Lưu Checklist
+                                </Button>
+                            </Col>
+                        </Row>
+                    </td>
+                </tr>
+            </tbody>
 
-    //     </table>
-    // }
+        </table>
+    }
 
     // end detail
+    function closeModalAdd() {
+        setIsModalAddOpen(false);
+    }
 
     return (
         <div>
@@ -570,19 +573,19 @@ export default function Dashboard(props: any) {
                     </Modal>
 
                     {/* Thêm mới task */}
-                    {/* <TaskFormModal
+                    <TaskFormModal
                         open={isModalAddOpen}
                         onClose={closeModalAdd}
                         formData={formData}
                         onFinishData={onFinishData}
-                        initialValues={initialValuesForm()}
+                        initialValues={searchData}
                         isLoadingBtn={isLoadingBtn}
                         status={status}
                         users={users}
                         priority={priority}
                         type={type}
                         setTypeSubmit={setTypeSubmit}
-                    /> */}
+                    />
                     {/* title */}
                     <Row>
                         <Col sm={{ span: 8 }}>
@@ -633,8 +636,8 @@ export default function Dashboard(props: any) {
                     <Divider orientation="left" className="divider02">
                         <Space>
                             <span><ToolFilled /> Tìm kiếm</span>
-                            {/* <span> | </span> */}
-                            {/* <a className="title-search"> Tìm kiếm nâng cao</a> */}
+                            <span> | </span>
+                            <a className="title-search"> Tìm kiếm nâng cao</a>
                         </Space>
                     </Divider>
 
@@ -682,149 +685,20 @@ export default function Dashboard(props: any) {
                             {/* detail */}
 
                             <Row>
-                                {/* modal Thêm checklist */}
+                                {/* Thêm checklist */}
                                 <Modal title="Thêm checklist"
                                     open={isModalChecklist}
-                                    onCancel={cancelCheckList}
+                                    onCancel={() => setIsModalChecklist(false)}
                                     footer={[]}
                                     width={1000}
                                 >
-                                    <table className="table-sub">
-                                        <thead>
-                                            <tr>
-                                                <th>Tiêu đề</th>
-                                                <th>Mô tả</th>
-                                                <th>
-                                                    Người thực hiện
-                                                    <br />
-                                                    <Checkbox checked={isApplyAll}
-                                                        onChange={(e) => setIsApplyAll(e.target.checked)}
-                                                    >
-                                                        Áp dụng tất cả
-                                                    </Checkbox>
-                                                </th>
-                                                <th>Xóa</th>
-                                            </tr>
-                                        </thead>
-                                        {
-                                            formChecklist.map((item, key) => {
-                                                return <tbody key={key}>
-                                                    <tr>
-                                                        <td>
-                                                            <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
-                                                        </td>
-                                                        <td>
-                                                            <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
-                                                        </td>
-                                                        <td>
-                                                            <Select
-                                                                showSearch
-                                                                style={{ width: "100%" }}
-                                                                placeholder="Chọn nhân viên thực hiện"
-                                                                optionFilterProp="children"
-                                                                filterOption={(input, option) =>
-                                                                    (option?.label ?? "")
-                                                                        .toLowerCase()
-                                                                        .includes(input.toLowerCase())
-                                                                }
-                                                                value={item.admin_user_id}
-                                                                options={users}
-                                                                onChange={(value) => {
-                                                                    if (!isApplyAll) {
-                                                                        updateChecklistByIndex(key, { admin_user_id: value });
-                                                                    }
-                                                                    setFormChecklist(prev =>
-                                                                        prev.map(item => ({
-                                                                            ...item,
-                                                                            admin_user_id: value
-                                                                        }))
-                                                                    );
-                                                                    return;
-
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        {
-                                                            checkListAction.id === 0 ? (
-                                                                <td>
-                                                                    <span onClick={() => removeFormChecklist(key)}
-                                                                        title="Xóa"
-                                                                        className="icon-large cursor"
-                                                                        key="list-loadmore-more">
-                                                                        <DeleteOutlined />
-                                                                    </span>
-                                                                </td>
-                                                            ) : null
-                                                        }
-
-                                                    </tr>
-
-                                                </tbody>
-                                            })
-                                        }
-
-                                        <tbody>
-                                            {
-                                                checkListAction.id === 0 ? (
-                                                    <tr>
-                                                        <td colSpan={4}>
-                                                            <a className="add-item01" onClick={() => addFormCheckList()}>
-                                                                <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                ) : null
-                                            }
-
-                                            <tr>
-                                                <td colSpan={4}>
-                                                    <Row className="main-modal-footer01">
-                                                        <Col span={24} className="main-btn-popup">
-                                                            <span> </span>
-                                                            <Button className="btn-popup"
-                                                                loading={isLoadingBtn}
-                                                                type="primary"
-                                                                onClick={() => createChecklist()}
-                                                            >
-                                                                <CheckOutlined />
-                                                                Lưu Checklist
-                                                            </Button>
-                                                        </Col>
-                                                    </Row>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-
-                                    </table>
+                                    {formAddTaskChecklist(users)}
                                 </Modal>
 
-                                {/* modal form comment */}
+                                {/* form comment */}
                                 <Modal title="Thêm comment"
                                     open={isModalComment}
-                                    onCancel={cancelComment}
-                                    footer={[]}
-                                >
-                                    <Form
-                                        name="formComment"
-                                        form={formComment}
-                                        layout="vertical"
-                                        onFinish={onFinishFormComment}
-                                        autoComplete="off"
-                                    >
-                                        <Form.Item className="edit-description" name='content' label=''>
-                                            <Input.TextArea rows={4} />
-                                        </Form.Item>
-
-                                        <Button type="primary" htmlType="submit" loading={isLoadingBtn}>
-                                            <CopyOutlined />
-                                            Lưu comment
-                                        </Button>
-                                    </Form>
-                                </Modal>
-
-                                <Modal title="Sửa tiêu đề"
-                                    open={isModalComment}
-                                    onCancel={cancelComment}
+                                    onCancel={() => setIsModalComment(false)}
                                     footer={[]}
                                 >
                                     <Form
@@ -847,16 +721,43 @@ export default function Dashboard(props: any) {
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
-                                    <div>
-                                        <h3>{dataAction.name}</h3>
-                                    </div>
+                                    <h3>
+                                        {dataAction.name}
+                                        <Popconfirm placement="bottomLeft"
+                                            title="Sửa tiêu đề"
+                                            trigger="click"
+                                            onConfirm={() => {
+                                                formTitle.submit();
+                                            }}
+                                            description={
+                                                <Form
+                                                    name="formTitle"
+                                                    form={formTitle}
+                                                    layout="vertical"
+                                                    onFinish={(values) => {
+                                                        updateTaskByColumn(dataAction.id, 'name', values.name);
+                                                    }}
+                                                    autoComplete="off"
+                                                    initialValues={{ name: dataAction.name }}
+                                                >
+                                                    <Form.Item className="edit-description" name='name' label=''>
+                                                        <Input />
+                                                    </Form.Item>
+                                                </Form>
+                                            }
+                                        >
+                                            <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
+                                                <EditOutlined />
+                                            </a>
+                                        </Popconfirm>
+                                    </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
                                     {/* Mô tả */}
-                                    <Divider orientation="left">zzzzz
-                                        {/* <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                                        <span> | </span> */}
-                                        {/* <Popconfirm
+                                    <Divider orientation="left">
+                                        <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                                        <span> | </span>
+                                        <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
                                             okButtonProps={{ loading: isLoadingBtn }}
@@ -877,7 +778,7 @@ export default function Dashboard(props: any) {
                                             }
                                         >
                                             <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm> */}
+                                        </Popconfirm>
 
                                     </Divider>
                                     <div>
@@ -975,7 +876,7 @@ export default function Dashboard(props: any) {
                                     </div>
 
                                     {/* Comment */}
-                                    {/* <div>
+                                    <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Comment</span>
                                             <span> | </span>
@@ -1047,12 +948,390 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div> */}
+                                    </div>
                                 </Col>
 
                                 {/* right */}
                                 <Col sm={8}>
+                                    <List
+                                        header={<b><InfoCircleFilled /> Thông tin chi tiết</b>}
+                                        footer={<div></div>}
+                                        bordered
+                                        dataSource={[
+                                            // status
+                                            <div className="item03">
+                                                <a><PushpinFilled /> </a>
+                                                <span>Trạng thái: </span>
+                                                {
+                                                    !dataAction.task_status_id
+                                                        ?
+                                                        <span className="value-list">Chưa xác định</span>
+                                                        :
+                                                        <>
+                                                            <Tag style={{ color: dataAction.task_status_color, background: dataAction.task_status_background }}>
+                                                                <span>{dataAction.task_status_icon ? icon[dataAction.task_status_icon] : ''} </span>
+                                                                <span> {dataAction.task_status_name}</span>
+                                                            </Tag>
+                                                        </>
+                                                }
+                                                <Popover placement="bottomLeft"
+                                                    title="Chọn trạng thái"
+                                                    trigger="click"
+                                                    content={
+                                                        <List
+                                                            itemLayout="horizontal"
+                                                            dataSource={status}
+                                                            renderItem={(item: any, key) => (
+                                                                <p style={{ color: item.background }}
+                                                                    className="cursor"
+                                                                    onClick={() => updateTaskByColumn(dataAction.id, 'task_status_id', item.value)}
+                                                                >
+                                                                    {icon[item.icon]} {item.label}
+                                                                </p>
+                                                            )}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <DownOutlined />
+                                                    </a>
+                                                </Popover>
+                                            </div>,
 
+                                            // độ ưu tiên
+                                            <div className="item03">
+                                                <a><FireFilled /> </a>
+                                                <span>Độ ưu tiên: </span>
+                                                {
+                                                    !dataAction.task_priority_id
+                                                        ?
+                                                        <span className="value-list">Chưa xác định</span>
+                                                        :
+                                                        <Tag style={{ color: dataAction.task_priority_color }}>{dataAction.task_priority_name} </Tag>
+
+                                                }
+                                                <Popover placement="bottomLeft"
+                                                    title="Chọn mức độ ưu tiên"
+                                                    trigger="click"
+                                                    content={
+                                                        <List
+                                                            itemLayout="horizontal"
+                                                            dataSource={priority}
+                                                            renderItem={(item: any, key: number) => (
+                                                                <p style={{ color: item.color }}
+                                                                    className="cursor"
+                                                                    onClick={() => updateTaskByColumn(dataAction.id, 'task_priority_id', item.value)}
+                                                                >
+                                                                    <CaretRightFilled /> {item.label}
+                                                                </p>
+                                                            )}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <DownOutlined />
+                                                    </a>
+                                                </Popover>
+
+                                            </div>,
+
+                                            // người thực hiện
+                                            <div className="item03">
+                                                <a><UserOutlined /> </a>
+                                                <span>Người thực hiện: </span>
+                                                <Popover placement="bottomLeft"
+                                                    title="Chọn người thực hiện"
+                                                    trigger="click"
+                                                    content={
+                                                        <Select
+                                                            showSearch
+                                                            style={{ width: "100%" }}
+                                                            value={dataAction.nguoi_thuc_hien}
+                                                            placeholder="Chọn nhân viên thực hiện"
+                                                            optionFilterProp="children"
+                                                            options={users}
+                                                            filterOption={(input, option) =>
+                                                                (option?.label ?? "")
+                                                                    .toLowerCase()
+                                                                    .includes(input.toLowerCase())
+                                                            }
+                                                            onChange={(value) => {
+                                                                updateTaskByColumn(dataAction.id, 'nguoi_thuc_hien', value);
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                                <p>
+                                                    {
+                                                        !dataAction.nguoi_thuc_hien
+                                                            ?
+                                                            <span className="value-list">Chưa xác định</span>
+                                                            :
+                                                            <Tag style={{ color: '#03ba56ff' }}>{dataAction.assignee_name} </Tag>
+                                                    }
+                                                </p>
+
+                                            </div>,
+
+                                            // Chọn người Làm cùng hoặc theo dõi
+                                            <div className="item03">
+                                                <a><UsergroupAddOutlined /> </a>
+                                                Làm cùng hoặc theo dõi:
+                                                <Popover placement="bottomLeft"
+                                                    title="Chọn người Làm cùng hoặc theo dõi"
+                                                    trigger="click"
+                                                    content={
+                                                        <Select
+                                                            showSearch
+                                                            mode="multiple"
+                                                            style={{ width: "100%" }}
+                                                            value={dataAction.nguoi_theo_doi}
+                                                            placeholder="Chọn nhân viên thực hiện"
+                                                            optionFilterProp="children"
+                                                            options={users}
+                                                            filterOption={(input, option) =>
+                                                                (option?.label ?? "")
+                                                                    .toLowerCase()
+                                                                    .includes(input.toLowerCase())
+                                                            }
+                                                            onChange={(value) => updateTaskByColumn(dataAction.id, 'nguoi_theo_doi', value)}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+
+                                                <p>
+                                                    {
+                                                        !dataAction.nguoi_theo_doi
+                                                            ?
+                                                            <span className="value-list">Chưa xác định</span>
+                                                            :
+                                                            <div>
+                                                                {dataAction.nguoi_theo_doi.map((item, key) => (
+                                                                    <Tag color="cyan" key={key}>{users[item] ? users[item].name : ''} </Tag>
+                                                                ))}
+                                                            </div>
+                                                    }
+                                                </p>
+                                            </div>,
+
+                                            // Tags
+                                            <div className="item03">
+                                                <a><HddFilled /> </a>
+                                                <span>Tags: </span>
+                                                <Popover placement="bottomLeft"
+                                                    title="Thêm tags"
+                                                    trigger="click"
+                                                    content={
+                                                        <Select
+                                                            showSearch
+                                                            mode="tags"
+                                                            style={{ width: "100%" }}
+                                                            value={dataAction.tags}
+                                                            placeholder="Chọn nhân viên thực hiện"
+                                                            optionFilterProp="children"
+                                                            filterOption={(input, option) =>
+                                                                (option?.label ?? "")
+                                                                    .toLowerCase()
+                                                                    .includes(input.toLowerCase())
+                                                            }
+                                                            onChange={(value) => updateTaskByColumn(dataAction.id, 'tags', value)}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                                <p>
+                                                    {
+                                                        !dataAction.tags
+                                                            ?
+                                                            <span className="value-list">Chưa xác định</span>
+                                                            :
+                                                            <div>
+                                                                {dataAction.tags.map((item, key) => (
+                                                                    <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
+                                                                ))}
+                                                            </div>
+                                                    }
+                                                </p>
+                                            </div>,
+
+                                            // Thời gian
+                                            <div className="item03">
+                                                <b><PushpinFilled />  Thời gian: </b>
+                                            </div>,
+
+                                            // Ngày tạo
+                                            <div>
+                                                <a><ClockCircleFilled /> </a>
+                                                Ngày tạo:
+                                                <span className="value-list"> {dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_SHOW) : ''}</span>
+                                            </div>,
+                                            // Ngày cập nhật
+                                            <div className="item03">
+                                                <a><FlagFilled /> </a>
+                                                Bắt đầu:
+                                                <span className="value-list"> {dataAction.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                                                <Popover placement="bottomLeft"
+                                                    title="Ngày bắt đầu"
+                                                    trigger="click"
+                                                    content={
+                                                        <DatePicker format='DD/MM/YYYY'
+                                                            onChange={(date) => {
+                                                                updateTaskByColumn(dataAction.id, 'start', date.format('YYYY-MM-DD'));
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                            </div>,
+
+                                            // ngày hoàn thành
+                                            <div className="item03">
+                                                <a><ScheduleFilled /> </a>
+                                                Hoàn thành:
+                                                <span className="value-list"> {dataAction.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                                                <Popover placement="bottomLeft"
+                                                    title="Ngày hoàn thành"
+                                                    trigger="click"
+                                                    content={
+                                                        <DatePicker format='DD/MM/YYYY'
+                                                            onChange={(date) => {
+                                                                updateTaskByColumn(dataAction.id, 'end', date.format('YYYY-MM-DD'));
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                            </div>,
+
+                                            // ngày thực tế
+                                            <div className="item03">
+                                                <a><CheckSquareFilled /> </a>
+                                                Thực tế:
+                                                <span className="value-list"> {dataAction.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                                                <Popover placement="bottomLeft"
+                                                    title="Ngày hoàn thành"
+                                                    trigger="click"
+                                                    content={
+                                                        <DatePicker format='DD/MM/YYYY'
+                                                            onChange={(date) => {
+                                                                updateTaskByColumn(dataAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                            </div>,
+
+
+                                            <div className="item03">
+                                                <b><DiffFilled />  Thêm vào meeting: </b>
+                                                <Popover placement="bottomLeft"
+                                                    title="Thêm vào meeting"
+                                                    trigger="click"
+                                                    content={
+                                                        <Row>
+                                                            <Col span={24}>
+                                                                <Checkbox value="1"
+                                                                    onChange={(e) => {
+                                                                        let status = 0;
+                                                                        if (e.target.checked) {
+                                                                            status = 1;
+                                                                        }
+                                                                        updateTaskByColumn(dataAction.id, 'is_daily', status);
+                                                                    }}
+                                                                    checked={dataAction.is_daily}>Daily</Checkbox>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Checkbox value="is_weekly"
+                                                                    onChange={(e) => {
+                                                                        let status = 0;
+                                                                        if (e.target.checked) {
+                                                                            status = 1;
+                                                                        }
+                                                                        updateTaskByColumn(dataAction.id, 'is_weekly', status);
+                                                                    }}
+                                                                    checked={dataAction.is_weekly}>Weekly</Checkbox>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Checkbox value="1"
+                                                                    onChange={(e) => {
+                                                                        let status = 0;
+                                                                        if (e.target.checked) {
+                                                                            status = 1;
+                                                                        }
+                                                                        updateTaskByColumn(dataAction.id, 'is_monthly', status);
+                                                                    }}
+                                                                    checked={dataAction.is_monthly}>Monthly</Checkbox>
+                                                            </Col>
+                                                        </Row>
+                                                    }
+                                                >
+                                                    <a onClick={(e) => e.preventDefault()} className="_right">
+                                                        <EditOutlined />
+                                                    </a>
+                                                </Popover>
+                                            </div>,
+
+                                            // daily
+                                            <div className="item03">
+                                                <a><FileSyncOutlined /> </a>
+                                                Daily:
+                                                <span className="value-list"> {dataAction.is_daily ? 'Có' : 'Không'}</span>
+                                            </div>,
+
+                                            // weekly
+                                            <div className="item03">
+                                                <a><FileSearchOutlined /> </a>
+                                                Weekly:
+                                                <span className="value-list"> {dataAction.is_weekly ? 'Có' : 'Không'}</span>
+                                            </div>,
+
+                                            // monthly
+                                            <div className="item03">
+                                                <a><FileMarkdownOutlined /> </a>
+                                                Monthly:
+                                                <span className="value-list"> {dataAction.is_monthly ? 'Có' : 'Không'}</span>
+                                            </div>,
+
+                                            // delete
+                                            <div className="item03">
+                                                <Popconfirm
+                                                    icon={<DeleteOutlined />}
+                                                    title="Xác nhận xóa"
+                                                    description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
+                                                    onConfirm={() => {
+                                                        handleDelete(dataAction.id, status);
+                                                    }}
+                                                >
+                                                    <Button className="_right"><DeleteOutlined /> Xóa </Button>
+                                                </Popconfirm>
+                                            </div>
+
+                                        ]}
+                                        renderItem={(item) => (
+                                            <List.Item>{item}</List.Item>
+                                        )}
+                                    />
 
                                     <div><br /></div>
 
