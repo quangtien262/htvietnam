@@ -854,27 +854,14 @@ export default function Dashboard(props: any) {
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={confirmEditTitle}
-                                            description={<Form
-                                                name="formTitle"
-                                                form={formTitle}
-                                                layout="vertical"
-                                                onFinish={(values) => {
-                                                    updateTaskByColumn(dataAction.id, 'name', values.name);
-                                                }}
-                                                autoComplete="off"
-                                                initialValues={{ name: dataAction.name }}
-                                            >
-                                                <Form.Item className="edit-description" name='name' label=''>
-                                                    <Input />
-                                                </Form.Item>
-                                            </Form>}
+                                            description="1111"
                                         >
-                                            <Button onClick={onClickEditTitle} className="_right">
+                                            <Button className="_right">
                                                 <EditOutlined />
                                             </Button>
                                         </Popconfirm>
                                     </h3>
-                                    <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
+                                    {/* <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p> */}
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
