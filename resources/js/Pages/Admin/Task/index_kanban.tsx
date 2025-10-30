@@ -848,8 +848,11 @@ export default function Dashboard(props: any) {
                                 <Col sm={16}>
                                     {/* tiêu đề */}
                                     <div>
+                                            <a className="_right"><EditOutlined /></a>
+                                    </div>
+                                    <div>
                                         <h3>{dataAction.name}</h3>
-                                        <a className="_right"><EditOutlined /></a>
+
                                     </div>
 
 
