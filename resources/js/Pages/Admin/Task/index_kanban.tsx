@@ -676,17 +676,17 @@ export default function Dashboard(props: any) {
 
                             <Row>
                                 {/* Thêm checklist */}
-                                {/* <Modal title="Thêm checklist"
+                                <Modal title="Thêm checklist"
                                     open={isModalChecklist}
                                     onCancel={() => setIsModalChecklist(false)}
                                     footer={[]}
                                     width={1000}
                                 >
                                     {formAddTaskChecklist(users)}
-                                </Modal> */}
+                                </Modal>
 
                                 {/* form comment */}
-                                {/* <Modal title="Thêm comment"
+                                <Modal title="Thêm comment"
                                     open={isModalComment}
                                     onCancel={() => setIsModalComment(false)}
                                     footer={[]}
@@ -707,13 +707,13 @@ export default function Dashboard(props: any) {
                                             Lưu comment
                                         </Button>
                                     </Form>
-                                </Modal> */}
+                                </Modal>
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
                                     <h3>
-                                        {/* {dataAction.name} */}
-                                        {/* <Popconfirm placement="bottomLeft"
+                                        {dataAction.name}
+                                        <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={() => {
@@ -739,15 +739,15 @@ export default function Dashboard(props: any) {
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
                                             </a>
-                                        </Popconfirm> */}
+                                        </Popconfirm>
                                     </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
-                                        {/* <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                                        <span> | </span> */}
-                                        {/* <Popconfirm
+                                        <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                                        <span> | </span>
+                                        <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
                                             okButtonProps={{ loading: isLoadingBtn }}
@@ -768,15 +768,15 @@ export default function Dashboard(props: any) {
                                             }
                                         >
                                             <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm> */}
+                                        </Popconfirm>
 
                                     </Divider>
-                                    {/* <div>
+                                    <div>
                                         <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
-                                    </div> */}
+                                    </div>
 
                                     {/* Checklist */}
-                                    {/* <div>
+                                    <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Checklist</span>
                                             <span> | </span>
@@ -863,7 +863,7 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div> */}
+                                    </div>
 
                                     {/* Comment */}
                                     {/* <div>
