@@ -13,7 +13,7 @@ import '../css/admin.css';
 import Dashboard from './pages/home/Dashboard';
 
 // import products
-import ProductList from './pages/products/list';
+import ProductList from './pages/products/List';
 
 // Aitilen
 
