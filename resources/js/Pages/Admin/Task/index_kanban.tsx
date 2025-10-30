@@ -296,7 +296,8 @@ export default function Dashboard(props: any) {
         });
     };
 
-    const cancelComment = () => () => setIsModalComment(false);
+    const cancelComment = () => setIsModalComment(false);
+    const cancelCheckList = () => setIsModalChecklist(false);
 
     // xóa task
     const handleDelete = (id: number, status: number) => {
@@ -371,129 +372,131 @@ export default function Dashboard(props: any) {
         });
     }
 
+    function addFormCheckList() {
+        setFormChecklist(prev => [...prev, formChecklist_default]);
+    }
+
+    function updateChecklistByIndex(indexToUpdate: number, updatedData: any) {
+        setFormChecklist(prev =>
+            prev.map((item, index) =>
+                index === indexToUpdate ? { ...item, ...updatedData } : item
+            )
+        );
+    }
+
 
     {/* form Thêm checklist */ }
-    function formAddTaskChecklist(users: any) {
-        function addFormCheckList() {
-            setFormChecklist(prev => [...prev, formChecklist_default]);
-        }
+    // function formAddTaskChecklist(users: any) {
 
-        function updateChecklistByIndex(indexToUpdate: number, updatedData: any) {
-            setFormChecklist(prev =>
-                prev.map((item, index) =>
-                    index === indexToUpdate ? { ...item, ...updatedData } : item
-                )
-            );
-        }
 
-        return <table className="table-sub">
-            <thead>
-                <tr>
-                    <th>Tiêu đề</th>
-                    <th>Mô tả</th>
-                    <th>
-                        Người thực hiện
-                        <br />
-                        <Checkbox checked={isApplyAll}
-                            onChange={(e) => setIsApplyAll(e.target.checked)}
-                        >
-                            Áp dụng tất cả
-                        </Checkbox>
-                    </th>
-                    <th>Xóa</th>
-                </tr>
-            </thead>
-            {
-                formChecklist.map((item, key) => {
-                    return <tbody key={key}>
-                        <tr>
-                            <td>
-                                <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
-                            </td>
-                            <td>
-                                <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
-                            </td>
-                            <td>
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn nhân viên thực hiện"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    value={item.admin_user_id}
-                                    options={users}
-                                    onChange={(value) => {
-                                        if (!isApplyAll) {
-                                            updateChecklistByIndex(key, { admin_user_id: value });
-                                        }
-                                        setFormChecklist(prev =>
-                                            prev.map(item => ({
-                                                ...item,
-                                                admin_user_id: value
-                                            }))
-                                        );
-                                        return;
+    //     return <table className="table-sub">
+    //         <thead>
+    //             <tr>
+    //                 <th>Tiêu đề</th>
+    //                 <th>Mô tả</th>
+    //                 <th>
+    //                     Người thực hiện
+    //                     <br />
+    //                     <Checkbox checked={isApplyAll}
+    //                         onChange={(e) => setIsApplyAll(e.target.checked)}
+    //                     >
+    //                         Áp dụng tất cả
+    //                     </Checkbox>
+    //                 </th>
+    //                 <th>Xóa</th>
+    //             </tr>
+    //         </thead>
+    //         {
+    //             formChecklist.map((item, key) => {
+    //                 return <tbody key={key}>
+    //                     <tr>
+    //                         <td>
+    //                             <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+    //                         </td>
+    //                         <td>
+    //                             <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
+    //                         </td>
+    //                         <td>
+    //                             <Select
+    //                                 showSearch
+    //                                 style={{ width: "100%" }}
+    //                                 placeholder="Chọn nhân viên thực hiện"
+    //                                 optionFilterProp="children"
+    //                                 filterOption={(input, option) =>
+    //                                     (option?.label ?? "")
+    //                                         .toLowerCase()
+    //                                         .includes(input.toLowerCase())
+    //                                 }
+    //                                 value={item.admin_user_id}
+    //                                 options={users}
+    //                                 onChange={(value) => {
+    //                                     if (!isApplyAll) {
+    //                                         updateChecklistByIndex(key, { admin_user_id: value });
+    //                                     }
+    //                                     setFormChecklist(prev =>
+    //                                         prev.map(item => ({
+    //                                             ...item,
+    //                                             admin_user_id: value
+    //                                         }))
+    //                                     );
+    //                                     return;
 
-                                    }}
-                                />
-                            </td>
-                            {
-                                checkListAction.id === 0 ? (
-                                    <td>
-                                        <span onClick={() => removeFormChecklist(key)}
-                                            title="Xóa"
-                                            className="icon-large cursor"
-                                            key="list-loadmore-more">
-                                            <DeleteOutlined />
-                                        </span>
-                                    </td>
-                                ) : null
-                            }
+    //                                 }}
+    //                             />
+    //                         </td>
+    //                         {
+    //                             checkListAction.id === 0 ? (
+    //                                 <td>
+    //                                     <span onClick={() => removeFormChecklist(key)}
+    //                                         title="Xóa"
+    //                                         className="icon-large cursor"
+    //                                         key="list-loadmore-more">
+    //                                         <DeleteOutlined />
+    //                                     </span>
+    //                                 </td>
+    //                             ) : null
+    //                         }
 
-                        </tr>
+    //                     </tr>
 
-                    </tbody>
-                })
-            }
+    //                 </tbody>
+    //             })
+    //         }
 
-            <tbody>
-                {
-                    checkListAction.id === 0 ? (
-                        <tr>
-                            <td colSpan={4}>
-                                <a className="add-item01" onClick={() => addFormCheckList()}>
-                                    <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
-                                </a>
-                            </td>
-                        </tr>
-                    ) : null
-                }
+    //         <tbody>
+    //             {
+    //                 checkListAction.id === 0 ? (
+    //                     <tr>
+    //                         <td colSpan={4}>
+    //                             <a className="add-item01" onClick={() => addFormCheckList()}>
+    //                                 <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
+    //                             </a>
+    //                         </td>
+    //                     </tr>
+    //                 ) : null
+    //             }
 
-                <tr>
-                    <td colSpan={4}>
-                        <Row className="main-modal-footer01">
-                            <Col span={24} className="main-btn-popup">
-                                <span> </span>
-                                <Button className="btn-popup"
-                                    loading={isLoadingBtn}
-                                    type="primary"
-                                    onClick={() => createChecklist()}
-                                >
-                                    <CheckOutlined />
-                                    Lưu Checklist
-                                </Button>
-                            </Col>
-                        </Row>
-                    </td>
-                </tr>
-            </tbody>
+    //             <tr>
+    //                 <td colSpan={4}>
+    //                     <Row className="main-modal-footer01">
+    //                         <Col span={24} className="main-btn-popup">
+    //                             <span> </span>
+    //                             <Button className="btn-popup"
+    //                                 loading={isLoadingBtn}
+    //                                 type="primary"
+    //                                 onClick={() => createChecklist()}
+    //                             >
+    //                                 <CheckOutlined />
+    //                                 Lưu Checklist
+    //                             </Button>
+    //                         </Col>
+    //                     </Row>
+    //                 </td>
+    //             </tr>
+    //         </tbody>
 
-        </table>
-    }
+    //     </table>
+    // }
 
     // end detail
 
@@ -680,11 +683,117 @@ export default function Dashboard(props: any) {
                                 {/* Thêm checklist */}
                                 <Modal title="Thêm checklist"
                                     open={isModalChecklist}
-                                    onCancel={() => setIsModalChecklist(false)}
+                                    onCancel={cancelCheckList}
                                     footer={[]}
                                     width={1000}
                                 >
-                                    {formAddTaskChecklist(users)}
+                                    <table className="table-sub">
+                                        <thead>
+                                            <tr>
+                                                <th>Tiêu đề</th>
+                                                <th>Mô tả</th>
+                                                <th>
+                                                    Người thực hiện
+                                                    <br />
+                                                    <Checkbox checked={isApplyAll}
+                                                        onChange={(e) => setIsApplyAll(e.target.checked)}
+                                                    >
+                                                        Áp dụng tất cả
+                                                    </Checkbox>
+                                                </th>
+                                                <th>Xóa</th>
+                                            </tr>
+                                        </thead>
+                                        {
+                                            formChecklist.map((item, key) => {
+                                                return <tbody key={key}>
+                                                    <tr>
+                                                        <td>
+                                                            <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+                                                        </td>
+                                                        <td>
+                                                            <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
+                                                        </td>
+                                                        <td>
+                                                            <Select
+                                                                showSearch
+                                                                style={{ width: "100%" }}
+                                                                placeholder="Chọn nhân viên thực hiện"
+                                                                optionFilterProp="children"
+                                                                filterOption={(input, option) =>
+                                                                    (option?.label ?? "")
+                                                                        .toLowerCase()
+                                                                        .includes(input.toLowerCase())
+                                                                }
+                                                                value={item.admin_user_id}
+                                                                options={users}
+                                                                onChange={(value) => {
+                                                                    if (!isApplyAll) {
+                                                                        updateChecklistByIndex(key, { admin_user_id: value });
+                                                                    }
+                                                                    setFormChecklist(prev =>
+                                                                        prev.map(item => ({
+                                                                            ...item,
+                                                                            admin_user_id: value
+                                                                        }))
+                                                                    );
+                                                                    return;
+
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        {
+                                                            checkListAction.id === 0 ? (
+                                                                <td>
+                                                                    <span onClick={() => removeFormChecklist(key)}
+                                                                        title="Xóa"
+                                                                        className="icon-large cursor"
+                                                                        key="list-loadmore-more">
+                                                                        <DeleteOutlined />
+                                                                    </span>
+                                                                </td>
+                                                            ) : null
+                                                        }
+
+                                                    </tr>
+
+                                                </tbody>
+                                            })
+                                        }
+
+                                        <tbody>
+                                            {
+                                                checkListAction.id === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={4}>
+                                                            <a className="add-item01" onClick={() => addFormCheckList()}>
+                                                                <span className="icon-b"><PlusCircleOutlined /> Thêm Checklist</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                ) : null
+                                            }
+
+                                            <tr>
+                                                <td colSpan={4}>
+                                                    <Row className="main-modal-footer01">
+                                                        <Col span={24} className="main-btn-popup">
+                                                            <span> </span>
+                                                            <Button className="btn-popup"
+                                                                loading={isLoadingBtn}
+                                                                type="primary"
+                                                                onClick={() => createChecklist()}
+                                                            >
+                                                                <CheckOutlined />
+                                                                Lưu Checklist
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
                                 </Modal>
 
                                 {/* form comment */}
