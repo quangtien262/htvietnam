@@ -298,6 +298,7 @@ export default function Dashboard(props: any) {
 
     const cancelComment = () => setIsModalComment(false);
     const cancelCheckList = () => setIsModalChecklist(false);
+    const confirmEditTitle = () => formTitle.submit();
 
     // xóa task
     const handleDelete = (id: number, status: number) => {
@@ -680,7 +681,7 @@ export default function Dashboard(props: any) {
                             {/* detail */}
 
                             <Row>
-                                {/* Thêm checklist */}
+                                {/* modal Thêm checklist */}
                                 <Modal title="Thêm checklist"
                                     open={isModalChecklist}
                                     onCancel={cancelCheckList}
@@ -796,8 +797,31 @@ export default function Dashboard(props: any) {
                                     </table>
                                 </Modal>
 
-                                {/* form comment */}
+                                {/* modal form comment */}
                                 <Modal title="Thêm comment"
+                                    open={isModalComment}
+                                    onCancel={cancelComment}
+                                    footer={[]}
+                                >
+                                    <Form
+                                        name="formComment"
+                                        form={formComment}
+                                        layout="vertical"
+                                        onFinish={onFinishFormComment}
+                                        autoComplete="off"
+                                    >
+                                        <Form.Item className="edit-description" name='content' label=''>
+                                            <Input.TextArea rows={4} />
+                                        </Form.Item>
+
+                                        <Button type="primary" htmlType="submit" loading={isLoadingBtn}>
+                                            <CopyOutlined />
+                                            Lưu comment
+                                        </Button>
+                                    </Form>
+                                </Modal>
+
+                                <Modal title="Sửa tiêu đề"
                                     open={isModalComment}
                                     onCancel={cancelComment}
                                     footer={[]}
@@ -824,12 +848,10 @@ export default function Dashboard(props: any) {
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                        {/* <Popconfirm placement="bottomLeft"
+                                        <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
-                                            onConfirm={() => {
-                                                formTitle.submit();
-                                            }}
+                                            onConfirm={confirmEditTitle}
                                             description={
                                                 <Form
                                                     name="formTitle"
@@ -850,7 +872,7 @@ export default function Dashboard(props: any) {
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
                                             </a>
-                                        </Popconfirm> */}
+                                        </Popconfirm>
                                     </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
