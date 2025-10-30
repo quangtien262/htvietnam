@@ -81,11 +81,11 @@ class TaskController extends Controller
         $parentName = $request->parentName;
         $table = Table::where('name', $parentName)->first();
 
+        // $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
         $status = TblService::getDataSelect02('task_status', ['parent_name' => $parentName]);
         $type = TblService::getDataSelect02('task_type', ['parent_name' => $parentName]);
         $priority = TblService::getDataSelect02('task_priority', ['parent_name' => $parentName]);
-
-        // $status = TblService::formatData('task_status', ['parent_name' => $parentName]);
+        $users = TblService::getDataSelect02('users');
         $admin = Auth::guard('admin_users')->user();
 
         $statusTable = Table::where('name', 'task_status')->first();
@@ -96,17 +96,19 @@ class TaskController extends Controller
             ->orderBy('sort_order', 'asc')
             ->get()
             ->toArray();
-        $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
-        $users_byID = [];
-        foreach ($users as $u) {
-            $users_byID[$u['id']] = $u;
-        }
+
+
+        // $users = AdminUser::where('is_recycle_bin', 0)->get()->toArray();
+        // $users_byID = [];
+        // foreach ($users as $u) {
+        //     $users_byID[$u['id']] = $u;
+        // }
         // get chi nhanh
 
         $props = [
             'table' => $table,
             'taskStatus' => $status,
-            'users' => $users_byID,
+            'users' => $users,
             'priority' => $priority,
             'type' => $type,
             'admin' => $admin,

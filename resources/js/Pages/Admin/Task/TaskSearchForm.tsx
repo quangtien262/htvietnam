@@ -4,7 +4,7 @@ export default function TaskSearchForm({
     formSearch,
     users,
     priority,
-    initialValuesForm,
+    // initialValuesForm,
     onFinishSearch
 }: any) {
     return (
@@ -14,7 +14,7 @@ export default function TaskSearchForm({
             layout="vertical"
             onFinish={onFinishSearch}
             autoComplete="off"
-            initialValues={initialValuesForm()}
+            // initialValues={initialValuesForm()}
             className="form-popup"
         >
             <Row>
@@ -30,12 +30,12 @@ export default function TaskSearchForm({
                 </Col>
 
                 <Col sm={6}>
-                    <Form.Item name="pic" label="Người làm chính">
+                    <Form.Item name="pic" label="Người làm / support">
                         <Select
                             allowClear={true}
                             onClear={() => formSearch.submit()}
                             showSearch
-                            placeholder="Chọn người làm chính"
+                            placeholder="Chọn người làm"
                             optionFilterProp="children"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -43,33 +43,7 @@ export default function TaskSearchForm({
                             filterSort={(optionA, optionB) =>
                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
-                            options={Object.keys(users).map((key) => ({
-                                label: users[key].name,
-                                value: users[key].id.toString()
-                            }))}
-                            onChange={() => formSearch.submit()}
-                        />
-                    </Form.Item>
-                </Col>
-
-                <Col sm={6}>
-                    <Form.Item name="support" label="Người làm cùng">
-                        <Select
-                            showSearch
-                            allowClear={true}
-                            onClear={() => formSearch.submit()}
-                            placeholder="Chọn người làm cùng"
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            filterSort={(optionA, optionB) =>
-                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                            }
-                            options={Object.keys(users).map((key) => ({
-                                label: users[key].name,
-                                value: users[key].id.toString()
-                            }))}
+                            options={users}
                             onChange={() => formSearch.submit()}
                         />
                     </Form.Item>
@@ -89,10 +63,7 @@ export default function TaskSearchForm({
                             filterSort={(optionA, optionB) =>
                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
-                            options={Object.keys(priority).map((key) => ({
-                                label: priority[key].name,
-                                value: priority[key].id.toString()
-                            }))}
+                            options={priority}
                             onChange={() => formSearch.submit()}
                         />
                     </Form.Item>
