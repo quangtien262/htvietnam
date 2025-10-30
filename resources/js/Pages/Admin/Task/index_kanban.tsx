@@ -850,16 +850,29 @@ export default function Dashboard(props: any) {
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                        <Popconfirm placement="bottomLeft"
+                                        {/* <Popconfirm placement="bottomLeft"
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={confirmEditTitle}
-                                            description="123"
+                                            description={<Form
+                                                name="formTitle"
+                                                form={formTitle}
+                                                layout="vertical"
+                                                onFinish={(values) => {
+                                                    updateTaskByColumn(dataAction.id, 'name', values.name);
+                                                }}
+                                                autoComplete="off"
+                                                initialValues={{ name: dataAction.name }}
+                                            >
+                                                <Form.Item className="edit-description" name='name' label=''>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Form>}
                                         >
                                             <a onClick={onClickEditTitle} className="_right">
                                                 <EditOutlined />
                                             </a>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
                                     </h3>
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
