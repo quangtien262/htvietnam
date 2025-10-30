@@ -857,9 +857,7 @@ export default function Dashboard(props: any) {
                                             onConfirm={confirmEditTitle}
                                             description="123"
                                         >
-                                            <a className="_right">
-                                                <EditOutlined />
-                                            </a>
+                                            <a className="_right"><EditOutlined /></a>
                                         </Popconfirm>
 
 
