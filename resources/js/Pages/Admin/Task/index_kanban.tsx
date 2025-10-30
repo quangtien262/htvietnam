@@ -850,9 +850,6 @@ export default function Dashboard(props: any) {
                                     <div>
                                         <h3>{dataAction.name}</h3>
                                     </div>
-
-                                    <p>1234</p>
-
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
                                     {/* Mô tả */}
