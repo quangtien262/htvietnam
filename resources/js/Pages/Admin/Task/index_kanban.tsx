@@ -852,7 +852,7 @@ export default function Dashboard(props: any) {
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             onConfirm={confirmEditTitle}
-                                            description={<Input />}
+                                            description="123"
                                         >
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
