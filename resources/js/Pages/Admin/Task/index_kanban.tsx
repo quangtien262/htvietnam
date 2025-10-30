@@ -296,6 +296,8 @@ export default function Dashboard(props: any) {
         });
     };
 
+    const cancelComment = () => () => setIsModalComment(false);
+
     // xóa task
     const handleDelete = (id: number, status: number) => {
         const params = {
@@ -688,7 +690,7 @@ export default function Dashboard(props: any) {
                                 {/* form comment */}
                                 <Modal title="Thêm comment"
                                     open={isModalComment}
-                                    // onCancel={() => setIsModalComment(false)}
+                                    onCancel={cancelComment}
                                     footer={[]}
                                 >
                                     <Form
