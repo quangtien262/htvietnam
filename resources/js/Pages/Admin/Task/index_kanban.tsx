@@ -851,14 +851,7 @@ export default function Dashboard(props: any) {
                                         {dataAction.name}
                                     </h3>
 
-                                        <Popconfirm placement="bottomLeft"
-                                            title="Sửa tiêu đề"
-                                            trigger="click"
-                                            onConfirm={confirmEditTitle}
-                                            description="123"
-                                        >
-                                            <a className="_right"><EditOutlined /></a>
-                                        </Popconfirm>
+                                        <a className="_right"><EditOutlined /></a>
 
 
                                     <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
