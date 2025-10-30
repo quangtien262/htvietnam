@@ -719,22 +719,22 @@ export default function Dashboard(props: any) {
                                             onConfirm={() => {
                                                 formTitle.submit();
                                             }}
-                                            description={
-                                                <Form
-                                                    name="formTitle"
-                                                    form={formTitle}
-                                                    layout="vertical"
-                                                    onFinish={(values) => {
-                                                        updateTaskByColumn(dataAction.id, 'name', values.name);
-                                                    }}
-                                                    autoComplete="off"
-                                                    initialValues={{ name: dataAction.name }}
-                                                >
-                                                    <Form.Item className="edit-description" name='name' label=''>
-                                                        <Input />
-                                                    </Form.Item>
-                                                </Form>
-                                            }
+                                            // description={
+                                            //     <Form
+                                            //         name="formTitle"
+                                            //         form={formTitle}
+                                            //         layout="vertical"
+                                            //         onFinish={(values) => {
+                                            //             updateTaskByColumn(dataAction.id, 'name', values.name);
+                                            //         }}
+                                            //         autoComplete="off"
+                                            //         initialValues={{ name: dataAction.name }}
+                                            //     >
+                                            //         <Form.Item className="edit-description" name='name' label=''>
+                                            //             <Input />
+                                            //         </Form.Item>
+                                            //     </Form>
+                                            // }
                                         >
                                             <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
                                                 <EditOutlined />
@@ -747,7 +747,7 @@ export default function Dashboard(props: any) {
                                     <Divider orientation="left">
                                         <span className="title-desc"><SnippetsFilled /> Mô tả</span>
                                         <span> | </span>
-                                        <Popconfirm
+                                        {/* <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
                                             okButtonProps={{ loading: isLoadingBtn }}
@@ -768,7 +768,7 @@ export default function Dashboard(props: any) {
                                             }
                                         >
                                             <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
 
                                     </Divider>
                                     <div>
@@ -776,7 +776,7 @@ export default function Dashboard(props: any) {
                                     </div>
 
                                     {/* Checklist */}
-                                    <div>
+                                    {/* <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Checklist</span>
                                             <span> | </span>
@@ -863,10 +863,10 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div>
+                                    </div> */}
 
                                     {/* Comment */}
-                                    <div>
+                                    {/* <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Comment</span>
                                             <span> | </span>
@@ -938,7 +938,7 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div>
+                                    </div> */}
                                 </Col>
 
                                 {/* right */}
@@ -1116,7 +1116,7 @@ export default function Dashboard(props: any) {
                                             <div className="item03">
                                                 <a><HddFilled /> </a>
                                                 <span>Tags: </span>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Thêm tags"
                                                     trigger="click"
                                                     content={
@@ -1139,7 +1139,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                                 <p>
                                                     {
                                                         !dataAction.tags
@@ -1171,7 +1171,7 @@ export default function Dashboard(props: any) {
                                                 <a><FlagFilled /> </a>
                                                 Bắt đầu:
                                                 <span className="value-list"> {dataAction.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Ngày bắt đầu"
                                                     trigger="click"
                                                     content={
@@ -1185,7 +1185,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                             </div>,
 
                                             // ngày hoàn thành
@@ -1193,7 +1193,7 @@ export default function Dashboard(props: any) {
                                                 <a><ScheduleFilled /> </a>
                                                 Hoàn thành:
                                                 <span className="value-list"> {dataAction.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Ngày hoàn thành"
                                                     trigger="click"
                                                     content={
@@ -1207,7 +1207,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                             </div>,
 
                                             // ngày thực tế
@@ -1215,7 +1215,7 @@ export default function Dashboard(props: any) {
                                                 <a><CheckSquareFilled /> </a>
                                                 Thực tế:
                                                 <span className="value-list"> {dataAction.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Ngày hoàn thành"
                                                     trigger="click"
                                                     content={
@@ -1229,13 +1229,13 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                             </div>,
 
 
                                             <div className="item03">
                                                 <b><DiffFilled />  Thêm vào meeting: </b>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Thêm vào meeting"
                                                     trigger="click"
                                                     content={
@@ -1279,7 +1279,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                             </div>,
 
                                             // daily
