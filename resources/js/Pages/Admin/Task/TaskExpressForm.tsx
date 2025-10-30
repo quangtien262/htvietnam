@@ -149,7 +149,7 @@ export default function TaskExpressForm({
                                         .toLowerCase()
                                         .includes(input.toLowerCase())
                                 }
-                                // options={optionEntries(status)}
+                                options={optionEntries(status)}
                                 value={item.task_status_id}
                                 onChange={(val) => {
                                     updateformAddTaskExpres(key, 'task_status_id', val);
@@ -167,7 +167,7 @@ export default function TaskExpressForm({
                                         .toLowerCase()
                                         .includes(input.toLowerCase())
                                 }
-                                // options={optionEntries(users)}
+                                options={optionEntries(users)}
                                 value={item.nguoi_thuc_hien}
                                 onChange={(val) => {
                                     updateformAddTaskExpres(key, 'nguoi_thuc_hien', val);

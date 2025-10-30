@@ -91,7 +91,7 @@ export default function TaskFormModal({
                                 </Form.Item>
                             </Col>
 
-                            <Col sm={{ span: 24 }}>
+                            {/* <Col sm={{ span: 24 }}>
                                 <Form.Item className="item-form" name='nguoi_thuc_hien' label="Người thực hiện">
                                     <Select
                                         showSearch
@@ -103,7 +103,7 @@ export default function TaskFormModal({
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        // options={optionEntries(users)}
+                                        options={optionEntries(users)}
                                     />
                                 </Form.Item>
                             </Col>
@@ -120,10 +120,10 @@ export default function TaskFormModal({
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        // options={optionEntries(users)}
+                                        options={optionEntries(users)}
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
 
                             <Col sm={{ span: 24 }}>
                                 {/* Mô tả chi tiết */}
@@ -143,7 +143,7 @@ export default function TaskFormModal({
                                 </div>
                             </Col>
                             {/* Độ ưu tiên */}
-                            <Col sm={{ span: 24 }}>
+                            {/* <Col sm={{ span: 24 }}>
                                 <Form.Item className="item-form" name='task_priority_id' label="Độ ưu tiên">
                                     <Select showSearch
                                         style={{ width: "100%" }}
@@ -154,12 +154,14 @@ export default function TaskFormModal({
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        // options={optionEntries(priority)}
+                                        options={optionEntries(priority)}
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
+
+
                             {/* Loại công việc */}
-                            <Col sm={{ span: 24 }}>
+                            {/* <Col sm={{ span: 24 }}>
                                 <Form.Item className="item-form" name='task_type_ids' label="Loại công việc">
                                     <Select showSearch
                                         style={{ width: "100%" }}
@@ -170,10 +172,10 @@ export default function TaskFormModal({
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        // options={optionEntries(type)}
+                                        options={optionEntries(type)}
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
 
                             {/* Ngày bắt đầu */}
                             <Col sm={{ span: 24 }} className="main-item-form">
@@ -190,7 +192,7 @@ export default function TaskFormModal({
                             </Col>
 
                             {/* Người giao việc */}
-                            <Col sm={{ span: 24 }} className="main-item-form">
+                            {/* <Col sm={{ span: 24 }} className="main-item-form">
                                 <Form.Item className="item-form" name='nguoi_tạo' label="Người giao việc">
                                     <Select showSearch
                                         style={{ width: "100%" }}
@@ -201,10 +203,10 @@ export default function TaskFormModal({
                                                 .toLowerCase()
                                                 .includes(input.toLowerCase())
                                         }
-                                        // options={optionEntries(users)}
+                                        options={optionEntries(users)}
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
 
                             <Col sm={{ span: 24 }}></Col>
                         </Row>
