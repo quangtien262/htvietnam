@@ -856,33 +856,12 @@ export default function Dashboard(props: any) {
                                     <Divider orientation="left">
                                         <span className="title-desc"><SnippetsFilled /> Mô tả</span>
                                         <span> | </span>
-                                        <Popconfirm
-                                            icon={<EditFilled />}
-                                            title="Sửa mô tả"
-                                            okButtonProps={{ loading: isLoadingBtn }}
-                                            onConfirm={() => formDesc.submit()}
-                                            description={
-                                                <Form
-                                                    name="formDesc"
-                                                    form={formDesc}
-                                                    layout="vertical"
-                                                    onFinish={onFinishFormDesc}
-                                                    autoComplete="off"
-                                                    initialValues={{ description: dataAction.description }}
-                                                >
-                                                    <Form.Item className="edit-description" name='description' label=''>
-                                                        <Input.TextArea rows={4} />
-                                                    </Form.Item>
-                                                </Form>
-                                            }
-                                        >
-                                            <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm>
+
 
                                     </Divider>
-                                    {/* <div>
+                                    <div>
                                         <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
-                                    </div> */}
+                                    </div>
 
                                     {/* Checklist */}
                                     {/* <div>
