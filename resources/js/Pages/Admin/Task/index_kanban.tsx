@@ -688,7 +688,7 @@ export default function Dashboard(props: any) {
                                 {/* form comment */}
                                 <Modal title="Thêm comment"
                                     open={isModalComment}
-                                    onCancel={() => setIsModalComment(false)}
+                                    // onCancel={() => setIsModalComment(false)}
                                     footer={[]}
                                 >
                                     <Form
