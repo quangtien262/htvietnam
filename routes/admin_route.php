@@ -34,6 +34,9 @@ use App\Http\Controllers\Admin\TaiSanController;
 use App\Http\Controllers\Admin\TaskController;
 
 Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+
+Route::get('/', [AdminController::class, 'index'])->name('dashboard__01');
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.index');
 Route::get('/setting/menu', [AdminController::class, 'settingMenu'])->name('admin.setting.menu');
 Route::get('/setting/col/{tableId}', [AdminController::class, 'settingColumn'])->name('admin.setting.column');
