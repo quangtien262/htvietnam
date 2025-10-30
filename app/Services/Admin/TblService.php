@@ -30,7 +30,7 @@ class TblService extends Service
         'getPermission',
         'getDatas',
         'deleteDatas',
-        'getDataSelect',
+        'getDataSelect', 'getDataSelect02',
         'getTableDataDragDrop_setting',
         'getColumnSetting',
         'getDataById',
@@ -58,7 +58,8 @@ class TblService extends Service
         'formatDataByID',
         'checkGenerateCode',
         'saveDataBasic',
-        'getMenus', 'getChecklistPercent'
+        'getMenus',
+        'getChecklistPercent'
     ];
 
     protected function getPermissionDefault()
@@ -909,7 +910,6 @@ class TblService extends Service
                 $this->uploadImages($post, $column, $dataId, $table);
                 continue;
             }
-
         }
 
         // update thêm tùy theo đặc tính của mỗi tính năng
@@ -1167,7 +1167,7 @@ class TblService extends Service
                 $data->barcode = $d->getBarcodeHTML($data->{$column->name}, 'C128');
             }
             $data->save();
-                // $this->updateData($table->name, $dataId, $data);
+            // $this->updateData($table->name, $dataId, $data);
             return $data;
         }
     }
@@ -2285,5 +2285,29 @@ class TblService extends Service
             $percent = round(($done / $total) * 100, 2);
         }
         return $percent;
+    }
+
+
+
+    protected function getDataSelect02($tableName, $conditions)
+    {
+        $data = DB::table($tableName)->where('is_recycle_bin', 0);
+        if (!empty($conditions)) {
+            foreach ($conditions as $key => $val) {
+                $data = $data->where($key, $val);
+            }
+        }
+        $data = $data->orderBy('sort_order', 'desc')->get();
+        $result = [];
+        $i = [];
+        foreach ($data as $item) {
+            $i[] = [
+                'value' => $item->id,
+                'label' => $item->name,
+                'color' => isset($item->color) ? $item->color : '',
+                'background' => isset($item->background) ? $item->background : '',
+            ];
+        }
+        $result[$tableName] = $i;
     }
 }

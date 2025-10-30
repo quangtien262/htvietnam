@@ -21,7 +21,7 @@ export default function TaskKanbanBoard({
 }: any) {
 
 
-    
+
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -81,7 +81,7 @@ export default function TaskKanbanBoard({
                                                             }
                                                         }}
                                                     >
-                                                        {priority[task.task_priority_id] ? <Tag color={priority[task.task_priority_id].color}>{priority[task.task_priority_id].name}</Tag> : ''}
+                                                        {task.task_priority_name ? <Tag color={task.task_priority_color}>{task.task_priority_name}</Tag> : ''}
                                                         {task.name}
                                                     </h3>
 

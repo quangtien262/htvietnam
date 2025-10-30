@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input, Select, Checkbox, Button, Row, Col, message } from "antd";
 import { PlusCircleOutlined, CheckOutlined, CloseSquareOutlined, DeleteOutlined } from "@ant-design/icons";
-import { optionEntries, showInfo } from "../../../Function/common";
+// import { optionEntries, showInfo } from "../../../Function/common";
 import axios from "axios";
 
 export default function TaskExpressForm({
@@ -149,7 +149,7 @@ export default function TaskExpressForm({
                                         .toLowerCase()
                                         .includes(input.toLowerCase())
                                 }
-                                options={optionEntries(status)}
+                                options={status}
                                 value={item.task_status_id}
                                 onChange={(val) => {
                                     updateformAddTaskExpres(key, 'task_status_id', val);
@@ -167,7 +167,7 @@ export default function TaskExpressForm({
                                         .toLowerCase()
                                         .includes(input.toLowerCase())
                                 }
-                                options={optionEntries(users)}
+                                options={users}
                                 value={item.nguoi_thuc_hien}
                                 onChange={(val) => {
                                     updateformAddTaskExpres(key, 'nguoi_thuc_hien', val);
