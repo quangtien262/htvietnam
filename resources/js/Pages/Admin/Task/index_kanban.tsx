@@ -686,7 +686,7 @@ export default function Dashboard(props: any) {
                                 </Modal>
 
                                 {/* form comment */}
-                                <Modal title="Thêm comment"
+                                {/* <Modal title="Thêm comment"
                                     open={isModalComment}
                                     onCancel={() => setIsModalComment(false)}
                                     footer={[]}
@@ -707,7 +707,7 @@ export default function Dashboard(props: any) {
                                             Lưu comment
                                         </Button>
                                     </Form>
-                                </Modal>
+                                </Modal> */}
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
@@ -745,9 +745,9 @@ export default function Dashboard(props: any) {
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
-                                        <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                                        <span> | </span>
-                                        <Popconfirm
+                                        {/* <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                                        <span> | </span> */}
+                                        {/* <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
                                             okButtonProps={{ loading: isLoadingBtn }}
@@ -768,15 +768,15 @@ export default function Dashboard(props: any) {
                                             }
                                         >
                                             <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm>
+                                        </Popconfirm> */}
 
                                     </Divider>
-                                    <div>
+                                    {/* <div>
                                         <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
-                                    </div>
+                                    </div> */}
 
                                     {/* Checklist */}
-                                    <div>
+                                    {/* <div>
                                         <Divider orientation="left">
                                             <span className="title-desc"><CheckSquareFilled /> Checklist</span>
                                             <span> | </span>
@@ -863,7 +863,7 @@ export default function Dashboard(props: any) {
                                                 </List.Item>
                                             )}
                                         />
-                                    </div>
+                                    </div> */}
 
                                     {/* Comment */}
                                     {/* <div>
