@@ -331,7 +331,7 @@ export default function Dashboard(props: any) {
                 [columnName]: value,
             });
             setColumns(response.data.data.datas);
-
+            setDataAction(response.data.data.data);
             // response.data.data.data,
 
 
@@ -964,7 +964,7 @@ export default function Dashboard(props: any) {
                                                             </Tag>
                                                         </>
                                                 }
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Chọn trạng thái"
                                                     trigger="click"
                                                     content={
@@ -974,9 +974,7 @@ export default function Dashboard(props: any) {
                                                             renderItem={(item: any, key) => (
                                                                 <p style={{ color: item.background }}
                                                                     className="cursor"
-                                                                    onClick={() => {
-                                                                        updateTaskByColumn(dataAction.id, 'task_status_id', item.id);
-                                                                    }}
+                                                                    onClick={() => updateTaskByColumn(dataAction.id, 'task_status_id', item.value)}
                                                                 >
                                                                     {icon[item.icon]} {item.label}
                                                                 </p>
@@ -987,7 +985,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <DownOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                             </div>,
 
                                             // độ ưu tiên
@@ -1002,7 +1000,7 @@ export default function Dashboard(props: any) {
                                                         <Tag style={{ color: dataAction.task_priority_color }}>{dataAction.task_priority_name} </Tag>
 
                                                 }
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Chọn mức độ ưu tiên"
                                                     trigger="click"
                                                     content={
@@ -1012,7 +1010,7 @@ export default function Dashboard(props: any) {
                                                             renderItem={(item: any, key: number) => (
                                                                 <p style={{ color: item.color }}
                                                                     className="cursor"
-                                                                    onClick={() => updateTaskByColumn(dataAction.id, 'task_priority_id', item.id)}
+                                                                    onClick={() => updateTaskByColumn(dataAction.id, 'task_priority_id', item.value)}
                                                                 >
                                                                     <CaretRightFilled /> {item.label}
                                                                 </p>
@@ -1023,7 +1021,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <DownOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
 
                                             </div>,
 
@@ -1031,7 +1029,7 @@ export default function Dashboard(props: any) {
                                             <div className="item03">
                                                 <a><UserOutlined /> </a>
                                                 <span>Người thực hiện: </span>
-                                                <Popover placement="bottomLeft"
+                                                {/* <Popover placement="bottomLeft"
                                                     title="Chọn người thực hiện"
                                                     trigger="click"
                                                     content={
@@ -1056,7 +1054,7 @@ export default function Dashboard(props: any) {
                                                     <a onClick={(e) => e.preventDefault()} className="_right">
                                                         <EditOutlined />
                                                     </a>
-                                                </Popover>
+                                                </Popover> */}
                                                 <p>
                                                     {
                                                         !dataAction.nguoi_thuc_hien
@@ -1328,7 +1326,7 @@ export default function Dashboard(props: any) {
                                     <div><br /></div>
 
                                     <h3><ProfileOutlined /> Lịch sử thay đổi</h3>
-                                    <Timeline
+                                    {/* <Timeline
                                         items={taskLog.map((item) => {
                                             return {
                                                 color: item.color ? item.color : 'blue',
@@ -1340,7 +1338,7 @@ export default function Dashboard(props: any) {
                                                 ),
                                             }
                                         })}
-                                    />
+                                    /> */}
                                 </Col>
                             </Row>
 
