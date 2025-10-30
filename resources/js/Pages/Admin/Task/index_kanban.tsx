@@ -276,7 +276,7 @@ export default function Dashboard(props: any) {
                     </Modal>
 
                     {/* Thêm nhanh công việc */}
-                    <Modal title="Thêm nhanh"
+                    {/* <Modal title="Thêm nhanh"
                         open={isModalAddExpress}
                         onCancel={() => setIsModalAddExpress(false)}
                         footer={[]}
@@ -291,7 +291,7 @@ export default function Dashboard(props: any) {
                             setIsModalAddExpress={setIsModalAddExpress}
                             setColumns={setColumns}
                         />
-                    </Modal>
+                    </Modal> */}
 
                     {/* Thêm mới task */}
 
