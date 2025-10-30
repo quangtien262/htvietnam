@@ -854,9 +854,9 @@ export default function Dashboard(props: any) {
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
-                                        {/* <span className="title-desc"><SnippetsFilled /> Mô tả</span>
-                                        <span> | </span> */}
-                                        {/* <Popconfirm
+                                        <span className="title-desc"><SnippetsFilled /> Mô tả</span>
+                                        <span> | </span>
+                                        <Popconfirm
                                             icon={<EditFilled />}
                                             title="Sửa mô tả"
                                             okButtonProps={{ loading: isLoadingBtn }}
@@ -877,7 +877,7 @@ export default function Dashboard(props: any) {
                                             }
                                         >
                                             <span className="desc cursor"> <EditFilled /> Sửa</span>
-                                        </Popconfirm> */}
+                                        </Popconfirm>
 
                                     </Divider>
                                     {/* <div>
