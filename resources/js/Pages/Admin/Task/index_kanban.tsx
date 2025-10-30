@@ -296,6 +296,11 @@ export default function Dashboard(props: any) {
         });
     };
 
+    const cancelComment = () => setIsModalComment(false);
+    const cancelCheckList = () => setIsModalChecklist(false);
+    const confirmEditTitle = () => formTitle.submit();
+
+
     // xóa task
     const handleDelete = (id: number, status: number) => {
         const params = {
@@ -496,12 +501,6 @@ export default function Dashboard(props: any) {
     // }
 
     // end detail
-
-
-    const cancelComment = () => setIsModalComment(false);
-    const cancelCheckList = () => setIsModalChecklist(false);
-    const confirmEditTitle = () => formTitle.submit();
-    const onClickEditTitle = () => formTitle.setFieldValue('name', dataAction.name)
 
     return (
         <div>
@@ -850,11 +849,18 @@ export default function Dashboard(props: any) {
                                     {/* tiêu đề */}
                                     <h3>
                                         {dataAction.name}
-                                    </h3>
-                                    <Button className="_right">
+                                        <Popconfirm placement="bottomLeft"
+                                            title="Sửa tiêu đề"
+                                            trigger="click"
+                                            onConfirm={confirmEditTitle}
+                                            description="123"
+                                        >
+                                            <a className="_right">
                                                 <EditOutlined />
-                                            </Button>
-                                    {/* <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p> */}
+                                            </a>
+                                        </Popconfirm>
+                                    </h3>
+                                    <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
 
                                     {/* Mô tả */}
                                     <Divider orientation="left">
