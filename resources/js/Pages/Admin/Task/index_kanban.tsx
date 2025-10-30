@@ -854,7 +854,7 @@ export default function Dashboard(props: any) {
                                             title="Sửa tiêu đề"
                                             trigger="click"
                                             // onConfirm={confirmEditTitle}
-                                            description="1111"
+                                            // description="1111"
                                         >
                                             <Button className="_right">
                                                 <EditOutlined />
