@@ -296,10 +296,6 @@ export default function Dashboard(props: any) {
         });
     };
 
-    const cancelComment = () => setIsModalComment(false);
-    const cancelCheckList = () => setIsModalChecklist(false);
-    const confirmEditTitle = () => formTitle.submit();
-
     // xóa task
     const handleDelete = (id: number, status: number) => {
         const params = {
@@ -500,6 +496,12 @@ export default function Dashboard(props: any) {
     // }
 
     // end detail
+
+
+    const cancelComment = () => setIsModalComment(false);
+    const cancelCheckList = () => setIsModalChecklist(false);
+    const confirmEditTitle = () => formTitle.submit();
+    const onClickEditTitle = () => formTitle.setFieldValue('name', dataAction.name)
 
     return (
         <div>
@@ -854,7 +856,7 @@ export default function Dashboard(props: any) {
                                             onConfirm={confirmEditTitle}
                                             description="123"
                                         >
-                                            <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
+                                            <a onClick={onClickEditTitle} className="_right">
                                                 <EditOutlined />
                                             </a>
                                         </Popconfirm>
