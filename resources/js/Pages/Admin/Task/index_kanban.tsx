@@ -880,9 +880,9 @@ export default function Dashboard(props: any) {
                                         </Popconfirm> */}
 
                                     </Divider>
-                                    {/* <div>
+                                    <div>
                                         <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
-                                    </div> */}
+                                    </div>
 
                                     {/* Checklist */}
                                     {/* <div>
