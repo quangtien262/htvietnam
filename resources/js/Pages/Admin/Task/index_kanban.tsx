@@ -676,17 +676,17 @@ export default function Dashboard(props: any) {
 
                             <Row>
                                 {/* Thêm checklist */}
-                                <Modal title="Thêm checklist"
+                                {/* <Modal title="Thêm checklist"
                                     open={isModalChecklist}
                                     onCancel={() => setIsModalChecklist(false)}
                                     footer={[]}
                                     width={1000}
                                 >
                                     {formAddTaskChecklist(users)}
-                                </Modal>
+                                </Modal> */}
 
                                 {/* form comment */}
-                                <Modal title="Thêm comment"
+                                {/* <Modal title="Thêm comment"
                                     open={isModalComment}
                                     onCancel={() => setIsModalComment(false)}
                                     footer={[]}
@@ -707,7 +707,7 @@ export default function Dashboard(props: any) {
                                             Lưu comment
                                         </Button>
                                     </Form>
-                                </Modal>
+                                </Modal> */}
 
                                 <Col sm={16}>
                                     {/* tiêu đề */}
