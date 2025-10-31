@@ -2,24 +2,48 @@ import React from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Tag } from "antd";
 import dayjs from "dayjs";
-
+import axios from "../../utils/axiosConfig";
+import { API } from "../../common/api";
 
 export default function TaskKanbanBoard({
     columns,
     onDragEnd,
     icon,
-    priority,
-    users,
     setOpenDetail,
     setDataAction,
     setChecklist,
     setChecklistPercent,
     setComments,
     setTaskLog,
-    formDesc
+    formDesc,
+    setLoading
 }: any) {
 
-
+    function clickTaskName(task: any) {
+        setOpenDetail(true);
+        setLoading(true);
+        setDataAction(task);
+        axios.post(API.taskInfo, {
+            parentName: task.parent_name,
+            currentTable: task.current_table,
+            id: task.id
+        })
+            .then((res) => {
+                setLoading(false);
+                const taskData = res.data.data.task;
+                setDataAction(taskData);
+                setChecklist(res.data.data.checklist);
+                setChecklistPercent(res.data.data.percent);
+                setComments(res.data.data.comments);
+                setTaskLog(res.data.data.taskLog);
+                if (formDesc) {
+                    formDesc.setFieldValue('description', taskData.description);
+                }
+            })
+            .catch((err) => {
+                console.error('Lỗi khi gọi API editConfigTask:', err);
+            });
+    }
 
 
     return (
@@ -67,18 +91,7 @@ export default function TaskKanbanBoard({
                                             >
                                                 <div className="">
                                                     <h3 className="title04 click"
-                                                        onClick={async () => {
-                                                            setOpenDetail(true);
-                                                            setDataAction(task);
-                                                            // const res = await callApi(route('task.getTaskInfo', [task.id]));
-                                                            setChecklist(res.data.data.checklist);
-                                                            setChecklistPercent(res.data.data.percent);
-                                                            setComments(res.data.data.comments);
-                                                            setTaskLog(res.data.data.logs);
-                                                            if (formDesc) {
-                                                                formDesc.setFieldValue('description', task.description);
-                                                            }
-                                                        }}
+                                                        onClick={() => clickTaskName(task)}
                                                     >
                                                         {task.task_priority_name ? <Tag color={task.task_priority_color}>{task.task_priority_name}</Tag> : ''}
                                                         {task.name}
@@ -86,7 +99,7 @@ export default function TaskKanbanBoard({
 
                                                     <p className="description01">{task.description}</p>
 
-                                                    {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{users[task.nguoi_thuc_hien].name}</Tag>}
+                                                    {!task.nguoi_thuc_hien || task.nguoi_thuc_hien === null ? '' : <Tag>{task.assignee_name}</Tag>}
                                                     <p className="deadline"><em>{task.end ? dayjs(task.end).format('DD/MM/YYYY') : ''}</em></p>
                                                 </div>
                                             </div>

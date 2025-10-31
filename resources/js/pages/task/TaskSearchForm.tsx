@@ -14,7 +14,6 @@ export default function TaskSearchForm({
             layout="vertical"
             onFinish={onFinishSearch}
             autoComplete="off"
-            // initialValues={initialValuesForm()}
             className="form-popup"
         >
             <Row>
@@ -31,7 +30,7 @@ export default function TaskSearchForm({
 
                 <Col sm={6}>
                     <Form.Item name="pic" label="Người làm / support">
-                        <Select
+                        <Select className="form-item04"
                             allowClear={true}
                             onClear={() => formSearch.submit()}
                             showSearch
@@ -51,7 +50,7 @@ export default function TaskSearchForm({
 
                 <Col sm={6}>
                     <Form.Item name="priority" label="Mức độ ưu tiên">
-                        <Select
+                        <Select className="form-item04"
                             showSearch
                             allowClear={true}
                             onClear={() => formSearch.submit()}
@@ -64,6 +63,26 @@ export default function TaskSearchForm({
                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
                             options={priority}
+                            onChange={() => formSearch.submit()}
+                        />
+                    </Form.Item>
+                </Col>
+
+                <Col sm={6}>
+                    <Form.Item name="tags" label="Tags">
+                        <Select className="form-item04"
+                            showSearch
+                            allowClear={true}
+                            onClear={() => formSearch.submit()}
+                            placeholder="Chọn tags"
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            filterSort={(optionA, optionB) =>
+                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                            }
+                            // options={tags}
                             onChange={() => formSearch.submit()}
                         />
                     </Form.Item>

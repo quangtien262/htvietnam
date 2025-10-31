@@ -914,6 +914,20 @@ class DataController extends Controller
     }
 
     /**
+     * Undocumented function
+     *
+     * @param Request $request: table_name, id, column_name, value
+     * @return void
+     */
+    public function fastEdit02(Request $request)
+    {
+        $data = [];
+        $data[$request->column_name] = $request->value;
+        DB::table($request->table_name)->where('id', $request->id)->update($data);
+        return $this->sendSuccessResponse([], 'Update successfully');
+    }
+
+    /**
      * Update first item the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -940,6 +954,38 @@ class DataController extends Controller
         }
 
         return $this->sendSuccessResponse($data, 'Update successfully', 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  $request: table_name, id
+     * @return \Illuminate\Http\Response
+     */
+    public function delete(Request $request)
+    {
+        if (empty($request->id) || empty($request->table_name)) {
+            return $this->sendErrorResponse('input error', $errors = null, $code = 400);
+        }
+        $data = ['is_recycle_bin' => 1];
+        DB::table($request->table_name)->where('id', $request->id)->update($data);
+        return $this->sendSuccessResponse([], 'Delete successfully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  $request: table_name, data_ids
+     * @return \Illuminate\Http\Response
+     */
+    public function deletes(Request $request)
+    {
+        if (empty($request->id) || empty($request->table_name)) {
+            return $this->sendErrorResponse('input error', $errors = null, $code = 400);
+        }
+        $data = ['is_recycle_bin' => 1];
+        DB::table($request->table_name)->where('id', $request->ids)->update($data);
+        return $this->sendSuccessResponse([], 'Delete successfully');
     }
 
     /**
@@ -1235,18 +1281,18 @@ class DataController extends Controller
 
     function getDataKeyValue(Request $request)
     {
-        if(empty($request->table_names)){
+        if (empty($request->table_names)) {
             return $this->sendErrorResponse('Table name is required');
         }
         $result = [];
-        foreach($request->table_names as $tableName){
+        foreach ($request->table_names as $tableName) {
             $data = DB::table($tableName)->where('is_recycle_bin', 0)->orderBy('sort_order', 'desc')->get();
             $i = [];
             foreach ($data as $item) {
                 $i[$item->id] = [
                     'id' => $item->id,
                     'name' => $item->name,
-                    'color' => isset($item->color) ? $item->color : ''   ,
+                    'color' => isset($item->color) ? $item->color : '',
                     'background' => isset($item->background) ? $item->background : '',
                 ];
             }
@@ -1261,19 +1307,20 @@ class DataController extends Controller
      * @param Request $request
      * @return void
      */
-    function dataSelect(Request $request) {
-        if(empty($request->table_names)) {
+    function dataSelect(Request $request)
+    {
+        if (empty($request->table_names)) {
             return $this->sendErrorResponse('Table name is required');
         }
         $result = [];
-        foreach($request->table_names as $tableName) {
+        foreach ($request->table_names as $tableName) {
             $data = DB::table($tableName)->where('is_recycle_bin', 0)->orderBy('sort_order', 'desc')->get();
             $i = [];
             foreach ($data as $item) {
                 $i[] = [
                     'value' => $item->id,
                     'label' => $item->name,
-                    'color' => isset($item->color) ? $item->color : ''   ,
+                    'color' => isset($item->color) ? $item->color : '',
                     'background' => isset($item->background) ? $item->background : '',
                 ];
             }
@@ -1281,5 +1328,4 @@ class DataController extends Controller
         }
         return $this->sendSuccessResponse($result, 'successfully');
     }
-
 }

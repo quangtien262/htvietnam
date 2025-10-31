@@ -46,7 +46,7 @@ Route::middleware('auth:admin_users')->group(function () {
     Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
 
     Route::group(['prefix' => 'aio/api'], function () {
-        require __DIR__ . '/aio_api.php';
+        require __DIR__ . '/aio_route.php';
     });
 
 

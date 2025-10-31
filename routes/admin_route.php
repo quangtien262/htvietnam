@@ -364,8 +364,9 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
     Route::post('add-checklist', [TaskController::class, 'addChecklist'])->name('task.addChecklist');
     Route::post('task-info/{taskId}', [TaskController::class, 'getTaskInfo'])->name('task.getTaskInfo');
-    Route::post('add-comment', [TaskController::class, 'addComment'])->name('task.addComment');
-    Route::post('delete-comment', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
+
+    Route::post('comment/add', [TaskController::class, 'addComment'])->name('task.addComment');
+    Route::post('comment/delete', [TaskController::class, 'deleteComment'])->name('task.deleteComment');
 
 
     Route::post('api/list', [TaskController::class, 'index_api'])->name('task.api.list');
@@ -450,7 +451,7 @@ Route::group(['prefix' => 'bds'], function () {
     Route::get('report/cong-no', [AitilenController::class, 'report_congNo'])->name('aitilen.report_congNo');
 });
 
-
+Route::post('get-menus', [AdminController::class, 'getMenus'])->name('getMenus');
 
 
 Route::group(['prefix' => 'meeting'], function () {

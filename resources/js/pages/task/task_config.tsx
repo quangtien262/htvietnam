@@ -1,4 +1,4 @@
-import React, { useState,  useContext, useMemo,useEffect } from "react";
+import React, { useState,  useContext, useMemo, useEffect } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 import {
@@ -36,6 +36,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../function/common";
 import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../function/constant";
 import { icon } from "../../components/comp_icon";
+import { API } from "../../common/api";
 
 
 const { TextArea } = Input;
@@ -47,10 +48,10 @@ interface columnType {
 }
 
 interface TblType {
-    parentName: string;
-    currentName: string;
-    searchData: any;
-    pid: number;
+    parentName: string; // danh mục cha
+    currentName: string; // ten bảng hiện tại
+    searchData: any; // dữ liệu tìm kiếm
+    pid: number; // project_id cha
 }
 
 const dataActionDefault = {
@@ -67,6 +68,7 @@ export function taskConfig(
     columns: columnType,
     onSuccess: (data: any) => void
 ) {
+
     const [isModalAddExpress, setIsModalAddExpress] = useState(false);
     const [dataSource, setDataSource] = React.useState<DataType[]>(datas);
     const [formExpress] = Form.useForm();
@@ -94,8 +96,10 @@ export function taskConfig(
         }
         values.id = dataAction.id;
         values.pid = tbl.pid;
+        values.parentName = tbl.parentName;
+        values.currentTable = tbl.currentName;
         console.log('values', values);
-        axios.post(route('task.editConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
+        axios.post(API.editConfigTask, values).then((response) => {
             if (dataAction.id > 0) {
                 message.success('Cập nhật thành công');
             } else {
@@ -226,7 +230,7 @@ export function taskConfig(
                     pid: tbl.pid,
                 };
                 console.log('param', param);
-
+                // TODO:
                 axios.post(route('task.updateSortOrder_taskStatus'), param).then((response) => {
                     message.success('Cập nhật thứ tự thành công');
                     console.log('sss', response.data.data);

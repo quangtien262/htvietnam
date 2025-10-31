@@ -83,7 +83,6 @@ class TaskLog extends Model
             'updated_at' => date('Y-m-d H:i:s'),
         ];
         DB::table('task_logs')->insert($data);
-
     }
 
     static function logDelete($table, $name, $dataId)
@@ -97,5 +96,71 @@ class TaskLog extends Model
         $log->create_by = $user->id;
         $log->type = 'delete';
         $log->save();
+    }
+
+    static function logChecklist_checked($table, $checklist, $request)
+    {
+        $user = auth()->user();
+        $table = Table::where('name', 'tasks')->first();
+        if ($request->vallue == 1) {
+            $title = $user->name . ' đã hoàn thành checklist "' . $checklist->name . '"';
+        } else {
+            $title = $user->name . ' đã bỏ hoàn thành checklist "' . $checklist->name . '"';
+        }
+
+        $data = [
+            'name' => $title,
+            'table' => $table->name,
+            'user_name' => $user->name,
+            'data_id' => $request->task_id,
+            'create_by' => $user->id,
+            'type' => 'edit',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        DB::table('task_logs')->insert($data);
+    }
+
+
+
+    static function logChecklist_addOrEdit($table, $checklist, $request)
+    {
+        $user = auth()->user();
+        $table = Table::where('name', 'tasks')->first();
+        if ($request->id == 0) {
+            $title = $user->name . ' đã Thêm mới checklist "' . $checklist->name . '"';
+        } else {
+            $title = $user->name . ' đã sửa checklist "' . $checklist->name . '"';
+        }
+
+        $data = [
+            'name' => $title,
+            'table' => $table->name,
+            'user_name' => $user->name,
+            'data_id' => $request->task_id,
+            'create_by' => $user->id,
+            'type' => 'edit',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        DB::table('task_logs')->insert($data);
+    }
+
+    static function logChecklist_delete($table, $checklist, $request)
+    {
+        $user = auth()->user();
+        $table = Table::where('name', 'tasks')->first();
+
+        $data = [
+            'name' =>  $user->name . ' đã xóa checklist "' . $checklist->name . '"',
+            'table' => $table->name,
+            'user_name' => $user->name,
+            'data_id' => $request->task_id,
+            'create_by' => $user->id,
+            'type' => 'edit',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        DB::table('task_logs')->insert($data);
     }
 }

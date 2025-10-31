@@ -23,7 +23,10 @@ return new class extends Migration
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
+
+            // search mặc định, khi show ở kanban thì sẽ load những task có trạng thái này  nhiều hơn
             $table->integer('is_default')->default(1)->nullable();
+
             MigrateService::createBaseColumn($table);
 
             Table::create([
@@ -47,21 +50,21 @@ return new class extends Migration
             $tbl = Table::where('name', 'task_status')->first();
             $tableId = $tbl->id;
             $order_col = 1;
-            MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, 
+            MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++,
             ['edit' => 0]);
-            MigrateService::createColumn02($tableId, 'name', 'Tên', 'VARCHAR', 'text', $order_col++, 
+            MigrateService::createColumn02($tableId, 'name', 'Tên', 'VARCHAR', 'text', $order_col++,
             ['show_in_list' => 1, 'edit => 1']);
-            MigrateService::createColumn02($tableId, 'color', 'Màu chữ', 'VARCHAR', 'color', $order_col++, 
+            MigrateService::createColumn02($tableId, 'color', 'Màu chữ', 'VARCHAR', 'color', $order_col++,
             ['show_in_list' => 1, 'edit => 1']);
-            MigrateService::createColumn02($tableId, 'background', 'Màu nền', 'VARCHAR', 'color', $order_col++, 
+            MigrateService::createColumn02($tableId, 'background', 'Màu nền', 'VARCHAR', 'color', $order_col++,
             ['show_in_list' => 1, 'edit => 1']);
-            MigrateService::createColumn02($tableId, 'icon', 'Icon', 'VARCHAR', 'icon', $order_col++, 
+            MigrateService::createColumn02($tableId, 'icon', 'Icon', 'VARCHAR', 'icon', $order_col++,
             ['show_in_list' => 1, 'edit => 1']);
 
             $confirm = Table::where('name', 'confirm')->first();
-            MigrateService::createColumn02($tableId, 'is_active', 'Active', 'select', 'icon', $order_col++, 
+            MigrateService::createColumn02($tableId, 'is_active', 'Active', 'select', 'icon', $order_col++,
             ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
-            MigrateService::createColumn02($tableId, 'is_default', 'Tìm kiếm mặc định', 'select', 'icon', $order_col++, 
+            MigrateService::createColumn02($tableId, 'is_default', 'Tìm kiếm mặc định', 'select', 'icon', $order_col++,
             ['show_in_list' => 1, 'edit => 1', 'select_table_id' => $confirm->id]);
             MigrateService::baseColumn($tbl);
         });

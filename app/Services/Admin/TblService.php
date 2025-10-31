@@ -2136,7 +2136,7 @@ class TblService extends Service
         $datas = $datas->get();
         $result = [];
         foreach ($datas as $data) {
-            $result[$data->id] = $data;
+            $result[(string)$data->id] = $data;
         }
         return $result;
     }
@@ -2302,7 +2302,7 @@ class TblService extends Service
         $i = [];
         foreach ($data as $item) {
             $i[] = [
-                'value' => $item->id,
+                'value' => (string)$item->id,
                 'label' => $item->name,
                 'color' => isset($item->color) ? $item->color : '',
                 'background' => isset($item->background) ? $item->background : '',

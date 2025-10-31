@@ -15,7 +15,7 @@ class Task extends Model
         'tags' => Json::class,
     ];
 
-    static function baseQuery()
+    static function baseQuery($isRecycleBin = 0)
     {
         return self::select([
             'tasks.name as name',
@@ -24,6 +24,10 @@ class Task extends Model
             'tasks.end as end',
             'tasks.actual as actual',
             'tasks.project_id as project_id',
+            'tasks.description as description',
+            'tasks.is_daily as is_daily',
+            'tasks.is_weekly as is_weekly',
+            'tasks.is_monthly as is_monthly',
 
             'tasks.nguoi_thuc_hien as nguoi_thuc_hien',
             'tasks.nguoi_theo_doi as nguoi_theo_doi',
@@ -47,7 +51,7 @@ class Task extends Model
             ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
             ->leftJoin('task_priority', 'task_priority.id', 'tasks.task_priority_id')
             ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
-            ->where('tasks.is_recycle_bin', 0)
+            ->where('tasks.is_recycle_bin', $isRecycleBin)
             ->orderBy('tasks.sort_order', 'asc');
     }
 
@@ -69,11 +73,8 @@ class Task extends Model
             ->get();
         foreach ($status_db as $st) {
             $tasks = self::baseQuery()
-
                 ->where('tasks.task_status_id', $st->id)
-                ->where('tasks.parent_name', $parentName)
-                ->where('tasks.is_recycle_bin', 0)
-                ->orderBy('tasks.sort_order', 'asc');
+                ->where('tasks.parent_name', $parentName);
             if (!empty($request['pid'])) {
                 $tasks = $tasks->where('tasks.project_id', $request['pid']);
             }
@@ -90,7 +91,14 @@ class Task extends Model
                 $tasks = $tasks->where('tasks.task_priority_id', $request['priority']);
             }
 
-            $tasks = $tasks->get()->toArray();
+            $tasks = $tasks->orderBy('tasks.sort_order', 'asc');
+
+            if($st->is_default == 1) {
+                $tasks = $tasks->limit(30)->get()->toArray();
+            } else {
+                $tasks = $tasks->limit(10)->get()->toArray();
+            }
+
             $datas[] = [
                 'status' => $st,
                 'datas' => $tasks
@@ -103,6 +111,10 @@ class Task extends Model
     {
         $datas = self::select(
             'tasks.name as name',
+            'tasks.description as description',
+            'tasks.id as id',
+            'tasks.start as start',
+            'tasks.end as end',
             'task_status.name as task_status_name',
             'task_status.color as task_status_color',
             'task_status.background as task_status_background',
@@ -113,13 +125,15 @@ class Task extends Model
             'admin_users.name as assignee_name',
 
         )
-            ->where('tasks.project_id', $projectId)
             ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
             ->leftJoin('task_priority', 'task_priority.id', 'tasks.task_priority_id')
             ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
             ->where('tasks.is_recycle_bin', 0)
             ->orderBy('task_priority.sort_order', 'asc')
             ->orderBy('tasks.id', 'desc')
+
+
+            ->where('tasks.project_id', $projectId)
             ->get()
             ->toArray();
         dd($datas);
@@ -129,7 +143,8 @@ class Task extends Model
     static function getDatas($parentName, $searchData = [])
     {
         $dataSource = self::baseQuery()
-            ->where('tasks.parent_name', $parentName);
+            ->where('tasks.parent_name', $parentName)
+            ->where('tasks.project_id', $searchData['pid']);
         if (!empty($searchData['keyword'])) {
             $dataSource = $dataSource->where('tasks.name', 'like', '%' . $searchData['keyword'] . '%');
         }
@@ -139,7 +154,7 @@ class Task extends Model
         }
 
         if (!empty($searchData['manager'])) {
-            $dataSource = $dataSource->where('tasks.task_manager', $searchData['manager']);
+            $dataSource = $dataSource->where('tasks.nguoi_thuc_hien', $searchData['manager']);
         }
 
         if (!empty($searchData['support'])) {
