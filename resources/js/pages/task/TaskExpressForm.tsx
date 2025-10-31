@@ -96,7 +96,7 @@ export default function TaskExpressForm({
             });
             setIsLoadingBtn(false);
             setIsModalAddExpress(false);
-
+            console.log('display', display);
             if (display === 'kanban') {
                 setColumns(response.data.data);
             }

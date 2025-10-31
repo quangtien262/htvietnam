@@ -588,6 +588,7 @@ const TaskKanban: React.FC = () => {
                         setIsLoadingBtn={setIsLoadingBtn}
                         setIsModalAddExpress={setIsModalAddExpress}
                         setColumns={setColumns}
+                        display={display}
                     />
                 </Modal>
 
