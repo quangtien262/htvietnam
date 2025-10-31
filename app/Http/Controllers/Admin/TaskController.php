@@ -68,7 +68,7 @@ class TaskController extends Controller
         $statusTable = Table::where('name', 'task_status')->first();
 
         $statusData = DB::table('task_status')
-            ->select('sort_order as sort', 'id as key'  , 'task_status.*')
+            ->select('sort_order as sort', 'id as key', 'task_status.*')
             ->where('is_recycle_bin', 0)
             ->where('parent_name', $parentName)
             ->orderBy('sort_order', 'asc')
@@ -139,30 +139,6 @@ class TaskController extends Controller
     public function getList()
     {
         return Task::all();
-    }
-    public function store(Request $request)
-    {
-        $admin = Auth::guard('admin_users')->user();
-
-        $task = new Task();
-        $task->name = $request->name;
-        $task->description = $request->description;
-        $task->task_status_id = empty($request->task_status_id) ? 1 : $request->task_status_id;
-        $task->nguoi_thuc_hien = $request->nguoi_thuc_hien;
-        $task->nguoi_theo_doi = $request->nguoi_theo_doi;
-        $task->sort_order = 1;
-        $task->start = $request->start ? $request->start : null;
-        $task->end = $request->end ? $request->end : null;
-        $task->create_by = $admin->id;
-        $task->parent_name = $request->parentName;
-        $task->project_id = $request->pid;
-        $task->save();
-
-        TaskLog::logAdd('tasks', 'Đã thêm mới "' . $task->name . '"', $task->id);
-
-        $datas = Task::getTaskByStatus($request->all(), $request->parentName);
-
-        return $this->sendSuccessResponse($datas);
     }
 
     public function updateSortOrder(Request $request)
@@ -385,6 +361,32 @@ class TaskController extends Controller
         return $this->sendSuccessResponse($tasks);
     }
 
+
+    public function store(Request $request)
+    {
+        $admin = Auth::guard('admin_users')->user();
+
+        $task = new Task();
+        $task->name = $request->name;
+        $task->description = $request->description;
+        $task->task_status_id = empty($request->task_status_id) ? 1 : $request->task_status_id;
+        $task->nguoi_thuc_hien = $request->nguoi_thuc_hien;
+        $task->nguoi_theo_doi = $request->nguoi_theo_doi;
+        $task->sort_order = -1;
+        $task->start = $request->start ? $request->start : null;
+        $task->end = $request->end ? $request->end : null;
+        $task->create_by = $admin->id;
+        $task->parent_name = $request->parentName;
+        $task->project_id = $request->pid;
+        $task->save();
+
+        TaskLog::logAdd('tasks', 'Đã thêm mới "' . $task->name . '"', $task->id);
+
+        $datas = Task::getTaskByStatus($request->all(), $request->parentName);
+
+        return $this->sendSuccessResponse($datas);
+    }
+
     public function addExpress(Request $request)
     {
         if (empty($request->datas)) {
@@ -407,14 +409,19 @@ class TaskController extends Controller
             $task->create_by = $admin->id;
             $task->parent_name = $request->parentName;
             $task->project_id = $request->pid;
+            $task->sort_order = -1;
             $task->save();
             TaskLog::logAdd('tasks', 'Đã thêm nhanh "' . $task->name . '"', $task->id);
         }
 
         // get all
-        $tasks = Task::getTaskByStatus($request->all(), $request->parentName);
-
-
+        if ($request->display == 'kanban') {
+            $tasks = Task::getTaskByStatus($request->all(), $request->parentName);
+            return $this->sendSuccessResponse($tasks);
+        } else {
+            $tasks = Task::getDatas($request->parentName, $request->searchData);
+            return $this->sendSuccessResponse($tasks['data']);
+        }
 
         return $this->sendSuccessResponse($tasks);
     }

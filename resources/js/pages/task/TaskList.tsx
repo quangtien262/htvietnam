@@ -50,6 +50,7 @@ import { CSS } from '@dnd-kit/utilities';
 import "../../../css/list02.css";
 import "../../../css/task.css";
 import "../../../css/form.css";
+import { set } from "lodash";
 
 const CheckboxGroup = Checkbox.Group;
 const TaskList: React.FC = () => {
@@ -157,7 +158,6 @@ const TaskList: React.FC = () => {
                 setProject(response.project);
 
                 const searchDataTmp = response.searchData;
-                console.log('searchDataTmp', searchDataTmp.status);
                 setSearchData(searchDataTmp);
                 formSearch.setFieldValue('keyword', searchDataTmp.keyword || '');
                 formSearch.setFieldValue('status', searchDataTmp.status || []);
@@ -483,6 +483,7 @@ const TaskList: React.FC = () => {
                         setChecklistPercent(res.data.data.percent);
                         setTaskLog(res.data.data.logs);
                     }}>
+                        {record.task_priority_name ? <Tag className="tag-priority" color={record.task_priority_color}>{record.task_priority_name}</Tag> : ''}
                         <b>{text}</b>
                     </a>
                     {record.description ? <p>{record.description}</p> : ''}
@@ -519,15 +520,12 @@ const TaskList: React.FC = () => {
     const onFinishSearch = (values: any) => {
         values.p = p;
         values.display = display;
-        console.log('vaaaa', values);
-        // return;
+        values.pid = pid;
+        values.parentName = parent;
+
         setLoadingTable(true);
-        axios.post(API.searchTaskList, {
-            parentName: parent,
-            display: 'list',
-            pid: pid,
-            ...values
-        })
+        setSearchData(values);
+        axios.post(API.searchTaskList, values)
             .then((res: any) => {
                 setLoadingTable(false);
                 setDataSource(res.data.data.data);
@@ -710,6 +708,13 @@ const TaskList: React.FC = () => {
                                 <PlusCircleFilled /> Thêm mới
                             </Button>
 
+                            <Button type="primary"
+                                className="_right btn-submit01"
+                                onClick={() => setIsModalAddExpress(true)}
+                            >
+                                <PlusCircleFilled /> Thêm nhanh
+                            </Button>
+
                         </Col>
                     </Row>
                 </div>
@@ -861,8 +866,9 @@ const TaskList: React.FC = () => {
                         pid={pid}
                         setIsLoadingBtn={setIsLoadingBtn}
                         setIsModalAddExpress={setIsModalAddExpress}
-                        setColumns={setColumns}
+                        setDataSource={setDataSource}
                         display={display}
+                        searchData={searchData}
                     />
                 </Modal>
 

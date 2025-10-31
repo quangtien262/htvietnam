@@ -518,7 +518,6 @@ img {
 
 .ant-tag {
     white-space: normal !important;
-    padding: 0px 10px 2px 10px !important;
     border-radius: 5px !important;
     font-weight: normal;
     margin-bottom: 6px;
@@ -1316,4 +1315,9 @@ ul.ul-info li {
 }
 .form-item04 {
     height: 42px;
+}
+.tag-priority {
+    /* padding: 7px !important; */
+    font-size: 11px !important;
+    border-radius: 11px !important;
 }

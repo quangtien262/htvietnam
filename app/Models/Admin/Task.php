@@ -51,8 +51,7 @@ class Task extends Model
             ->leftJoin('task_status', 'task_status.id', 'tasks.task_status_id')
             ->leftJoin('task_priority', 'task_priority.id', 'tasks.task_priority_id')
             ->leftJoin('admin_users', 'admin_users.id', 'tasks.nguoi_thuc_hien')
-            ->where('tasks.is_recycle_bin', $isRecycleBin)
-            ->orderBy('tasks.sort_order', 'asc');
+            ->where('tasks.is_recycle_bin', $isRecycleBin);
     }
 
     static function getTaskByStatus($request = [], $parentName)
@@ -142,6 +141,7 @@ class Task extends Model
 
     static function getDatas($parentName, $searchData = [])
     {
+        // dd($searchData);
         $dataSource = self::baseQuery()
             ->where('tasks.parent_name', $parentName)
             ->where('tasks.project_id', $searchData['pid']);
@@ -162,7 +162,7 @@ class Task extends Model
             $dataSource = $dataSource->where('tasks.nguoi_theo_doi', 'like', '%"' . $searchData['support'] . '"%');
         }
 
-        $dataSource = $dataSource->paginate(30)->toArray();
+        $dataSource = $dataSource->orderBy('tasks.id', 'desc')->paginate(30)->toArray();
         return $dataSource;
     }
 }

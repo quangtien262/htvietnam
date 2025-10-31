@@ -103,7 +103,7 @@ const TaskKanban: React.FC = () => {
     const [typeSubmit, setTypeSubmit] = useState('save');
     const [isModalAddOpen, setIsModalAddOpen] = useState(false);
 
-    const [columns, setColumns] = useState([]);
+    const [dataSource, setDataSource] = useState([]);
 
     const [formDesc] = Form.useForm();
     const [formTitle] = Form.useForm();
@@ -116,8 +116,6 @@ const TaskKanban: React.FC = () => {
 
     const [isModalChecklist, setIsModalChecklist] = useState(false);
     const [statusAction, setConfigAction] = useState({ id: 0 });
-
-    // const [dataSource, setDataSource] = React.useState<DataType[]>(datas);
     const [formStatus] = Form.useForm();
 
     const [isReady, setIsReady] = useState(false);
@@ -130,7 +128,7 @@ const TaskKanban: React.FC = () => {
             .then((res: any) => {
                 setIsReady(true);
                 console.log('res.data.data', res.data.data);
-                setColumns(res.data.data.datas);
+                setDataSource(res.data.data.datas);
                 setStatus(res.data.data.taskStatus);
                 setStatusData(res.data.data.statusData);
                 setUsers(res.data.data.users);
@@ -304,7 +302,7 @@ const TaskKanban: React.FC = () => {
                 axios.post(API.taskStatusSortOrder, param).then((response) => {
                     message.success('Cập nhật thứ tự thành công');
                     console.log('sss', response.data.data);
-                    setColumns(response.data.data.columns);
+                    setDataSource(response.data.data.columns);
                 }).catch((error) => {
                     message.error('Cập nhật thứ tự thất bại');
                 });
@@ -327,7 +325,7 @@ const TaskKanban: React.FC = () => {
         console.log('values', values);
         setSearchData(values);
         axios.post(API.searchKanbanList, values).then(response => {
-            setColumns(response.data.data);
+            setDataSource(response.data.data);
         }).catch(error => {
             message.error('Lọc dữ liệu thất bại')
         });
@@ -348,7 +346,7 @@ const TaskKanban: React.FC = () => {
         axios.post(API.taskAdd, values)
             .then(response => {
                 setIsLoadingBtn(false);
-                setColumns(response.data.data);
+                setDataSource(response.data.data);
                 message.success("Đã lưu dữ liệu thành công");
 
                 // reset form
@@ -381,11 +379,11 @@ const TaskKanban: React.FC = () => {
         }
 
         // Sao chép mảng gốc
-        const newDatas = [...columns];
+        const newDatas = [...dataSource];
 
         // lấy index của cột
-        const source_index = columns.findIndex(item => item.status.id === +source.droppableId);
-        const destination_index = columns.findIndex(item => item.status.id === +destination.droppableId);
+        const source_index = dataSource.findIndex(item => item.status.id === +source.droppableId);
+        const destination_index = dataSource.findIndex(item => item.status.id === +destination.droppableId);
 
         // data cần di chuyển
         const itemToMove = newDatas[source_index].datas[source.index];
@@ -396,10 +394,21 @@ const TaskKanban: React.FC = () => {
             newDatas[source_index].datas = moveItemInArray(newDatas[source_index].datas, source.index, destination.index);
 
             // save 2 state
-            setColumns(newDatas); // Cập nhật state
+            setDataSource(newDatas); // Cập nhật state
 
             // lọc ra ids là danh sách id của data sau khi đã sắp xếp
             const ids = newDatas[destination_index].datas.map(item => item.id);
+
+            // update lại task, trường hợp chỉ đổi thứ tự
+            axios.post(API.taskSortOrder, {
+                id: itemToMove.id,
+                task_status_id: destination.droppableId,
+                ids: ids, // danh sach id cần sắp xếp lại
+            }).then(response => {
+                message.success('Cập nhật thứ tự thành công');
+            }).catch(error => {
+                message.error('Cập nhật thứ tự thất bại');
+            });
 
             return;
         }
@@ -417,12 +426,12 @@ const TaskKanban: React.FC = () => {
 
 
         // Cập nhật state
-        setColumns(newDatas);
+        setDataSource(newDatas);
 
         // lọc ra ids là danh sách id của data sau khi đã sắp xếp
         const ids = newDatas[destination_index].datas.map(item => item.id);
 
-        console.log('sssssss', itemToMove.id);
+        // update lại task, trường hợp đổi trạng thái và thứ tự
         axios.post(API.taskSortOrder, {
             id: itemToMove.id,
             task_status_id: destination.droppableId,
@@ -499,7 +508,7 @@ const TaskKanban: React.FC = () => {
                 ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
                 [columnName]: value,
             });
-            setColumns(response.data.data.datas);
+            setDataSource(response.data.data.datas);
             setDataAction(response.data.data.data);
             // response.data.data.data,
 
@@ -587,8 +596,9 @@ const TaskKanban: React.FC = () => {
                         pid={pid}
                         setIsLoadingBtn={setIsLoadingBtn}
                         setIsModalAddExpress={setIsModalAddExpress}
-                        setColumns={setColumns}
+                        setDataSource={setDataSource}
                         display={display}
+                        searchData={searchData}
                     />
                 </Modal>
 
@@ -688,7 +698,7 @@ const TaskKanban: React.FC = () => {
                     <Row>
                         <div>
                             <TaskKanbanBoard
-                                columns={columns}
+                                columns={dataSource}
                                 onDragEnd={onDragEnd}
                                 icon={icon}
                                 setOpenDetail={setOpenDetail}

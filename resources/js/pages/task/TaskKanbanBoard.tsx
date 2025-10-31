@@ -93,7 +93,7 @@ export default function TaskKanbanBoard({
                                                     <h3 className="title04 click"
                                                         onClick={() => clickTaskName(task)}
                                                     >
-                                                        {task.task_priority_name ? <Tag color={task.task_priority_color}>{task.task_priority_name}</Tag> : ''}
+                                                        {task.task_priority_name ? <Tag className="tag-priority" color={task.task_priority_color}>{task.task_priority_name}</Tag> : ''}
                                                         {task.name}
                                                     </h3>
 

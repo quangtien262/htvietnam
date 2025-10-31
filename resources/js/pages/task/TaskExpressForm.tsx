@@ -13,8 +13,9 @@ export default function TaskExpressForm({
     pid,
     setIsLoadingBtn,
     setIsModalAddExpress,
-    setColumns,
-    display
+    setDataSource,
+    display,
+    searchData
 }: any) {
     const formAddTaskExpress_default = {
         name: '',
@@ -93,13 +94,12 @@ export default function TaskExpressForm({
                 datas: formAddTaskExpress,
                 pid: pid,
                 parentName: parentName,
+                display: display,
+                searchData: searchData,
             });
             setIsLoadingBtn(false);
             setIsModalAddExpress(false);
-            console.log('display', display);
-            if (display === 'kanban') {
-                setColumns(response.data.data);
-            }
+            setDataSource(response.data.data);
 
         } catch (error) {
             setIsLoadingBtn(false);
