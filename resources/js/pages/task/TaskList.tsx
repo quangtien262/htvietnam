@@ -17,9 +17,19 @@ import {
 } from "antd";
 
 import {
-    SettingFilled, ProfileOutlined, EditOutlined,
+    SettingFilled, ProfileOutlined, EditOutlined, HolderOutlined, DeleteOutlined,
     PlusCircleFilled, InsertRowAboveOutlined, ApartmentOutlined,
 } from "@ant-design/icons";
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
+import { callApi } from "../../Function/api";
+import { TITLE } from '../../Function/constant';
+import { icon } from "../../components/comp_icon";
 
 import TaskFormModal from "./TaskFormModal";
 import TaskExpressForm from "./TaskExpressForm";
@@ -33,14 +43,13 @@ import TaskChecklistModal from "./TaskChecklistModal";
 import TaskCommentModal from "./TaskCommentModal";
 import StatusSettingModal from "./StatusSettingModal";
 
+
+
+// CSS
+import { CSS } from '@dnd-kit/utilities';
+import "../../../css/list02.css";
 import "../../../css/task.css";
-import { callApi } from "../../Function/api";
-
-import { taskConfig, taskInfo } from "./task_config";
-
-import { DATE_FORMAT, TITLE } from '../../Function/constant';
-import { icon } from "../../components/comp_icon";
-import { set } from "lodash";
+import "../../../css/form.css";
 
 const CheckboxGroup = Checkbox.Group;
 const TaskList: React.FC = () => {
@@ -97,8 +106,16 @@ const TaskList: React.FC = () => {
     const [checkListAction, setCheckListAction] = useState({ id: 0 });
     const formChecklist_default = { name: '', content: '', admin_user_id: null };
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
-
     const [isModalChecklist, setIsModalChecklist] = useState(false);
+
+    ////
+    const [isModalAddConfig, setIsModalAddConfig] = useState(false);
+    const [formStatus] = Form.useForm();
+    const [statusAction, setConfigAction] = useState({ id: 0 });
+    const [isModalAddExpress, setIsModalAddExpress] = useState(false);
+    const [columns, setColumns] = useState([]);
+
+
     // import excel
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -165,8 +182,210 @@ const TaskList: React.FC = () => {
         fetchData();
     }, []);
 
+    /////////////////common function///////////////
+
+    interface RowContextProps {
+        setActivatorNodeRef?: (element: HTMLElement | null) => void;
+        listeners?: SyntheticListenerMap;
+    }
+
+    const RowContext = React.createContext<RowContextProps>({});
+    interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+        'data-row-key': string;
+    }
+    const RowDnd: React.FC<RowProps> = (props) => {
+        const {
+            attributes,
+            listeners,
+            setNodeRef,
+            setActivatorNodeRef,
+            transform,
+            transition,
+            isDragging,
+        } = useSortable({ id: props['data-row-key'] });
+
+        const style: React.CSSProperties = {
+            ...props.style,
+            transform: CSS.Translate.toString(transform),
+            transition,
+            ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+        };
+
+        const contextValue = useMemo<RowContextProps>(
+            () => ({ setActivatorNodeRef, listeners }),
+            [setActivatorNodeRef, listeners],
+        );
+
+        return (
+            <RowContext.Provider value={contextValue}>
+                <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+            </RowContext.Provider>
+        );
+    };
+
+    const onDragEnd2 = ({ active, over }: DragEndEvent) => {
+        if (active.id !== over?.id) {
+            setStatusData((prevState) => {
+                const activeIndex = prevState.findIndex((record) => record.key === active?.id);
+                const overIndex = prevState.findIndex((record) => record.key === over?.id);
+                const newOrder = arrayMove(prevState, activeIndex, overIndex);
+
+                // Lấy danh sách key/id theo thứ tự mới
+                const orderKeys = newOrder.map(item => item.key);
+                console.log('orderKeys', orderKeys);
+
+                // send 2 server:
+                const param = {
+                    order: orderKeys,
+                    parentName: parent,
+                    currentName: 'task_status',
+                    searchData: searchData,
+                    pid: pid,
+                };
+                console.log('param', param);
+                // TODO:
+                axios.post(API.taskStatusSortOrder, param).then((response) => {
+                    message.success('Cập nhật thứ tự thành công');
+                    console.log('sss', response.data.data);
+                    setColumns(response.data.data.columns);
+                }).catch((error) => {
+                    message.error('Cập nhật thứ tự thất bại');
+                });
+
+                return newOrder;
+            });
+        }
+    };
+
+    //
+    const addTask = async (values: any) => {
+        values.typeSubmit = typeSubmit;
+        if (values.start) {
+            values.start = values.start.format('YYYY-MM-DD');
+        }
+        if (values.end) {
+            values.end = values.end.format('YYYY-MM-DD');
+        }
+        values.pid = pid;
+        values.parentName = parent;
+        // const res = await createTask(values);
+        axios.post(API.taskAdd, values)
+            .then(response => {
+                setIsLoadingBtn(false);
+                setColumns(response.data.data);
+                message.success("Đã lưu dữ liệu thành công");
+
+                // reset form
+                formData.resetFields();
+
+                // case lưu và đóng, đóng modal sau khu lưu thành công
+                if (typeSubmit === 'save') {
+                    setIsModalAddOpen(false);
+                }
+            })
+            .catch(error => {
+                setIsLoadingBtn(false);
+            });
+    }
+
+    //
+    function closePopupStatus() {
+        setIsShowStatusSetting(false);
+    }
+
+    //
+    function deleteTableStatus(id: number) {
+        const params = {
+            table_name: 'task_status',
+            id: statusAction.id,
+        };
+        // console.log('params', params);
+        // return
+        axios.post(API.deleteData, params).then(response => {
+            fetchData();
+        }).catch(error => {
+            message.error('Xóa thất bại');
+        });
+    };
+
+    const DragHandle: React.FC = () => {
+        const { setActivatorNodeRef, listeners } = useContext(RowContext);
+        return (
+            <Button
+                type="text"
+                size="small"
+                icon={<HolderOutlined />}
+                style={{ cursor: 'move' }}
+                ref={setActivatorNodeRef}
+                {...listeners}
+            />
+        );
+    };
+    const columnsStatus: TableColumnsType = [
+        { key: 'sort', align: 'center', width: 80, render: () => <DragHandle /> },
+        {
+            title: 'Name', dataIndex: 'name', render: (text, record: any) => {
+                return <span style={{ background: record.background, color: record.color, padding: '2px 5px', borderRadius: 3 }}>{text}</span>
+            }
+        },
+        { title: 'Description', dataIndex: 'description' },
+        {
+            title: 'operation',
+            dataIndex: 'operation',
+            render: (_: any, record: any) =>
+                statusData.length >= 1 ? (
+                    <>
+                        <a onClick={() => {
+                            console.log('record', record);
+                            setIsModalAddConfig(true);
+                            setConfigAction(record);
+                            formStatus.setFieldValue('name', record.name);
+
+                            console.log('record', record);
+                            formStatus.setFieldValue('description', record.description);
+                            if (record.color) {
+                                formStatus.setFieldValue('color', record.color ? record.color : null);
+                            }
+                            if (record.background) {
+                                formStatus.setFieldValue('background', record.background ? record.background : null);
+                            }
+
+                        }}
+                        ><EditOutlined /></a>
+                        <span> | </span>
+                        {/* TODO */}
+                        <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => deleteTableStatus(record.key)}>
+                            <a onClick={() => setConfigAction(record)}><DeleteOutlined /></a>
+                        </Popconfirm>
+                    </>
+                ) : null,
+        },
+    ];
 
 
+    /////////////////// common end /////////////////
+    const onfinishFormStatus = (values: any) => {
+        console.log('values', values);
+        // return;
+        if (values.background && typeof values.background === 'object') {
+            values.background = values.background.toHexString();;
+        }
+        if (values.color && typeof values.color === 'object') {
+            values.color = values.color.toHexString();;
+        }
+        values.id = statusAction.id;
+        values.pid = pid;
+        values.parentName = parent;
+        values.currentTable = 'task_status';
+        console.log('values', values);
+        axios.post(API.editConfigTask, values).then((response) => {
+            setIsModalAddConfig(false);
+            fetchData();
+            formStatus.resetFields();
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
     function closeModalAdd() {
         setIsModalAddOpen(false);
     }
@@ -507,7 +726,7 @@ const TaskList: React.FC = () => {
                             // initialValues={searchData}
                             layout="vertical">
                             <Form.Item name="keyword" label="Từ khóa">
-                                <Input placeholder="Nhập từ khóa" onBlur={() => formSearch.submit()} />
+                                <Input allowClear placeholder="Nhập từ khóa" onBlur={() => formSearch.submit()} />
                             </Form.Item>
                             <Form.Item name="status" label="Trạng thái">
                                 <CheckboxGroup className="item-status"
@@ -517,6 +736,7 @@ const TaskList: React.FC = () => {
                             </Form.Item>
                             <Form.Item name="manager" label="Người làm">
                                 <Select
+                                    allowClear
                                     showSearch
                                     placeholder="Chọn quản lý"
                                     optionFilterProp="children"
@@ -532,6 +752,7 @@ const TaskList: React.FC = () => {
                             <Form.Item name="support" label="Người support">
                                 <Select
                                     showSearch
+                                    allowClear
                                     placeholder="Chọn người support"
                                     optionFilterProp="children"
                                     filterOption={(input, option) =>
@@ -575,6 +796,23 @@ const TaskList: React.FC = () => {
     return (
         <div>
             <div>
+
+                {/* Cài đặt trạng thái  */}
+                <StatusSettingModal
+                    isShowStatusSetting={isShowStatusSetting}
+                    closePopupStatus={closePopupStatus}
+                    isModalAddConfig={isModalAddConfig}
+                    setIsModalAddConfig={setIsModalAddConfig}
+                    onfinishFormStatus={onfinishFormStatus}
+                    formStatus={formStatus}
+                    columnsStatus={columnsStatus}
+                    statusData={statusData}
+                    onDragEnd2={onDragEnd2}
+                    RowDnd={RowDnd}
+                    statusAction={statusAction}
+                    deleteTableStatus={deleteTableStatus}
+                />
+
                 <Modal title="Xác nhận xóa"
                     open={isModalXoaOpen}
                     onOk={async () => {
@@ -608,61 +846,40 @@ const TaskList: React.FC = () => {
 
                 {pageContent}
 
-                {/* modal  */}
-
-                <Modal title="Cài đặt trạng thái"
-                    className="status-setting"
-                    open={isShowStatusSetting}
-                    onCancel={() => setIsShowStatusSetting(false)}
+                {/* Thêm nhanh task */}
+                <Modal title="Thêm nhanh"
+                    open={isModalAddExpress}
+                    onCancel={() => setIsModalAddExpress(false)}
                     footer={[]}
+                    width={1000}
                 >
-                    <div>
-                        {/* {taskConfig(statusData, { parentName: props.parentName, currentName: 'task_status', searchData: props.searchData, pid: props.pid }, {
-                            name: 'Trạng thái',
-                            description: 'Mô tả ',
-                            color: 'Màu chữ',
-                            background: 'Màu nền',
-                        }, (result: any) => {
-                            setStatusData(result.status);
-                            //   setColumns(result.columns);
-                        })} */}
-
-                        <Row>
-                            <Col sm={24} className="text-center">
-                                <br />
-                                <Button type="primary"
-                                    className="btn-submit01"
-                                    onClick={() => setIsShowStatusSetting(false)}>
-                                    Đóng
-                                </Button>
-                            </Col>
-                        </Row>
-
-                    </div>
+                    <TaskExpressForm
+                        users={users}
+                        status={status}
+                        priority={priority}
+                        parentName={parent}
+                        pid={pid}
+                        setIsLoadingBtn={setIsLoadingBtn}
+                        setIsModalAddExpress={setIsModalAddExpress}
+                        setColumns={setColumns}
+                        display={display}
+                    />
                 </Modal>
 
-                {/* Thêm mới */}
-                <Modal title="Thêm mới"
+                {/* Thêm mới task */}
+                <TaskFormModal
                     open={isModalAddOpen}
-                    onCancel={() => closeModalAdd()}
-                    footer={[]}
-                    width={{
-                        xs: '90%',
-                        sm: '80%',
-                        md: '70%',
-                        lg: '60%',
-                        xl: '50%',
-                        xxl: '40%',
-                    }}
-                >
-
-                    {/* {formProject(statusData, props, (data: any) => {
-                                console.log('data', data);
-                                setDataSource(data);
-                                setIsModalAddOpen(false);
-                            })} */}
-
-                </Modal>
+                    onClose={closeModalAdd}
+                    formData={formData}
+                    onFinishData={addTask}
+                    initialValues={searchData}
+                    isLoadingBtn={isLoadingBtn}
+                    status={status}
+                    users={users}
+                    priority={priority}
+                    type={type}
+                    setTypeSubmit={setTypeSubmit}
+                />
 
             </div>
 

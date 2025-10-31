@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useMemo, useContext } from "react";
-import { Link, useLocation } from 'react-router-dom';
+
 import axios from "../../utils/axiosConfig";
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { API } from "../../common/api";
 import { ROUTE } from "../../common/route";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
     Button,
     message,
@@ -40,7 +39,7 @@ import {
 } from '@dnd-kit/sortable';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { CSS } from '@dnd-kit/utilities';
+
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 
@@ -60,14 +59,11 @@ import TaskChecklistModal from "./TaskChecklistModal";
 import TaskCommentModal from "./TaskCommentModal";
 import StatusSettingModal from "./StatusSettingModal";
 
-
+// CSS
+import { CSS } from '@dnd-kit/utilities';
 import "../../../css/list02.css";
 import "../../../css/task.css";
 import "../../../css/form.css";
-import { set, update } from "lodash";
-import { table } from "console";
-
-const { TextArea } = Input;
 
 const TaskKanban: React.FC = () => {
     const { parent, pid } = useParams<{ parent: string, pid: string }>();
@@ -119,7 +115,6 @@ const TaskKanban: React.FC = () => {
     const [checkListAction, setCheckListAction] = useState({ id: 0 });
 
     const [isModalChecklist, setIsModalChecklist] = useState(false);
-    const [tableConfig, setTableConfig] = useState('');
     const [statusAction, setConfigAction] = useState({ id: 0 });
 
     // const [dataSource, setDataSource] = React.useState<DataType[]>(datas);
@@ -161,7 +156,7 @@ const TaskKanban: React.FC = () => {
         values.id = statusAction.id;
         values.pid = pid;
         values.parentName = parent;
-        values.currentTable = tableConfig;
+        values.currentTable = 'task_status';
         console.log('values', values);
         axios.post(API.editConfigTask, values).then((response) => {
             setIsModalAddConfig(false);
@@ -171,6 +166,22 @@ const TaskKanban: React.FC = () => {
             console.error('Error:', error);
         });
     }
+
+
+    // xóa task
+    function deleteTableStatus(id: number) {
+        const params = {
+            table_name: 'task_status',
+            id: statusAction.id,
+        };
+        // console.log('params', params);
+        // return
+        axios.post(API.deleteData, params).then(response => {
+            fetchData();
+        }).catch(error => {
+            message.error('Xóa thất bại');
+        });
+    };
 
     const DragHandle: React.FC = () => {
         const { setActivatorNodeRef, listeners } = useContext(RowContext);
@@ -186,30 +197,8 @@ const TaskKanban: React.FC = () => {
         );
     };
 
-    interface RowContextProps {
-        setActivatorNodeRef?: (element: HTMLElement | null) => void;
-        listeners?: SyntheticListenerMap;
-    }
 
-    const RowContext = React.createContext<RowContextProps>({});
-
-    // xóa task
-    function deleteTableStatus(id: number) {
-        const params = {
-            table_name: tableConfig,
-            id: statusAction.id,
-        };
-        // console.log('params', params);
-        // return
-        axios.post(API.deleteData, params).then(response => {
-            fetchData();
-        }).catch(error => {
-            message.error('Xóa thất bại');
-        });
-    };
-
-
-    const columns2: TableColumnsType = [
+    const columnsStatus: TableColumnsType = [
         { key: 'sort', align: 'center', width: 80, render: () => <DragHandle /> },
         {
             title: 'Name', dataIndex: 'name', render: (text, record: any) => {
@@ -249,6 +238,13 @@ const TaskKanban: React.FC = () => {
                 ) : null,
         },
     ];
+
+    interface RowContextProps {
+        setActivatorNodeRef?: (element: HTMLElement | null) => void;
+        listeners?: SyntheticListenerMap;
+    }
+
+    const RowContext = React.createContext<RowContextProps>({});
 
     interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
         'data-row-key': string;
@@ -299,7 +295,7 @@ const TaskKanban: React.FC = () => {
                 const param = {
                     order: orderKeys,
                     parentName: parent,
-                    currentName: tableConfig,
+                    currentName: 'task_status',
                     searchData: searchData,
                     pid: pid,
                 };
@@ -566,8 +562,7 @@ const TaskKanban: React.FC = () => {
                     setIsModalAddConfig={setIsModalAddConfig}
                     onfinishFormStatus={onfinishFormStatus}
                     formStatus={formStatus}
-                    tableConfig={tableConfig}
-                    columns2={columns2}
+                    columnsStatus={columnsStatus}
                     statusData={statusData}
                     onDragEnd2={onDragEnd2}
                     RowDnd={RowDnd}
@@ -577,7 +572,7 @@ const TaskKanban: React.FC = () => {
 
 
 
-                {/* Thêm nhanh công việc */}
+                {/* Thêm nhanh task */}
                 <Modal title="Thêm nhanh"
                     open={isModalAddExpress}
                     onCancel={() => setIsModalAddExpress(false)}
@@ -610,6 +605,7 @@ const TaskKanban: React.FC = () => {
                     type={type}
                     setTypeSubmit={setTypeSubmit}
                 />
+
                 {/* title */}
                 <Row>
 
@@ -636,7 +632,6 @@ const TaskKanban: React.FC = () => {
                         {/* Cài đặt quy trình */}
                         <Button className="_right"
                             onClick={() => {
-                                setTableConfig('task_status');
                                 setIsShowStatusSetting(true);
                             }}
                         >

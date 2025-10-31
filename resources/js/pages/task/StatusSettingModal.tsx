@@ -14,8 +14,7 @@ export interface StatusSettingModalProps {
     setIsModalAddConfig: (v: boolean) => void;
     onfinishFormStatus: (values: any) => void;
     formStatus: any;
-    tableConfig: string;
-    columns2: any;
+    columnsStatus: any;
     statusData: any[];
     onDragEnd2: (event: any) => void;
     RowDnd: React.FC<any>;
@@ -30,8 +29,7 @@ const StatusSettingModal: React.FC<StatusSettingModalProps> = ({
     setIsModalAddConfig,
     onfinishFormStatus: onfinishFormStatus,
     formStatus: formStatus,
-    tableConfig,
-    columns2,
+    columnsStatus: columnsStatus,
     statusData,
     onDragEnd2,
     RowDnd,
@@ -81,7 +79,7 @@ const StatusSettingModal: React.FC<StatusSettingModalProps> = ({
                         <Table
                             rowKey="key"
                             components={{ body: { row: RowDnd } }}
-                            columns={columns2}
+                            columns={columnsStatus}
                             dataSource={statusData}
                         />
                     </SortableContext>

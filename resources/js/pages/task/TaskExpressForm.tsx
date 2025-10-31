@@ -13,7 +13,8 @@ export default function TaskExpressForm({
     pid,
     setIsLoadingBtn,
     setIsModalAddExpress,
-    setColumns
+    setColumns,
+    display
 }: any) {
     const formAddTaskExpress_default = {
         name: '',
@@ -95,7 +96,11 @@ export default function TaskExpressForm({
             });
             setIsLoadingBtn(false);
             setIsModalAddExpress(false);
-            setColumns(response.data.data);
+
+            if (display === 'kanban') {
+                setColumns(response.data.data);
+            }
+
         } catch (error) {
             setIsLoadingBtn(false);
             message.error("Tạo mới thất bại");
