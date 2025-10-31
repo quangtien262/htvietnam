@@ -27,8 +27,8 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { callApi } from "../../Function/api";
-import { TITLE } from '../../Function/constant';
+import { callApi } from "../../function/api";
+import { TITLE } from '../../function/constant';
 import { icon } from "../../components/comp_icon";
 
 import TaskFormModal from "./TaskFormModal";
