@@ -1,7 +1,7 @@
 
 const BASE_API_URL = "/aio/api/";
 export const API = {
-    menu: `${BASE_API_URL}menu/submenu`,
+    submenu: `${BASE_API_URL}menu/submenu`,
     menuDashboard: `${BASE_API_URL}menu/dashboard`,
 
     // data

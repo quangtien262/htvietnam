@@ -2,11 +2,18 @@ import React from "react";
 import { Card } from 'antd';
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import { ROUTE } from "../../common/route";
 
-const Dashboard: React.FC = () => {
+const DashboardAitilen: React.FC = () => {
     // const { id } = useParams();
     // const [searchParams] = useSearchParams();
     // const status = searchParams.get("status");
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get('p');
+    if(!p) {
+        // redirect to home
+        window.location.href = ROUTE.dashboard;
+    }
 
     return (
         <div>
@@ -15,4 +22,4 @@ const Dashboard: React.FC = () => {
     );
 };
 
-export default Dashboard;
+export default DashboardAitilen;

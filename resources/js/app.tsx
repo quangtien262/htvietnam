@@ -12,14 +12,15 @@ import '../css/admin.css';
 // import pages
 import Dashboard from './pages/home/Dashboard';
 
-// import products
-import ProductList from './pages/products/List';
-
 // Aitilen
+import DashboardAitilen from './pages/aitilen/DashboardAitilen';
 
 // Tasks
 import TaskKanban from './pages/task/TaskKanban';
 import TaskList from './pages/task/TaskList';
+
+// import products
+import ProductList from './pages/products/List';
 
 // Projects
 
@@ -31,7 +32,13 @@ const App: React.FC = () => (
         <AppLayout>
             <Routes>
                 <Route path="/" element={<Dashboard />} />
+
+                {/* Aitilen */}
+                <Route path="/bds/dashboard" element={<DashboardAitilen />} />
+
+                {/* products */}
                 <Route path="/products/:id" element={<ProductList />} />
+
                 {/* tasks */}
                 <Route path="/tasks/:parent/kanban/:pid" element={<TaskKanban />} />
                 <Route path="/tasks/:parent/list/:pid" element={<TaskList />} />

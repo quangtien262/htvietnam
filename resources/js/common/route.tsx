@@ -3,7 +3,10 @@ import TaskKanban from "../pages/task/TaskKanban";
 
 const baseRoute = "/aio/";
 export const ROUTE = {
-    Dashboard: baseRoute,
+    dashboard: baseRoute,
+
+    // Aitilen
+    dashboard_aitilen: `${baseRoute}aitilen/dashboard`,
 
     // tasks
     taskList_all: `${baseRoute}tasks/all/list/1`,

@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={ROUTE.dashboard_aitilen}>
                                 <DribbbleSquareOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={ROUTE.dashboard_aitilen + '?p=' + item.id}>
                                 <HomeOutlined /> BĐS AITILEN
                             </Link>
                         </div>
