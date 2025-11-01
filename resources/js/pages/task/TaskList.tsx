@@ -138,6 +138,7 @@ const TaskList: React.FC = () => {
     }
 
     const [isReady, setIsReady] = useState(false);
+
     function fetchData() {
         setLoadingTable(true);
         axios.post(API.taskList, {

@@ -66,8 +66,8 @@ import "../../../css/task.css";
 import "../../../css/form.css";
 
 const TaskKanban: React.FC = () => {
+    // get params from url
     const { parent, pid } = useParams<{ parent: string, pid: string }>();
-    const p = 1;
     const display = 'kanban';
     // const [searchParams] = useSearchParams();
     const [searchData, setSearchData] = useState({ parent: parent, pid: pid }); // trạng thái lọc hiện tại

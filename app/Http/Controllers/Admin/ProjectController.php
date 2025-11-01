@@ -48,13 +48,8 @@ class ProjectController extends Controller
             'project' => $project
         ]);
     }
-    /**
-     * Summary of index
-     * @param \Illuminate\Http\Request $request
-     * @param mixed $parentName
-     * @return \Inertia\Response
-     */
-    public function index(Request $request, $parentName)
+
+    public function indexApi(Request $request, $parentName)
     {
         $table = Table::where('name', $parentName)->first();
         $tableStatus = Table::where('name', 'project_status')->first();
@@ -97,11 +92,12 @@ class ProjectController extends Controller
 
         if ($display == 'list') {
             $props['dataSource'] = Project::getDatas($parentName, $searchData);
-            return Inertia::render('Admin/Project/index_list', $props);
+            return $this->sendSuccessResponse($props);
         }
+
         $datas = Project::getProjectByStatus($parentName, $searchData);
         $props['datas'] = $datas;
-        return Inertia::render('Admin/Project/index_kanban', $props);
+        return $this->sendSuccessResponse($props);
     }
 
     private function getSearchData($request, $status)

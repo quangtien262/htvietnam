@@ -28,7 +28,6 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         axios.post(API.menuDashboard)
             .then((res: any) => {
-                console.log(res.data.data);
                 setDatas(res.data.data);
             })
             .catch((err: any) => console.error(err));
@@ -73,7 +72,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={ROUTE.dashboard_aitilen + '?p=' + item.id}>
+                            <Link to={ROUTE.dashboard_aitilen}>
                                 <HomeOutlined /> BĐS AITILEN
                             </Link>
                         </div>
@@ -255,14 +254,14 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
-        {/* QUẢN LÝ CÔNG VIỆC */ }
+        {/* QUẢN LÝ DỰ ÁN */ }
         if (item.name === 'parent_cong_viec') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={ROUTE.TaskKanban_all}>
-                                <CalendarFilled /> QUẢN LÝ CÔNG VIỆC
+                                <CalendarFilled /> QUẢN LÝ DỰ ÁN & CÔNG VIỆC
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >

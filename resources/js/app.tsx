@@ -23,6 +23,7 @@ import TaskList from './pages/task/TaskList';
 import ProductList from './pages/products/List';
 
 // Projects
+import ProjectList from './pages/project/ProjectList';
 
 // import layout
 import AppLayout from './components/Layout';
@@ -42,6 +43,10 @@ const App: React.FC = () => (
                 {/* tasks */}
                 <Route path="/tasks/:parent/kanban/:pid" element={<TaskKanban />} />
                 <Route path="/tasks/:parent/list/:pid" element={<TaskList />} />
+
+                {/* projects */}
+                <Route path="/p/:parentName/list" element={<ProjectList />} />
+
             </Routes>
         </AppLayout>
     </BrowserRouter>

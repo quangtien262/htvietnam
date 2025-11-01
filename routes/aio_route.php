@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\ApiController;
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
@@ -61,7 +62,33 @@ Route::group(['prefix' => 'tasks'], function () {
 
     Route::get('{parentName}/list', [TaskController::class, 'index'])->name('task.list');
     // Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('task.sortOrder');
+});
 
+// project: api
+Route::group(['prefix' => 'project'], function () {
+    Route::put('update-sort-order/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    Route::post('sort-order/project-status', [ProjectController::class, 'updateSortOrderStatus'])->name('project.updateSortOrderStatus');
+    Route::post('fast-edit', [ProjectController::class, 'fastEditProject'])->name('project.fastEditProject');
+    Route::post('delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    Route::post('add-checklist', [ProjectController::class, 'addChecklist'])->name('project.addChecklist');
+    Route::post('add-comment', [ProjectController::class, 'addComment'])->name('project.addComment');
+    Route::post('info/{projectId}', [ProjectController::class, 'getProjectInfo'])->name('project.getProjectInfo');
 
+    //
+    Route::get('list', [ProjectController::class, 'indexApi'])->name('project.list');
+});
 
+Route::group(['prefix' => 'pj'], function () {
+    Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
+    Route::post('{parentName}/add', [ProjectController::class, 'store'])->name('project.add');
+    // Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    // Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
+    // Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
+
+    // Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
+    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
+    Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
+
+    Route::post('{parentName}/add-config/{currentTable}', [ProjectController::class, 'editConfig'])->name('project.editConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });

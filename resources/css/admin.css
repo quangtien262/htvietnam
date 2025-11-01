@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto');
 
 .logo-header {
     height: 50px;
@@ -593,11 +592,6 @@ img {
 .ant-menu-title-content:hover {
     color: #f1592a !important;
 }
-
-.ant-menu-title-content:hover {
-    font-weight: 900;
-}
-
 
 .ant-menu-submenu-title span {
     font-family: 'Roboto', sans-serif;
@@ -1320,4 +1314,5 @@ ul.ul-info li {
     /* padding: 7px !important; */
     font-size: 11px !important;
     border-radius: 11px !important;
+    font-weight: bold;
 }
