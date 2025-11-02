@@ -94,6 +94,8 @@ class TaskLog extends Model
         $log->data_id = $dataId;
         $log->user_name = $user->name;
         $log->create_by = $user->id;
+        $log->project_id = $projectId;
+        $log->task_id = $taskId;
         $log->type = 'delete';
         $log->save();
     }

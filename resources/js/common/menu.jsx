@@ -161,32 +161,32 @@ export const MENU = {
     ],
     pro: [
         {
-            label: <Link to="/?p=home">Báo cáo</Link>,
+            label: <Link to={`${ROUTE.dashboardProject}?p=pro`}>Báo cáo</Link>,
             icon: <BarChartOutlined />,
             key: (key++).toString(),
         },
         {
-            label: <Link to="/?p=home">Dự án</Link>,
+            label: <Link to={`${ROUTE.projectList}?p=pro`}>Dự án</Link>,
             icon: <ApartmentOutlined />,
             key: (key++).toString(),
         },
         {
-            label: <Link to={`${ROUTE.dashboard_aitilen}?p=pro`}>Công việc chung</Link>,
+            label: <a href={`${ROUTE.projectTaskKanban_all}?p=pro`}>Công việc chung</a>,
             icon: <UnorderedListOutlined />,
             key: (key++).toString(),
         },
         {
-            label: <Link to="/?p=home">Meeting</Link>,
+            label: <Link to={`${ROUTE.taskKanban_all}?p=pro`}>Meeting</Link>,
             icon: <TeamOutlined />,
             key: (key++).toString(),
         },
         {
-            label: <Link to="/?p=home">Lịch</Link>,
+            label: <Link to={`${ROUTE.taskKanban_all}?p=pro`}>Lịch</Link>,
             icon: <CalendarOutlined />,
             key: (key++).toString(),
         },
         {
-            label: <Link to="/?p=home">Ghi chú</Link>,
+            label: <Link to={`${ROUTE.taskKanban_all}?p=pro`}>Ghi chú</Link>,
             icon: <FileTextOutlined />,
             key: (key++).toString(),
         },

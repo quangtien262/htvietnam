@@ -73,9 +73,8 @@ class Project extends Model
         return $datas;
     }
 
-    static function getDatas($parentName, $searchData = []){
-        $dataSource = self::baseQuery()
-            ->where('projects.parent_name', $parentName);
+    static function getDatas($searchData = []){
+        $dataSource = self::baseQuery()->where('projects.parent_name', $searchData['parentName']);
         if (!empty($searchData['keyword'])) {
             $dataSource = $dataSource->where('projects.name', 'like', '%' . $searchData['keyword'] . '%');
         }

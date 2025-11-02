@@ -9,7 +9,7 @@ class ProjectComment extends Model
 {
     protected $table = 'project_comment';
 
-    static function getByProject($projectId)
+    static function getCommentsByProject($projectId)
     {
         return self::where('project_comment.project_id', $projectId)
             ->leftJoin('admin_users', 'admin_users.id', 'project_comment.create_by')

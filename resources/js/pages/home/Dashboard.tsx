@@ -260,8 +260,8 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={ROUTE.TaskKanban_all}>
-                                <CalendarFilled /> QUẢN LÝ DỰ ÁN & CÔNG VIỆC
+                            <Link to={`${ROUTE.dashboardProject}?p=pro`}>
+                                <CalendarFilled /> DỰ ÁN & CÔNG VIỆC
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >

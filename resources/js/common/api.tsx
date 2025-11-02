@@ -11,6 +11,9 @@ export const API = {
     updateData: `${BASE_API_URL}data/update`,
     fastEditData: `${BASE_API_URL}data/fast-edit`,
 
+    dataSelect: `${BASE_API_URL}data/data-select`,
+    dataKey: `${BASE_API_URL}data/data-key`,
+
     // tasks
     taskList: `${BASE_API_URL}task/list`,
     searchTaskList: `${BASE_API_URL}task/list/search`,
@@ -45,6 +48,13 @@ export const API = {
     projectAdd: `${BASE_API_URL}project/add`,
     projectUpdate: `${BASE_API_URL}project/update`,
     projectDelete: `${BASE_API_URL}project/delete`,
+    projectFastEdit: `${BASE_API_URL}project/fast-edit`,
+    projectSearch: `${BASE_API_URL}project/search`,
+    project_editConfig: `${BASE_API_URL}project/edit-config`,
+    projectAddChecklist: `${BASE_API_URL}project/add-checklist`,
+    projectAddComment: `${BASE_API_URL}project/add-comment`,
+    projectDeleteComment: `${BASE_API_URL}project/comment/delete`,
+    projectGetInfo: `${BASE_API_URL}project/info`,
 
     // users
     userList: `${BASE_API_URL}user/list`,

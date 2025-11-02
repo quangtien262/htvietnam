@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->text('name')->nullable();
             $table->string('description')->nullable();
             $table->integer('data_id')->default(0)->nullable();
+            $table->integer('project_id')->default(0)->nullable();
+            $table->integer('task_id')->default(0)->nullable();
             $table->string('table')->nullable();
             $table->string('parent_name')->nullable();
             $table->string('user_name')->nullable();

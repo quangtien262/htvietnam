@@ -22,15 +22,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
-    public function getProjectInfo(Request $request, $projectId = 0)
+    public function getProjectInfo(Request $request)
     {
+        $projectId = $request->project_id;
         if (empty($projectId)) {
             return $this->sendSuccessResponse([]);
         }
         // get project info
         $project = Project::find($projectId);
         // get all comments
-        $comments = ProjectComment::getByProject($projectId);
+        $comments = ProjectComment::getCommentsByProject($projectId);
         // get all checklist
         $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $projectId)->orderBy('id', 'desc')->get()->toArray();
         // $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
@@ -38,6 +39,9 @@ class ProjectController extends Controller
         $percent = TblService::getChecklistPercent($checklist);
         // tasks
         $tasks = Task::getTaskByProject($projectId);
+
+        $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
+        $percent = TblService::getChecklistPercent($checklist);
 
 
         return $this->sendSuccessResponse([
@@ -49,12 +53,30 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function indexApi(Request $request, $parentName)
+    public function search(Request $request)
     {
-        $table = Table::where('name', $parentName)->first();
+        $display = 'list'; // kanban
+        if ($request->display) {
+            $display = $request->display;
+        }
+
+        $searchData = $this->getSearchData($request);
+        if ($display == 'list') {
+            $props['dataSource'] = Project::getDatas($searchData);
+            return $this->sendSuccessResponse($props);
+        }
+
+        $datas = Project::getProjectByStatus($request->parentName, $searchData);
+        $props['datas'] = $datas;
+        return $this->sendSuccessResponse($props);
+    }
+
+    public function indexApi(Request $request)
+    {
+        $table = Table::where('name', $request->parentName)->first();
         $tableStatus = Table::where('name', 'project_status')->first();
-        $status = TblService::formatData('project_status', ['parent_name' => $parentName]);
-        $type = TblService::formatData('project_type', ['parent_name' => $parentName]);
+        $status = TblService::formatData('project_status', ['parent_name' => $request->parentName]);
+        $type = TblService::formatData('project_type', ['parent_name' => $request->parentName]);
         $users = TblService::formatData('admin_users');
         $admin = Auth::guard('admin_users')->user();
 
@@ -62,22 +84,22 @@ class ProjectController extends Controller
         $statusData = DB::table('project_status')
             ->select('sort_order as sort', 'id as key', 'project_status.*')
             ->where('is_recycle_bin', 0)
-            ->where('parent_name', $parentName)
+            ->where('parent_name', $request->parentName)
             ->orderBy('sort_order', 'asc')
             ->get()->toArray();
 
         // search data
-        $searchData = $this->getSearchData($request, $status);
+
         // dd($searchData);
         // áp dụng với quy trình ql dự án, cskh
         $display = 'list'; // kanban
         if ($request->display) {
             $display = $request->display;
         }
-
+        $searchData = $this->getSearchData($request);
         $props = [
             'display' => $display,
-            'parentName' => $parentName,
+            'parentName' => $request->parentName,
             'table' => $table,
             'admin' => $admin,
             'users' => $users,
@@ -91,19 +113,25 @@ class ProjectController extends Controller
         ];
 
         if ($display == 'list') {
-            $props['dataSource'] = Project::getDatas($parentName, $searchData);
+            $props['dataSource'] = Project::getDatas($searchData);
             return $this->sendSuccessResponse($props);
         }
 
-        $datas = Project::getProjectByStatus($parentName, $searchData);
+        $datas = Project::getProjectByStatus($request->parentName, $searchData);
         $props['datas'] = $datas;
         return $this->sendSuccessResponse($props);
     }
 
-    private function getSearchData($request, $status)
+    private function getSearchData($request)
     {
         $searchData = $request->all();
         if (empty($request->status)) {
+            $status = DB::table('project_status')
+                ->select('sort_order as sort', 'id as key', 'project_status.*')
+                ->where('is_recycle_bin', 0)
+                ->where('parent_name', $request->parentName)
+                ->orderBy('sort_order', 'asc')
+                ->get()->toArray();
             $statusDefault = [];
             foreach ($status as $val) {
                 if ($val->is_default == 1) {
@@ -118,8 +146,10 @@ class ProjectController extends Controller
         return $searchData;
     }
 
-    public function editConfig(Request $request, $parentTable, $currentTable)
+    public function editConfig(Request $request)
     {
+        $parentTable = $request->parentName;
+        $currentTable = $request->currentTable;
         $table = Table::where('name', $currentTable)->first();
         $admin = Auth::guard('admin_users')->user();
 
@@ -151,22 +181,22 @@ class ProjectController extends Controller
     {
         return Project::all();
     }
-    public function store(Request $request, $parentName)
+    public function store(Request $request)
     {
+        // dd($request->all());
         $admin = Auth::guard('admin_users')->user();
-
         // CRERATE PROJECT
         $project = new Project();
         $project->name = $request->name;
-        $project->description = $request->description;
+        $project->description = $request->description ?? '';
         $project->project_status_id = empty($request->project_status_id) ? 1 : $request->project_status_id;
-        $project->project_manager = $request->project_manager;
-        $project->nguoi_theo_doi = $request->nguoi_theo_doi;
+        $project->project_manager = $request->project_manager ?? null;
+        $project->nguoi_theo_doi = $request->nguoi_theo_doi ?? [];
         $project->sort_order = 1;
         $project->start = $request->start ? $request->start : null;
         $project->end = $request->end ? $request->end : null;
         $project->create_by = $admin->id;
-        $project->parent_name = $parentName;
+        $project->parent_name = $request->parentName;
         $project->save();
 
         if ($request->display == 'kanban') {
@@ -175,9 +205,8 @@ class ProjectController extends Controller
         }
 
         $table = Table::where('name', 'projects')->first();
-        $columns = Column::where('table_id', $table->id)->orderBy('sort_order', 'asc')->get();
 
-        $dataSource = Project::getDatas($parentName);
+        $dataSource = Project::getDatas($request->searchData);
 
         return $this->sendSuccessResponse($dataSource['data']);
     }
@@ -199,12 +228,21 @@ class ProjectController extends Controller
         return response()->json($project, 200);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request)
     {
-        Project::destroy($id);
-        // xóa task liên quan
-        Task::where('project_id', $id)->delete();
-        $datas = Project::getDatas($request->parentName, $request->searchData);
+        if (empty($request->id)) {
+            return $this->sendErrorResponse('empty');
+        }
+        $project = Project::find($request->id);
+        if (!$project) {
+            return $this->sendErrorResponse('not_found');
+        }
+        $project->is_recycle_bin = 1;
+        $project->save();
+
+        // update task liên quan vào thùng rác
+        Task::where('project_id', $request->id)->update(['is_recycle_bin' => 1]);
+        $datas = Project::getDatas($request->searchData);
 
         return $this->sendSuccessResponse([
             'datas' => $datas['data']
@@ -253,9 +291,9 @@ class ProjectController extends Controller
         $admin = Auth::guard('admin_users')->user();
 
         // save
-        if(!empty($request->id)){
+        if (!empty($request->id)) {
             $comment = ProjectComment::find($request->id);
-        }else{
+        } else {
             $comment = new ProjectComment();
         }
         $comment->content = $request->content;
@@ -264,7 +302,7 @@ class ProjectController extends Controller
         $comment->save();
 
         // get all
-        $comments = ProjectComment::getByProject($request->project_id);
+        $comments = ProjectComment::getCommentsByProject($request->project_id);
 
         return $this->sendSuccessResponse($comments);
     }
@@ -456,7 +494,7 @@ class ProjectController extends Controller
         if ($request->display == 'kanban') {
             // todo
         }
-        $datas = Project::getDatas($request->parentName, $request->searchData);
+        $datas = Project::getDatas($request->searchData);
         return $this->sendSuccessResponse(['dataAction' => $data, 'datas' => $datas['data']], 'Update successfully', 200);
     }
 
@@ -476,5 +514,27 @@ class ProjectController extends Controller
         $columns = Project::getProjectByStatus($request->searchData, $request->parentName);
         $status = TblService::formatData('project_status', ['parent_name' => $request->parentName, 'project_id' => $request->pid]);
         return $this->sendSuccessResponse(['columns' => $columns, 'status' => $status]);
+    }
+
+    public function deleteComment(Request $request)
+    {
+        if (empty($request->id)) {
+            return $this->sendErrorResponse('empty');
+        }
+
+        $comment = ProjectComment::find($request->id);
+        if (empty($comment)) {
+            return $this->sendErrorResponse('Comment not found');
+        }
+
+        TaskLog::logDelete('projects_comment', 'Đã xóa bình luận của dự án"' . $comment->content . '"', $comment->project_id);
+
+        $comment->is_recycle_bin = 1;
+        $comment->save();
+
+        // get all
+        $comments = ProjectComment::getByTask($comment->task_id);
+
+        return $this->sendSuccessResponse($comments);
     }
 }

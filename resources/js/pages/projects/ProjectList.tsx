@@ -27,7 +27,8 @@ import { DATE_FORMAT, TITLE } from '../../function/constant';
 import { icon } from "../../components/comp_icon";
 
 import { projectConfig, formProject, getProjectDetail, projectInfo } from "./project_config";
-import { API } from "../../common/api";
+import API from "../../common/api";
+import ROUTE from "../../common/route";
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -38,31 +39,37 @@ const ProductList: React.FC = () => {
     const [searchParams] = useSearchParams();
     const p = searchParams.get("p");
 
+    // form
+    const [form] = Form.useForm();
+    const [formSearch] = Form.useForm();
+
     // states
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loadingBtnDelete, setLoadingBtnDelete] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
     const [loadingBtnSearch, setLoadingBtnSearch] = useState(false);
     const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
-    const [dataSource, setDataSource] = useState(); //dataSource.data
     const [dataInfo, setDataInfo] = useState([]);
     const [confirmLoading, setConfirmLoading] = useState(false);
 
-    const [statusData, setStatusData] = useState(); // statusData
-    const [status, setStatus] = useState(); // projectStatus
-    const [form] = Form.useForm();
+    const [statusData, setStatusData] = useState([]); // statusData
+    const [status, setStatus] = useState([]); // projectStatus
     const [dataAction, setDataAction] = useState({ id: 0 });
+    const [dataSource, setDataSource] = useState([]); //dataSource.data
 
     const [isShowStatusSetting, setIsShowStatusSetting] = useState(false);
 
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
     const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-    const [formSearch] = Form.useForm();
     const [comments, setComments] = useState([]);
     const [checklist, setChecklist] = useState([]);
     const [checklistPercent, setChecklistPercent] = useState(0);
 
+    //
     const [props, setProps] = useState({});
+    const [users, setUsers] = useState([]);
+    const [tableStatusID, setTableStatusID] = useState([]);
+    const [searchData, setSearchData] = useState([]);
 
     const [openDetail, setOpenDetail] = useState(false);
 
@@ -87,30 +94,26 @@ const ProductList: React.FC = () => {
     }
     const [isReady, setIsReady] = useState(false);
 
-    function fetchData() {
+    function fetchData(request = {}) {
         setLoadingTable(true);
-        axios.post(API.projectList, {
-            parentName: parentName,
-            display: 'list'
-        })
+        axios.post(API.projectList, request)
             .then((res: any) => {
                 setIsReady(true);
                 const response = res.data.data;
                 console.log('res.data.data', response);
+                setProps(response);
                 setDataSource(response.dataSource.data);
-                setStatus(response.taskStatus);
+                setStatus(response.projectStatus);
                 setStatusData(response.statusData);
-                // setUsers(response.users);
-                // setPriority(response.priority);
-                // setType(response.type);
-                // setProject(response.project);
+                setUsers(response.users);
+                setTableStatusID(response.setTableStatusID);
 
                 const searchDataTmp = response.searchData;
-                // setSearchData(searchDataTmp);
                 formSearch.setFieldValue('keyword', searchDataTmp.keyword || '');
                 formSearch.setFieldValue('status', searchDataTmp.status || []);
                 formSearch.setFieldValue('manager', searchDataTmp.manager || null);
                 formSearch.setFieldValue('support', searchDataTmp.support || null);
+                setSearchData(searchDataTmp);
 
                 // set table params
                 setTableParams({
@@ -127,7 +130,7 @@ const ProductList: React.FC = () => {
             .catch((err: any) => console.error(err));
     }
     useEffect(() => {
-        fetchData();
+        fetchData({ parentName: parentName, display: 'list' });
     }, []);
 
 
@@ -220,7 +223,7 @@ const ProductList: React.FC = () => {
         {
             title: 'Name', dataIndex: 'name', render: (text, record: any) => {
                 return <>
-                    <Link href={`/tasks/${parentName}/kanban/${record.id}`}><b>{text}</b></Link>
+                    <Link to={`/tasks/${parentName}/kanban/${record.id}?p=${p}`}><b>{text}</b></Link>
                     {record.description ? <p>{record.description}</p> : ''}
                 </>;
             }
@@ -257,23 +260,42 @@ const ProductList: React.FC = () => {
                     console.log('record', record);
                     setOpenDetail(true);
                     setDataAction(record);
-                    const res = await callApi(route('project.getProjectInfo', [record.id]));
-                    setChecklist(res.data.data.checklist);
-                    setComments(res.data.data.comments);
-                    setChecklistPercent(res.data.data.percent);
+                    axios.post(API.projectGetInfo, { project_id: record.id }).then((res: any) => {
+                        console.log('reszzzzzzzzz', res);
+                        setChecklist(res.data.data.checklist);
+                        setComments(res.data.data.comments);
+                        setChecklistPercent(res.data.data.percent);
+                    });
                 }}><SettingOutlined /></a>;
             }
         },
     ];
 
     const onFinishSearch = (values: any) => {
-        values.p = props.p;
-        values.display = props.display;
+        setLoadingTable(true);
+        values.p = p;
+        values.display = 'list';
+        values.parentName = parentName;
         // console.log('Received values of form: ', values);
         // return;
         setLoadingTable(true);
         setLoadingBtnSearch(true);
-        router.get(route('project.list', [props.parentName]), values);
+        axios.post(API.projectSearch, values)
+            .then((res: any) => {
+                const response = res.data.data;
+                setDataSource(response.dataSource.data);
+                setTableParams({
+                    pagination: {
+                        ...tableParams.pagination,
+                        total: response.dataSource.total,
+                        current: response.dataSource.current_page,
+                        pageSize: response.dataSource.per_page,
+                    },
+                });
+                setLoadingTable(false);
+                setLoadingBtnSearch(false);
+            })
+            .catch((err: any) => console.error(err));
     };
 
     const pageContent = (
@@ -300,7 +322,7 @@ const ProductList: React.FC = () => {
                         <Col sm={{ span: 24 }}>
 
                             {/* page name */}
-                            <b className="title-page">{TITLE[props.parentName]}</b>
+                            <b className="title-page">{TITLE[parentName]}</b>
 
                             {/* TODO: Show số lượng item/page */}
 
@@ -357,9 +379,9 @@ const ProductList: React.FC = () => {
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                     }
-                                    options={Object.keys(props.users).map((key) => ({
-                                        label: props.users[key].name,
-                                        value: props.users[key].id.toString()
+                                    options={Object.keys(users).map((key) => ({
+                                        label: users[key].name,
+                                        value: users[key].id.toString()
                                     }))}
                                     onChange={(e) => formSearch.submit()} />
                             </Form.Item>
@@ -374,9 +396,9 @@ const ProductList: React.FC = () => {
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                     }
-                                    options={Object.keys(props.users).map((key) => ({
-                                        label: props.users[key].name,
-                                        value: props.users[key].id.toString()
+                                    options={Object.keys(users).map((key) => ({
+                                        label: users[key].name,
+                                        value: users[key].id.toString()
                                     }))}
                                     onChange={(e) => formSearch.submit()} />
                             </Form.Item>
@@ -384,7 +406,8 @@ const ProductList: React.FC = () => {
                             <Button type="primary"
                                 className="btn btn-primary btn-submit01"
                                 onClick={() => {
-                                    router.get(route('project.list', [props.parentName]), { p: props.p });
+                                    // TODO: fix search
+                                    router.get(route('project.list', [parentName]), { p });
                                 }}
                                 loading={loadingBtnSearch}
                             >
@@ -464,15 +487,17 @@ const ProductList: React.FC = () => {
             >
                 <div>
 
-                    {projectConfig(statusData, { parentName: props.parentName, currentName: 'project_status' }, {
-                        name: 'Trạng thái',
-                        description: 'Mô tả ',
-                        color: 'Màu chữ',
-                        background: 'Màu nền',
-                    }, (data: any) => {
-                        setStatusData(data.data);
-                        // setColumns(data.columns);
-                    })}
+                    {projectConfig(statusData, parentName, 'project_status',
+                        {
+                            name: 'Trạng thái',
+                            description: 'Mô tả ',
+                            color: 'Màu chữ',
+                            // background: 'Màu nền',
+                        },
+                        (data: any) => {
+                            setStatusData(data.data);
+                            // setColumns(data.columns);
+                        })}
 
                     <Row>
                         <Col sm={24} className="text-center">
@@ -503,7 +528,7 @@ const ProductList: React.FC = () => {
                 }}
             >
 
-                {formProject(statusData, props, (data: any) => {
+                {formProject(statusData, props, searchData, (data: any) => {
                     console.log('data', data);
                     setDataSource(data);
                     setIsModalAddOpen(false);
@@ -524,6 +549,7 @@ const ProductList: React.FC = () => {
                     comments,
                     checklist,
                     checklistPercent,
+                    searchData,
                     (result: any) => {
                         // set columns, dùng cho case fast edit
                         if (result.datas) {

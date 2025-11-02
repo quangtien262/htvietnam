@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSearchParams } from "react-router-dom";
 
 import {
@@ -56,8 +56,9 @@ const items = [
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [searchParams] = useSearchParams();
     const p = searchParams.get("p");
-    if (!p) { window.location.href = ROUTE.dashboard; }
-
+    // const navigate = useNavigate();
+    // if (!p) { navigate(`${ROUTE.dashboard}?p=home`); }
+    if (!p) { window.location.href = `${ROUTE.dashboard}?p=home`; }
 
     const isMobile = window.innerWidth < 768;
     const [spinning, setSpinning] = useState(false);

@@ -23,7 +23,8 @@ import TaskList from './pages/task/TaskList';
 import ProductList from './pages/products/List';
 
 // Projects
-import ProjectList from './pages/project/ProjectList';
+import DashboardProject from './pages/projects/DashboardProject';
+import ProjectList from './pages/projects/ProjectList';
 
 // import layout
 import AppLayout from './components/Layout';
@@ -45,6 +46,7 @@ const App: React.FC = () => (
                 <Route path="/tasks/:parent/list/:pid" element={<TaskList />} />
 
                 {/* projects */}
+                <Route path="/projects/dashboard" element={<DashboardProject />} />
                 <Route path="/p/:parentName/list" element={<ProjectList />} />
 
             </Routes>

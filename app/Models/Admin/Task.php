@@ -135,7 +135,6 @@ class Task extends Model
             ->where('tasks.project_id', $projectId)
             ->get()
             ->toArray();
-        dd($datas);
         return $datas;
     }
 

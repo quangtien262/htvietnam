@@ -38,6 +38,9 @@ import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo 
 import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../function/constant";
 import { icon } from "../../components/comp_icon";
 
+import API from "../../common/api";
+import ROUTE from "../../common/route";
+
 import "../../../css/list02.css";
 import "../../../css/task.css";
 import "../../../css/form.css";
@@ -70,6 +73,7 @@ const dataActionDefault = {
 };
 const { RangePicker } = DatePicker;
 
+
 // Define DataType interface based on expected data structure
 interface DataType {
     key: React.Key;
@@ -82,7 +86,8 @@ interface DataType {
 
 export function projectConfig(
     datas: any,
-    tbl: TblType,
+    parentName: string,
+    currentName: string,
     columns: columnType,
     onSuccess: (data: any) => void
 ) {
@@ -112,7 +117,9 @@ export function projectConfig(
             values.color = values.color.toHexString();;
         }
         values.id = dataAction.id;
-        axios.post(route('project.editConfig', [tbl.parentName, tbl.currentName]), values).then((response) => {
+        values.parentName = parentName;
+        values.currentName = currentName;
+        axios.post(API.project_editConfig, values).then((response) => {
             message.success('Thêm mới thành công');
             setDataSource(response.data.data.data);
             onSuccess(response.data.data);
@@ -149,7 +156,7 @@ export function projectConfig(
     const handleDelete = (key: React.Key) => {
         // const newData = dataSource.filter((item) => item.key !== key);
         // setDataSource(newData);
-        axios.post(route('project.deleteConfig', [tbl.parentName, tbl.currentName]), { id: key }).then((response) => {
+        axios.post(route('project.deleteConfig', [parentName, currentName]), { id: key }).then((response) => {
             message.success('Xóa thành công');
             setDataSource(response.data.data.data);
             onSuccess(response.data.data);
@@ -181,7 +188,10 @@ export function projectConfig(
                             formExpress.setFieldsValue(record);
                         }}><EditOutlined /></a>
                         <span> | </span>
-                        <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.key)}>
+                        <Popconfirm title="Bạn có chắc chắn muốn xóa?"
+                            onConfirm={() => {
+                                // TODO
+                            }}>
                             <a><DeleteOutlined /></a>
                         </Popconfirm>
                     </>
@@ -233,9 +243,8 @@ export function projectConfig(
                 // Lấy danh sách key/id theo thứ tự mới
                 const orderKeys = newOrder.map(item => item.key);
                 console.log('Thứ tự mới:', orderKeys);
-                console.log('tbl.currentName', tbl.currentName);
                 // send 2 server:
-                axios.post(route('data.sortOrder02'), { data: orderKeys, tableName: tbl.currentName })
+                axios.post(route('data.sortOrder02'), { data: orderKeys, tableName: currentName })
 
                 return newOrder;
             });
@@ -299,11 +308,12 @@ export function projectConfig(
     );
 }
 
-export function formProject(statusData: any, props: any, onSuccess: (data: any) => void) {
+export function formProject(statusData: any, props: any, searchData: any, onSuccess: (data: any) => void) {
 
     const [formData] = Form.useForm();
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [typeSubmit, setTypeSubmit] = useState('save');
+
     // form data
     const onFinishData = async (values) => {
         // setIsLoadingBtn(true);
@@ -314,15 +324,15 @@ export function formProject(statusData: any, props: any, onSuccess: (data: any) 
         if (values.end) {
             values.end = values.end.format('YYYY-MM-DD');
         }
-        //
         // return;
         values.display = props.display;
-
+        values.parentName = props.parentName;
+        console.log('props', props);
+        values.searchData = props.searchData;
         // const res = await createTask(values);
-        axios.post(route('project.add', { parentName: props.parentName }), values)
+        axios.post(API.projectAdd, values)
             .then(response => {
                 setIsLoadingBtn(false);
-
                 message.success("Đã lưu dữ liệu thành công");
                 // reset form
                 formData.resetFields();
@@ -578,6 +588,7 @@ export function projectInfo(props: any,
     comments: any,
     checklist: any,
     checklistPercent: any,
+    searchData: any,
     onSuccess: (data: any) => void) {
     const [formDesc] = Form.useForm();
     const [formTitle] = Form.useForm();
@@ -599,9 +610,7 @@ export function projectInfo(props: any,
     const [formChecklist, setFormChecklist] = useState([formChecklist_default, formChecklist_default, formChecklist_default]);
 
     useEffect(() => {
-        console.log('zzzssss');
-
-        axios.post(route('api.getDataKeyValue'), {table_names:['users', 'project_status']}).then((res) => {
+        axios.post(API.dataKey, {table_names:['users', 'project_status']}).then((res) => {
             setUsers(res.data.data.users);
             setStatus(res.data.data.project_status);
         }).catch((err) => {
@@ -619,7 +628,7 @@ export function projectInfo(props: any,
         console.log(commentAction);
         // return
 
-        axios.post(route('project.addComment'), {
+        axios.post(API.projectAddComment, {
             project_id: dataAction.id,
             content: values.content,
             id: commentAction.id
@@ -634,8 +643,8 @@ export function projectInfo(props: any,
         });
     }
 
-    const removeChecklistByIndex = (indexToRemove: number, id: number) => {
-        axios.post(route('data.fastEditByTableName'), {
+    const removeChecklistByIndex = (id: number) => {
+        axios.post(API.fastEditData, {
             column_name: 'is_recycle_bin',
             tbl_name: 'project_checklist',
             id: id,
@@ -657,14 +666,12 @@ export function projectInfo(props: any,
     };
 
     // xóa task
-    const handleDelete = (id: number, status: number) => {
+    const handleDelete = (id: number) => {
         const params = {
-            parentName: props.parentName,
-            pid: props.pid,
-            searchData: props.searchData,
-            p: props.p
+            id: id,
+            searchData: searchData
         };
-        axios.post(route('project.delete', id), params).then(response => {
+        axios.post(API.projectDelete, params).then(response => {
             message.success('Đã xóa thành công');
             const dataSuccess = {
                 isClosed: true,
@@ -680,7 +687,7 @@ export function projectInfo(props: any,
     };
 
     function updateTaskByColumn(id: number, columnName: string, value: any) {
-        axios.post(route('project.fastEditProject'), {
+        axios.post(API.projectFastEdit, {
             column_name: columnName,
             id: dataAction.id,
             value: value,
@@ -708,8 +715,8 @@ export function projectInfo(props: any,
     }
 
     function createChecklist() {
-        setIsLoadingBtn(true);
-        axios.post(route("project.addChecklist"), {
+        // setIsLoadingBtn(true);
+        axios.post(API.projectAddChecklist, {
             data: formChecklist,
             project_id: dataAction.id,
             checklist_id: checkListAction.id,
@@ -735,7 +742,7 @@ export function projectInfo(props: any,
 
 
     {/* form Thêm checklist */ }
-    function formAddTaskChecklist(users, task) {
+    function formAddChecklist(users, task) {
         function addFormCheckList() {
             setFormChecklist(prev => [...prev, formChecklist_default]);
         }
@@ -866,7 +873,7 @@ export function projectInfo(props: any,
             footer={[]}
             width={1000}
         >
-            {formAddTaskChecklist(props.users, dataAction)}
+            {formAddChecklist(props.users, dataAction)}
         </Modal>
 
         {/* form comment */}
@@ -1000,10 +1007,10 @@ export function projectInfo(props: any,
 
                                 <Popconfirm
                                     icon={<DeleteOutlined />}
-                                    title="Xác nhận xóa"
+                                    title="Xác nhận xóa checklist này!"
                                     description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
                                     onConfirm={() => {
-                                        removeChecklistByIndex(key, item.id);
+                                        removeChecklistByIndex(item.id);
                                     }}
                                 >
                                     <span title="Xóa" className="icon-large cursor" key="list-loadmore-more"><DeleteOutlined /></span>
@@ -1018,7 +1025,7 @@ export function projectInfo(props: any,
                                             if (e.target.checked) {
                                                 status = 1;
                                             }
-                                            axios.post(route('data.fastEditByTableName'), {
+                                            axios.post(API.fastEditData, {
                                                 column_name: 'is_checked',
                                                 tbl_name: 'project_checklist',
                                                 id: item.id,
@@ -1088,10 +1095,10 @@ export function projectInfo(props: any,
                                 </a>,
                                 <Popconfirm
                                     icon={<DeleteOutlined />}
-                                    title="Xác nhận xóa"
+                                    title="Xác nhận xóa comment này!"
                                     description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
                                     onConfirm={() => {
-                                        axios.post(route('task.deleteComment'), { id: item.id }).then(response => {
+                                        axios.post(API.projectDeleteComment, { id: item.id }).then(response => {
                                             message.success('Xóa comment thành công');
                                             onSuccess({ comments: response.data.data });
                                         }).catch(error => {
