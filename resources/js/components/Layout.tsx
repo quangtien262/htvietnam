@@ -56,8 +56,6 @@ const items = [
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [searchParams] = useSearchParams();
     const p = searchParams.get("p");
-    // const navigate = useNavigate();
-    // if (!p) { navigate(`${ROUTE.dashboard}?p=home`); }
     if (!p) { window.location.href = `${ROUTE.dashboard}?p=home`; }
 
     const isMobile = window.innerWidth < 768;
@@ -67,7 +65,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 
     let menus: any = MENU[p];
-    console.log(menus);
     return (
         <Layout>
             <div className="header01">

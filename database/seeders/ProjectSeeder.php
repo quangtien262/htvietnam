@@ -211,10 +211,12 @@ class ProjectSeeder extends Seeder
         // status cuar task sale Aitilen
         $idx = 1;
         $statusTaskSale = [
-            ['name' => 'Chưa liên hệ', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 1],
-            ['name' => 'Đang CSKH', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 1],
-            ['name' => 'Chốt đơn', 'color' => '#fff', 'background' => '#0dc65aff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0],
-            ['name' => 'Tạm dừng', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0],
+            ['name' => 'Chưa liên hệ', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 1, 'width' => 185],
+            ['name' => 'Đang xem phòng', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 1, 'width' => 185],
+            ['name' => 'Chờ confirm', 'color' => '#fff', 'background' => '#05489b', 'icon' => 'Spin', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0, 'width' => 185],
+            ['name' => 'Đã cọc', 'color' => '#fff', 'background' => '#057634', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0, 'width' => 185],
+            ['name' => 'Đã ký hợp đồng', 'color' => '#fff', 'background' => '#06b14d', 'icon' => 'CheckSquareOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0, 'width' => 185],
+            ['name' => 'Đã hủy', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen-sales', 'project_id' => $AitilenSale->id, 'is_default' => 0, 'width' => 185],
         ];
         DB::table('task_status')->insert($statusTaskSale);
 

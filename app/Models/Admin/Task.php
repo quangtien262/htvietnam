@@ -64,7 +64,10 @@ class Task extends Model
             'sort_order',
             'color',
             'background',
-            'icon'
+            'icon',
+            'width',
+            'is_default',
+            'is_active'
         )
             ->where('parent_name', $parentName)
             ->where('is_recycle_bin', 0)

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
+            $table->integer('width')->default(280)->nullable();
 
             // search mặc định, khi show ở kanban thì sẽ load những task có trạng thái này  nhiều hơn
             $table->integer('is_default')->default(1)->nullable();

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('user_type')->default('Aitilen')->nullable(); // Aitilen, HTVietNam
+            $table->string('user_type')->default('Aitilen')->nullable(); // Aitilen, HTVietNam, spa
             $table->string('name')->nullable();
             $table->string('username')->nullable();
             $table->string('password')->nullable();
@@ -69,6 +69,8 @@ return new class extends Migration
             $table->text('data_related')->nullable();
 
             $table->integer('merge_id')->default(0)->nullable();
+
+            $table->integer('require_changepw')->default(0)->nullable();
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

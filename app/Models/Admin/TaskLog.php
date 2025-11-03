@@ -85,19 +85,39 @@ class TaskLog extends Model
         DB::table('task_logs')->insert($data);
     }
 
-    static function logDelete($table, $name, $dataId)
+    static function logDelete($tableName, $title, $data)
     {
+        // projectId
+        $projectId = 0;
+        if ($tableName == 'projects') {
+            $projectId = $data->id;
+        }
+        if (isset($data->project_id)) {
+            $projectId = $data->project_id;
+        }
+
+        // tasksId
+        $taskId = 0;
+        if ($tableName == 'tasks') {
+            $taskId = $data->id;
+        }
+        if (isset($data->task_id)) {
+            $taskId = $data->task_id;
+        }
         $user = auth()->user();
-        $log = new self();
-        $log->name = $name;
-        $log->table = $table;
-        $log->data_id = $dataId;
-        $log->user_name = $user->name;
-        $log->create_by = $user->id;
-        $log->project_id = $projectId;
-        $log->task_id = $taskId;
-        $log->type = 'delete';
-        $log->save();
+        $data = [
+            'name' => $title,
+            'table' => $tableName,
+            'user_name' => $user->name,
+            'data_id' => $data->id,
+            'create_by' => $user->id,
+            'project_id' => $projectId,
+            'task_id' => $taskId,
+            'type' => 'edit',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        DB::table('task_logs')->insert($data);
     }
 
     static function logChecklist_checked($table, $checklist, $request)

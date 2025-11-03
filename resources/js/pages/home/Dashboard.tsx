@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={ROUTE.dashboard_aitilen}>
+                            <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
                                 <HomeOutlined /> BĐS AITILEN
                             </Link>
                         </div>

@@ -15,13 +15,18 @@ return new class extends Migration
     {
         Schema::create('contract', function (Blueprint $table) {
             $table->id();
+            // loại hợp đồng: bds, it, spa...
+            $table->string('contract_type')->default(1)->nullable();
 
+            // thông tin chung
             $table->text('name')->nullable();
             $table->text('images')->nullable(); // ảnh hđồng
             $table->string('code')->nullable();
             $table->integer('aitilen_invoice_id')->nullable();
-            $table->integer('room_id')->nullable(); // nv thực hiện
-            $table->integer('apartment_id')->nullable(); // // json người theo dõi hoặc làm cùng
+
+            $table->integer('room_id')->nullable(); // bds: số phòng
+            $table->integer('apartment_id')->nullable(); // bds: số căn hộ
+
             $table->integer('contract_status_id')->nullable();
 
             $table->integer('aitilen_service_id')->nullable();
@@ -49,6 +54,9 @@ return new class extends Migration
             $table->date('ngay_cap')->nullable();
             $table->text('noi_cap')->nullable();
             $table->string('hktt')->nullable();
+
+            $table->string('is_active')->default(1)->nullable();
+
 
             //
             $table->string('phi_moi_gioi')->nullable();

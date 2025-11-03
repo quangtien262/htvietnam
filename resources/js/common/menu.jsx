@@ -29,14 +29,14 @@ let key = 0;
 export const MENU = {
     home: [
         {
-            label: <Link to="/?p=home">Home</Link>,
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
             icon: <HomeOutlined />,
             key: (key++).toString(),
         },
     ],
     bds: [
         {
-            label: <Link className='normal' to="/?p=home">Home</Link>,
+            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
             icon: <HomeOutlined />,
             key: (key++).toString(),
         },
@@ -52,7 +52,7 @@ export const MENU = {
             icon: <UnorderedListOutlined />,
             children: [
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Task</Link>,
+                    label: <a href={`${ROUTE.taskKanban_all}?p=bds`}>Task</a>, // check mobile, show dang list
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
@@ -75,17 +75,17 @@ export const MENU = {
             icon: <ApartmentOutlined />,
             children: [
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Hóa đơn</Link>,
+                    label: <Link to={`${ROUTE.invoice_bds}?p=bds`}>Hóa đơn</Link>,
                     key: (key++).toString(),
                     icon: <CopyOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Hợp đồng</Link>,
+                    label: <Link to={`${ROUTE.contactList_BDS}?p=bds`}>Hợp đồng</Link>,
                     key: (key++).toString(),
                     icon: <BookOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Chốt điện/nước</Link>,
+                    label: <Link to={`${ROUTE.aitilen_DienNuoc}?p=bds`}>Chốt điện/nước</Link>,
                     key: (key++).toString(),
                     icon: <FileDoneOutlined />,
                 },
@@ -98,12 +98,12 @@ export const MENU = {
             icon: <DashboardOutlined />,
             children: [
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Phòng trống</Link>,
+                    label: <a href={`${ROUTE.taskKanban_phongTrong}?p=bds`}>Phòng trống</a>,
                     key: (key++).toString(),
                     icon: <DashboardOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Khách xem phòng</Link>,
+                    label: <a href={`${ROUTE.taskKanban_aitilenSales}?p=bds`}>Khách xem phòng</a>,
                     key: (key++).toString(),
                     icon: <TeamOutlined />,
                 },
@@ -160,6 +160,11 @@ export const MENU = {
         }
     ],
     pro: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
         {
             label: <Link to={`${ROUTE.dashboardProject}?p=pro`}>Báo cáo</Link>,
             icon: <BarChartOutlined />,

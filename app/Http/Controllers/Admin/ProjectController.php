@@ -527,13 +527,14 @@ class ProjectController extends Controller
             return $this->sendErrorResponse('Comment not found');
         }
 
-        TaskLog::logDelete('projects_comment', 'Đã xóa bình luận của dự án"' . $comment->content . '"', $comment->project_id);
+        $title = 'Đã xoá bình luận: "' . $comment->content . '"';
+        TaskLog::logDelete('project_comment', $title, $comment);
 
         $comment->is_recycle_bin = 1;
         $comment->save();
 
         // get all
-        $comments = ProjectComment::getByTask($comment->task_id);
+        $comments = ProjectComment::getCommentsByProject($comment->project_id);
 
         return $this->sendSuccessResponse($comments);
     }

@@ -60,7 +60,7 @@ export default function TaskKanbanBoard({
                                         ? "#e0f7fa"
                                         : "#f1f1f1",
                                     borderRadius: 8,
-                                    width: 280,
+                                    width: value.status.width, // 280
                                     minHeight: 500
                                 }}
                                 className={`main-task bg-gray-100 rounded p-4 min-h-[400px] ${snapshot.isDraggingOver ? "bg-blue-100" : ""}`}

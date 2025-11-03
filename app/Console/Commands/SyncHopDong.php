@@ -461,6 +461,8 @@ class SyncHopDong extends Command
                     'id' => $data[0], //
                     'code'  => $code, //
                     'name'  => $name, //
+                    'require_changepw'  => 1, // bắt buộc đổi mk lần đầu
+                    'user_type'  => 'bds',
                     'username'  => $data[4] ?? null, //
                     'password'  => $password, //
                     'ngay_sinh'  => empty($data[5]) || $data[5] == "NULL" ? null : $data[5], //

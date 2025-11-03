@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AitilenController;
+use App\Http\Controllers\Admin\AitilenInvoiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\ApiController;
+use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
@@ -106,3 +110,42 @@ Route::group(['prefix' => 'pj'], function () {
     Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 
+// invoice: api
+Route::group(['prefix' => 'invoice'], function () {
+    // Route::post('index-api/bds', [InvoiceController::class, 'indexApi'])->name('invoice.indexApi');
+    // Route::post('search/bds', [InvoiceController::class, 'searchApi'])->name('invoice.searchApi');
+    // Route::post('update', [InvoiceController::class, 'updateInvoice'])->name('invoice.update');
+    // Route::post('change-status', [InvoiceController::class, 'changeInvoiceStatus'])->name('invoice.changeStatus');
+    // Route::post('delete', [InvoiceController::class, 'deleteInvoice'])->name('invoice.delete');
+    
+});
+
+// Aitilen business
+Route::group(['prefix' => 'aitilen'], function () {
+    Route::post('service/dien-nuoc', [AitilenController::class, 'dienNuoc'])->name('aitilen.service.dienNuoc');
+    Route::post('service/save-dien-nuoc', [AitilenController::class, 'saveDienNuoc'])->name('aitilen.service.saveDienNuoc');
+    Route::post('service/fast-edit-dien-nuoc', [AitilenController::class, 'fastEditDienNuoc'])->name('aitilen.service.fastEditDienNuoc');
+    Route::post('service/delete-dien-nuoc', [AitilenController::class, 'deleteDienNuoc'])->name('aitilen.service.deleteDienNuoc');
+    Route::post('service/search-dien-nuoc', [AitilenController::class, 'searchDienNuoc'])->name('aitilen.service.dienNuocSearch');
+    Route::post('service/create-data-dien-nuoc-thang', [AitilenController::class, 'createDataDienNuocThang'])->name('aitilen.service.createDataDienNuocThang');
+    Route::post('invoice/create-invoice-by-month', [AitilenController::class, 'createInvoiceMonth'])->name('aitilen.service.createInvoiceMonth');
+
+    // invoice
+    Route::post('invoice/index-api/bds', [AitilenInvoiceController::class, 'indexApi_bds'])->name('bds.invoice.indexApi');
+    Route::post('invoice/search/bds', [AitilenInvoiceController::class, 'searchApi_bds'])->name('bds.invoice.searchApi');
+    Route::post('invoice/update', [AitilenInvoiceController::class, 'updateInvoice'])->name('aio.invoice.update');
+    Route::post('invoice/change-status', [AitilenInvoiceController::class, 'changeInvoiceStatus'])->name('aio.invoice.changeStatus');
+    Route::post('invoice/delete', [AitilenInvoiceController::class, 'deleteInvoice'])->name('aio.invoice.delete');
+    Route::post('invoice/active-current', [AitilenInvoiceController::class, 'activeCurrentInvoice'])->name('aio.invoice.activeCurrent');
+    Route::post('invoice/active-all', [AitilenInvoiceController::class, 'activeAllInvoice'])->name('aio.invoice.activeAll');
+});
+
+
+// contact: api
+Route::group(['prefix' => 'contract'], function () {
+    Route::post('index-api/bds', [ContractController::class, 'indexBds'])->name('contract.index');
+    Route::post('update', [ContractController::class, 'update'])->name('contract.update');
+    Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
+    Route::post('search', [ContractController::class, 'search'])->name('contract.search');
+
+});

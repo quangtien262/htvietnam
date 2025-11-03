@@ -32,7 +32,6 @@ class Contract extends Model
         } else {
             $data=$data->where('contract.is_draft', 0);
         }
-        $data = $data->orderBy('contract.created_at', 'asc');
         return $data;
     }
 
@@ -59,7 +58,7 @@ class Contract extends Model
         }
 
 
-        $datas = $datas->orderBy('contract.created_at', 'desc')->paginate(20);
+        $datas = $datas->orderBy('contract.id', 'desc')->paginate(20);
         return $datas;
     }
 }

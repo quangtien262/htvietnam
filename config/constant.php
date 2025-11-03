@@ -262,6 +262,12 @@ return [
         'the_gia_tri' => 1,
         'the_lieu_trinh' => 2,
 	],
-
-    
+    // Đơn vị dịch vụ
+    'service_per' => [
+        'Person' => 'Phòng',
+        'Room' => 'Người',
+        'KWH' => 'KWH',
+        'M3' => 'M3',
+        'Xe' => 'Xe',
+    ]
 ];

@@ -18,7 +18,9 @@
 .cursor {
     cursor: pointer;
 }
-
+.text-success {
+    color: #06961e !important;
+}
 /* BTN */
 .btn-success {
     background-color: #06961e;
@@ -915,7 +917,6 @@ table.ant-table-content tr td img {
 
 .ant-table-content {
     width: 100%;
-    overflow: auto;
 }
 
 .btn-error {

@@ -81,10 +81,6 @@ export default function TaskExpressForm({
                 isValid = false;
                 message.error(<em>Vui lòng nhập trạng thái cho <b>{item.name}</b></em>);
             }
-            if (item.name && item.name.trim() !== '' && !item.task_priority_id) {
-                isValid = false;
-                message.error(<em>Vui lòng nhập độ ưu tiên cho <b>{item.name}</b></em>);
-            }
         });
         if (!isValid) return;
 

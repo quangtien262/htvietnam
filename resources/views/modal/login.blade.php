@@ -94,7 +94,7 @@
                 alertDiv.innerHTML = res.message || 'Đăng nhập thành công, chuyển hướng...';
                 // redirect
                 if(res.data.role && res.data.role === 'admin') {
-                    window.location.href = '/adm';
+                    window.location.href = '/aio?p=home';
                     return;
                 }
                 // window.location.reload();

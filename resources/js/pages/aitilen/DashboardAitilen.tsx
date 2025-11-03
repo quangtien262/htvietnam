@@ -35,12 +35,12 @@ import { routeSales } from "../../function/config_route";
 import { history } from "../../function/report";
 import type { GetProp, MenuProps } from 'antd';
 
-import TotalReport from "./TotalReport";
-import TienPhongReport from "./TienPhongReport";
-import DichVuReport from "./DichVuReport";
-import ThuChiReport from "./ThuChiReport";
-import CongNoReport from "./CongNoReport";
-import AssetReport from "./AssetReport";
+import TotalReport from "./components/TotalReport";
+import TienPhongReport from "./components/TienPhongReport";
+import DichVuReport from "./components/DichVuReport";
+import ThuChiReport from "./components/ThuChiReport";
+import CongNoReport from "./components/CongNoReport";
+import AssetReport from "./components/AssetReport";
 
 
 const DashboardAitilen: React.FC = () => {

@@ -38,19 +38,6 @@ return new class extends Migration
 
             $table->text('services')->nullable(); // json dịch vụ
 
-
-            // $table->integer('tien_dien')->default(0)->nullable();
-            // $table->integer('tien_nuoc')->default(0)->nullable();
-            // $table->integer('tien_vs')->default(0)->nullable();
-            // $table->integer('tien_mang')->default(0)->nullable();
-            // $table->integer('dien_chung')->default(0)->nullable();
-            // $table->integer('nong_lanh')->default(0)->nullable();
-            // $table->integer('xe_dap_dien')->default(0)->nullable();
-            // $table->integer('tu_lanh')->default(0)->nullable();
-            // $table->integer('thang_may')->default(0)->nullable();
-            // $table->integer('quan_ly_chung')->default(0)->nullable();
-            // $table->integer('ho_tro_gui_xe')->default(0)->nullable();
-
             $table->integer('phi_bao_tri')->default(0)->nullable();
 
 

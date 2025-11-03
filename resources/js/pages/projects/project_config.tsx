@@ -34,7 +34,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 // END DND
 
-import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo } from "../../function/common";
+import { optionEntries, nl2br, objEntries, showInfo } from "../../function/common";
 import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../function/constant";
 import { icon } from "../../components/comp_icon";
 
@@ -1121,7 +1121,7 @@ export function projectInfo(props: any,
                                 }
                                 description={
                                     <div>
-                                        <p>{item.content}</p>
+                                        <p>{item.content ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : null}</p>
                                     </div>
                                 }
                             />

@@ -86,7 +86,7 @@ export const LOAI_CHUNG_TU = {
 export const DON_VI_SERVICE = [
     { value: "Person", label: "Phòng" },
     { value: "Room", label: "Người" },
-    { value: "kWh", label: "kWh" },
-    { value: "m3", label: "M3" },
+    { value: "KWH", label: "KWH" },
+    { value: "M3", label: "M3" },
     { value: "Xe", label: "Xe" },
 ];

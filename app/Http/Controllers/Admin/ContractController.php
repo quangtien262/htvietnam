@@ -17,10 +17,30 @@ use App\Services\Admin\TblService;
 
 class ContractController extends Controller
 {
-    public function index(Request $request)
+    public function search(Request $request)
     {
         $searchData = $request->all();
-
+        $datas = Contract::getContract($searchData);
+        $pageConfig = [
+            'currentPage' => $datas->currentPage(),
+            'perPage' => $datas->perPage(),
+            'total' => $datas->total(),
+            'lastPage' => $datas->lastPage(),
+            'count' => count($datas->items()),
+        ];
+        $props = [
+            'searchData' => $searchData,
+            'datas' => $datas->items(),
+            'pageConfig' => $pageConfig,
+            'csrf_token' => csrf_token(),
+            'p' => $request->p ?? 0,
+        ];
+        return $this->sendSuccessResponse($props);
+    }
+    public function indexBds(Request $request)
+    {
+        $searchData = $request->all();
+        
         $datas = Contract::getContract($searchData);
 
         $pageConfig = [
@@ -40,12 +60,12 @@ class ContractController extends Controller
             ->orderBy('sort_order', 'asc')->get()->toArray();
 
 
-        $users_db = User::orderBy('id', 'desc')->get();
+        $users_db = User::select('id', 'name', 'username')->orderBy('id', 'desc')->get();
         $users_select = [];
         foreach ($users_db as $user) {
             $users_select[] = [
                 'value' => $user->id . '',
-                'label' => '[' . $user->id . ']' . $user->name . ' - ' . $user->created_at->format('d/m/Y'),
+                'label' => '[' . $user->id . ']' . $user->name,
             ];
         }
 
@@ -62,7 +82,7 @@ class ContractController extends Controller
             'csrf_token' => csrf_token(),
             'p' => $request->p ?? 0,
         ];
-        return Inertia::render('Admin/Contract/index', $props);
+        return $this->sendSuccessResponse($props);
     }
 
     private function ucwords_unicode($str)
@@ -110,6 +130,8 @@ class ContractController extends Controller
         $data->so_nguoi = $request->so_nguoi;
         $data->total = $request->total;
         $data->services = $request->services;
+        $data->end_date = $request->end_date;
+        $data->start_date = $request->start_date;
 
 
         // set create_by

@@ -1,13 +1,13 @@
-
+import { Spin } from 'antd';
 import {
     CaretLeftOutlined,CheckCircleFilled,
     CaretUpOutlined ,VerticalAlignBottomOutlined,
-    UpOutlined,
+    UpOutlined, FileSearchOutlined,
     DownOutlined,BackwardOutlined,
     ArrowsAltOutlined,ShrinkOutlined,
     StepBackwardOutlined,CloseCircleOutlined,
     FastForwardOutlined,CheckCircleOutlined,
-    FastBackwardOutlined,HddFilled,
+    FastBackwardOutlined,HddFilled, CheckSquareOutlined,
     StepForwardOutlined,SyncOutlined,
     MoneyCollectFilled,LoadingOutlined, ExclamationCircleOutlined,
     RightOutlined,EyeFilled,FileExclamationFilled,
@@ -19,8 +19,9 @@ import {
     AccountBookOutlined,PieChartFilled,IdcardFilled,PlayCircleOutlined
 } from "@ant-design/icons";
 
-export const icon = 
+export const icon =
      {
+        Spin: <Spin />,
         SyncOutlined:<SyncOutlined spin />,
         LoadingOutlined:<LoadingOutlined />,
         CaretRightOutlined: <CaretRightOutlined />,
@@ -55,7 +56,7 @@ export const icon =
 
         RollbackOutlined:<RollbackOutlined />,
         InfoCircleFilled:<InfoCircleFilled />,
-        ExclamationCircleFilled:<ExclamationCircleFilled />,
+        ExclamationCircleFilled:<ExclamationCircleFilled  />,
         EyeFilled:<EyeFilled />,
         BulbFilled:<BulbFilled />,
         CheckCircleFilled:<CheckCircleFilled />,
@@ -70,6 +71,8 @@ export const icon =
         PlayCircleOutlined:<PlayCircleOutlined />,
         CheckCircleOutlined:<CheckCircleOutlined />,
         CloseCircleOutlined:<CloseCircleOutlined />,
-        ExclamationCircleOutlined:<ExclamationCircleOutlined />
+        ExclamationCircleOutlined:<ExclamationCircleOutlined />,
+        CheckSquareOutlined: <CheckSquareOutlined />,
+        FileSearchOutlined:<FileSearchOutlined />,
 
 }

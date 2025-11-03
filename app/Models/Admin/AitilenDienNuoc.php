@@ -40,8 +40,12 @@ class AitilenDienNuoc extends Model
         if (!empty($searchData['apm'])) {
             $datas = $datas->whereIn('apartment_id', $searchData['apm']);
         }
-
-        $datas = $datas->where('is_recycle_bin', 0)->orderBy('id', 'desc')->paginate(25);
+        if (!empty($searchData['is_recycle_bin'])) {
+            $datas = $datas->where('is_recycle_bin', 1);
+        } else {
+            $datas = $datas->where('is_recycle_bin', 0);
+        }
+        $datas = $datas->orderBy('id', 'desc')->paginate(25);
 
         return $datas;
     }
