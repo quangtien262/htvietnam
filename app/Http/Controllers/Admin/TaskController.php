@@ -34,15 +34,19 @@ class TaskController extends Controller
         $comments = TaskComment::getByTask($taskId);
         $percent = TblService::getChecklistPercent($checklist);
         $priority = TblService::formatData('task_priority', ['parent_name' => $task->parent_name]);
-        $taskLog = TaskLog::where('data_id', $taskId)->orderBy('id', 'desc')->limit(30)->get()->toArray();
-        return $this->sendSuccessResponse([
+        $taskLog = TaskLog::where('task_id', $taskId)->orderBy('id', 'desc')->limit(30)->get()->toArray();
+        $status = TblService::formatData('task_status', ['parent_name' => $task->parent_name]);
+
+        $result = [
             'checklist' => $checklist,
             'comments' => $comments,
             'percent' => $percent,
             'priority' => $priority,
             'task' => $task,
             'taskLog' => $taskLog,
-        ]);
+            'status'=> $status
+        ];
+        return $this->sendSuccessResponse($result);
     }
 
 
@@ -279,6 +283,7 @@ class TaskController extends Controller
         }
         $comment->content = $request->content;
         $comment->task_id = $request->task_id;
+        $comment->admin_user_id = $admin->id;
         $comment->create_by = $admin->id;
         $comment->save();
 
@@ -325,7 +330,7 @@ class TaskController extends Controller
     {
         $data = Task::find($request->id);
 
-        TaskLog::logEdit('tasks', $data, $request);
+        TaskLog::logEdit('task_checklist', $data, $request);
 
         $data->{$request->column_name} = $request->value;
         $data->save();
@@ -342,8 +347,8 @@ class TaskController extends Controller
             return $this->sendSuccessResponse(['datas' => $datas, 'data' => $dataUpdated], 'Update successfully', 200);
         }
 
-        $dataSource =  Task::getDatas($request->parentName, $request->searchData);
-        return $this->sendSuccessResponse(['dataSource' => $dataSource, 'data' => $dataUpdated], 'Update successfully', 200);
+        // $dataSource =  Task::getDatas($request->parentName, $request->searchData);
+        return $this->sendSuccessResponse(['task' => $dataUpdated], 'Update successfully', 200);
     }
 
     public function sortOrder(Request $request)
@@ -378,6 +383,9 @@ class TaskController extends Controller
         $task->create_by = $admin->id;
         $task->parent_name = $request->parentName;
         $task->project_id = $request->pid;
+        $task->save();
+        $code = 'TICKET-' . str_pad($task->id, 6, '0', STR_PAD_LEFT);
+        $task->code = $code;
         $task->save();
 
         TaskLog::logAdd('tasks', 'Đã thêm mới "' . $task->name . '"', $task->id);

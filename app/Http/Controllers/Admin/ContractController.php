@@ -40,7 +40,7 @@ class ContractController extends Controller
     public function indexBds(Request $request)
     {
         $searchData = $request->all();
-        
+
         $datas = Contract::getContract($searchData);
 
         $pageConfig = [
@@ -92,12 +92,12 @@ class ContractController extends Controller
 
     public function update(Request $request)
     {
-        // save hoa don
+        // save hợp đồng
         if (empty($request->id)) {
-            $data = new Contract();
+            $hopDong = new Contract();
         } else {
-            $data = Contract::find($request->id);
-            if (!$data) {
+            $hopDong = Contract::find($request->id);
+            if (!$hopDong) {
                 return $this->sendErrorResponse('Hợp đồng không tồn tại !');
             }
         }
@@ -107,47 +107,46 @@ class ContractController extends Controller
             if (!empty($user->name)) {
                 $hoTen = $this->ucwords_unicode($user->name);
             }
-            $data->user_id = $request->user_id;
-            $data->ho_ten = $hoTen;
-            $data->dob = $user->dob;
-            $data->phone = $user->phone;
-            $data->email = $user->email;
-            $data->cccd = $user->cccd;
-            $data->ngay_cap = $user->ngay_cap;
-            $data->noi_cap = $user->noi_cap;
-            $data->hktt = $user->hktt;
+            $hopDong->user_id = $request->user_id;
+            $hopDong->ho_ten = $hoTen;
+            $hopDong->dob = $user->dob;
+            $hopDong->phone = $user->phone;
+            $hopDong->email = $user->email;
+            $hopDong->cccd = $user->cccd;
+            $hopDong->ngay_cap = $user->ngay_cap;
+            $hopDong->noi_cap = $user->noi_cap;
+            $hopDong->hktt = $user->hktt;
         }
         if (!empty($request->room_id)) {
             $room = Room::find($request->room_id);
             if ($room) {
-                $data->apartment_id = $room->apartment_id;
-                $data->room_id = $room->id;
-                $data->name = $hoTen . ' - ' . $room->name;
+                $hopDong->apartment_id = $room->apartment_id;
+                $hopDong->room_id = $room->id;
+                $hopDong->name = $hoTen . ' - ' . $room->name;
             }
         }
-        $data->contract_status_id = $request->contract_status_id;
-        $data->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
-        $data->so_nguoi = $request->so_nguoi;
-        $data->total = $request->total;
-        $data->services = $request->services;
-        $data->end_date = $request->end_date;
-        $data->start_date = $request->start_date;
+        $hopDong->contract_status_id = $request->contract_status_id;
+        $hopDong->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
+        $hopDong->so_nguoi = $request->so_nguoi;
+        $hopDong->total = $request->total;
+        $hopDong->end_date = $request->end_date;
+        $hopDong->start_date = $request->start_date;
 
 
         // set create_by
         $adminUser = auth()->guard('admin_users')->user();
-        $data->create_by = $adminUser->id;
-        $data->save();
+        $hopDong->create_by = $adminUser->id;
+        $hopDong->save();
         if (empty($request->id)) {
-            $data->code = 'AHD' . str_pad($data->id, 6, '0', STR_PAD_LEFT);
+            $hopDong->code = 'AHD' . str_pad($hopDong->id, 6, '0', STR_PAD_LEFT);
         }
         // end save hợp đồng
 
         // save hoa đon
-        if (empty($data->aitilen_invoice_id)) {
+        if (empty($hopDong->aitilen_invoice_id)) {
             $invoice = new AitilenInvoice();
         } else {
-            $invoice = AitilenInvoice::find($data->aitilen_invoice_id);
+            $invoice = AitilenInvoice::find($hopDong->aitilen_invoice_id);
             if (!$invoice) {
                 return $this->sendErrorResponse('Hóa đơn không tồn tại !');
             }
@@ -160,7 +159,7 @@ class ContractController extends Controller
         $invoice->so_nguoi = $request->so_nguoi;
         $invoice->total = $request->total;
 
-        $invoice->services = $request->services;
+        // $invoice->services = $request->services;
         $invoice->tien_phong = $request->tien_phong;
         $invoice->tien_coc = $request->tien_coc;
         $invoice->tra_coc = $request->tra_coc;
@@ -182,34 +181,46 @@ class ContractController extends Controller
                 $invoice->room_id = $room->id;
             }
         }
+
         // set create_by
         $adminUser = auth()->guard('admin_users')->user();
         $invoice->create_by = $adminUser->id;
-
         $invoice->save();
+
         if (empty($invoice->code)) {
             $invoice->code = 'AHD' . str_pad($invoice->id, 5, '0', STR_PAD_LEFT);
             $invoice->save();
         }
 
-        $data->aitilen_invoice_id = $invoice->id;
-        $data->save();
-        // end save hoa don
+        $hopDong->aitilen_invoice_id = $invoice->id;
+        $hopDong->save();
+        // end save hóa đơn
 
-
+        $services = [];
         // save aitilen_invoice_service
-        $services = $request->services;
-        foreach ($services as $service) {
+        foreach ($request->services as $service) {
+            // lưu thông tin dịch vụ
+            $serInfo = AitilenService::find($service['id']);
+            $services[] = [
+                'id' => $service['id'],
+                'service_id' => $service['id'],
+                'name' => $serInfo->name,
+                'code' => $serInfo->code,
+                'so_nguoi'=> $request->so_nguoi,
+                'per_default' => $service['per_default'],
+                'price_default' => $service['price_default'],
+                'price_total' => $service['price_total'],
+            ];
             // save dịch vụ trong hợp đồng
-            $invoiceService = new ContractService();
-            $invoiceService->contract_id = $data->id;
-            $invoiceService->service_id = $service['id'];
-            $invoiceService->price = $service['price_default'];
-            $invoiceService->per = $service['per_default'];
-            $invoiceService->so_nguoi = $request->so_nguoi;
-            $invoiceService->total = $service['price_total'];
-            $invoiceService->save();
-
+            $contractService = new ContractService();
+            $contractService->contract_id = $hopDong->id;
+            $contractService->so_nguoi = $request->so_nguoi;
+            $contractService->service_id = $service['id'];
+            $contractService->price = $service['price_default'];
+            $contractService->per = $service['per_default'];
+            $contractService->total = $service['price_total'];
+            $contractService->save();
+            // save dịch vụ trong hóa đơn
             $invoiceService = new AitilenInvoiceService();
             $invoiceService->invoice_id = $invoice->id;
             $invoiceService->service_id = $service['id'];
@@ -219,8 +230,11 @@ class ContractController extends Controller
             $invoiceService->total = $service['price_total'];
             $invoiceService->save();
         }
+        // save dịch vụ vào hợp đồng, để phục vụ tối ưu cho hiển thị
+        $hopDong->services = $services;
+        $hopDong->save();
 
-        $contract = Contract::baseQuery()->find($data->id);
+        $contract = Contract::baseQuery()->find($hopDong->id);
 
         return $this->sendSuccessResponse($contract, 'Cập nhật hóa đơn thành công!');
     }
@@ -244,5 +258,19 @@ class ContractController extends Controller
         $data->save();
 
         return $this->sendSuccessResponse([], 'Cập nhật hợp đồng thành công!');
+    }
+
+    function delete(Request $request)
+    {
+        $ids = $request->ids;
+        if (empty($ids) || !is_array($ids)) {
+            return $this->sendErrorResponse('Dữ liệu truyền vào không hợp lệ !');
+        }
+        // update is_recycle_bin = 1
+        Contract::whereIn('id', $ids)->update(['is_recycle_bin' => 1]);
+
+        $contacts = Contract::getContract($request->searchData);
+
+        return $this->sendSuccessResponse($contacts, 'Xóa hợp đồng thành công!');
     }
 }

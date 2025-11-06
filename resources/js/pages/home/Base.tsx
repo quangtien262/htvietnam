@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
+import { API } from "../../common/api";
 
-const ProductList: React.FC = () => {
+const CustomerList: React.FC = () => {
     // get params
     const { id } = useParams();
     // const [searchParams] = useSearchParams();
@@ -11,11 +12,22 @@ const ProductList: React.FC = () => {
 
     // state ....
     const [props, setProps] = useState([])
+    const [loadingTable, setLoadingTable] = useState(false);
+    const [dataSource, setDataSource] = useState<any[]>([]);
+    const [tableParams, setTableParams] = useState<any>({
+        pagination: {
+            current: 1,
+            pageSize: 10,
+            position: ["bottonRight"],
+            total: 0,
+            onChange: (page: number, pageSize?: number) => setPagination({ page, pageSize }),
+        },
+    });
 
     // useEffect
     function fetchData(request = {}) {
         setLoadingTable(true);
-        axios.post(API.invoiceIndexApi, request)
+        axios.post(API.customerIndexApi, request)
             .then((res: any) => {
                 const propsTmp = res.data.data
                 console.log('propsTmp', propsTmp);
@@ -31,7 +43,7 @@ const ProductList: React.FC = () => {
     // search/reload
     function search(request = {}) {
         setLoadingTable(true);
-        axios.post(API.contractBDSIndexApi, request)
+        axios.post(API.customerIndexApi, request)
             .then((response: any) => {
                 const res = response.data.data
                 setDataSource(res.datas);
@@ -56,4 +68,4 @@ const ProductList: React.FC = () => {
     );
 };
 
-export default ProductList;
+export default CustomerList;

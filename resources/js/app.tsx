@@ -35,6 +35,12 @@ import ContactList_BDS from './pages/contacts/ContactList_BDS';
 // aitilen
 import AitilenDienNuoc from './pages/aitilen/DienNuoc';
 
+// customer
+import CustomerList from './pages/customers/CustomerList';
+
+// meeting
+import MeetingList from './pages/meeting/MeetingList';
+
 // import layout
 import AppLayout from './components/Layout';
 
@@ -66,6 +72,12 @@ const App: React.FC = () => (
 
                 {/* aitilen dien nuoc */}
                 <Route path="/aitilen/chot-dien-nuoc" element={<AitilenDienNuoc />} />
+
+                {/* customer */}
+                <Route path="/customers/list" element={<CustomerList />} />
+
+                {/* meeting */}
+                <Route path="/meetings/list" element={<MeetingList />} />
 
             </Routes>
         </AppLayout>

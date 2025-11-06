@@ -2,15 +2,15 @@ import { Spin } from 'antd';
 import {
     CaretLeftOutlined,CheckCircleFilled,
     CaretUpOutlined ,VerticalAlignBottomOutlined,
-    UpOutlined, FileSearchOutlined,
-    DownOutlined,BackwardOutlined,
-    ArrowsAltOutlined,ShrinkOutlined,
+    UpOutlined, FileSearchOutlined,RiseOutlined,
+    DownOutlined,BackwardOutlined,SettingOutlined,
+    ArrowsAltOutlined,ShrinkOutlined,QuestionCircleOutlined,
     StepBackwardOutlined,CloseCircleOutlined,
     FastForwardOutlined,CheckCircleOutlined,
     FastBackwardOutlined,HddFilled, CheckSquareOutlined,
-    StepForwardOutlined,SyncOutlined,
+    StepForwardOutlined,SyncOutlined,SmallDashOutlined,
     MoneyCollectFilled,LoadingOutlined, ExclamationCircleOutlined,
-    RightOutlined,EyeFilled,FileExclamationFilled,
+    RightOutlined,EyeFilled,FileExclamationFilled,RetweetOutlined,
     InfoCircleFilled,ExclamationCircleFilled,CalendarFilled,
     CaretDownOutlined,VerticalAlignTopOutlined,RollbackOutlined,
     CaretRightOutlined,VerticalRightOutlined,ForwardOutlined,SlidersFilled,
@@ -19,12 +19,11 @@ import {
     AccountBookOutlined,PieChartFilled,IdcardFilled,PlayCircleOutlined
 } from "@ant-design/icons";
 
-export const icon =
-     {
-        Spin: <Spin />,
-        SyncOutlined:<SyncOutlined spin />,
-        LoadingOutlined:<LoadingOutlined />,
-        CaretRightOutlined: <CaretRightOutlined />,
+const icon = {
+    Spin: <Spin />,
+    SyncOutlined:<SyncOutlined spin />,
+    LoadingOutlined:<LoadingOutlined />,
+    CaretRightOutlined: <CaretRightOutlined />,
         CaretLeftOutlined: <CaretLeftOutlined />,
         CaretDownOutlined: <CaretDownOutlined />,
         CaretUpOutlined: <CaretUpOutlined />,
@@ -74,5 +73,12 @@ export const icon =
         ExclamationCircleOutlined:<ExclamationCircleOutlined />,
         CheckSquareOutlined: <CheckSquareOutlined />,
         FileSearchOutlined:<FileSearchOutlined />,
+        SmallDashOutlined:<SmallDashOutlined />,
+        RiseOutlined:<RiseOutlined />,
+        RetweetOutlined:<RetweetOutlined />,
+        SettingOutlined:<SettingOutlined />,
+        QuestionCircleOutlined:<QuestionCircleOutlined />,
 
 }
+export {icon};
+export default icon;

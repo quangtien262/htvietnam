@@ -12,6 +12,7 @@ use App\Models\Admin\Log;
 use App\Models\Admin\Product;
 use App\Models\Admin\Table;
 use App\Models\AdminUser;
+use App\Models\User;
 use App\Services\Admin\TblService;
 use App\Services\AnalyticService;
 use Illuminate\Support\Facades\DB;
@@ -255,5 +256,4 @@ class AdminController extends Controller
         $menus = TblService::getMenus($request->p);
         return $this->sendSuccessResponse($menus);
     }
-
 }

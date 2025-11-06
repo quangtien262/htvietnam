@@ -57,7 +57,7 @@ export const MENU = {
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Meeting</Link>,
+                    label: <Link to={`${ROUTE.meeting}?p=bds`}>Meeting</Link>,
                     key: (key++).toString(),
                     icon: <TeamOutlined />,
                 },
@@ -110,7 +110,7 @@ export const MENU = {
             ],
         },
         {
-            label: <span>Khách hàng</span>,
+            label: <Link to={`${ROUTE.customerList}?p=bds`}>Khách hàng</Link>,
             key: (key++).toString(),
             icon: <UserOutlined />,
             children: [],

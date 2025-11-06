@@ -55,4 +55,34 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    static function baseQuery() {
+        $users = self::select(
+            'users.*',
+            'users.id as key',
+            'customer_group.name as customer_group_name',
+        )
+            ->leftJoin('customer_group', 'customer_group.id', 'users.customer_group_id');
+        return $users;
+    }
+
+    static function getUsers($request)
+    {
+        $users = self::baseQuery();
+        if (!empty($request->keyword)) {
+            $users = $users->where('users.name', 'like', '%' . $request->keyword . '%');
+        }
+        if (!empty($request->customer_group_id)) {
+            $users = $users->where('users.customer_group_id', $request->customer_group_id);
+        }
+        if (!empty($request->gioi_tinh_id)) {
+            $users = $users->where('users.gioi_tinh_id', $request->gioi_tinh_id);
+        }
+
+        if (isset($request->customer_status_id)) {
+            $users = $users->where('users.customer_status_id', $request->customer_status_id);
+        }
+        $users = $users->orderBy('users.id','desc')->paginate(20);
+        return $users;
+    }
 }

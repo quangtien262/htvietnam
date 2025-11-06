@@ -323,7 +323,7 @@ export function taskInfo(props: any,
         // setIsLoadingBtn(true);
         console.log(commentAction);
         // return
-        axios.post(route('task.addComment'), {
+        axios.post(API.taskCommentAdd, {
             task_id: dataAction.id,
             content: values.content,
             id: commentAction.id
@@ -339,7 +339,7 @@ export function taskInfo(props: any,
     }
 
     function editComment(id: number, columnName: string, value: any) {
-        axios.post(route('data.fastEditByTableName'), {
+        axios.post(API.fastEditData, {
             tbl_name: 'task_comments',
             id: id,
             value: value,
@@ -359,7 +359,8 @@ export function taskInfo(props: any,
     }
 
     const removeChecklistByIndex = (indexToRemove: number, id: number) => {
-        axios.post(route('data.fastEditByTableName'), {
+        // API.fastEditData
+        axios.post(API.fastEditTaskColumn, {
             column_name: 'is_recycle_bin',
             tbl_name: 'task_checklist',
             id: id,
@@ -388,7 +389,7 @@ export function taskInfo(props: any,
             searchData: props.searchData,
             p: props.p
         };
-        axios.post(route('task.delete', id), params).then(response => {
+        axios.post(API.taskDelete, params).then(response => {
             // setColumns(response.data.data);
         }).catch(error => {
             message.error('Xóa thất bại');
@@ -399,25 +400,24 @@ export function taskInfo(props: any,
     };
 
     function updateTaskByColumn(id: number, columnName: string, value: any) {
-        axios.post(route('task.fastEditTask'), {
+        console.log('Updating task:', id, columnName, value);
+
+        axios.post(API.fastEditTaskColumn, {
             column_name: columnName,
             id: dataAction.id,
-            value: value,
-            parentName: props.parentName,
-            searchData: props.searchData ? props.searchData : {},
-            display: props.display
+            value: value
         }).then(response => {
+            console.log('response', response);
             setIsLoadingBtn(false);
             // setColumns(response.data.data);
             message.success('Cập nhật thành công');
-            onSuccess({
-                dataAction_column: { col: columnName, val: value },
-                columns: response.data.data.datas,
-                data: response.data.data.data,
-            });
-
-
+            if (typeof onSuccess === 'function') {
+                onSuccess({
+                    task: response.data.data.task
+                });
+            }
         }).catch(error => {
+            console.log('error', error);
             message.error('Cập nhật thất bại');
         });
     }
@@ -430,7 +430,7 @@ export function taskInfo(props: any,
 
     function createChecklist() {
         setIsLoadingBtn(true);
-        axios.post(route("task.addChecklist"), {
+        axios.post(API.taskChecklistAdd, {
             data: formChecklist,
             task_id: dataAction.id,
             checklist_id: checkListAction.id,
@@ -738,7 +738,7 @@ export function taskInfo(props: any,
                                             if (e.target.checked) {
                                                 status = 1;
                                             }
-                                            axios.post(route('data.fastEditByTableName'), {
+                                            axios.post(API.fastEditData, {
                                                 column_name: 'is_checked',
                                                 tbl_name: 'task_checklist',
                                                 id: item.id,
@@ -943,7 +943,7 @@ export function taskInfo(props: any,
                                 <Select
                                     showSearch
                                     style={{ width: "100%" }}
-                                    value={dataAction.nguoi_thuc_hien}
+                                    value={dataAction.nguoi_thuc_hien ? dataAction.nguoi_thuc_hien.toString() : null}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
                                     options={optionEntries(users)}

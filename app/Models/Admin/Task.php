@@ -28,6 +28,7 @@ class Task extends Model
             'tasks.is_daily as is_daily',
             'tasks.is_weekly as is_weekly',
             'tasks.is_monthly as is_monthly',
+            'tasks.parent_name as parent_name',
 
             'tasks.nguoi_thuc_hien as nguoi_thuc_hien',
             'tasks.nguoi_theo_doi as nguoi_theo_doi',

@@ -26,7 +26,7 @@ class ProjectController extends Controller
     {
         $projectId = $request->project_id;
         if (empty($projectId)) {
-            return $this->sendSuccessResponse([]);
+            return $this->sendErrorResponse('empty');
         }
         // get project info
         $project = Project::find($projectId);
@@ -43,13 +43,15 @@ class ProjectController extends Controller
         $checklist = ProjectChecklist::baseQuery()->where('project_checklist.project_id', $request->project_id)->orderBy('id', 'desc')->get()->toArray();
         $percent = TblService::getChecklistPercent($checklist);
 
+        $status = TblService::formatData('project_status', ['parent_name' => $project->parent_name]);
 
         return $this->sendSuccessResponse([
             'checklist' => $checklist,
             'comments' => $comments,
             'percent' => $percent,
             'tasks' => $tasks,
-            'project' => $project
+            'project' => $project,
+            'status'=> $status
         ]);
     }
 

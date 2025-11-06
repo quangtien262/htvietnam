@@ -215,6 +215,8 @@ class AuthController extends Controller
             $user->cccd_back = $backPath;
             $user->cccd = $cccd;
             $user->name = $hoTen;
+            $user->email = $request->email;
+            $user->user_type = env('USER_TYPE', 'Aitilen');
 
             // Xử lý ngày cấp
             if ($ngay_cap && preg_match('/\d{2}\/\d{2}\/\d{4}/', $ngay_cap)) {
@@ -246,6 +248,9 @@ class AuthController extends Controller
             $user->ngay_cap = $request->ngay_cap;
             $user->noi_cap = $request->noi_cap;
             $user->hktt = $request->hktt;
+            $user->address = $request->hktt;
+
+            // user type: aitilen, htvietnam, spa, tmdt, step
             $user->user_type = env('USER_TYPE', 'Aitilen');
 
             $user->save();
@@ -258,12 +263,12 @@ class AuthController extends Controller
         return $this->sendErrorResponse('Vui lòng chọn phương thức đăng ký hợp lệ', []);
     }
 
-    public function logout()
+    public function logoutUser()
     {
         Auth::guard('web')->logout();
         return redirect()
             ->route('home')
-            ->with('status', 'Admin has been logged out!');
+            ->with('status', 'User has been logged out!');
     }
 
     public function logoutAdmin()
@@ -272,5 +277,20 @@ class AuthController extends Controller
         return redirect()
             ->route('home')
             ->with('status', 'Admin has been logged out!');
+    }
+
+
+
+    public function loginExpress(Request $request) {
+        if (empty($request->id)) {
+            return $this->sendErrorResponse('empty');
+        }
+        $customer = User::find($request->id);
+        if (!$customer) {
+            return $this->sendErrorResponse('not_found');
+        }
+        // Login as customer
+        Auth::guard('web')->login($customer);
+        return $this->sendSuccessResponse('success');
     }
 }

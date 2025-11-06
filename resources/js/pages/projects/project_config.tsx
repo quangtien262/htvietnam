@@ -8,8 +8,9 @@ import {
     Form, Input, Progress, Flex, Empty, Checkbox, List,
     Popconfirm, ColorPicker,
     TableColumnsType,
-    Table, Select, DatePicker
+    Table, Select, DatePicker, Spin, Tabs
 } from "antd";
+import type { TabsProps } from 'antd';
 import {
     CopyOutlined, PlusCircleOutlined, HolderOutlined, DownOutlined,
     EditOutlined, DeleteOutlined, SnippetsFilled, EditFilled, CheckOutlined,
@@ -153,18 +154,6 @@ export function projectConfig(
         );
     };
 
-    const handleDelete = (key: React.Key) => {
-        // const newData = dataSource.filter((item) => item.key !== key);
-        // setDataSource(newData);
-        axios.post(route('project.deleteConfig', [parentName, currentName]), { id: key }).then((response) => {
-            message.success('Xóa thành công');
-            setDataSource(response.data.data.data);
-            onSuccess(response.data.data);
-        }).catch((error) => {
-            console.error('Error:', error);
-        });
-    };
-
     const columns2: TableColumnsType = [
         { key: 'sort', align: 'center', width: 80, render: () => <DragHandle /> },
         {
@@ -244,7 +233,7 @@ export function projectConfig(
                 const orderKeys = newOrder.map(item => item.key);
                 console.log('Thứ tự mới:', orderKeys);
                 // send 2 server:
-                axios.post(route('data.sortOrder02'), { data: orderKeys, tableName: currentName })
+                axios.post(API.data_sortOrder, { data: orderKeys, tableName: currentName })
 
                 return newOrder;
             });
@@ -511,7 +500,7 @@ export function getProjectDetail(props: any, record: any, index: number, dataInf
     if (!dataInfo[record.key]) {
         console.log('load data ', record.key);
 
-        axios.post(route('project.getProjectInfo', [record.key])).then((response) => {
+        axios.post(API.projectGetInfo, { id: record.key }).then((response) => {
             dataInfo[record.key] = response.data.data;
             onSuccess(response.data.data);
         });
@@ -620,7 +609,9 @@ export function projectInfo(props: any,
 
 
     const onFinishFormDesc = async (values: any) => {
-        updateTaskByColumn(dataAction.id, 'description', values.description);
+        if (dataAction?.id) {
+            updateByColumn(dataAction.id, 'description', values.description);
+        }
     }
 
     const onFinishFormComment = async (values: any) => {
@@ -629,9 +620,9 @@ export function projectInfo(props: any,
         // return
 
         axios.post(API.projectAddComment, {
-            project_id: dataAction.id,
+            project_id: dataAction?.id,
             content: values.content,
-            id: commentAction.id
+            id: commentAction?.id
         }).then(response => {
             setIsModalComment(false);
             formComment.resetFields();
@@ -648,7 +639,7 @@ export function projectInfo(props: any,
             column_name: 'is_recycle_bin',
             tbl_name: 'project_checklist',
             id: id,
-            project_id: dataAction.id,
+            project_id: dataAction?.id,
             value: 1
         }).then(response => {
             setIsLoadingBtn(false);
@@ -686,14 +677,15 @@ export function projectInfo(props: any,
         message.success("Đã xóa thành công");
     };
 
-    function updateTaskByColumn(id: number, columnName: string, value: any) {
+    function updateByColumn(id: number, columnName: string, value: any) {
+        console.log('dataAction?.parent_name', dataAction);
         axios.post(API.projectFastEdit, {
             column_name: columnName,
             id: dataAction.id,
             value: value,
-            parentName: props.parentName,
-            searchData: props.searchData,
-            display: props.display
+            parentName: dataAction.parent_name,
+            searchData: searchData,
+            display: props?.display
         }).then(response => {
             setIsLoadingBtn(false);
             // setColumns(response.data.data);
@@ -718,8 +710,8 @@ export function projectInfo(props: any,
         // setIsLoadingBtn(true);
         axios.post(API.projectAddChecklist, {
             data: formChecklist,
-            project_id: dataAction.id,
-            checklist_id: checkListAction.id,
+            project_id: dataAction?.id,
+            checklist_id: checkListAction?.id,
         }).then((response) => {
             console.log(response.data.data);
 
@@ -777,7 +769,7 @@ export function projectInfo(props: any,
                     return <tbody key={key}>
                         <tr>
                             <td>
-                                <Input value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
+                                <Input.TextArea value={item.name} onChange={(e) => updateChecklistByIndex(key, { name: e.target.value })} />
                             </td>
                             <td>
                                 <Input.TextArea value={item.content} onChange={(e) => updateChecklistByIndex(key, { content: e.target.value })} />
@@ -786,14 +778,14 @@ export function projectInfo(props: any,
                                 <Select
                                     showSearch
                                     style={{ width: "100%" }}
-                                    placeholder="Chọn nhân viên thực hiện"
+                                    placeholder="Người thực hiện"
                                     optionFilterProp="children"
                                     filterOption={(input, option) =>
                                         (option?.label ?? "")
                                             .toLowerCase()
                                             .includes(input.toLowerCase())
                                     }
-                                    value={item.admin_user_id}
+                                    value={item && item.admin_user_id ? item.admin_user_id.toString() : null}
                                     options={optionEntries(users)}
                                     onChange={(value) => {
                                         if (!isApplyAll) {
@@ -903,7 +895,8 @@ export function projectInfo(props: any,
         <Col sm={16}>
             {/* tiêu đề */}
             <h3>
-                {dataAction.name}
+                <span className="title">{dataAction?.name || '' }</span>
+
                 <Popconfirm placement="bottomLeft"
                     title="Sửa tiêu đề"
                     trigger="click"
@@ -916,10 +909,11 @@ export function projectInfo(props: any,
                             form={formTitle}
                             layout="vertical"
                             onFinish={(values) => {
-                                updateTaskByColumn(dataAction.id, 'name', values.name);
+                                if(dataAction && dataAction.id) {
+                                    updateByColumn(dataAction.id, 'name', values.name);
+                                }
                             }}
                             autoComplete="off"
-                            initialValues={{ name: dataAction.name }}
                         >
                             <Form.Item className="edit-description" name='name' label=''>
                                 <Input />
@@ -927,12 +921,12 @@ export function projectInfo(props: any,
                         </Form>
                     }
                 >
-                    <a onClick={(e) => formTitle.setFieldValue('name', dataAction.name)} className="_right">
+                    <a onClick={(e) => formTitle.setFieldValue('name', dataAction?.name)} className="_right">
                         <EditOutlined />
                     </a>
                 </Popconfirm>
             </h3>
-            <p className="description01">Tạo bởi: {users[dataAction.create_by] ? users[dataAction.create_by].name : ''}</p>
+            <p className="description01">Tạo bởi: {dataAction?.create_by && users[dataAction.create_by] ? users[dataAction.create_by]?.name : ''}</p>
 
             {/* Mô tả */}
             <Divider orientation="left">
@@ -950,7 +944,6 @@ export function projectInfo(props: any,
                             layout="vertical"
                             onFinish={onFinishFormDesc}
                             autoComplete="off"
-                            initialValues={{ description: dataAction.description }}
                         >
                             <Form.Item className="edit-description" name='description' label=''>
                                 <Input.TextArea rows={4} />
@@ -963,7 +956,7 @@ export function projectInfo(props: any,
 
             </Divider>
             <div>
-                <p className="description01">{dataAction.description === null ? <Empty image={null} description="Chưa có mô tả" /> : dataAction.description}</p>
+                <div className="description01">{dataAction.description !== null || dataAction.description !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(dataAction.description, true) }} /> : ''}</div>
             </div>
 
             {/* Checklist */}
@@ -1028,9 +1021,9 @@ export function projectInfo(props: any,
                                             axios.post(API.fastEditData, {
                                                 column_name: 'is_checked',
                                                 tbl_name: 'project_checklist',
-                                                id: item.id,
+                                                id: (item as any).id,
                                                 value: status,
-                                                project_id: dataAction.id,
+                                                project_id: dataAction?.id,
                                             }).then(response => {
                                                 message.success('Cập nhật thứ tự thành công');
                                                 onSuccess({ checklist: response.data.data.list, checklist_percent: response.data.data.percent });
@@ -1047,7 +1040,7 @@ export function projectInfo(props: any,
                                         </b>
                                     </div>
                                 }
-                                description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : ''}
+                                description={item.content !== null || item.content !== '' ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content, true) }} /> : ''}
                             />
                         </List.Item>
                     )}
@@ -1121,7 +1114,7 @@ export function projectInfo(props: any,
                                 }
                                 description={
                                     <div>
-                                        <p>{item.content ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content) }} /> : null}</p>
+                                        <div>{item.content ? <div dangerouslySetInnerHTML={{ __html: nl2br(item.content, true) }} /> : null}</div>
                                     </div>
                                 }
                             />
@@ -1143,7 +1136,7 @@ export function projectInfo(props: any,
                         <a><PushpinFilled /> </a>
                         <span>Trạng thái: </span>
                         {
-                            !dataAction.project_status_id
+                            !dataAction?.project_status_id
                                 ?
                                 <span className="value-list">Chưa xác định</span>
                                 :
@@ -1165,7 +1158,9 @@ export function projectInfo(props: any,
                                         <p style={{ color: item.background }}
                                             className="cursor"
                                             onClick={() => {
-                                                updateTaskByColumn(dataAction.id, 'project_status_id', item.id);
+                                                if (dataAction?.id) {
+                                                    updateByColumn(dataAction.id, 'project_status_id', item.id);
+                                                }
                                             }}
                                         >
                                             {icon[item.icon]} {item.name}
@@ -1191,8 +1186,8 @@ export function projectInfo(props: any,
                                 <Select
                                     showSearch
                                     style={{ width: "100%" }}
-                                    value={dataAction.project_manager}
-                                    placeholder="Chọn nhân viên thực hiện"
+                                    value={dataAction?.project_manager?.toString()}
+                                    placeholder="Chọn người quản lý"
                                     optionFilterProp="children"
                                     options={optionEntries(users)}
                                     filterOption={(input, option) =>
@@ -1201,7 +1196,10 @@ export function projectInfo(props: any,
                                             .includes(input.toLowerCase())
                                     }
                                     onChange={(value) => {
-                                        updateTaskByColumn(dataAction.id, 'project_manager', value);
+                                        console.log('dataAction', dataAction);
+                                        if (dataAction?.id) {
+                                            updateByColumn(dataAction.id, 'project_manager', value);
+                                        }
                                     }}
                                 />
                             }
@@ -1212,11 +1210,11 @@ export function projectInfo(props: any,
                         </Popover>
                         <p>
                             {
-                                !dataAction.project_manager
+                                !dataAction?.project_manager
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
-                                    <Tag color="cyan">{users[dataAction.project_manager].name} </Tag>
+                                    <Tag color="cyan">{users[dataAction.project_manager]?.name} </Tag>
                             }
                         </p>
 
@@ -1234,7 +1232,7 @@ export function projectInfo(props: any,
                                     showSearch
                                     mode="multiple"
                                     style={{ width: "100%" }}
-                                    value={dataAction.nguoi_theo_doi}
+                                    value={dataAction?.nguoi_theo_doi}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
                                     options={optionEntries(users)}
@@ -1245,8 +1243,9 @@ export function projectInfo(props: any,
                                     }
                                     onChange={(value) => {
                                         console.log(value);
-
-                                        updateTaskByColumn(dataAction.id, 'nguoi_theo_doi', value);
+                                        if (dataAction?.id) {
+                                            updateByColumn(dataAction.id, 'nguoi_theo_doi', value);
+                                        }
                                     }}
                                 />
                             }
@@ -1258,13 +1257,13 @@ export function projectInfo(props: any,
 
                         <p>
                             {
-                                !dataAction.nguoi_theo_doi
+                                !dataAction?.nguoi_theo_doi
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
                                     <div>
-                                        {dataAction.nguoi_theo_doi.map((item, key) => (
-                                            <Tag color="cyan" key={key}>{users[item] ? users[item].name : ''} </Tag>
+                                        {dataAction.nguoi_theo_doi.map((item: any, key: any) => (
+                                            <Tag color="cyan" key={key}>{users[item] ? users[item]?.name : ''} </Tag>
                                         ))}
                                     </div>
                             }
@@ -1283,7 +1282,7 @@ export function projectInfo(props: any,
                                     showSearch
                                     mode="tags"
                                     style={{ width: "100%" }}
-                                    value={dataAction.tags}
+                                    value={dataAction?.tags}
                                     placeholder="Chọn nhân viên thực hiện"
                                     optionFilterProp="children"
                                     // options={optionEntries([])}
@@ -1294,8 +1293,9 @@ export function projectInfo(props: any,
                                     }
                                     onChange={(value) => {
                                         console.log(value);
-
-                                        updateTaskByColumn(dataAction.id, 'tags', value);
+                                        if (dataAction?.id) {
+                                            updateByColumn(dataAction.id, 'tags', value);
+                                        }
                                     }}
                                 />
                             }
@@ -1306,12 +1306,12 @@ export function projectInfo(props: any,
                         </Popover>
                         <p>
                             {
-                                !dataAction.tags
+                                !dataAction?.tags
                                     ?
                                     <span className="value-list">Chưa xác định</span>
                                     :
                                     <div>
-                                        {dataAction.tags.map((item, key) => (
+                                        {dataAction.tags.map((item: any, key: any) => (
                                             <Tag style={{ color: '#045ea8ff' }} key={key}>{item} </Tag>
                                         ))}
                                     </div>
@@ -1328,20 +1328,22 @@ export function projectInfo(props: any,
                     <div>
                         <a><ClockCircleFilled /> </a>
                         Ngày tạo:
-                        <span className="value-list"> {dataAction.created_at ? dayjs(dataAction.created_at).format(DATE_SHOW) : ''}</span>
+                        <span className="value-list"> {dataAction?.created_at ? dayjs(dataAction.created_at).format(DATE_SHOW) : ''}</span>
                     </div>,
                     // Ngày cập nhật
                     <div className="item03">
                         <a><FlagFilled /> </a>
                         Bắt đầu:
-                        <span className="value-list"> {dataAction.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                        <span className="value-list"> {dataAction?.start ? dayjs(dataAction.start).format(DATE_SHOW) : 'Chưa xác định'}</span>
                         <Popover placement="bottomLeft"
                             title="Ngày bắt đầu"
                             trigger="click"
                             content={
                                 <DatePicker format='DD/MM/YYYY'
                                     onChange={(date) => {
-                                        updateTaskByColumn(dataAction.id, 'start', date.format('YYYY-MM-DD'));
+                                        if (dataAction?.id && date) {
+                                            updateByColumn(dataAction.id, 'start', date.format('YYYY-MM-DD'));
+                                        }
                                     }}
                                 />
                             }
@@ -1356,14 +1358,16 @@ export function projectInfo(props: any,
                     <div className="item03">
                         <a><ScheduleFilled /> </a>
                         Hoàn thành:
-                        <span className="value-list"> {dataAction.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                        <span className="value-list"> {dataAction?.end ? dayjs(dataAction.end).format(DATE_SHOW) : 'Chưa xác định'}</span>
                         <Popover placement="bottomLeft"
                             title="Ngày hoàn thành"
                             trigger="click"
                             content={
                                 <DatePicker format='DD/MM/YYYY'
                                     onChange={(date) => {
-                                        updateTaskByColumn(dataAction.id, 'end', date.format('YYYY-MM-DD'));
+                                        if (dataAction?.id && date) {
+                                            updateByColumn(dataAction.id, 'end', date.format('YYYY-MM-DD'));
+                                        }
                                     }}
                                 />
                             }
@@ -1378,14 +1382,16 @@ export function projectInfo(props: any,
                     <div className="item03">
                         <a><CheckSquareFilled /> </a>
                         Thực tế:
-                        <span className="value-list"> {dataAction.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
+                        <span className="value-list"> {dataAction?.actual ? dayjs(dataAction.actual).format(DATE_SHOW) : 'Chưa xác định'}</span>
                         <Popover placement="bottomLeft"
                             title="Ngày hoàn thành"
                             trigger="click"
                             content={
                                 <DatePicker format='DD/MM/YYYY'
                                     onChange={(date) => {
-                                        updateTaskByColumn(dataAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                        if (dataAction?.id && date) {
+                                            updateByColumn(dataAction.id, 'actual', date.format('YYYY-MM-DD'));
+                                        }
                                     }}
                                 />
                             }
@@ -1411,9 +1417,11 @@ export function projectInfo(props: any,
                                                 if (e.target.checked) {
                                                     status = 1;
                                                 }
-                                                updateTaskByColumn(dataAction.id, 'is_daily', status);
+                                                if (dataAction?.id) {
+                                                    updateByColumn(dataAction.id, 'is_daily', status);
+                                                }
                                             }}
-                                            checked={dataAction.is_daily}>Daily</Checkbox>
+                                            checked={dataAction?.is_daily}>Daily</Checkbox>
                                     </Col>
                                     <Col span={24}>
                                         <Checkbox value="is_weekly"
@@ -1422,9 +1430,11 @@ export function projectInfo(props: any,
                                                 if (e.target.checked) {
                                                     status = 1;
                                                 }
-                                                updateTaskByColumn(dataAction.id, 'is_weekly', status);
+                                                if (dataAction?.id) {
+                                                    updateByColumn(dataAction.id, 'is_weekly', status);
+                                                }
                                             }}
-                                            checked={dataAction.is_weekly}>Weekly</Checkbox>
+                                            checked={dataAction?.is_weekly}>Weekly</Checkbox>
                                     </Col>
                                     <Col span={24}>
                                         <Checkbox value="1"
@@ -1433,9 +1443,11 @@ export function projectInfo(props: any,
                                                 if (e.target.checked) {
                                                     status = 1;
                                                 }
-                                                updateTaskByColumn(dataAction.id, 'is_monthly', status);
+                                                if (dataAction?.id) {
+                                                    updateByColumn(dataAction.id, 'is_monthly', status);
+                                                }
                                             }}
-                                            checked={dataAction.is_monthly}>Monthly</Checkbox>
+                                            checked={dataAction?.is_monthly}>Monthly</Checkbox>
                                     </Col>
                                 </Row>
                             }
@@ -1450,21 +1462,21 @@ export function projectInfo(props: any,
                     <div className="item03">
                         <a><FileSyncOutlined /> </a>
                         Daily:
-                        <span className="value-list"> {dataAction.is_daily ? 'Có' : 'Không'}</span>
+                        <span className="value-list"> {dataAction?.is_daily ? 'Có' : 'Không'}</span>
                     </div>,
 
                     // weekly
                     <div className="item03">
                         <a><FileSearchOutlined /> </a>
                         Weekly:
-                        <span className="value-list"> {dataAction.is_weekly ? 'Có' : 'Không'}</span>
+                        <span className="value-list"> {dataAction?.is_weekly ? 'Có' : 'Không'}</span>
                     </div>,
 
                     // monthly
                     <div className="item03">
                         <a><FileMarkdownOutlined /> </a>
                         Monthly:
-                        <span className="value-list"> {dataAction.is_monthly ? 'Có' : 'Không'}</span>
+                        <span className="value-list"> {dataAction?.is_monthly ? 'Có' : 'Không'}</span>
                     </div>,
 
                     // delete
@@ -1474,7 +1486,9 @@ export function projectInfo(props: any,
                             title="Xác nhận xóa"
                             description="Dữ liệu sẽ bị xóa hòa toàn, bạn xác nhận chứ?"
                             onConfirm={() => {
-                                handleDelete(dataAction.id, status);
+                                if (dataAction?.id) {
+                                    handleDelete(dataAction.id);
+                                }
                             }}
                         >
                             <Button className="_right"><DeleteOutlined /> Xóa </Button>

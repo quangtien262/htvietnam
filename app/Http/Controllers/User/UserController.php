@@ -32,7 +32,9 @@ public function index()
             'config' => $config,
             'user' => $user,
         ];
-        return Inertia::render('User/Pages/home_aitilen', $props);
+
+        return View('user.index', $props);
+        // return Inertia::render('User/Pages/home_aitilen', $props);
     }
     public function profile(Request $request)
     {
@@ -55,7 +57,7 @@ public function index()
         return view('user.profile.setting',compact('config'));
     }
 
-    public function update(ChangeProfileRequest $request)
+    public function update(Request $request)
     {
         try {
             $user = Auth::guard('web')->user();
@@ -78,7 +80,7 @@ public function index()
             throw $th;
         }
     }
-    public function updatepass(ChangePassRequest $request)
+    public function updatepass(Request $request)
     {
         if ($request->renewpassword == $request->newpassword) {
             if ((Hash::check($request->password, Auth::guard('web')->user()->password))) {
@@ -112,7 +114,7 @@ public function index()
         return view('user.order.detail', compact('items','config'));
     }
 
-    public function takePassword(TakePasswordRequest $request)
+    public function takePassword(Request $request)
     {
         $user = DB::table('users')->where('email', $request->email)->first();
         if (!$user) {
@@ -145,5 +147,15 @@ public function index()
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home');
+    }
+
+    function changePassword(Request $request)
+    {
+        $user = Auth::guard('web')->user();
+
+        $userInfo = User::find($user->id);
+        $userInfo->password = bcrypt($request->password);
+        $userInfo->save();
+        $this->sendSuccessResponse($userInfo, 'Cập nhật mật khẩu thành công');
     }
 }

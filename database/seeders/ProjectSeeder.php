@@ -31,7 +31,6 @@ class ProjectSeeder extends Seeder
 
         //////////// tạo sẵn 1 project mặc định để liên kết với task chung mà ko thuộc project nào
 
-        // priority cho tasks chung
         DB::table('task_priority')->truncate();
         $idx = 1;
         DB::table('task_priority')->insert([
@@ -71,6 +70,59 @@ class ProjectSeeder extends Seeder
 
         /////////////// tạo task demo cho project aitilen
         $status = DB::table('task_status')->where('name', 'Chưa xử lý')->where('parent_name', 'all')->first();
+
+        // project aitilen:
+
+        // priority cho tasks aitilen
+        DB::table('task_priority')->truncate();
+        $idx = 1;
+        DB::table('task_priority')->insert([
+            ['name' => 'Urgent', 'color' => '#d30000ff', 'parent_name' => 'aitilen', 'sort_order' => $idx++],
+            ['name' => 'High', 'color' => '#d3c500ff', 'parent_name' => 'aitilen', 'sort_order' => $idx++],
+            ['name' => 'Medium', 'color' => '#0072ff', 'parent_name' => 'aitilen', 'sort_order' => $idx++],
+            ['name' => 'Low', 'color' => '#07a2adff', 'parent_name' => 'aitilen', 'sort_order' => $idx++],
+        ]);
+        // status cho nhóm projects chung
+        DB::table('project_status')->truncate();
+        DB::table('project_status')->insert([
+            ['name' => 'Chuẩn bị', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'EyeFilled', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đang triển khai', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hoàn thành', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CheckCircleFilled', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Hủy/Dừng', 'parent_name' => 'aitilen', 'color' => '#ffffff', 'background' => '#64748b', 'icon' => 'CloseCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+        ]);
+        $dangTrienKhai = DB::table('project_status')->where('name', 'Đang triển khai')->where('parent_name', 'aitilen')->first();
+        $project = new Project();
+        $project->name = 'Công việc chung';
+        $project->description = 'Các công việc chung không thuộc dự án nào';
+        $project->project_status_id = $dangTrienKhai->id;
+        $project->project_manager = 1;
+        $project->sort_order = 1;
+        $project->create_by = 1;
+        $project->parent_name = 'aitilen';
+        $project->save();
+        // status task chung
+        $idx = 1;
+        $statusTaskOther = [
+            ['name' => 'Chưa xử lý', 'color' => '#fff', 'background' => '#f60505ff', 'icon' => 'ExclamationCircleFilled', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 1],
+            ['name' => 'Đang thực hiện', 'color' => '#fff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 1],
+            ['name' => 'Hoàn thành', 'color' => '#fff', 'background' => '#0dc65aff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
+            ['name' => 'Hủy/Dừng', 'color' => '#fff', 'background' => '#5c5a5aff', 'icon' => 'CloseCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
+        ];
+        DB::table('task_status')->insert($statusTaskOther);
+        //////////////////////// end project chung
+
+        /////////////// tạo task demo cho project aitilen
+
+        $status = DB::table('task_status')->where('name', 'Chưa xử lý')->where('parent_name', 'aitilen')->first();
+
+        $categorysAitilen = [
+            ['name' => 'Bảo trì/Sửa chữa', 'color' => '#b39e00', 'icon' => 'SettingOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 1],
+           ['name' => 'Hỏi đáp/góp ý', 'color' => '#088ddb', 'icon' => 'QuestionCircleOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
+            ['name' => 'Khẩn cấp', 'color' => '#e70707', 'icon' => 'RiseOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
+            ['name' => 'Khác', 'color' => '#5908d9', 'icon' => 'SmallDashOutlined', 'sort_order' => $idx++, 'parent_name' => 'aitilen', 'project_id' => $project->id, 'is_default' => 0],
+        ];
+        DB::table('task_category')->insert($categorysAitilen);
+
         DB::table('tasks')->insert([
             [
                 'name' => 'Điều tra và tham khảo các làm từ các bên khác về vấn đề VAT',
@@ -93,11 +145,11 @@ class ProjectSeeder extends Seeder
                 'parent_name' => 'aitilen',
             ],
             [
-                'name' => 'Chụp ảnh phòng 01 và 02 của nhà 127',
+                'name' => 'Chụp ảnh phòng 101 của nhà 127',
                 'description' => '',
                 'project_id' => $project->id,
                 'task_status_id' => $status->id,
-                'nguoi_thuc_hien' => 3,
+                'nguoi_thuc_hien' => 4,
                 'create_by' => 1,
                 'sort_order' => 1,
                 'parent_name' => 'aitilen',
@@ -117,7 +169,17 @@ class ProjectSeeder extends Seeder
                 'description' => '',
                 'project_id' => $project->id,
                 'task_status_id' => $status->id,
-                'nguoi_thuc_hien' => 3,
+                'nguoi_thuc_hien' => 4,
+                'create_by' => 1,
+                'sort_order' => 1,
+                'parent_name' => 'aitilen',
+            ],
+            [
+                'name' => 'Chỉnh lại vị trí camera nhà 127 cho dễ nhìn hơn',
+                'description' => '',
+                'project_id' => $project->id,
+                'task_status_id' => $status->id,
+                'nguoi_thuc_hien' => 4,
                 'create_by' => 1,
                 'sort_order' => 1,
                 'parent_name' => 'aitilen',

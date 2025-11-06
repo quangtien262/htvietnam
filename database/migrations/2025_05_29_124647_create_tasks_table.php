@@ -16,12 +16,13 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
+            $table->string('code')->nullable();
             $table->text('description')->nullable();
 
+            $table->integer('task_category_id')->nullable();
             $table->string('parent_name')->nullable();
-
             $table->integer('project_id')->default(0)->nullable();
-
+            $table->integer('user_id')->nullable(); // id khách hàng
             $table->integer('task_status_id')->default(1)->nullable(); // todo, doing, done
             $table->integer('nguoi_thuc_hien')->nullable(); // nv thực hiện
             $table->text('nguoi_theo_doi')->nullable(); // json người theo dõi hoặc làm cùng

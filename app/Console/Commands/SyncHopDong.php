@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Admin\AitilenDienNuoc;
+use App\Models\Admin\AitilenService;
 use App\Models\Admin\Contract;
 use App\Models\Admin\ContractService;
 use App\Services\Admin\AutoGenService;
@@ -33,24 +34,84 @@ class SyncHopDong extends Command
     public function handle()
     {
 
-        $this->info('Start import hợp đồng...');
+        // $this->info('Start import hợp đồng...');
         $this->hopDongSync();
 
-        $this->info('Start import phòng...');
+        // $this->info('Start import phòng...');
         $this->roomSync();
 
+        // $this->info('Start import user..');
+        $this->userSync();
+
         $this->info('Start import số điện nước..');
-        $this->dienNuocSync();
+        $this->dienNuocSync02();
 
         // $this->info('Start import service..');
         // $this->serviceSync();
 
-        $this->info('Start import user..');
-        $this->userSync();
+
 
 
         // $this->info('dien_nuoc');
         // $this->hopDongService();
+    }
+
+    public function hopDongSync02()
+    {
+        DB::table('contract')->truncate();
+        $excelFilePath = storage_path('app/public/migrate/hopdong.xlsx');
+
+        // Đọc file excel
+        $rows = Excel::toArray([], $excelFilePath);
+
+        // $rows[0] là sheet đầu tiên, mỗi phần tử là 1 dòng (array)
+        $sheet = $rows[0];
+        // Giả sử dòng đầu là header, bắt đầu từ dòng thứ 2
+        try {
+            foreach ($sheet as $index => $row) {
+                if ($index === 0) continue; // bỏ header
+
+                $name = '';
+                if (!empty($row[2])) {
+                    $name = $this->ucwords_unicode($row[2]);
+                }
+
+                DB::table('contract')->insert([
+                    'contract_status_id'   => 1,
+                    'id'   => $row[0] ?? null,
+                    'name'   => $name,
+                    'code' => $row[1] ?? null,
+                    'room_id' => $row[4] ?? null,
+                    'apartment_id' => $row[3] ?? null,
+                    'user_id' => $row[5] ?? null,
+                    'ho_ten' => $row[6] ?? '',
+                    'phone' => $row[9] ?? '',
+                    'email' => $row[7] ?? '',
+                    'cccd' => $row[10] ?? '',
+                    'ngay_cap' => $this->excelDateToDate($row[12] ?? null),
+                    'noi_cap' => $row[11] ?? null,
+                    'dob' => $this->excelDateToDate($row[8] ?? null),
+                    'hktt' => $row[13] ?? '',
+
+                    'start_date' => $this->excelDateToDate($row[15] ?? null),
+                    'end_date' => $this->excelDateToDate($row[16] ?? null),
+                    'gia_thue' => $row[18] ?? '',
+                    'tien_coc' => $row[17] ?? '',
+                    'ky_thanh_toan' => $row[19] ?? 1,
+                    'so_nguoi' => $row[14] ?? '',
+                    'ngay_hen_dong_tien' => $row[20] ?? '',
+
+                    'phi_moi_gioi' => $row[21] ?? '',
+
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+        $this->info('Đã import xong hợp đồng!');
     }
 
     public function hopDongSync()
@@ -104,6 +165,32 @@ class SyncHopDong extends Command
                     'updated_at'    => now(),
                 ]);
             }
+
+            $serviceDefault = AitilenService::where('is_contract_default', 1)
+            ->orderBy('sort_order', 'asc')->get()->toArray();
+            foreach ($serviceDefault as $ser) {
+                $serviceInsert = [
+                    // 'contract_id'  => 0,
+                    'so_nguoi' => $contract->so_nguoi,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'service_id'  => $ser['id'],
+                    'price' => $ser['price_default'],
+                    'per' => $ser['per_default'],
+                    'price' => $ser['price_default'],
+                ];
+            }
+
+            /////////////// create dv:
+            $contracts = DB::table('contract')->get();
+            foreach ($contracts as $contract) {
+                $dataInsert = $serviceInsert;
+                $dataInsert['so_nguoi'] = $contract->so_nguoi;
+                $dataInsert['contract_id'] = $contract->id;
+
+                // price_total
+            }
+
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -305,15 +392,93 @@ class SyncHopDong extends Command
         dd($hopdong->id);
     }
 
-    private function dienNuocSync()
+    private function dienNuocSync02()
     {
         DB::table('aitilen_dien_nuoc')->truncate();
-        $csv = storage_path('app/public/migrate/aitilen_consumption_meter_price_service.csv');
+        // $csv = storage_path('app/public/migrate/aitilen_consumption_meter_price_service.csv');
+        $csv = storage_path('app/public/migrate/SoDienNuoc.csv');
         $dataError = [];
         // Đọc file CSV thành mảng
         $rows = array_map('str_getcsv', file($csv));
         $header = array_map('trim', $rows[0]); // Dòng đầu là header
 
+
+        $roomEmpty = [];
+        // Lặp qua từng dòng dữ liệu (bỏ dòng header)
+        // dd($rows);
+        foreach ($rows as $idx => $row) {
+            if($idx == 0) {
+                continue;
+            }
+            // try {
+
+
+                if($row[1] == '') {
+                    $roomEmpty[] = $row;
+                    continue;
+                }
+
+                $dienNuoc = AitilenDienNuoc::where('room_id', $row[1])->first();
+                $room = DB::table('room')->where('id', $row[1])->first();
+                if (empty($dienNuoc)) {
+                    $dienNuoc = new AitilenDienNuoc();
+                }
+
+                $dienNuoc->month = 10;
+                $dienNuoc->year = 2025;
+
+                $dienNuoc->room_id = $row[1] ?? null;
+                $dienNuoc->apartment_id = $room->apartment_id ?? null;
+
+                $dichVu = trim(mb_substr($row[3], 0, 3, 'UTF-8'));
+                // dd($dichVu);
+                switch ($dichVu) {
+                    case 'Điệ':
+                        $dienNuoc->dien_start = $row[4] ?? 0;
+                        $dienNuoc->dien_end = $row[5] ?? 0;
+                        break;
+                    case 'Nướ':
+                        $dienNuoc->nuoc_start = $row[4] ?? 0;
+                        $dienNuoc->nuoc_end = $row[5] ?? 0;
+                        break;
+                    case 'WC':
+                        $dienNuoc->nonglanh_start = $row[4] ?? 0;
+                        $dienNuoc->nonglanh_end = $row[5] ?? 0;
+                        break;
+                    case 'ele':
+                        $dienNuoc->maybom_start = $row[4] ?? 0;
+                        $dienNuoc->maybom_end = $row[5] ?? 0;
+                        break;
+
+                    default:
+                        dd($dichVu);
+                        break;
+                }
+
+                $dienNuoc->save();
+            // } catch (\Throwable $th) {
+            //     $this->info('Error.. ' . $row[1]);
+            //     throw $th;
+            // }
+        }
+
+        dd($roomEmpty);
+        if (!empty($dataError)) {
+            $this->error('OKKKK');
+        } else {
+            $this->info('Đã import xong room!');
+        }
+    }
+
+    private function dienNuocSync()
+    {
+        DB::table('aitilen_dien_nuoc')->truncate();
+        // $csv = storage_path('app/public/migrate/aitilen_consumption_meter_price_service.csv');
+        $csv = storage_path('app/public/migrate/SoDienNuoc.csv');
+        $dataError = [];
+        // Đọc file CSV thành mảng
+        $rows = array_map('str_getcsv', file($csv));
+        $header = array_map('trim', $rows[0]); // Dòng đầu là header
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
         foreach (array_slice($rows, 1) as $row) {
             try {
@@ -446,7 +611,7 @@ class SyncHopDong extends Command
             //     continue;
             // }
 
-            if($data[0] ==1 ) {
+            if ($data[0] == 1) {
                 continue;
             }
 
@@ -462,7 +627,7 @@ class SyncHopDong extends Command
                     'code'  => $code, //
                     'name'  => $name, //
                     'require_changepw'  => 1, // bắt buộc đổi mk lần đầu
-                    'user_type'  => 'bds',
+                    'user_type'  => 'Aitilen', //
                     'username'  => $data[4] ?? null, //
                     'password'  => $password, //
                     'ngay_sinh'  => empty($data[5]) || $data[5] == "NULL" ? null : $data[5], //
@@ -473,6 +638,7 @@ class SyncHopDong extends Command
                     'ngay_cap'  => empty($data[8]) || $data[8] == "NULL" ? null : $data[8], //
                     'noi_cap'  => $data[7] ?? null, //
                     'hktt'  => $data[9] ?? null, //
+                    'address'  => $data[9] ?? null, //
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ];

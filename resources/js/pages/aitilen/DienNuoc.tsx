@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import axios from "axios";
-import { cloneDeep, create, set } from 'lodash';
+import { clone, cloneDeep, create, set } from 'lodash';
 import type { CheckboxProps } from 'antd';
 import {
     Button, List,
@@ -130,7 +130,15 @@ const DienNuoc: React.FC = () => {
     // useEffect
     function fetchData(request = {}) {
         setLoadingTable(true);
-        axios.post(API.aitilen_DienNuoc, request)
+
+        // Đảm bảo pageSize được truyền trong request
+        const requestWithPagination = {
+            ...request,
+            pageSize: request.pageSize || (searchData as any).pageSize || 25, // Mặc định 25 nếu không có
+            page: request.page || (searchData as any).page || 1
+        };
+
+        axios.post(API.aitilen_DienNuoc, requestWithPagination)
             .then((res: any) => {
                 const propsTmp = res.data.data
                 console.log('propsTmp', propsTmp);
@@ -156,12 +164,29 @@ const DienNuoc: React.FC = () => {
         fetchData();
     }, []);
 
+    // Theo dõi sự thay đổi của searchData và pageSize
+    useEffect(() => {
+        console.log('SearchData updated:', searchData);
+        console.log('Current pageSize from searchData:', (searchData as any).pageSize || 'Not set (default: 25)');
+    }, [searchData]);
+
     // search/reload
-    function search(request = {}) {
+    function search(request: any = {}) {
         setLoadingTable(true);
-        axios.post(API.aitilen_SearchDienNuoc, request)
+
+        // Đảm bảo pageSize được truyền trong request
+        const requestWithPagination = {
+            ...request,
+            pageSize: request.pageSize || (searchData as any).pageSize || 25, // Mặc định 25 nếu không có
+            page: request.page || (searchData as any).page || 1
+        };
+
+        console.log('Sending request with pageSize:', requestWithPagination);
+
+        axios.post(API.aitilen_SearchDienNuoc, requestWithPagination)
             .then((response: any) => {
                 const res = response.data.data
+                console.log('Received pageConfig:', res.pageConfig);
                 setDataSource(res.datas);
                 setTableParams({
                     pagination: {
@@ -225,10 +250,15 @@ const DienNuoc: React.FC = () => {
     }
 
     function setPagination(pagination: { page?: number; pageSize?: number }) {
-        router.get(
-            route("data.index", [props.table.id, props.searchData]),
-            pagination
-        );
+        console.log('setPagination', pagination);
+        let searchData_tmp = { ...(searchData as any) };
+        if (pagination.page) searchData_tmp.page = pagination.page;
+        if (pagination.pageSize) searchData_tmp.pageSize = pagination.pageSize;
+        setSearchData(searchData_tmp);
+        console.log('searchData_tmp', searchData_tmp);
+
+        // Gọi search với dữ liệu mới để cập nhật kết quả
+        search(searchData_tmp);
     }
 
     function fastEditRecord(id: number, field: string, value: any) {
@@ -386,13 +416,13 @@ const DienNuoc: React.FC = () => {
             values.end_date = values.end_date.format('YYYY-MM');
         }
         if (!values.month) {
-            values.month = props.searchData.month;
+            values.month = (searchData as any).month;
         }
         if (!values.year) {
-            values.year = props.searchData.year;
+            values.year = (searchData as any).year;
         }
-        if (!values.room && props.searchData.room) {
-            values.room = props.searchData.room;
+        if (!values.room && (searchData as any).room) {
+            values.room = (searchData as any).room;
         }
         if (isRecycleBin) {
             values.is_recycle_bin = 1;
@@ -403,9 +433,9 @@ const DienNuoc: React.FC = () => {
     }
 
     function initialsFormSearch() {
-        let result = props.searchData;
-        if (props.searchData && props.searchData.month && props.searchData.year) {
-            result.date = dayjs(props.searchData.year + '-' + String(props.searchData.month).padStart(2, '0'));
+        let result = { ...(searchData as any) };
+        if (searchData && (searchData as any).month && (searchData as any).year) {
+            result.date = dayjs((searchData as any).year + '-' + String((searchData as any).month).padStart(2, '0'));
         }
         return result;
     }
@@ -457,8 +487,8 @@ const DienNuoc: React.FC = () => {
         // Kiểm tra tất cả bản ghi phải cùng tháng/năm
         const monthYearSet = new Set(
             selectedRecords.map((r: any) => {
-                const m = Number(r?.month ?? props.searchData?.month);
-                const y = Number(r?.year ?? props.searchData?.year);
+                const m = Number(r?.month ?? (searchData as any)?.month);
+                const y = Number(r?.year ?? (searchData as any)?.year);
                 return `${y}-${m}`;
             })
         );
@@ -535,7 +565,7 @@ const DienNuoc: React.FC = () => {
         <div>
 
             <Divider orientation="left">
-                Danh sách số điện/nước {props.searchData && props.searchData.month && props.searchData.year ? `tháng ${props.searchData.month}/${props.searchData.year}` : ''}
+                Danh sách số điện/nước {searchData && (searchData as any).month && (searchData as any).year ? `tháng ${(searchData as any).month}/${(searchData as any).year}` : ''}
             </Divider>
 
             <Row>

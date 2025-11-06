@@ -45,7 +45,18 @@ class AitilenDienNuoc extends Model
         } else {
             $datas = $datas->where('is_recycle_bin', 0);
         }
-        $datas = $datas->orderBy('id', 'desc')->paginate(25);
+
+        $datas = $datas->orderBy('id', 'desc');
+
+        // Xử lý pageSize động, mặc định là 25 nếu không có hoặc không hợp lệ
+        $pageSize = !empty($searchData['pageSize']) && is_numeric($searchData['pageSize']) && $searchData['pageSize'] > 0
+                    ? (int)$searchData['pageSize']
+                    : 25;
+
+        // Giới hạn pageSize tối đa để tránh quá tải
+        $pageSize = min($pageSize, 100);
+
+        $datas = $datas->paginate($pageSize);
 
         return $datas;
     }

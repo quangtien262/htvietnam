@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AitilenController;
 use App\Http\Controllers\Admin\AitilenInvoiceController;
+use App\Http\Controllers\Admin\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DataController;
@@ -10,19 +11,22 @@ use App\Http\Controllers\Admin\ApiController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\MeetingController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
-
+use App\Http\Controllers\Auth\AuthController;
 
 // aio/api
+Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
 
 Route::group(['prefix' => 'menu'], function () {
     Route::post('dashboard', [AdminController::class, 'getMenusDashboard'])->name('aio.menu.dashboard');
     Route::post('submenu', [AdminController::class, 'getMenus'])->name('aio.menu.submenu');
 });
 
+// data
 Route::group(['prefix' => 'data'], function () {
     Route::post('delete', [DataController::class, 'delete'])->name('aio.data.delete');
     Route::post('deletes', [DataController::class, 'deleteDatas'])->name('aio.data.deletes');
@@ -37,6 +41,14 @@ Route::group(['prefix' => 'data'], function () {
     Route::post('fast-edit/{tableId}', [DataController::class, 'fastEdit'])->name('data.fastEdit');
     // sửa nhanh theo "tên bảng," tên cột cần sửa và id của bảng
     Route::post('fast-edit', [DataController::class, 'fastEditByTableName'])->name('data.fastEditByTableName');
+
+    Route::post('update-sort-order', [DataController::class, 'updateSortOrder02'])->name('data.sortOrder02');
+
+    // upload
+    Route::post('upload-image', [DataController::class, 'uploadImage'])->name('data.upload_image');
+    Route::post('delete-image-tmp', [DataController::class, 'deleteImageTmp'])->name('data.delete_image_tmp');
+
+    Route::post('upload-file', [DataController::class, 'uploadFile'])->name('data.upload_file');
 });
 
 //tasks: api
@@ -62,7 +74,7 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('list/search', [TaskController::class, 'searchTaskList'])->name('aio.task.list.search');
     Route::post('kanban/search', [TaskController::class, 'searchTaskKanban'])->name('aio.task.kanban.search');
 
-     // add/edit status, priority
+    // add/edit status, priority
     Route::post('edit-config', [TaskController::class, 'editTableConfig'])->name('aio.task.editConfigTask');
     Route::post('status/sort-order', [TaskController::class, 'updateSortOrder_config'])->name('aio.task.updateSortOrder_taskStatus');
     Route::post('{parentName}/delete-config/{currentTable}', [TaskController::class, 'deleteTableConfig'])->name('aio.task.deleteTableConfig');
@@ -117,7 +129,7 @@ Route::group(['prefix' => 'invoice'], function () {
     // Route::post('update', [InvoiceController::class, 'updateInvoice'])->name('invoice.update');
     // Route::post('change-status', [InvoiceController::class, 'changeInvoiceStatus'])->name('invoice.changeStatus');
     // Route::post('delete', [InvoiceController::class, 'deleteInvoice'])->name('invoice.delete');
-    
+
 });
 
 // Aitilen business
@@ -140,12 +152,50 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('invoice/active-all', [AitilenInvoiceController::class, 'activeAllInvoice'])->name('aio.invoice.activeAll');
 });
 
-
 // contact: api
 Route::group(['prefix' => 'contract'], function () {
     Route::post('index-api/bds', [ContractController::class, 'indexBds'])->name('contract.index');
     Route::post('update', [ContractController::class, 'update'])->name('contract.update');
     Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
     Route::post('search', [ContractController::class, 'search'])->name('contract.search');
+    Route::post('delete', [ContractController::class, 'delete'])->name('contract.delete');
+});
 
+// customer: api
+Route::group(['prefix' => 'customer'], function () {
+    Route::post('index-api', [CustomerController::class, 'indexApi'])->name('customer.index');
+    Route::post('search', [CustomerController::class, 'search'])->name('customer.search');
+    Route::post('detail', [CustomerController::class, 'detail'])->name('customer.detail');
+    Route::post('update', [CustomerController::class, 'update'])->name('customer.update');
+    Route::post('fast-  ', [CustomerController::class, 'fastEdit'])->name('customer.fastEdit');
+    Route::post('edit', [CustomerController::class, 'createOrUpdate'])->name('customer.edit');
+    Route::post('search', [CustomerController::class, 'search'])->name('customer.search');
+});
+
+Route::group(['prefix' => 'meeting'], function () {
+    Route::post('index-api', [MeetingController::class, 'fetchIndexData'])->name('meeting.fetchIndexData');
+    Route::post('add-express', [MeetingController::class, 'addExpress'])->name('meeting.addExpress');
+    Route::post('delete', [MeetingController::class, 'deleteMeeting'])->name('meeting.delete');
+    Route::post('close', [MeetingController::class, 'closeMeeting'])->name('meeting.close');
+    Route::post('update', [MeetingController::class, 'updateMeeting'])->name('meeting.updateMeeting');
+    Route::post('search', [MeetingController::class, 'search'])->name('meeting.search');
+});
+
+
+// files
+Route::group(['prefix' => 'files'], function () {
+    Route::get('/', [FileController::class, 'index'])->name('file.index');
+    Route::post('upload', [FileController::class, 'upload'])->name('file.upload');
+    Route::get('download/{id}', [FileController::class, 'download'])->name('file.download');
+    Route::post('delete', [FileController::class, 'delete'])->name('file.delete');
+    Route::post('share', [FileController::class, 'share'])->name('file.share');
+    Route::post('show/{type}', [FileController::class, 'show'])->name('file.show');
+
+    Route::get('editor/all', [FileController::class, 'getAllFile'])->name('file.all');
+    Route::post('editor/upload', [FileController::class, 'editorUpload'])->name('editor.upload');
+});
+
+Route::group(['prefix' => 'folder'], function () {
+    Route::post('create', [FileController::class, 'createFolder'])->name('folder.create');
+    Route::post('open', [FileController::class, 'openFolder'])->name('folder.open');
 });

@@ -23,20 +23,20 @@ Route::post('account/login', [AuthController::class, 'postLogin_api'])->name('po
 Route::get('account/register', [AuthController::class, 'register'])->name('register');
 Route::post('account/register', [AuthController::class, 'postRegister']);
 Route::post('api/register', [AuthController::class, 'postRegister_api'])->name('postRegister_api');
-Route::get('account/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('account/logout/user', [AuthController::class, 'logoutUser'])->name('logout');
+Route::get('account/logout/aio', [AuthController::class, 'logoutAIO'])->name('logoutAIO');
 
 Route::get('get-token/{type}', [PagesController::class, 'getToken'])->name('get_token');
 
 Route::get('lang/change', [LangController::class, 'change'])->name('changeLang');
 
 Route::middleware('auth:web')->group(function () {
-    Route::group(['prefix' => 'user'], function () {
-        Route::get('/', [UserController::class, 'index'])->name('user.index');
-        Route::get('hoa-don', [UserController::class, 'index'])->name('user.hoa_don');
-        Route::get('hop-dong', [UserController::class, 'index'])->name('user.hop_dong');
-        Route::get('supponrt', [UserController::class, 'index'])->name('user.support');
-        Route::get('/logout', [UserController::class, 'logout'])->name('user.logout');
+    // api
+    Route::group(['prefix' => 'user/api'], function () {
+        require __DIR__ . '/user_api_route.php';
     });
+    // SPA fallback
+    Route::get('user/{any?}', [UserController::class, 'index'])->where('any', '.*')->name('user.spa_fallback');
 });
 
 Route::middleware('auth:admin_users')->group(function () {

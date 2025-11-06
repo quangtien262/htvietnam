@@ -8,14 +8,14 @@ export const ROUTE = {
 
     // Aitilen
     dashboard_aitilen: `${baseRoute}bds/dashboard/`,
-    taskList_bds: `${baseRoute}tasks/all/list/1/`,
+    taskList_bds: `${baseRoute}tasks/aitilen/list/2/`,
     taskKanban_bds: `${baseRoute}tasks/all/kanban/1/`,
 
     invoice_bds: `${baseRoute}bds/invoices/list`,
 
     // tasks
-    taskList_all: `${baseRoute}tasks/all/list/1/`,
-    taskKanban_all: `${baseUrl}tasks/all/kanban/1/`,
+    taskList_all: `${baseRoute}tasks/aitilen/list/2/`,
+    taskKanban_all: `${baseUrl}tasks/aitilen/kanban/2/`,
     project_all: `${baseRoute}p/all/kanban/1/`,
 
     //đẩy phòng
@@ -40,6 +40,12 @@ export const ROUTE = {
 
     // aitilen
     aitilen_DienNuoc: `${baseRoute}aitilen/chot-dien-nuoc/`,
+
+    // customer
+    customerList: `${baseRoute}customers/list/`,
+
+    // meeting
+    meeting: `${baseRoute}meetings/list/`,
 };
 
 export default ROUTE;

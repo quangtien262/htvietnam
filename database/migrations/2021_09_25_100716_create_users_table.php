@@ -73,6 +73,7 @@ return new class extends Migration
             $table->integer('require_changepw')->default(0)->nullable();
 
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('phone_verified')->nullable();
             $table->rememberToken();
 
             MigrateService::createBaseColumn($table);
@@ -162,7 +163,7 @@ return new class extends Migration
             ['require' => 1, 'show_in_list' => 1, 'is_view_detail' => 1]
         );
 
-         MigrateService::createColumn02(
+        MigrateService::createColumn02(
             $tableId,
             'email',
             'Email',
@@ -231,7 +232,7 @@ return new class extends Migration
             ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
         );
 
-         MigrateService::createColumn02(
+        MigrateService::createColumn02(
             $tableId,
             'note',
             'Ghi chú',
@@ -241,7 +242,7 @@ return new class extends Migration
             ['require' => 1, 'edit' => 1, 'show_in_list' => 0]
         );
 
-         MigrateService::createColumn02(
+        MigrateService::createColumn02(
             $tableId,
             'address',
             'Địa chỉ',

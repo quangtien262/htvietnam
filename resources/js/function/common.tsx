@@ -42,7 +42,7 @@ export function numberFormat02(value, count = 2) {
     return value;
 }
 
-export function nl2br(str, is_xhtml) {
+export function nl2br(str, is_xhtml = true) {
     if (typeof str === 'undefined' || str === null) {
         return '';
     }

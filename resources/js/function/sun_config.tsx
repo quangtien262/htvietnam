@@ -1,6 +1,6 @@
 // import plugins from 'suneditor/src/plugins';
 import SunEditor, { buttonList } from "suneditor-react";
-
+import API from "../common/api";
 export const optionSunEditor = {
     showPathLabel: false,
     minHeight: "300px",
@@ -60,7 +60,7 @@ export const optionSunEditor = {
     ],
 
     // get image
-    imageGalleryUrl: route('file.all'),
+    imageGalleryUrl: API.editorAll,
     imageGalleryHeader:'Quản lý Dữ liệu',
 
     //upload
@@ -98,7 +98,7 @@ export const optionSunEditor = {
     //                 }
     //             ]
     //         }
-    imageUploadUrl  : route('editor.upload'),
+    imageUploadUrl  : API.editorUpload,
 
     imageUploadSizeLimit: null, // The size of the total uploadable images (in bytes).Invokes the "onImageUploadError" method.  default: null {Number}
     imageMultipleFile: true, // If true, multiple images can be selected.    default: false {Boolean}

@@ -20,27 +20,23 @@ use Illuminate\Support\Facades\Auth;
 
 class MeetingController extends Controller
 {
-    public function index(Request $request)
-    {
-        $table = Table::where('name', 'meeting')->first();
 
-        $searchData = $request->all();
-        if (empty($request->meeting)) {
-            $searchData['meeting'] = ['daily'];
-        }
-        if (empty($request->result)) {
-            $searchData['result'] = ['1'];
-        }
-        
-        $props = [
-            'table' => $table,
-            'searchData' => $searchData,
-            'p' => $request->p ?? 0,
+    public function search(Request $request)
+    {
+        $datas = Meeting::getMeeting($request->all());
+        $result = [
+            'datas' => $datas['data'],
+            'pageConfig' => [
+                'currentPage' => $datas['current_page'],
+                'perPage' => $datas['per_page'],
+                'total' => $datas['total'],
+                'lastPage' => $datas['last_page'],
+                'count' => count($datas['data']),
+            ],
         ];
 
-        return Inertia::render('Admin/Meeting/index', $props);
+        return $this->sendSuccessResponse($result);
     }
-
     public function fetchIndexData(Request $request)
     {
         $table = Table::where('name', 'meeting')->first();
@@ -59,39 +55,39 @@ class MeetingController extends Controller
         $datas = Meeting::getMeeting($searchData);
 
         $pageConfig = [
-            'currentPage' => $datas->currentPage(),
-            'perPage' => $datas->perPage(),
-            'total' => $datas->total(),
-            'lastPage' => $datas->lastPage(),
+            'currentPage' => $datas['current_page'],
+            'perPage' => $datas['per_page'],
+            'total' => $datas['total'],
+            'lastPage' => $datas['last_page'],
+            'count' => count($datas['data']),
         ];
-        $datas = $datas->toArray();
         $pageConfig['count'] = count($datas['data']);
         // end phân trang
 
         $props = [
             'table' => $table,
             'columns' => $columns,
-            'dataSource' => $datas['data'],
+            'datas' => $datas['data'],
             'userPermission' => $userPermission,
             'searchData' => $searchData,
             'pageConfig' => $pageConfig,
         ];
 
 
-        $props['projectStatus'] = TblService::formatData('project_status');
         $props['meetingStatus'] = TblService::formatData('meeting_status');
+        $props['meetingStatus_select'] = TblService::getDataSelect02('meeting_status');
         $props['users'] = TblService::formatData('admin_users');
 
-        $props['taskStatus'] = TblService::formatData('task_status');
-        $taskStatusDefault = [];
-        foreach ($props['taskStatus'] as $ts) {
-            if ($ts->is_default == 1) {
-                $taskStatusDefault[] = $ts->id;
-            }
-        }
-        $props['tasks'] = Task::where('is_recycle_bin', 0)
-            ->whereIn('tasks.task_status_id', $taskStatusDefault)
-            ->get();
+        // $props['taskStatus'] = TblService::formatData('task_status');
+        // $taskStatusDefault = [];
+        // foreach ($props['taskStatus'] as $ts) {
+        //     if ($ts->is_default == 1) {
+        //         $taskStatusDefault[] = $ts->id;
+        //     }
+        // }
+        // $props['tasks'] = Task::where('is_recycle_bin', 0)
+        //     ->whereIn('tasks.task_status_id', $taskStatusDefault)
+        //     ->get();
 
         return $this->sendSuccessResponse($props);
     }
@@ -138,9 +134,20 @@ class MeetingController extends Controller
         }
 
         // get all
-        $datas = Meeting::getMeeting($request->searchData)->toArray();
+        $datas = Meeting::getMeeting($request->searchData);
 
-        return $this->sendSuccessResponse($datas['data']);
+        $result = [
+            'datas' => $datas['data'],
+            'pageConfig' => [
+                'currentPage' => $datas['current_page'],
+                'perPage' => $datas['per_page'],
+                'total' => $datas['total'],
+                'lastPage' => $datas['last_page'],
+                'count' => count($datas['data']),
+            ],
+        ];
+
+        return $this->sendSuccessResponse($result);
     }
 
     public function updateMeeting(Request $request)
@@ -162,8 +169,44 @@ class MeetingController extends Controller
         $meeting->is_yearly = in_array('is_yearly', $request->meeting_type) ? 1 : 0;
         $meeting->save();
 
-        $datas = Meeting::getMeeting($request->searchData)->toArray();
+        $datas = Meeting::getMeeting($request->searchData);
 
-        return $this->sendSuccessResponse($datas['data']);
+
+        $result = [
+            'datas' => $datas['data'],
+            'pageConfig' => [
+                'currentPage' => $datas['current_page'],
+                'perPage' => $datas['per_page'],
+                'total' => $datas['total'],
+                'lastPage' => $datas['last_page'],
+                'count' => count($datas['data']),
+            ],
+        ];
+
+        return $this->sendSuccessResponse($result);
+    }
+
+    public function deleteMeeting(Request $request) {
+        if (empty($request->ids)) {
+            return $this->sendErrorResponse('empty');
+        }
+
+        // update is_recycle_bin
+        Meeting::whereIn('id', $request->ids)->update(['is_recycle_bin' => 1]);
+
+        $datas = Meeting::getMeeting($request->searchData);
+
+        $result = [
+            'datas' => $datas['data'],
+            'pageConfig' => [
+                'currentPage' => $datas['current_page'],
+                'perPage' => $datas['per_page'],
+                'total' => $datas['total'],
+                'lastPage' => $datas['last_page'],
+                'count' => count($datas['data']),
+            ],
+        ];
+
+        return $this->sendSuccessResponse($result);
     }
 }

@@ -326,7 +326,7 @@
                         console.log('====================================');
                         if (res && res.status_code === 200) {
                             showSuccess(res.message || 'Đăng ký thành công');
-                            // window.location.reload();
+                            window.location.reload();
                         } else {
                             if (res && res.errors) {
                                 const msgs = [];

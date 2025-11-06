@@ -57,8 +57,26 @@ class Contract extends Model
             $datas = $datas->where('contract.end_date', 'like', '%'.$dataFilter['end_date'].'%');
         }
 
+        if(!empty($dataFilter['status'])) {
+            $datas = $datas->where('contract.contract_status_id', $dataFilter['status']);
+        }
 
         $datas = $datas->orderBy('contract.id', 'desc')->paginate(20);
         return $datas;
+    }
+
+    static function baseQueryInfo() {
+        $data = self::select(
+            'contract.*',
+            'room.name as room_name',
+            'apartment.name as apartment_name',
+            'contract_status.name as contract_status_name',
+            'contract_status.color as contract_status_color'
+        )
+        ->leftJoin('room', 'room.id', 'contract.room_id')
+        ->leftJoin('apartment', 'apartment.id', 'contract.apartment_id')
+        ->leftJoin('contract_status', 'contract_status.id', 'contract.contract_status_id');
+
+        return $data;
     }
 }

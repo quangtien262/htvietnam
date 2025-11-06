@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
+import cloneDeep from "lodash/cloneDeep";
 import {
     Button, List,
     Table, DatePicker,
@@ -34,7 +35,7 @@ import {
     ClockCircleOutlined, FormOutlined,
     FileTextOutlined, InsertRowAboveOutlined,
     UserOutlined,
-    CaretRightOutlined, FileAddOutlined
+    CaretRightOutlined, LoginOutlined
 } from "@ant-design/icons";
 
 
@@ -46,8 +47,6 @@ import { formatValueForm } from "../../function/input";
 import { DON_VI_SERVICE } from "../../function/constant";
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../function/common";
 import { API } from "../../common/api";
-import { set } from "lodash";
-import { act } from './../../../../node_modules/@types/react/index.d';
 
 const daysInMonth_default = dayjs().daysInMonth();
 const { RangePicker } = DatePicker;
@@ -99,6 +98,11 @@ const ContactList_BDS: React.FC = () => {
     const [tienTraCoc, setTienTraCoc] = useState(0);
     const [tienGiamGia, setTienGiamGia] = useState(0);
 
+    // state login
+    const [isModalLoginOpen, setIsModalLoginOpen] = useState(false);
+    const [confirmLoginSuccess, setConfirmLoginSuccess] = useState(false);
+    const [loadingLogin, setLoadingLogin] = useState(false);
+
     const [isOpenFormEditService, setIsOpenFormEditService] = useState(false);
 
     const [form] = Form.useForm();
@@ -133,8 +137,7 @@ const ContactList_BDS: React.FC = () => {
         setLoadingTable(true);
         axios.post(API.contractBDSIndexApi, request)
             .then((res: any) => {
-                const propsTmp = res.data.data
-                console.log('propsTmp', propsTmp);
+                const propsTmp = res.data.data;
                 setProps(res.data.data);
                 setDataSource(propsTmp.datas);
                 setDataService(propsTmp.serviceDefault);
@@ -176,6 +179,31 @@ const ContactList_BDS: React.FC = () => {
 
     }
 
+    // login function
+    function loginCustomer(item) {
+        setIsModalLoginOpen(true);
+        setDataAction(item);
+    }
+
+    function submitLoginCustomer() {
+        setLoadingLogin(true);
+        axios.post(API.loginCustomer, { id: dataAction.user_id })
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    setConfirmLoginSuccess(true);
+                } else {
+                    message.error("Đăng nhập thất bại");
+                }
+                setLoadingLogin(false);
+                setIsModalLoginOpen(false);
+                setConfirmLoginSuccess(true);
+            })
+            .catch((error) => {
+                message.error("Đăng nhập thất bại");
+                setLoadingLogin(false);
+            });
+    }
+
     function setPagination(pagination: { page?: number; pageSize?: number }) {
         // router.get(
         //     route("data.index", [props.table.id, props.searchData]),
@@ -184,8 +212,6 @@ const ContactList_BDS: React.FC = () => {
     }
 
     const onFinishFormEdit = (values: any) => {
-        console.log('dataService', dataService);
-
         if (values.start_date) {
             values.start_date = values.start_date.format('YYYY-MM-DD');
         }
@@ -198,14 +224,12 @@ const ContactList_BDS: React.FC = () => {
         values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
-        console.log('Search values:', values);
         setLoadingTable(true);
         // save
         axios.post(API.updateContract, values).then((response) => {
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
                 setIsOpenFormEdit(false);
-                console.log('response.data.data', response.data.data);
 
                 if (dataAction.id == 0) {
                     // add data
@@ -239,7 +263,9 @@ const ContactList_BDS: React.FC = () => {
                 return <>
                     <b>{record.ho_ten ? <span>{record.ho_ten}</span> : ''}</b>
                     <br />
-                    {props.room[record.room_id] ? <Tag color="blue">{props.room[record.room_id].name}</Tag> : ''}
+                    <em >0{record.so_nguoi}Người</em>
+                    <br />
+                    <em>{record.end_date}</em>
                 </>;
             }
         },
@@ -249,20 +275,21 @@ const ContactList_BDS: React.FC = () => {
             key: 'ma_khach_hang',
             render: (text: any, record: any) => {
                 return <>
+                    {props.room[record.room_id] ? <Tag color="blue">{props.room[record.room_id].name}</Tag> : ''}
                     {record.contract_status_id
                         ?
-                        <Tag color={props.status[record.contract_status_id].background}>{props.status[record.contract_status_id].name}</Tag>
+                        <Tag color={props.status[record.contract_status_id].color}>{props.status[record.contract_status_id].name}</Tag>
                         :
                         <Tag>Chưa xác định</Tag>
                     }
-                    <Popconfirm title="Chỉnh sửa hóa đơn"
+                    <Popconfirm title="Sửa trạng thái hơp đồng"
                         showCancel={false}
                         okText="Đóng"
                         description={<div>
                             <Select
                                 showSearch
                                 style={{ width: "100%" }}
-                                placeholder="Chọn phòng"
+                                placeholder="Chọn trạng thái hóa đơn"
                                 optionFilterProp="children"
                                 options={optionEntries(props.status)}
                                 filterOption={(input, option) =>
@@ -272,12 +299,11 @@ const ContactList_BDS: React.FC = () => {
                                 }
                                 onChange={(value) => {
                                     // Gọi API đổi trạng thái hóa đơn
-                                    axios.post(route('contract.fastEdit'), {
+                                    axios.post(API.fastEditContract, {
                                         id: record.id,
                                         column: 'contract_status_id',
                                         value: value,
                                     }).then((res) => {
-                                        console.log('res', res);
                                         if (res.data.status_code === 200) {
                                             message.success('Đã đổi trạng thái thành công');
                                             // Cập nhật lại bảng nếu cần
@@ -322,7 +348,7 @@ const ContactList_BDS: React.FC = () => {
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
 
                     {services.map((service: any, idx: number) => {
-                        const serviceName = service.name ?? service.service_name ?? 'Dịch vụ';
+                        const serviceName = service.name ?? service.name ?? 'xxx';
                         const price = service.price ?? service.price_default ?? 0;
                         return (
                             <Tag color="blue" key={idx}>
@@ -341,13 +367,11 @@ const ContactList_BDS: React.FC = () => {
     ];
 
     function setDataEdit(record: any) {
-        console.log(record);
         setDataAction(record);
         setIsOpenFormEdit(true);
 
         // helper parse an toàn
-        const toDayjs = (d: any) => (d ? dayjs(d) : undefined);
-        console.log('record.user_id', record.user_id);
+        const toDayjs = (d: any) => (d ? dayjs(d) : null);
 
         formEdit.setFieldsValue({
             id: record.id?.toString(),
@@ -421,7 +445,7 @@ const ContactList_BDS: React.FC = () => {
         return <>
             <div className="float-btn-option">
                 <Dropdown menu={menuProps}>
-                    <Button>
+                    <Button className="btn-default02">
                         <Space>
                             Thao tác
                             <DownOutlined />
@@ -437,7 +461,12 @@ const ContactList_BDS: React.FC = () => {
                     <ul className="ul-info">
                         <li><b><CaretRightOutlined /> Tiêu đề:</b> {record.name}</li>
                         <li><b><FileTextOutlined /> Mã Hợp đồng:</b> {record.code}</li>
-                        <li><b><UserOutlined /> Khách hàng:</b> {record.ho_ten}</li>
+                        <li>
+                            <b><UserOutlined /> Khách hàng: </b>
+                            {record.ho_ten}
+                            <span>  </span>
+                            <button className="btn-default" onClick={() => loginCustomer(record)}> <LoginOutlined /> Login</button>
+                        </li>
                         <li><b><CloudOutlined /> Phòng:</b> {props.room && props.room[record.room_id] ? props.room[record.room_id].name : ''}</li>
                         <li><b><MehOutlined /> Số người ở:</b> {record.so_nguoi}</li>
                         <li><b><ClockCircleOutlined /> Ngày hẹn đóng tiền:</b> {record.ngay_hen_dong_tien}</li>
@@ -602,11 +631,11 @@ const ContactList_BDS: React.FC = () => {
                             }
 
                             let data_tmp = cloneDeep(dataService);
-                            data_tmp[idx].aitilen_service_id = value;
+                            data_tmp[idx].id = value;
                             setDataService(data_tmp);
                         }}
                         allowClear={true}
-                        value={data.id.toString()}
+                        value={data.id ? data.id.toString() : null}
                         options={optionEntries(props.service)}
                     />
 
@@ -674,12 +703,28 @@ const ContactList_BDS: React.FC = () => {
     }
 
     const inFinishSearch = (values: any) => {
-        values.p = props.p;
+        // values.p = props.p;
         if (values.end_date) {
             values.end_date = values.end_date.format('YYYY-MM');
         }
-
-        router.get(route('contract.index'), values);
+        setSearchParams(values);
+        setLoadingTable(true);
+        axios.post(API.searchContract, values)
+            .then((response: any) => {
+                setLoadingTable(false);
+                const res = response.data.data
+                setDataSource(res.datas);
+                setTableParams({
+                    pagination: {
+                        current: res.pageConfig.currentPage,
+                        pageSize: res.pageConfig.perPage,
+                        position: ["bottonRight"],
+                        total: res.pageConfig.total,
+                        onChange: (page: number, pageSize?: number) => setPagination({ page, pageSize }),
+                    },
+                });
+            })
+            .catch((err: any) => console.error(err));
     }
 
 
@@ -891,28 +936,28 @@ const ContactList_BDS: React.FC = () => {
                 width={500}
                 onCancel={() => { setIsModalXoaOpen(false); }}
                 onOk={() => {
-                        axios.post(route('contract.deleteMultiple'), {
-                            ids: selectedRowKeys,
-                        }).then((response) => {
-                            const result = response.data;
-                            if (result.status === 200) {
-                                message.success("Đã hủy đơn thành công");
-                                search(searchParams);
-                            } else {
-                                message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                            }
-                            if (result.status === 200) {
-                                message.success("Đã hủy đơn thành công");
-                                search(searchParams);
-                            } else {
-                                message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                            }
-                        }).catch(() => {
-                            message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                    axios.post(API.deleteContract, {
+                        ids: selectedRowKeys,
+                        searchParams: searchParams,
+                    }).then((response) => {
+                        console.log('response:', response);
+                        if (response.data.status_code === 200) {
+                            message.success("Đã hủy đơn thành công");
+                            setDataSource(response.data.data.data);
+                            setIsModalXoaOpen(false);
+                            // search(searchParams);
+                        } else {
+                            message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại111");
                         }
-                        );
-                    }}
-                >
+
+
+                    }).catch((e) => {
+                        console.log(e);
+                        message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                    }
+                    );
+                }}
+            >
                 <ul>
                     <li>Các thông tin về data này sẽ bị chuyển đến thùng rác</li>
                     <li>các dữ liệu liên quan như <em>phiếu thu, chi, sổ quỹ cũng sẽ được phục hồi lại</em></li>
@@ -928,28 +973,28 @@ const ContactList_BDS: React.FC = () => {
                 width={500}
                 onCancel={() => { setIsModalActiveOpen(false); }}
                 onOk={() => {
-                        axios.post(route('contract.deleteMultiple'), {
-                            ids: selectedRowKeys,
-                        }).then((response) => {
-                            const result = response.data;
-                            if (result.status === 200) {
-                                message.success("Đã kích hoạt thành công");
-                                search(searchParams);
-                            } else {
-                                message.error("Đã kích hoạt thất bại, vui lòng tải lại trình duyệt và thử lại");
-                            }
-                            if (result.status === 200) {
-                                message.success("Đã kích hoạt thành công");
-                                search(searchParams);
-                            } else {
-                                message.error("Đã kích hoạt thất bại, vui lòng tải lại trình duyệt và thử lại");
-                            }
-                        }).catch(() => {
+                    axios.post(route('contract.deleteMultiple'), {
+                        ids: selectedRowKeys,
+                    }).then((response) => {
+                        const result = response.data;
+                        if (result.status === 200) {
+                            message.success("Đã kích hoạt thành công");
+                            search(searchParams);
+                        } else {
                             message.error("Đã kích hoạt thất bại, vui lòng tải lại trình duyệt và thử lại");
                         }
-                        );
-                    }}
-                >
+                        if (result.status === 200) {
+                            message.success("Đã kích hoạt thành công");
+                            search(searchParams);
+                        } else {
+                            message.error("Đã kích hoạt thất bại, vui lòng tải lại trình duyệt và thử lại");
+                        }
+                    }).catch(() => {
+                        message.error("Đã kích hoạt thất bại, vui lòng tải lại trình duyệt và thử lại");
+                    }
+                    );
+                }}
+            >
                 <ul>
                     <li>Các thông tin về data này sẽ được <b>public cho khách hàng xem</b></li>
                     <li>Sau khi active, các thông tin này <b>vẫn có thể chỉnh sửa lại</b></li>
@@ -1229,6 +1274,26 @@ const ContactList_BDS: React.FC = () => {
                         </Col>
                     </Row>
                 </Form>
+            </Modal>
+
+            <Modal title="Xác nhận đăng nhập"
+                open={isModalLoginOpen}
+                onOk={() => submitLoginCustomer()}
+                okText="Đăng nhập"
+                cancelText="Hủy"
+                onCancel={() => setIsModalLoginOpen(false)}>
+                <p><CaretRightOutlined /> <em>Bạn sẽ login vào tài khoản của khách hàng <b>{dataAction?.ho_ten}</b></em></p>
+                <p><CaretRightOutlined /> <em>Sau khi login có thể truy cập trực vào trang profile của tài khoản này thông qua website mà không cần đăng nhập.</em></p>
+            </Modal>
+
+            <Modal title={<span className='text-success'>Đăng nhập thành công</span>}
+                open={confirmLoginSuccess}
+                onOk={loginCustomer}
+                okText={<a href="/user" target="new">Truy cập vào trang profile</a>}
+                cancelText="Đóng"
+                loading={loadingLogin}
+                onCancel={() => setConfirmLoginSuccess(false)}>
+                <p className="text-success"><em>Bạn đã đăng nhập thành công tài khoản: <b>{dataAction?.ho_ten}</b></em></p>
             </Modal>
 
         </div>

@@ -17,75 +17,56 @@ use App\Services\Admin\UserService;
 
 class CustomerController extends Controller
 {
-
-
-    public function index(Request $request)
+    public function indexApi(Request $request)
     {
         $tables = TblService::getAdminMenu(0);
         $table = Table::where('name', 'users')->first();
-        $users = User::select(
-                'users.*','users.id as key',
-                'gioi_tinh.name as gioi_tinh_name',
-                'customer_group.name as customer_group_name',
-            )
-            ->leftJoin('gioi_tinh', 'gioi_tinh.id', 'users.gioi_tinh_id')
-            ->leftJoin('customer_group', 'customer_group.id', 'users.customer_group_id')
-            ->where('users.is_recycle_bin', 0)
-            ->where('users.is_draft', '!=', 1);
-        
-        if(isset($request->customer_status_id)) {
-            if($request->customer_status_id == 3) {
-                $users = $users->where('users.is_recycle_bin', 1);
-            } else {
-                $users = $users->where('users.customer_status_id', $request->customer_status_id);
-            }
-        } else {
-            $users = $users->where('users.customer_status_id', 1);
-        }
-
-        if(isset($request->is_recycle_bin)) {
-            $users = $users->where('users.is_recycle_bin', $request->is_recycle_bin);
-        } else {
-            $users = $users->where('users.is_recycle_bin', 0);
-        }
-        $users = $users->orderBy('users.id', 'desc');
-        $users = $users->paginate(20);
+        $users = User::getUsers($request->all());
 
         $typeProduct = config('constant.type_product');
         $userSource = DB::table('user_source')->get();
-        $customerGroup = DB::table('customer_group')->get();
-        $gioiTinh = DB::table(table: 'gioi_tinh')->get();
-        $viewData = [
+
+        $customerGroup = TblService::formatData('customer_group');
+        $customerGroup_select = TblService::getDataSelect02('customer_group');
+
+        $gioiTinh_select = TblService::getDataSelect02('gioi_tinh');
+        // $gioiTinh = TblService::formatData('gioi_tinh');
+        $props = [
             'tables' => $tables,
             'table' => $table,
             'users' => $users,
-            'typeProduct' =>$typeProduct,
+            'typeProduct' => $typeProduct,
             'customerGroup' => $customerGroup,
-            'gioiTinh' => $gioiTinh,
-            'userSource' => $userSource
+            'customerGroup_select' => $customerGroup_select,
+            'gioiTinh_select' => $gioiTinh_select,
+            'userSource' => $userSource,
+            'searchData' => $request->all(),
         ];
- 
-        return Inertia::render('Admin/Customer/index', $viewData);
+
+        return $this->sendSuccessResponse($props);
     }
 
-    public function detail(Request $request) {
+    public function detail(Request $request)
+    {
         $khachHangData = UserService::khachHangInfo($request->id);
         return $this->sendSuccessResponse($khachHangData);
     }
 
     public function createOrUpdate(Request $rq)
     {
-        if(empty($rq->id)) {
+        if (empty($rq->id)) {
             $user = new User();
         } else {
             $user = User::find($rq->id);
         }
         $user->name = $rq->name;
+        $user->email = $rq->email;
         $user->cong_ty = !empty($rq->cong_ty) ? $rq->cong_ty : '';
         $user->mst = !empty($rq->mst) ? $rq->mst : '';
         $user->phone = !empty($rq->phone) ? $rq->phone : '';
         $user->phone02 = !empty($rq->phone02) ? $rq->phone02 : '';
         $user->gioi_tinh_id = !empty($rq->gioi_tinh_id) ? $rq->gioi_tinh_id : 0;
+        $user->user_source_id = !empty($rq->user_source_id) ? $rq->user_source_id :0;
         // $user->ngay_sinh = !empty($rq->ngay_sinh) ? $rq->ngay_sinh : '';
         $user->facebook = !empty($rq->facebook) ? $rq->facebook : '';
         $user->address = !empty($rq->address) ? $rq->address : '';
@@ -99,12 +80,13 @@ class CustomerController extends Controller
     }
 
 
-    public function lichSuMuaHang($id) {
+    public function lichSuMuaHang($id)
+    {
         $hoaDon = HoaDon::baseQuery()->where('hoa_don.users_id', $id)->get();
 
         $result = [];
-        foreach($hoaDon as $key => $nl) {
-            $stt = $key +1;
+        foreach ($hoaDon as $key => $nl) {
+            $stt = $key + 1;
             $result[] = [
                 'key' => $nl->id,
                 'code' => $nl->code,
@@ -119,11 +101,12 @@ class CustomerController extends Controller
         return $this->sendSuccessResponse($result);
     }
 
-    public function goiDichVu(Request $rq) {
+    public function goiDichVu(Request $rq)
+    {
         $goiDv = CardClass::getDVTrongGoi($rq->users_id);
         $result = [];
-        foreach($goiDv as $key => $val) {
-            $stt = $key +1;
+        foreach ($goiDv as $key => $val) {
+            $stt = $key + 1;
             $result[] = [
                 'stt' => $stt,
                 'key' => $val['card']->card_id,
@@ -139,13 +122,14 @@ class CustomerController extends Controller
         return $this->sendSuccessResponse($result);
     }
 
-    public function cardGT(Request $rq) {
-        
+    public function cardGT(Request $rq)
+    {
+
         $goiDv = HimalayaService::getCardGTInfo($rq->users_id);
         // dd($goiDv);
         $result = [];
-        foreach($goiDv as $key => $val) {
-            $stt = $key +1;
+        foreach ($goiDv as $key => $val) {
+            $stt = $key + 1;
             $result[] = [
                 'stt' => $stt,
                 'key' => $val->id,
@@ -162,43 +146,7 @@ class CustomerController extends Controller
 
     public function search(Request $request)
     {
-        $users = User::select(
-                'users.*','users.id as key',
-                'gioi_tinh.name as gioi_tinh_name',
-                'customer_group.name as customer_group_name',
-            )
-            ->leftJoin('gioi_tinh', 'gioi_tinh.id', 'users.gioi_tinh_id')
-            ->leftJoin('customer_group', 'customer_group.id', 'users.customer_group_id');
-        if(!empty($request->keyword)) {
-            $users = $users->where('users.name', 'like', '%' . $request->keyword . '%');
-        }
-        if(!empty($request->customer_group_id)) {
-            $users = $users->where('users.customer_group_id', $request->customer_group_id);
-        }
-        if(!empty($request->gioi_tinh_id)) {
-            $users = $users->where('users.gioi_tinh_id', $request->gioi_tinh_id);
-        }
-
-        if(isset($request->customer_status_id)) {
-            if($request->customer_status_id == 3) {
-                $users = $users->where('users.is_recycle_bin', 1);
-            } else {
-                $users = $users->where('users.customer_status_id', $request->customer_status_id)
-                                ->where('users.is_recycle_bin', 0);
-            }
-        } else {
-            $users = $users->where('users.customer_status_id', 1);
-        }
-
-        // if(isset($request->is_recycle_bin)) {
-        //     $users = $users->where('users.is_recycle_bin', $request->is_recycle_bin);
-        // } else {
-        //     $users = $users->where('users.is_recycle_bin', 0);
-        // }
-        $users = $users->paginate(20);
+        $users = User::getUsers($request->all());
         return $this->sendSuccessResponse($users);
     }
-  
-
 }
-

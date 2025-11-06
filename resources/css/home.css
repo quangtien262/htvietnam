@@ -40,6 +40,7 @@
     font-size: 15px;
     color: #000;
     font-weight: bold;
+    margin-bottom: 10px;
 }
 
 /* item home */
@@ -49,7 +50,7 @@ div.ant-statistic-content-prefix {
     margin-top: 9px;
     height: 100%;
     color: #f1592a;
-    padding-right: 15px;    
+    padding-right: 15px;
 }
 div.ant-statistic-content-value {
     font-size: 15px;

@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useSearchParams } from "react-router-dom";
 
 import {
-    Layout, Menu, Button, Spin, Image, Dropdown, message,
-    Drawer
+    Layout, Menu, Button, Spin, Dropdown,
+    Drawer, Row,
+    Col
 } from "antd";
 import {
-    UserOutlined, DownOutlined,
-    DashboardOutlined,
-    UnorderedListOutlined,
+    UserOutlined, MenuOutlined,
     LockOutlined,
     LogoutOutlined,
-    HomeOutlined
 } from "@ant-design/icons";
 
 import API from '../common/api';
@@ -68,8 +66,23 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
         <Layout>
             <div className="header01">
-                <div className="main-menu-header-letf">
-                    <Header style={{ display: 'flex', alignItems: 'center' }}>
+                <Row className="main-header01">
+                    <Col span={24}>
+                        <Row>
+                            <Col span={24}>
+                                <img className="logo-header" src="/images/logo.png" />
+                                <Dropdown menu={{ items }} trigger={['click']} className="_right">
+                                    <a className="icon-header" onClick={(e) => e.preventDefault()}>
+                                        <UserOutlined /> Tài khoản
+                                    </a>
+                                </Dropdown>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <div>
+
+                    <Header className="header02" style={{ display: 'flex', alignItems: 'center' }}>
                         <div className="demo-logo" />
                         {isMobile ? (
                             <>
@@ -103,13 +116,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         )}
                     </Header>
                 </div>
-                <div className="main-menu-header">
-                    <Dropdown menu={{ items }} trigger={['click']}>
-                        <a className="icon-header" onClick={(e) => e.preventDefault()}>
-                            <UserOutlined />
-                        </a>
-                    </Dropdown>
-                </div>
+
             </div>
             <Layout>
                 <Content>

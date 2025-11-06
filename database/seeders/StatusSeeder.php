@@ -343,10 +343,10 @@ class StatusSeeder extends Seeder
         $statusOrder = 1;
         DB::table('contract_status')->truncate();
         DB::table('contract_status')->insert([
-            ['name' => 'Đang hoạt động', 'color' => '#ffffff', 'background' => '#c2c205ff', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Chờ xác nhận', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đã hết hạn', 'color' => '#ffffff', 'background' => '#0072ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
-            ['name' => 'Đã hủy', 'color' => '#ffffff', 'background' => '#079c48ff', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
+            ['name' => 'Đang hoạt động', 'color' => '#05c273', 'icon' => 'CheckCircleOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Chờ xác nhận', 'color' => '#c20588', 'icon' => 'SyncOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hết hạn', 'color' => '#c2c205ff', 'icon' => 'StopOutlined', 'sort_order' => $statusOrder++, 'is_default' => 1],
+            ['name' => 'Đã hủy', 'color' => '#a97a7a', 'icon' => 'CloseOutlined', 'sort_order' => $statusOrder++, 'is_default' => 0],
         ]);
 
         $statusOrder = 1;

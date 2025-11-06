@@ -41,7 +41,7 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $aitilen, 'name' => 'aitilen_tai_chinh', 'display_name' => 'Giao dịch', 'table_name' => '', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => ''],
 
 
-            ['parent_id' => $aitilen, 'name' => 'aitilen_tasks', 'display_name' => 'Tasks', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/all/list?pid=1&p=' . $aitilen],
+            ['parent_id' => $aitilen, 'name' => 'aitilen_tasks', 'display_name' => 'Tasks', 'table_name' => 'tasks', 'route' => 'task.list', 'parameter' => 'tasks', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/aitilen/list?pid=2&p=' . $aitilen],
             ['parent_id' => $aitilen, 'name' => 'aitilen_day_phong', 'display_name' => 'Đẩy phòng', 'table_name' => 'tasks', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/day-phong/list?pid='. $dayphong->id .'&p=' . $aitilen],
             ['parent_id' => $aitilen, 'name' => 'aitilen_sale', 'display_name' => 'Sales', 'table_name' => 'tasks', 'route' => 'customer.index', 'parameter' => '', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '/adm/tasks/aitilen-sales/list?pid='. $aitilenSales->id .'&p=' . $aitilen],
 

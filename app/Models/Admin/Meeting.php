@@ -14,7 +14,7 @@ class Meeting extends Model
         'project_nguoi_theo_doi' => Json::class,
     ];
 
-    static function baseQuery()
+    static function baseQuery($isRecycleBin = 0)
     {
         return self::select([
             'meeting.*',
@@ -46,8 +46,7 @@ class Meeting extends Model
         ])
             ->leftJoin('projects', 'projects.id', 'meeting.project_id')
             ->leftJoin('tasks', 'tasks.id', 'meeting.task_id')
-            ->leftJoin('meeting_status', 'meeting_status.id', 'meeting.meeting_status_id')
-            ->where('meeting.is_recycle_bin', 0);
+            ->leftJoin('meeting_status', 'meeting_status.id', 'meeting.meeting_status_id');
     }
 
     static function saveMeeting($data, $request, $tableName)
@@ -89,9 +88,27 @@ class Meeting extends Model
 
     static function getMeeting($searchData)
     {
-        $query = self::baseQuery();
+        $meeting = self::baseQuery();
+        // filters
+
+        // is_recycle_bin
+        if (!empty($searchData['is_recycle_bin'])) {
+            $meeting = $meeting->where('meeting.is_recycle_bin', 1);
+        } else {
+            $meeting = $meeting->where('meeting.is_recycle_bin', 0);
+        }
+
+        // keyword
+        if (!empty($searchData['keyword'])) {
+            $meeting = $meeting->where(function ($q) use ($searchData) {
+                $q->orWhere('meeting.name', 'like', '%' . $searchData['keyword'] . '%');
+                $q->orWhere('meeting.description', 'like', '%' . $searchData['keyword'] . '%');
+            });
+        }
+
+        // meeting type
         if (!empty($searchData['meeting'])) {
-            $query->where(function ($q) use ($searchData) {
+            $meeting = $meeting->where(function ($q) use ($searchData) {
                 if (in_array('daily', $searchData['meeting'])) {
                     $q->orWhere('meeting.is_daily', 1);
                 }
@@ -103,10 +120,11 @@ class Meeting extends Model
                 }
             });
         }
-        if (!empty($searchData['result'])) {
-            $query->whereIn('meeting.meeting_status_id', $searchData['result']);
+        if (!empty($searchData['status'])) {
+            // dd($searchData['status']);
+            $meeting = $meeting->whereIn('meeting.meeting_status_id', $searchData['status']);
         }
-
-        return $query->orderBy('meeting.id', 'desc')->paginate(30);
+        $meeting = $meeting->orderBy('meeting.id', 'desc')->paginate(30)->toArray();
+        return $meeting;
     }
 }
