@@ -46,8 +46,8 @@ import dayjs from "dayjs";
 import "../../css/form.css";
 
 import { numberFormat } from "../function/common";
-import { LOAI_CHUNG_TU } from "../Function/constant";
-// import { callApi } from "../Function/api";
+import { LOAI_CHUNG_TU } from "../function/constant";
+// import { callApi } from "../function/api";
 
 export function nhaCungCapInfo(data, mainClass='tab-info') {
     if(!data || data.length === 0) {

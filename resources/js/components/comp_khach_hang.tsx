@@ -56,9 +56,9 @@ import axios from "axios";
 import "../../css/form.css";
 
 import { getGioiTinh, numberFormat } from "../function/common";
-import { LOAI_CHUNG_TU } from "../Function/constant";
+import { LOAI_CHUNG_TU } from "../function/constant";
 import { on } from "events";
-// import { callApi } from "../Function/api";
+// import { callApi } from "../function/api";
 
 export function khachHangInfo(data: any, mainClass = 'tab-info') {
 

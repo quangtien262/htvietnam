@@ -29,7 +29,7 @@ import {
 
 import axios from "axios";
 import { numberFormat, parseJson } from '../function/common';
-import { callApi } from "../Function/api";
+import { callApi } from "../function/api";
 import dayjs from "dayjs";
 
 export function contentThuNganConfig(nhanVienThuNgan, nhanVienData, chiNhanhThuNgan, chiNhanhData, khoHang, khoHangData, onSuccess) {
