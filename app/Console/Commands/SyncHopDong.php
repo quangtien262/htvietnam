@@ -34,26 +34,40 @@ class SyncHopDong extends Command
     public function handle()
     {
 
+        $this->info('xóa service bị duplicate trong hợp đồng...');
+        $this->removeDuplicateContractServices();
+
+
         // $this->info('Start import hợp đồng...');
-        $this->hopDongSync();
+        // $this->hopDongSync();
 
-        // $this->info('Start import phòng...');
-        $this->roomSync();
+        // // $this->info('Start import phòng...');
+        // $this->roomSync();
 
-        // $this->info('Start import user..');
-        $this->userSync();
+        // // $this->info('Start import user..');
+        // $this->userSync();
 
-        $this->info('Start import số điện nước..');
-        $this->dienNuocSync02();
+        // $this->info('Start import số điện nước..');
+        // $this->dienNuocSync02();
+    }
 
-        // $this->info('Start import service..');
-        // $this->serviceSync();
-
-
-
-
-        // $this->info('dien_nuoc');
-        // $this->hopDongService();
+    private function removeDuplicateContractServices()
+    {
+        $contracts = Contract::all();
+        foreach ($contracts as $contract) {
+            $services = ContractService::where('contract_id', $contract->id)->get();
+            $seen = [];
+            foreach ($services as $service) {
+                $key = $service->service_id;
+                if (isset($seen[$key])) {
+                    // Duplicate found, delete this record
+                    $service->delete();
+                } else {
+                    $seen[$key] = true;
+                }
+            }
+        }
+        $this->info('Đã xóa xong dịch vụ bị duplicate trong hợp đồng!');
     }
 
     public function hopDongSync02()
@@ -173,9 +187,9 @@ class SyncHopDong extends Command
             $serviceData = [];
             foreach ($serviceDefault as $ser) {
                 $total = 0;
-                if($ser['per_default'] == 'Người') {
+                if ($ser['per_default'] == 'Người') {
                     $total = $ser['price_default']; // mặc định 1 người
-                } elseif($ser['per_default'] == 'Phòng') {
+                } elseif ($ser['per_default'] == 'Phòng') {
                     $total = $ser['price_default'];
                 }
                 $serviceData[] = [
@@ -195,10 +209,10 @@ class SyncHopDong extends Command
             foreach ($contracts as $contract) {
                 $dataInsert = [];
                 $totalSer = 0;
-                foreach($serviceData as $ser) {
+                foreach ($serviceData as $ser) {
                     $item = $ser;
                     $total = $ser['price_total'];
-                    if($ser['per_default'] == 'Người') {
+                    if ($ser['per_default'] == 'Người') {
                         $total = $ser['price_default'] * intval($contract->so_nguoi);
                     }
                     $totalSer += intval($total);

@@ -175,13 +175,16 @@ class AitilenInvoiceController extends Controller
         }
         // end save hoa don
 
+        // Xóa dịch vụ cũ trước khi thêm mới (tránh duplicate)
+        AitilenInvoiceService::where('invoice_id', $invoice->id)->delete();
+
         // save aitilen_invoice_service
         $invoiceServices = $request->services;
         // dd($invoiceServices);
         foreach ($invoiceServices as $service) {
             $invoiceService = new AitilenInvoiceService();
             $invoiceService->invoice_id = $invoice->id;
-            $invoiceService->service_id = $service['aitilen_service_id'];
+            $invoiceService->service_id = $service['aitilen_service_id'] ?? null;
             $invoiceService->price = $service['price_default'];
             $invoiceService->per = $service['per_default'];
             $invoiceService->so_nguoi = $request->so_nguoi;

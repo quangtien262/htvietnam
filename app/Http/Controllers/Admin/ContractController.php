@@ -151,64 +151,11 @@ class ContractController extends Controller
         }
         // end save hợp đồng
 
-        // save hoa đon
-        if (empty($hopDong->aitilen_invoice_id)) {
-            $invoice = new AitilenInvoice();
-        } else {
-            $invoice = AitilenInvoice::find($hopDong->aitilen_invoice_id);
-            if (!$invoice) {
-                return $this->sendErrorResponse('Hóa đơn không tồn tại !');
-            }
-        }
+        // xóa dịch vụ cũ trước khi thêm mới (tránh duplicate)
+        ContractService::where('contract_id', $hopDong->id)->delete();
 
-        $invoice->name = $request->name;
-        $invoice->aitilen_invoice_status_id = $request->aitilen_invoice_status_id;
-        $invoice->ngay_hen_dong_tien = $request->start_date;
-        $invoice->so_ngay_thue = $request->so_ngay_thue;
-        $invoice->so_nguoi = $request->so_nguoi;
-
-        // total
-        $invoice->total = $request->total;
-
-        // $invoice->services = $request->services;
-        $invoice->tien_phong = $request->tien_phong;
-        $invoice->tien_coc = $request->tien_coc;
-        $invoice->tra_coc = $request->tra_coc;
-        $invoice->giam_gia = $request->giam_gia;
-
-        $date = \Carbon\Carbon::parse($request->start_date);
-        $invoice->month = $date->format('m');
-        $invoice->year = $date->format('Y');
-
-
-        if ($user) {
-            $invoice->user_id = $user->id;
-        }
-
-        if (!empty($request->room_id)) {
-            $room = Room::find($request->room_id);
-            if ($room) {
-                $invoice->apartment_id = $room->apartment_id;
-                $invoice->room_id = $room->id;
-            }
-        }
-
-        // set create_by
-        $adminUser = auth()->guard('admin_users')->user();
-        $invoice->create_by = $adminUser->id;
-        $invoice->save();
-
-        if (empty($invoice->code)) {
-            $invoice->code = 'AHD' . str_pad($invoice->id, 5, '0', STR_PAD_LEFT);
-            $invoice->save();
-        }
-
-        $hopDong->aitilen_invoice_id = $invoice->id;
-        $hopDong->save();
-        // end save hóa đơn
-
-        $services = [];
         // save aitilen_invoice_service
+        $services = [];
         foreach ($request->services as $service) {
             // lưu thông tin dịch vụ
             $serInfo = AitilenService::find($service['id']);
@@ -217,7 +164,7 @@ class ContractController extends Controller
                 'service_id' => $service['id'],
                 'name' => $serInfo->name,
                 'code' => $serInfo->code,
-                'so_nguoi'=> $request->so_nguoi,
+                'so_nguoi' => $request->so_nguoi,
                 'per_default' => $service['per_default'],
                 'price_default' => $service['price_default'],
                 'price_total' => $service['price_total'],
@@ -231,6 +178,63 @@ class ContractController extends Controller
             $contractService->per = $service['per_default'];
             $contractService->total = $service['price_total'];
             $contractService->save();
+        }
+        // save dịch vụ vào hợp đồng, để phục vụ tối ưu cho hiển thị
+        $hopDong->services = $services;
+        $hopDong->save();
+
+        $contract = Contract::baseQuery()->find($hopDong->id);
+
+        return $this->sendSuccessResponse($contract, 'Cập nhật hóa đơn thành công!');
+    }
+
+    function createFirstInvoiceByContract(Request $request)
+    {
+        $contract = Contract::find($request->contract_id);
+        if (!$contract) {
+            return $this->sendErrorResponse('Hợp đồng không tồn tại !');
+        }
+        // tạo hóa đơn từ hợp đồng
+        $soNguoi = $contract->so_nguoi ?? 0;
+        $invoice = new AitilenInvoice();
+        $invoice->name = $contract->name;
+        $invoice->user_id = $contract->user_id;
+        $invoice->room_id = $contract->room_id;
+        $invoice->apartment_id = $contract->apartment_id;
+        $invoice->tien_coc = $contract->tien_coc;
+        $invoice->so_nguoi = $soNguoi;
+        $invoice->ngay_hen_dong_tien = $contract->start_date;
+        $invoice->aitilen_invoice_status_id = 2; // mặc định là chưa thanh toán
+        $date = \Carbon\Carbon::parse($contract->start_date);
+        $invoice->month = $date->format('m');
+        $invoice->year = $date->format('Y');
+        // set create_by
+        $adminUser = auth()->guard('admin_users')->user();
+        $invoice->create_by = $adminUser->id;
+        $invoice->save();
+        $invoice->code = 'AHD' . str_pad($invoice->id, 5, '0', STR_PAD_LEFT);
+        $invoice->save();
+
+        // cập nhật lại hợp đồng
+        $contract->aitilen_invoice_id = $invoice->id;
+        $contract->save();
+
+
+        //
+        foreach ($request->services as $service) {
+            // lưu thông tin dịch vụ
+            $serInfo = AitilenService::find($service['id']);
+            $services[] = [
+                'id' => $service['id'],
+                'service_id' => $service['id'],
+                'name' => $serInfo->name,
+                'code' => $serInfo->code,
+                'so_nguoi' => $request->so_nguoi,
+                'per_default' => $service['per_default'],
+                'price_default' => $service['price_default'],
+                'price_total' => $service['price_total'],
+            ];
+
             // save dịch vụ trong hóa đơn
             $invoiceService = new AitilenInvoiceService();
             $invoiceService->invoice_id = $invoice->id;
@@ -241,13 +245,9 @@ class ContractController extends Controller
             $invoiceService->total = $service['price_total'];
             $invoiceService->save();
         }
-        // save dịch vụ vào hợp đồng, để phục vụ tối ưu cho hiển thị
-        $hopDong->services = $services;
-        $hopDong->save();
-
-        $contract = Contract::baseQuery()->find($hopDong->id);
-
-        return $this->sendSuccessResponse($contract, 'Cập nhật hóa đơn thành công!');
+        $invoice->services = $services;
+        $invoice->save();
+        return $this->sendSuccessResponse([], 'Tạo hóa đơn từ hợp đồng thành công!');
     }
 
     /**

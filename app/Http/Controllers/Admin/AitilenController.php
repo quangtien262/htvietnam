@@ -264,33 +264,45 @@ class AitilenController extends Controller
 
     public function createInvoiceMonth(Request $request)
     {
-        // lấy dữ liệu điện nước của tháng trước đó
-        $month = $request->month;
-        $year = $request->year;
-        // Lấy tháng trước
-        if ($month == 1) {
-            $month = 12;    
-            $year = $year - 1;
-        } else {    
-            $month = $month - 1;
+        // Tính tháng trước để lấy dữ liệu điện nước
+        $prevMonth = $request->month;
+        $prevYear = $request->year;
+        if ($prevMonth == 1) {
+            $prevMonth = 12;
+            $prevYear = $prevYear - 1;
+        } else {
+            $prevMonth = $prevMonth - 1;
         }
-        $datasDienNuoc = AitilenDienNuoc::where('month', $month)
-            ->where('year', $year)
+
+        // Lấy tất cả hợp đồng đang active làm base
+        $contracts = Contract::where('is_active', 1)
+            ->where('contract_status_id', 1)
             ->where('is_recycle_bin', '!=', 1)
             ->get();
-        foreach ($datasDienNuoc as $data) {
-            // get thông tin hợp đồng của phòng tương ứng
-            $contract = Contract::where('room_id', $data->room_id)
-                ->where('is_active', 1)
-                ->where('contract_status_id', 1)
+
+        foreach ($contracts as $contract) {
+            // Kiểm tra xem hóa đơn của tháng này đã tồn tại chưa
+            $existingInvoice = AitilenInvoice::where('contract_id', $contract->id)
+                ->where('month', $request->month)
+                ->where('year', $request->year)
                 ->where('is_recycle_bin', '!=', 1)
                 ->first();
-            if (!$contract) {
+
+            if ($existingInvoice) {
+                // Nếu đã tồn tại, bỏ qua
                 continue;
             }
+
             $soNguoi = $contract->so_nguoi ?? 0;
 
-            // khởi tạo trước hóa đơn
+            // Lấy dữ liệu điện nước của tháng trước (nếu có)
+            $dienNuocData = AitilenDienNuoc::where('room_id', $contract->room_id)
+                ->where('month', $prevMonth)
+                ->where('year', $prevYear)
+                ->where('is_recycle_bin', '!=', 1)
+                ->first();
+
+            // Khởi tạo hóa đơn
             $invoice = new AitilenInvoice();
             $invoice->contract_id = $contract->id;
             $invoice->user_id = $contract->user_id;
@@ -299,13 +311,14 @@ class AitilenController extends Controller
             $invoice->year = $request->year;
             $invoice->month = $request->month;
             $invoice->so_nguoi = $soNguoi;
+            $invoice->tien_phong = $contract->gia_thue ?? 0;
             $invoice->aitilen_invoice_status_id = 2;
+            $invoice->add2soquy = 1; // xử lý update 2 sổ quỹ khi đổi sang status đã thu tiền
             $invoice->save();
-            // get tên đơn vị dịch vụ
-            $per = config('constant.service_per');
 
-            // get dịch vụ 
+            // Lấy dịch vụ từ hợp đồng
             $services = ContractService::select(
+                    'contract_service.id as contract_service_id',
                     'contract_service.price as service_price',
                     'contract_service.per as service_per',
                     'aitilen_service.name as service_name'
@@ -314,50 +327,69 @@ class AitilenController extends Controller
                 ->where('contract_service.contract_id', $contract->id)
                 ->where('contract_service.is_recycle_bin', '!=', 1)
                 ->get();
-            
+
             $serviceData = [];
-            $total = $contract->gia_thue ?? 0; // tiền thuê cứng
+            $total = $contract->gia_thue ?? 0; // Tiền thuê cứng
+
             foreach ($services as $service) {
                 $serviceItem = [
                     'name' => $service->service_name,
                     'price_default' => $service->service_price,
                     'per_default' => $service->service_per,
+                    'so_nguoi' => $contract->so_nguoi,
                 ];
-                // tính tổng tiền dịch vụ dựa trên số người và đơn vị tính
+
+                // Tính tổng tiền dịch vụ dựa trên đơn vị tính
                 $priceCurrentServiceTotal = 0;
-                if ($service->service_per == 'Person') {
+                if ($service->service_per == 'Người') {
                     $priceCurrentServiceTotal = $service->service_price * $soNguoi;
-                } elseif ($service->service_per == 'Room') {
+                } elseif ($service->service_per == 'Phòng') {
                     $priceCurrentServiceTotal = $service->service_price;
-                } elseif ($service->service_per == 'KWH') {
-                    $soDien = $data->dien_end - $data->dien_start;
-                    $priceCurrentServiceTotal = $service->service_price * $soDien;
+                } elseif ($service->service_per == 'Xe') {
+                    $priceCurrentServiceTotal = $service->service_price * $contract->so_luong_xe;
+                }  elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
+                    // Tính điện (nếu có dữ liệu điện nước)
+                    if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
+                        $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
+                        $priceCurrentServiceTotal = $service->service_price * $soDien;
+                    } else {
+                        // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
+                        $priceCurrentServiceTotal = 0;
+                    }
                 } elseif ($service->service_per == 'M3') {
-                    $soNuoc = $data->nuoc_end - $data->nuoc_start;
-                    $priceCurrentServiceTotal = $service->service_price * $soNuoc;
+                    // Tính nước (nếu có dữ liệu điện nước)
+                    if ($dienNuocData && $dienNuocData->nuoc_end && $dienNuocData->nuoc_start) {
+                        $soNuoc = $dienNuocData->nuoc_end - $dienNuocData->nuoc_start;
+                        $priceCurrentServiceTotal = $service->service_price * $soNuoc;
+                    } else {
+                        // Nếu chưa có dữ liệu nước, để 0 hoặc giá trị mặc định
+                        $priceCurrentServiceTotal = 0;
+                    }
                 }
+
                 $serviceItem['price_total'] = $priceCurrentServiceTotal;
 
-                // cộng dồn tổng tiền
+                // Cộng dồn tổng tiền
                 $total += $priceCurrentServiceTotal;
 
-                // lưu dữ liệu dịch vụ vào mảng, để save vào hóa đơn (column services)
+                // Lưu dữ liệu dịch vụ vào mảng
                 $serviceData[] = $serviceItem;
 
+                // Lưu chi tiết dịch vụ vào bảng aitilen_invoice_service
                 $invoiceService = new AitilenInvoiceService();
                 $invoiceService->invoice_id = $invoice->id;
-                $invoiceService->service_id = $service->id;
+                $invoiceService->service_id = $service->contract_service_id;
                 $invoiceService->price = $service->service_price;
                 $invoiceService->per = $service->service_per;
                 $invoiceService->so_nguoi = $soNguoi;
                 $invoiceService->total = $priceCurrentServiceTotal;
                 $invoiceService->save();
-                
             }
 
-            // update tiếp thông tin hóa đơn dựa trên dữ liệu dịch vụ
+            // Update thông tin hóa đơn
             $invoice->total = $total;
             $invoice->services = $serviceData;
+            $invoice->code = 'TP' . str_pad($invoice->id, 6, '0', STR_PAD_LEFT);
             $invoice->save();
         }
 

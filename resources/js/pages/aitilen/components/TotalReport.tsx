@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API } from "../../../common/api";
 import { Card, Statistic, Row, Col, Table, Typography, DatePicker, Space, Button } from "antd";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -11,7 +13,7 @@ import {
 } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 
-import {showInfo} from "../../../function/common";
+import { showInfo } from "../../../function/common";
 
 const { Text } = Typography;
 const { MonthPicker } = DatePicker;
@@ -38,6 +40,20 @@ const COLORS = ["#1890ff", "#52c41a", "#faad14", "#f5222d", "#722ed1", "#13c2c2"
 const TotalReport: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
     const [loading, setLoading] = useState(false);
+
+    function fetchData(request = {}) {
+        setLoading(true);
+        axios.post(API.ai_tongLoiNhuan, request)
+            .then((res: any) => {
+                const propsTmp = res.data.data;
+                setLoading(false);
+            })
+            .catch((err: any) => console.error(err));
+
+    }
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     function descriptionTySuat() {
         const des = <div>
@@ -214,15 +230,6 @@ const TotalReport: React.FC = () => {
         }, 500);
     };
 
-    const handleReset = () => {
-        setSelectedMonth(dayjs());
-        setLoading(true);
-        // TODO: Reset về dữ liệu tháng hiện tại
-        setTimeout(() => {
-            setLoading(false);
-        }, 500);
-    };
-
     return (
         <div>
             <style>
@@ -282,22 +289,6 @@ const TotalReport: React.FC = () => {
                         </Col>
                         <Col xs={24} sm={12} md={8}>
                             <Space style={{ width: '100%' }} size={8}>
-                                <Button
-                                    type="primary"
-                                    icon={<SearchOutlined />}
-                                    onClick={handleSearch}
-                                    loading={loading}
-                                    block
-                                >
-                                    Tìm kiếm
-                                </Button>
-                                <Button
-                                    icon={<ReloadOutlined />}
-                                    onClick={handleReset}
-                                    disabled={loading}
-                                >
-                                    Làm mới
-                                </Button>
                             </Space>
                         </Col>
                         <Col xs={24} sm={24} md={8}>

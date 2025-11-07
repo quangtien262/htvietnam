@@ -21,6 +21,14 @@ export const API = {
     dataSelect: `${BASE_API_URL}data/data-select`,
     dataKey: `${BASE_API_URL}data/data-key`,
 
+    // aitilen report
+    ai_tongLoiNhuan: `${BASE_API_URL}aitilen/report/tong-loi-nhuan`,
+    ai_loiNhuanTheoTienPhong: `${BASE_API_URL}aitilen/report/loi-nhuan-theo-tien-phong`,
+    ai_loiNhuanTheoDichVu: `${BASE_API_URL}aitilen/report/loi-nhuan-theo-dich-vu`,
+    ai_baoCaoThuChi: `${BASE_API_URL}aitilen/report/bao-cao-thu-chi`,
+    ai_baoCaoCongNo: `${BASE_API_URL}aitilen/report/bao-cao-cong-no`,
+    ai_baoCaoTaiSan: `${BASE_API_URL}aitilen/report/bao-cao-tai-san`,
+
     // tasks
     taskList: `${BASE_API_URL}task/list`,
     searchTaskList: `${BASE_API_URL}task/list/search`,

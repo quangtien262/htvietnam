@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-
 import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
+import { API } from "../../common/api";
 import cloneDeep from "lodash/cloneDeep";
 import {
     Button, List,
@@ -41,12 +41,10 @@ import {
 
 import "../../../css/form.css";
 
-import { callApi } from "../../function/api";
 import { optionEntries, showInfo } from "../../function/common";
-import { formatValueForm } from "../../function/input";
 import { DON_VI_SERVICE } from "../../function/constant";
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../function/common";
-import { API } from "../../common/api";
+
 
 const daysInMonth_default = dayjs().daysInMonth();
 const { RangePicker } = DatePicker;
