@@ -289,8 +289,20 @@ class AitilenController extends Controller
                 ->first();
 
             if ($existingInvoice) {
-                // Nếu đã tồn tại, bỏ qua
-                continue;
+                // Kiểm tra có replace không
+                if (!empty($request->is_replace_all_contract) && $request->is_replace_all_contract == 1) {
+                    // Xóa dịch vụ cũ trong bảng aitilen_invoice_service
+                    AitilenInvoiceService::where('invoice_id', $existingInvoice->id)->delete();
+
+                    // Sử dụng invoice cũ để update
+                    $invoice = $existingInvoice;
+                } else {
+                    // Nếu không replace, bỏ qua
+                    continue;
+                }
+            } else {
+                // Khởi tạo hóa đơn mới
+                $invoice = new AitilenInvoice();
             }
 
             $soNguoi = $contract->so_nguoi ?? 0;
@@ -302,8 +314,7 @@ class AitilenController extends Controller
                 ->where('is_recycle_bin', '!=', 1)
                 ->first();
 
-            // Khởi tạo hóa đơn
-            $invoice = new AitilenInvoice();
+            // Cập nhật/Khởi tạo thông tin hóa đơn
             $invoice->contract_id = $contract->id;
             $invoice->user_id = $contract->user_id;
             $invoice->apartment_id = $contract->apartment_id;
@@ -389,7 +400,12 @@ class AitilenController extends Controller
             // Update thông tin hóa đơn
             $invoice->total = $total;
             $invoice->services = $serviceData;
-            $invoice->code = 'TP' . str_pad($invoice->id, 6, '0', STR_PAD_LEFT);
+
+            // Chỉ tạo code mới nếu chưa có
+            if (empty($invoice->code)) {
+                $invoice->code = 'TP' . str_pad($invoice->id, 6, '0', STR_PAD_LEFT);
+            }
+
             $invoice->save();
         }
 

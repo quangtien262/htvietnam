@@ -88,6 +88,7 @@ const InvoiceList_BDS: React.FC = () => {
     const [formEdit] = Form.useForm();
     const [dataAction, setDataAction] = useState({ id: 0 });
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
+    const [isReplaceAllContract, setIsReplaceAllContract] = useState(true);
 
     // modal active
     const [isModalActiveCurrentOpen, setIsModalActiveCurrentOpen] = useState(false);
@@ -101,7 +102,7 @@ const InvoiceList_BDS: React.FC = () => {
     const [isOpenModalActiveAll, setIsOpenModalActiveAll] = useState(false);
     const [isOpenModalActiveCurrent, setIsOpenModalActiveCurrent] = useState(false);
     const [loadingCreateDataMonth, setLoadingCreateDataMonth] = useState(false);
-    const [loadingActive, setLoadingActive] = useState(false);  
+    const [loadingActive, setLoadingActive] = useState(false);
 
     const [isDraft, setIsDraft] = useState(2);
     const [note_applyAll, setNote_applyAll] = useState(false);
@@ -445,6 +446,7 @@ const InvoiceList_BDS: React.FC = () => {
         axios.post(API.aitilen_createInvoiceMonth, {
             month: month.format('MM'),
             year: month.format('YYYY'),
+            is_replace_all_contract: isReplaceAllContract,
         }).then((res) => {
             if (res.data.status_code === 200) {
                 message.success('Đã tạo dữ liệu tháng thành công');
@@ -483,7 +485,7 @@ const InvoiceList_BDS: React.FC = () => {
                         pageSize: res.data.data.pageConfig.perPage,
                         total: res.data.data.pageConfig.total,
                     },
-                }); 
+                });
             } else {
                 message.error(res.data.message || 'Active hóa đơn thất bại');
             }
@@ -962,7 +964,7 @@ const InvoiceList_BDS: React.FC = () => {
                 open={isModalXoaOpen}
                 onOk={async () => {
                     // const result = await callApi(route('hoa_don.huyHoaDon.nhapHang', [idAction]));
-                    
+
                     const result = await axios.post(API.aitilen_deleteInvoice, {
                         ids: selectedRowKeys,
                         searchData: searchData,
@@ -990,7 +992,7 @@ const InvoiceList_BDS: React.FC = () => {
                 </ul>
             </Modal>
 
-            
+
 
             <Modal title={dataAction.id === 0 ? "Thêm mới hóa đơn" : "Chỉnh sửa hóa đơn"}
                 open={isOpenFormEdit}
@@ -1298,6 +1300,14 @@ const InvoiceList_BDS: React.FC = () => {
                 maskClosable={true}
                 onCancel={() => { setIsOpenModalCreateDataMonth(false); }}>
                 <p><b>Chọn tháng cần tạo:</b> <DatePicker value={month} picker="month" onChange={(date) => setMonth(date)} /></p>
+                <Checkbox checked={isReplaceAllContract}
+                    onChange={(e) => setIsReplaceAllContract(e.target.checked)}
+                >
+                    <b className="_red">Ghi đè tất cả hợp đồng trước đó</b>(Nếu không chọn, chỉ tạo mới những hợp đồng chưa có hóa đơn trong tháng đã chọn)
+                </Checkbox>
+
+                <p> </p>
+
                 <p><b>LƯU Ý QUAN TRỌNG:</b></p>
                 <ul>
                     <li><em>Data sẽ được tạo mới theo tháng đã chọn dựa công thức trong hợp đồng (Trạng thái phải là đang hoạt động) kết hợp với số điện/nước của tháng trước đó</em></li>
@@ -1323,8 +1333,8 @@ const InvoiceList_BDS: React.FC = () => {
                 </ul>
             </Modal>
 
-            
-            
+
+
             {/* Active current */}
             <Modal title="Xác nhận active các hóa đơn đã chọn"
                 open={isModalActiveCurrentOpen}
