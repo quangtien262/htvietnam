@@ -62,6 +62,11 @@ export const MENU = {
                     icon: <TeamOutlined />,
                 },
                 {
+                    label: <Link to={`${ROUTE.projectList}?p=bds`}>Project</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
+                },
+                {
                     label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Lịch</Link>,
                     key: (key++).toString(),
                     icon: <BarChartOutlined />,
