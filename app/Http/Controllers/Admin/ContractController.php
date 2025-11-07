@@ -125,6 +125,11 @@ class ContractController extends Controller
                 $hopDong->name = $hoTen . ' - ' . $room->name;
             }
         }
+
+
+        $hopDong->gia_thue = $request->tien_phong;
+        $hopDong->tien_coc = $request->tien_coc;
+
         $hopDong->contract_status_id = $request->contract_status_id;
         $hopDong->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
         $hopDong->so_nguoi = $request->so_nguoi;
