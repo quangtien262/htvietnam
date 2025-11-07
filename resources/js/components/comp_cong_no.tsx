@@ -9,7 +9,7 @@ import {
     ArrowRightOutlined,
     CheckOutlined,
 } from "@ant-design/icons";
-import { numberFormat } from "../Function/common";
+import { numberFormat } from "../function/common";
 
 const initialState = { isDisableBtn: true };
 

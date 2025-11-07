@@ -29,7 +29,7 @@ import {
 
 import axios from "axios";
 import "../../css/form.css";
-import { parseJson } from "../Function/common";
+import { parseJson } from "../function/common";
 import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from '../Function/constant';
 
 import ImgCrop from 'antd-img-crop';

@@ -55,7 +55,7 @@ import axios from "axios";
 
 import "../../css/form.css";
 
-import { getGioiTinh, numberFormat } from "../Function/common";
+import { getGioiTinh, numberFormat } from "../function/common";
 import { LOAI_CHUNG_TU } from "../Function/constant";
 import { on } from "events";
 // import { callApi } from "../Function/api";

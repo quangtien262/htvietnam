@@ -45,7 +45,7 @@ import dayjs from "dayjs";
 
 import "../../css/form.css";
 
-import { numberFormat } from "../Function/common";
+import { numberFormat } from "../function/common";
 import { LOAI_CHUNG_TU } from "../Function/constant";
 // import { callApi } from "../Function/api";
 
@@ -55,7 +55,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
     }
 
     const khachHang = data.info;
-    
+
     let data01 = [
             <p><b><SignatureFilled /> Mã: </b> {khachHang.code}</p>,
             <p><b><FileTextFilled /> Tên nhà cung cấp: </b> {khachHang.name}</p>,
@@ -81,7 +81,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
         items={[
             // Thông tin
             {
-                label: <span className="title-sub-tab">Thông tin</span>, 
+                label: <span className="title-sub-tab">Thông tin</span>,
                 key: key++,
                 children: <Row>
                             <Col sm={12}>
@@ -109,7 +109,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                         </Row>
             },
             {
-                label: <span className="title-sub-tab">Lịch sử nhập hàng</span>, 
+                label: <span className="title-sub-tab">Lịch sử nhập hàng</span>,
                 key: key++,
                 children: <Row className='width100'>
 
@@ -182,12 +182,12 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                     })}
                                     </tbody>
                                 </table>
-                                {data.traHang.length === 0 ? <Empty description="Chưa có lịch sử nhập hàng" /> : ''} 
+                                {data.traHang.length === 0 ? <Empty description="Chưa có lịch sử nhập hàng" /> : ''}
                             </Col>
                         </Row>
             },
             {
-                label: <span className="title-sub-tab">Lịch sử trả hàng</span>, 
+                label: <span className="title-sub-tab">Lịch sử trả hàng</span>,
                 key: key++,
                 children: <Row className='width100'>
 
@@ -256,13 +256,13 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                     })}
                                     </tbody>
                                 </table>
-                                {data.traHang.length === 0 ? <Empty description="Chưa có lịch sử trả hàng" /> : ''} 
+                                {data.traHang.length === 0 ? <Empty description="Chưa có lịch sử trả hàng" /> : ''}
                             </Col>
                         </Row>
             },
 
             {
-                label: <span className="title-sub-tab">Công nợ</span>, 
+                label: <span className="title-sub-tab">Công nợ</span>,
                 key: key++,
                 children: <Row className='width100'>
                             {/* Công nợ hiện tại */}
@@ -275,7 +275,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                     prefix={<MoneyCollectFilled />}
                                     suffix="đ"
                                     />
-                                </Card> 
+                                </Card>
                             </Col>
 
                             {/* Đã thanh toán */}
@@ -288,7 +288,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                     prefix={<CheckCircleFilled />}
                                     suffix="đ"
                                     />
-                                </Card>     
+                                </Card>
                             </Col>
 
                             {/* Tổng công nợ */}
@@ -301,7 +301,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                     prefix={<CopyFilled />}
                                     suffix="đ"
                                     />
-                                </Card>     
+                                </Card>
                             </Col>
 
                             {/* content */}
@@ -334,7 +334,7 @@ export function nhaCungCapInfo(data, mainClass='tab-info') {
                                         })}
                                     </tbody>
                                 </table>
-                                {data.congNo.length === 0 ? <Empty description="Chưa có công nợ" /> : ''} 
+                                {data.congNo.length === 0 ? <Empty description="Chưa có công nợ" /> : ''}
                             </Col>
                         </Row>
             },

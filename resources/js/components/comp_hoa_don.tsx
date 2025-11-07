@@ -28,14 +28,14 @@ import {
 } from "@ant-design/icons";
 
 import axios from "axios";
-import { numberFormat, parseJson } from '../Function/common';
+import { numberFormat, parseJson } from '../function/common';
 import { callApi } from "../Function/api";
 import dayjs from "dayjs";
 
 export function contentThuNganConfig(nhanVienThuNgan, nhanVienData, chiNhanhThuNgan, chiNhanhData, khoHang, khoHangData, onSuccess) {
     const [loaddingBtn, setLoaddingBtn] = useState(false);
     const [formConfig] = Form.useForm();
-    
+
     const onFinish = (values) => {
         setLoaddingBtn(true);
         axios.post(route('admin.session.setThuNgan'), values)
