@@ -223,9 +223,9 @@ const ContactList_BDS: React.FC = () => {
         values.id = dataAction.id;
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
-        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
-        values.total_service = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0);
-        values.total_phi_co_dinh = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong;
+        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total_service = dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0);
+        values.total_phi_co_dinh = dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong;
         setLoadingTable(true);
         // save
         axios.post(API.updateContract, values).then((response) => {
@@ -345,7 +345,6 @@ const ContactList_BDS: React.FC = () => {
                     : (parseJson(record.services) || []);
 
                 return <>
-                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
                     <Tag color="red">Ser: {numberFormat(record.total_service)} </Tag>
                     <Tag color="red">fix: {numberFormat(record.total_phi_co_dinh)} </Tag>
                     <Tag color="#01a70f">Phòng: {numberFormat(record.gia_thue)} </Tag>
@@ -360,6 +359,9 @@ const ContactList_BDS: React.FC = () => {
                             </Tag>
                         );
                     })}
+
+
+                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
 
                     {/* fast edit dv */}
                     <a className="float-btn-option" onClick={() => { setDataEdit(record); }}>
@@ -577,32 +579,12 @@ const ContactList_BDS: React.FC = () => {
         setDataService(dataDetail_tmp);
     }
 
-    function totalItem(data: any, idx: number) {
-        const soNgayEffective = soNgayThue ?? daysInMonth;
-        if (['kWh', 'm3', 'Xe'].includes(data.per_default)) {
-            return <b>0</b>;
-        }
-        let total = (data.price_default ?? 0);
-        if (data.per_default === 'Người') {
-            total = total * soNguoi;
-        }
-        // tính số tiền theo ngày tương ứng
-        // total = (total / daysInMonth) * soNgayEffective;
-
-        // Làm tròn lên hàng nghìn
-        total = Math.ceil(total / 100) * 100;
-
-        let dataService_tmp = cloneDeep(dataService);
-        dataService_tmp[idx].price_total = total;
-        setDataService(dataService_tmp);
-    }
-
     function total(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
         // let dataService_tmp = cloneDeep(dataService);
         dataService_new.forEach((data: any, idx: number) => {
             let total = (data.price_default ?? 0);
-            if (['kWh', 'm3'].includes(data.per_default)) {
-                total = 0;;
+            if (['KWH', 'M3'].includes(data.per_default)) {
+                total = 0;
             } else {
                 if (data.per_default === 'Người') {
                     total = total * soNguoi_new;
@@ -1267,7 +1249,7 @@ const ContactList_BDS: React.FC = () => {
                                             <b>Tổng tiền dịch vụ hàng tháng:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0))}</b>
+                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0))}</b>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -1277,7 +1259,7 @@ const ContactList_BDS: React.FC = () => {
                                             <em>(tiền phòng & dịch vụ)</em>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong)}</b>
+                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong)}</b>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -1287,7 +1269,7 @@ const ContactList_BDS: React.FC = () => {
                                             <b>Tổng tiền phòng, cọc & dịch vụ dự tính:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc)}</b>
+                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong + tienCoc)}</b>
                                         </td>
                                         <td></td>
                                     </tr>
