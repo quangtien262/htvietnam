@@ -1378,7 +1378,7 @@ html {
 }
 
 .section8 .row2 .large-12 .col-inner {
-    background-image: url(/layouts/Aitilen/images/contact-form-1.png);
+    background-image: url(/layouts/01/images/contact-form-1.png);
     background-repeat: no-repeat;
     background-size: inherit;
     padding: 0 50px;
@@ -2503,7 +2503,7 @@ i.icon-menu {
     color: #038e26;
 }
 .section1, .section6, .modal-content {
-    background: url(/layouts/Aitilen/images/contact-form-1.png) center no-repeat #fff;
+    background: url(/layouts/01/images/contact-form-1.png) center no-repeat #fff;
 }
 .tai-khoan {
     cursor: pointer;
