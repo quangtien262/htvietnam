@@ -9,7 +9,7 @@ import { ROUTE } from "../../common/route";
 import {
     Select, Col, Row, Descriptions, Card, Button, Input, InputNumber, Form, Statistic,
     Space, DatePicker, Upload, message, Tabs, Calendar, Modal, Checkbox, List, Popconfirm,
-    Divider, Table, Spin, Badge, Menu, Switch, TabsProps, Tag
+    Divider, Table, Spin, Badge, Menu, Switch, TabsProps, Tag, Dropdown
 } from 'antd';
 
 
@@ -22,6 +22,14 @@ import {
     LinkOutlined,
     MailOutlined,
     SettingOutlined,
+    TrophyOutlined,
+    HomeOutlined,
+    DollarOutlined,
+    LineChartOutlined,
+    FileTextOutlined,
+    BankOutlined,
+    MenuOutlined,
+    DownOutlined
 } from "@ant-design/icons";
 import {
     Tooltip, Cell, Pie, PieChart, ResponsiveContainer,
@@ -45,46 +53,144 @@ import AssetReport from "./components/AssetReport";
 
 const DashboardAitilen: React.FC = () => {
     let key = 1;
-    const items: TabsProps['items'] = [
+
+    const tabItems = [
         {
-            key: (key++).toString(),
+            key: '1',
             label: 'Lợi nhuận thực tế',
+            icon: <TrophyOutlined />,
             children: <TotalReport />,
         },
         {
-            key: (key++).toString(),
+            key: '2',
             label: 'Lợi nhuận theo tiền phòng',
-            children:  <TienPhongReport />,
+            icon: <HomeOutlined />,
+            children: <TienPhongReport />,
         },
         {
-            key: (key++).toString(),
+            key: '3',
             label: 'Tiền dịch vụ',
+            icon: <DollarOutlined />,
             children: <DichVuReport />,
         },
         {
-            key: (key++).toString(),
+            key: '4',
             label: 'Báo cáo thu/chi',
+            icon: <LineChartOutlined />,
             children: <ThuChiReport />,
         },
         {
-            key: (key++).toString(),
+            key: '5',
             label: 'Báo cáo công nợ',
+            icon: <FileTextOutlined />,
             children: <CongNoReport />,
         },
-
         {
-            key: (key++).toString(),
+            key: '6',
             label: 'Báo cáo tài sản',
-            children:  <AssetReport />,
+            icon: <BankOutlined />,
+            children: <AssetReport />,
         },
-
-
     ];
+
     type TabPosition = 'left' | 'right' | 'top' | 'bottom';
-    const [mode, setMode] = useState<TabPosition>('left'); // top
+    const [mode, setMode] = useState<TabPosition>('left');
+    const [activeKey, setActiveKey] = useState('1');
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth <= 768;
+            setIsMobile(mobile);
+            setMode(mobile ? 'top' : 'left');
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Dropdown menu items for mobile
+    const dropdownMenuItems: MenuProps['items'] = tabItems.map(item => ({
+        key: item.key,
+        icon: item.icon,
+        label: item.label,
+        onClick: () => setActiveKey(item.key)
+    }));
+
+    const currentTab = tabItems.find(item => item.key === activeKey);
+
+    // Desktop items with icons
+    const desktopItems: TabsProps['items'] = tabItems.map(item => ({
+        key: item.key,
+        label: (
+            <span>
+                {item.icon} {item.label}
+            </span>
+        ),
+        children: item.children,
+    }));
+
+    // Mobile items with icons only
+    const mobileItems: TabsProps['items'] = tabItems.map(item => ({
+        key: item.key,
+        label: item.icon,
+        children: item.children,
+    }));
+
     return (
         <div>
-            <Tabs tabPosition={mode} defaultActiveKey="1" items={items} />
+            <style>
+                {`
+                    @media (max-width: 768px) {
+                        .ant-tabs-nav {
+                            margin-bottom: 8px !important;
+                        }
+                        .ant-tabs-tab {
+                            padding: 8px 12px !important;
+                            margin: 0 4px !important;
+                        }
+                        .ant-tabs-tab-btn {
+                            font-size: 16px !important;
+                        }
+                        .mobile-tab-header {
+                            margin-bottom: 12px;
+                            padding: 8px;
+                            background: #fafafa;
+                            border-radius: 4px;
+                        }
+                    }
+                    @media (min-width: 769px) {
+                        .mobile-tab-header {
+                            display: none !important;
+                        }
+                    }
+                `}
+            </style>
+
+            {/* Mobile Header with Dropdown */}
+            {isMobile && (
+                <div className="mobile-tab-header">
+                    <Dropdown menu={{ items: dropdownMenuItems }} trigger={['click']}>
+                        <Button block size="large">
+                            <Space>
+                                {currentTab?.icon}
+                                <span style={{ flex: 1, textAlign: 'left' }}>{currentTab?.label}</span>
+                                <DownOutlined />
+                            </Space>
+                        </Button>
+                    </Dropdown>
+                </div>
+            )}
+
+            {/* Tabs */}
+            <Tabs
+                tabPosition={mode}
+                activeKey={activeKey}
+                onChange={setActiveKey}
+                items={isMobile ? mobileItems : desktopItems}
+                size={isMobile ? 'small' : 'middle'}
+            />
         </div>
     );
 };
