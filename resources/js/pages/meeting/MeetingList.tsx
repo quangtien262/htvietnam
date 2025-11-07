@@ -442,7 +442,7 @@ const MeetingList: React.FC = () => {
         const formAddExpress_default = {
             name: '',
             meeting_type: 'is_daily',
-            meeting_status_id: 1,
+            meeting_status_id: '1',
             task_id: null
         };
         const [formAddExpress, setFormAddExpress] = useState([formAddExpress_default, formAddExpress_default, formAddExpress_default]);
