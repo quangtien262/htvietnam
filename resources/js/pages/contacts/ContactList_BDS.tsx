@@ -221,9 +221,11 @@ const ContactList_BDS: React.FC = () => {
 
         values.services = dataService;
         values.id = dataAction.id;
-        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
+        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total_service = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0);
+        values.total_phi_co_dinh = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong;
         setLoadingTable(true);
         // save
         axios.post(API.updateContract, values).then((response) => {
@@ -344,8 +346,10 @@ const ContactList_BDS: React.FC = () => {
 
                 return <>
                     <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
-                    <Tag color="purple">tiền phòng: {numberFormat(record.gia_thue)} </Tag>
-                    {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
+                    <Tag color="red">Ser: {numberFormat(record.total_service)} </Tag>
+                    <Tag color="red">fix: {numberFormat(record.total_phi_co_dinh)} </Tag>
+                    <Tag color="#01a70f">Phòng: {numberFormat(record.gia_thue)} </Tag>
+                    {record.tien_coc ? <Tag color="#bb9e02">Cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
 
                     {services.map((service: any, idx: number) => {
                         const serviceName = service.name ?? service.name ?? 'xxx';
@@ -747,7 +751,7 @@ const ContactList_BDS: React.FC = () => {
 
             <Row>
                 {/* search  */}
-                <Col span={6} className="main-search-left">
+                <Col span={5} className="main-search-left">
                     <Form form={formSearch} layout="vertical"
                         onFinish={inFinishSearch}
                     >
@@ -863,7 +867,7 @@ const ContactList_BDS: React.FC = () => {
                 </Col>
 
                 {/* content */}
-                <Col span={18} className="main-content02">
+                <Col span={19} className="main-content02">
                     <Row>
                         <Col className="text-left" span={12}>
                             <Button className="btn-success _left"
@@ -1257,6 +1261,25 @@ const ContactList_BDS: React.FC = () => {
                                                 <span className="icon-b"><PlusCircleOutlined /> Thêm dịch vụ</span>
                                             </a>
                                         </td>
+                                    </tr>
+                                    <tr>
+                                        <td colSpan={3} className="text-right">
+                                            <b>Tổng tiền dịch vụ hàng tháng:</b>
+                                        </td>
+                                        <td className="text-left">
+                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0))}</b>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colSpan={3} className="text-right">
+                                            <b>Tổng phí cố định hàng tháng</b>:
+                                            <em>(tiền phòng & dịch vụ)</em>
+                                        </td>
+                                        <td className="text-left">
+                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong)}</b>
+                                        </td>
+                                        <td></td>
                                     </tr>
 
                                     <tr>

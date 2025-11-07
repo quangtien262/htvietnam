@@ -42,7 +42,12 @@ return new class extends Migration
             $table->integer('ngay_hen_dong_tien')->default(5)->nullable();
 
             $table->text('services')->nullable();
+            // tông tiền: phòng, cọc, dịch vụ
             $table->integer('total')->default(0)->nullable();
+            // tổng tiền dịch vụ
+            $table->integer('total_service')->default(0)->nullable();
+            // tổng phí cố định hàng tháng (tiền phòng & dịch vụ)
+            $table->integer('total_phi_co_dinh')->default(0)->nullable();
 
             // khach hang
             $table->integer('user_id')->default(0)->nullable();

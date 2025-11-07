@@ -128,7 +128,11 @@ class ContractController extends Controller
         $hopDong->contract_status_id = $request->contract_status_id;
         $hopDong->ngay_hen_dong_tien = $request->ngay_hen_dong_tien;
         $hopDong->so_nguoi = $request->so_nguoi;
+
         $hopDong->total = $request->total;
+        $hopDong->total_service = $request->total_service;
+        $hopDong->total_phi_co_dinh = $request->total_phi_co_dinh;
+
         $hopDong->end_date = $request->end_date;
         $hopDong->start_date = $request->start_date;
 
@@ -157,6 +161,8 @@ class ContractController extends Controller
         $invoice->ngay_hen_dong_tien = $request->start_date;
         $invoice->so_ngay_thue = $request->so_ngay_thue;
         $invoice->so_nguoi = $request->so_nguoi;
+
+        // total
         $invoice->total = $request->total;
 
         // $invoice->services = $request->services;

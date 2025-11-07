@@ -117,6 +117,7 @@ class SyncHopDong extends Command
     public function hopDongSync()
     {
         DB::table('contract')->truncate();
+        DB::table('contract_service')->truncate();
         $excelFilePath = storage_path('app/public/migrate/hopdong.xlsx');
 
         // Đọc file excel
@@ -167,30 +168,63 @@ class SyncHopDong extends Command
             }
 
             $serviceDefault = AitilenService::where('is_contract_default', 1)
-            ->orderBy('sort_order', 'asc')->get()->toArray();
+                ->orderBy('sort_order', 'asc')->get()->toArray();
+
+            $serviceData = [];
             foreach ($serviceDefault as $ser) {
-                $serviceInsert = [
-                    // 'contract_id'  => 0,
-                    'so_nguoi' => $contract->so_nguoi,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                    'service_id'  => $ser['id'],
-                    'price' => $ser['price_default'],
-                    'per' => $ser['per_default'],
-                    'price' => $ser['price_default'],
+                $total = 0;
+                if($ser['per_default'] == 'Người') {
+                    $total = $ser['price_default']; // mặc định 1 người
+                } elseif($ser['per_default'] == 'Phòng') {
+                    $total = $ser['price_default'];
+                }
+                $serviceData[] = [
+                    'id' => $ser['id'],
+                    'service_id' => $ser['id'],
+                    'name' => $ser['name'],
+                    'code' => $ser['code'],
+                    'per_default' => $ser['per_default'],
+                    'price_default' => $ser['price_default'],
+                    'price_total' => $total,
+                    // 'so_nguoi' => $contract->so_nguoi,
+                    // $dataInsert['contract_id'] = $contract->id;
                 ];
             }
-
             /////////////// create dv:
-            $contracts = DB::table('contract')->get();
+            $contracts = Contract::get();
             foreach ($contracts as $contract) {
-                $dataInsert = $serviceInsert;
-                $dataInsert['so_nguoi'] = $contract->so_nguoi;
-                $dataInsert['contract_id'] = $contract->id;
+                $dataInsert = [];
+                $totalSer = 0;
+                foreach($serviceData as $ser) {
+                    $item = $ser;
+                    $total = $ser['price_total'];
+                    if($ser['per_default'] == 'Người') {
+                        $total = $ser['price_default'] * intval($contract->so_nguoi);
+                    }
+                    $totalSer += intval($total);
+                    $item['price_total'] = $total;
+                    $item['so_nguoi'] = $contract->so_nguoi;
+                    $item['contract_id'] = $contract->id;
+                    $dataInsert[] = $item;
 
-                // price_total
+                    // save to database để tối ưu cho tìm kiếm và chuẩn hóa dữ liệu
+                    $contractService = new ContractService();
+                    $contractService->contract_id = $contract->id;
+                    $contractService->so_nguoi = $contract->so_nguoi;
+                    $contractService->service_id = $ser['id'];
+                    $contractService->price = $ser['price_default'];
+                    $contractService->per = $ser['per_default'];
+                    $contractService->total = $total;
+                    $contractService->save();
+                    // dd($contractService);
+                }
+                // dd($dataInsert);
+                $contract->services = $dataInsert;
+                $contract->total = $totalSer + intval($contract->gia_thue) + intval($contract->tien_coc);
+                $contract->total_service = $totalSer;
+                $contract->total_phi_co_dinh = $totalSer + $contract->gia_thue;
+                $contract->save();
             }
-
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -407,55 +441,55 @@ class SyncHopDong extends Command
         // Lặp qua từng dòng dữ liệu (bỏ dòng header)
         // dd($rows);
         foreach ($rows as $idx => $row) {
-            if($idx == 0) {
+            if ($idx == 0) {
                 continue;
             }
             // try {
 
 
-                if($row[1] == '') {
-                    $roomEmpty[] = $row;
-                    continue;
-                }
+            if ($row[1] == '') {
+                $roomEmpty[] = $row;
+                continue;
+            }
 
-                $dienNuoc = AitilenDienNuoc::where('room_id', $row[1])->first();
-                $room = DB::table('room')->where('id', $row[1])->first();
-                if (empty($dienNuoc)) {
-                    $dienNuoc = new AitilenDienNuoc();
-                }
+            $dienNuoc = AitilenDienNuoc::where('room_id', $row[1])->first();
+            $room = DB::table('room')->where('id', $row[1])->first();
+            if (empty($dienNuoc)) {
+                $dienNuoc = new AitilenDienNuoc();
+            }
 
-                $dienNuoc->month = 10;
-                $dienNuoc->year = 2025;
+            $dienNuoc->month = 10;
+            $dienNuoc->year = 2025;
 
-                $dienNuoc->room_id = $row[1] ?? null;
-                $dienNuoc->apartment_id = $room->apartment_id ?? null;
+            $dienNuoc->room_id = $row[1] ?? null;
+            $dienNuoc->apartment_id = $room->apartment_id ?? null;
 
-                $dichVu = trim(mb_substr($row[3], 0, 3, 'UTF-8'));
-                // dd($dichVu);
-                switch ($dichVu) {
-                    case 'Điệ':
-                        $dienNuoc->dien_start = $row[4] ?? 0;
-                        $dienNuoc->dien_end = $row[5] ?? 0;
-                        break;
-                    case 'Nướ':
-                        $dienNuoc->nuoc_start = $row[4] ?? 0;
-                        $dienNuoc->nuoc_end = $row[5] ?? 0;
-                        break;
-                    case 'WC':
-                        $dienNuoc->nonglanh_start = $row[4] ?? 0;
-                        $dienNuoc->nonglanh_end = $row[5] ?? 0;
-                        break;
-                    case 'ele':
-                        $dienNuoc->maybom_start = $row[4] ?? 0;
-                        $dienNuoc->maybom_end = $row[5] ?? 0;
-                        break;
+            $dichVu = trim(mb_substr($row[3], 0, 3, 'UTF-8'));
+            // dd($dichVu);
+            switch ($dichVu) {
+                case 'Điệ':
+                    $dienNuoc->dien_start = $row[4] ?? 0;
+                    $dienNuoc->dien_end = $row[5] ?? 0;
+                    break;
+                case 'Nướ':
+                    $dienNuoc->nuoc_start = $row[4] ?? 0;
+                    $dienNuoc->nuoc_end = $row[5] ?? 0;
+                    break;
+                case 'WC':
+                    $dienNuoc->nonglanh_start = $row[4] ?? 0;
+                    $dienNuoc->nonglanh_end = $row[5] ?? 0;
+                    break;
+                case 'ele':
+                    $dienNuoc->maybom_start = $row[4] ?? 0;
+                    $dienNuoc->maybom_end = $row[5] ?? 0;
+                    break;
 
-                    default:
-                        dd($dichVu);
-                        break;
-                }
+                default:
+                    dd($dichVu);
+                    break;
+            }
 
-                $dienNuoc->save();
+            $dienNuoc->save();
             // } catch (\Throwable $th) {
             //     $this->info('Error.. ' . $row[1]);
             //     throw $th;

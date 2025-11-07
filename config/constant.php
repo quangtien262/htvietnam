@@ -92,8 +92,8 @@ return [
             'service' => 'Gía dịch vụ',
             'review_SEO' => 'review_SEO',
             'cascader' => 'Cascader', // data_select: json config: {{"column": {"0": "col_01","1": "col_02"} } } --- Column fai là col kiểu select
-            // 'cascader_table' => 'Cascader - multiple Table', 
-            
+            // 'cascader_table' => 'Cascader - multiple Table',
+
             'data_detail' => 'data detail',
         ]
     ],
@@ -189,7 +189,7 @@ return [
         16 => 'Phiếu tập luyện'
 	],
 
-    
+
     'status__type_submit_hoa_don' => [
         'submit' => 'submit',
         'draft' => 'draft',
@@ -212,7 +212,7 @@ return [
         3 => 'Chuyển khoản'
 	],
 
-    
+
     'product__lich_trinh_sd' => [
         1 => 'Tự do',
         2 => 'Theo Ngày',
@@ -264,8 +264,8 @@ return [
 	],
     // Đơn vị dịch vụ
     'service_per' => [
-        'Person' => 'Phòng',
-        'Room' => 'Người',
+        'Phòng' => 'Phòng',
+        'Người' => 'Người',
         'KWH' => 'KWH',
         'M3' => 'M3',
         'Xe' => 'Xe',

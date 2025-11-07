@@ -368,9 +368,9 @@ class StatusSeeder extends Seeder
         DB::table('aitilen_service')->truncate();
         $idx = 1;
         DB::table('aitilen_service')->insert([
-            ['name' => 'Điện', 'code' => 'DIEN', 'price_default' => 4000, 'is_invoice_default' => 0, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'kWh', 'price_total'=>0],
+            ['name' => 'Điện', 'code' => 'DIEN', 'price_default' => 4000, 'is_invoice_default' => 0, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'KWh', 'price_total'=>0],
             ['name' => 'Nước', 'code' => 'NUOC', 'price_default' => 100000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>100000],
-            ['name' => 'Mạng Internet', 'code' => 'INTERNET', 'price_default' => 100000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>100000],
+            ['name' => 'Mạng Internet', 'code' => 'INTERNET', 'price_default' => 100000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Phòng', 'price_total'=>100000],
             ['name' => 'Vệ sinh chung', 'code' => 'VESINHCHUNG', 'price_default' => 30000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>30000],
             ['name' => 'Điện chung', 'code' => 'DICHVUCHUNG', 'price_default' => 30000, 'is_invoice_default' => 1, 'is_contract_default' => 1, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>30000],
             ['name' => 'Máy giặt', 'code' => 'MAGIAT', 'price_default' => 70000, 'is_invoice_default' => 0, 'is_contract_default' => 0, 'sort_order' => $idx++, 'per_default' => 'Người', 'price_total'=>70000],
