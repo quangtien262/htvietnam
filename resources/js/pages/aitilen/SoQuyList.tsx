@@ -27,10 +27,13 @@ interface SoQuy {
     loai_thu_name?: string;
     loai_chi_id?: number;
     loai_chi_name?: string;
-    chi_nhanh_id: number;
-    chi_nhanh_name: string;
+    apartment_id?: number;
+    apartment_name?: string;
+    room_id?: number;
+    room_name?: string;
     khach_hang_id?: number;
     khach_hang_name?: string;
+    nguoi_nhan_id?: number;
     nguoi_nhan_name?: string;
     nguoi_nhan_phone?: string;
     thoi_gian: string;
@@ -47,7 +50,8 @@ interface SearchParams {
     so_quy_type_id?: number;
     loai_thu_id?: number;
     loai_chi_id?: number;
-    chi_nhanh_id?: number;
+    apartment_id?: number;
+    room_id?: number;
     from_date?: string;
     to_date?: string;
 }
@@ -77,8 +81,12 @@ const SoQuyList: React.FC = () => {
     const [soQuyTypes, setSoQuyTypes] = useState<any[]>([]);
     const [loaiThuList, setLoaiThuList] = useState<any[]>([]);
     const [loaiChiList, setLoaiChiList] = useState<any[]>([]);
-    const [chiNhanhList, setChiNhanhList] = useState<any[]>([]);
+    const [apartmentList, setApartmentList] = useState<any[]>([]);
+    const [roomList, setRoomList] = useState<any[]>([]);
+    const [filteredRoomList, setFilteredRoomList] = useState<any[]>([]);
     const [statusList, setStatusList] = useState<any[]>([]);
+    const [adminUsersList, setAdminUsersList] = useState<any[]>([]);
+    const [currentPhieuType, setCurrentPhieuType] = useState<number>(1); // 1=Thu, 2=Chi
 
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
@@ -90,12 +98,13 @@ const SoQuyList: React.FC = () => {
     const loadMasterData = async () => {
         try {
             // Load các bảng master data
-            const [typeRes, loaiThuRes, loaiChiRes, chiNhanhRes, statusRes] = await Promise.all([
+            const [typeRes, loaiThuRes, loaiChiRes, apartmentRes, statusRes, adminUsersRes] = await Promise.all([
                 axios.post(API.soQuyTypeList, {}),
                 axios.post(API.loaiThuList, {}),
                 axios.post(API.loaiChiList, {}),
-                axios.post(API.chiNhanhList, {}),
+                axios.post(API.aitilen_apartmentList, {}),
                 axios.post(API.soQuyStatusList, {}),
+                axios.post(API.adminUsersList, {}),
             ]);
 
             if (typeRes?.data?.status_code === 200) {
@@ -107,11 +116,14 @@ const SoQuyList: React.FC = () => {
             if (loaiChiRes?.data?.status_code === 200) {
                 setLoaiChiList(loaiChiRes.data.data.datas || []);
             }
-            if (chiNhanhRes?.data?.status_code === 200) {
-                setChiNhanhList(chiNhanhRes.data.data.datas || []);
+            if (apartmentRes?.data?.status_code === 200) {
+                setApartmentList(apartmentRes.data.data.datas || []);
             }
             if (statusRes?.data?.status_code === 200) {
                 setStatusList(statusRes.data.data.datas || []);
+            }
+            if (adminUsersRes?.data?.status_code === 200) {
+                setAdminUsersList(adminUsersRes.data.data.datas || []);
             }
         } catch (error) {
             console.error('Error loading master data:', error);
@@ -149,24 +161,73 @@ const SoQuyList: React.FC = () => {
         }
     };
 
-    const handleAdd = () => {
+    const loadRoomsByApartment = async (apartmentId: number) => {
+        try {
+            const res = await axios.post(API.aitilen_apartmentRooms, {
+                searchData: { apartment_id: apartmentId }
+            });
+            if (res?.data?.status_code === 200) {
+                const rooms = res.data.data || [];
+                setRoomList(rooms);
+                setFilteredRoomList(rooms);
+            }
+        } catch (error) {
+            console.error('Error loading rooms:', error);
+        }
+    };
+
+    const handleApartmentChange = (apartmentId: number) => {
+        form.setFieldValue('apartment_id', apartmentId);
+        form.setFieldValue('room_id', undefined); // Reset room
+        if (apartmentId) {
+            loadRoomsByApartment(apartmentId);
+        } else {
+            setFilteredRoomList([]);
+        }
+    };
+
+    const handleAddPhieuThu = () => {
         setModalMode('add');
+        setCurrentPhieuType(1); // Thu
         setEditingRecord(null);
         form.resetFields();
         form.setFieldsValue({
+            so_quy_type_id: 1,
             thoi_gian: dayjs(),
-            so_quy_status_id: 1, // Default status
+            so_quy_status_id: 1,
         });
+        setFilteredRoomList([]);
+        setIsModalVisible(true);
+    };
+
+    const handleAddPhieuChi = () => {
+        setModalMode('add');
+        setCurrentPhieuType(2); // Chi
+        setEditingRecord(null);
+        form.resetFields();
+        form.setFieldsValue({
+            so_quy_type_id: 2,
+            thoi_gian: dayjs(),
+            so_quy_status_id: 1,
+        });
+        setFilteredRoomList([]);
         setIsModalVisible(true);
     };
 
     const handleEdit = (record: SoQuy) => {
         setModalMode('edit');
+        setCurrentPhieuType(record.so_quy_type_id);
         setEditingRecord(record);
         form.setFieldsValue({
             ...record,
             thoi_gian: record.thoi_gian ? dayjs(record.thoi_gian) : undefined,
         });
+
+        // Load rooms if apartment is selected
+        if (record.apartment_id) {
+            loadRoomsByApartment(record.apartment_id);
+        }
+
         setIsModalVisible(true);
     };
 
@@ -269,17 +330,25 @@ const SoQuyList: React.FC = () => {
             render: (_, record) => record.loai_thu_name || record.loai_chi_name || '-',
         },
         {
+            title: 'Tòa nhà',
+            dataIndex: 'apartment_name',
+            key: 'apartment_name',
+            width: 120,
+            render: (text: string) => text || '-',
+        },
+        {
+            title: 'Phòng',
+            dataIndex: 'room_name',
+            key: 'room_name',
+            width: 100,
+            render: (text: string) => text || '-',
+        },
+        {
             title: 'Người nhận/nộp',
             dataIndex: 'nguoi_nhan_name',
             key: 'nguoi_nhan_name',
             width: 150,
             render: (text, record) => text || record.khach_hang_name || '-',
-        },
-        {
-            title: 'Chi nhánh',
-            dataIndex: 'chi_nhanh_name',
-            key: 'chi_nhanh_name',
-            width: 120,
         },
         {
             title: 'Thời gian',
@@ -408,14 +477,14 @@ const SoQuyList: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={12} md={6}>
                         <Select
-                            placeholder="Chi nhánh"
+                            placeholder="Tòa nhà"
                             allowClear
                             style={{ width: '100%' }}
-                            value={searchParams.chi_nhanh_id}
-                            onChange={(value) => setSearchParams({ ...searchParams, chi_nhanh_id: value })}
+                            value={searchParams.apartment_id}
+                            onChange={(value) => setSearchParams({ ...searchParams, apartment_id: value })}
                         >
-                            {chiNhanhList.map(cn => (
-                                <Option key={cn.id} value={cn.id}>{cn.name}</Option>
+                            {apartmentList.map(apt => (
+                                <Option key={apt.id} value={apt.id}>{apt.name}</Option>
                             ))}
                         </Select>
                     </Col>
@@ -443,13 +512,24 @@ const SoQuyList: React.FC = () => {
             <Card
                 title={<><FileTextOutlined /> Danh sách sổ quỹ</>}
                 extra={
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={handleAdd}
-                    >
-                        Thêm mới
-                    </Button>
+                    <Space>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={handleAddPhieuThu}
+                            style={{ backgroundColor: '#52c41a' }}
+                        >
+                            Phiếu thu
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            icon={<PlusOutlined />}
+                            onClick={handleAddPhieuChi}
+                        >
+                            Phiếu chi
+                        </Button>
+                    </Space>
                 }
             >
                 <Table
@@ -469,13 +549,18 @@ const SoQuyList: React.FC = () => {
                 />
             </Card>
 
-            {/* Add/Edit Modal */}
+            {/* Add/Edit Modal - Phiếu Thu */}
             <Modal
-                title={modalMode === 'add' ? 'Thêm phiếu thu/chi' : 'Sửa phiếu thu/chi'}
+                title={
+                    modalMode === 'add'
+                        ? (currentPhieuType === 1 ? 'Thêm phiếu thu' : 'Thêm phiếu chi')
+                        : (currentPhieuType === 1 ? 'Sửa phiếu thu' : 'Sửa phiếu chi')
+                }
                 open={isModalVisible}
                 onCancel={() => {
                     setIsModalVisible(false);
                     form.resetFields();
+                    setFilteredRoomList([]);
                 }}
                 footer={null}
                 width={800}
@@ -485,20 +570,12 @@ const SoQuyList: React.FC = () => {
                     layout="vertical"
                     onFinish={handleSubmit}
                 >
+                    {/* Hidden field for so_quy_type_id */}
+                    <Form.Item name="so_quy_type_id" hidden>
+                        <Input />
+                    </Form.Item>
+
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="so_quy_type_id"
-                                label="Loại phiếu"
-                                // rules={[{ required: true, message: 'Vui lòng chọn loại phiếu' }]}
-                            >
-                                <Select placeholder="Chọn loại phiếu">
-                                    {soQuyTypes.map(type => (
-                                        <Option key={type.id} value={type.id}>{type.name}</Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
                         <Col span={12}>
                             <Form.Item
                                 name="so_tien"
@@ -513,26 +590,11 @@ const SoQuyList: React.FC = () => {
                                 />
                             </Form.Item>
                         </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="chi_nhanh_id"
-                                label="Chi nhánh"
-                                // rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
-                            >
-                                <Select placeholder="Chọn chi nhánh">
-                                    {chiNhanhList.map(cn => (
-                                        <Option key={cn.id} value={cn.id}>{cn.name}</Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
                         <Col span={12}>
                             <Form.Item
                                 name="thoi_gian"
                                 label="Thời gian"
+                                rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}
                             >
                                 <DatePicker
                                     style={{ width: '100%' }}
@@ -543,54 +605,37 @@ const SoQuyList: React.FC = () => {
                         </Col>
                     </Row>
 
-                    <Form.Item
-                        noStyle
-                        shouldUpdate={(prevValues, currentValues) =>
-                            prevValues.so_quy_type_id !== currentValues.so_quy_type_id
-                        }
-                    >
-                        {({ getFieldValue }) => {
-                            const typeId = getFieldValue('so_quy_type_id');
-                            return (
-                                <Row gutter={16}>
-                                    {typeId === 1 && ( // Thu
-                                        <Col span={12}>
-                                            <Form.Item name="loai_thu_id" label="Loại thu">
-                                                <Select placeholder="Chọn loại thu" allowClear>
-                                                    {loaiThuList.map(item => (
-                                                        <Option key={item.id} value={item.id}>{item.name}</Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                    )}
-                                    {typeId === 2 && ( // Chi
-                                        <Col span={12}>
-                                            <Form.Item name="loai_chi_id" label="Loại chi">
-                                                <Select placeholder="Chọn loại chi" allowClear>
-                                                    {loaiChiList.map(item => (
-                                                        <Option key={item.id} value={item.id}>{item.name}</Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                    )}
-                                    <Col span={12}>
-                                        <Form.Item name="nguoi_nhan_name" label="Tên người nhận/nộp">
-                                            <Input placeholder="Nhập tên người nhận/nộp" />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            );
-                        }}
-                    </Form.Item>
-
+                    {/* Loại thu hoặc loại chi */}
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item name="nguoi_nhan_phone" label="Số điện thoại">
-                                <Input placeholder="Nhập số điện thoại" />
-                            </Form.Item>
-                        </Col>
+                        {currentPhieuType === 1 ? (
+                            <Col span={12}>
+                                <Form.Item
+                                    name="loai_thu_id"
+                                    label="Loại thu"
+                                    rules={[{ required: true, message: 'Vui lòng chọn loại thu' }]}
+                                >
+                                    <Select placeholder="Chọn loại thu">
+                                        {loaiThuList.map(item => (
+                                            <Option key={item.id} value={item.id}>{item.name}</Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        ) : (
+                            <Col span={12}>
+                                <Form.Item
+                                    name="loai_chi_id"
+                                    label="Loại chi"
+                                    rules={[{ required: true, message: 'Vui lòng chọn loại chi' }]}
+                                >
+                                    <Select placeholder="Chọn loại chi">
+                                        {loaiChiList.map(item => (
+                                            <Option key={item.id} value={item.id}>{item.name}</Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        )}
                         <Col span={12}>
                             <Form.Item name="so_quy_status_id" label="Trạng thái">
                                 <Select placeholder="Chọn trạng thái">
@@ -598,6 +643,73 @@ const SoQuyList: React.FC = () => {
                                         <Option key={status.id} value={status.id}>{status.name}</Option>
                                     ))}
                                 </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    {/* Tòa nhà và Phòng */}
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="apartment_id"
+                                label="Tòa nhà"
+                            >
+                                <Select
+                                    placeholder="Chọn tòa nhà"
+                                    allowClear
+                                    onChange={handleApartmentChange}
+                                >
+                                    {apartmentList.map(apt => (
+                                        <Option key={apt.id} value={apt.id}>{apt.name}</Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="room_id"
+                                label="Phòng"
+                            >
+                                <Select
+                                    placeholder={form.getFieldValue('apartment_id') ? "Chọn phòng" : "Vui lòng chọn tòa nhà trước"}
+                                    allowClear
+                                    disabled={!form.getFieldValue('apartment_id')}
+                                    loading={filteredRoomList.length === 0 && form.getFieldValue('apartment_id')}
+                                >
+                                    {filteredRoomList.map(room => (
+                                        <Option key={room.id} value={room.id}>{room.name}</Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    {/* Người nhận/nộp */}
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="nguoi_nhan_id"
+                                label={currentPhieuType === 1 ? "Người nộp" : "Người nhận"}
+                                rules={[{ required: true, message: 'Vui lòng chọn người ' + (currentPhieuType === 1 ? 'nộp' : 'nhận') }]}
+                            >
+                                <Select
+                                    showSearch
+                                    placeholder={currentPhieuType === 1 ? "Chọn người nộp tiền" : "Chọn người nhận tiền"}
+                                    filterOption={(input, option) =>
+                                        String(option?.label || '').toLowerCase().includes(input.toLowerCase())
+                                    }
+                                >
+                                    {adminUsersList.map(user => (
+                                        <Option key={user.id} value={user.id} label={user.name}>
+                                            {user.name} {user.phone ? `(${user.phone})` : ''}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="nguoi_nhan_phone" label="Số điện thoại">
+                                <Input placeholder="Nhập số điện thoại" />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -614,6 +726,7 @@ const SoQuyList: React.FC = () => {
                             <Button onClick={() => {
                                 setIsModalVisible(false);
                                 form.resetFields();
+                                setFilteredRoomList([]);
                             }}>
                                 Hủy
                             </Button>

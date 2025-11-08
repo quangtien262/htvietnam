@@ -3,6 +3,7 @@
 namespace App\Models\Admin;
 
 use App\Casts\Json;
+use App\Models\User;
 use App\Services\Admin\TblService;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,9 +37,24 @@ class SoQuy extends Model
         return $this->belongsTo(ChiNhanh::class, 'chi_nhanh_id');
     }
 
+    public function apartment()
+    {
+        return $this->belongsTo(\App\Models\Admin\Apartment::class, 'apartment_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(\App\Models\Admin\Room::class, 'room_id');
+    }
+
     public function khachHang()
     {
         return $this->belongsTo(User::class, 'khach_hang_id');
+    }
+
+    public function nguoiNhan()
+    {
+        return $this->belongsTo(\App\Models\AdminUser::class, 'nguoi_nhan_id');
     }
 
     static function saveSoQuy_NhapHang($soTien, $nhapHang)

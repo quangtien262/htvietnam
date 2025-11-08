@@ -105,6 +105,7 @@ export const API = {
     loaiThuList: `${BASE_API_URL}aitilen/loai-thu/list`,
     loaiChiList: `${BASE_API_URL}aitilen/loai-chi/list`,
     chiNhanhList: `${BASE_API_URL}aitilen/chi-nhanh/list`,
+    adminUsersList: `${BASE_API_URL}aitilen/admin-users/list`,
 
     // users
     userList: `${BASE_API_URL}user/list`,
@@ -160,6 +161,13 @@ export const API = {
     editorUpload: `${BASE_API_URL}file/editor/upload`,
     folderCreate: `${BASE_API_URL}folder/create`,
     folderOpen: `${BASE_API_URL}folder/open`,
+
+    // Common Settings - Dynamic endpoints
+    commonSettingList: (tableName: string) => `${BASE_API_URL}setting/${tableName}/list`,
+    commonSettingAdd: (tableName: string) => `${BASE_API_URL}setting/${tableName}/add`,
+    commonSettingUpdate: (tableName: string) => `${BASE_API_URL}setting/${tableName}/update`,
+    commonSettingDelete: (tableName: string) => `${BASE_API_URL}setting/${tableName}/delete`,
+    commonSettingUpdateSortOrder: (tableName: string) => `${BASE_API_URL}setting/${tableName}/update-sort-order`,
 
 };
 

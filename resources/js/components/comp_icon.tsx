@@ -55,6 +55,7 @@ const icon = {
 
         RollbackOutlined:<RollbackOutlined />,
         InfoCircleFilled:<InfoCircleFilled />,
+        QuestionCircleOutlined:<QuestionCircleOutlined />,
         ExclamationCircleFilled:<ExclamationCircleFilled  />,
         EyeFilled:<EyeFilled />,
         BulbFilled:<BulbFilled />,

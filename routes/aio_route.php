@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\SoQuyController;
+use App\Http\Controllers\Admin\CommonSettingController;
 
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
@@ -186,12 +187,14 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('so-quy/update', [SoQuyController::class, 'apiUpdate'])->name('aitilen.soQuy.update');
     Route::post('so-quy/delete', [SoQuyController::class, 'apiDelete'])->name('aitilen.soQuy.delete');
 
-    // master data - using TblController for simplicity
-    Route::post('so-quy-type/list', [TblController::class, 'index'])->defaults('_tbl', 'so_quy_type')->name('aitilen.soQuyType.list');
-    Route::post('so-quy-status/list', [TblController::class, 'index'])->defaults('_tbl', 'so_quy_status')->name('aitilen.soQuyStatus.list');
-    Route::post('loai-thu/list', [TblController::class, 'index'])->defaults('_tbl', 'loai_thu')->name('aitilen.loaiThu.list');
-    Route::post('loai-chi/list', [TblController::class, 'index'])->defaults('_tbl', 'loai_chi')->name('aitilen.loaiChi.list');
-    Route::post('chi-nhanh/list', [TblController::class, 'index'])->defaults('_tbl', 'chi_nhanh')->name('aitilen.chiNhanh.list');
+    // master data for so quy
+    Route::post('so-quy-type/list', [SoQuyController::class, 'getSoQuyTypes'])->name('aitilen.soQuyType.list');
+    Route::post('so-quy-status/list', [SoQuyController::class, 'getSoQuyStatuses'])->name('aitilen.soQuyStatus.list');
+    Route::post('loai-thu/list', [SoQuyController::class, 'getLoaiThu'])->name('aitilen.loaiThu.list');
+    Route::post('loai-chi/list', [SoQuyController::class, 'getLoaiChi'])->name('aitilen.loaiChi.list');
+    Route::post('chi-nhanh/list', [SoQuyController::class, 'getChiNhanh'])->name('aitilen.chiNhanh.list');
+    Route::post('admin-users/list', [SoQuyController::class, 'getAdminUsers'])->name('aitilen.adminUsers.list');
+
 
 
 
@@ -246,4 +249,13 @@ Route::group(['prefix' => 'files'], function () {
 Route::group(['prefix' => 'folder'], function () {
     Route::post('create', [FileController::class, 'createFolder'])->name('folder.create');
     Route::post('open', [FileController::class, 'openFolder'])->name('folder.open');
+});
+
+// Common Settings - Dynamic routes for all setting tables
+Route::group(['prefix' => 'setting'], function () {
+    Route::post('{tableName}/list', [CommonSettingController::class, 'apiList'])->name('setting.list');
+    Route::post('{tableName}/add', [CommonSettingController::class, 'apiAdd'])->name('setting.add');
+    Route::post('{tableName}/update', [CommonSettingController::class, 'apiUpdate'])->name('setting.update');
+    Route::post('{tableName}/delete', [CommonSettingController::class, 'apiDelete'])->name('setting.delete');
+    Route::post('{tableName}/update-sort-order', [CommonSettingController::class, 'apiUpdateSortOrder'])->name('setting.updateSortOrder');
 });

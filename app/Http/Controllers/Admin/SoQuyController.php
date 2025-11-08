@@ -36,8 +36,10 @@ class SoQuyController extends Controller
                 'soQuyStatus',
                 'loaiThu',
                 'loaiChi',
-                'chiNhanh',
-                'khachHang'
+                'apartment',
+                'room',
+                'khachHang',
+                'nguoiNhan'
             ]);
 
             // Filters
@@ -62,8 +64,12 @@ class SoQuyController extends Controller
                 $query->where('loai_chi_id', $searchData['loai_chi_id']);
             }
 
-            if (!empty($searchData['chi_nhanh_id'])) {
-                $query->where('chi_nhanh_id', $searchData['chi_nhanh_id']);
+            if (!empty($searchData['apartment_id'])) {
+                $query->where('apartment_id', $searchData['apartment_id']);
+            }
+
+            if (!empty($searchData['room_id'])) {
+                $query->where('room_id', $searchData['room_id']);
             }
 
             if (!empty($searchData['so_quy_status_id'])) {
@@ -100,11 +106,14 @@ class SoQuyController extends Controller
                     'loai_thu_name' => $item->loaiThu->name ?? '',
                     'loai_chi_id' => $item->loai_chi_id,
                     'loai_chi_name' => $item->loaiChi->name ?? '',
-                    'chi_nhanh_id' => $item->chi_nhanh_id,
-                    'chi_nhanh_name' => $item->chiNhanh->name ?? '',
+                    'apartment_id' => $item->apartment_id,
+                    'apartment_name' => $item->apartment->name ?? '',
+                    'room_id' => $item->room_id,
+                    'room_name' => $item->room->name ?? '',
                     'khach_hang_id' => $item->khach_hang_id,
                     'khach_hang_name' => $item->khachHang->name ?? '',
-                    'nguoi_nhan_name' => $item->nguoi_nhan_name,
+                    'nguoi_nhan_id' => $item->nguoi_nhan_id,
+                    'nguoi_nhan_name' => $item->nguoiNhan->name ?? $item->nguoi_nhan_name,
                     'nguoi_nhan_phone' => $item->nguoi_nhan_phone,
                     'thoi_gian' => $item->thoi_gian,
                     'note' => $item->note,
@@ -144,8 +153,12 @@ class SoQuyController extends Controller
     {
         $query = SoQuy::query();
 
-        if (!empty($searchData['chi_nhanh_id'])) {
-            $query->where('chi_nhanh_id', $searchData['chi_nhanh_id']);
+        if (!empty($searchData['apartment_id'])) {
+            $query->where('apartment_id', $searchData['apartment_id']);
+        }
+
+        if (!empty($searchData['room_id'])) {
+            $query->where('room_id', $searchData['room_id']);
         }
 
         if (!empty($searchData['from_date'])) {
@@ -185,8 +198,10 @@ class SoQuyController extends Controller
             $soQuy->so_quy_type_id = $request->so_quy_type_id;
             $soQuy->loai_thu_id = $request->loai_thu_id;
             $soQuy->loai_chi_id = $request->loai_chi_id;
-            $soQuy->chi_nhanh_id = $request->chi_nhanh_id;
+            $soQuy->apartment_id = $request->apartment_id;
+            $soQuy->room_id = $request->room_id;
             $soQuy->khach_hang_id = $request->khach_hang_id;
+            $soQuy->nguoi_nhan_id = $request->nguoi_nhan_id;
             $soQuy->nguoi_nhan_name = $request->nguoi_nhan_name;
             $soQuy->nguoi_nhan_phone = $request->nguoi_nhan_phone;
             $soQuy->nguoi_nhan_code = $request->nguoi_nhan_code;
@@ -238,8 +253,10 @@ class SoQuyController extends Controller
             $soQuy->so_quy_type_id = $request->so_quy_type_id;
             $soQuy->loai_thu_id = $request->loai_thu_id;
             $soQuy->loai_chi_id = $request->loai_chi_id;
-            $soQuy->chi_nhanh_id = $request->chi_nhanh_id;
+            $soQuy->apartment_id = $request->apartment_id;
+            $soQuy->room_id = $request->room_id;
             $soQuy->khach_hang_id = $request->khach_hang_id;
+            $soQuy->nguoi_nhan_id = $request->nguoi_nhan_id;
             $soQuy->nguoi_nhan_name = $request->nguoi_nhan_name;
             $soQuy->nguoi_nhan_phone = $request->nguoi_nhan_phone;
             $soQuy->nguoi_nhan_code = $request->nguoi_nhan_code;
@@ -323,6 +340,128 @@ class SoQuyController extends Controller
         }
 
         return $prefix . $date . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * API: Get So Quy Types
+     */
+    public function getSoQuyTypes(Request $request)
+    {
+        try {
+            $datas = SoQuyType::orderBy('id', 'asc')->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get So Quy Statuses
+     */
+    public function getSoQuyStatuses(Request $request)
+    {
+        try {
+            $datas = SoQuyStatus::orderBy('id', 'asc')->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get Loai Thu
+     */
+    public function getLoaiThu(Request $request)
+    {
+        try {
+            $datas = LoaiThu::orderBy('id', 'asc')->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get Loai Chi
+     */
+    public function getLoaiChi(Request $request)
+    {
+        try {
+            $datas = LoaiChi::orderBy('id', 'asc')->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get Chi Nhanh
+     */
+    public function getChiNhanh(Request $request)
+    {
+        try {
+            $datas = ChiNhanh::orderBy('id', 'asc')->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get Admin Users
+     */
+    public function getAdminUsers(Request $request)
+    {
+        try {
+            $datas = \App\Models\AdminUser::select('id', 'name', 'email', 'phone')
+                ->orderBy('name', 'asc')
+                ->get();
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => ['datas' => $datas]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function index(Request $request)
