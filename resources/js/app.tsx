@@ -34,12 +34,15 @@ import ContactList_BDS from './pages/contacts/ContactList_BDS';
 
 // aitilen
 import AitilenDienNuoc from './pages/aitilen/DienNuoc';
+import SoQuyList from './pages/aitilen/SoQuyList';
 
 // customer
 import CustomerList from './pages/customers/CustomerList';
 
 // meeting
 import MeetingList from './pages/meeting/MeetingList';
+
+import Apartment from './pages/aitilen/Apartment';
 
 // import layout
 import AppLayout from './components/Layout';
@@ -52,6 +55,8 @@ const App: React.FC = () => (
 
                 {/* Aitilen */}
                 <Route path="/bds/dashboard" element={<DashboardAitilen />} />
+                {/* Apartment */}
+                <Route path="/bds/apartments/list" element={<Apartment />} />
 
                 {/* products */}
                 <Route path="/products/:id" element={<ProductList />} />
@@ -73,12 +78,14 @@ const App: React.FC = () => (
                 {/* aitilen dien nuoc */}
                 <Route path="/aitilen/chot-dien-nuoc" element={<AitilenDienNuoc />} />
 
+                {/* so quy */}
+                <Route path="/aitilen/so-quy" element={<SoQuyList />} />
+
                 {/* customer */}
                 <Route path="/customers/list" element={<CustomerList />} />
 
                 {/* meeting */}
                 <Route path="/meetings/list" element={<MeetingList />} />
-
             </Routes>
         </AppLayout>
     </BrowserRouter>

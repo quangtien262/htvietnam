@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\SoQuyController;
 
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
@@ -141,7 +142,23 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('service/delete-dien-nuoc', [AitilenController::class, 'deleteDienNuoc'])->name('aitilen.service.deleteDienNuoc');
     Route::post('service/search-dien-nuoc', [AitilenController::class, 'searchDienNuoc'])->name('aitilen.service.dienNuocSearch');
     Route::post('service/create-data-dien-nuoc-thang', [AitilenController::class, 'createDataDienNuocThang'])->name('aitilen.service.createDataDienNuocThang');
+
+    // apartment
+    Route::post('apartment/list', [AitilenController::class, 'apartmentList'])->name('aitilen.apartment.list');
+    Route::post('apartment/save', [AitilenController::class, 'saveApartment'])->name('aitilen.apartment.save');
+    Route::post('apartment/delete', [AitilenController::class, 'deleteApartment'])->name('aitilen.apartment.delete');
+    Route::post('apartment/fast-edit', [AitilenController::class, 'fastEditApartment'])->name('aitilen.apartment.fastEdit');
+    Route::post('apartment/detail', [AitilenController::class, 'getApartmentDetail'])->name('aitilen.apartment.detail');
+    Route::post('apartment/rooms', [AitilenController::class, 'getApartmentRooms'])->name('aitilen.apartment.rooms');
+
+    // room
+    Route::post('room/save', [AitilenController::class, 'saveRoom'])->name('aitilen.room.save');
+    Route::post('room/delete', [AitilenController::class, 'deleteRoom'])->name('aitilen.room.delete');
+
+    // tự đông tạo hóa đơn theo tháng chỉ định
     Route::post('invoice/create-invoice-by-month', [AitilenController::class, 'createInvoiceMonth'])->name('aitilen.service.createInvoiceMonth');
+    // tính lại tiền cho hóa đơn được chỉ định
+    Route::post('invoice/recalculate-invoice', [AitilenController::class, 'recalculateInvoiceByRooms'])->name('aitilen.service.recalculateInvoiceByRooms');
 
     // invoice
     Route::post('invoice/index-api/bds', [AitilenInvoiceController::class, 'indexApi_bds'])->name('bds.invoice.indexApi');
@@ -151,6 +168,9 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('invoice/delete', [AitilenInvoiceController::class, 'deleteInvoice'])->name('aio.invoice.delete');
     Route::post('invoice/active-current', [AitilenInvoiceController::class, 'activeCurrentInvoice'])->name('aio.invoice.activeCurrent');
     Route::post('invoice/active-all', [AitilenInvoiceController::class, 'activeAllInvoice'])->name('aio.invoice.activeAll');
+    Route::post('invoice/statistics', [AitilenInvoiceController::class, 'getInvoiceStatistics'])->name('aio.invoice.statistics');
+    Route::post('invoice/statistics-by-apartment', [AitilenInvoiceController::class, 'getInvoiceStatisticsByApartment'])->name('aio.invoice.statisticsByApartment');
+    Route::post('invoice/by-service', [AitilenInvoiceController::class, 'getInvoicesByService'])->name('aio.invoice.byService');
 
     // report
     Route::post('report/tong-loi-nhuan', [AitilenReportController::class, 'tongLoiNhuan'])->name('aio.invoice.tongLoiNhuan');
@@ -159,6 +179,19 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('report/bao-cao-thu-chi', [AitilenReportController::class, 'baoCaoThuChi'])->name('aio.invoice.baoCaoThuChi');
     Route::post('report/bao-cao-cong-no', [AitilenReportController::class, 'baoCaoCongNo'])->name('aio.invoice.baoCaoCongNo');
     Route::post('report/bao-cao-tai-san', [AitilenReportController::class, 'baoCaoTaiSan'])->name('aio.invoice.baoCaoTaiSan');
+
+    // so quy
+    Route::post('so-quy/list', [SoQuyController::class, 'apiList'])->name('aitilen.soQuy.list');
+    Route::post('so-quy/add', [SoQuyController::class, 'apiAdd'])->name('aitilen.soQuy.add');
+    Route::post('so-quy/update', [SoQuyController::class, 'apiUpdate'])->name('aitilen.soQuy.update');
+    Route::post('so-quy/delete', [SoQuyController::class, 'apiDelete'])->name('aitilen.soQuy.delete');
+
+    // master data - using TblController for simplicity
+    Route::post('so-quy-type/list', [TblController::class, 'index'])->defaults('_tbl', 'so_quy_type')->name('aitilen.soQuyType.list');
+    Route::post('so-quy-status/list', [TblController::class, 'index'])->defaults('_tbl', 'so_quy_status')->name('aitilen.soQuyStatus.list');
+    Route::post('loai-thu/list', [TblController::class, 'index'])->defaults('_tbl', 'loai_thu')->name('aitilen.loaiThu.list');
+    Route::post('loai-chi/list', [TblController::class, 'index'])->defaults('_tbl', 'loai_chi')->name('aitilen.loaiChi.list');
+    Route::post('chi-nhanh/list', [TblController::class, 'index'])->defaults('_tbl', 'chi_nhanh')->name('aitilen.chiNhanh.list');
 
 
 
@@ -171,6 +204,9 @@ Route::group(['prefix' => 'contract'], function () {
     Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
     Route::post('search', [ContractController::class, 'search'])->name('contract.search');
     Route::post('delete', [ContractController::class, 'delete'])->name('contract.delete');
+    Route::post('statistics', [ContractController::class, 'getContractStatistics'])->name('contract.statistics');
+    Route::post('statistics-by-apartment', [ContractController::class, 'getContractStatisticsByApartment'])->name('contract.statisticsByApartment');
+    Route::post('by-service', [ContractController::class, 'getContractsByService'])->name('contract.byService');
 });
 
 // customer: api

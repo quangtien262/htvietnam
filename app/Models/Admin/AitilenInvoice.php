@@ -45,6 +45,7 @@ class AitilenInvoice extends Model
 
     static function getInvoice($dataFilter = [])
     {
+        // dd($dataFilter);
         $datas = AitilenInvoice::baseQuery();
         // filter
         if (!empty($dataFilter['keyword'])) {
@@ -56,17 +57,17 @@ class AitilenInvoice extends Model
                     ->orWhere('users.phone', 'like', '%' . $keyword . '%');
             });
         }
-        if (!empty($dataFilter['contract'])) {
+        if (!empty($dataFilter['contract_id'])) {
             $datas = $datas->where('aitilen_invoice.contract_id', $dataFilter['contract']);
         }
-        if (!empty($dataFilter['room'])) {
+        if (!empty($dataFilter['room_id'])) {
             $datas = $datas->where('aitilen_invoice.room_id', $dataFilter['room']);
         }
         if (!empty($dataFilter['status'])) {
             $datas = $datas->where('aitilen_invoice.aitilen_invoice_status_id', $dataFilter['status']);
         }
-        if (!empty($dataFilter['apm'])) {
-            $datas = $datas->whereIn('aitilen_invoice.apartment_id', $dataFilter['apm']);
+        if (!empty($dataFilter['apartment_ids'])) {
+            $datas = $datas->whereIn('aitilen_invoice.apartment_id', $dataFilter['apartment_ids']);
         }
 
         if (!empty($dataFilter['month'])) {

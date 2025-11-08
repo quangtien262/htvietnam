@@ -41,19 +41,19 @@ const TotalReport: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
     const [loading, setLoading] = useState(false);
 
-    function fetchData(request = {}) {
-        setLoading(true);
-        axios.post(API.ai_tongLoiNhuan, request)
-            .then((res: any) => {
-                const propsTmp = res.data.data;
-                setLoading(false);
-            })
-            .catch((err: any) => console.error(err));
+    // function fetchData(request = {}) {
+    //     setLoading(true);
+    //     axios.post(API.ai_tongLoiNhuan, request)
+    //         .then((res: any) => {
+    //             const propsTmp = res.data.data;
+    //             setLoading(false);
+    //         })
+    //         .catch((err: any) => console.error(err));
 
-    }
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // }
+    // useEffect(() => {
+    //     fetchData();
+    // }, []);
 
     function descriptionTySuat() {
         const des = <div>

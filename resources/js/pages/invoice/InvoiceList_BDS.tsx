@@ -27,7 +27,7 @@ import {
 import axios from "axios";
 import {
     CloudOutlined, MehOutlined, DownOutlined,
-    RiseOutlined, CloseCircleOutlined,
+    RiseOutlined, CloseCircleOutlined, DollarOutlined,
     PlusCircleOutlined, CheckOutlined,
     DeleteOutlined, CheckCircleOutlined,
     EditOutlined, CloseSquareOutlined,
@@ -91,7 +91,14 @@ const InvoiceList_BDS: React.FC = () => {
     const [isReplaceAllContract, setIsReplaceAllContract] = useState(true);
 
     // modal active
+    const [isModalRecalculateOpen, setIsModalRecalculateOpen] = useState(false);
+
     const [isModalActiveCurrentOpen, setIsModalActiveCurrentOpen] = useState(false);
+
+    // modal statistics
+    const [isModalStatisticsOpen, setIsModalStatisticsOpen] = useState(false);
+    const [statisticsData, setStatisticsData] = useState<any>(null);
+    const [loadingStatistics, setLoadingStatistics] = useState(false);
 
     // modal create data month
     const [isOpenModalCreateDataMonth, setIsOpenModalCreateDataMonth] = useState(false);
@@ -173,6 +180,27 @@ const InvoiceList_BDS: React.FC = () => {
             })
             .catch((err: any) => console.error(err));
 
+    }
+
+    function fetchStatistics() {
+        setLoadingStatistics(true);
+        setIsModalStatisticsOpen(true);
+
+        axios.post(API.aitilen_invoiceStatistics, { searchData: searchData })
+            .then((res: any) => {
+                console.log('Statistics response:', res.data);
+                if (res.data.status_code === 200) {
+                    setStatisticsData(res.data.data);
+                } else {
+                    message.error(res.data.message || 'Lỗi lấy thống kê!');
+                }
+                setLoadingStatistics(false);
+            })
+            .catch((err: any) => {
+                console.error(err);
+                message.error('Lỗi kết nối server!');
+                setLoadingStatistics(false);
+            });
     }
 
     const onFinishFormEdit = (values: any) => {
@@ -283,7 +311,7 @@ const InvoiceList_BDS: React.FC = () => {
             title: <>
                 <span>Dịch vụ</span>
                 <span> | </span>
-                <a> <RiseOutlined /> Xem thống kê</a>
+                <a onClick={() => fetchStatistics()}> <RiseOutlined /> Xem thống kê</a>
             </>,
             dataIndex: 'dich_vu',
             key: 'dich_vu',
@@ -787,7 +815,7 @@ const InvoiceList_BDS: React.FC = () => {
                                 {
                                     title: 'Tòa nhà',
                                     description: <Form.Item
-                                        name="apm"
+                                        name="apartment_ids"
                                     >
                                         <Select
                                             showSearch
@@ -809,7 +837,7 @@ const InvoiceList_BDS: React.FC = () => {
                                 {
                                     title: 'Phòng',
                                     description: <Form.Item
-                                        name="room"
+                                        name="room_id"
                                     >
                                         <Select
                                             showSearch
@@ -831,7 +859,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     title: 'Hợp đồng',
                                     description: <>
                                         <Form.Item
-                                            name="contract"
+                                            name="contract_id"
                                         >
                                             <Select
                                                 showSearch
@@ -901,6 +929,16 @@ const InvoiceList_BDS: React.FC = () => {
                             >
                                 Active {hasSelected ? `${selectedRowKeys.length}` : ''}
                             </Button>
+
+                            <Button className="btn-success _left"
+                                icon={<DollarOutlined />}
+                                disabled={!hasSelected}
+                                loading={loadingBtnDelete}
+                                onClick={() => setIsModalRecalculateOpen(true)}
+                            >
+                                Tính lại tiền {hasSelected ? `${selectedRowKeys.length}` : ''}
+                            </Button>
+
                             <span> </span>
                             <Button type="primary"
                                 icon={<DeleteOutlined />}
@@ -1364,6 +1402,154 @@ const InvoiceList_BDS: React.FC = () => {
                     <li>Các thông tin về data này sẽ được <em>public cho khách hàng xem</em></li>
                     <li>Sau khi active, các thông tin này <em>vẫn có thể chỉnh sửa lại</em></li>
                 </ul>
+            </Modal>
+
+            <Modal title="Xác nhận tính lại tiền các hóa đơn đã chọn"
+                open={isModalRecalculateOpen}
+                loading={loadingCreateDataMonth}
+                onOk={() => {
+                    setLoadingActive(true);
+                    axios.post(API.aitilen_recalculateInvoice, {
+                        ids: selectedRowKeys,
+                    }).then((result: any) => {
+                        console.log('   result', result );
+                        if (result.status === 200) {
+                            message.success("Đã tính lại tiền hóa đơn thành công");
+                            setSelectedRowKeys([]);
+                            // refresh(searchData);
+                        } else {
+                            message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
+                        }
+                        setIsModalRecalculateOpen(false);
+                        setLoadingActive(false);
+                    }).catch((error: any) => {
+                        console.log(error);
+                        message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+                        setIsModalRecalculateOpen(false);
+                        setLoadingActive(false);
+                    });
+                }}
+                okText="Xác nhận tính lại tiền"
+                cancelText="Hủy"
+                maskClosable={false}
+                onCancel={() => { setIsModalActiveCurrentOpen(false); }}>
+                <ul>
+                    <li>Các thông tin về data này sẽ được <em>public cho khách hàng xem</em></li>
+                    <li>Sau khi active, các thông tin này <em>vẫn có thể chỉnh sửa lại</em></li>
+                </ul>
+            </Modal>
+
+            {/* Modal Thống kê */}
+            <Modal
+                title={<><RiseOutlined /> Thống kê hóa đơn</>}
+                open={isModalStatisticsOpen}
+                onCancel={() => setIsModalStatisticsOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsModalStatisticsOpen(false)}>
+                        Đóng
+                    </Button>
+                ]}
+                width={800}
+            >
+                {loadingStatistics ? (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                        <CloudOutlined style={{ fontSize: '48px', color: '#1890ff' }} spin />
+                        <p>Đang tải dữ liệu...</p>
+                    </div>
+                ) : statisticsData ? (
+                    <div>
+                        <Row gutter={16} style={{ marginBottom: 24 }}>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#f0f5ff', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>Tổng số hóa đơn</div>
+                                    <div style={{ fontSize: 28, fontWeight: 'bold', color: '#1890ff' }}>
+                                        {statisticsData.total_invoices}
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#fff7e6', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>Tổng cộng</div>
+                                    <div style={{ fontSize: 28, fontWeight: 'bold', color: '#fa8c16' }}>
+                                        {numberFormat(statisticsData.grand_total)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row gutter={16} style={{ marginBottom: 24 }}>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#f6ffed', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>
+                                        <DollarOutlined /> Tổng tiền phòng
+                                    </div>
+                                    <div style={{ fontSize: 24, fontWeight: 'bold', color: '#52c41a' }}>
+                                        {numberFormat(statisticsData.total_tien_phong)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#fff1f0', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>
+                                        <CloudOutlined /> Tổng tiền dịch vụ
+                                    </div>
+                                    <div style={{ fontSize: 24, fontWeight: 'bold', color: '#cf1322' }}>
+                                        {numberFormat(statisticsData.total_service_amount)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Divider orientation="left">Chi tiết dịch vụ</Divider>
+
+                        {statisticsData.service_breakdown && statisticsData.service_breakdown.length > 0 ? (
+                            <List
+                                dataSource={statisticsData.service_breakdown}
+                                renderItem={(item: any) => (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            title={<span style={{ fontSize: 16 }}>{item.name}</span>}
+                                            description={
+                                                <div>
+                                                    <Tag color="blue">{item.count} lần sử dụng</Tag>
+                                                </div>
+                                            }
+                                        />
+                                        <div style={{ fontSize: 18, fontWeight: 'bold', color: '#1890ff' }}>
+                                            {numberFormat(item.total_amount)} ₫
+                                        </div>
+                                    </List.Item>
+                                )}
+                                bordered
+                            />
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: 24, color: '#999' }}>
+                                <MehOutlined style={{ fontSize: 48 }} />
+                                <p>Không có dịch vụ nào</p>
+                            </div>
+                        )}
+
+                        {statisticsData.filters && Object.keys(statisticsData.filters).length > 0 && (
+                            <div style={{ marginTop: 24, padding: 12, background: '#fafafa', borderRadius: 4 }}>
+                                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Điều kiện lọc:</div>
+                                {statisticsData.filters.month && (
+                                    <Tag>Tháng: {statisticsData.filters.month}/{statisticsData.filters.year}</Tag>
+                                )}
+                                {statisticsData.filters.status && (
+                                    <Tag>Trạng thái: {statisticsData.filters.status}</Tag>
+                                )}
+                                {statisticsData.filters.room_id && (
+                                    <Tag>Phòng ID: {statisticsData.filters.room_id}</Tag>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
+                        <MehOutlined style={{ fontSize: 48 }} />
+                        <p>Chưa có dữ liệu thống kê</p>
+                    </div>
+                )}
             </Modal>
 
         </div>

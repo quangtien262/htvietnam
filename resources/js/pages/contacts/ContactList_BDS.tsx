@@ -28,7 +28,7 @@ import {
 import {
     CloudOutlined, MehOutlined, DownOutlined,
     RiseOutlined, CloseCircleOutlined,
-    PlusCircleOutlined, CheckOutlined,
+    PlusCircleOutlined, CheckOutlined, HomeOutlined,
     DeleteOutlined, CheckCircleOutlined,
     EditOutlined, CloseSquareOutlined,
     EyeOutlined, PlusSquareOutlined,
@@ -106,6 +106,11 @@ const ContactList_BDS: React.FC = () => {
     const [form] = Form.useForm();
     const [formSearch] = Form.useForm();
     const [searchParams, setSearchParams] = useState({});
+
+    // modal statistics
+    const [isModalStatisticsOpen, setIsModalStatisticsOpen] = useState(false);
+    const [statisticsData, setStatisticsData] = useState<any>(null);
+    const [loadingStatistics, setLoadingStatistics] = useState(false);
 
     // upload excel
     const [fileList, setFileList] = useState([]);
@@ -332,7 +337,7 @@ const ContactList_BDS: React.FC = () => {
             title: <>
                 <span>Dịch vụ</span>
                 <span> | </span>
-                <a> <RiseOutlined /> Xem thống kê</a>
+                <a onClick={() => fetchStatistics()}> <RiseOutlined /> Xem thống kê</a>
             </>,
             dataIndex: 'dich_vu',
             key: 'dich_vu',
@@ -416,6 +421,27 @@ const ContactList_BDS: React.FC = () => {
         setTienCoc(record.tien_coc);
         setDataService(record.services ? (Array.isArray(record.services) ? record.services : parseJson(record.services)) : []);
 
+    }
+
+    function fetchStatistics() {
+        setLoadingStatistics(true);
+        setIsModalStatisticsOpen(true);
+
+        axios.post(API.contractStatistics, { searchData: searchParams })
+            .then((res: any) => {
+                console.log('Contract Statistics response:', res.data);
+                if (res.data.status_code === 200) {
+                    setStatisticsData(res.data.data);
+                } else {
+                    message.error(res.data.message || 'Lỗi lấy thống kê!');
+                }
+                setLoadingStatistics(false);
+            })
+            .catch((err: any) => {
+                console.error(err);
+                message.error('Lỗi kết nối server!');
+                setLoadingStatistics(false);
+            });
     }
 
     const expandedRowRender = (record: any, index: number) => {
@@ -1297,6 +1323,129 @@ const ContactList_BDS: React.FC = () => {
                 loading={loadingLogin}
                 onCancel={() => setConfirmLoginSuccess(false)}>
                 <p className="text-success"><em>Bạn đã đăng nhập thành công tài khoản: <b>{dataAction?.ho_ten}</b></em></p>
+            </Modal>
+
+            {/* Modal Thống kê hợp đồng */}
+            <Modal
+                title={<><RiseOutlined /> Thống kê hợp đồng</>}
+                open={isModalStatisticsOpen}
+                onCancel={() => setIsModalStatisticsOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsModalStatisticsOpen(false)}>
+                        Đóng
+                    </Button>
+                ]}
+                width={800}
+            >
+                {loadingStatistics ? (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                        <CloudOutlined style={{ fontSize: '48px', color: '#1890ff' }} spin />
+                        <p>Đang tải dữ liệu...</p>
+                    </div>
+                ) : statisticsData ? (
+                    <div>
+                        <Row gutter={16} style={{ marginBottom: 24 }}>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#f0f5ff', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>Tổng số hợp đồng</div>
+                                    <div style={{ fontSize: 28, fontWeight: 'bold', color: '#1890ff' }}>
+                                        {statisticsData.total_contracts}
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={12}>
+                                <div style={{ padding: 16, background: '#fff7e6', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>Tổng giá trị</div>
+                                    <div style={{ fontSize: 28, fontWeight: 'bold', color: '#fa8c16' }}>
+                                        {numberFormat(statisticsData.grand_total)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row gutter={16} style={{ marginBottom: 24 }}>
+                            <Col span={8}>
+                                <div style={{ padding: 16, background: '#f6ffed', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>
+                                        <HomeOutlined /> Tiền phòng
+                                    </div>
+                                    <div style={{ fontSize: 20, fontWeight: 'bold', color: '#52c41a' }}>
+                                        {numberFormat(statisticsData.total_gia_thue)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={8}>
+                                <div style={{ padding: 16, background: '#fff1f0', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>
+                                        <CloudOutlined /> Dịch vụ
+                                    </div>
+                                    <div style={{ fontSize: 20, fontWeight: 'bold', color: '#cf1322' }}>
+                                        {numberFormat(statisticsData.total_service_amount)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={8}>
+                                <div style={{ padding: 16, background: '#e6f7ff', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>
+                                        <CheckCircleOutlined /> Tiền cọc
+                                    </div>
+                                    <div style={{ fontSize: 20, fontWeight: 'bold', color: '#1890ff' }}>
+                                        {numberFormat(statisticsData.total_tien_coc)} ₫
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Divider orientation="left">Chi tiết dịch vụ</Divider>
+
+                        {statisticsData.service_breakdown && statisticsData.service_breakdown.length > 0 ? (
+                            <List
+                                dataSource={statisticsData.service_breakdown}
+                                renderItem={(item: any) => (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            title={<span style={{ fontSize: 16 }}>{item.name}</span>}
+                                            description={
+                                                <div>
+                                                    <Tag color="blue">{item.count} hợp đồng</Tag>
+                                                </div>
+                                            }
+                                        />
+                                        <div style={{ fontSize: 18, fontWeight: 'bold', color: '#1890ff' }}>
+                                            {numberFormat(item.total_amount)} ₫
+                                        </div>
+                                    </List.Item>
+                                )}
+                                bordered
+                            />
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: 24, color: '#999' }}>
+                                <MehOutlined style={{ fontSize: 48 }} />
+                                <p>Không có dịch vụ nào</p>
+                            </div>
+                        )}
+
+                        {statisticsData.filters && Object.keys(statisticsData.filters).length > 0 && (
+                            <div style={{ marginTop: 24, padding: 12, background: '#fafafa', borderRadius: 4 }}>
+                                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Điều kiện lọc:</div>
+                                {statisticsData.filters.status && (
+                                    <Tag>Trạng thái: {statisticsData.filters.status}</Tag>
+                                )}
+                                {statisticsData.filters.room_id && (
+                                    <Tag>Phòng ID: {statisticsData.filters.room_id}</Tag>
+                                )}
+                                {statisticsData.filters.apartment_id && (
+                                    <Tag>Tòa nhà ID: {statisticsData.filters.apartment_id}</Tag>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
+                        <MehOutlined style={{ fontSize: 48 }} />
+                        <p>Chưa có dữ liệu thống kê</p>
+                    </div>
+                )}
             </Modal>
 
         </div>

@@ -120,6 +120,18 @@ export const MENU = {
             icon: <UserOutlined />,
             children: [],
         },
+        {
+            label: <Link to={`${ROUTE.apartment_bds}?p=bds`}>Tòa nhà</Link>,
+            key: (key++).toString(),
+            icon: <UserOutlined />,
+            children: [],
+        },
+        {
+            label: <Link to={`${ROUTE.aitilen_soQuy}?p=bds`}>Sổ quỹ</Link>,
+            key: (key++).toString(),
+            icon: <UserOutlined />,
+            children: [],
+        },
         // Website
         {
             label: <span>Website</span>,

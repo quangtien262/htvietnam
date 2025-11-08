@@ -80,6 +80,10 @@ export const API = {
     aitilen_deleteInvoice: `${BASE_API_URL}aitilen/invoice/delete`,
     aitilen_activeCurrentInvoice: `${BASE_API_URL}aitilen/invoice/active-current`,
     aitilen_activeAllInvoice: `${BASE_API_URL}aitilen/invoice/active-all`,
+    aitilen_recalculateInvoice: `${BASE_API_URL}aitilen/invoice/recalculate-invoice`,
+    aitilen_invoiceStatistics: `${BASE_API_URL}aitilen/invoice/statistics`,
+    aitilen_invoiceStatisticsByApartment: `${BASE_API_URL}aitilen/invoice/statistics-by-apartment`,
+    aitilen_invoiceByService: `${BASE_API_URL}aitilen/invoice/by-service`,
 
     // contacts
     contractBDSIndexApi: `${BASE_API_URL}contract/index-api/bds`,
@@ -87,6 +91,20 @@ export const API = {
     updateContract: `${BASE_API_URL}contract/update`,
     fastEditContract: `${BASE_API_URL}contract/fast-edit`,
     deleteContract: `${BASE_API_URL}contract/delete`,
+    contractStatistics: `${BASE_API_URL}contract/statistics`,
+    contractStatisticsByApartment: `${BASE_API_URL}contract/statistics-by-apartment`,
+    contractByService: `${BASE_API_URL}contract/by-service`,
+
+    // so quy
+    soQuyList: `${BASE_API_URL}aitilen/so-quy/list`,
+    soQuyAdd: `${BASE_API_URL}aitilen/so-quy/add`,
+    soQuyUpdate: `${BASE_API_URL}aitilen/so-quy/update`,
+    soQuyDelete: `${BASE_API_URL}aitilen/so-quy/delete`,
+    soQuyTypeList: `${BASE_API_URL}aitilen/so-quy-type/list`,
+    soQuyStatusList: `${BASE_API_URL}aitilen/so-quy-status/list`,
+    loaiThuList: `${BASE_API_URL}aitilen/loai-thu/list`,
+    loaiChiList: `${BASE_API_URL}aitilen/loai-chi/list`,
+    chiNhanhList: `${BASE_API_URL}aitilen/chi-nhanh/list`,
 
     // users
     userList: `${BASE_API_URL}user/list`,
@@ -102,6 +120,16 @@ export const API = {
     aitilen_SearchDienNuoc: `${BASE_API_URL}aitilen/service/search-dien-nuoc`,
     CreateDataDienNuocThang: `${BASE_API_URL}aitilen/service/create-data-dien-nuoc-thang`,
     ActiveDataDienNuocThang: `${BASE_API_URL}aitilen/service/active-data-dien-nuoc-thang`,
+
+    // apartment
+    aitilen_apartmentList: `${BASE_API_URL}aitilen/apartment/list`,
+    aitilen_saveApartment: `${BASE_API_URL}aitilen/apartment/save`,
+    aitilen_deleteApartment: `${BASE_API_URL}aitilen/apartment/delete`,
+    aitilen_fastEditApartment: `${BASE_API_URL}aitilen/apartment/fast-edit`,
+    aitilen_apartmentDetail: `${BASE_API_URL}aitilen/apartment/detail`,
+    aitilen_apartmentRooms: `${BASE_API_URL}aitilen/apartment/rooms`,
+    aitilen_saveRoom: `${BASE_API_URL}aitilen/room/save`,
+    aitilen_deleteRoom: `${BASE_API_URL}aitilen/room/delete`,
 
     // customer
     customerIndexApi: `${BASE_API_URL}customer/index-api`,

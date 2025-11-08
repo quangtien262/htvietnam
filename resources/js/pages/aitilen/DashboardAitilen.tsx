@@ -49,6 +49,8 @@ import DichVuReport from "./components/DichVuReport";
 import ThuChiReport from "./components/ThuChiReport";
 import CongNoReport from "./components/CongNoReport";
 import AssetReport from "./components/AssetReport";
+import TienPhongStatisticsReport from "./components/TienPhongStatisticsReport";
+import ContractStatisticsReport from "./components/ContractStatisticsReport";
 
 
 const DashboardAitilen: React.FC = () => {
@@ -56,37 +58,43 @@ const DashboardAitilen: React.FC = () => {
 
     const tabItems = [
         {
-            key: '1',
+            key: (key++).toString(),
             label: 'Lợi nhuận thực tế',
             icon: <TrophyOutlined />,
             children: <TotalReport />,
         },
         {
-            key: '2',
+            key: (key++).toString(),
             label: 'Lợi nhuận theo tiền phòng',
             icon: <HomeOutlined />,
             children: <TienPhongReport />,
         },
         {
-            key: '3',
-            label: 'Tiền dịch vụ',
-            icon: <DollarOutlined />,
-            children: <DichVuReport />,
+            key: (key++).toString(),
+            label: 'Báo cáo tiền phòng',
+            icon: <HomeOutlined />,
+            children: <TienPhongStatisticsReport />,
         },
         {
-            key: '4',
+            key: (key++).toString(),
+            label: 'Báo cáo hợp đồng',
+            icon: <HomeOutlined />,
+            children: <ContractStatisticsReport />,
+        },
+        {
+            key: (key++).toString(),
             label: 'Báo cáo thu/chi',
             icon: <LineChartOutlined />,
             children: <ThuChiReport />,
         },
         {
-            key: '5',
+            key: (key++).toString(),
             label: 'Báo cáo công nợ',
             icon: <FileTextOutlined />,
             children: <CongNoReport />,
         },
         {
-            key: '6',
+            key: (key++).toString(),
             label: 'Báo cáo tài sản',
             icon: <BankOutlined />,
             children: <AssetReport />,

@@ -10,6 +10,37 @@ class SoQuy extends Model
 {
     protected $table = 'so_quy';
 
+    // Relationships
+    public function soQuyType()
+    {
+        return $this->belongsTo(SoQuyType::class, 'so_quy_type_id');
+    }
+
+    public function soQuyStatus()
+    {
+        return $this->belongsTo(SoQuyStatus::class, 'so_quy_status_id');
+    }
+
+    public function loaiThu()
+    {
+        return $this->belongsTo(LoaiThu::class, 'loai_thu_id');
+    }
+
+    public function loaiChi()
+    {
+        return $this->belongsTo(LoaiChi::class, 'loai_chi_id');
+    }
+
+    public function chiNhanh()
+    {
+        return $this->belongsTo(ChiNhanh::class, 'chi_nhanh_id');
+    }
+
+    public function khachHang()
+    {
+        return $this->belongsTo(User::class, 'khach_hang_id');
+    }
+
     static function saveSoQuy_NhapHang($soTien, $nhapHang)
     {
         $now = date('d/m/Y H:i:s');
