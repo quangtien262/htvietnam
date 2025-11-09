@@ -20,6 +20,10 @@ use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\SoQuyController;
 use App\Http\Controllers\Admin\CommonSettingController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\ProductsController;
+use App\Http\Controllers\Admin\CongNoController;
 
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
@@ -258,4 +262,54 @@ Route::group(['prefix' => 'setting'], function () {
     Route::post('{tableName}/update', [CommonSettingController::class, 'apiUpdate'])->name('setting.update');
     Route::post('{tableName}/delete', [CommonSettingController::class, 'apiDelete'])->name('setting.delete');
     Route::post('{tableName}/update-sort-order', [CommonSettingController::class, 'apiUpdateSortOrder'])->name('setting.updateSortOrder');
+});
+
+// Menu Management - Multilanguage
+Route::group(['prefix' => 'menu'], function () {
+    Route::post('list', [MenuController::class, 'apiList'])->name('menu.list');
+    Route::post('detail', [MenuController::class, 'apiDetail'])->name('menu.detail');
+    Route::post('add', [MenuController::class, 'apiAdd'])->name('menu.add');
+    Route::post('update', [MenuController::class, 'apiUpdate'])->name('menu.update');
+    Route::post('delete', [MenuController::class, 'apiDelete'])->name('menu.delete');
+    Route::post('update-sort-order', [MenuController::class, 'apiUpdateSortOrder'])->name('menu.updateSortOrder');
+    Route::post('languages', [MenuController::class, 'getLanguages'])->name('menu.languages');
+});
+
+// News Management - Multilanguage
+Route::group(['prefix' => 'news'], function () {
+    Route::post('list', [NewsController::class, 'apiList'])->name('news.list');
+    Route::post('detail', [NewsController::class, 'apiDetail'])->name('news.detail');
+    Route::post('add', [NewsController::class, 'apiAdd'])->name('news.add');
+    Route::post('update', [NewsController::class, 'apiUpdate'])->name('news.update');
+    Route::post('delete', [NewsController::class, 'apiDelete'])->name('news.delete');
+    Route::post('languages', [NewsController::class, 'getLanguages'])->name('news.languages');
+});
+
+// Products Management - Multilanguage
+Route::group(['prefix' => 'products'], function () {
+    Route::post('list', [ProductsController::class, 'apiList'])->name('products.list');
+    Route::post('detail', [ProductsController::class, 'apiDetail'])->name('products.detail');
+    Route::post('add', [ProductsController::class, 'apiAdd'])->name('products.add');
+    Route::post('update', [ProductsController::class, 'apiUpdate'])->name('products.update');
+    Route::post('delete', [ProductsController::class, 'apiDelete'])->name('products.delete');
+    Route::post('languages', [ProductsController::class, 'getLanguages'])->name('products.languages');
+});
+
+// CongNo (Debt) Management
+Route::group(['prefix' => 'cong-no'], function () {
+    Route::post('list', [CongNoController::class, 'apiList'])->name('api.congNo.list');
+    Route::post('detail', [CongNoController::class, 'apiDetail'])->name('api.congNo.detail');
+    Route::post('add', [CongNoController::class, 'apiAdd'])->name('api.congNo.add');
+    Route::post('update', [CongNoController::class, 'apiUpdate'])->name('api.congNo.update');
+    Route::post('delete', [CongNoController::class, 'apiDelete'])->name('api.congNo.delete');
+    Route::post('nha-cung-cap', [CongNoController::class, 'apiNhaCungCapList'])->name('api.congNo.nhaCungCap');
+    Route::post('users', [CongNoController::class, 'apiUsersList'])->name('api.congNo.users');
+    Route::post('status', [CongNoController::class, 'apiStatusList'])->name('api.congNo.status');
+
+    // Advanced CRUD features
+    Route::post('payment', [CongNoController::class, 'apiPayment'])->name('api.congNo.payment');
+    Route::post('payment-history', [CongNoController::class, 'apiPaymentHistory'])->name('api.congNo.paymentHistory');
+    Route::post('statistics', [CongNoController::class, 'apiStatistics'])->name('api.congNo.statistics');
+    Route::post('bulk-update-status', [CongNoController::class, 'apiBulkUpdateStatus'])->name('api.congNo.bulkUpdateStatus');
+    Route::post('export', [CongNoController::class, 'apiExport'])->name('api.congNo.export');
 });

@@ -1,6 +1,8 @@
 
 import { Link } from 'react-router-dom';
 import ROUTE from './route';
+
+import SoQuyList from './../pages/aitilen/SoQuyList';
 import {
     UserOutlined,CalendarOutlined,
     GlobalOutlined,
@@ -16,7 +18,10 @@ import {
     FileImageOutlined,
     VideoCameraOutlined,
     MessageOutlined,
-    FileDoneOutlined
+    FileDoneOutlined,
+    ShopOutlined,
+    InboxOutlined,
+    DollarOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -34,6 +39,7 @@ export const MENU = {
             key: (key++).toString(),
         },
     ],
+    // Bất động sản
     bds: [
         {
             label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
@@ -132,50 +138,15 @@ export const MENU = {
             icon: <UserOutlined />,
             children: [],
         },
-        // Website
         {
-            label: <span>Website</span>,
+            label: <Link to={`${ROUTE.congNoManagement}?p=bds`}>Công nợ</Link>,
             key: (key++).toString(),
-            icon: <GlobalOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Tin tức</Link>,
-                    key: (key++).toString(),
-                    icon: <FileTextOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Phòng mẫu</Link>,
-                    key: (key++).toString(),
-                    icon: <FileImageOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Phòng trống</Link>,
-                    key: (key++).toString(),
-                    icon: <DashboardOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Video</Link>,
-                    key: (key++).toString(),
-                    icon: <VideoCameraOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Thư viện ảnh</Link>,
-                    key: (key++).toString(),
-                    icon: <FileImageOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Landingpage</Link>,
-                    key: (key++).toString(),
-                    icon: <GlobalOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Liên hệ</Link>,
-                    key: (key++).toString(),
-                    icon: <MessageOutlined />,
-                },
-            ],
-        }
+            icon: <UserOutlined />,
+            children: [],
+        },
+
     ],
+    // project
     pro: [
         {
             label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
@@ -212,7 +183,123 @@ export const MENU = {
             icon: <FileTextOutlined />,
             key: (key++).toString(),
         },
-    ]
+    ],
+    // website
+    web: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.menuManagement}?p=web`}>menu</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.newsManagement}?p=web`}>Tin tức</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.productManagement}?p=web`}>Sản phẩm</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Phòng mẫu</Link>,
+            key: (key++).toString(),
+            icon: <FileImageOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Phòng trống</Link>,
+            key: (key++).toString(),
+            icon: <DashboardOutlined />,
+        },
+        {
+            label: <span>Media</span>,
+            key: (key++).toString(),
+            icon: <VideoCameraOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Video</Link>,
+                    key: (key++).toString(),
+                    icon: <VideoCameraOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Thư viện ảnh</Link>,
+                    key: (key++).toString(),
+                    icon: <FileImageOutlined />,
+                }
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Landingpage</Link>,
+            key: (key++).toString(),
+            icon: <GlobalOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.taskKanban_all}?p=web`}>Liên hệ</Link>,
+            key: (key++).toString(),
+            icon: <MessageOutlined />,
+        },
+    ],
+    // Tài chính
+    erp: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.congNoManagement}?p=erp`}>Công nợ</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Chi tiêu</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+    ],
+    // QL mua hàng / kho
+    purchase: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.supplierManagement}?p=purchase`}>Nhà cung cấp</Link>,
+            key: (key++).toString(),
+            icon: <ShopOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.purchaseOrderManagement}?p=purchase`}>Đơn mua hàng</Link>,
+            key: (key++).toString(),
+            icon: <FileDoneOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.stockReceiptManagement}?p=purchase`}>Nhập kho</Link>,
+            key: (key++).toString(),
+            icon: <InboxOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.supplierPaymentManagement}?p=purchase`}>Thanh toán NCC</Link>,
+            key: (key++).toString(),
+            icon: <DollarOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+        },
+    ],
 }
 
 

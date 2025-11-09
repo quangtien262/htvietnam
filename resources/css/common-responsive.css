@@ -1,0 +1,212 @@
+/* Common Responsive styles cho tất cả màn hình */
+
+/* Desktop - hiển thị filter panel bên trái */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none !important;
+}
+
+.hide-on-mobile {
+  display: inline;
+}
+
+/* Mobile - ẩn filter panel, hiển thị button */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* Container padding */
+  .page-container {
+    padding: 8px !important;
+  }
+
+  /* Title nhỏ gọn hơn */
+  .page-container .ant-divider {
+    font-size: 16px !important;
+    margin: 8px 0 16px 0 !important;
+  }
+
+  /* Action buttons responsive */
+  .action-buttons-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .action-buttons-mobile > .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Table responsive */
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 8px 4px !important;
+    font-size: 11px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px !important;
+    font-size: 11px;
+  }
+
+  /* Action column */
+  .ant-table-cell .ant-space {
+    flex-wrap: wrap;
+    gap: 4px !important;
+  }
+
+  .ant-table-cell .ant-btn-link {
+    padding: 0 4px;
+    font-size: 11px;
+  }
+
+  /* Modal responsive */
+  .ant-modal {
+    max-width: 95% !important;
+    margin: 8px auto !important;
+    top: 20px;
+  }
+
+  .ant-modal-body {
+    padding: 12px !important;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .ant-modal-header {
+    padding: 12px 16px;
+  }
+
+  .ant-modal-footer {
+    padding: 8px 16px;
+  }
+
+  /* Form items */
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label > label {
+    font-size: 13px;
+  }
+
+  /* Drawer */
+  .ant-drawer-body {
+    padding: 16px;
+  }
+
+  /* Pagination */
+  .ant-pagination {
+    font-size: 12px;
+  }
+
+  .ant-pagination-item {
+    min-width: 28px;
+    height: 28px;
+    line-height: 26px;
+  }
+
+  /* Tag */
+  .ant-tag {
+    font-size: 10px;
+    padding: 0 4px;
+  }
+
+  /* Card */
+  .ant-card {
+    font-size: 13px;
+  }
+
+  .ant-card-head {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .ant-card-body {
+    padding: 12px;
+  }
+
+  /* Tabs */
+  .ant-tabs-tab {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  /* Tree */
+  .ant-tree {
+    font-size: 13px;
+  }
+
+  .ant-tree-node-content-wrapper {
+    padding: 2px 4px;
+  }
+
+  /* Upload */
+  .ant-upload {
+    font-size: 13px;
+  }
+
+  /* Input, Select */
+  .ant-input,
+  .ant-select-selector,
+  .ant-picker {
+    font-size: 14px !important;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .page-container {
+    padding: 16px !important;
+  }
+
+  .desktop-only {
+    width: 240px !important;
+  }
+
+  .ant-table {
+    font-size: 13px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 4px !important;
+  }
+
+  .ant-modal {
+    max-width: 100% !important;
+    margin: 0 !important;
+    top: 0;
+    height: 100vh;
+  }
+
+  .ant-modal-content {
+    border-radius: 0;
+  }
+
+  .action-buttons-mobile .ant-btn {
+    font-size: 12px;
+    height: 32px;
+  }
+}

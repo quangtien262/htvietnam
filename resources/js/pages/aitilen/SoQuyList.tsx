@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Button, Space, Tag, message, Modal, Form, Input, Select, DatePicker,
-    InputNumber, Upload, Row, Col, Statistic
+    InputNumber, Upload, Row, Col, Statistic, Divider
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined,
@@ -408,6 +408,10 @@ const SoQuyList: React.FC = () => {
 
     return (
         <div style={{ padding: 24 }}>
+            <Divider orientation="left" style={{ fontSize: 20, fontWeight: 'bold' }}>
+                Quản lý Sổ quỹ
+            </Divider>
+
             {/* Statistics */}
             <Row gutter={16} style={{ marginBottom: 16 }}>
                 <Col span={8}>

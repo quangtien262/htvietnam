@@ -1,3 +1,4 @@
+import { m } from "framer-motion";
 import Dashboard from "../pages/home/Dashboard";
 import TaskKanban from "../pages/task/TaskKanban";
 
@@ -36,7 +37,7 @@ export const ROUTE = {
     projectTaskList_all: `${baseUrl}tasks/all/list/1/`,
     projectTaskKanban_all: `${baseUrl}tasks/all/kanban/1/`,
 
-    // invoice aitilen
+    // invoice aitilenf
     invoiceList_BDS: `${baseRoute}bds/invoices/list/`,
 
     // contacts aitilen
@@ -50,6 +51,24 @@ export const ROUTE = {
 
     // meeting
     meeting: `${baseRoute}meetings/list/`,
+
+    // management
+    menuManagement: `${baseRoute}menus/list/`,
+    newsManagement: `${baseRoute}news/list/`,
+    productManagement: `${baseRoute}products/list/`,
+    congNoManagement: `${baseRoute}cong-no/list/`,
+
+    // Purchase Management
+    supplierManagement: `${baseRoute}purchase/suppliers/`,
+    purchaseOrderManagement: `${baseRoute}purchase/orders/`,
+    stockReceiptManagement: `${baseRoute}purchase/receipts/`,
+    supplierPaymentManagement: `${baseRoute}purchase/payments/`,
+    purchaseReportManagement: `${baseRoute}purchase/reports/`,
+
+    // tài chính
+    taiChinhDashboard: `${baseRoute}tai-chinh/dashboard/`,
+    taiChinhReport: `${baseRoute}tai-chinh/report/`,
+    taiChinhInvoice: `${baseRoute}tai-chinh/invoice/`,
 };
 
 export default ROUTE;

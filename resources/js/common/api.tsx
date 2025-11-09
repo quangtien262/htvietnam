@@ -169,6 +169,101 @@ export const API = {
     commonSettingDelete: (tableName: string) => `${BASE_API_URL}setting/${tableName}/delete`,
     commonSettingUpdateSortOrder: (tableName: string) => `${BASE_API_URL}setting/${tableName}/update-sort-order`,
 
+    // Menu Management
+    menuList: `${BASE_API_URL}menu/list`,
+    menuDetail: `${BASE_API_URL}menu/detail`,
+    menuAdd: `${BASE_API_URL}menu/add`,
+    menuUpdate: `${BASE_API_URL}menu/update`,
+    menuDelete: `${BASE_API_URL}menu/delete`,
+    menuUpdateSortOrder: `${BASE_API_URL}menu/update-sort-order`,
+    menuLanguages: `${BASE_API_URL}menu/languages`,
+
+    // News Management
+    newsList: `${BASE_API_URL}news/list`,
+    newsDetail: `${BASE_API_URL}news/detail`,
+    newsAdd: `${BASE_API_URL}news/add`,
+    newsUpdate: `${BASE_API_URL}news/update`,
+    newsDelete: `${BASE_API_URL}news/delete`,
+    newsLanguages: `${BASE_API_URL}news/languages`,
+
+    // Products Management
+    productsList: `${BASE_API_URL}products/list`,
+    productsDetail: `${BASE_API_URL}products/detail`,
+    productsAdd: `${BASE_API_URL}products/add`,
+    productsUpdate: `${BASE_API_URL}products/update`,
+    productsDelete: `${BASE_API_URL}products/delete`,
+    productsLanguages: `${BASE_API_URL}products/languages`,
+
+    // CongNo (Debt) Management
+    congNoList: '/aio/api/cong-no/list',
+    congNoDetail: '/aio/api/cong-no/detail',
+    congNoAdd: '/aio/api/cong-no/add',
+    congNoUpdate: '/aio/api/cong-no/update',
+    congNoDelete: '/aio/api/cong-no/delete',
+    congNoNhaCungCap: '/aio/api/cong-no/nha-cung-cap',
+    congNoUsers: '/aio/api/cong-no/users',
+    congNoStatus: '/aio/api/cong-no/status',
+    // Advanced features
+    congNoPayment: '/aio/api/cong-no/payment',
+    congNoPaymentHistory: '/aio/api/cong-no/payment-history',
+    congNoStatistics: '/aio/api/cong-no/statistics',
+    congNoBulkUpdateStatus: '/aio/api/cong-no/bulk-update-status',
+    congNoExport: '/aio/api/cong-no/export',
+
+    // Purchase Management - Supplier
+    supplierList: '/purchase/api/supplier/list',
+    supplierDetail: '/purchase/api/supplier/detail',
+    supplierAdd: '/purchase/api/supplier/add',
+    supplierUpdate: '/purchase/api/supplier/update',
+    supplierDelete: '/purchase/api/supplier/delete',
+    supplierStatistics: '/purchase/api/supplier/statistics',
+    supplierPurchaseHistory: '/purchase/api/supplier/purchase-history',
+    supplierPaymentHistory: '/purchase/api/supplier/payment-history',
+
+    // Purchase Management - Purchase Order
+    purchaseOrderList: '/purchase/api/purchase-order/list',
+    purchaseOrderDetail: '/purchase/api/purchase-order/detail',
+    purchaseOrderAdd: '/purchase/api/purchase-order/add',
+    purchaseOrderUpdate: '/purchase/api/purchase-order/update',
+    purchaseOrderDelete: '/purchase/api/purchase-order/delete',
+    purchaseOrderUpdateStatus: '/purchase/api/purchase-order/update-status',
+    purchaseOrderStatistics: '/purchase/api/purchase-order/statistics',
+    purchaseOrderSupplierList: '/purchase/api/purchase-order/supplier-list',
+    purchaseOrderStatusList: '/purchase/api/purchase-order/status-list',
+
+    // Stock Receipt APIs
+    stockReceiptList: '/purchase/api/stock-receipt/list',
+    stockReceiptDetail: '/purchase/api/stock-receipt/detail',
+    stockReceiptAdd: '/purchase/api/stock-receipt/add',
+    stockReceiptUpdate: '/purchase/api/stock-receipt/update',
+    stockReceiptDelete: '/purchase/api/stock-receipt/delete',
+    stockReceiptReceiveItems: '/purchase/api/stock-receipt/receive-items',
+    stockReceiptUpdateOrderStatus: '/purchase/api/stock-receipt/update-order-status',
+    stockReceiptStatistics: '/purchase/api/stock-receipt/statistics',
+    stockReceiptPurchaseOrderList: '/purchase/api/stock-receipt/purchase-order-list',
+
+    // Supplier Payment APIs
+    supplierPaymentList: '/purchase/api/payment/list',
+    supplierPaymentDetail: '/purchase/api/payment/detail',
+    supplierPaymentAdd: '/purchase/api/payment/add',
+    supplierPaymentUpdate: '/purchase/api/payment/update',
+    supplierPaymentDelete: '/purchase/api/payment/delete',
+    supplierPaymentBySupplier: '/purchase/api/payment/by-supplier',
+    supplierPaymentByOrder: '/purchase/api/payment/by-order',
+    supplierPaymentStatistics: '/purchase/api/payment/statistics',
+    supplierPaymentSupplierList: '/purchase/api/payment/supplier-list',
+    supplierPaymentUnpaidOrders: '/purchase/api/payment/unpaid-orders',
+
+    // Purchase Report APIs
+    purchaseReportOverview: '/purchase/api/report/overview',
+    purchaseReportBySupplier: '/purchase/api/report/by-supplier',
+    purchaseReportByTime: '/purchase/api/report/by-time',
+    purchaseReportByStatus: '/purchase/api/report/by-status',
+    purchaseReportTopSuppliers: '/purchase/api/report/top-suppliers',
+    purchaseReportDebt: '/purchase/api/report/debt',
+    purchaseReportByPaymentMethod: '/purchase/api/report/by-payment-method',
+    purchaseReportExport: '/purchase/api/report/export',
+
 };
 
 export default API;

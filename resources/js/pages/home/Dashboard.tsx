@@ -41,7 +41,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={ROUTE.dashboard_aitilen}>
+                            <Link to={`${ROUTE.newsManagement}?p=web`}>
                                 <DribbbleSquareOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -291,8 +291,8 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
-                                <HddFilled /> QUẢN LÝ TÀI SẢN
+                            <Link to={`${ROUTE.supplierManagement}?p=purchase`}>
+                                <HddFilled /> QUẢN LÝ MUA HÀNG / TÀI SẢN
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -322,7 +322,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={`${ROUTE.taiChinhDashboard}?p=erp`}>
                                 <AccountBookOutlined /> QUẢN LÝ TÀI CHÍNH
                             </Link>
                         </div>

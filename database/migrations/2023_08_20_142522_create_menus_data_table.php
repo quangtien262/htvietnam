@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('menus_data', function (Blueprint $table) {
             $table->id();
-
+            // tiêu đề theo ngôn ngữ
             $table->string('name_data')->nullable();
             // trong 1 vài trường hợp, có mô tả cho tên menu
-            $table->string('name_data_description')->nullable(); 
+            $table->string('name_data_description')->nullable();
             // là id của menu trong bảng menus
             $table->integer('data_id')->nullable();
             // là id của languages
@@ -43,7 +43,7 @@ return new class extends Migration
          MigrateService::createColumn02($menuData->id, 'id', 'id', 'INT', 'number', $order_col++,['edit'=>0]);
          MigrateService::createColumn02($menuData->id, 'data_id', 'data_id', 'INT', 'number', $order_col++,['edit'=>0]);
          MigrateService::createColumn02($menuData->id, 'name_data', 'Tên menu', 'VARCHAR', 'text', $order_col++);
-         MigrateService::createColumn02($menuData->id, 'name_data_description', 'Mô tả cho tiêu đề', 'TEXT', 'textarea', $order_col++, 
+         MigrateService::createColumn02($menuData->id, 'name_data_description', 'Mô tả cho tiêu đề', 'TEXT', 'textarea', $order_col++,
          ['edit' => 0, 'show_in_list' => 0]);
          MigrateService::createColumn02($menuData->id, 'description', 'Mô tả ngắn', 'TEXT', 'textarea', $order_col++);
          MigrateService::createColumn02($menuData->id, 'meta_title', '[SEO] Title', 'TEXT', 'textarea', $order_col++);

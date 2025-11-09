@@ -19,18 +19,16 @@ return new class extends Migration {
             $table->string('name')->nullable(); // tên menu
             $table->text('images')->nullable(); // hình ảnh (nếu có))
             $table->string('display_type')->nullable(); // kiểu hiển thị, là tên router
-            $table->integer('position')->default(0)->nullable(); // 1 is MenuTop 0 is MenuLeft
             $table->integer('parent_id')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
-            $table->string('type_sub_menu')->default(0)->nullable();
+            // $table->string('type_sub_menu')->default(0)->nullable();
             $table->string('is_front')->default(0)->nullable();
             $table->text('current_link')->nullable();
-            $table->string('is_register')->default(0)->nullable();
             $table->string('icon')->default(0)->nullable();
             $table->integer('is_active')->default(1)->nullable();
 
-            $table->string('color')->nullable();
-            $table->string('background')->nullable();
+            // $table->string('color')->nullable();
+            // $table->string('background')->nullable();
 
             $table->integer('create_by')->default(0)->nullable();
             $table->integer('is_recycle_bin')->default(0)->nullable();
