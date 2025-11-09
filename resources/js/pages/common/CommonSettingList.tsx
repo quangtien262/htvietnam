@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Space, message, Modal, Form, Input, Row, Col, ColorPicker, Select, Tag
 } from 'antd';
@@ -10,6 +10,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import API from '../../common/api';
@@ -45,7 +46,7 @@ interface SettingItem {
 }
 
 // Draggable Row Component
-const DraggableRow = ({ id, index, children, ...props }: any) => {
+const DraggableRow = ({ children, ...props }: any) => {
     const {
         attributes,
         listeners,
@@ -53,32 +54,24 @@ const DraggableRow = ({ id, index, children, ...props }: any) => {
         transform,
         transition,
         isDragging,
-    } = useSortable({ id });
+    } = useSortable({ id: props['data-row-key'] });
 
     const style: React.CSSProperties = {
-        transform: CSS.Transform.toString(transform),
+        ...props.style,
+        transform: CSS.Translate.toString(transform),
         transition,
-        opacity: isDragging ? 0.5 : 1,
+        ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
     };
 
     return (
-        <tr ref={setNodeRef} style={style} {...props}>
-            {React.Children.map(children, (child: any, idx) => {
-                if (idx === 0) {
-                    // Cột đầu tiên - thêm drag handlers
-                    return React.cloneElement(child, {
-                        ...attributes,
-                        ...listeners,
-                        style: {
-                            ...child.props?.style,
-                            cursor: 'grab',
-                            textAlign: 'center',
-                            userSelect: 'none'
-                        }
-                    });
-                }
-                return child;
-            })}
+        <tr
+            {...props}
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+        >
+            {children}
         </tr>
     );
 };
@@ -380,6 +373,7 @@ const CommonSettingList: React.FC = () => {
                     sensors={sensors}
                     collisionDetection={closestCenter}
                     onDragEnd={handleDragEnd}
+                    modifiers={[restrictToVerticalAxis]}
                 >
                     <SortableContext
                         items={dataSource.map((item) => item.id)}
@@ -393,10 +387,7 @@ const CommonSettingList: React.FC = () => {
                             pagination={false}
                             components={{
                                 body: {
-                                    row: (props: any) => {
-                                        const index = dataSource.findIndex((x) => x.id === props['data-row-key']);
-                                        return <DraggableRow index={index} id={props['data-row-key']} {...props} />;
-                                    },
+                                    row: DraggableRow,
                                 },
                             }}
                         />
