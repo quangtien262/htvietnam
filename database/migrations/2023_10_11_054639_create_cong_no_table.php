@@ -43,7 +43,7 @@
                 $table->date('ngay_hen_tat_toan')->nullable();
                 $table->date('ngay_tat_toan')->nullable(); // ngay tất toán thực tế
 
-                $table->date('info')->nullable();
+                $table->text('info')->nullable();
 
                 MigrateService::createBaseColumn($table);
 
@@ -84,12 +84,12 @@
              'select_option' => '{"receivable":"Nợ cần thu (Khách hàng)","payable":"Nợ phải trả (Nhà cung cấp)"}']);
 
             $ncc = Table::where('name', 'nha_cung_cap')->first();
-            MigrateService::createColumn02($tableId, 'nha_cung_cap_id', 'Nhà cung cấp', 'INT', 'select', $order_col++, 
+            MigrateService::createColumn02($tableId, 'nha_cung_cap_id', 'Nhà cung cấp', 'INT', 'select', $order_col++,
              ['select_table_id' => $ncc->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
               'show_if' => '{"loai_cong_no":"payable"}']);
 
             $user = Table::where('name', 'users')->first();
-            MigrateService::createColumn02($tableId, 'users_id', 'Khách Hàng', 'INT', 'select', $order_col++, 
+            MigrateService::createColumn02($tableId, 'users_id', 'Khách Hàng', 'INT', 'select', $order_col++,
              ['select_table_id' => $user->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
               'show_if' => '{"loai_cong_no":"receivable"}']);            MigrateService::createColumn02($tableId, 'so_tien_no', 'Số tiền', 'INT', 'number', $order_col++,
              ['require' => 1, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);

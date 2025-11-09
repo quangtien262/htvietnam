@@ -411,12 +411,6 @@ const CongNoList: React.FC = () => {
 
   const columns: ColumnsType<CongNo> = [
     {
-      title: 'Mã CN',
-      dataIndex: 'code',
-      key: 'code',
-      width: 100
-    },
-    {
       title: 'Loại',
       dataIndex: 'loai_cong_no',
       key: 'loai_cong_no',
@@ -434,14 +428,11 @@ const CongNoList: React.FC = () => {
       title: 'Tiêu đề',
       dataIndex: 'name',
       key: 'name',
-      width: 200
-    },
-    {
-      title: 'Loại chứng từ',
-      dataIndex: 'loai_chung_tu',
-      key: 'loai_chung_tu',
-      width: 150,
-      render: (loai: string) => <Tag>{getLoaiChungTuText(loai)}</Tag>
+      width: 200,
+      render: (name, record) => <>
+        <p>{name}</p>
+        <span style={{ color: '#888' }}>{record.code}</span>
+      </>
     },
     {
       title: 'Số tiền nợ',
@@ -453,6 +444,13 @@ const CongNoList: React.FC = () => {
           {formatCurrency(value)}
         </span>
       )
+    },
+    {
+      title: 'Loại chứng từ',
+      dataIndex: 'loai_chung_tu',
+      key: 'loai_chung_tu',
+      width: 150,
+      render: (loai: string) => <Tag>{getLoaiChungTuText(loai)}</Tag>
     },
     {
       title: 'Tổng tiền HĐ',

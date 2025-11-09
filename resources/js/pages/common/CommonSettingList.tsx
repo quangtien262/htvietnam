@@ -61,23 +61,24 @@ const DraggableRow = ({ id, index, children, ...props }: any) => {
         opacity: isDragging ? 0.5 : 1,
     };
 
-    // Clone children và thêm drag handlers vào cột đầu tiên
-    const childrenArray = React.Children.toArray(children);
-    const modifiedChildren = childrenArray.map((child: any, index) => {
-        if (index === 0) {
-            // Cột đầu tiên (drag column)
-            return React.cloneElement(child, {
-                ...attributes,
-                ...listeners,
-                style: { ...child.props.style, cursor: 'grab', textAlign: 'center' }
-            });
-        }
-        return child;
-    });
-
     return (
         <tr ref={setNodeRef} style={style} {...props}>
-            {modifiedChildren}
+            {React.Children.map(children, (child: any, idx) => {
+                if (idx === 0) {
+                    // Cột đầu tiên - thêm drag handlers
+                    return React.cloneElement(child, {
+                        ...attributes,
+                        ...listeners,
+                        style: {
+                            ...child.props?.style,
+                            cursor: 'grab',
+                            textAlign: 'center',
+                            userSelect: 'none'
+                        }
+                    });
+                }
+                return child;
+            })}
         </tr>
     );
 };

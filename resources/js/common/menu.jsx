@@ -22,7 +22,8 @@ import {
     ShopOutlined,
     InboxOutlined,
     DollarOutlined,
-    TagsOutlined
+    TagsOutlined,
+    SettingFilled
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -133,19 +134,6 @@ export const MENU = {
             icon: <UserOutlined />,
             children: [],
         },
-        {
-            label: <Link to={`${ROUTE.aitilen_soQuy}?p=bds`}>Sổ quỹ</Link>,
-            key: (key++).toString(),
-            icon: <UserOutlined />,
-            children: [],
-        },
-        {
-            label: <Link to={`${ROUTE.congNoManagement}?p=bds`}>Công nợ</Link>,
-            key: (key++).toString(),
-            icon: <UserOutlined />,
-            children: [],
-        },
-
     ],
     // project
     pro: [
@@ -267,6 +255,30 @@ export const MENU = {
             key: (key++).toString(),
             icon: <ShopOutlined />,
         },
+        {
+            label: "Cài đặt",
+            key: (key++).toString(),
+            icon: <SettingFilled />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/nha_cung_cap?p=erp`}>Đối tác</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/loai_thu?p=erp`}>Loại thu</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/loai_chi?p=erp`}>Loại chi</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+
+            ],
+        },
+
     ],
     // QL mua hàng / kho
     purchase: [
