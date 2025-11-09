@@ -379,100 +379,106 @@ const StockReceiptList: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
-        <Col xs={12} sm={8} md={8} lg={8} xl={8}>
-          <Card>
-            <Statistic
-              title="Tổng phiếu nhập"
-              value={statistics.total_receipts}
-              prefix={<InboxOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
+      <Row gutter={16}>
+        {/* Left Sidebar - Desktop Filter */}
+        <Col xs={0} sm={0} md={0} lg={6} xl={5} className="desktop-only">
+          <div style={{ position: 'sticky', top: 20 }}>
+            <Card title="Bộ lọc" style={{ marginBottom: 16 }}>
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Input
+                  placeholder="Tìm kiếm mã phiếu, người nhận..."
+                  prefix={<SearchOutlined />}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  allowClear
+                />
+                <Select
+                  placeholder="Trạng thái"
+                  value={filterStatus}
+                  onChange={setFilterStatus}
+                  allowClear
+                  style={{ width: '100%' }}
+                >
+                  <Select.Option value={1}>Hoàn thành</Select.Option>
+                  <Select.Option value={0}>Chờ xử lý</Select.Option>
+                </Select>
+                <Input
+                  placeholder="Kho"
+                  value={filterWarehouse}
+                  onChange={(e) => setFilterWarehouse(e.target.value)}
+                  allowClear
+                />
+                <DatePicker.RangePicker
+                  value={filterDateRange}
+                  onChange={(dates) => setFilterDateRange(dates)}
+                  format="DD/MM/YYYY"
+                  style={{ width: '100%' }}
+                  placeholder={['Từ ngày', 'Đến ngày']}
+                />
+                <Button onClick={resetFilters} block>
+                  Xóa bộ lọc
+                </Button>
+              </Space>
+            </Card>
+          </div>
         </Col>
-        <Col xs={12} sm={8} md={8} lg={8} xl={8}>
-          <Card>
-            <Statistic
-              title="Hoàn thành"
-              value={statistics.completed}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={8} lg={8} xl={8}>
-          <Card>
-            <Statistic
-              title="Chờ xử lý"
-              value={statistics.pending}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
-          </Card>
-        </Col>
-      </Row>
 
-      {/* Desktop Filter Sidebar */}
-      <div className="desktop-only" style={{ marginBottom: 16, padding: 16, background: '#fff', borderRadius: 8 }}>
-        <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 16 }}>Bộ lọc</div>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
-          <Input
-            placeholder="Tìm kiếm mã phiếu, người nhận..."
-            prefix={<SearchOutlined />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            allowClear
-          />
-          <Select
-            placeholder="Trạng thái"
-            value={filterStatus}
-            onChange={setFilterStatus}
-            allowClear
-            style={{ width: '100%' }}
-          >
-            <Select.Option value={1}>Hoàn thành</Select.Option>
-            <Select.Option value={0}>Chờ xử lý</Select.Option>
-          </Select>
-          <Input
-            placeholder="Kho"
-            value={filterWarehouse}
-            onChange={(e) => setFilterWarehouse(e.target.value)}
-            allowClear
-          />
-          <DatePicker.RangePicker
-            value={filterDateRange}
-            onChange={(dates) => setFilterDateRange(dates)}
-            format="DD/MM/YYYY"
-            style={{ width: '100%' }}
-            placeholder={['Từ ngày', 'Đến ngày']}
-          />
-          <Button onClick={resetFilters} block>
-            Xóa bộ lọc
-          </Button>
-        </Space>
-      </div>
+        {/* Right Content */}
+        <Col xs={24} sm={24} md={24} lg={18} xl={19}>
+          {/* Statistics Cards */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+            <Col xs={12} sm={8} md={8} lg={8} xl={8}>
+              <Card>
+                <Statistic
+                  title="Tổng phiếu nhập"
+                  value={statistics.total_receipts}
+                  prefix={<InboxOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={8} md={8} lg={8} xl={8}>
+              <Card>
+                <Statistic
+                  title="Hoàn thành"
+                  value={statistics.completed}
+                  prefix={<CheckCircleOutlined />}
+                  valueStyle={{ color: '#52c41a' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={8} md={8} lg={8} xl={8}>
+              <Card>
+                <Statistic
+                  title="Chờ xử lý"
+                  value={statistics.pending}
+                  prefix={<ClockCircleOutlined />}
+                  valueStyle={{ color: '#faad14' }}
+                />
+              </Card>
+            </Col>
+          </Row>
 
-      {/* Mobile Filter Button */}
-      <div className="mobile-only" style={{ marginBottom: 16 }}>
-        <Button
-          icon={<FilterOutlined />}
-          onClick={() => setFilterDrawerVisible(true)}
-          block
-        >
-          Bộ lọc
-        </Button>
-      </div>
+          {/* Mobile Filter Button */}
+          <div className="mobile-only" style={{ marginBottom: 16 }}>
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setFilterDrawerVisible(true)}
+              block
+            >
+              Bộ lọc
+            </Button>
+          </div>
 
-      {/* Action Bar */}
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Tạo phiếu nhập kho
-        </Button>
-      </div>
+          {/* Action Bar */}
+          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+              Tạo phiếu nhập kho
+            </Button>
+          </div>
 
-      {/* Table */}
-      <Table
+          {/* Table */}
+          <Table
         columns={columns}
         dataSource={data}
         rowKey="id"
@@ -684,6 +690,8 @@ const StockReceiptList: React.FC = () => {
           )}
         </Form>
       </Modal>
+        </Col>
+      </Row>
     </div>
   );
 };

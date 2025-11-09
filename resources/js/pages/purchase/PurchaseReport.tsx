@@ -9,16 +9,24 @@ import {
   Select,
   Space,
   Tabs,
-  Tag
+  Tag,
+  Button,
+  Dropdown
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import type { TabsProps, MenuProps } from 'antd';
 import {
   ShoppingCartOutlined,
   DollarOutlined,
   ShopOutlined,
   InboxOutlined,
   RiseOutlined,
-  FallOutlined
+  FallOutlined,
+  DownOutlined,
+  BarChartOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  TrophyOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import API from '../../common/api';
@@ -26,7 +34,6 @@ import dayjs from 'dayjs';
 import '../../../css/common-responsive.css';
 
 const { RangePicker } = DatePicker;
-const { TabPane } = Tabs;
 
 interface Overview {
   total_orders: number;
@@ -66,6 +73,12 @@ const PurchaseReport: React.FC = () => {
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
   const [groupBy, setGroupBy] = useState('day');
 
+  // Tab state
+  type TabPosition = 'left' | 'right' | 'top' | 'bottom';
+  const [mode, setMode] = useState<TabPosition>('left');
+  const [activeKey, setActiveKey] = useState('1');
+  const [isMobile, setIsMobile] = useState(false);
+
   // Overview data
   const [overview, setOverview] = useState<Overview>({
     total_orders: 0,
@@ -81,6 +94,18 @@ const PurchaseReport: React.FC = () => {
   const [timeReport, setTimeReport] = useState<TimeReport[]>([]);
   const [statusReport, setStatusReport] = useState<StatusReport[]>([]);
   const [topSuppliers, setTopSuppliers] = useState<SupplierReport[]>([]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      setMode(mobile ? 'top' : 'left');
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     loadOverview();
@@ -284,8 +309,125 @@ const PurchaseReport: React.FC = () => {
     }
   ];
 
+  // Define tab items
+  const tabItems = [
+    {
+      key: '1',
+      label: 'Báo cáo theo NCC',
+      icon: <ShopOutlined />,
+      children: (
+        <Table
+          columns={supplierColumns}
+          dataSource={supplierReport}
+          rowKey="id"
+          loading={loading}
+          scroll={{ x: 800 }}
+          pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (total) => `Tổng ${total} NCC` }}
+        />
+      ),
+    },
+    {
+      key: '2',
+      label: 'Báo cáo theo thời gian',
+      icon: <ClockCircleOutlined />,
+      children: (
+        <Table
+          columns={timeColumns}
+          dataSource={timeReport}
+          rowKey="period"
+          scroll={{ x: 700 }}
+          pagination={{ pageSize: 20, showSizeChanger: true }}
+        />
+      ),
+    },
+    {
+      key: '3',
+      label: 'Báo cáo trạng thái',
+      icon: <CheckCircleOutlined />,
+      children: (
+        <Table
+          columns={statusColumns}
+          dataSource={statusReport}
+          rowKey="status"
+          scroll={{ x: 500 }}
+          pagination={false}
+        />
+      ),
+    },
+    {
+      key: '4',
+      label: 'Top 10 NCC',
+      icon: <TrophyOutlined />,
+      children: (
+        <Table
+          columns={supplierColumns}
+          dataSource={topSuppliers}
+          rowKey="id"
+          scroll={{ x: 800 }}
+          pagination={false}
+        />
+      ),
+    },
+  ];
+
+  // Dropdown menu items for mobile
+  const dropdownMenuItems: MenuProps['items'] = tabItems.map(item => ({
+    key: item.key,
+    icon: item.icon,
+    label: item.label,
+    onClick: () => setActiveKey(item.key)
+  }));
+
+  const currentTab = tabItems.find(item => item.key === activeKey);
+
+  // Desktop items with icons
+  const desktopItems: TabsProps['items'] = tabItems.map(item => ({
+    key: item.key,
+    label: (
+      <span>
+        {item.icon} {item.label}
+      </span>
+    ),
+    children: item.children,
+  }));
+
+  // Mobile items with icons only
+  const mobileItems: TabsProps['items'] = tabItems.map(item => ({
+    key: item.key,
+    label: item.icon,
+    children: item.children,
+  }));
+
   return (
     <div style={{ padding: '20px' }}>
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .ant-tabs-nav {
+              margin-bottom: 8px !important;
+            }
+            .ant-tabs-tab {
+              padding: 8px 12px !important;
+              margin: 0 4px !important;
+            }
+            .ant-tabs-tab-btn {
+              font-size: 16px !important;
+            }
+            .mobile-tab-header {
+              margin-bottom: 12px;
+              padding: 8px;
+              background: #fafafa;
+              border-radius: 4px;
+            }
+          }
+          @media (min-width: 769px) {
+            .mobile-tab-header {
+              display: none !important;
+            }
+          }
+        `}
+      </style>
+
       {/* Filter Bar */}
       <Card style={{ marginBottom: 20 }}>
         <Space size="large" wrap>
@@ -376,50 +518,30 @@ const PurchaseReport: React.FC = () => {
         </Col>
       </Row>
 
+      {/* Mobile Header with Dropdown */}
+      {isMobile && (
+        <div className="mobile-tab-header">
+          <Dropdown menu={{ items: dropdownMenuItems }} trigger={['click']}>
+            <Button block size="large">
+              <Space>
+                {currentTab?.icon}
+                <span style={{ flex: 1, textAlign: 'left' }}>{currentTab?.label}</span>
+                <DownOutlined />
+              </Space>
+            </Button>
+          </Dropdown>
+        </div>
+      )}
+
       {/* Reports Tabs */}
       <Card>
-        <Tabs defaultActiveKey="supplier" type="card">
-          <TabPane tab="Báo cáo theo NCC" key="supplier">
-            <Table
-              columns={supplierColumns}
-              dataSource={supplierReport}
-              rowKey="id"
-              loading={loading}
-              scroll={{ x: 800 }}
-              pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (total) => `Tổng ${total} NCC` }}
-            />
-          </TabPane>
-
-          <TabPane tab="Báo cáo theo thời gian" key="time">
-            <Table
-              columns={timeColumns}
-              dataSource={timeReport}
-              rowKey="period"
-              scroll={{ x: 700 }}
-              pagination={{ pageSize: 20, showSizeChanger: true }}
-            />
-          </TabPane>
-
-          <TabPane tab="Báo cáo trạng thái" key="status">
-            <Table
-              columns={statusColumns}
-              dataSource={statusReport}
-              rowKey="status"
-              scroll={{ x: 500 }}
-              pagination={false}
-            />
-          </TabPane>
-
-          <TabPane tab="Top 10 NCC" key="top">
-            <Table
-              columns={supplierColumns}
-              dataSource={topSuppliers}
-              rowKey="id"
-              scroll={{ x: 800 }}
-              pagination={false}
-            />
-          </TabPane>
-        </Tabs>
+        <Tabs
+          tabPosition={mode}
+          activeKey={activeKey}
+          onChange={setActiveKey}
+          items={isMobile ? mobileItems : desktopItems}
+          size={isMobile ? 'small' : 'middle'}
+        />
       </Card>
     </div>
   );

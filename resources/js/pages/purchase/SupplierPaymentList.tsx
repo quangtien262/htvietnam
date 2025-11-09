@@ -368,113 +368,119 @@ const SupplierPaymentList: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Card>
-            <Statistic
-              title="Tổng thanh toán"
-              value={statistics.total_payments}
-              prefix={<DollarOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
+      <Row gutter={16}>
+        {/* Left Sidebar - Desktop Filter */}
+        <Col xs={0} sm={0} md={0} lg={6} xl={5} className="desktop-only">
+          <div style={{ position: 'sticky', top: 20 }}>
+            <Card title="Bộ lọc" style={{ marginBottom: 16 }}>
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Input
+                  placeholder="Tìm kiếm mã TT, số tham chiếu..."
+                  prefix={<SearchOutlined />}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  allowClear
+                />
+                <Select
+                  placeholder="Nhà cung cấp"
+                  value={filterSupplierId}
+                  onChange={setFilterSupplierId}
+                  allowClear
+                  style={{ width: '100%' }}
+                  showSearch
+                  optionFilterProp="children"
+                >
+                  {suppliers.map(supplier => (
+                    <Select.Option key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Select
+                  placeholder="Phương thức TT"
+                  value={filterPaymentMethod}
+                  onChange={setFilterPaymentMethod}
+                  allowClear
+                  style={{ width: '100%' }}
+                >
+                  <Select.Option value="cash">Tiền mặt</Select.Option>
+                  <Select.Option value="bank_transfer">Chuyển khoản</Select.Option>
+                  <Select.Option value="credit_card">Thẻ tín dụng</Select.Option>
+                  <Select.Option value="other">Khác</Select.Option>
+                </Select>
+                <DatePicker.RangePicker
+                  value={filterDateRange}
+                  onChange={(dates) => setFilterDateRange(dates)}
+                  format="DD/MM/YYYY"
+                  style={{ width: '100%' }}
+                  placeholder={['Từ ngày', 'Đến ngày']}
+                />
+                <Button onClick={resetFilters} block>
+                  Xóa bộ lọc
+                </Button>
+              </Space>
+            </Card>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Card>
-            <Statistic
-              title="Tổng số tiền"
-              value={statistics.total_amount}
-              prefix={<DollarOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-              formatter={(value) => formatCurrency(Number(value))}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-          <Card>
-            <div style={{ fontSize: 14, color: '#8c8c8c', marginBottom: 8 }}>Theo phương thức</div>
-            {statistics.by_method.slice(0, 2).map((method, index) => (
-              <div key={index} style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 12 }}>{method.payment_method}: </span>
-                <span style={{ fontWeight: 600 }}>{formatCurrency(method.total)}</span>
-              </div>
-            ))}
-          </Card>
-        </Col>
-      </Row>
 
-      {/* Desktop Filter Sidebar */}
-      <div className="desktop-only" style={{ marginBottom: 16, padding: 16, background: '#fff', borderRadius: 8 }}>
-        <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 16 }}>Bộ lọc</div>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
-          <Input
-            placeholder="Tìm kiếm mã TT, số tham chiếu..."
-            prefix={<SearchOutlined />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            allowClear
-          />
-          <Select
-            placeholder="Nhà cung cấp"
-            value={filterSupplierId}
-            onChange={setFilterSupplierId}
-            allowClear
-            style={{ width: '100%' }}
-            showSearch
-            optionFilterProp="children"
-          >
-            {suppliers.map(supplier => (
-              <Select.Option key={supplier.id} value={supplier.id}>
-                {supplier.name}
-              </Select.Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="Phương thức TT"
-            value={filterPaymentMethod}
-            onChange={setFilterPaymentMethod}
-            allowClear
-            style={{ width: '100%' }}
-          >
-            <Select.Option value="cash">Tiền mặt</Select.Option>
-            <Select.Option value="bank_transfer">Chuyển khoản</Select.Option>
-            <Select.Option value="credit_card">Thẻ tín dụng</Select.Option>
-            <Select.Option value="other">Khác</Select.Option>
-          </Select>
-          <DatePicker.RangePicker
-            value={filterDateRange}
-            onChange={(dates) => setFilterDateRange(dates)}
-            format="DD/MM/YYYY"
-            style={{ width: '100%' }}
-            placeholder={['Từ ngày', 'Đến ngày']}
-          />
-          <Button onClick={resetFilters} block>
-            Xóa bộ lọc
-          </Button>
-        </Space>
-      </div>
+        {/* Right Content */}
+        <Col xs={24} sm={24} md={24} lg={18} xl={19}>
+          {/* Statistics Cards */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+              <Card>
+                <Statistic
+                  title="Tổng thanh toán"
+                  value={statistics.total_payments}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+              <Card>
+                <Statistic
+                  title="Tổng số tiền"
+                  value={statistics.total_amount}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#52c41a' }}
+                  formatter={(value) => formatCurrency(Number(value))}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Card>
+                <div style={{ fontSize: 14, color: '#8c8c8c', marginBottom: 8 }}>Theo phương thức</div>
+                {statistics.by_method.slice(0, 2).map((method, index) => (
+                  <div key={index} style={{ marginBottom: 4 }}>
+                    <span style={{ fontSize: 12 }}>{method.payment_method}: </span>
+                    <span style={{ fontWeight: 600 }}>{formatCurrency(method.total)}</span>
+                  </div>
+                ))}
+              </Card>
+            </Col>
+          </Row>
 
-      {/* Mobile Filter Button */}
-      <div className="mobile-only" style={{ marginBottom: 16 }}>
-        <Button
-          icon={<FilterOutlined />}
-          onClick={() => setFilterDrawerVisible(true)}
-          block
-        >
-          Bộ lọc
-        </Button>
-      </div>
+          {/* Mobile Filter Button */}
+          <div className="mobile-only" style={{ marginBottom: 16 }}>
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setFilterDrawerVisible(true)}
+              block
+            >
+              Bộ lọc
+            </Button>
+          </div>
 
-      {/* Action Bar */}
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Tạo thanh toán
-        </Button>
-      </div>
+          {/* Action Bar */}
+          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+              Tạo thanh toán
+            </Button>
+          </div>
 
-      {/* Table */}
-      <Table
+          {/* Table */}
+          <Table
         columns={columns}
         dataSource={data}
         rowKey="id"
@@ -663,6 +669,8 @@ const SupplierPaymentList: React.FC = () => {
           </Row>
         </Form>
       </Modal>
+        </Col>
+      </Row>
     </div>
   );
 };
