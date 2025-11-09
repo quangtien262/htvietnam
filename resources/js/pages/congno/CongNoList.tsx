@@ -879,11 +879,11 @@ const CongNoList: React.FC = () => {
 
       <Modal
         title={
-          editingId 
-            ? 'Chỉnh sửa công nợ' 
-            : loaiCongNo === 'receivable' 
-              ? 'Thêm nợ cần thu (Khách hàng)' 
-              : 'Thêm nợ phải trả (Nhà cung cấp)'
+          editingId
+            ? 'Chỉnh sửa công nợ'
+            : loaiCongNo === 'receivable'
+              ? 'Thêm nợ cần thu'
+              : 'Thêm nợ phải trả'
         }
         open={modalVisible}
         onOk={handleSubmit}
@@ -911,15 +911,15 @@ const CongNoList: React.FC = () => {
             {/* Hiển thị Nhà cung cấp khi loại = payable */}
             {(loaiCongNo === 'payable' || editingId) && (
               <Col xs={24} sm={12}>
-                <Form.Item 
-                  label="Nhà cung cấp" 
+                <Form.Item
+                  label="Đối tác / NCC"
                   name="nha_cung_cap_id"
-                  rules={loaiCongNo === 'payable' ? [{ required: true, message: 'Vui lòng chọn nhà cung cấp' }] : []}
+                //   rules={loaiCongNo === 'payable' ? [{ required: true, message: 'Vui lòng chọn nhà cung cấp' }] : []}
                 >
-                  <Select 
-                    placeholder="Chọn nhà cung cấp" 
-                    allowClear 
-                    showSearch 
+                  <Select
+                    placeholder="Chọn đối tác hoặc NCC"
+                    allowClear
+                    showSearch
                     optionFilterProp="children"
                     disabled={loaiCongNo === 'receivable'}
                   >
@@ -936,15 +936,15 @@ const CongNoList: React.FC = () => {
             {/* Hiển thị Khách hàng khi loại = receivable */}
             {(loaiCongNo === 'receivable' || editingId) && (
               <Col xs={24} sm={12}>
-                <Form.Item 
-                  label="Khách hàng" 
+                <Form.Item
+                  label="Khách hàng"
                   name="users_id"
-                  rules={loaiCongNo === 'receivable' ? [{ required: true, message: 'Vui lòng chọn khách hàng' }] : []}
+                //   rules={loaiCongNo === 'receivable' ? [{ required: true, message: 'Vui lòng chọn khách hàng' }] : []}
                 >
-                  <Select 
-                    placeholder="Chọn khách hàng" 
-                    allowClear 
-                    showSearch 
+                  <Select
+                    placeholder="Chọn khách hàng"
+                    allowClear
+                    showSearch
                     optionFilterProp="children"
                     disabled={loaiCongNo === 'payable'}
                   >
