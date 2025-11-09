@@ -1,10 +1,12 @@
 .logo-header {
     height: 50px;
 }
+
 #logo26 {
     height: 80px;
     margin: 10px 10px 10px 20px;
 }
+
 .header01 {
     width: 100%;
     background-color: #fff;
@@ -170,6 +172,22 @@ ul li.ant-menu-item:first-child:hover a {
 .ant-menu-light .ant-menu-submenu-title {
     color: #000;
 }
+ul.ant-menu-root li .ant-menu-title-content,
+ul.ant-menu-root li .ant-menu-title-content a,
+ul.ant-menu-root li .ant-menu-title-content span,
+ul.ant-menu-root li .ant-menu-submenu-title span {
+    font-size: 16px;
+    color: #fff !important
+}
+
+ul.ant-menu-root li span.anticon {
+    font-size: 16px;
+    color: #ccc !important
+}
+
+.ant-menu-title-content:hover {
+    color: #f1592a !important;
+}
 
 .ant-layout-header {
     background: none;
@@ -180,7 +198,7 @@ ul li.ant-menu-item:first-child:hover a {
 }
 
 ul.ant-menu-light {
-    /* background: #b3760d; */
+    background: #134d83;
     color: white;
     width: 100%;
 }
@@ -595,10 +613,6 @@ img {
     color: #f1592a !important;
 }
 
-.ant-menu-title-content:hover {
-    color: #f1592a !important;
-}
-
 .ant-menu-submenu-title span {
     font-family: 'Roboto', sans-serif;
     font-style: normal;
@@ -675,10 +689,6 @@ div.ant-menu-submenu-popup ul.ant-menu-sub {
     width: 100%;
 }
 
-.ant-menu-title-content {
-    font-weight: bold;
-    font-size: 16px;
-}
 
 .ant-descriptions-view table {
     width: 100%;
@@ -1357,6 +1367,7 @@ ul.ul-info li {
     margin-top: 10px;
     float: left;
 }
+
 .btn-default {
     background-color: #0162ff;
     color: #ffffff;
@@ -1364,6 +1375,7 @@ ul.ul-info li {
     border: 1px #0162ff solid;
     padding: 1px 15px;
 }
+
 .btn-default02 {
     background-color: #0162ff;
     color: #ffffff;

@@ -14,8 +14,7 @@ return new class extends Migration
     {
         Schema::create('purchase_order_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('value')->unique();
-            $table->string('label');
+            $table->string('name'); // Tên trạng thái (hiển thị cho user)
             $table->string('color')->default('#1890ff');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -23,11 +22,11 @@ return new class extends Migration
 
         // Insert default statuses
         DB::table('purchase_order_statuses')->insert([
-            ['value' => 'draft', 'label' => 'Nháp', 'color' => '#d9d9d9', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['value' => 'sent', 'label' => 'Đã gửi', 'color' => '#1890ff', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['value' => 'receiving', 'label' => 'Đang nhận hàng', 'color' => '#faad14', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['value' => 'completed', 'label' => 'Hoàn thành', 'color' => '#52c41a', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
-            ['value' => 'cancelled', 'label' => 'Đã hủy', 'color' => '#ff4d4f', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Nháp', 'color' => '#d9d9d9', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Đã gửi', 'color' => '#1890ff', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Đang nhận hàng', 'color' => '#faad14', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Hoàn thành', 'color' => '#52c41a', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Đã hủy', 'color' => '#ff4d4f', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

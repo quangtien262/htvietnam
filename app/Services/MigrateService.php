@@ -860,6 +860,14 @@ MigrateService
         return $data;
     }
 
+    static function createColumn2SettingTable($table) {
+        $table->integer('name')->default(0)->nullable();
+        $table->integer('color')->default(0)->nullable();
+        $table->integer('icon')->default(0)->nullable(); // nguoi tao
+        $table->text('note')->nullable();
+        $table->timestamps();
+    }
+
     static function createBaseColumn($table) {
         $table->integer('parent_id')->default(0)->nullable();
         $table->integer('sort_order')->default(0)->nullable();

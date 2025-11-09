@@ -103,7 +103,7 @@ const PurchaseOrderList: React.FC = () => {
 
     // Dropdown data
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-    const [statusList, setStatusList] = useState<{ value: string, label: string }[]>([]);
+    const [statusList, setStatusList] = useState<{ id: number, name: string, color?: string }[]>([]);
     const [hangHoaList, setHangHoaList] = useState<any[]>([]);
 
     // Statistics
@@ -334,9 +334,10 @@ const PurchaseOrderList: React.FC = () => {
             dataIndex: 'status',
             key: 'status',
             width: 130,
-            render: (status: string) => {
-                const label = statusList.find(s => s.value === status)?.label || status;
-                return <Tag color={getStatusColor(status)}>{label}</Tag>;
+            render: (status: number) => {
+                const statusObj = statusList.find(s => s.id === status);
+                const label = statusObj?.name || '-';
+                return <Tag color={statusObj?.color}>{label}</Tag>;
             }
         },
         {
@@ -513,7 +514,7 @@ const PurchaseOrderList: React.FC = () => {
                                 style={{ width: '100%' }}
                             >
                                 {statusList.map(s => (
-                                    <Select.Option key={s.value} value={s.value}>{s.label}</Select.Option>
+                                    <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
                                 ))}
                             </Select>
                         </div>
@@ -592,7 +593,7 @@ const PurchaseOrderList: React.FC = () => {
                             style={{ width: '100%' }}
                         >
                             {statusList.map(s => (
-                                <Select.Option key={s.value} value={s.value}>{s.label}</Select.Option>
+                                <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
                             ))}
                         </Select>
                     </div>
@@ -662,7 +663,7 @@ const PurchaseOrderList: React.FC = () => {
                             <Form.Item label="Trạng thái" name="status">
                                 <Select>
                                     {statusList.map(s => (
-                                        <Select.Option key={s.value} value={s.value}>{s.label}</Select.Option>
+                                        <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
                                     ))}
                                 </Select>
                             </Form.Item>

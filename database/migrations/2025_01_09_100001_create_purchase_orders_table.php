@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('tax', 15, 2)->default(0)->comment('Thuế');
             $table->decimal('discount', 15, 2)->default(0)->comment('Giảm giá');
             $table->decimal('grand_total', 15, 2)->default(0)->comment('Tổng cộng');
-            $table->string('status', 20)->default('draft')->comment('draft, sent, receiving, completed, cancelled');
+            $table->unsignedBigInteger('status')->comment('Trạng thái đơn hàng (FK to purchase_order_statuses)');
             $table->string('payment_status', 20)->default('unpaid')->comment('unpaid, partial, paid');
             $table->decimal('paid_amount', 15, 2)->default(0)->comment('Số tiền đã thanh toán');
             $table->text('notes')->nullable()->comment('Ghi chú');
@@ -32,6 +32,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+            $table->foreign('status')->references('id')->on('purchase_order_statuses')->onDelete('restrict');
             $table->index('code');
             $table->index('status');
             $table->index('payment_status');

@@ -338,7 +338,7 @@ class PurchaseOrderController extends Controller
     public function apiStatusList(Request $request)
     {
         $statuses = PurchaseOrderStatus::orderBy('sort_order', 'asc')
-            ->get(['value', 'label', 'color'])
+            ->get(['id', 'name', 'color'])
             ->toArray();
 
         return response()->json([

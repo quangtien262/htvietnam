@@ -54,7 +54,7 @@ export const MENU = {
         },
         // Công việc
         {
-            label: <span>Công việc</span>,
+            label: "Công việc",
             key: (key++).toString(),
             icon: <UnorderedListOutlined />,
             children: [
@@ -82,7 +82,7 @@ export const MENU = {
         },
         // Quản lý phòng
         {
-            label: <span>Phòng</span>,
+            label: "Phòng",
             key: (key++).toString(),
             icon: <ApartmentOutlined />,
             children: [
@@ -105,7 +105,7 @@ export const MENU = {
         },
         // Đẩy phòng
         {
-            label: <span>Đẩy phòng</span>,
+            label: "Đẩy phòng",
             key: (key++).toString(),
             icon: <DashboardOutlined />,
             children: [
@@ -306,7 +306,7 @@ export const MENU = {
             icon: <BarChartOutlined />,
         },
         {
-            label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Cài đặt</Link>,
+            label: "Cài đặt",
             key: (key++).toString(),
             icon: <BarChartOutlined />,
             children: [

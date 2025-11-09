@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('description')->nullable();
             $table->string('parent_name')->nullable();
+            $table->string('color')->nullable();
             $table->string('background')->default('#64748b')->nullable();
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();

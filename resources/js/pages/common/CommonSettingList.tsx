@@ -14,6 +14,8 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { CSS } from '@dnd-kit/utilities';
 import API from '../../common/api';
 import icon from '../../components/comp_icon';
+import { getTableDisplayName } from '../../common/settingTableConfig';
+
 
 const { Option } = Select;
 
@@ -33,18 +35,14 @@ interface SearchParams {
 // Danh sách icon có sẵn
 const iconList = Object.keys(icon);
 
-// Table name mapping để hiển thị tiêu đề đẹp hơn
-const tableNameMap: Record<string, string> = {
-    'so_quy_type': 'Loại sổ quỹ',
-    'so_quy_status': 'Trạng thái sổ quỹ',
-    'loai_thu': 'Loại thu',
-    'loai_chi': 'Loại chi',
-    'task_status': 'Trạng thái công việc',
-    'task_priority': 'Mức độ ưu tiên',
-    'project_status': 'Trạng thái dự án',
-    'invoice_status': 'Trạng thái hóa đơn',
-    'contract_status': 'Trạng thái hợp đồng',
-};
+interface SettingItem {
+    id: number;
+    name: string;
+    color?: string;
+    icon?: string;
+    sort_order?: number;
+    is_default?: number;
+}
 
 // Draggable Row Component
 const DraggableRow = ({ id, index, children, ...props }: any) => {
@@ -57,19 +55,29 @@ const DraggableRow = ({ id, index, children, ...props }: any) => {
         isDragging,
     } = useSortable({ id });
 
-    const style = {
+    const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        cursor: 'move',
     };
+
+    // Clone children và thêm drag handlers vào cột đầu tiên
+    const childrenArray = React.Children.toArray(children);
+    const modifiedChildren = childrenArray.map((child: any, index) => {
+        if (index === 0) {
+            // Cột đầu tiên (drag column)
+            return React.cloneElement(child, {
+                ...attributes,
+                ...listeners,
+                style: { ...child.props.style, cursor: 'grab', textAlign: 'center' }
+            });
+        }
+        return child;
+    });
 
     return (
         <tr ref={setNodeRef} style={style} {...props}>
-            <td {...attributes} {...listeners} style={{ textAlign: 'center', cursor: 'grab' }}>
-                <DragOutlined />
-            </td>
-            {children}
+            {modifiedChildren}
         </tr>
     );
 };
@@ -239,19 +247,17 @@ const CommonSettingList: React.FC = () => {
 
     const columns: ColumnsType<SettingItem> = [
         {
-            title: '',
+            title: <DragOutlined />,
             dataIndex: 'drag',
+            key: 'drag',
             width: 50,
-            render: () => null, // Render in DraggableRow
-        },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 80,
+            align: 'center' as const,
+            render: () => <DragOutlined />, // Icon hiển thị trong cell
         },
         {
             title: 'Tên',
             dataIndex: 'name',
+            key: 'name',
             render: (text, record) => (
                 <Space>
                     {record.icon && icon[record.icon as keyof typeof icon]}
@@ -337,7 +343,7 @@ const CommonSettingList: React.FC = () => {
                 title={
                     <Space>
                         <SettingOutlined />
-                        {tableNameMap[tableName || ''] || tableName}
+                        {getTableDisplayName(tableName || '')}
                     </Space>
                 }
                 extra={

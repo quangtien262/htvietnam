@@ -12,8 +12,7 @@ class PurchaseOrderStatus extends Model
     protected $table = 'purchase_order_statuses';
 
     protected $fillable = [
-        'value',
-        'label',
+        'name',
         'color',
         'sort_order'
     ];
