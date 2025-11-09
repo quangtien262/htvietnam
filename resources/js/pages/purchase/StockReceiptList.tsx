@@ -644,7 +644,15 @@ const StockReceiptList: React.FC = () => {
                     title: 'Sản phẩm',
                     dataIndex: 'product_name',
                     key: 'product_name',
-                    width: 200
+                    width: 200,
+                    render: (name: string, record: any) => (
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{name}</div>
+                        {record.product_code && (
+                          <div style={{ fontSize: 12, color: '#8c8c8c' }}>{record.product_code}</div>
+                        )}
+                      </div>
+                    )
                   },
                   {
                     title: 'ĐVT',

@@ -173,18 +173,17 @@ const SupplierList: React.FC = () => {
 
   const columns: ColumnsType<Supplier> = [
     {
-      title: 'Mã NCC',
-      dataIndex: 'code',
-      key: 'code',
-      width: 120,
-      fixed: 'left'
-    },
-    {
-      title: 'Tên nhà cung cấp',
+      title: 'Nhà cung cấp',
       dataIndex: 'name',
       key: 'name',
-      width: 200,
-      fixed: 'left'
+      width: 250,
+      fixed: 'left',
+      render: (name, record) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{name}</div>
+          <div style={{ fontSize: 12, color: '#8c8c8c' }}>{record.code}</div>
+        </div>
+      )
     },
     {
       title: 'Người liên hệ',
