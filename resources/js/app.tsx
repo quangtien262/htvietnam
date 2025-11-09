@@ -67,6 +67,7 @@ import PurchaseOrderList from './pages/purchase/PurchaseOrderList';
 import StockReceiptList from './pages/purchase/StockReceiptList';
 import SupplierPaymentList from './pages/purchase/SupplierPaymentList';
 import PurchaseReport from './pages/purchase/PurchaseReport';
+import HangHoaList from './pages/purchase/HangHoaList';
 
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
@@ -115,6 +116,7 @@ const App: React.FC = () => (
 
                 {/* Purchase Management */}
                 <Route path={ROUTE.supplierManagement} element={<SupplierList />} />
+                <Route path={ROUTE.hangHoaManagement} element={<HangHoaList />} />
                 <Route path={ROUTE.purchaseOrderManagement} element={<PurchaseOrderList />} />
                 <Route path={ROUTE.stockReceiptManagement} element={<StockReceiptList />} />
                 <Route path={ROUTE.supplierPaymentManagement} element={<SupplierPaymentList />} />

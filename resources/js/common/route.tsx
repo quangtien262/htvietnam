@@ -5,6 +5,7 @@ import TaskKanban from "../pages/task/TaskKanban";
 const baseRoute = "/";
 const baseUrl = "/aio/";
 export const ROUTE = {
+    baseRoute: baseRoute,
     dashboard: `${baseRoute}`,
 
     // Aitilen
@@ -64,6 +65,7 @@ export const ROUTE = {
     stockReceiptManagement: `${baseRoute}purchase/receipts/`,
     supplierPaymentManagement: `${baseRoute}purchase/payments/`,
     purchaseReportManagement: `${baseRoute}purchase/reports/`,
+    hangHoaManagement: `${baseRoute}purchase/hang-hoa/list/`,
 
     // tài chính
     taiChinhDashboard: `${baseRoute}tai-chinh/dashboard/`,

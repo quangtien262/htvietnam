@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseOrderStatus;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -336,13 +337,9 @@ class PurchaseOrderController extends Controller
      */
     public function apiStatusList(Request $request)
     {
-        $statuses = [
-            ['value' => 'draft', 'label' => 'Nháp'],
-            ['value' => 'sent', 'label' => 'Đã gửi'],
-            ['value' => 'receiving', 'label' => 'Đang nhận hàng'],
-            ['value' => 'completed', 'label' => 'Hoàn thành'],
-            ['value' => 'cancelled', 'label' => 'Đã hủy'],
-        ];
+        $statuses = PurchaseOrderStatus::orderBy('sort_order', 'asc')
+            ->get(['value', 'label', 'color'])
+            ->toArray();
 
         return response()->json([
             'status_code' => 200,

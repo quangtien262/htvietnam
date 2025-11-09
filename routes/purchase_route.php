@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\StockReceiptController;
 use App\Http\Controllers\Admin\SupplierPaymentController;
 use App\Http\Controllers\Admin\PurchaseReportController;
+use App\Http\Controllers\Admin\HangHoaController;
+use App\Http\Controllers\Admin\LoaiHangHoaController;
 
 // Supplier routes
 Route::post('/api/supplier/list', [SupplierController::class, 'apiList']);
@@ -60,3 +62,17 @@ Route::post('/api/report/top-suppliers', [PurchaseReportController::class, 'apiT
 Route::post('/api/report/debt', [PurchaseReportController::class, 'apiDebtReport']);
 Route::post('/api/report/by-payment-method', [PurchaseReportController::class, 'apiByPaymentMethod']);
 Route::post('/api/report/export', [PurchaseReportController::class, 'apiExportData']);
+
+// Hàng hóa routes
+Route::post('/api/hang-hoa/list', [HangHoaController::class, 'apiList']);
+Route::post('/api/hang-hoa/detail', [HangHoaController::class, 'apiDetail']);
+Route::post('/api/hang-hoa/add', [HangHoaController::class, 'apiAdd']);
+Route::post('/api/hang-hoa/update', [HangHoaController::class, 'apiUpdate']);
+Route::post('/api/hang-hoa/delete', [HangHoaController::class, 'apiDelete']);
+Route::post('/api/hang-hoa/active', [HangHoaController::class, 'apiGetActive']);
+
+// Loại hàng hóa routes
+Route::post('/api/loai-hang-hoa/list', [LoaiHangHoaController::class, 'apiList']);
+Route::post('/api/loai-hang-hoa/add', [LoaiHangHoaController::class, 'apiAdd']);
+Route::post('/api/loai-hang-hoa/update', [LoaiHangHoaController::class, 'apiUpdate']);
+Route::post('/api/loai-hang-hoa/delete', [LoaiHangHoaController::class, 'apiDelete']);

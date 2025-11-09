@@ -18,6 +18,8 @@
                 $table->string('name')->nullable();
                 $table->string('color')->nullable();
                 $table->string('code_config')->nullable();
+                $table->string('icon')->nullable();
+                $table->text('note')->nullable();
 
                 $table->string('display_name')->nullable();
                 $table->integer('parent_id')->default(0)->nullable();

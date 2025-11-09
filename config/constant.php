@@ -269,5 +269,22 @@ return [
         'KWH' => 'KWH',
         'M3' => 'M3',
         'Xe' => 'Xe',
+    ],
+
+    // Danh sách các bảng settings cho phép quản lý qua CommonSettingController
+    'allowed_setting_tables' => [
+        'so_quy_type',
+        'so_quy_status',
+        'loai_thu',
+        'loai_chi',
+        'task_status',
+        'task_priority',
+        'project_status',
+        'invoice_status',
+        'contract_status',
+        'loai_hang_hoa',
+        'don_vi_hang_hoa',
+        'purchase_order_statuses',
+        // Thêm các bảng khác nếu cần
     ]
 ];

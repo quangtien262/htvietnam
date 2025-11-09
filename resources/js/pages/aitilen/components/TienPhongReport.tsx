@@ -23,6 +23,7 @@ const COLORS = ["#1890ff", "#52c41a", "#faad14", "#f5222d", "#722ed1", "#13c2c2"
 interface ReportData {
     apartment_id: number;
     apartment_name: string;
+    apartment_code: string;
     rooms_rented: number;
     total_rooms: number;
     total_income: number;
@@ -117,16 +118,16 @@ const TienPhongReport: React.FC = () => {
 
     // Transform reportData to chart format
     const buildingData = reportData.map((item) => ({
-        building: item.apartment_name,
+        building: item.apartment_code || item.apartment_name,
         profit: item.profit,
-        label: item.apartment_name,
+        label: item.apartment_code || item.apartment_name,
         rooms: item.rooms_rented,
     }));
 
     // Transform reportData to table format
     const tableData = reportData.map((item, index) => ({
         key: item.apartment_id || index,
-        building: item.apartment_name,
+        building: item.apartment_code || item.apartment_name,
         profit: item.profit,
         rooms: item.rooms_rented,
         total_rooms: item.total_rooms,

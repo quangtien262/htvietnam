@@ -20,32 +20,36 @@
                 $table->string('name')->nullable();
                 $table->string('code')->nullable();
 
-                $table->integer('users_id')->nullable(); 
-                $table->integer('nha_cung_cap_id')->default(0)->nullable(); 
-                
-                // product_tra_hang_ncc, product_nhap_hang, 
+                $table->integer('users_id')->nullable();
+                $table->integer('nha_cung_cap_id')->default(0)->nullable();
+
+                // receivable: nợ cần thu (khách hàng nợ ta)
+                // payable: nợ phải trả (ta nợ nhà cung cấp)
+                $table->string('loai_cong_no')->nullable()->comment('receivable hoặc payable');
+
+                // product_tra_hang_ncc, product_nhap_hang,
                 // hoa_don, product_khach_tra_hang
-                $table->string('loai_chung_tu')->nullable(); 
-                $table->integer('chung_tu_id')->default(0)->nullable(); 
-                $table->string('ma_chung_tu')->nullable(); 
+                $table->string('loai_chung_tu')->nullable();
+                $table->integer('chung_tu_id')->default(0)->nullable();
+                $table->string('ma_chung_tu')->nullable();
 
-                $table->integer('product_id')->default(0)->nullable(); 
-                $table->string('product_code')->nullable(); 
+                $table->integer('product_id')->default(0)->nullable();
+                $table->string('product_code')->nullable();
 
-                $table->integer('tong_tien_hoa_don')->default(0)->nullable(); 
-                $table->integer('so_tien_da_thanh_toan')->default(0)->nullable(); 
-                $table->integer('so_tien_no')->default(0)->nullable(); 
-                $table->integer('cong_no_status_id')->default(0)->nullable(); 
-                $table->date('ngay_hen_tat_toan')->nullable(); 
+                $table->integer('tong_tien_hoa_don')->default(0)->nullable();
+                $table->integer('so_tien_da_thanh_toan')->default(0)->nullable();
+                $table->integer('so_tien_no')->default(0)->nullable();
+                $table->integer('cong_no_status_id')->default(0)->nullable();
+                $table->date('ngay_hen_tat_toan')->nullable();
                 $table->date('ngay_tat_toan')->nullable(); // ngay tất toán thực tế
 
-                $table->date('info')->nullable(); 
-                
+                $table->date('info')->nullable();
+
                 MigrateService::createBaseColumn($table);
 
             });
 
-            
+
             Table::create([
                 //require
                 'name' => 'cong_no',
@@ -69,36 +73,39 @@
             $tableId = $tbl->id;
             $order_col = 1;
             // card
-            
-            MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHA', 'text', $order_col++, 
+
+            MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHA', 'text', $order_col++,
              ['require' => 0, 'col' => 12 , 'add_express' => 1]);
             MigrateService::createColumn02($tableId, 'code', 'Mã công nợ', 'VARCHAR', 'text', $order_col++,
             ['is_view_detail' => 1, 'show_in_list' => 1, 'edit' => 0,'auto_generate_code' => '{"edit":0, "prefix":"CN", "length":5}']);
 
+            MigrateService::createColumn02($tableId, 'loai_cong_no', 'Loại công nợ', 'VARCHAR', 'select_option', $order_col++,
+            ['is_view_detail' => 1, 'show_in_list' => 1, 'edit' => 0, 'require' => 1, 'col' => 12, 'add_express' => 1,
+             'select_option' => '{"receivable":"Nợ cần thu (Khách hàng)","payable":"Nợ phải trả (Nhà cung cấp)"}']);
 
             $ncc = Table::where('name', 'nha_cung_cap')->first();
             MigrateService::createColumn02($tableId, 'nha_cung_cap_id', 'Nhà cung cấp', 'INT', 'select', $order_col++, 
-             ['select_table_id' => $ncc->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
+             ['select_table_id' => $ncc->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
+              'show_if' => '{"loai_cong_no":"payable"}']);
 
             $user = Table::where('name', 'users')->first();
             MigrateService::createColumn02($tableId, 'users_id', 'Khách Hàng', 'INT', 'select', $order_col++, 
-             ['select_table_id' => $user->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
-
-            MigrateService::createColumn02($tableId, 'so_tien_no', 'Số tiền', 'INT', 'number', $order_col++, 
+             ['select_table_id' => $user->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
+              'show_if' => '{"loai_cong_no":"receivable"}']);            MigrateService::createColumn02($tableId, 'so_tien_no', 'Số tiền', 'INT', 'number', $order_col++,
              ['require' => 1, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
 
             $status = Table::where('name', 'cong_no_status')->first();
-            MigrateService::createColumn02($tableId, 'cong_no_status_id', 'Trạng thái', 'INT', 'select', $order_col++, 
+            MigrateService::createColumn02($tableId, 'cong_no_status_id', 'Trạng thái', 'INT', 'select', $order_col++,
              ['select_table_id' => $status->id, 'edit' => 1, 'require' => 1, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
 
-            MigrateService::createColumn02($tableId, 'ngay_hen_tat_toan', 'Ngày hẹn tất toán', 'DATE', 'date', $order_col++, 
+            MigrateService::createColumn02($tableId, 'ngay_hen_tat_toan', 'Ngày hẹn tất toán', 'DATE', 'date', $order_col++,
              ['require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
 
-            MigrateService::createColumn02($tableId, 'ngay_tat_toan', 'Ngày tất toán', 'DATE', 'date', $order_col++, 
+            MigrateService::createColumn02($tableId, 'ngay_tat_toan', 'Ngày tất toán', 'DATE', 'date', $order_col++,
              ['require' => 0, 'col' => 12 , 'add_express' => 1, 'edit' => 0, 'show_in_list' => 0]);
 
             MigrateService::baseColumn($tbl);
-            
+
         }
 
         /**

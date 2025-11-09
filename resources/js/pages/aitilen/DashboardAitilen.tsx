@@ -29,7 +29,9 @@ import {
     FileTextOutlined,
     BankOutlined,
     MenuOutlined,
-    DownOutlined
+    DownOutlined,
+    BarChartOutlined,
+    FileDoneOutlined
 } from "@ant-design/icons";
 import {
     Tooltip, Cell, Pie, PieChart, ResponsiveContainer,
@@ -66,19 +68,19 @@ const DashboardAitilen: React.FC = () => {
         {
             key: (key++).toString(),
             label: 'Lợi nhuận theo tiền phòng',
-            icon: <HomeOutlined />,
+            icon: <DollarOutlined />,
             children: <TienPhongReport />,
         },
         {
             key: (key++).toString(),
             label: 'Báo cáo tiền phòng',
-            icon: <HomeOutlined />,
+            icon: <BarChartOutlined />,
             children: <TienPhongStatisticsReport />,
         },
         {
             key: (key++).toString(),
             label: 'Báo cáo hợp đồng',
-            icon: <HomeOutlined />,
+            icon: <FileDoneOutlined />,
             children: <ContractStatisticsReport />,
         },
         {

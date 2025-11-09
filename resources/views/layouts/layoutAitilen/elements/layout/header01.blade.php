@@ -26,6 +26,12 @@
         <div class="flex-col hide-for-medium flex-right">
 
             <ul class="nav top-bar-nav nav-right nav-small  nav-">
+                @if (auth()->guard('admin_users')->check())
+                    <li class="html header-social-icons ml-0">
+                        <a href="/aio?p=home">
+                        <b>Chào {{ auth()->guard('admin_users')->user()->name }}</b> - Truy cập Admin</a>
+                    </li>
+                @endif
                 <li class="html header-social-icons ml-0">
                     <div class="social-icons follow-icons">
                         @foreach ($langs as $lang)

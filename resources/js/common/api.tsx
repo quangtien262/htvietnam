@@ -264,6 +264,20 @@ export const API = {
     purchaseReportByPaymentMethod: '/purchase/api/report/by-payment-method',
     purchaseReportExport: '/purchase/api/report/export',
 
+    // Hàng hóa APIs
+    hangHoaList: '/purchase/api/hang-hoa/list',
+    hangHoaDetail: '/purchase/api/hang-hoa/detail',
+    hangHoaAdd: '/purchase/api/hang-hoa/add',
+    hangHoaUpdate: '/purchase/api/hang-hoa/update',
+    hangHoaDelete: '/purchase/api/hang-hoa/delete',
+    hangHoaActive: '/purchase/api/hang-hoa/active',
+
+    // Loại hàng hóa APIs
+    loaiHangHoaList: '/purchase/api/loai-hang-hoa/list',
+    loaiHangHoaAdd: '/purchase/api/loai-hang-hoa/add',
+    loaiHangHoaUpdate: '/purchase/api/loai-hang-hoa/update',
+    loaiHangHoaDelete: '/purchase/api/loai-hang-hoa/delete',
+
 };
 
 export default API;

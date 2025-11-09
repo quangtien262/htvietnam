@@ -14,19 +14,8 @@ class CommonSettingController extends Controller
      */
     private function validateTableName($tableName)
     {
-        // Danh sách các bảng cho phép quản lý
-        $allowedTables = [
-            'so_quy_type',
-            'so_quy_status',
-            'loai_thu',
-            'loai_chi',
-            'task_status',
-            'task_priority',
-            'project_status',
-            'invoice_status',
-            'contract_status',
-            // Thêm các bảng khác nếu cần
-        ];
+        // Lấy danh sách các bảng cho phép từ config
+        $allowedTables = config('constant.allowed_setting_tables', []);
 
         if (!in_array($tableName, $allowedTables)) {
             return false;

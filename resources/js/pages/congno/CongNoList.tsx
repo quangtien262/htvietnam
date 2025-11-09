@@ -43,6 +43,7 @@ interface CongNo {
   id: number;
   name: string;
   code: string;
+  loai_cong_no: string;
   users_id: number;
   nha_cung_cap_id: number;
   loai_chung_tu: string;
@@ -90,6 +91,7 @@ const CongNoList: React.FC = () => {
   const [filterStatusId, setFilterStatusId] = useState<number | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [loaiCongNo, setLoaiCongNo] = useState<'receivable' | 'payable' | null>(null);
 
   const [nhaCungCapList, setNhaCungCapList] = useState<NhaCungCap[]>([]);
   const [usersList, setUsersList] = useState<User[]>([]);
@@ -177,6 +179,22 @@ const CongNoList: React.FC = () => {
     setModalVisible(true);
   };
 
+  const handleAddReceivable = () => {
+    setEditingId(null);
+    setLoaiCongNo('receivable');
+    form.resetFields();
+    form.setFieldsValue({ loai_cong_no: 'receivable' });
+    setModalVisible(true);
+  };
+
+  const handleAddPayable = () => {
+    setEditingId(null);
+    setLoaiCongNo('payable');
+    form.resetFields();
+    form.setFieldsValue({ loai_cong_no: 'payable' });
+    setModalVisible(true);
+  };
+
   const handleEdit = async (record: CongNo) => {
     setEditingId(record.id);
 
@@ -186,8 +204,11 @@ const CongNoList: React.FC = () => {
       if (res.data.status_code === 200) {
         const { cong_no } = res.data.data;
 
+        setLoaiCongNo(cong_no.loai_cong_no || null);
+
         form.setFieldsValue({
           name: cong_no.name,
+          loai_cong_no: cong_no.loai_cong_no,
           users_id: cong_no.users_id || undefined,
           nha_cung_cap_id: cong_no.nha_cung_cap_id || undefined,
           loai_chung_tu: cong_no.loai_chung_tu,
@@ -339,6 +360,7 @@ const CongNoList: React.FC = () => {
 
       const payload = {
         name: values.name || '',
+        loai_cong_no: values.loai_cong_no || '',
         users_id: values.users_id || 0,
         nha_cung_cap_id: values.nha_cung_cap_id || 0,
         loai_chung_tu: values.loai_chung_tu || '',
@@ -393,6 +415,20 @@ const CongNoList: React.FC = () => {
       dataIndex: 'code',
       key: 'code',
       width: 100
+    },
+    {
+      title: 'Loại',
+      dataIndex: 'loai_cong_no',
+      key: 'loai_cong_no',
+      width: 150,
+      render: (loai: string) => {
+        if (loai === 'receivable') {
+          return <Tag color="green">Nợ cần thu</Tag>;
+        } else if (loai === 'payable') {
+          return <Tag color="orange">Nợ phải trả</Tag>;
+        }
+        return <Tag>-</Tag>;
+      }
     },
     {
       title: 'Tiêu đề',
@@ -761,10 +797,30 @@ const CongNoList: React.FC = () => {
             flexWrap: 'wrap'
           }}>
             <Space wrap>
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-                <span className="hide-on-mobile">Thêm công nợ</span>
-                <span className="desktop-only" style={{ display: 'none' }}>Thêm</span>
-              </Button>
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'receivable',
+                      label: 'Nợ cần thu (Khách hàng)',
+                      icon: <PlusOutlined />,
+                      onClick: handleAddReceivable
+                    },
+                    {
+                      key: 'payable',
+                      label: 'Nợ phải trả (Nhà cung cấp)',
+                      icon: <PlusOutlined />,
+                      onClick: handleAddPayable
+                    }
+                  ]
+                }}
+                trigger={['click']}
+              >
+                <Button type="primary" icon={<PlusOutlined />}>
+                  <span className="hide-on-mobile">Thêm công nợ</span>
+                  <span className="desktop-only" style={{ display: 'none' }}>Thêm</span>
+                </Button>
+              </Dropdown>
               <Button icon={<DownloadOutlined />} onClick={handleExport}>
                 <span className="hide-on-mobile">Export</span>
                 <span className="desktop-only" style={{ display: 'none' }}>Excel</span>
@@ -822,15 +878,29 @@ const CongNoList: React.FC = () => {
       </div>
 
       <Modal
-        title={editingId ? 'Chỉnh sửa công nợ' : 'Thêm công nợ mới'}
+        title={
+          editingId 
+            ? 'Chỉnh sửa công nợ' 
+            : loaiCongNo === 'receivable' 
+              ? 'Thêm nợ cần thu (Khách hàng)' 
+              : 'Thêm nợ phải trả (Nhà cung cấp)'
+        }
         open={modalVisible}
         onOk={handleSubmit}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+          setLoaiCongNo(null);
+        }}
         width={900}
         okText={editingId ? 'Cập nhật' : 'Thêm'}
         cancelText="Hủy"
       >
         <Form form={form} layout="vertical">
+          {/* Hidden field for loai_cong_no */}
+          <Form.Item name="loai_cong_no" hidden>
+            <Input />
+          </Form.Item>
+
           <Row gutter={16}>
             <Col xs={24} sm={12}>
               <Form.Item label="Tiêu đề" name="name" rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}>
@@ -838,29 +908,55 @@ const CongNoList: React.FC = () => {
               </Form.Item>
             </Col>
 
-            <Col xs={24} sm={12}>
-              <Form.Item label="Nhà cung cấp" name="nha_cung_cap_id">
-                <Select placeholder="Chọn nhà cung cấp" allowClear showSearch optionFilterProp="children">
-                  {nhaCungCapList.map((ncc) => (
-                    <Select.Option key={ncc.id} value={ncc.id}>
-                      {ncc.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+            {/* Hiển thị Nhà cung cấp khi loại = payable */}
+            {(loaiCongNo === 'payable' || editingId) && (
+              <Col xs={24} sm={12}>
+                <Form.Item 
+                  label="Nhà cung cấp" 
+                  name="nha_cung_cap_id"
+                  rules={loaiCongNo === 'payable' ? [{ required: true, message: 'Vui lòng chọn nhà cung cấp' }] : []}
+                >
+                  <Select 
+                    placeholder="Chọn nhà cung cấp" 
+                    allowClear 
+                    showSearch 
+                    optionFilterProp="children"
+                    disabled={loaiCongNo === 'receivable'}
+                  >
+                    {nhaCungCapList.map((ncc) => (
+                      <Select.Option key={ncc.id} value={ncc.id}>
+                        {ncc.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            )}
 
-            <Col xs={24} sm={12}>
-              <Form.Item label="Khách hàng" name="users_id">
-                <Select placeholder="Chọn khách hàng" allowClear showSearch optionFilterProp="children">
-                  {usersList.map((user) => (
-                    <Select.Option key={user.id} value={user.id}>
-                      {user.name} - {user.phone}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+            {/* Hiển thị Khách hàng khi loại = receivable */}
+            {(loaiCongNo === 'receivable' || editingId) && (
+              <Col xs={24} sm={12}>
+                <Form.Item 
+                  label="Khách hàng" 
+                  name="users_id"
+                  rules={loaiCongNo === 'receivable' ? [{ required: true, message: 'Vui lòng chọn khách hàng' }] : []}
+                >
+                  <Select 
+                    placeholder="Chọn khách hàng" 
+                    allowClear 
+                    showSearch 
+                    optionFilterProp="children"
+                    disabled={loaiCongNo === 'payable'}
+                  >
+                    {usersList.map((user) => (
+                      <Select.Option key={user.id} value={user.id}>
+                        {user.name} - {user.phone}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            )}
 
             <Col xs={24} sm={12}>
               <Form.Item label="Loại chứng từ" name="loai_chung_tu">

@@ -21,7 +21,8 @@ import {
     FileDoneOutlined,
     ShopOutlined,
     InboxOutlined,
-    DollarOutlined
+    DollarOutlined,
+    TagsOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -280,6 +281,11 @@ export const MENU = {
             icon: <ShopOutlined />,
         },
         {
+            label: <Link to={`${ROUTE.hangHoaManagement}?p=purchase`}>Hàng hóa</Link>,
+            key: (key++).toString(),
+            icon: <TagsOutlined />,
+        },
+        {
             label: <Link to={`${ROUTE.purchaseOrderManagement}?p=purchase`}>Đơn mua hàng</Link>,
             key: (key++).toString(),
             icon: <FileDoneOutlined />,
@@ -298,6 +304,21 @@ export const MENU = {
             label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
             key: (key++).toString(),
             icon: <BarChartOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Cài đặt</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/loai_hang_hoa?p=purchase`}>Loại hàng hóa</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/purchase_order_statuses?p=purchase`}>Trạng thái đơn mua hàng</Link>,
+                    key: (key++).toString(),
+                },
+            ],
         },
     ],
 }

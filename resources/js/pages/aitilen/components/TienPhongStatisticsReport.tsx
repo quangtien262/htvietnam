@@ -361,7 +361,7 @@ const TienPhongStatisticsReport: React.FC = () => {
                                     <ResponsiveContainer width="100%" height={400}>
                                         <BarChart data={apartmentChartData}>
                                             <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="apartment_name" />
+                                            <XAxis dataKey="apartment_code" />
                                             <YAxis />
                                             <Tooltip
                                                 formatter={(value: any) => numberFormat(value) + ' ₫'}
