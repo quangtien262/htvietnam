@@ -802,13 +802,13 @@ const CongNoList: React.FC = () => {
                   items: [
                     {
                       key: 'receivable',
-                      label: 'Nợ cần thu (Khách hàng)',
+                      label: 'Nợ cần thu',
                       icon: <PlusOutlined />,
                       onClick: handleAddReceivable
                     },
                     {
                       key: 'payable',
-                      label: 'Nợ phải trả (Nhà cung cấp)',
+                      label: 'Nợ phải trả',
                       icon: <PlusOutlined />,
                       onClick: handleAddPayable
                     }
