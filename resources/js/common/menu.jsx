@@ -253,19 +253,19 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
-            label: <Link to={`${ROUTE.congNoManagement}?p=erp`}>Công nợ</Link>,
+            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Báo cáo / Thống kê</Link>,
             key: (key++).toString(),
             icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.congNoManagement}?p=erp`}>Công nợ</Link>,
+            key: (key++).toString(),
+            icon: <TagsOutlined />,
         },
         {
             label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ</Link>,
             key: (key++).toString(),
-            icon: <FileTextOutlined />,
-        },
-        {
-            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Chi tiêu</Link>,
-            key: (key++).toString(),
-            icon: <FileTextOutlined />,
+            icon: <ShopOutlined />,
         },
     ],
     // QL mua hàng / kho
