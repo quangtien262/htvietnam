@@ -22,12 +22,12 @@ class BinhLuanController extends Controller
         ]);
 
         $query = BinhLuan::with([
-                'user:id,name,email,avatar',
+                'user:id,name,email,image',
                 'replies' => function($q) {
                     $q->orderBy('created_at')->with([
-                        'user:id,name,email,avatar',
+                        'user:id,name,email,image',
                         'replies' => function($q2) {
-                            $q2->orderBy('created_at')->with('user:id,name,email,avatar');
+                            $q2->orderBy('created_at')->with('user:id,name,email,image');
                         }
                     ]);
                 }
@@ -85,7 +85,7 @@ class BinhLuanController extends Controller
             ],
         ]);
 
-        $comment->load('user:id,name,email,avatar');
+        $comment->load('user:id,name,email,image');
 
         return response()->json($comment, 201);
     }
