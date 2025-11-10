@@ -70,9 +70,11 @@ Module Quản Lý Tài Liệu (Document Management System) cho phép tổ chức
 - **loai_nguoi_dung**: Loại người dùng (`user`, `phong_ban`, `nhom`)
 - **nguoi_dung_id**: ID user/phòng ban/nhóm
 - **quyen_truy_cap**: Quyền truy cập
-  - `viewer`: Chỉ xem
-  - `editor`: Chỉnh sửa
-  - `manager`: Quản lý (full quyền)
+  - `viewer`: Chỉ xem và tải xuống
+  - `commenter`: Xem, tải xuống, bình luận
+  - `editor`: Xem, tải, chỉnh sửa, bình luận
+  - `manager`: Quản lý - xem, sửa, xóa, chia sẻ
+  - `owner`: Chủ sở hữu - toàn quyền kiểm soát
 - **nguoi_chia_se_id**: ID người chia sẻ
 - **ngay_het_han**: Ngày hết hạn quyền
 - **timestamps**: created_at, updated_at
@@ -529,9 +531,11 @@ docs: [{
    - Phòng ban
    - Nhóm người dùng
 3. Chọn **Quyền truy cập**:
-   - **Viewer**: Chỉ xem
-   - **Editor**: Chỉnh sửa
-   - **Manager**: Quản lý full quyền
+   - **Viewer**: Chỉ xem và tải xuống
+   - **Commenter**: Xem, tải xuống, bình luận
+   - **Editor**: Xem, tải, chỉnh sửa, bình luận
+   - **Manager**: Quản lý - xem, sửa, xóa, chia sẻ
+   - **Owner**: Chủ sở hữu - toàn quyền
 4. Tùy chọn: Đặt ngày hết hạn
 5. Click **Chia sẻ**
 
@@ -622,15 +626,19 @@ http://domain.com/share/a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 ### 5.2. Quy Trình Phân Quyền
 
 ```
-1. Owner tạo file → Full quyền
+1. Owner tạo file → Tự động có quyền Owner (toàn quyền)
    ↓
-2. Chia sẻ với User A → Viewer (chỉ xem)
+2. Chia sẻ với User A → Viewer (chỉ xem, tải)
    ↓
-3. Chia sẻ với User B → Editor (chỉnh sửa)
+3. Chia sẻ với User B → Commenter (xem, tải, bình luận)
    ↓
-4. User B chỉnh sửa → Tạo phiên bản mới
+4. Chia sẻ với User C → Editor (xem, tải, sửa, bình luận)
    ↓
-5. Log hoạt động "edit"
+5. Chia sẻ với User D → Manager (xem, sửa, xóa, chia sẻ)
+   ↓
+6. User C (Editor) chỉnh sửa → Tạo phiên bản mới
+   ↓
+7. Log hoạt động "edit"
 ```
 
 ### 5.3. Quy Trình Quản Lý Phiên Bản

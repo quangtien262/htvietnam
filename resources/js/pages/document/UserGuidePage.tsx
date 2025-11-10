@@ -68,7 +68,7 @@ const UserGuidePage: React.FC = () => {
                     <Panel header="🔗 Chia Sẻ Tài Liệu" key="3">
                         <ul>
                             <li>Chia sẻ với người dùng cụ thể trong hệ thống</li>
-                            <li>Phân quyền chi tiết: Xem, Chỉnh sửa, Quản lý</li>
+                            <li>Phân quyền chi tiết: Xem, Bình luận, Chỉnh sửa, Quản lý, Chủ sở hữu</li>
                             <li>Tạo link chia sẻ công khai có mật khẩu</li>
                             <li>Đặt thời hạn chia sẻ tự động</li>
                             <li>Giới hạn số lượt xem/tải xuống</li>
@@ -348,7 +348,10 @@ const UserGuidePage: React.FC = () => {
                                 <div>
                                     <ul>
                                         <li><Tag color="blue">Viewer</Tag> - Chỉ xem và tải xuống</li>
-                                        <li><Tag color="orange">Editor</Tag> - Xem, tải, chỉnh sửa</li>
+                                        <li><Tag color="cyan">Commenter</Tag> - Xem, tải, bình luận</li>
+                                        <li><Tag color="orange">Editor</Tag> - Xem, tải, chỉnh sửa, bình luận</li>
+                                        <li><Tag color="purple">Manager</Tag> - Quản lý: xem, sửa, xóa, chia sẻ</li>
+                                        <li><Tag color="red">Owner</Tag> - Chủ sở hữu: toàn quyền</li>
                                         <li><Tag color="red">Manager</Tag> - Full quyền</li>
                                     </ul>
                                 </div>
@@ -528,16 +531,37 @@ const UserGuidePage: React.FC = () => {
                         />
                     </Panel>
 
-                    <Panel header="❓ Quyền 'Viewer', 'Editor', 'Manager' khác nhau như thế nào?" key="4">
+                    <Panel header="❓ Quyền 'Viewer', 'Commenter', 'Editor', 'Manager', 'Owner' khác nhau như thế nào?" key="4">
                         <Paragraph>
-                            <Text strong>Viewer:</Text> Chỉ xem và tải xuống
+                            <Text strong>Viewer (Xem):</Text> Chỉ xem và tải xuống file
                         </Paragraph>
                         <Paragraph>
-                            <Text strong>Editor:</Text> Xem, tải, chỉnh sửa
+                            <Text strong>Commenter (Bình luận):</Text> Xem, tải xuống và bình luận
                         </Paragraph>
                         <Paragraph>
-                            <Text strong>Manager:</Text> Full quyền: xem, sửa, xóa, chia sẻ
+                            <Text strong>Editor (Chỉnh sửa):</Text> Xem, tải, chỉnh sửa file, bình luận
                         </Paragraph>
+                        <Paragraph>
+                            <Text strong>Manager (Quản lý):</Text> Xem, tải, sửa, xóa, chia sẻ file với người khác
+                        </Paragraph>
+                        <Paragraph>
+                            <Text strong type="danger">Owner (Chủ sở hữu):</Text> Toàn quyền - có thể làm mọi thứ kể cả xóa vĩnh viễn
+                        </Paragraph>
+                        <Alert
+                            message="💡 Mẹo"
+                            description={
+                                <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
+                                    <li><Text strong>Viewer:</Text> Dùng cho người chỉ cần đọc tài liệu</li>
+                                    <li><Text strong>Commenter:</Text> Dùng cho người cần góp ý nhưng không sửa file</li>
+                                    <li><Text strong>Editor:</Text> Dùng cho cộng tác viên cần chỉnh sửa nội dung</li>
+                                    <li><Text strong>Manager:</Text> Dùng cho trưởng nhóm quản lý dự án</li>
+                                    <li><Text strong>Owner:</Text> Chỉ dành cho người tạo file hoặc quản lý cao nhất</li>
+                                </ul>
+                            }
+                            type="info"
+                            showIcon
+                            style={{ marginTop: 12 }}
+                        />
                     </Panel>
 
                     <Panel header="❓ File trùng lặp được xử lý như thế nào?" key="5">

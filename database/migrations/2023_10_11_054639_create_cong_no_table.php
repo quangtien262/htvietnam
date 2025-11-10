@@ -50,61 +50,6 @@
             });
 
 
-            Table::create([
-                //require
-                'name' => 'cong_no',
-                'display_name' => 'Công nợ',
-                'parent_id' => 0,
-                'sort_order' => 0,
-                'type_show' => config('constant.type_show.basic'),
-                'count_item_of_page' => 30,
-                'is_edit' => 1, // 1 hiển thị ở menu; 0 không hiển thị
-                'form_data_type' => 1,
-                'have_delete' => 0,
-                'have_add_new' => 0,
-                'is_show_btn_edit' => 0,
-                'tab_table_id' => 0,
-                'tab_table_name' => '',
-                'table_data' => '',
-                'is_label' => 0,
-                'auto_add_draft' => 1
-            ]);
-            $tbl = Table::where('name', 'cong_no')->first();
-            $tableId = $tbl->id;
-            $order_col = 1;
-            // card
-
-            MigrateService::createColumn02($tableId, 'name', 'Tiêu đề', 'VARCHA', 'text', $order_col++,
-             ['require' => 0, 'col' => 12 , 'add_express' => 1]);
-            MigrateService::createColumn02($tableId, 'code', 'Mã công nợ', 'VARCHAR', 'text', $order_col++,
-            ['is_view_detail' => 1, 'show_in_list' => 1, 'edit' => 0,'auto_generate_code' => '{"edit":0, "prefix":"CN", "length":5}']);
-
-            MigrateService::createColumn02($tableId, 'loai_cong_no', 'Loại công nợ', 'VARCHAR', 'select_option', $order_col++,
-            ['is_view_detail' => 1, 'show_in_list' => 1, 'edit' => 0, 'require' => 1, 'col' => 12, 'add_express' => 1,
-             'select_option' => '{"receivable":"Nợ cần thu (Khách hàng)","payable":"Nợ phải trả (Nhà cung cấp)"}']);
-
-            $ncc = Table::where('name', 'nha_cung_cap')->first();
-            MigrateService::createColumn02($tableId, 'nha_cung_cap_id', 'Nhà cung cấp', 'INT', 'select', $order_col++,
-             ['select_table_id' => $ncc->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
-              'show_if' => '{"loai_cong_no":"payable"}']);
-
-            $user = Table::where('name', 'users')->first();
-            MigrateService::createColumn02($tableId, 'users_id', 'Khách Hàng', 'INT', 'select', $order_col++,
-             ['select_table_id' => $user->id, 'edit' => 0, 'require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1,
-              'show_if' => '{"loai_cong_no":"receivable"}']);            MigrateService::createColumn02($tableId, 'so_tien_no', 'Số tiền', 'INT', 'number', $order_col++,
-             ['require' => 1, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
-
-            $status = Table::where('name', 'cong_no_status')->first();
-            MigrateService::createColumn02($tableId, 'cong_no_status_id', 'Trạng thái', 'INT', 'select', $order_col++,
-             ['select_table_id' => $status->id, 'edit' => 1, 'require' => 1, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
-
-            MigrateService::createColumn02($tableId, 'ngay_hen_tat_toan', 'Ngày hẹn tất toán', 'DATE', 'date', $order_col++,
-             ['require' => 0, 'col' => 12 , 'add_express' => 1, 'show_in_list' => 1]);
-
-            MigrateService::createColumn02($tableId, 'ngay_tat_toan', 'Ngày tất toán', 'DATE', 'date', $order_col++,
-             ['require' => 0, 'col' => 12 , 'add_express' => 1, 'edit' => 0, 'show_in_list' => 0]);
-
-            MigrateService::baseColumn($tbl);
 
         }
 

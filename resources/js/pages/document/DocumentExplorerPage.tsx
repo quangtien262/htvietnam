@@ -1241,7 +1241,8 @@ export default function DocumentExplorerPage() {
                             <Select.Option value="viewer">Xem</Select.Option>
                             <Select.Option value="commenter">Bình luận</Select.Option>
                             <Select.Option value="editor">Chỉnh sửa</Select.Option>
-                            <Select.Option value="owner">Quản lý</Select.Option>
+                            <Select.Option value="manager">Quản lý</Select.Option>
+                            <Select.Option value="owner">Chủ sở hữu</Select.Option>
                         </Select>
                     </Form.Item>
                 </Form>
@@ -1826,7 +1827,8 @@ export default function DocumentExplorerPage() {
                             <Select.Option value="viewer">Xem</Select.Option>
                             <Select.Option value="commenter">Bình luận</Select.Option>
                             <Select.Option value="editor">Chỉnh sửa</Select.Option>
-                            <Select.Option value="owner">Quản lý</Select.Option>
+                            <Select.Option value="manager">Quản lý</Select.Option>
+                            <Select.Option value="owner">Chủ sở hữu</Select.Option>
                         </Select>
                     </Form.Item>
                 </Form>

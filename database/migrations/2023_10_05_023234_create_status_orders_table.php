@@ -24,11 +24,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $order_col = 1;
-        $tbl = MigrateService::createTable(0, 'status_orders', 'Trạng thái đơn hàng', 0, 1, 1, 0, 0);
-
-         MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
-        MigrateService::createColumn02($tbl->id, 'name', 'Trạng thái', 'VARCHAR', 'text', $order_col++, ['require' => 1,'is_view_detail' => 1]);
+       
     }
 
     /**

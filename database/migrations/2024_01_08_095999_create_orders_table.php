@@ -33,38 +33,8 @@ return new class extends Migration
             
             MigrateService::createBaseColumn($table);
         });
-        $order_col = 1;
-        $user = Table::where('name', 'users')->first();
-        $cart = MigrateService::createTable02('orders', 'Đơn đặt hàng', 
-        ['is_edit'=>1]);
-        MigrateService::createColumn02(
-            $cart->id,
-            'id',
-            'id',
-            'INT',
-            'number',
-            $order_col++,
-            ['edit' => 0]
-        );
-        $product = Table::where('name', 'products')->first();
-        MigrateService::createColumn02($cart->id, 'product_id', 'Sản phẩm', 'VARCHAR', 'select', $order_col++, ['select_table_id' => $product->id,'show_in_list' => 1, 'is_view_detail' => 1]);
+
         
-        $user = Table::where('name', 'users')->first();
-        MigrateService::createColumn02($cart->id, 'user_id', 'Khách hàng', 'INT', 'select', $order_col++,['select_table_id' => $user->id]);
-
-        $bds = Table::where('name', 'bds')->first();
-        MigrateService::createColumn02($cart->id, 'bds_id', 'BĐS', 'INT', 'select', $order_col++,
-        ['select_table_id' => $bds->id]);
-
-        MigrateService::createColumn02($cart->id, 'price', 'Giá bán', 'INT', 'number', $order_col++);
-        MigrateService::createColumn02($cart->id, 'promo_price', 'Số lượng', 'INT', 'number', $order_col++);
-        MigrateService::createColumn02($cart->id, 'note', 'Số lượng', 'TEXT', 'textarea', $order_col++);
-
-        $confirm = Table::where('name', 'confirm')->first();
-        MigrateService::createColumn02($cart->id, 'is_payment', 'Đã thanh toán', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
-        MigrateService::createColumn02($cart->id, 'invoice', 'Xuất hóa đơn', 'INT', 'select', $order_col++,['select_table_id' => $confirm->id]);
-        
-        MigrateService::createColumn02($cart->id, 'sort_order', 'Số lượng', 'TEXT', 'text', $order_col++);
     }
 
     /**

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('loai_nguoi_dung', ['user', 'department', 'public'])->default('user');
             
             // Quyền
-            $table->enum('quyen', ['owner', 'editor', 'viewer', 'commenter'])->default('viewer');
+            $table->enum('quyen', ['owner', 'manager', 'editor', 'commenter', 'viewer'])->default('viewer');
             
             // Thời hạn
             $table->timestamp('ngay_het_han')->nullable();

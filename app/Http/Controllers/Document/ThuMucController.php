@@ -328,7 +328,7 @@ class ThuMucController extends Controller
                 'loai_chia_se' => 'required|in:user,public',
                 'users' => 'required_if:loai_chia_se,user|array',
                 'users.*' => 'exists:admin_users,id',
-                'quyen' => 'required|in:owner,editor,viewer,commenter',
+                'quyen' => 'required|in:owner,manager,editor,commenter,viewer',
                 'ngay_het_han' => 'nullable|date',
             ]);
 
