@@ -112,6 +112,13 @@ import SettingsPage from './pages/document/SettingsPage';
 import ShareLinkPage from './pages/document/ShareLinkPage';
 import UserGuidePage from './pages/document/UserGuidePage';
 
+// SPA Management
+import SpaDashboard from './pages/spa/SpaDashboard';
+import SpaBookingCalendar from './pages/spa/SpaBookingCalendar';
+import SpaPOSScreen from './pages/spa/SpaPOSScreen';
+import SpaCustomerList from './pages/spa/SpaCustomerList';
+import SpaAnalyticsDashboard from './pages/spa/SpaAnalyticsDashboard';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -216,6 +223,13 @@ const App: React.FC = () => (
                 <Route path={ROUTE.documentsSettings} element={<SettingsPage />} />
                 <Route path={ROUTE.documentsUserGuide} element={<UserGuidePage />} />
                 <Route path="/share/:hash" element={<ShareLinkPage />} />
+
+                {/* SPA Management */}
+                <Route path={ROUTE.spa_dashboard} element={<SpaDashboard />} />
+                <Route path={ROUTE.spa_booking_calendar} element={<SpaBookingCalendar />} />
+                <Route path={ROUTE.spa_pos} element={<SpaPOSScreen />} />
+                <Route path={ROUTE.spa_customers} element={<SpaCustomerList />} />
+                <Route path={ROUTE.spa_analytics} element={<SpaAnalyticsDashboard />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

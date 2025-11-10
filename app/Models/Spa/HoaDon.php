@@ -1,0 +1,239 @@
+<?php
+
+namespace App\Models\Spa;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Casts\Json;
+
+class HoaDon extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'spa_hoa_don';
+
+    protected $fillable = [
+        'ma_hoa_don',
+        'khach_hang_id',
+        'chi_nhanh_id',
+        'ngay_ban',
+        'tong_tien_dich_vu',
+        'tong_tien_san_pham',
+        'tong_tien',
+        'giam_gia',
+        'diem_su_dung',
+        'tien_giam_tu_diem',
+        'tien_tip',
+        'tong_thanh_toan',
+        'phuong_thuc_thanh_toan',
+        'trang_thai',
+        'nguoi_ban',
+        'ghi_chu',
+    ];
+
+    protected $casts = [
+        'khach_hang_id' => 'integer',
+        'chi_nhanh_id' => 'integer',
+        'ngay_ban' => 'datetime',
+        'tong_tien_dich_vu' => 'decimal:0',
+        'tong_tien_san_pham' => 'decimal:0',
+        'tong_tien' => 'decimal:0',
+        'giam_gia' => 'decimal:0',
+        'diem_su_dung' => 'integer',
+        'tien_giam_tu_diem' => 'decimal:0',
+        'tien_tip' => 'decimal:0',
+        'tong_thanh_toan' => 'decimal:0',
+        'phuong_thuc_thanh_toan' => Json::class,
+    ];
+
+    // Relationships
+    public function khachHang()
+    {
+        return $this->belongsTo(KhachHang::class, 'khach_hang_id');
+    }
+
+    public function chiNhanh()
+    {
+        return $this->belongsTo(ChiNhanh::class, 'chi_nhanh_id');
+    }
+
+    public function chiTiets()
+    {
+        return $this->hasMany(HoaDonChiTiet::class, 'hoa_don_id');
+    }
+
+    public function hoaHongs()
+    {
+        return $this->hasMany(KTVHoaHong::class, 'hoa_don_id');
+    }
+
+    // Scopes
+    public function scopePaid($query)
+    {
+        return $query->where('trang_thai', 'da_thanh_toan');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('trang_thai', 'cho_thanh_toan');
+    }
+
+    public function scopeToday($query)
+    {
+        return $query->whereDate('ngay_ban', today());
+    }
+
+    public function scopeByDate($query, $date)
+    {
+        return $query->whereDate('ngay_ban', $date);
+    }
+
+    public function scopeDateRange($query, $from, $to)
+    {
+        return $query->whereBetween('ngay_ban', [$from, $to]);
+    }
+
+    // Accessors
+    public function getTongThanhToanFormattedAttribute()
+    {
+        return number_format($this->tong_thanh_toan, 0, ',', '.');
+    }
+
+    // Business Logic
+    public function calculateTotals()
+    {
+        $tongDichVu = $this->chiTiets()->whereNotNull('dich_vu_id')->sum('thanh_tien');
+        $tongSanPham = $this->chiTiets()->whereNotNull('san_pham_id')->sum('thanh_tien');
+
+        $this->tong_tien_dich_vu = $tongDichVu;
+        $this->tong_tien_san_pham = $tongSanPham;
+        $this->tong_tien = $tongDichVu + $tongSanPham;
+        $this->tong_thanh_toan = $this->tong_tien - $this->giam_gia - $this->tien_giam_tu_diem;
+
+        $this->save();
+        return $this;
+    }
+
+    public function calculateCommissions()
+    {
+        // Delete existing commissions
+        $this->hoaHongs()->delete();
+
+        foreach ($this->chiTiets as $chiTiet) {
+            if ($chiTiet->ktv_id) {
+                $ktv = KTV::find($chiTiet->ktv_id);
+                if (!$ktv) continue;
+
+                // Calculate commission based on type
+                if ($chiTiet->dich_vu_id) {
+                    // Service commission: 20%
+                    $commission = $chiTiet->thanh_tien * 0.20;
+                    KTVHoaHong::create([
+                        'ktv_id' => $ktv->id,
+                        'hoa_don_id' => $this->id,
+                        'loai' => 'dich_vu',
+                        'reference_id' => $chiTiet->dich_vu_id,
+                        'doanh_thu' => $chiTiet->thanh_tien,
+                        'phan_tram' => 20,
+                        'tien_hoa_hong' => $commission,
+                        'ngay_thuc_hien' => $this->ngay_ban,
+                        'trang_thai' => 'cho_thanh_toan',
+                    ]);
+                } elseif ($chiTiet->san_pham_id) {
+                    // Product commission: 10%
+                    $commission = $chiTiet->thanh_tien * 0.10;
+                    KTVHoaHong::create([
+                        'ktv_id' => $ktv->id,
+                        'hoa_don_id' => $this->id,
+                        'loai' => 'san_pham',
+                        'reference_id' => $chiTiet->san_pham_id,
+                        'doanh_thu' => $chiTiet->thanh_tien,
+                        'phan_tram' => 10,
+                        'tien_hoa_hong' => $commission,
+                        'ngay_thuc_hien' => $this->ngay_ban,
+                        'trang_thai' => 'cho_thanh_toan',
+                    ]);
+                }
+            }
+        }
+
+        // Tip commission: 100% to KTV
+        if ($this->tien_tip > 0) {
+            $firstDetailWithKTV = $this->chiTiets()->whereNotNull('ktv_id')->first();
+            if ($firstDetailWithKTV) {
+                KTVHoaHong::create([
+                    'ktv_id' => $firstDetailWithKTV->ktv_id,
+                    'hoa_don_id' => $this->id,
+                    'loai' => 'tip',
+                    'reference_id' => null,
+                    'doanh_thu' => $this->tien_tip,
+                    'phan_tram' => 100,
+                    'tien_hoa_hong' => $this->tien_tip,
+                    'ngay_thuc_hien' => $this->ngay_ban,
+                    'trang_thai' => 'cho_thanh_toan',
+                ]);
+            }
+        }
+
+        return $this;
+    }
+
+    public function processLoyaltyPoints()
+    {
+        if (!$this->khach_hang_id) return;
+
+        $khachHang = $this->khachHang;
+        
+        // Get membership tier multiplier
+        $membershipCard = $khachHang->membershipCards()->active()->first();
+        $multiplier = 1;
+        if ($membershipCard && $membershipCard->tier) {
+            $multiplier = $membershipCard->tier->he_so_tich_diem;
+        }
+
+        // Calculate points (1 point per 10,000 VND)
+        $basePoints = floor($this->tong_thanh_toan / 10000);
+        $finalPoints = $basePoints * $multiplier;
+
+        // Award points
+        $khachHang->addPoints(
+            $finalPoints,
+            'mua_hang',
+            $this->id,
+            "Tích điểm từ hóa đơn {$this->ma_hoa_don}"
+        );
+
+        // Check for tier upgrade
+        $this->checkTierUpgrade();
+
+        return $finalPoints;
+    }
+
+    public function checkTierUpgrade()
+    {
+        if (!$this->khach_hang_id) return;
+
+        $khachHang = $this->khachHang;
+        $currentCard = $khachHang->membershipCards()->active()->first();
+
+        // Get applicable tier based on total spending
+        $newTier = MembershipTier::getApplicableTier($khachHang->tong_chi_tieu);
+
+        if ($newTier) {
+            if (!$currentCard) {
+                // Create new card
+                KhachHangThe::create([
+                    'ma_the' => 'THE-' . strtoupper(substr(md5(uniqid()), 0, 10)),
+                    'khach_hang_id' => $khachHang->id,
+                    'tier_id' => $newTier->id,
+                    'ngay_cap' => now(),
+                    'ngay_het_han' => now()->addYear(),
+                    'trang_thai' => 'active',
+                ]);
+            } elseif ($currentCard->tier_id != $newTier->id) {
+                // Upgrade existing card
+                $currentCard->upgrade($newTier->id);
+            }
+        }
+    }
+}

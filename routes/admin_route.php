@@ -50,6 +50,12 @@ Route::get('/hr/huong-dan', function() {
     return view('admin.hr.huong-dan');
 })->name('hr.huong-dan');
 
+// ============================
+// MODULE SPA MANAGEMENT
+// ============================
+
+require __DIR__ . '/spa_route.php';
+
 // Chấm công
 Route::get('/hr/cham-cong', [ChamCongController::class, 'index'])->name('hr.cham-cong.index');
 Route::post('/api/hr/cham-cong/store', [ChamCongController::class, 'store'])->name('api.hr.cham-cong.store');

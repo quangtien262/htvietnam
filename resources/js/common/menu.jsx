@@ -600,6 +600,144 @@ export const MENU = {
             ],
         },
     ],
+
+    // Himalaya SPA
+    spa: [
+        {
+            label: <Link className='normal' to={`${ROUTE.spa_dashboard}?p=spa`}>Dashboard</Link>,
+            icon: <DashboardOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link className='normal' to={`${ROUTE.spa_booking_calendar}?p=spa`}>Lịch hẹn</Link>,
+            icon: <CalendarOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link className='normal' to={`${ROUTE.spa_pos}?p=spa`}>POS Bán hàng</Link>,
+            icon: <ShopOutlined />,
+            key: (key++).toString(),
+        },
+        // Khách hàng
+        {
+            label: "Khách hàng",
+            key: (key++).toString(),
+            icon: <UserOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_customers}?p=spa`}>Danh sách KH</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_membership}?p=spa`}>Thẻ thành viên</Link>,
+                    key: (key++).toString(),
+                    icon: <StarOutlined />,
+                },
+            ],
+        },
+        // Dịch vụ
+        {
+            label: "Dịch vụ",
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_services}?p=spa`}>Danh mục DV</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
+                    key: (key++).toString(),
+                    icon: <FileDoneOutlined />,
+                },
+            ],
+        },
+        // Sản phẩm
+        {
+            label: "Sản phẩm",
+            key: (key++).toString(),
+            icon: <InboxOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_products}?p=spa`}>Danh mục SP</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+            ],
+        },
+        // Nhân viên
+        {
+            label: <Link to={`${ROUTE.spa_staff}?p=spa`}>Nhân viên KTV</Link>,
+            icon: <TeamOutlined />,
+            key: (key++).toString(),
+        },
+        // Marketing
+        {
+            label: "Marketing",
+            key: (key++).toString(),
+            icon: <MessageOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_vouchers}?p=spa`}>Voucher</Link>,
+                    key: (key++).toString(),
+                    icon: <TagsOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_campaigns}?p=spa`}>Chiến dịch</Link>,
+                    key: (key++).toString(),
+                    icon: <MessageOutlined />,
+                },
+            ],
+        },
+        // Báo cáo
+        {
+            label: "Báo cáo",
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_analytics}?p=spa`}>Thống kê</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_reports}?p=spa`}>Báo cáo</Link>,
+                    key: (key++).toString(),
+                    icon: <FileTextOutlined />,
+                },
+            ],
+        },
+        // Cài đặt
+        {
+            label: "Cài đặt",
+            key: (key++).toString(),
+            icon: <SettingOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_branches}?p=spa`}>Chi nhánh</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_rooms}?p=spa`}>Phòng</Link>,
+                    key: (key++).toString(),
+                    icon: <ApartmentOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_settings}?p=spa`}>Cấu hình</Link>,
+                    key: (key++).toString(),
+                    icon: <SettingFilled />,
+                },
+            ],
+        },
+    ],
 }
 
 

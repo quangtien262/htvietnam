@@ -120,6 +120,27 @@ export const ROUTE = {
     documentsSettings: `${baseRoute}documents/settings/`,
     documentsUserGuide: `${baseRoute}documents/user-guide/`, // Trang hướng dẫn sử dụng
     documentsShare: `${baseRoute}share/`, // Public share link (no hash, will be /share/:hash)
+
+    // SPA Management - Quản lý Spa
+    spa_dashboard: `${baseRoute}spa/dashboard/`,
+    spa_booking_calendar: `${baseRoute}spa/booking-calendar/`,
+    spa_pos: `${baseRoute}spa/pos/`,
+    spa_customers: `${baseRoute}spa/customers/`,
+    spa_customer_profile: `${baseRoute}spa/customers/:id/`,
+    spa_membership: `${baseRoute}spa/membership/`,
+    spa_services: `${baseRoute}spa/services/`,
+    spa_treatment_packages: `${baseRoute}spa/treatment-packages/`,
+    spa_products: `${baseRoute}spa/products/`,
+    spa_inventory: `${baseRoute}spa/inventory/`,
+    spa_staff: `${baseRoute}spa/staff/`,
+    spa_staff_schedule: `${baseRoute}spa/staff/:id/schedule/`,
+    spa_vouchers: `${baseRoute}spa/vouchers/`,
+    spa_campaigns: `${baseRoute}spa/campaigns/`,
+    spa_analytics: `${baseRoute}spa/analytics/`,
+    spa_reports: `${baseRoute}spa/reports/`,
+    spa_branches: `${baseRoute}spa/branches/`,
+    spa_rooms: `${baseRoute}spa/rooms/`,
+    spa_settings: `${baseRoute}spa/settings/`,
 };
 
 export default ROUTE;
