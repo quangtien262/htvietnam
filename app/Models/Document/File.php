@@ -44,7 +44,7 @@ class File extends Model
 
     // Relationships
     public function thuMuc() { return $this->belongsTo(ThuMuc::class, 'thu_muc_id'); }
-    public function nguoiTaiLen() { return $this->belongsTo(\App\Models\User::class, 'nguoi_tai_len_id'); }
+    public function nguoiTaiLen() { return $this->belongsTo(\App\Models\AdminUser::class, 'nguoi_tai_len_id'); }
     public function phienBans() { return $this->hasMany(PhienBan::class, 'file_id')->orderBy('phien_ban', 'desc'); }
     public function phanQuyens() { return $this->hasMany(PhanQuyen::class, 'file_id'); }
     public function binhLuans() { return $this->hasMany(BinhLuan::class, 'file_id'); }

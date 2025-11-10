@@ -37,7 +37,7 @@ class ChiaSeLink extends Model
     // Relationships
     public function file() { return $this->belongsTo(File::class, 'file_id'); }
     public function thuMuc() { return $this->belongsTo(ThuMuc::class, 'thu_muc_id'); }
-    public function nguoiTao() { return $this->belongsTo(\App\Models\User::class, 'nguoi_tao_id'); }
+    public function nguoiTao() { return $this->belongsTo(\App\Models\AdminUser::class, 'nguoi_tao_id'); }
 
     // Scopes
     public function scopeActive($query) { 

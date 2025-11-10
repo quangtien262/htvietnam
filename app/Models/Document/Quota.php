@@ -26,7 +26,7 @@ class Quota extends Model
     ];
 
     // Relationships
-    public function user() { return $this->belongsTo(\App\Models\User::class, 'user_id'); }
+    public function user() { return $this->belongsTo(\App\Models\AdminUser::class, 'user_id'); }
 
     // Scopes
     public function scopeForUser($query, $userId) {

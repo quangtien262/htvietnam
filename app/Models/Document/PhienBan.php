@@ -23,7 +23,7 @@ class PhienBan extends Model
 
     // Relationships
     public function file() { return $this->belongsTo(File::class, 'file_id'); }
-    public function nguoiTaiLen() { return $this->belongsTo(\App\Models\User::class, 'nguoi_tai_len_id'); }
+    public function nguoiTaiLen() { return $this->belongsTo(\App\Models\AdminUser::class, 'nguoi_tai_len_id'); }
 
     // Helpers
     public function getKichThuocFormatted()

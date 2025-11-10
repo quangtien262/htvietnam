@@ -22,8 +22,8 @@ class PhanQuyen extends Model
     // Relationships
     public function file() { return $this->belongsTo(File::class, 'file_id'); }
     public function thuMuc() { return $this->belongsTo(ThuMuc::class, 'thu_muc_id'); }
-    public function user() { return $this->belongsTo(\App\Models\User::class, 'user_id'); }
-    public function nguoiChiaSe() { return $this->belongsTo(\App\Models\User::class, 'nguoi_chia_se_id'); }
+    public function user() { return $this->belongsTo(\App\Models\AdminUser::class, 'user_id'); }
+    public function nguoiChiaSe() { return $this->belongsTo(\App\Models\AdminUser::class, 'nguoi_chia_se_id'); }
 
     // Scopes
     public function scopeActive($query) { 

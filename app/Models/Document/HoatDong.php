@@ -25,7 +25,7 @@ class HoatDong extends Model
     // Relationships
     public function file() { return $this->belongsTo(File::class, 'file_id'); }
     public function thuMuc() { return $this->belongsTo(ThuMuc::class, 'thu_muc_id'); }
-    public function user() { return $this->belongsTo(\App\Models\User::class, 'user_id'); }
+    public function user() { return $this->belongsTo(\App\Models\AdminUser::class, 'user_id'); }
 
     // Scopes
     public function scopeByAction($query, $action) { return $query->where('hanh_dong', $action); }
