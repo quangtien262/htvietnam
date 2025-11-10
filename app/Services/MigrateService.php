@@ -861,11 +861,10 @@ MigrateService
     }
 
     static function createColumn2SettingTable($table) {
-        $table->integer('name')->default(0)->nullable();
-        $table->integer('color')->default(0)->nullable();
-        $table->integer('icon')->default(0)->nullable(); // nguoi tao
+        $table->string('name')->nullable();
+        $table->string('color')->nullable();
+        $table->string('icon')->nullable(); // nguoi tao
         $table->text('note')->nullable();
-        $table->timestamps();
     }
 
     static function createBaseColumn($table) {

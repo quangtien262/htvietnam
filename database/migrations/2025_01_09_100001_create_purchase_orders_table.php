@@ -29,10 +29,11 @@ return new class extends Migration
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->tinyInteger('is_recycle_bin')->default(0);
+            $table->unsignedBigInteger('status_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
-            $table->foreign('status')->references('id')->on('purchase_order_statuses')->onDelete('restrict');
+            // $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+            // $table->foreign('status')->references('id')->on('purchase_order_statuses')->onDelete('restrict');
             $table->index('code');
             $table->index('status');
             $table->index('payment_status');

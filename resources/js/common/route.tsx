@@ -71,6 +71,17 @@ export const ROUTE = {
     taiChinhDashboard: `${baseRoute}tai-chinh/dashboard/`,
     taiChinhReport: `${baseRoute}tai-chinh/report/`,
     taiChinhInvoice: `${baseRoute}tai-chinh/invoice/`,
+
+    // ERP - Ngân hàng
+    bankAccount: `${baseRoute}bank/account/`,
+    bankTransaction: `${baseRoute}bank/transaction/`,
+    bankReconciliation: `${baseRoute}bank/reconciliation/`,
+
+    // ERP - Hóa đơn
+    invoiceManagement: `${baseRoute}erp/invoice/`,
+
+    // ERP - Dashboard
+    erpDashboard: `${baseRoute}erp/dashboard/`,
 };
 
 export default ROUTE;

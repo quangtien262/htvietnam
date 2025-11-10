@@ -241,9 +241,31 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
-            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Báo cáo / Thống kê</Link>,
+            label: <Link to={`${ROUTE.erpDashboard}?p=erp`}>Dashboard</Link>,
+            key: (key++).toString(),
+            icon: <DashboardOutlined />,
+        },
+        {
+            label: "Giao dịch",
             key: (key++).toString(),
             icon: <FileTextOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ (Thu/Chi)</Link>,
+                    key: (key++).toString(),
+                    icon: <DollarOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.bankTransaction}?p=erp`}>Giao dịch ngân hàng</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.invoiceManagement}?p=erp`}>Hóa đơn</Link>,
+                    key: (key++).toString(),
+                    icon: <FileDoneOutlined />,
+                },
+            ],
         },
         {
             label: <Link to={`${ROUTE.congNoManagement}?p=erp`}>Công nợ</Link>,
@@ -251,19 +273,19 @@ export const MENU = {
             icon: <TagsOutlined />,
         },
         {
-            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ</Link>,
-            key: (key++).toString(),
-            icon: <ShopOutlined />,
-        },
-        {
             label: "Cài đặt",
             key: (key++).toString(),
             icon: <SettingFilled />,
             children: [
                 {
-                    label: <Link to={`${ROUTE.baseRoute}setting/nha_cung_cap?p=erp`}>Đối tác</Link>,
+                    label: <Link to={`${ROUTE.bankAccount}?p=erp`}>Tài khoản ngân hàng</Link>,
                     key: (key++).toString(),
                     icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/nha_cung_cap?p=erp`}>Đối tác</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/loai_thu?p=erp`}>Loại thu</Link>,
@@ -275,10 +297,8 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <ShopOutlined />,
                 },
-
             ],
         },
-
     ],
     // QL mua hàng / kho
     purchase: [

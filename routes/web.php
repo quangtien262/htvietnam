@@ -47,6 +47,7 @@ Route::middleware('auth:admin_users')->group(function () {
 
     Route::group(['prefix' => 'aio/api'], function () {
         require __DIR__ . '/aio_route.php';
+        require __DIR__ . '/admin_route.php';
     });
 
     Route::group(['prefix' => 'purchase'], function () {

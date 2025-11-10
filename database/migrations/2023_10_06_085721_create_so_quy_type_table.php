@@ -17,11 +17,11 @@
                 $table->id();
                 MigrateService::createColumn2SettingTable($table);
                 MigrateService::createBaseColumn($table);
-
-                $table->timestamps();
+                // Removed duplicate $table->timestamps() - already in createBaseColumn
             });
-        }
 
+
+        }
         /**
          * Reverse the migrations.
          */

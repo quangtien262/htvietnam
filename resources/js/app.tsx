@@ -69,6 +69,13 @@ import SupplierPaymentList from './pages/purchase/SupplierPaymentList';
 import PurchaseReport from './pages/purchase/PurchaseReport';
 import HangHoaList from './pages/purchase/HangHoaList';
 
+// ERP - Bank Management
+import BankAccountList from './pages/bank/BankAccountList';
+import BankTransactionList from './pages/bank/BankTransactionList';
+
+// ERP - Dashboard
+import ERPDashboard from './pages/erp/ERPDashboard';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -130,6 +137,13 @@ const App: React.FC = () => (
 
                 {/* Tài chính dashboard */}
                 <Route path={ROUTE.taiChinhDashboard} element={<TaiChinh />} />
+
+                {/* ERP - Bank Management */}
+                <Route path={ROUTE.bankAccount} element={<BankAccountList />} />
+                <Route path={ROUTE.bankTransaction} element={<BankTransactionList />} />
+
+                {/* ERP - Dashboard */}
+                <Route path={ROUTE.erpDashboard} element={<ERPDashboard />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

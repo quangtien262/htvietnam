@@ -278,6 +278,42 @@ export const API = {
     loaiHangHoaUpdate: '/purchase/api/loai-hang-hoa/update',
     loaiHangHoaDelete: '/purchase/api/loai-hang-hoa/delete',
 
+    // ===== QUẢN LÝ NGÂN HÀNG =====
+    // Tài khoản ngân hàng
+    bankAccountList: '/aio/api/bank/account/list',
+    bankAccountAdd: '/aio/api/bank/account/add',
+    bankAccountUpdate: '/aio/api/bank/account/update',
+    bankAccountDelete: '/aio/api/bank/account/delete',
+    bankAccountUpdateSortOrder: '/aio/api/bank/account/update-sort-order',
+
+    // Giao dịch ngân hàng
+    bankTransactionList: '/aio/api/bank/transaction/list',
+    bankTransactionAdd: '/aio/api/bank/transaction/add',
+    bankTransactionUpdate: '/aio/api/bank/transaction/update',
+    bankTransactionDelete: '/aio/api/bank/transaction/delete',
+    bankTransactionTaiKhoanList: '/aio/api/bank/transaction/tai-khoan-list',
+
+    // Đối soát ngân hàng
+    bankReconciliationList: '/aio/api/bank/reconciliation/list',
+    bankReconciliationAdd: '/aio/api/bank/reconciliation/add',
+    bankReconciliationUpdate: '/aio/api/bank/reconciliation/update',
+    bankReconciliationComplete: '/aio/api/bank/reconciliation/complete',
+
+    // ===== HÓA ĐƠN =====
+    invoiceList: '/aio/api/invoice/list',
+    invoiceDetail: '/aio/api/invoice/detail',
+    invoiceAdd: '/aio/api/invoice/add',
+    invoiceUpdate: '/aio/api/invoice/update',
+    invoiceDelete: '/aio/api/invoice/delete',
+    invoiceThanhToan: '/aio/api/invoice/thanh-toan',
+    invoiceExport: '/aio/api/invoice/export',
+
+    // ===== DASHBOARD TÀI CHÍNH =====
+    erpDashboardOverview: '/aio/api/erp/dashboard/overview',
+    erpDashboardCashFlow: '/aio/api/erp/dashboard/cash-flow',
+    erpDashboardCongNo: '/aio/api/erp/dashboard/cong-no',
+    erpDashboardChart: '/aio/api/erp/dashboard/chart',
+
 };
 
 export default API;

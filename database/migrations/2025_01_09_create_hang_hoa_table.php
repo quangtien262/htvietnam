@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('unit')->nullable(); // Đơn vị tính
             $table->text('description')->nullable(); // Mô tả
             $table->integer('status')->default(1); // 1: Active, 0: Inactive
+            $table->unsignedBigInteger('don_vi_hang_hoa_id')->nullable();
             $table->timestamps();
         });
     }

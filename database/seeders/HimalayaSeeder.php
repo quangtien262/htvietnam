@@ -21,221 +21,221 @@ class HimalayaSeeder extends Seeder
         $sortOrder = 1;
 
         // set tất cả table đều là sub menu của label_setting
-        $this->command->warn('Set sub menu: Thiết lập hệ thống');
-        $setting = new Table();
-        $setting->name = 'label_setting';
-        $setting->display_name = 'Thiết lập hệ thống';
-        $setting->sort_order = 100;
-        $setting->is_label = 1;
-        $setting->parent_id = 0;
-        $setting->is_edit = 0;
-        $setting->show_in_menu = 0;
-        $setting->save();
-        DB::table('tables')->update(['parent_id' => $setting->id]);
+        // $this->command->warn('Set sub menu: Thiết lập hệ thống');
+        // $setting = new Table();
+        // $setting->name = 'label_setting';
+        // $setting->display_name = 'Thiết lập hệ thống';
+        // $setting->sort_order = 100;
+        // $setting->is_label = 1;
+        // $setting->parent_id = 0;
+        // $setting->is_edit = 0;
+        // $setting->show_in_menu = 0;
+        // $setting->save();
+        // DB::table('tables')->update(['parent_id' => $setting->id]);
 
         ////////////// tổng quan
-        $this->command->warn('Tổng quan');
-        $tongQuan = new Table();
-        $tongQuan->name = 'label_tong_quan';
-        $tongQuan->display_name = 'Tổng quan';
-        $tongQuan->sort_order = 0;
-        $tongQuan->is_label = 1;
-        $tongQuan->link = '/adm';
-        $tongQuan->parent_id = 0;
-        $tongQuan->is_edit = 1;
-        $tongQuan->save();
+        // $this->command->warn('Tổng quan');
+        // $tongQuan = new Table();
+        // $tongQuan->name = 'label_tong_quan';
+        // $tongQuan->display_name = 'Tổng quan';
+        // $tongQuan->sort_order = 0;
+        // $tongQuan->is_label = 1;
+        // $tongQuan->link = '/adm';
+        // $tongQuan->parent_id = 0;
+        // $tongQuan->is_edit = 1;
+        // $tongQuan->save();
 
         /////////////// hàng hóa
-        $this->command->warn('Hàng hóa');
-        $label_hang_hoa = new Table();
-        $label_hang_hoa->name = 'label_hang_hoa';
-        $label_hang_hoa->display_name = 'Hàng hóa';
-        $label_hang_hoa->sort_order = $sortOrder++;
-        $label_hang_hoa->is_label = 1;
-        $label_hang_hoa->link = '';
-        $label_hang_hoa->parent_id = 0;
-        $label_hang_hoa->is_edit = 1;
-        $label_hang_hoa->save();
+        // $this->command->warn('Hàng hóa');
+        // $label_hang_hoa = new Table();
+        // $label_hang_hoa->name = 'label_hang_hoa';
+        // $label_hang_hoa->display_name = 'Hàng hóa';
+        // $label_hang_hoa->sort_order = $sortOrder++;
+        // $label_hang_hoa->is_label = 1;
+        // $label_hang_hoa->link = '';
+        // $label_hang_hoa->parent_id = 0;
+        // $label_hang_hoa->is_edit = 1;
+        // $label_hang_hoa->save();
 
         // product
-        MigrateService::setParent($label_hang_hoa->id, 'products', $sortOrder++);
-        MigrateService::setParent($label_hang_hoa->id, 'product_kiem_kho', $sortOrder++);
+        // MigrateService::setParent($label_hang_hoa->id, 'products', $sortOrder++);
+        // MigrateService::setParent($label_hang_hoa->id, 'product_kiem_kho', $sortOrder++);
 
         ////////////////// Đối tác
-        $this->command->warn('Đối tác');
-        $doiTac = new Table();
-        $doiTac->name = 'label_doi_tac';
-        $doiTac->display_name = 'Đối tác';
-        $doiTac->sort_order = $sortOrder++;
-        $doiTac->is_label = 1;
-        $doiTac->link = '';
-        $doiTac->parent_id = 0;
-        $doiTac->is_edit = 1;
-        $doiTac->save();
+        // $this->command->warn('Đối tác');
+        // $doiTac = new Table();
+        // $doiTac->name = 'label_doi_tac';
+        // $doiTac->display_name = 'Đối tác';
+        // $doiTac->sort_order = $sortOrder++;
+        // $doiTac->is_label = 1;
+        // $doiTac->link = '';
+        // $doiTac->parent_id = 0;
+        // $doiTac->is_edit = 1;
+        // $doiTac->save();
 
         //users
-        MigrateService::setParent($doiTac->id, 'users', $sortOrder++);
-        MigrateService::setParent($doiTac->id, 'nha_cung_cap', $sortOrder++);
-        MigrateService::setParent($doiTac->id, 'thuong_hieu', $sortOrder++);
+        // MigrateService::setParent($doiTac->id, 'users', $sortOrder++);
+        // MigrateService::setParent($doiTac->id, 'nha_cung_cap', $sortOrder++);
+        // MigrateService::setParent($doiTac->id, 'thuong_hieu', $sortOrder++);
 
         // giao dịch
-        $this->command->warn('Giao dịch');
-        $giaoDich = new Table();
-        $giaoDich->name = 'label_giao_dich';
-        $giaoDich->display_name = 'Giao dịch';
-        $giaoDich->sort_order = $sortOrder++;
-        $giaoDich->is_label = 1;
-        $giaoDich->link = '';
-        $giaoDich->parent_id = 0;
-        $giaoDich->is_edit = 1;
-        $giaoDich->save();
-        MigrateService::setParent($giaoDich->id, 'hoa_don', $sortOrder++);
-        MigrateService::setParent($giaoDich->id, 'product_nhap_hang', $sortOrder++);
-        MigrateService::setParent($giaoDich->id, 'product_tra_hang_ncc', $sortOrder++);
-        MigrateService::setParent($giaoDich->id, 'product_khach_tra_hang', $sortOrder++);
-        MigrateService::setParent($giaoDich->id, 'product_xuat_huy', $sortOrder++);
+        // $this->command->warn('Giao dịch');
+        // $giaoDich = new Table();
+        // $giaoDich->name = 'label_giao_dich';
+        // $giaoDich->display_name = 'Giao dịch';
+        // $giaoDich->sort_order = $sortOrder++;
+        // $giaoDich->is_label = 1;
+        // $giaoDich->link = '';
+        // $giaoDich->parent_id = 0;
+        // $giaoDich->is_edit = 1;
+        // $giaoDich->save();
+        // MigrateService::setParent($giaoDich->id, 'hoa_don', $sortOrder++);
+        // MigrateService::setParent($giaoDich->id, 'product_nhap_hang', $sortOrder++);
+        // MigrateService::setParent($giaoDich->id, 'product_tra_hang_ncc', $sortOrder++);
+        // MigrateService::setParent($giaoDich->id, 'product_khach_tra_hang', $sortOrder++);
+        // MigrateService::setParent($giaoDich->id, 'product_xuat_huy', $sortOrder++);
 
-        $this->command->warn('Tài chính');
-        $taiChinh = new Table();
-        $taiChinh->name = 'label_tai_chinh';
-        $taiChinh->display_name = 'Tài chính';
-        $taiChinh->sort_order = $sortOrder++;
-        $taiChinh->is_label = 1;
-        $taiChinh->link = '';
-        $taiChinh->parent_id = 0;
-        $taiChinh->is_edit = 1;
-        $taiChinh->save();
-        DB::table('tables')
-            ->whereIn('name', ['so_quy', 'cong_no'])
-            ->update(['parent_id' => $taiChinh->id]);
-
-        // Dữ liệu hệ thống
-        $this->command->warn('Báo cáo');
-        $baoCao = new Table();
-        $baoCao->name = 'label_bao_cao';
-        $baoCao->display_name = 'Báo cáo';
-        $baoCao->sort_order = $sortOrder++;
-        $baoCao->is_label = 0;
-        $baoCao->link = '';
-        $baoCao->parent_id = 0;
-        $baoCao->is_edit = 0;
-        $baoCao->save();
-
-        $phieuChi = new Table();
-        $phieuChi->name = 'label_report_ban_hang';
-        $phieuChi->display_name = 'Bán hàng';
-        $phieuChi->sort_order = $sortOrder++;
-        $phieuChi->is_label = 0;
-        $phieuChi->link = '/adm/bao-cao/ban-hang';
-        $phieuChi->parent_id = $baoCao->id;
-        $phieuChi->is_edit = 1;
-        $phieuChi->save();
-
-        $phieuChi = new Table();
-        $phieuChi->name = 'label_report_the_dv';
-        $phieuChi->display_name = 'Thẻ dịch vụ';
-        $phieuChi->sort_order = $sortOrder++;
-        $phieuChi->is_label = 0;
-        $phieuChi->link = '/adm/bao-cao/the-dich-vu';
-        $phieuChi->parent_id = $baoCao->id;
-        $phieuChi->is_edit = 1;
-        $phieuChi->save();
-
-        $phieuChi = new Table();
-        $phieuChi->name = 'label_report_khach_hang';
-        $phieuChi->display_name = 'Khách hàng';
-        $phieuChi->sort_order = $sortOrder++;
-        $phieuChi->is_label = 0;
-        $phieuChi->link = '/adm/bao-cao/khach-hang';
-        $phieuChi->parent_id = $baoCao->id;
-        $phieuChi->is_edit = 1;
-        $phieuChi->save();
-
-        $phieuChi = new Table();
-        $phieuChi->name = 'label_hang_hoa';
-        $phieuChi->display_name = 'Hàng hóa';
-        $phieuChi->sort_order = $sortOrder++;
-        $phieuChi->is_label = 0;
-        $phieuChi->link = '/adm/bao-cao/hang-hoa';
-        $phieuChi->parent_id = $baoCao->id;
-        $phieuChi->is_edit = 1;
-        $phieuChi->save();
-
+        // $this->command->warn('Tài chính');
+        // $taiChinh = new Table();
+        // $taiChinh->name = 'label_tai_chinh';
+        // $taiChinh->display_name = 'Tài chính';
+        // $taiChinh->sort_order = $sortOrder++;
+        // $taiChinh->is_label = 1;
+        // $taiChinh->link = '';
+        // $taiChinh->parent_id = 0;
+        // $taiChinh->is_edit = 1;
+        // $taiChinh->save();
+        // DB::table('tables')
+        //     ->whereIn('name', ['so_quy', 'cong_no'])
+        //     ->update(['parent_id' => $taiChinh->id]);
 
         // Dữ liệu hệ thống
-        $this->command->warn('Set sub menu: Dữ liệu hệ thống');
-        $system = new Table();
-        $system->name = 'label_data_system';
-        $system->display_name = 'Dữ liệu hệ thống';
-        $system->sort_order = $sortOrder++;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 0;
-        $system->save();
-        $tableName = ['service', 'promotion', 'voucher', 'card', 'tour'];
-        $result = MigrateService::setParentId2Tbl($tableName, $system->id);
+        // $this->command->warn('Báo cáo');
+        // $baoCao = new Table();
+        // $baoCao->name = 'label_bao_cao';
+        // $baoCao->display_name = 'Báo cáo';
+        // $baoCao->sort_order = $sortOrder++;
+        // $baoCao->is_label = 0;
+        // $baoCao->link = '';
+        // $baoCao->parent_id = 0;
+        // $baoCao->is_edit = 0;
+        // $baoCao->save();
 
-        $this->command->{$result['status']}($result['msg']);
+        // $phieuChi = new Table();
+        // $phieuChi->name = 'label_report_ban_hang';
+        // $phieuChi->display_name = 'Bán hàng';
+        // $phieuChi->sort_order = $sortOrder++;
+        // $phieuChi->is_label = 0;
+        // $phieuChi->link = '/adm/bao-cao/ban-hang';
+        // $phieuChi->parent_id = $baoCao->id;
+        // $phieuChi->is_edit = 1;
+        // $phieuChi->save();
+
+        // $phieuChi = new Table();
+        // $phieuChi->name = 'label_report_the_dv';
+        // $phieuChi->display_name = 'Thẻ dịch vụ';
+        // $phieuChi->sort_order = $sortOrder++;
+        // $phieuChi->is_label = 0;
+        // $phieuChi->link = '/adm/bao-cao/the-dich-vu';
+        // $phieuChi->parent_id = $baoCao->id;
+        // $phieuChi->is_edit = 1;
+        // $phieuChi->save();
+
+        // $phieuChi = new Table();
+        // $phieuChi->name = 'label_report_khach_hang';
+        // $phieuChi->display_name = 'Khách hàng';
+        // $phieuChi->sort_order = $sortOrder++;
+        // $phieuChi->is_label = 0;
+        // $phieuChi->link = '/adm/bao-cao/khach-hang';
+        // $phieuChi->parent_id = $baoCao->id;
+        // $phieuChi->is_edit = 1;
+        // $phieuChi->save();
+
+        // $phieuChi = new Table();
+        // $phieuChi->name = 'label_hang_hoa';
+        // $phieuChi->display_name = 'Hàng hóa';
+        // $phieuChi->sort_order = $sortOrder++;
+        // $phieuChi->is_label = 0;
+        // $phieuChi->link = '/adm/bao-cao/hang-hoa';
+        // $phieuChi->parent_id = $baoCao->id;
+        // $phieuChi->is_edit = 1;
+        // $phieuChi->save();
+
+
+        // Dữ liệu hệ thống
+        // $this->command->warn('Set sub menu: Dữ liệu hệ thống');
+        // $system = new Table();
+        // $system->name = 'label_data_system';
+        // $system->display_name = 'Dữ liệu hệ thống';
+        // $system->sort_order = $sortOrder++;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 0;
+        // $system->save();
+        // $tableName = ['service', 'promotion', 'voucher', 'card', 'tour'];
+        // $result = MigrateService::setParentId2Tbl($tableName, $system->id);
+
+        // $this->command->{$result['status']}($result['msg']);
 
         // QL Tài Sản
 
-        $system = new Table();
-        $system->name = 'label_QL_tai_san';
-        $system->display_name = 'QL Tài Sản';
-        $system->sort_order = $sortOrder++;
-        ;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 1;
-        $system->save();
+        // $system = new Table();
+        // $system->name = 'label_QL_tai_san';
+        // $system->display_name = 'QL Tài Sản';
+        // $system->sort_order = $sortOrder++;
+        // ;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 1;
+        // $system->save();
 
-        $tableName = ['tai_san', 'cap_phat', 'thu_hoi', 'kiem_ke_tai_san'];
-        MigrateService::setParentId2Tbl($tableName, $system->id);
+        // $tableName = ['tai_san', 'cap_phat', 'thu_hoi', 'kiem_ke_tai_san'];
+        // MigrateService::setParentId2Tbl($tableName, $system->id);
 
-        $system = new Table();
-        $system->name = 'label_cskh';
-        $system->display_name = 'Chăm sóc KH';
-        $system->sort_order = $sortOrder++;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 1;
-        $system->save();
+        // $system = new Table();
+        // $system->name = 'label_cskh';
+        // $system->display_name = 'Chăm sóc KH';
+        // $system->sort_order = $sortOrder++;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 1;
+        // $system->save();
 
-        $tableName = ['tu_van', 'data_cham_soc_khach_hang', 'data_telesales'];
-        MigrateService::setParentId2Tbl($tableName, $system->id);
+        // $tableName = ['tu_van', 'data_cham_soc_khach_hang', 'data_telesales'];
+        // MigrateService::setParentId2Tbl($tableName, $system->id);
 
-        $system = new Table();
-        $system->name = 'label_dat_lich';
-        $system->display_name = 'Đặt lịch';
-        $system->sort_order = $sortOrder++;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 1;
-        $system->save();
+        // $system = new Table();
+        // $system->name = 'label_dat_lich';
+        // $system->display_name = 'Đặt lịch';
+        // $system->sort_order = $sortOrder++;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 1;
+        // $system->save();
 
-        $tableName = ['dat_lich', 'dat_lich_online'];
-        MigrateService::setParentId2Tbl($tableName, $system->id);
+        // $tableName = ['dat_lich', 'dat_lich_online'];
+        // MigrateService::setParentId2Tbl($tableName, $system->id);
 
-        $system = new Table();
-        $system->name = 'label_xu_li_yeu_cau';
-        $system->display_name = 'Xử lí yêu cầu';
-        $system->sort_order = $sortOrder++;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 1;
-        $system->save();
+        // $system = new Table();
+        // $system->name = 'label_xu_li_yeu_cau';
+        // $system->display_name = 'Xử lí yêu cầu';
+        // $system->sort_order = $sortOrder++;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 1;
+        // $system->save();
 
-        $tableName = ['yeu_cau_kh', 'yeu_cau_noi_bo'];
-        MigrateService::setParentId2Tbl($tableName, $system->id);
+        // $tableName = ['yeu_cau_kh', 'yeu_cau_noi_bo'];
+        // MigrateService::setParentId2Tbl($tableName, $system->id);
 
-        $system = new Table();
-        $system->name = 'day';
-        $system->display_name = 'Ngày trong tuần';
-        $system->sort_order = $sortOrder++;
-        $system->is_label = 1;
-        $system->parent_id = 0;
-        $system->is_edit = 0;
-        $system->save();
+        // $system = new Table();
+        // $system->name = 'day';
+        // $system->display_name = 'Ngày trong tuần';
+        // $system->sort_order = $sortOrder++;
+        // $system->is_label = 1;
+        // $system->parent_id = 0;
+        // $system->is_edit = 0;
+        // $system->save();
 
         DB::table('chi_nhanh')->truncate();
         DB::table('chi_nhanh')->insert([
@@ -330,9 +330,9 @@ class HimalayaSeeder extends Seeder
         // DB::table('loai_hinh_chiet_khau')->truncate();
         // DB::table('loai_hinh_chiet_khau')->insert([
         //     [
-        //         'name'=>'Thực hiện dịch vụ', 
+        //         'name'=>'Thực hiện dịch vụ',
         //     ],[
-        //         'name'=>'Tư vấn bán hàng', 
+        //         'name'=>'Tư vấn bán hàng',
         //     ]
         // ]);
 
@@ -478,139 +478,139 @@ class HimalayaSeeder extends Seeder
             ['name' => 'Hàng dùng thử/ demo'],
         ]);
 
-        $this->createHoaDon();
+        // $this->createHoaDon();
     }
 
-    private function createHoaDon()
-    {
-        DB::table('hoa_don')->truncate();
-        DB::table('phieu_thu')->truncate();
-        DB::table('hoa_don_chi_tiet')->truncate();
-        DB::table('nhan_vien_tu_van')->truncate();
-        DB::table('nhan_vien_thuc_hien')->truncate();
-        DB::table('so_quy')->truncate();
-        $now = Carbon::now();
-        $months = array(
-            $now->copy()->subMonth()->format('Y-m'),
-            $now->format('Y-m'),
-        );
-        $khachHangIds = array(1, 2, 3, 4, 5); // giả sử có 5 khách hàng
-        $nhanVienIds = array(2, 3, 4); // giả sử có 3 nhân viên thu
-        $hinhthucTT = array(2, 3, 1); // giả sử có 3 hình thức thanh toán
-        $soHoaDon = 30;
-        $stt = 1;
-        foreach ($months as $m) {
-            for ($i = 1; $i <= $soHoaDon; $i++) {
+    // private function createHoaDon()
+    // {
+    //     DB::table('hoa_don')->truncate();
+    //     DB::table('phieu_thu')->truncate();
+    //     DB::table('hoa_don_chi_tiet')->truncate();
+    //     DB::table('nhan_vien_tu_van')->truncate();
+    //     DB::table('nhan_vien_thuc_hien')->truncate();
+    //     DB::table('so_quy')->truncate();
+    //     $now = Carbon::now();
+    //     $months = array(
+    //         $now->copy()->subMonth()->format('Y-m'),
+    //         $now->format('Y-m'),
+    //     );
+    //     $khachHangIds = array(1, 2, 3, 4, 5); // giả sử có 5 khách hàng
+    //     $nhanVienIds = array(2, 3, 4); // giả sử có 3 nhân viên thu
+    //     $hinhthucTT = array(2, 3, 1); // giả sử có 3 hình thức thanh toán
+    //     $soHoaDon = 30;
+    //     $stt = 1;
+    //     foreach ($months as $m) {
+    //         for ($i = 1; $i <= $soHoaDon; $i++) {
 
-                $ngay = $m . '-' . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT);
-                $khId = $khachHangIds[array_rand($khachHangIds)];
-                $nvId = $nhanVienIds[array_rand($nhanVienIds)];
-                $hinhThucTT_ID = $hinhthucTT[array_rand($hinhthucTT)];
-                $tongTien = rand(500000, 5000000);
-                $daThu = rand(100000, $tongTien);
-                $maHD = 'HD' . str_pad($stt, 5, '0', STR_PAD_LEFT);
-                $maPT = 'PT' . str_pad($stt, 5, '0', STR_PAD_LEFT);
+    //             $ngay = $m . '-' . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT);
+    //             $khId = $khachHangIds[array_rand($khachHangIds)];
+    //             $nvId = $nhanVienIds[array_rand($nhanVienIds)];
+    //             $hinhThucTT_ID = $hinhthucTT[array_rand($hinhthucTT)];
+    //             $tongTien = rand(500000, 5000000);
+    //             $daThu = rand(100000, $tongTien);
+    //             $maHD = 'HD' . str_pad($stt, 5, '0', STR_PAD_LEFT);
+    //             $maPT = 'PT' . str_pad($stt, 5, '0', STR_PAD_LEFT);
 
-                // hoa don
-                $hoaDonId = DB::table('hoa_don')->insertGetId(array(
-                    'name' => 'Hóa đơn ' . $stt,
-                    'code' => $maHD,
-                    'users_id' => $khId,
-                    'ngay_tao' => $ngay,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                    'thanh_toan' => $tongTien,
-                    'da_thanh_toan' => $daThu,
-                    'cong_no' => $tongTien - $daThu,
-                    'hinh_thuc_thanh_toan_id' => $hinhThucTT_ID,
-                    'hoa_don_status_id' => 1,
-                ));
-                $hdon01 = DB::table('hoa_don_chi_tiet')->insertGetId(array(
-                    'data_id' => $hoaDonId,
-                    'product_id' => 1,
-                    'product_name' => 'Sản phẩm 1',
-                    'so_luong' => 1,
-                    'don_gia' => $tongTien / 2,
-                    'thanh_tien' => $tongTien / 2,
-                    'users_id' => $khId,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
-                $hdon02 = DB::table('hoa_don_chi_tiet')->insertGetId(array(
-                    'data_id' => $hoaDonId,
-                    'product_id' => 2,
-                    'product_name' => 'Sản phẩm 2',
-                    'so_luong' => 1,
-                    'don_gia' => $tongTien / 2,
-                    'thanh_tien' => $tongTien / 2,
-                    'users_id' => $khId,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
+    //             // hoa don
+    //             $hoaDonId = DB::table('hoa_don')->insertGetId(array(
+    //                 'name' => 'Hóa đơn ' . $stt,
+    //                 'code' => $maHD,
+    //                 'users_id' => $khId,
+    //                 'ngay_tao' => $ngay,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //                 'thanh_toan' => $tongTien,
+    //                 'da_thanh_toan' => $daThu,
+    //                 'cong_no' => $tongTien - $daThu,
+    //                 'hinh_thuc_thanh_toan_id' => $hinhThucTT_ID,
+    //                 'hoa_don_status_id' => 1,
+    //             ));
+    //             $hdon01 = DB::table('hoa_don_chi_tiet')->insertGetId(array(
+    //                 'data_id' => $hoaDonId,
+    //                 'product_id' => 1,
+    //                 'product_name' => 'Sản phẩm 1',
+    //                 'so_luong' => 1,
+    //                 'don_gia' => $tongTien / 2,
+    //                 'thanh_tien' => $tongTien / 2,
+    //                 'users_id' => $khId,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
+    //             $hdon02 = DB::table('hoa_don_chi_tiet')->insertGetId(array(
+    //                 'data_id' => $hoaDonId,
+    //                 'product_id' => 2,
+    //                 'product_name' => 'Sản phẩm 2',
+    //                 'so_luong' => 1,
+    //                 'don_gia' => $tongTien / 2,
+    //                 'thanh_tien' => $tongTien / 2,
+    //                 'users_id' => $khId,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
 
-                DB::table('nhan_vien_tu_van')->insertGetId(array(
-                    'nhan_vien_id' => $nvId,
-                    'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id' => $hdon01,
-                    'loai_chung_tu' => 'hoa_don_chi_tiet',
-                    'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram' => 1,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
+    //             DB::table('nhan_vien_tu_van')->insertGetId(array(
+    //                 'nhan_vien_id' => $nvId,
+    //                 'chung_tu_id' => $hoaDonId,
+    //                 'chung_tu_chi_tiet_id' => $hdon01,
+    //                 'loai_chung_tu' => 'hoa_don_chi_tiet',
+    //                 'phan_tram_chiet_khau' => 1,
+    //                 'LaPhanTram' => 1,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
 
-                DB::table('nhan_vien_thuc_hien')->insertGetId(array(
-                    'nhan_vien_id' => $nvId,
-                    'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id' => $hdon01,
-                    'loai_chung_tu' => 'hoa_don_chi_tiet',
-                    'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram' => 1,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
+    //             DB::table('nhan_vien_thuc_hien')->insertGetId(array(
+    //                 'nhan_vien_id' => $nvId,
+    //                 'chung_tu_id' => $hoaDonId,
+    //                 'chung_tu_chi_tiet_id' => $hdon01,
+    //                 'loai_chung_tu' => 'hoa_don_chi_tiet',
+    //                 'phan_tram_chiet_khau' => 1,
+    //                 'LaPhanTram' => 1,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
 
-                DB::table('nhan_vien_tu_van')->insertGetId(array(
-                    'nhan_vien_id' => $nvId,
-                    'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id' => $hdon02,
-                    'loai_chung_tu' => 'hoa_don_chi_tiet',
-                    'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram' => 1,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
-                DB::table('nhan_vien_thuc_hien')->insertGetId(array(
-                    'nhan_vien_id' => $nvId,
-                    'chung_tu_id' => $hoaDonId,
-                    'chung_tu_chi_tiet_id' => $hdon02,
-                    'loai_chung_tu' => 'hoa_don_chi_tiet',
-                    'phan_tram_chiet_khau' => 1,
-                    'LaPhanTram' => 1,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
+    //             DB::table('nhan_vien_tu_van')->insertGetId(array(
+    //                 'nhan_vien_id' => $nvId,
+    //                 'chung_tu_id' => $hoaDonId,
+    //                 'chung_tu_chi_tiet_id' => $hdon02,
+    //                 'loai_chung_tu' => 'hoa_don_chi_tiet',
+    //                 'phan_tram_chiet_khau' => 1,
+    //                 'LaPhanTram' => 1,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
+    //             DB::table('nhan_vien_thuc_hien')->insertGetId(array(
+    //                 'nhan_vien_id' => $nvId,
+    //                 'chung_tu_id' => $hoaDonId,
+    //                 'chung_tu_chi_tiet_id' => $hdon02,
+    //                 'loai_chung_tu' => 'hoa_don_chi_tiet',
+    //                 'phan_tram_chiet_khau' => 1,
+    //                 'LaPhanTram' => 1,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
 
-                // phieu thu
-                DB::table('phieu_thu')->insert(array(
-                    'name' => 'Phiếu thu ' . $stt,
-                    'code' => $maPT,
-                    'khach_hang_id' => $khId,
-                    'users_id' => $khId,
-                    'ngay_tao' => $ngay,
-                    'so_tien' => $daThu,
-                    'nhan_vien_id' => $nvId,
-                    'loai_chung_tu' => 'hoa_don',
-                    'chung_tu_id' => $hoaDonId,
-                    'hinh_thuc_thu_id' => $hinhThucTT_ID,
-                    'updated_at' => $ngay,
-                    'created_at' => $ngay,
-                ));
-                $stt++;
-            }
-        }
+    //             // phieu thu
+    //             DB::table('phieu_thu')->insert(array(
+    //                 'name' => 'Phiếu thu ' . $stt,
+    //                 'code' => $maPT,
+    //                 'khach_hang_id' => $khId,
+    //                 'users_id' => $khId,
+    //                 'ngay_tao' => $ngay,
+    //                 'so_tien' => $daThu,
+    //                 'nhan_vien_id' => $nvId,
+    //                 'loai_chung_tu' => 'hoa_don',
+    //                 'chung_tu_id' => $hoaDonId,
+    //                 'hinh_thuc_thu_id' => $hinhThucTT_ID,
+    //                 'updated_at' => $ngay,
+    //                 'created_at' => $ngay,
+    //             ));
+    //             $stt++;
+    //         }
+    //     }
 
-    }
+    // }
 }
 
 
