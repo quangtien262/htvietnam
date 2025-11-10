@@ -66,6 +66,7 @@ export const ROUTE = {
     supplierPaymentManagement: `${baseRoute}purchase/payments/`,
     purchaseReportManagement: `${baseRoute}purchase/reports/`,
     hangHoaManagement: `${baseRoute}purchase/hang-hoa/list/`,
+    purchaseHuongDan: `${baseRoute}purchase/huong-dan/`,
 
     // tài chính
     taiChinhDashboard: `${baseRoute}tai-chinh/dashboard/`,
@@ -89,6 +90,27 @@ export const ROUTE = {
     hrNghiPhep: `${baseRoute}hr/nghi-phep/`,
     hrBaoCao: `${baseRoute}hr/bao-cao/`,
     hrHuongDan: `${baseRoute}hr/huong-dan/`,
+
+    // Sales - Quản lý bán hàng
+    salesKhachHang: `${baseRoute}sales/khach-hang/`,
+    salesDonHang: `${baseRoute}sales/don-hang/`,
+    salesPhieuThu: `${baseRoute}sales/phieu-thu/`,
+    salesKhuyenMai: `${baseRoute}sales/khuyen-mai/`,
+    salesBaoCao: `${baseRoute}sales/bao-cao/`,
+    salesHuongDan: `${baseRoute}sales/huong-dan/`,
+
+    // Business - Quản lý Kinh doanh
+    businessCoHoi: `${baseRoute}business/co-hoi/`,
+    businessBaoGia: `${baseRoute}business/bao-gia/`,
+    businessBaoCao: `${baseRoute}business/bao-cao/`,
+    businessHuongDan: `${baseRoute}business/huong-dan/`,
+
+    // Telesale - Quản lý Telesale
+    telesaleData: `${baseRoute}telesale/data-khach-hang/`,
+    telesaleCuocGoi: `${baseRoute}telesale/cuoc-goi/`,
+    telesaleDonHang: `${baseRoute}telesale/don-hang/`,
+    telesaleBaoCao: `${baseRoute}telesale/bao-cao/`,
+    telesaleHuongDan: `${baseRoute}telesale/huong-dan/`,
 };
 
 export default ROUTE;

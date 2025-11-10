@@ -68,6 +68,7 @@ import StockReceiptList from './pages/purchase/StockReceiptList';
 import SupplierPaymentList from './pages/purchase/SupplierPaymentList';
 import PurchaseReport from './pages/purchase/PurchaseReport';
 import HangHoaList from './pages/purchase/HangHoaList';
+import HuongDanPurchasePage from './pages/purchase/HuongDanPurchasePage';
 
 // ERP - Bank Management
 import BankAccountList from './pages/bank/BankAccountList';
@@ -82,6 +83,25 @@ import BangLuongPage from './pages/hr/BangLuongPage';
 import NghiPhepPage from './pages/hr/NghiPhepPage';
 import BaoCaoPage from './pages/hr/BaoCaoPage';
 import HuongDanHRPage from './pages/hr/HuongDanHRPage';
+
+// Sales
+import KhachHangPage from './pages/sales/KhachHangPage';
+import DonHangPage from './pages/sales/DonHangPage';
+import BaoCaoSalesPage from './pages/sales/BaoCaoSalesPage';
+import HuongDanSalesPage from './pages/sales/HuongDanSalesPage';
+
+// Business
+import CoHoiKinhDoanhPage from './pages/business/CoHoiKinhDoanhPage';
+import BaoGiaPage from './pages/business/BaoGiaPage';
+import BaoCaoBusinessPage from './pages/business/BaoCaoBusinessPage';
+import HuongDanBusinessPage from './pages/business/HuongDanBusinessPage';
+
+// Telesale
+import DataKhachHangPage from './pages/telesale/DataKhachHangPage';
+import CuocGoiPage from './pages/telesale/CuocGoiPage';
+import DonHangTelesalePage from './pages/telesale/DonHangTelesalePage';
+import BaoCaoTelesalePage from './pages/telesale/BaoCaoTelesalePage';
+import HuongDanTelesalePage from './pages/telesale/HuongDanTelesalePage';
 
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
@@ -135,6 +155,7 @@ const App: React.FC = () => (
                 <Route path={ROUTE.stockReceiptManagement} element={<StockReceiptList />} />
                 <Route path={ROUTE.supplierPaymentManagement} element={<SupplierPaymentList />} />
                 <Route path={ROUTE.purchaseReportManagement} element={<PurchaseReport />} />
+                <Route path={ROUTE.purchaseHuongDan} element={<HuongDanPurchasePage />} />
 
                 {/* customer */}
                 <Route path={ROUTE.customerList} element={<CustomerList />} />
@@ -158,6 +179,25 @@ const App: React.FC = () => (
                 <Route path={ROUTE.hrNghiPhep} element={<NghiPhepPage />} />
                 <Route path={ROUTE.hrBaoCao} element={<BaoCaoPage />} />
                 <Route path={ROUTE.hrHuongDan} element={<HuongDanHRPage />} />
+
+                {/* Sales */}
+                <Route path={ROUTE.salesKhachHang} element={<KhachHangPage />} />
+                <Route path={ROUTE.salesDonHang} element={<DonHangPage />} />
+                <Route path={ROUTE.salesBaoCao} element={<BaoCaoSalesPage />} />
+                <Route path={ROUTE.salesHuongDan} element={<HuongDanSalesPage />} />
+
+                {/* Business */}
+                <Route path={ROUTE.businessCoHoi} element={<CoHoiKinhDoanhPage />} />
+                <Route path={ROUTE.businessBaoGia} element={<BaoGiaPage />} />
+                <Route path={ROUTE.businessBaoCao} element={<BaoCaoBusinessPage />} />
+                <Route path={ROUTE.businessHuongDan} element={<HuongDanBusinessPage />} />
+
+                {/* Telesale */}
+                <Route path={ROUTE.telesaleData} element={<DataKhachHangPage />} />
+                <Route path={ROUTE.telesaleCuocGoi} element={<CuocGoiPage />} />
+                <Route path={ROUTE.telesaleDonHang} element={<DonHangTelesalePage />} />
+                <Route path={ROUTE.telesaleBaoCao} element={<BaoCaoTelesalePage />} />
+                <Route path={ROUTE.telesaleHuongDan} element={<HuongDanTelesalePage />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

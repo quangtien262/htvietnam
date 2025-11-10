@@ -23,7 +23,8 @@ import {
     InboxOutlined,
     DollarOutlined,
     TagsOutlined,
-    SettingFilled
+    SettingFilled,
+    PhoneOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -41,7 +42,7 @@ export const MENU = {
             key: (key++).toString(),
         },
     ],
-    // Bất động sản
+    // Bất động sản Aitilen
     bds: [
         {
             label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
@@ -300,7 +301,7 @@ export const MENU = {
             ],
         },
     ],
-    // QL mua hàng / kho
+    // QL mua hàng / kho, tài sản
     purchase: [
         {
             label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
@@ -349,6 +350,11 @@ export const MENU = {
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/purchase_order_statuses?p=purchase`}>Trạng thái đơn mua hàng</Link>,
                     key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.purchaseHuongDan}?p=purchase`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <BookOutlined />,
                 },
             ],
         },
@@ -413,6 +419,117 @@ export const MENU = {
                 },
                 {
                     label: <Link to={`${ROUTE.hrHuongDan}?p=hr`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <BookOutlined />,
+                },
+            ],
+        },
+    ],
+
+    sales: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.salesBaoCao}?p=sales`}>Báo cáo</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.salesKhachHang}?p=sales`}>Khách hàng</Link>,
+            key: (key++).toString(),
+            icon: <UserOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.salesDonHang}?p=sales`}>Đơn hàng</Link>,
+            key: (key++).toString(),
+            icon: <FileDoneOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.salesPhieuThu}?p=sales`}>Thu tiền</Link>,
+            key: (key++).toString(),
+            icon: <DollarOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.salesKhuyenMai}?p=sales`}>Khuyến mãi</Link>,
+            key: (key++).toString(),
+            icon: <TagsOutlined />,
+        },
+        {
+            label: "Cài đặt",
+            key: (key++).toString(),
+            icon: <SettingFilled />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/loai_khach_hang?p=sales`}>Loại khách hàng</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/trang_thai_don_hang?p=sales`}>Trạng thái đơn hàng</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.salesHuongDan}?p=sales`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <BookOutlined />,
+                },
+            ],
+        },
+    ],
+    business: [
+        {
+            label: '💼 Quản lý Kinh doanh',
+            key: (key++).toString(),
+            icon: <DollarOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.businessCoHoi}?p=business`}>🎯 Cơ hội Kinh doanh</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.businessBaoGia}?p=business`}>📋 Báo giá</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.businessBaoCao}?p=business`}>📊 Báo cáo</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.businessHuongDan}?p=business`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <BookOutlined />,
+                },
+            ],
+        },
+    ],
+    telesale: [
+        {
+            label: '📞 Quản lý Telesale',
+            key: (key++).toString(),
+            icon: <PhoneOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.telesaleData}?p=telesale`}>📁 Data Khách hàng</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.telesaleCuocGoi}?p=telesale`}>📞 Cuộc gọi</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.telesaleDonHang}?p=telesale`}>🛒 Đơn hàng</Link>,
+                    key: (key++).toString(),
+                },
+                {
+                    label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.telesaleHuongDan}?p=telesale`}>📖 Hướng dẫn sử dụng</Link>,
                     key: (key++).toString(),
                     icon: <BookOutlined />,
                 },

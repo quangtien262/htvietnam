@@ -1,0 +1,161 @@
+import React, { useState, useEffect } from 'react';
+import { Card, Table, Button, Modal, Form, Select, Input, InputNumber, Space, message, Tag } from 'antd';
+import { PlusOutlined, PhoneOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import axios from 'axios';
+
+const { TextArea } = Input;
+const { Option } = Select;
+
+interface CuocGoi {
+  id: number;
+  ma_cuoc_goi: string;
+  data_khach_hang_id: number;
+  ten_khach_hang?: string;
+  sdt?: string;
+  nhan_vien_telesale_id: number;
+  ten_nhan_vien?: string;
+  thoi_gian_bat_dau: string;
+  thoi_gian_ket_thuc?: string;
+  thoi_luong?: number;
+  ket_qua: string;
+  noi_dung_cuoc_goi?: string;
+  ghi_chu?: string;
+  ngay_hen_goi_lai?: string;
+  file_ghi_am?: string;
+}
+
+const KET_QUA_MAP = {
+  thanh_cong: { text: 'Thành công', color: 'green' },
+  khong_nghe_may: { text: 'Không nghe máy', color: 'orange' },
+  tu_choi: { text: 'Từ chối', color: 'red' },
+  hen_goi_lai: { text: 'Hẹn gọi lại', color: 'blue' },
+  sai_so: { text: 'Sai số', color: 'default' },
+};
+
+const CuocGoiPage: React.FC = () => {
+  const [data, setData] = useState<CuocGoi[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [form] = Form.useForm();
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('/api/telesale/cuoc-goi');
+      setData(res.data);
+    } catch (error) {
+      message.error('Lỗi tải dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleCreate = () => {
+    form.resetFields();
+    setModalVisible(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      await axios.post('/api/telesale/cuoc-goi/store', {
+        ...values,
+        thoi_gian_bat_dau: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        thoi_gian_ket_thuc: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      });
+      message.success('Ghi nhận cuộc gọi thành công');
+      setModalVisible(false);
+      fetchData();
+    } catch (error) {
+      message.error('Lỗi lưu dữ liệu');
+    }
+  };
+
+  const columns = [
+    { title: 'Mã cuộc gọi', dataIndex: 'ma_cuoc_goi', key: 'ma_cuoc_goi', width: 120 },
+    { title: 'Khách hàng', dataIndex: 'ten_khach_hang', key: 'ten_khach_hang' },
+    { title: 'SĐT', dataIndex: 'sdt', key: 'sdt', width: 120 },
+    {
+      title: 'Kết quả',
+      dataIndex: 'ket_qua',
+      key: 'ket_qua',
+      render: (val: string) => {
+        const config = KET_QUA_MAP[val as keyof typeof KET_QUA_MAP];
+        return <Tag color={config?.color}>{config?.text}</Tag>;
+      },
+    },
+    {
+      title: 'Thời lượng',
+      dataIndex: 'thoi_luong',
+      key: 'thoi_luong',
+      render: (val: number) => (val ? `${val}s` : '-'),
+      width: 100,
+    },
+    { title: 'Thời gian', dataIndex: 'thoi_gian_bat_dau', key: 'thoi_gian_bat_dau', width: 160 },
+    { title: 'NV gọi', dataIndex: 'ten_nhan_vien', key: 'ten_nhan_vien' },
+    { title: 'Ghi chú', dataIndex: 'ghi_chu', key: 'ghi_chu' },
+  ];
+
+  return (
+    <div style={{ padding: 24 }}>
+      <Card
+        title="Quản lý Cuộc gọi Telesale"
+        extra={
+          <Button type="primary" icon={<PhoneOutlined />} onClick={handleCreate}>
+            Ghi nhận cuộc gọi
+          </Button>
+        }
+      >
+        <Table columns={columns} dataSource={data} loading={loading} rowKey="id" pagination={{ pageSize: 20 }} />
+      </Card>
+
+      <Modal
+        title="Ghi nhận Cuộc gọi"
+        open={modalVisible}
+        onOk={handleSubmit}
+        onCancel={() => setModalVisible(false)}
+        width={700}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="data_khach_hang_id" label="Khách hàng" rules={[{ required: true }]}>
+            <Select placeholder="Chọn khách hàng" showSearch>
+              {/* TODO: Load from API */}
+              <Option value={1}>Nguyễn Văn A - 0901234567</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="nhan_vien_telesale_id" label="NV Telesale" rules={[{ required: true }]}>
+            <Select placeholder="Chọn nhân viên">
+              <Option value={1}>Nhân viên 1</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="thoi_luong" label="Thời lượng (giây)">
+            <InputNumber style={{ width: '100%' }} min={0} />
+          </Form.Item>
+          <Form.Item name="ket_qua" label="Kết quả" rules={[{ required: true }]}>
+            <Select>
+              {Object.entries(KET_QUA_MAP).map(([key, val]) => (
+                <Option key={key} value={key}>{val.text}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="noi_dung_cuoc_goi" label="Nội dung cuộc gọi">
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="ghi_chu" label="Ghi chú">
+            <TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="ngay_hen_goi_lai" label="Ngày hẹn gọi lại (nếu có)">
+            <Input type="datetime-local" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default CuocGoiPage;

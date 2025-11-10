@@ -191,37 +191,6 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
-        {/* QUẢN LÝ BÁN HÀNG */ }
-        if (item.name === 'parent_kho_hang') {
-            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-                <Card variant="borderless" className='item-dashboard'>
-                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                        <div className="ant-statistic-title">
-                            <Link to="/">
-                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
-                            </Link>
-                        </div>
-                        <div className="ant-statistic-content" >
-                            <div className="ant-statistic-content-prefix">
-                                <ShopFilled />
-                            </div>
-                            <div className="ant-statistic-content-value">
-                                <div>
-                                    <ul className="dashboard-list-item">
-                                        <li><GoldFilled /> Thu ngân</li>
-                                        <li><ReadFilled /> Quản lý Hóa đơn</li>
-                                        <li><TeamOutlined /> Quản lý khách hàng</li>
-                                        <li><UngroupOutlined /> Data telesale</li>
-                                        <li><CalendarOutlined /> Quy trình CSKH</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Card>
-            </Col>
-        }
-
         {/* BÁO CÁO - THỐNG KÊ */ }
         if (item.name === 'parent_thong_ke') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
@@ -322,7 +291,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.taiChinhDashboard}?p=erp`}>
+                            <Link to={`${ROUTE.erpDashboard}?p=erp`}>
                                 <AccountBookOutlined /> QUẢN LÝ TÀI CHÍNH
                             </Link>
                         </div>
@@ -353,7 +322,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={`${ROUTE.salesBaoCao}?p=sales`}>
                                 <ShopFilled /> QUẢN LÝ BÁN HÀNG
                             </Link>
                         </div>

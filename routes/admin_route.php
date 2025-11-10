@@ -93,3 +93,89 @@ Route::get('/api/hr/bao-cao/cham-cong', [BaoCaoNhanSuController::class, 'baoCaoC
 Route::get('/api/hr/bao-cao/luong', [BaoCaoNhanSuController::class, 'baoCaoLuong'])->name('api.hr.bao-cao.luong');
 Route::get('/api/hr/bao-cao/nghi-phep', [BaoCaoNhanSuController::class, 'baoCaoNghiPhep'])->name('api.hr.bao-cao.nghi-phep');
 
+// ============================
+// MODULE QUẢN LÝ BÁN HÀNG
+// ============================
+
+use App\Http\Controllers\Sales\KhachHangController;
+use App\Http\Controllers\Sales\DonHangController;
+use App\Http\Controllers\Sales\PhieuThuController;
+use App\Http\Controllers\Sales\KhuyenMaiController;
+
+// Khách hàng
+Route::get('/api/sales/khach-hang', [KhachHangController::class, 'index']);
+Route::post('/api/sales/khach-hang/store', [KhachHangController::class, 'store']);
+Route::post('/api/sales/khach-hang/update/{id}', [KhachHangController::class, 'update']);
+Route::post('/api/sales/khach-hang/delete/{id}', [KhachHangController::class, 'destroy']);
+
+// Đơn hàng
+Route::get('/api/sales/don-hang', [DonHangController::class, 'index']);
+Route::post('/api/sales/don-hang/store', [DonHangController::class, 'store']);
+Route::post('/api/sales/don-hang/update/{id}', [DonHangController::class, 'update']);
+Route::post('/api/sales/don-hang/update-status/{id}', [DonHangController::class, 'updateStatus']);
+Route::post('/api/sales/don-hang/cancel/{id}', [DonHangController::class, 'cancel']);
+Route::get('/api/sales/don-hang/bao-cao', [DonHangController::class, 'baoCao']);
+
+// Phiếu thu
+Route::get('/api/sales/phieu-thu', [PhieuThuController::class, 'index']);
+Route::post('/api/sales/phieu-thu/store', [PhieuThuController::class, 'store']);
+Route::post('/api/sales/phieu-thu/approve/{id}', [PhieuThuController::class, 'approve']);
+
+// Khuyến mãi
+Route::get('/api/sales/khuyen-mai/chuong-trinh', [KhuyenMaiController::class, 'chuongTrinhIndex']);
+Route::post('/api/sales/khuyen-mai/chuong-trinh/store', [KhuyenMaiController::class, 'chuongTrinhStore']);
+Route::get('/api/sales/khuyen-mai/ma-giam-gia', [KhuyenMaiController::class, 'maGiamGiaIndex']);
+Route::post('/api/sales/khuyen-mai/ma-giam-gia/store', [KhuyenMaiController::class, 'maGiamGiaStore']);
+Route::post('/api/sales/khuyen-mai/kiem-tra', [KhuyenMaiController::class, 'kiemTraMaGiamGia']);
+
+
+// ============================
+// MODULE QUẢN LÝ KINH DOANH
+// ============================
+
+use App\Http\Controllers\Business\CoHoiKinhDoanhController;
+use App\Http\Controllers\Business\BaoGiaController;
+
+// Cơ hội kinh doanh
+Route::get('/api/business/co-hoi', [CoHoiKinhDoanhController::class, 'index']);
+Route::post('/api/business/co-hoi/store', [CoHoiKinhDoanhController::class, 'store']);
+Route::post('/api/business/co-hoi/update/{id}', [CoHoiKinhDoanhController::class, 'update']);
+Route::post('/api/business/co-hoi/update-giai-doan/{id}', [CoHoiKinhDoanhController::class, 'updateGiaiDoan']);
+Route::post('/api/business/co-hoi/delete/{id}', [CoHoiKinhDoanhController::class, 'destroy']);
+Route::get('/api/business/co-hoi/bao-cao', [CoHoiKinhDoanhController::class, 'baoCao']);
+
+// Báo giá
+Route::get('/api/business/bao-gia', [BaoGiaController::class, 'index']);
+Route::post('/api/business/bao-gia/store', [BaoGiaController::class, 'store']);
+Route::post('/api/business/bao-gia/update/{id}', [BaoGiaController::class, 'update']);
+Route::post('/api/business/bao-gia/update-status/{id}', [BaoGiaController::class, 'updateStatus']);
+Route::post('/api/business/bao-gia/delete/{id}', [BaoGiaController::class, 'destroy']);
+
+
+// ============================
+// MODULE TELESALE
+// ============================
+
+use App\Http\Controllers\Telesale\DataKhachHangController;
+use App\Http\Controllers\Telesale\CuocGoiController;
+use App\Http\Controllers\Telesale\DonHangTelesaleController;
+
+// Data khách hàng
+Route::get('/api/telesale/data-khach-hang', [DataKhachHangController::class, 'index']);
+Route::post('/api/telesale/data-khach-hang/store', [DataKhachHangController::class, 'store']);
+Route::post('/api/telesale/data-khach-hang/update/{id}', [DataKhachHangController::class, 'update']);
+Route::post('/api/telesale/data-khach-hang/delete/{id}', [DataKhachHangController::class, 'destroy']);
+Route::post('/api/telesale/data-khach-hang/phan-bo', [DataKhachHangController::class, 'phanBo']);
+Route::post('/api/telesale/data-khach-hang/import', [DataKhachHangController::class, 'import']);
+
+// Cuộc gọi
+Route::get('/api/telesale/cuoc-goi', [CuocGoiController::class, 'index']);
+Route::post('/api/telesale/cuoc-goi/store', [CuocGoiController::class, 'store']);
+Route::get('/api/telesale/cuoc-goi/bao-cao', [CuocGoiController::class, 'baoCao']);
+
+// Đơn hàng telesale
+Route::get('/api/telesale/don-hang', [DonHangTelesaleController::class, 'index']);
+Route::post('/api/telesale/don-hang/store', [DonHangTelesaleController::class, 'store']);
+Route::post('/api/telesale/don-hang/update-status/{id}', [DonHangTelesaleController::class, 'updateStatus']);
+Route::get('/api/telesale/don-hang/bao-cao', [DonHangTelesaleController::class, 'baoCao']);
+
