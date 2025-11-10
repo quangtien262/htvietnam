@@ -112,8 +112,32 @@ class AdminMenuSeeder extends Seeder
             ]
         );
 
+        $business = DB::table('admin_menu')->insertGetId(
+            [
+                'name' => 'parent_business',
+                'display_name' => 'QUẢN LÝ KINH DOANH',
+                'icon' => 'IdcardFilled',
+                'route' => 'banHang.dashboard',
+                'link' => '',
+                'parent_id' => 0,
+                'sort_order' => $order++
+            ]
+        );
+
+        $telesale = DB::table('admin_menu')->insertGetId(
+            [
+                'name' => 'parent_telesale',
+                'display_name' => 'QUẢN LÝ TELESALe',
+                'icon' => 'IdcardFilled',
+                'route' => 'telesale.dashboard',
+                'link' => '',
+                'parent_id' => 0,
+                'sort_order' => $order++
+            ]
+        );
+
         $taiChinh = DB::table('admin_menu')->insertGetId(
-            values: [
+            [
                 'name' => 'parent_tai_chinh',
                 'display_name' => 'QUẢN LÝ TÀI CHÍNH',
                 'icon' => 'AccountBookOutlined',

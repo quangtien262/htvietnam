@@ -512,6 +512,11 @@ export const MENU = {
             icon: <PhoneOutlined />,
             children: [
                 {
+                    label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
                     label: <Link to={`${ROUTE.telesaleData}?p=telesale`}>📁 Data Khách hàng</Link>,
                     key: (key++).toString(),
                 },
@@ -522,11 +527,6 @@ export const MENU = {
                 {
                     label: <Link to={`${ROUTE.telesaleDonHang}?p=telesale`}>🛒 Đơn hàng</Link>,
                     key: (key++).toString(),
-                },
-                {
-                    label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.telesaleHuongDan}?p=telesale`}>📖 Hướng dẫn sử dụng</Link>,
