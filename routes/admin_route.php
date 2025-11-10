@@ -212,6 +212,7 @@ Route::get('/documents/folders/shared', [ThuMucController::class, 'sharedWithMe'
 Route::get('/documents/folders/public', [ThuMucController::class, 'publicFolders']);
 Route::post('/documents/folders/delete/{id}', [ThuMucController::class, 'destroy']);
 Route::post('/documents/folders/restore/{id}', [ThuMucController::class, 'restore']);
+Route::post('/documents/folders/force-delete/{id}', [ThuMucController::class, 'forceDelete']);
 
 // Users list for sharing
 Route::get('/documents/users', function () {
@@ -239,6 +240,7 @@ Route::post('/documents/files/move/{id}', [FileController::class, 'move']);
 Route::post('/documents/files/copy/{id}', [FileController::class, 'copy']);
 Route::post('/documents/files/delete/{id}', [FileController::class, 'destroy']);
 Route::post('/documents/files/restore/{id}', [FileController::class, 'restore']);
+Route::post('/documents/files/force-delete/{id}', [FileController::class, 'forceDelete']);
 Route::get('/documents/files/starred', [FileController::class, 'starred']);
 Route::get('/documents/files/recent', [FileController::class, 'recent']);
 Route::get('/documents/files/trash', [FileController::class, 'trash']);

@@ -243,4 +243,34 @@ class FileController extends Controller
         $files = File::onlyTrashed()->with(['thuMuc', 'nguoiTaiLen'])->get();
         return response()->json($files);
     }
+
+    /**
+     * Xóa vĩnh viễn file (force delete)
+     */
+    public function forceDelete($id)
+    {
+        $file = File::withTrashed()->findOrFail($id);
+        
+        // Delete physical file from storage
+        if (Storage::disk('public')->exists($file->duong_dan)) {
+            Storage::disk('public')->delete($file->duong_dan);
+        }
+
+        // Log before permanent deletion
+        HoatDong::log([
+            'file_id' => $file->id,
+            'loai_doi_tuong' => 'file',
+            'user_id' => auth('admin_users')->id(),
+            'hanh_dong' => 'permanent_delete',
+            'chi_tiet' => [
+                'ten_file' => $file->ten_file,
+                'kich_thuoc' => $file->kich_thuoc
+            ],
+        ]);
+
+        // Permanently delete from database
+        $file->forceDelete();
+
+        return response()->json(['message' => 'Đã xóa vĩnh viễn file']);
+    }
 }

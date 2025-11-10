@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Document;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document\ThuMuc;
+use App\Models\Document\File;
 use App\Models\Document\HoatDong;
 use App\Models\Document\PhanQuyen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ThuMucController extends Controller
 {
@@ -203,6 +205,55 @@ class ThuMucController extends Controller
         }
 
         return response()->json($folder);
+    }
+
+    /**
+     * Xóa vĩnh viễn thư mục và tất cả nội dung (force delete)
+     */
+    public function forceDelete($id)
+    {
+        $folder = ThuMuc::withTrashed()->findOrFail($id);
+        
+        // Recursively delete all files in this folder
+        $files = File::withTrashed()->where('thu_muc_id', $folder->id)->get();
+        foreach ($files as $file) {
+            // Delete physical file
+            if (Storage::disk('public')->exists($file->duong_dan)) {
+                Storage::disk('public')->delete($file->duong_dan);
+            }
+            $file->forceDelete();
+        }
+        
+        // Recursively delete all subfolders
+        $subfolders = ThuMuc::withTrashed()->where('parent_id', $folder->id)->get();
+        foreach ($subfolders as $subfolder) {
+            $this->forceDelete($subfolder->id);
+        }
+
+        // Log before permanent deletion
+        try {
+            $userId = auth('admin_users')->id();
+            if ($userId) {
+                HoatDong::log([
+                    'thu_muc_id' => $folder->id,
+                    'loai_doi_tuong' => 'folder',
+                    'user_id' => $userId,
+                    'hanh_dong' => 'permanent_delete',
+                    'chi_tiet' => [
+                        'ten_thu_muc' => $folder->ten_thu_muc,
+                        'files_deleted' => $files->count(),
+                        'subfolders_deleted' => $subfolders->count()
+                    ],
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Activity log failed:', ['error' => $e->getMessage()]);
+        }
+
+        // Permanently delete the folder itself
+        $folder->forceDelete();
+
+        return response()->json(['message' => 'Đã xóa vĩnh viễn thư mục và tất cả nội dung']);
     }
 
     /**

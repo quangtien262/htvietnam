@@ -50,9 +50,15 @@ export default function TrashPage() {
             content: 'File sẽ bị xóa hoàn toàn và không thể khôi phục!',
             okText: 'Xóa vĩnh viễn',
             okType: 'danger',
+            cancelText: 'Hủy',
             onOk: async () => {
-                // Note: Backend needs to implement permanent delete endpoint
-                message.info('Tính năng xóa vĩnh viễn chưa được triển khai');
+                try {
+                    await axios.post(API.documentFileForceDelete(fileId));
+                    message.success('Đã xóa vĩnh viễn file');
+                    loadFiles();
+                } catch (error) {
+                    message.error('Lỗi xóa vĩnh viễn');
+                }
             }
         });
     };

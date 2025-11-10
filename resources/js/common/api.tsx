@@ -327,6 +327,7 @@ export const API = {
     documentFoldersPublic: '/aio/api/documents/folders/public',
     documentFolderDelete: (id: number) => `/aio/api/documents/folders/delete/${id}`,
     documentFolderRestore: (id: number) => `/aio/api/documents/folders/restore/${id}`,
+    documentFolderForceDelete: (id: number) => `/aio/api/documents/folders/force-delete/${id}`,
     
     // Users for sharing
     documentUsers: '/aio/api/documents/users',
@@ -342,6 +343,7 @@ export const API = {
     documentFileCopy: (id: number) => `/aio/api/documents/files/copy/${id}`,
     documentFileDelete: (id: number) => `/aio/api/documents/files/delete/${id}`,
     documentFileRestore: (id: number) => `/aio/api/documents/files/restore/${id}`,
+    documentFileForceDelete: (id: number) => `/aio/api/documents/files/force-delete/${id}`,
     documentFilesStarred: '/aio/api/documents/files/starred',
     documentFilesRecent: '/aio/api/documents/files/recent',
     documentFilesTrash: '/aio/api/documents/files/trash',
