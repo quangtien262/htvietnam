@@ -108,20 +108,24 @@ http://localhost:100/aio/documents/user-guide/
 - File đã gắn sao
 - File gần đây
 - Thùng rác
+  - Khôi phục file trong vòng 30 ngày
+  - Xóa vĩnh viễn (permanent delete) - không thể hoàn tác
+  - Cảnh báo chi tiết về hành động xóa vĩnh viễn
+  - Hướng dẫn khi nào nên xóa vĩnh viễn
 - Cài đặt & Quota
 
 ### Tab 6: FAQ
-10 câu hỏi thường gặp:
+10+ câu hỏi thường gặp:
 1. Upload nhiều file cùng lúc
 2. Dung lượng tối đa
-3. Thời gian lưu trữ thùng rác
-4. Xem lịch sử hoạt động
-5. Quên mật khẩu link
-6. Xử lý file trùng
+3. Thời gian lưu trữ thùng rác (30 ngày)
+4. Khôi phục vs Xóa vĩnh viễn (permanent delete)
+5. Phân biệt quyền Viewer/Editor/Manager
+6. Xử lý file trùng lặp (hash MD5)
 7. Tìm kiếm nhanh
-8. Phân biệt quyền
-9. Tải xuống thư mục
-10. Nhận thông báo
+8. Tải xuống thư mục
+9. Nhận thông báo
+10. Liên hệ hỗ trợ
 
 ## 🚀 Cách Sử Dụng
 
@@ -215,8 +219,27 @@ import DocumentHelpButton from '../../components/document/DocumentHelpButton';
 - [ ] Interactive tutorial (step-by-step guide)
 - [ ] Tooltips contextual trên từng component
 
+## 📝 Recent Updates
+
+### Version 1.1.0 (2025-11-10)
+- ✅ **Cập nhật chi tiết về Xóa Vĩnh Viễn (Permanent Delete)**
+  - Tab "Quản Lý File": Thêm hướng dẫn khôi phục và xóa vĩnh viễn chi tiết
+  - Tab "Tính Năng Khác": Mở rộng phần Thùng Rác với Steps và Alert cảnh báo
+  - FAQ: Cập nhật câu 3 về thời gian khôi phục và xóa vĩnh viễn
+  - Thêm thông tin: File vật lý bị xóa, dung lượng giải phóng ngay lập tức
+  - Thêm hướng dẫn khi nào nên sử dụng xóa vĩnh viễn
+
+### Version 1.0.0 (2025-11-10)
+- ✅ Release phiên bản đầu tiên
+- 6 tab hướng dẫn đầy đủ
+- 20+ bước hướng dẫn chi tiết
+- 10+ câu hỏi FAQ
+- Tích hợp DocumentHelpButton
+
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Last Updated**: 10/11/2025  
 **Author**: AI Coding Assistant
+
+````

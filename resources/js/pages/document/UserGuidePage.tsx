@@ -288,13 +288,41 @@ const UserGuidePage: React.FC = () => {
                     <li>Click menu "..." → "Xóa"</li>
                     <li>File sẽ chuyển vào "Thùng rác", không bị xóa vĩnh viễn</li>
                     <li>File trong thùng rác được lưu trong <Tag color="orange">30 ngày</Tag></li>
+                    <li>Có thể khôi phục bất kỳ lúc nào trong thời gian này</li>
+                </ul>
+
+                <Divider />
+
+                <Paragraph>
+                    <Text strong>Khôi Phục File:</Text>
+                </Paragraph>
+                <ul>
+                    <li>Vào trang <Tag color="red">Thùng Rác</Tag></li>
+                    <li>Tìm file cần khôi phục</li>
+                    <li>Click nút <Tag color="green">Khôi phục</Tag></li>
+                    <li>File sẽ được đưa về vị trí ban đầu</li>
                 </ul>
 
                 <Divider />
 
                 <Alert
-                    message="⚠️ Xóa Vĩnh Viễn"
-                    description="Trong thùng rác, bạn có thể click 'Xóa vĩnh viễn' để xóa file hoàn toàn. Hành động này KHÔNG THỂ hoàn tác!"
+                    message="⚠️ Xóa Vĩnh Viễn (Permanent Delete)"
+                    description={
+                        <div>
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                Trong thùng rác, bạn có thể click nút <Tag color="red">Xóa vĩnh viễn</Tag> để xóa file hoàn toàn:
+                            </Paragraph>
+                            <ul style={{ marginBottom: 8 }}>
+                                <li>Modal xác nhận sẽ xuất hiện với cảnh báo</li>
+                                <li>File sẽ bị xóa khỏi cả database và storage</li>
+                                <li>Dung lượng được giải phóng ngay lập tức</li>
+                                <li><Text strong type="danger">KHÔNG THỂ hoàn tác - Hãy thận trọng!</Text></li>
+                            </ul>
+                            <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+                                <InfoCircleOutlined /> Nên sử dụng khi: cần giải phóng dung lượng ngay, file có thông tin nhạy cảm, hoặc chắc chắn không cần file nữa.
+                            </Paragraph>
+                        </div>
+                    }
                     type="error"
                     showIcon
                 />
@@ -395,7 +423,54 @@ const UserGuidePage: React.FC = () => {
                     description="File trong thùng rác được lưu trong 30 ngày. Sau đó hệ thống tự động xóa vĩnh viễn."
                     type="warning"
                     showIcon
+                    style={{ marginBottom: 16 }}
                 />
+
+                <Steps
+                    direction="vertical"
+                    size="small"
+                    items={[
+                        {
+                            title: 'Khôi Phục File',
+                            description: 'Click nút "Khôi phục" để đưa file về vị trí ban đầu',
+                            icon: <CheckCircleOutlined />
+                        },
+                        {
+                            title: 'Xóa Vĩnh Viễn (Cẩn Thận!)',
+                            description: (
+                                <div>
+                                    <div>Click nút "Xóa vĩnh viễn" (màu đỏ) để xóa hoàn toàn</div>
+                                    <Alert
+                                        message="⚠️ CẢNH BÁO"
+                                        description={
+                                            <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
+                                                <li>File sẽ bị xóa hoàn toàn khỏi hệ thống</li>
+                                                <li>File vật lý trong storage cũng bị xóa</li>
+                                                <li>Dung lượng được giải phóng ngay lập tức</li>
+                                                <li><Text strong type="danger">KHÔNG THỂ khôi phục sau khi xóa vĩnh viễn!</Text></li>
+                                            </ul>
+                                        }
+                                        type="error"
+                                        showIcon
+                                        style={{ marginTop: 8 }}
+                                    />
+                                </div>
+                            ),
+                            icon: <WarningOutlined />
+                        }
+                    ]}
+                />
+
+                <Divider />
+
+                <Paragraph>
+                    <Text strong>Khi nào nên xóa vĩnh viễn?</Text>
+                </Paragraph>
+                <ul>
+                    <li>Cần giải phóng dung lượng ngay lập tức</li>
+                    <li>File chứa thông tin nhạy cảm cần xóa hoàn toàn</li>
+                    <li>Chắc chắn 100% không cần file nữa</li>
+                </ul>
             </Card>
 
             <Card title="⚙️ Cài Đặt & Dung Lượng" bordered={false}>
@@ -440,9 +515,17 @@ const UserGuidePage: React.FC = () => {
                             File trong thùng rác được lưu trong <Tag color="orange">30 ngày</Tag>.
                         </Paragraph>
                         <ul>
-                            <li>Sau 30 ngày, file tự động bị xóa vĩnh viễn</li>
-                            <li>File đã xóa vĩnh viễn KHÔNG THỂ khôi phục</li>
+                            <li>Trong vòng 30 ngày: Khôi phục bất kỳ lúc nào</li>
+                            <li>Sau 30 ngày: Hệ thống tự động xóa vĩnh viễn</li>
+                            <li>File đã xóa vĩnh viễn (permanent delete): <Text strong type="danger">KHÔNG THỂ khôi phục</Text></li>
                         </ul>
+                        <Alert
+                            message="💡 Lưu ý"
+                            description="Bạn có thể chủ động click 'Xóa vĩnh viễn' trong thùng rác để giải phóng dung lượng ngay, nhưng hành động này không thể hoàn tác!"
+                            type="info"
+                            showIcon
+                            style={{ marginTop: 12 }}
+                        />
                     </Panel>
 
                     <Panel header="❓ Quyền 'Viewer', 'Editor', 'Manager' khác nhau như thế nào?" key="4">
