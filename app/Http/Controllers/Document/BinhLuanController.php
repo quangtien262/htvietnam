@@ -50,11 +50,12 @@ class BinhLuanController extends Controller
             'parent_comment_id' => 'nullable|exists:tai_lieu_binh_luan,id',
         ]);
 
-        $userId = auth('admin_users')->id() ?? auth()->id();
+        $userId = auth('admin_users')->id();
 
         $comment = BinhLuan::create([
             'file_id' => $request->file_id,
             'thu_muc_id' => $request->thu_muc_id,
+            'loai_doi_tuong' => $request->file_id ? 'file' : 'folder',
             'user_id' => $userId,
             'noi_dung' => $validated['noi_dung'],
             'parent_comment_id' => $request->parent_comment_id,
@@ -84,8 +85,9 @@ class BinhLuanController extends Controller
     {
         $comment = BinhLuan::findOrFail($id);
         
+        $userId = auth('admin_users')->id();
+        
         // Chỉ cho phép người tạo sửa
-        $userId = auth('admin_users')->id() ?? auth()->id();
         if ($comment->user_id !== $userId) {
             return response()->json(['error' => 'Không có quyền sửa bình luận này'], 403);
         }
@@ -106,8 +108,9 @@ class BinhLuanController extends Controller
     {
         $comment = BinhLuan::findOrFail($id);
         
+        $userId = auth('admin_users')->id();
+        
         // Chỉ cho phép người tạo xóa
-        $userId = auth('admin_users')->id() ?? auth()->id();
         if ($comment->user_id !== $userId) {
             return response()->json(['error' => 'Không có quyền xóa bình luận này'], 403);
         }
