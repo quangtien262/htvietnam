@@ -21,7 +21,17 @@ class BinhLuanController extends Controller
             'thu_muc_id' => 'required_without:file_id|exists:tai_lieu_thu_muc,id',
         ]);
 
-        $query = BinhLuan::with(['user', 'replies.user'])
+        $query = BinhLuan::with([
+                'user',
+                'replies' => function($q) {
+                    $q->orderBy('created_at')->with([
+                        'user',
+                        'replies' => function($q2) {
+                            $q2->orderBy('created_at')->with('user');
+                        }
+                    ]);
+                }
+            ])
             ->topLevel() // Chỉ lấy comment cha, không lấy replies
             ->orderBy('created_at', 'desc');
 
@@ -75,7 +85,7 @@ class BinhLuanController extends Controller
             ],
         ]);
 
-        return response()->json($comment->load(['user', 'replies.user']), 201);
+        return response()->json($comment->load('user'), 201);
     }
 
     /**
