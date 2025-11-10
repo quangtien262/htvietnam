@@ -120,13 +120,49 @@ import WhmcsProductList from './pages/whmcs/ProductList';
 import WhmcsTicketList from './pages/whmcs/TicketList'; // Phase 2
 import ClientDashboard from './pages/whmcs/client/ClientDashboard'; // Phase 2
 import ApiKeyList from './pages/whmcs/ApiKeyList'; // Phase 3
-import WebhookList from './pages/whmcs/WebhookList'; // Phase 3 - Webhooks
-import AnalyticsDashboard from './pages/whmcs/AnalyticsDashboard'; // Phase 3 - Analytics
-import CurrencyManagement from './pages/whmcs/CurrencyManagement'; // Phase 3 - Multi-Currency
-import TaxManagement from './pages/whmcs/TaxManagement'; // Phase 3 - Tax Management
-import AffiliateManagement from './pages/whmcs/AffiliateManagement'; // Phase 3 - Affiliate System
-import KnowledgeBaseManagement from './pages/whmcs/KnowledgeBaseManagement'; // Phase 3 - Knowledge Base
-import WhmcsUserGuide from './pages/whmcs/UserGuide'; // Phase 3 - Documentation
+
+// WHMCS Phase 3 - Webhooks Module
+import WebhookList from './pages/whmcs/webhooks/WebhookList';
+import WebhookCreate from './pages/whmcs/webhooks/WebhookCreate';
+import WebhookEdit from './pages/whmcs/webhooks/WebhookEdit';
+import WebhookLogs from './pages/whmcs/webhooks/WebhookLogs';
+import WebhookDetail from './pages/whmcs/webhooks/WebhookDetail';
+import WebhookSettings from './pages/whmcs/webhooks/WebhookSettings';
+
+// WHMCS Phase 3 - Analytics Module
+import AnalyticsDashboard from './pages/whmcs/analytics/AnalyticsDashboard';
+import RevenueReport from './pages/whmcs/analytics/RevenueReport';
+import ClientAnalytics from './pages/whmcs/analytics/ClientAnalytics';
+import ProductPerformance from './pages/whmcs/analytics/ProductPerformance';
+import ChurnAnalysis from './pages/whmcs/analytics/ChurnAnalysis';
+
+// WHMCS Phase 3 - Currency Module
+import CurrencyList from './pages/whmcs/currency/CurrencyList';
+import CurrencyForm from './pages/whmcs/currency/CurrencyForm';
+import CurrencyConverter from './pages/whmcs/currency/CurrencyConverter';
+
+// WHMCS Phase 3 - Tax Module
+import TaxDashboard from './pages/whmcs/tax/TaxDashboard';
+import TaxRuleList from './pages/whmcs/tax/TaxRuleList';
+import TaxRuleForm from './pages/whmcs/tax/TaxRuleForm';
+import TaxExemptions from './pages/whmcs/tax/TaxExemptions';
+import TaxReport from './pages/whmcs/tax/TaxReport';
+
+// WHMCS Phase 3 - Affiliate Module
+import AffiliateList from './pages/whmcs/affiliate/AffiliateList';
+import AffiliateDetail from './pages/whmcs/affiliate/AffiliateDetail';
+import AffiliateCreate from './pages/whmcs/affiliate/AffiliateCreate';
+import CommissionList from './pages/whmcs/affiliate/CommissionList';
+import PayoutList from './pages/whmcs/affiliate/PayoutList';
+import AffiliatePerformance from './pages/whmcs/affiliate/AffiliatePerformance';
+
+// WHMCS Phase 3 - Knowledge Base Module
+import KBDashboard from './pages/whmcs/knowledgebase/KBDashboard';
+import KBCategoryList from './pages/whmcs/knowledgebase/KBCategoryList';
+import KBCategoryForm from './pages/whmcs/knowledgebase/KBCategoryForm';
+import KBArticleList from './pages/whmcs/knowledgebase/KBArticleList';
+import KBArticleEditor from './pages/whmcs/knowledgebase/KBArticleEditor';
+import KBArticleView from './pages/whmcs/knowledgebase/KBArticleView';
 
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
@@ -233,23 +269,61 @@ const App: React.FC = () => (
                 <Route path={ROUTE.documentsUserGuide} element={<UserGuidePage />} />
                 <Route path="/share/:hash" element={<ShareLinkPage />} />
 
-                {/* WHMCS - Billing & Hosting Management */}
+                {/* WHMCS - Billing & Hosting Management (Phase 1 & 2) */}
                 <Route path={ROUTE.whmcsInvoices} element={<WhmcsInvoiceList />} />
                 <Route path={ROUTE.whmcsServers} element={<WhmcsServerList />} />
                 <Route path={ROUTE.whmcsServices} element={<WhmcsServiceList />} />
                 <Route path={ROUTE.whmcsProducts} element={<WhmcsProductList />} />
                 <Route path={ROUTE.whmcsTickets} element={<WhmcsTicketList />} />
                 <Route path={ROUTE.whmcsApiKeys} element={<ApiKeyList />} />
-                <Route path={ROUTE.whmcsWebhooks} element={<WebhookList />} />
-                <Route path={ROUTE.whmcsAnalytics} element={<AnalyticsDashboard />} />
-                <Route path={ROUTE.whmcsCurrencies} element={<CurrencyManagement />} />
-                <Route path={ROUTE.whmcsTax} element={<TaxManagement />} />
-                <Route path={ROUTE.whmcsAffiliates} element={<AffiliateManagement />} />
-                <Route path={ROUTE.whmcsKnowledgeBase} element={<KnowledgeBaseManagement />} />
-                <Route path={ROUTE.whmcsUserGuide} element={<WhmcsUserGuide />} />
-                
-                {/* WHMCS - Client Portal (Phase 2) */}
                 <Route path={ROUTE.clientDashboard} element={<ClientDashboard />} />
+
+                {/* WHMCS Phase 3 - Webhooks Module (6 routes) */}
+                <Route path={ROUTE.whmcsWebhooks} element={<WebhookList />} />
+                <Route path={`${ROUTE.whmcsWebhooks}/create`} element={<WebhookCreate />} />
+                <Route path={`${ROUTE.whmcsWebhooks}/edit/:id`} element={<WebhookEdit />} />
+                <Route path={`${ROUTE.whmcsWebhooks}/:id/logs`} element={<WebhookLogs />} />
+                <Route path={`${ROUTE.whmcsWebhooks}/:id`} element={<WebhookDetail />} />
+                <Route path={`${ROUTE.whmcsWebhooks}/settings`} element={<WebhookSettings />} />
+
+                {/* WHMCS Phase 3 - Analytics Module (5 routes) */}
+                <Route path={ROUTE.whmcsAnalytics} element={<AnalyticsDashboard />} />
+                <Route path={`${ROUTE.whmcsAnalytics}/revenue`} element={<RevenueReport />} />
+                <Route path={`${ROUTE.whmcsAnalytics}/clients`} element={<ClientAnalytics />} />
+                <Route path={`${ROUTE.whmcsAnalytics}/products`} element={<ProductPerformance />} />
+                <Route path={`${ROUTE.whmcsAnalytics}/churn`} element={<ChurnAnalysis />} />
+
+                {/* WHMCS Phase 3 - Currency Module (3 routes) */}
+                <Route path={ROUTE.whmcsCurrencies} element={<CurrencyList />} />
+                <Route path={`${ROUTE.whmcsCurrencies}/create`} element={<CurrencyForm />} />
+                <Route path={`${ROUTE.whmcsCurrencies}/edit/:id`} element={<CurrencyForm />} />
+                <Route path={`${ROUTE.whmcsCurrencies}/converter`} element={<CurrencyConverter />} />
+
+                {/* WHMCS Phase 3 - Tax Module (5 routes) */}
+                <Route path={ROUTE.whmcsTax} element={<TaxDashboard />} />
+                <Route path={`${ROUTE.whmcsTax}/rules`} element={<TaxRuleList />} />
+                <Route path={`${ROUTE.whmcsTax}/rules/create`} element={<TaxRuleForm />} />
+                <Route path={`${ROUTE.whmcsTax}/rules/edit/:id`} element={<TaxRuleForm />} />
+                <Route path={`${ROUTE.whmcsTax}/exemptions`} element={<TaxExemptions />} />
+                <Route path={`${ROUTE.whmcsTax}/report`} element={<TaxReport />} />
+
+                {/* WHMCS Phase 3 - Affiliate Module (6 routes) */}
+                <Route path={ROUTE.whmcsAffiliates} element={<AffiliateList />} />
+                <Route path={`${ROUTE.whmcsAffiliates}/create`} element={<AffiliateCreate />} />
+                <Route path={`${ROUTE.whmcsAffiliates}/:id`} element={<AffiliateDetail />} />
+                <Route path={`${ROUTE.whmcsAffiliates}/commissions`} element={<CommissionList />} />
+                <Route path={`${ROUTE.whmcsAffiliates}/payouts`} element={<PayoutList />} />
+                <Route path={`${ROUTE.whmcsAffiliates}/performance`} element={<AffiliatePerformance />} />
+
+                {/* WHMCS Phase 3 - Knowledge Base Module (6 routes) */}
+                <Route path={ROUTE.whmcsKnowledgeBase} element={<KBDashboard />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/categories`} element={<KBCategoryList />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/categories/create`} element={<KBCategoryForm />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/categories/edit/:id`} element={<KBCategoryForm />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/articles`} element={<KBArticleList />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/articles/create`} element={<KBArticleEditor />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/articles/edit/:id`} element={<KBArticleEditor />} />
+                <Route path={`${ROUTE.whmcsKnowledgeBase}/articles/:id`} element={<KBArticleView />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>
