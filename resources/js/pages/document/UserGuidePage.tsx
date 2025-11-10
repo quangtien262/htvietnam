@@ -346,14 +346,29 @@ const UserGuidePage: React.FC = () => {
                             title: 'Bước 2: Chọn Quyền Truy Cập',
                             description: (
                                 <div>
-                                    <ul>
-                                        <li><Tag color="blue">Viewer</Tag> - Chỉ xem và tải xuống</li>
-                                        <li><Tag color="cyan">Commenter</Tag> - Xem, tải, bình luận</li>
-                                        <li><Tag color="orange">Editor</Tag> - Xem, tải, chỉnh sửa, bình luận</li>
-                                        <li><Tag color="purple">Manager</Tag> - Quản lý: xem, sửa, xóa, chia sẻ</li>
-                                        <li><Tag color="red">Owner</Tag> - Chủ sở hữu: toàn quyền</li>
-                                        <li><Tag color="red">Manager</Tag> - Full quyền</li>
+                                    <Paragraph>Chọn mức quyền phù hợp cho người được chia sẻ:</Paragraph>
+                                    <ul style={{ marginLeft: 8 }}>
+                                        <li><Tag color="blue">Viewer (Xem)</Tag> - Chỉ xem và tải xuống file</li>
+                                        <li><Tag color="cyan">Commenter (Bình luận)</Tag> - Xem, tải xuống, bình luận</li>
+                                        <li><Tag color="orange">Editor (Chỉnh sửa)</Tag> - Xem, tải, chỉnh sửa file, bình luận</li>
+                                        <li><Tag color="purple">Manager (Quản lý)</Tag> - Xem, tải, sửa, xóa, chia sẻ với người khác</li>
+                                        <li><Tag color="red">Owner (Chủ sở hữu)</Tag> - Toàn quyền kiểm soát, bao gồm xóa vĩnh viễn</li>
                                     </ul>
+                                    <Alert
+                                        message="💡 Lựa chọn quyền phù hợp"
+                                        description={
+                                            <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
+                                                <li><Text strong>Viewer:</Text> Người chỉ cần đọc/tham khảo tài liệu</li>
+                                                <li><Text strong>Commenter:</Text> Người cần góp ý nhưng không sửa trực tiếp</li>
+                                                <li><Text strong>Editor:</Text> Cộng tác viên cùng chỉnh sửa nội dung</li>
+                                                <li><Text strong>Manager:</Text> Trưởng nhóm/quản lý dự án</li>
+                                                <li><Text strong>Owner:</Text> Chỉ dành cho người tạo file hoặc chịu trách nhiệm cao nhất</li>
+                                            </ul>
+                                        }
+                                        type="info"
+                                        showIcon
+                                        style={{ marginTop: 12 }}
+                                    />
                                 </div>
                             ),
                             icon: <SafetyOutlined />
@@ -533,38 +548,182 @@ const UserGuidePage: React.FC = () => {
 
                     <Panel header="❓ Quyền 'Viewer', 'Commenter', 'Editor', 'Manager', 'Owner' khác nhau như thế nào?" key="4">
                         <Paragraph>
-                            <Text strong>Viewer (Xem):</Text> Chỉ xem và tải xuống file
+                            <Text strong>Hệ thống phân quyền 5 cấp độ:</Text>
                         </Paragraph>
-                        <Paragraph>
-                            <Text strong>Commenter (Bình luận):</Text> Xem, tải xuống và bình luận
-                        </Paragraph>
-                        <Paragraph>
-                            <Text strong>Editor (Chỉnh sửa):</Text> Xem, tải, chỉnh sửa file, bình luận
-                        </Paragraph>
-                        <Paragraph>
-                            <Text strong>Manager (Quản lý):</Text> Xem, tải, sửa, xóa, chia sẻ file với người khác
-                        </Paragraph>
-                        <Paragraph>
-                            <Text strong type="danger">Owner (Chủ sở hữu):</Text> Toàn quyền - có thể làm mọi thứ kể cả xóa vĩnh viễn
-                        </Paragraph>
+                        
+                        <div style={{ marginBottom: 16 }}>
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                <Tag color="blue">Viewer (Xem)</Tag>
+                            </Paragraph>
+                            <ul style={{ marginLeft: 20, marginBottom: 12 }}>
+                                <li>✅ Xem nội dung file</li>
+                                <li>✅ Tải xuống file</li>
+                                <li>❌ Không thể bình luận, chỉnh sửa, xóa hoặc chia sẻ</li>
+                            </ul>
+
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                <Tag color="cyan">Commenter (Bình luận)</Tag>
+                            </Paragraph>
+                            <ul style={{ marginLeft: 20, marginBottom: 12 }}>
+                                <li>✅ Tất cả quyền của Viewer</li>
+                                <li>✅ Thêm, sửa, xóa bình luận của mình</li>
+                                <li>✅ Xem bình luận của người khác</li>
+                                <li>❌ Không thể chỉnh sửa file</li>
+                            </ul>
+
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                <Tag color="orange">Editor (Chỉnh sửa)</Tag>
+                            </Paragraph>
+                            <ul style={{ marginLeft: 20, marginBottom: 12 }}>
+                                <li>✅ Tất cả quyền của Commenter</li>
+                                <li>✅ Chỉnh sửa nội dung file</li>
+                                <li>✅ Upload phiên bản mới</li>
+                                <li>✅ Đổi tên file, cập nhật mô tả</li>
+                                <li>❌ Không thể xóa hoặc chia sẻ file</li>
+                            </ul>
+
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                <Tag color="purple">Manager (Quản lý)</Tag>
+                            </Paragraph>
+                            <ul style={{ marginLeft: 20, marginBottom: 12 }}>
+                                <li>✅ Tất cả quyền của Editor</li>
+                                <li>✅ Xóa file (chuyển vào thùng rác)</li>
+                                <li>✅ Chia sẻ file với người khác</li>
+                                <li>✅ Thay đổi quyền của người khác</li>
+                                <li>✅ Di chuyển file giữa các thư mục</li>
+                                <li>❌ Không thể xóa vĩnh viễn hoặc chuyển quyền Owner</li>
+                            </ul>
+
+                            <Paragraph style={{ marginBottom: 8 }}>
+                                <Tag color="red">Owner (Chủ sở hữu)</Tag>
+                            </Paragraph>
+                            <ul style={{ marginLeft: 20, marginBottom: 12 }}>
+                                <li>✅ Toàn quyền - có thể làm mọi thứ</li>
+                                <li>✅ Xóa vĩnh viễn file (permanent delete)</li>
+                                <li>✅ Chuyển quyền Owner cho người khác</li>
+                                <li>✅ Thu hồi mọi quyền truy cập</li>
+                            </ul>
+                        </div>
+
                         <Alert
-                            message="💡 Mẹo"
+                            message="💡 Khuyến nghị khi phân quyền"
                             description={
                                 <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
-                                    <li><Text strong>Viewer:</Text> Dùng cho người chỉ cần đọc tài liệu</li>
-                                    <li><Text strong>Commenter:</Text> Dùng cho người cần góp ý nhưng không sửa file</li>
-                                    <li><Text strong>Editor:</Text> Dùng cho cộng tác viên cần chỉnh sửa nội dung</li>
-                                    <li><Text strong>Manager:</Text> Dùng cho trưởng nhóm quản lý dự án</li>
-                                    <li><Text strong>Owner:</Text> Chỉ dành cho người tạo file hoặc quản lý cao nhất</li>
+                                    <li><Text strong>Viewer:</Text> Dùng cho nhân viên cần tham khảo tài liệu (VD: policy, quy trình)</li>
+                                    <li><Text strong>Commenter:</Text> Dùng cho reviewer, người phê duyệt cần góp ý</li>
+                                    <li><Text strong>Editor:</Text> Dùng cho team members cùng làm việc trên tài liệu</li>
+                                    <li><Text strong>Manager:</Text> Dùng cho team lead, trưởng phòng quản lý dự án</li>
+                                    <li><Text strong>Owner:</Text> Chỉ 1-2 người chịu trách nhiệm cao nhất về tài liệu</li>
                                 </ul>
                             }
                             type="info"
                             showIcon
                             style={{ marginTop: 12 }}
                         />
+
+                        <Alert
+                            message="⚠️ Lưu ý bảo mật"
+                            description={
+                                <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
+                                    <li>Chỉ cho quyền <Text strong>Manager/Owner</Text> với người tin cậy</li>
+                                    <li>Quyền <Text strong>Owner</Text> có thể xóa vĩnh viễn - cẩn thận khi gán</li>
+                                    <li>Thường xuyên review danh sách người được chia sẻ</li>
+                                    <li>Thu hồi quyền ngay khi nhân viên chuyển phòng/nghỉ việc</li>
+                                </ul>
+                            }
+                            type="warning"
+                            showIcon
+                            style={{ marginTop: 12 }}
+                        />
                     </Panel>
 
-                    <Panel header="❓ File trùng lặp được xử lý như thế nào?" key="5">
+                    <Panel header="❓ Làm sao để thay đổi quyền của người đã được chia sẻ?" key="5">
+                        <Paragraph>
+                            <Text strong>Điều kiện:</Text> Bạn cần có quyền <Tag color="purple">Manager</Tag> hoặc <Tag color="red">Owner</Tag> mới có thể thay đổi quyền.
+                        </Paragraph>
+
+                        <Steps
+                            direction="vertical"
+                            size="small"
+                            current={-1}
+                            items={[
+                                {
+                                    title: 'Bước 1: Mở form chia sẻ',
+                                    description: 'Click icon "Chia sẻ" bên file → Tab "Chia sẻ nội bộ"',
+                                    icon: <ShareAltOutlined />
+                                },
+                                {
+                                    title: 'Bước 2: Tìm người cần thay đổi quyền',
+                                    description: 'Trong danh sách người được chia sẻ, tìm người cần thay đổi',
+                                    icon: <InfoCircleOutlined />
+                                },
+                                {
+                                    title: 'Bước 3: Thay đổi quyền',
+                                    description: 'Click vào dropdown quyền hiện tại → Chọn quyền mới → Xác nhận',
+                                    icon: <CheckCircleOutlined />
+                                }
+                            ]}
+                        />
+
+                        <Divider />
+
+                        <Alert
+                            message="⚠️ Lưu ý quan trọng"
+                            description={
+                                <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
+                                    <li>Chỉ <Tag color="red">Owner</Tag> mới có thể thay đổi quyền của <Tag color="purple">Manager</Tag></li>
+                                    <li>Không thể tự thay đổi quyền của chính mình</li>
+                                    <li>Khi giảm quyền từ Manager → Editor, người đó sẽ mất quyền chia sẻ ngay lập tức</li>
+                                    <li>Thay đổi quyền được ghi log trong lịch sử hoạt động</li>
+                                </ul>
+                            }
+                            type="warning"
+                            showIcon
+                        />
+                    </Panel>
+
+                    <Panel header="❓ Làm sao để thu hồi quyền truy cập?" key="6">
+                        <Paragraph>
+                            Thu hồi quyền = Xóa người đó khỏi danh sách chia sẻ.
+                        </Paragraph>
+
+                        <Steps
+                            direction="vertical"
+                            size="small"
+                            current={-1}
+                            items={[
+                                {
+                                    title: 'Bước 1: Mở form chia sẻ',
+                                    description: 'Click icon "Chia sẻ" bên file → Tab "Chia sẻ nội bộ"',
+                                    icon: <ShareAltOutlined />
+                                },
+                                {
+                                    title: 'Bước 2: Xóa người dùng',
+                                    description: 'Tìm người cần thu hồi quyền → Click icon "Xóa" (🗑️) bên tên người đó',
+                                    icon: <DeleteOutlined />
+                                },
+                                {
+                                    title: 'Bước 3: Xác nhận',
+                                    description: 'Xác nhận thu hồi quyền. Người đó sẽ mất quyền truy cập ngay lập tức.',
+                                    icon: <CheckCircleOutlined />
+                                }
+                            ]}
+                        />
+
+                        <Divider />
+
+                        <Paragraph>
+                            <Text strong>Sau khi thu hồi:</Text>
+                        </Paragraph>
+                        <ul>
+                            <li>Người đó không thể xem file trong danh sách "Được chia sẻ với tôi"</li>
+                            <li>Link trực tiếp đến file sẽ báo lỗi "Không có quyền truy cập"</li>
+                            <li>Bình luận cũ của người đó vẫn được giữ lại</li>
+                            <li>Có thể chia sẻ lại sau nếu cần</li>
+                        </ul>
+                    </Panel>
+
+                    <Panel header="❓ File trùng lặp được xử lý như thế nào?" key="7">
                         <Paragraph>
                             Hệ thống tự động phát hiện file trùng dựa vào hash MD5:
                         </Paragraph>
