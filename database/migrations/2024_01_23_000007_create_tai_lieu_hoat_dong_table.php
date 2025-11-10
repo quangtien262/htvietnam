@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('hanh_dong', [
                 'view', 'download', 'upload', 'edit', 'delete', 
                 'share', 'revoke', 'comment', 'move', 'copy', 
-                'rename', 'restore', 'star', 'unstar'
+                'rename', 'restore', 'star', 'unstar', 'permanent_delete'
             ]);
             
             $table->json('chi_tiet')->nullable()->comment('Extra data: version, old/new permissions, etc.');

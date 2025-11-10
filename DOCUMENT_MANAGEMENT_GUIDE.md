@@ -111,8 +111,9 @@ Module Quản Lý Tài Liệu (Document Management System) cho phép tổ chức
   - `download`: Tải xuống
   - `view`: Xem
   - `edit`: Chỉnh sửa
-  - `delete`: Xóa
+  - `delete`: Xóa (soft delete)
   - `restore`: Khôi phục
+  - `permanent_delete`: Xóa vĩnh viễn
   - `share`: Chia sẻ
   - `rename`: Đổi tên
   - `move`: Di chuyển
@@ -141,11 +142,12 @@ Module Quản Lý Tài Liệu (Document Management System) cho phép tổ chức
 
 **Routes**:
 ```php
-GET    /aio/api/documents/folders              // Lấy danh sách thư mục tree
-POST   /aio/api/documents/folders/store        // Tạo thư mục mới
-POST   /aio/api/documents/folders/update/{id}  // Cập nhật thư mục
-POST   /aio/api/documents/folders/delete/{id}  // Xóa thư mục (soft delete)
-POST   /aio/api/documents/folders/restore/{id} // Khôi phục từ trash
+GET    /aio/api/documents/folders                   // Lấy danh sách thư mục tree
+POST   /aio/api/documents/folders/store             // Tạo thư mục mới
+POST   /aio/api/documents/folders/update/{id}       // Cập nhật thư mục
+POST   /aio/api/documents/folders/delete/{id}       // Xóa thư mục (soft delete)
+POST   /aio/api/documents/folders/restore/{id}      // Khôi phục từ trash
+POST   /aio/api/documents/folders/force-delete/{id} // Xóa vĩnh viễn thư mục
 ```
 
 **Methods**:
@@ -157,24 +159,31 @@ POST   /aio/api/documents/folders/restore/{id} // Khôi phục từ trash
 - `update()`: Cập nhật thông tin thư mục
 - `destroy()`: Soft delete thư mục
 - `restore()`: Khôi phục từ trash
+- `forceDelete()`: Xóa vĩnh viễn thư mục (hard delete)
+  - Xóa đệ quy tất cả file trong thư mục
+  - Xóa đệ quy tất cả thư mục con
+  - Xóa file vật lý từ storage
+  - Xóa record khỏi database (không thể khôi phục)
+  - Log activity với thống kê số file/folder đã xóa
 
 #### **FileController** - Quản lý file
 **Namespace**: `App\Http\Controllers\Document\FileController`
 
 **Routes**:
 ```php
-GET    /aio/api/documents/files                  // Lấy danh sách file
-POST   /aio/api/documents/files/upload           // Upload file
-GET    /aio/api/documents/files/download/{id}    // Download file
-GET    /aio/api/documents/files/preview/{id}     // Xem trước file
-POST   /aio/api/documents/files/star/{id}        // Đánh dấu sao
-POST   /aio/api/documents/files/move/{id}        // Di chuyển file
-POST   /aio/api/documents/files/copy/{id}        // Sao chép file
-POST   /aio/api/documents/files/delete/{id}      // Xóa file (soft delete)
-POST   /aio/api/documents/files/restore/{id}     // Khôi phục file
-GET    /aio/api/documents/files/starred          // Danh sách file đã gắn sao
-GET    /aio/api/documents/files/recent           // File truy cập gần đây
-GET    /aio/api/documents/files/trash            // Thùng rác
+GET    /aio/api/documents/files                     // Lấy danh sách file
+POST   /aio/api/documents/files/upload              // Upload file
+GET    /aio/api/documents/files/download/{id}       // Download file
+GET    /aio/api/documents/files/preview/{id}        // Xem trước file
+POST   /aio/api/documents/files/star/{id}           // Đánh dấu sao
+POST   /aio/api/documents/files/move/{id}           // Di chuyển file
+POST   /aio/api/documents/files/copy/{id}           // Sao chép file
+POST   /aio/api/documents/files/delete/{id}         // Xóa file (soft delete)
+POST   /aio/api/documents/files/restore/{id}        // Khôi phục file
+POST   /aio/api/documents/files/force-delete/{id}   // Xóa vĩnh viễn file
+GET    /aio/api/documents/files/starred             // Danh sách file đã gắn sao
+GET    /aio/api/documents/files/recent              // File truy cập gần đây
+GET    /aio/api/documents/files/trash               // Thùng rác
 ```
 
 **Methods**:
@@ -191,6 +200,10 @@ GET    /aio/api/documents/files/trash            // Thùng rác
 - `copy()`: Tạo bản sao file
 - `destroy()`: Soft delete
 - `restore()`: Khôi phục
+- `forceDelete()`: Xóa vĩnh viễn (hard delete)
+  - Xóa file vật lý từ storage
+  - Xóa record khỏi database (không thể khôi phục)
+  - Log activity trước khi xóa
 - `starred()`: Danh sách file đã gắn sao
 - `recent()`: File truy cập gần đây (order by ngay_truy_cap_cuoi)
 - `trash()`: File đã xóa (soft deleted)
@@ -333,6 +346,10 @@ POST   /aio/api/documents/share-link/revoke/{id}     // Vô hiệu hóa link
 - Hiển thị file/folder đã xóa
 - Khôi phục file
 - Xóa vĩnh viễn (permanent delete)
+  - Xóa hoàn toàn file khỏi hệ thống
+  - Xóa file vật lý từ storage
+  - Không thể khôi phục sau khi xóa vĩnh viễn
+  - Có modal xác nhận cảnh báo trước khi xóa
 
 #### **SettingsPage** - Cài đặt & Quota
 **Path**: `resources/js/pages/document/SettingsPage.tsx`
@@ -382,14 +399,15 @@ documentsShare: '/share/',
 **File**: `resources/js/common/api.tsx`
 
 ```typescript
-// Thư mục (5 endpoints)
+// Thư mục (6 endpoints)
 documentFolders: '/aio/api/documents/folders',
 documentFolderStore: '/aio/api/documents/folders/store',
 documentFolderUpdate: (id: number) => `/aio/api/documents/folders/update/${id}`,
 documentFolderDelete: (id: number) => `/aio/api/documents/folders/delete/${id}`,
 documentFolderRestore: (id: number) => `/aio/api/documents/folders/restore/${id}`,
+documentFolderForceDelete: (id: number) => `/aio/api/documents/folders/force-delete/${id}`,
 
-// File (12 endpoints)
+// File (13 endpoints)
 documentFiles: '/aio/api/documents/files',
 documentFileUpload: '/aio/api/documents/files/upload',
 documentFileDownload: (id: number) => `/aio/api/documents/files/download/${id}`,
@@ -399,6 +417,7 @@ documentFileMove: (id: number) => `/aio/api/documents/files/move/${id}`,
 documentFileCopy: (id: number) => `/aio/api/documents/files/copy/${id}`,
 documentFileDelete: (id: number) => `/aio/api/documents/files/delete/${id}`,
 documentFileRestore: (id: number) => `/aio/api/documents/files/restore/${id}`,
+documentFileForceDelete: (id: number) => `/aio/api/documents/files/force-delete/${id}`,
 documentFilesStarred: '/aio/api/documents/files/starred',
 documentFilesRecent: '/aio/api/documents/files/recent',
 documentFilesTrash: '/aio/api/documents/files/trash',
@@ -542,9 +561,36 @@ http://domain.com/share/a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 - Hiển thị số lượt xem
 
 ### 4.6. Thùng Rác
-- Xem file/folder đã xóa
-- **Khôi phục**: Click **"Khôi phục"** để đưa về vị trí cũ
-- **Xóa vĩnh viễn**: Không thể khôi phục
+
+#### Xem File/Folder Đã Xóa
+- Vào **Quản lý Tài liệu → Thùng rác**
+- Hiển thị danh sách file/folder đã xóa (soft deleted)
+- File trong thùng rác được giữ trong 30 ngày
+
+#### Khôi Phục File
+1. Tìm file cần khôi phục trong thùng rác
+2. Click nút **"Khôi phục"**
+3. File sẽ được đưa về vị trí ban đầu
+
+#### Xóa Vĩnh Viễn
+**⚠️ CẢNH BÁO**: Thao tác này không thể hoàn tác!
+
+1. Tìm file cần xóa vĩnh viễn
+2. Click nút **"Xóa vĩnh viễn"** (màu đỏ)
+3. Đọc cảnh báo: *"File sẽ bị xóa hoàn toàn và không thể khôi phục!"*
+4. Click **"Xóa vĩnh viễn"** để xác nhận
+
+**Lưu ý**:
+- File sẽ bị xóa hoàn toàn khỏi hệ thống
+- File vật lý trong storage cũng bị xóa
+- Dung lượng sẽ được giải phóng ngay lập tức
+- Không có cách nào khôi phục sau khi xóa vĩnh viễn
+- Hành động được ghi log với loại `permanent_delete`
+
+**Khi nào nên xóa vĩnh viễn**:
+- Cần giải phóng dung lượng ngay lập tức
+- File chứa thông tin nhạy cảm cần xóa hoàn toàn
+- Chắc chắn 100% không cần file nữa
 
 ### 4.7. Cài Đặt & Quota
 - **Dung lượng**: Xem dung lượng đã dùng / tối đa
@@ -803,12 +849,18 @@ mo_ta: "Báo cáo tháng 11"
 - ✅ Tạo models với relationships
 - ✅ Tạo controllers (ThuMuc, File, PhanQuyen, ShareLink)
 - ✅ Tạo 6 trang frontend (Explorer, Starred, Recent, Trash, Settings, ShareLink)
-- ✅ Đăng ký 28 API endpoints
+- ✅ Đăng ký 30 API endpoints (thêm 2 endpoints force-delete)
 - ✅ Tích hợp menu và routes
 - ✅ Fix lỗi route prefix (double /api)
 - ✅ Fix lỗi foreign key constraint
 - ✅ Fix lỗi serialize JSON response
-- ⏳ Đang fix: Tree không hiển thị thư mục
+- ✅ Tính năng xóa vĩnh viễn (permanent delete)
+  - Backend: FileController::forceDelete(), ThuMucController::forceDelete()
+  - Frontend: TrashPage UI với modal xác nhận
+  - Database: Thêm 'permanent_delete' vào enum hanh_dong
+  - Xóa file vật lý từ storage
+  - Xóa đệ quy thư mục con và file
+- ⏳ Chưa hoàn thiện: Quản lý phiên bản file (API chưa implement)
 
 ---
 
