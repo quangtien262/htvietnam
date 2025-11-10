@@ -1,0 +1,773 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('cham_cong', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('admin_user_id')->comment('ID nhân viên');
+            $table->date('ngay_cham_cong')->comment('Ngày chấm công');
+            $table->integer('type')->default(1)->comment('1:Đi làm, 2:Nghỉ có phép, 3:Nghỉ không phép, 4:Nghỉ lễ, 5:Nghỉ cuối tuần');
+
+            // Check in/out
+            $table->string('checkin_h', 2)->nullable()->comment('Giờ check in');
+            $table->string('checkin_m', 2)->nullable()->comment('Phút check in');
+            $table->string('checkout_h', 2)->nullable()->comment('Giờ check out');
+            $table->string('checkout_m', 2)->nullable()->comment('Phút check out');
+
+            // KPI và lương
+            $table->integer('kpi')->default(0)->comment('KPI: -1 đi muộn/về sớm, 0 bình thường, 1 nghỉ nửa ngày');
+            $table->decimal('luong_nghi_nua_ngay', 15, 2)->default(0)->comment('Tiền trừ nghỉ nửa ngày');
+            $table->decimal('luong_nghi_ca_ngay', 15, 2)->default(0)->comment('Tiền trừ nghỉ cả ngày');
+
+            // Làm thêm giờ
+            $table->decimal('gio_lam_them', 10, 2)->default(0)->comment('Số giờ làm thêm');
+            $table->decimal('tien_lam_them', 15, 2)->default(0)->comment('Tiền làm thêm giờ');
+
+            $table->string('note')->nullable()->comment('Ghi chú (đi muộn, về sớm, nghỉ...)');
+
+            // Vân tay
+            $table->unsignedBigInteger('van_tay_id')->nullable()->comment('ID máy vân tay');
+            $table->string('van_tay_checkin_time')->nullable()->comment('Thời gian vân tay check in');
+            $table->string('van_tay_checkout_time')->nullable()->comment('Thời gian vân tay check out');
+
+            // Duyệt chấm công
+            $table->integer('is_approved')->default(0)->comment('0: chưa duyệt, 1: đã duyệt');
+            $table->unsignedBigInteger('approved_by')->nullable()->comment('Người duyệt');
+            $table->timestamp('approved_at')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index('ngay_cham_cong');
+            $table->unique(['admin_user_id', 'ngay_cham_cong'], 'unique_user_date');
+        });
+
+        // Create Table record for admin interface
+        $table_id = Table::insertGetId([
+            'name' => 'cham_cong',
+            'display_name' => 'Chấm công',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.cham_cong',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns metadata
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 1, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'ngay_cham_cong', 'Ngày chấm công', 'date', 'basic', 2);
+        MigrateService::createColumn02($table_id, 'type', 'Loại chấm công', 'select', 'basic', 3, [
+            'options' => [
+                ['value' => 1, 'label' => 'Đi làm'],
+                ['value' => 2, 'label' => 'Nghỉ có phép'],
+                ['value' => 3, 'label' => 'Nghỉ không phép'],
+                ['value' => 4, 'label' => 'Nghỉ lễ'],
+                ['value' => 5, 'label' => 'Nghỉ cuối tuần'],
+            ]
+        ]);
+        MigrateService::createColumn02($table_id, 'checkin_h', 'Giờ check in', 'text', 'advanced', 4);
+        MigrateService::createColumn02($table_id, 'checkin_m', 'Phút check in', 'text', 'advanced', 5);
+        MigrateService::createColumn02($table_id, 'checkout_h', 'Giờ check out', 'text', 'advanced', 6);
+        MigrateService::createColumn02($table_id, 'checkout_m', 'Phút check out', 'text', 'advanced', 7);
+        MigrateService::createColumn02($table_id, 'kpi', 'KPI', 'number', 'advanced', 8);
+        MigrateService::createColumn02($table_id, 'note', 'Ghi chú', 'text', 'basic', 9);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('cham_cong');
+        Table::where('name', 'cham_cong')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('bang_luong', function (Blueprint $table) {
+            $table->id();
+            $table->string('ma_bang_luong')->unique()->comment('Mã bảng lương: BL-YYYY-MM-001');
+            $table->unsignedBigInteger('admin_user_id')->comment('ID nhân viên');
+            $table->integer('thang')->comment('Tháng');
+            $table->integer('nam')->comment('Năm');
+
+            // Lương cơ bản
+            $table->decimal('luong_co_ban', 15, 2)->default(0)->comment('Lương cơ bản từ admin_users');
+            $table->integer('loai_luong')->default(4)->comment('1:Ca, 2:Giờ, 3:Ngày công, 4:Cố định');
+
+            // Ngày công
+            $table->decimal('so_ngay_cong_chuan', 10, 2)->default(26)->comment('Số ngày công chuẩn trong tháng');
+            $table->decimal('so_ngay_cong_thuc_te', 10, 2)->default(0)->comment('Số ngày công thực tế');
+            $table->decimal('luong_theo_ngay_cong', 15, 2)->default(0)->comment('Lương = (cơ bản / chuẩn) * thực tế');
+
+            // Làm thêm giờ
+            $table->decimal('gio_lam_them_ngay_thuong', 10, 2)->default(0)->comment('Giờ làm thêm ngày thường');
+            $table->decimal('gio_lam_them_thu7', 10, 2)->default(0)->comment('Giờ làm thêm thứ 7');
+            $table->decimal('gio_lam_them_chu_nhat', 10, 2)->default(0)->comment('Giờ làm thêm chủ nhật');
+            $table->decimal('gio_lam_them_ngay_le', 10, 2)->default(0)->comment('Giờ làm thêm ngày lễ');
+            $table->decimal('tien_lam_them', 15, 2)->default(0)->comment('Tổng tiền làm thêm');
+
+            // Thưởng, phụ cấp, hoa hồng
+            $table->decimal('tong_thuong', 15, 2)->default(0)->comment('Tổng thưởng (từ thuong_setting)');
+            $table->decimal('tong_hoa_hong', 15, 2)->default(0)->comment('Tổng hoa hồng');
+            $table->decimal('tong_phu_cap', 15, 2)->default(0)->comment('Tổng phụ cấp');
+            $table->longText('chi_tiet_thuong')->nullable()->comment('Chi tiết thưởng JSON');
+            $table->longText('chi_tiet_hoa_hong')->nullable()->comment('Chi tiết hoa hồng JSON');
+            $table->longText('chi_tiet_phu_cap')->nullable()->comment('Chi tiết phụ cấp JSON');
+
+            // Giảm trừ
+            $table->decimal('tong_giam_tru', 15, 2)->default(0)->comment('Tổng giảm trừ');
+            $table->longText('chi_tiet_giam_tru')->nullable()->comment('Chi tiết giảm trừ JSON');
+
+            // Bảo hiểm
+            $table->decimal('tru_bhxh', 15, 2)->default(0)->comment('Trừ BHXH (8%)');
+            $table->decimal('tru_bhyt', 15, 2)->default(0)->comment('Trừ BHYT (1.5%)');
+            $table->decimal('tru_bhtn', 15, 2)->default(0)->comment('Trừ BHTN (1%)');
+
+            // Thuế TNCN
+            $table->decimal('tru_thue_tncn', 15, 2)->default(0)->comment('Thuế thu nhập cá nhân');
+
+            // Tổng kết
+            $table->decimal('tong_thu_nhap', 15, 2)->default(0)->comment('Lương + thêm giờ + thưởng + hoa hồng + phụ cấp');
+            $table->decimal('tong_khau_tru', 15, 2)->default(0)->comment('Giảm trừ + BHXH + BHYT + BHTN + Thuế');
+            $table->decimal('thuc_nhan', 15, 2)->default(0)->comment('Thu nhập - Khấu trừ');
+
+            // Trạng thái
+            $table->string('trang_thai')->default('draft')->comment('draft, approved, paid');
+            $table->unsignedBigInteger('nguoi_duyet_id')->nullable();
+            $table->timestamp('ngay_duyet')->nullable();
+            $table->date('ngay_phat_luong')->nullable()->comment('Ngày phát lương thực tế');
+
+            $table->text('ghi_chu')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index(['thang', 'nam']);
+            $table->index('trang_thai');
+            $table->unique(['admin_user_id', 'thang', 'nam'], 'unique_user_month');
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'bang_luong',
+            'display_name' => 'Bảng lương',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.bang_luong',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'ma_bang_luong', 'Mã bảng lương', 'text', 'basic', 1);
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 2, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'thang', 'Tháng', 'number', 'basic', 3);
+        MigrateService::createColumn02($table_id, 'nam', 'Năm', 'number', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'luong_co_ban', 'Lương cơ bản', 'number', 'basic', 5);
+        MigrateService::createColumn02($table_id, 'so_ngay_cong_thuc_te', 'Ngày công', 'number', 'basic', 6);
+        MigrateService::createColumn02($table_id, 'thuc_nhan', 'Thực nhận', 'number', 'basic', 7);
+        MigrateService::createColumn02($table_id, 'trang_thai', 'Trạng thái', 'select', 'basic', 8, [
+            'options' => [
+                ['value' => 'draft', 'label' => 'Nháp'],
+                ['value' => 'approved', 'label' => 'Đã duyệt'],
+                ['value' => 'paid', 'label' => 'Đã thanh toán'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('bang_luong');
+        Table::where('name', 'bang_luong')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('nghi_phep', function (Blueprint $table) {
+            $table->id();
+            $table->string('ma_don')->unique()->comment('Mã đơn: NP-YYYY-001');
+            $table->unsignedBigInteger('admin_user_id')->comment('Người nộp đơn');
+
+            $table->string('loai_nghi')->comment('phep_nam, om, thai_san, khong_luong, khac');
+            $table->date('tu_ngay')->comment('Từ ngày');
+            $table->date('den_ngay')->comment('Đến ngày');
+            $table->decimal('so_ngay_nghi', 10, 2)->default(0)->comment('Số ngày nghỉ (tính tự động)');
+
+            $table->text('ly_do')->nullable()->comment('Lý do nghỉ');
+            $table->string('file_dinh_kem')->nullable()->comment('File đính kèm (giấy tờ)');
+
+            // Duyệt đơn
+            $table->string('trang_thai')->default('pending')->comment('pending, approved, rejected');
+            $table->unsignedBigInteger('nguoi_duyet_id')->nullable();
+            $table->timestamp('ngay_duyet')->nullable();
+            $table->text('ghi_chu_duyet')->nullable()->comment('Ghi chú khi duyệt/từ chối');
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index('trang_thai');
+            $table->index(['tu_ngay', 'den_ngay']);
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'nghi_phep',
+            'display_name' => 'Nghỉ phép',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.nghi_phep',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'ma_don', 'Mã đơn', 'text', 'basic', 1);
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 2, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'loai_nghi', 'Loại nghỉ', 'select', 'basic', 3, [
+            'options' => [
+                ['value' => 'phep_nam', 'label' => 'Phép năm'],
+                ['value' => 'om', 'label' => 'Ốm đau'],
+                ['value' => 'thai_san', 'label' => 'Thai sản'],
+                ['value' => 'khong_luong', 'label' => 'Không lương'],
+                ['value' => 'khac', 'label' => 'Khác'],
+            ]
+        ]);
+        MigrateService::createColumn02($table_id, 'tu_ngay', 'Từ ngày', 'date', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'den_ngay', 'Đến ngày', 'date', 'basic', 5);
+        MigrateService::createColumn02($table_id, 'so_ngay_nghi', 'Số ngày', 'number', 'basic', 6);
+        MigrateService::createColumn02($table_id, 'ly_do', 'Lý do', 'textarea', 'basic', 7);
+        MigrateService::createColumn02($table_id, 'trang_thai', 'Trạng thái', 'select', 'basic', 8, [
+            'options' => [
+                ['value' => 'pending', 'label' => 'Chờ duyệt'],
+                ['value' => 'approved', 'label' => 'Đã duyệt'],
+                ['value' => 'rejected', 'label' => 'Từ chối'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('nghi_phep');
+        Table::where('name', 'nghi_phep')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('ca_lam_viec', function (Blueprint $table) {
+            $table->id();
+            $table->string('ma_ca')->unique()->comment('Mã ca: CA-001');
+            $table->string('ten_ca')->comment('Tên ca làm việc');
+
+            $table->time('gio_bat_dau')->comment('Giờ bắt đầu ca');
+            $table->time('gio_ket_thuc')->comment('Giờ kết thúc ca');
+            $table->integer('thoi_gian_nghi_giua_ca')->default(60)->comment('Thời gian nghỉ giữa ca (phút)');
+
+            $table->string('ap_dung_cho')->default('all')->comment('all, specific_departments, specific_employees');
+            $table->text('danh_sach_ap_dung')->nullable()->comment('JSON: IDs chi nhánh hoặc nhân viên');
+
+            $table->integer('is_active')->default(1)->comment('0: không hoạt động, 1: hoạt động');
+            $table->text('ghi_chu')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'ca_lam_viec',
+            'display_name' => 'Ca làm việc',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.ca_lam_viec',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'ma_ca', 'Mã ca', 'text', 'basic', 1);
+        MigrateService::createColumn02($table_id, 'ten_ca', 'Tên ca', 'text', 'basic', 2);
+        MigrateService::createColumn02($table_id, 'gio_bat_dau', 'Giờ bắt đầu', 'time', 'basic', 3);
+        MigrateService::createColumn02($table_id, 'gio_ket_thuc', 'Giờ kết thúc', 'time', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'thoi_gian_nghi_giua_ca', 'Nghỉ giữa ca (phút)', 'number', 'basic', 5);
+        MigrateService::createColumn02($table_id, 'is_active', 'Hoạt động', 'select', 'basic', 6, [
+            'options' => [
+                ['value' => 0, 'label' => 'Không'],
+                ['value' => 1, 'label' => 'Có'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('ca_lam_viec');
+        Table::where('name', 'ca_lam_viec')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('phan_ca', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('admin_user_id')->comment('Nhân viên');
+            $table->unsignedBigInteger('ca_lam_viec_id')->comment('Ca làm việc');
+
+            $table->date('tu_ngay')->comment('Từ ngày');
+            $table->date('den_ngay')->comment('Đến ngày');
+
+            $table->text('cac_ngay_trong_tuan')->nullable()->comment('JSON: [1,2,3,4,5] = T2-T6');
+            $table->text('ghi_chu')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index('ca_lam_viec_id');
+            $table->index(['tu_ngay', 'den_ngay']);
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'phan_ca',
+            'display_name' => 'Phân ca làm việc',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.phan_ca',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 1, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'ca_lam_viec_id', 'Ca làm việc', 'select_api', 'basic', 2, ['table' => 'ca_lam_viec']);
+        MigrateService::createColumn02($table_id, 'tu_ngay', 'Từ ngày', 'date', 'basic', 3);
+        MigrateService::createColumn02($table_id, 'den_ngay', 'Đến ngày', 'date', 'basic', 4);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('phan_ca');
+        Table::where('name', 'phan_ca')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('hop_dong_lao_dong', function (Blueprint $table) {
+            $table->id();
+            $table->string('ma_hop_dong')->unique()->comment('Mã hợp đồng: HD-YYYY-001');
+            $table->unsignedBigInteger('admin_user_id')->comment('Nhân viên');
+
+            $table->string('loai_hop_dong')->comment('thu_viec, co_thoi_han, khong_thoi_han, mua_vu');
+            $table->date('ngay_bat_dau')->comment('Ngày bắt đầu');
+            $table->date('ngay_ket_thuc')->nullable()->comment('Ngày kết thúc');
+
+            $table->decimal('luong_hop_dong', 15, 2)->default(0)->comment('Lương ghi trong hợp đồng');
+            $table->decimal('muc_dong_bao_hiem', 15, 2)->default(0)->comment('Mức đóng bảo hiểm');
+
+            $table->string('file_hop_dong')->nullable()->comment('Path file hợp đồng PDF');
+            $table->string('trang_thai')->default('active')->comment('active, expired, terminated');
+
+            $table->date('ngay_ky')->comment('Ngày ký hợp đồng');
+            $table->unsignedBigInteger('nguoi_dai_dien_cong_ty')->comment('Người đại diện công ty ký');
+
+            $table->text('ghi_chu')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index('trang_thai');
+            $table->index(['ngay_bat_dau', 'ngay_ket_thuc']);
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'hop_dong_lao_dong',
+            'display_name' => 'Hợp đồng lao động',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.hop_dong_lao_dong',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'ma_hop_dong', 'Mã hợp đồng', 'text', 'basic', 1);
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 2, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'loai_hop_dong', 'Loại hợp đồng', 'select', 'basic', 3, [
+            'options' => [
+                ['value' => 'thu_viec', 'label' => 'Thử việc'],
+                ['value' => 'co_thoi_han', 'label' => 'Có thời hạn'],
+                ['value' => 'khong_thoi_han', 'label' => 'Không thời hạn'],
+                ['value' => 'mua_vu', 'label' => 'Mùa vụ'],
+            ]
+        ]);
+        MigrateService::createColumn02($table_id, 'ngay_bat_dau', 'Ngày bắt đầu', 'date', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'ngay_ket_thuc', 'Ngày kết thúc', 'date', 'basic', 5);
+        MigrateService::createColumn02($table_id, 'luong_hop_dong', 'Lương hợp đồng', 'number', 'basic', 6);
+        MigrateService::createColumn02($table_id, 'trang_thai', 'Trạng thái', 'select', 'basic', 7, [
+            'options' => [
+                ['value' => 'active', 'label' => 'Đang hiệu lực'],
+                ['value' => 'expired', 'label' => 'Hết hạn'],
+                ['value' => 'terminated', 'label' => 'Đã chấm dứt'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('hop_dong_lao_dong');
+        Table::where('name', 'hop_dong_lao_dong')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('tai_san_cong_ty', function (Blueprint $table) {
+            $table->id();
+            $table->string('ma_tai_san')->unique()->comment('Mã tài sản: TS-001');
+            $table->string('ten_tai_san')->comment('Tên tài sản');
+
+            $table->string('loai_tai_san')->comment('laptop, dien_thoai, xe, thiet_bi, khac');
+            $table->date('ngay_mua')->nullable()->comment('Ngày mua');
+            $table->decimal('gia_tri', 15, 2)->default(0)->comment('Giá trị tài sản');
+
+            $table->string('tinh_trang')->default('tot')->comment('tot, cu, hong');
+            $table->string('trang_thai')->default('kho')->comment('kho, dang_su_dung, hong');
+
+            $table->text('thong_tin_chi_tiet')->nullable()->comment('JSON: thông số kỹ thuật');
+            $table->string('hinh_anh')->nullable()->comment('Hình ảnh tài sản');
+            $table->text('ghi_chu')->nullable();
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('loai_tai_san');
+            $table->index('trang_thai');
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'tai_san_cong_ty',
+            'display_name' => 'Tài sản công ty',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.tai_san_cong_ty',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'ma_tai_san', 'Mã tài sản', 'text', 'basic', 1);
+        MigrateService::createColumn02($table_id, 'ten_tai_san', 'Tên tài sản', 'text', 'basic', 2);
+        MigrateService::createColumn02($table_id, 'loai_tai_san', 'Loại', 'select', 'basic', 3, [
+            'options' => [
+                ['value' => 'laptop', 'label' => 'Laptop'],
+                ['value' => 'dien_thoai', 'label' => 'Điện thoại'],
+                ['value' => 'xe', 'label' => 'Xe'],
+                ['value' => 'thiet_bi', 'label' => 'Thiết bị'],
+                ['value' => 'khac', 'label' => 'Khác'],
+            ]
+        ]);
+        MigrateService::createColumn02($table_id, 'gia_tri', 'Giá trị', 'number', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'trang_thai', 'Trạng thái', 'select', 'basic', 5, [
+            'options' => [
+                ['value' => 'kho', 'label' => 'Trong kho'],
+                ['value' => 'dang_su_dung', 'label' => 'Đang sử dụng'],
+                ['value' => 'hong', 'label' => 'Hỏng'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tai_san_cong_ty');
+        Table::where('name', 'tai_san_cong_ty')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('cap_phat_tai_san', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('tai_san_id')->comment('Tài sản');
+            $table->unsignedBigInteger('admin_user_id')->comment('Nhân viên được cấp');
+
+            $table->date('ngay_cap_phat')->comment('Ngày cấp phát');
+            $table->date('ngay_thu_hoi')->nullable()->comment('Ngày thu hồi');
+
+            $table->string('trang_thai')->default('dang_su_dung')->comment('dang_su_dung, da_thu_hoi');
+            $table->text('ghi_chu_cap_phat')->nullable();
+            $table->text('ghi_chu_thu_hoi')->nullable();
+
+            $table->unsignedBigInteger('nguoi_cap_phat')->comment('Người cấp phát');
+            $table->unsignedBigInteger('nguoi_thu_hoi')->nullable()->comment('Người thu hồi');
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('tai_san_id');
+            $table->index('admin_user_id');
+            $table->index('trang_thai');
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'cap_phat_tai_san',
+            'display_name' => 'Cấp phát tài sản',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.cap_phat_tai_san',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'tai_san_id', 'Tài sản', 'select_api', 'basic', 1, ['table' => 'tai_san_cong_ty']);
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 2, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'ngay_cap_phat', 'Ngày cấp phát', 'date', 'basic', 3);
+        MigrateService::createColumn02($table_id, 'ngay_thu_hoi', 'Ngày thu hồi', 'date', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'trang_thai', 'Trạng thái', 'select', 'basic', 5, [
+            'options' => [
+                ['value' => 'dang_su_dung', 'label' => 'Đang sử dụng'],
+                ['value' => 'da_thu_hoi', 'label' => 'Đã thu hồi'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('cap_phat_tai_san');
+        Table::where('name', 'cap_phat_tai_san')->delete();
+    }
+};
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Services\MigrateService;
+use App\Models\Admin\Table;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('kpi_danh_gia', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('admin_user_id')->comment('Nhân viên');
+            $table->integer('thang')->comment('Tháng');
+            $table->integer('nam')->comment('Năm');
+
+            $table->longText('chi_tieu_kpi')->nullable()->comment('JSON: [{ten, trong_so, muc_tieu, thuc_te}]');
+            $table->decimal('tong_diem', 10, 2)->default(0)->comment('Tổng điểm KPI');
+            $table->string('xep_loai')->nullable()->comment('A, B, C, D');
+
+            $table->unsignedBigInteger('nguoi_danh_gia')->nullable()->comment('Người đánh giá');
+            $table->timestamp('ngay_danh_gia')->nullable();
+            $table->text('nhan_xet')->nullable()->comment('Nhận xét của người đánh giá');
+
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->integer('sort_order')->default(0);
+            $table->unsignedBigInteger('create_by')->default(0);
+            $table->integer('is_recycle_bin')->default(0);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('admin_user_id');
+            $table->index(['thang', 'nam']);
+            $table->unique(['admin_user_id', 'thang', 'nam'], 'unique_user_kpi_month');
+        });
+
+        // Create Table record
+        $table_id = Table::insertGetId([
+            'name' => 'kpi_danh_gia',
+            'display_name' => 'Đánh giá KPI',
+            'type_show' => 0,
+            'count_item_of_page' => 30,
+            'route_name' => 'admin.data.kpi_danh_gia',
+            'parent_id' => 0,
+            'sort_order' => 0,
+        ]);
+
+        // Create columns
+        MigrateService::createColumn02($table_id, 'admin_user_id', 'Nhân viên', 'select_api', 'basic', 1, ['table' => 'admin_users']);
+        MigrateService::createColumn02($table_id, 'thang', 'Tháng', 'number', 'basic', 2);
+        MigrateService::createColumn02($table_id, 'nam', 'Năm', 'number', 'basic', 3);
+        MigrateService::createColumn02($table_id, 'tong_diem', 'Tổng điểm', 'number', 'basic', 4);
+        MigrateService::createColumn02($table_id, 'xep_loai', 'Xếp loại', 'select', 'basic', 5, [
+            'options' => [
+                ['value' => 'A', 'label' => 'A - Xuất sắc'],
+                ['value' => 'B', 'label' => 'B - Tốt'],
+                ['value' => 'C', 'label' => 'C - Trung bình'],
+                ['value' => 'D', 'label' => 'D - Yếu'],
+            ]
+        ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('kpi_danh_gia');
+        Table::where('name', 'kpi_danh_gia')->delete();
+    }
+};

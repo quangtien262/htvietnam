@@ -35,7 +35,8 @@ Route::middleware('auth:web')->group(function () {
     Route::group(['prefix' => 'user/api'], function () {
         require __DIR__ . '/user_api_route.php';
     });
-    // SPA fallback
+
+    // SPA cho trang profile của khách hàng sau khi login
     Route::get('user/{any?}', [UserController::class, 'index'])->where('any', '.*')->name('user.spa_fallback');
 });
 
@@ -43,6 +44,7 @@ Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [PagesController::class, 'index'])->name('home');
     // Route::get('/', [AdminController::class, 'index'])->name('home');
 
+    // SPA cho trang quản trị admin
     Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
 
     Route::group(['prefix' => 'aio/api'], function () {

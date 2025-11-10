@@ -76,6 +76,13 @@ import BankTransactionList from './pages/bank/BankTransactionList';
 // ERP - Dashboard
 import ERPDashboard from './pages/erp/ERPDashboard';
 
+// HR
+import ChamCongPage from './pages/hr/ChamCongPage';
+import BangLuongPage from './pages/hr/BangLuongPage';
+import NghiPhepPage from './pages/hr/NghiPhepPage';
+import BaoCaoPage from './pages/hr/BaoCaoPage';
+import HuongDanHRPage from './pages/hr/HuongDanHRPage';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -144,6 +151,13 @@ const App: React.FC = () => (
 
                 {/* ERP - Dashboard */}
                 <Route path={ROUTE.erpDashboard} element={<ERPDashboard />} />
+
+                {/* HR */}
+                <Route path={ROUTE.hrChamCong} element={<ChamCongPage />} />
+                <Route path={ROUTE.hrBangLuong} element={<BangLuongPage />} />
+                <Route path={ROUTE.hrNghiPhep} element={<NghiPhepPage />} />
+                <Route path={ROUTE.hrBaoCao} element={<BaoCaoPage />} />
+                <Route path={ROUTE.hrHuongDan} element={<HuongDanHRPage />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

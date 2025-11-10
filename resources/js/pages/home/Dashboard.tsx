@@ -136,7 +136,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={`${ROUTE.hrBaoCao}?p=hr`}>
                                 <IdcardFilled /> QUẢN LÝ NHÂN SỰ
                             </Link>
                         </div>
@@ -291,7 +291,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.supplierManagement}?p=purchase`}>
+                            <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>
                                 <HddFilled /> QUẢN LÝ MUA HÀNG / TÀI SẢN
                             </Link>
                         </div>

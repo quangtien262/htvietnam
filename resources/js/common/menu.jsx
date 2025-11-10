@@ -308,6 +308,11 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
+            label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+        },
+        {
             label: <Link to={`${ROUTE.supplierManagement}?p=purchase`}>Nhà cung cấp</Link>,
             key: (key++).toString(),
             icon: <ShopOutlined />,
@@ -333,11 +338,6 @@ export const MENU = {
             icon: <DollarOutlined />,
         },
         {
-            label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
-            key: (key++).toString(),
-            icon: <BarChartOutlined />,
-        },
-        {
             label: "Cài đặt",
             key: (key++).toString(),
             icon: <BarChartOutlined />,
@@ -349,6 +349,72 @@ export const MENU = {
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/purchase_order_statuses?p=purchase`}>Trạng thái đơn mua hàng</Link>,
                     key: (key++).toString(),
+                },
+            ],
+        },
+    ],
+
+    // QL nhân sự
+    hr: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.hrBaoCao}?p=hr`}>Dashboard</Link>,
+            key: (key++).toString(),
+            icon: <DashboardOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.hrChamCong}?p=hr`}>Chấm công</Link>,
+            key: (key++).toString(),
+            icon: <CalendarOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.hrBangLuong}?p=hr`}>Bảng lương</Link>,
+            key: (key++).toString(),
+            icon: <DollarOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.hrNghiPhep}?p=hr`}>Nghỉ phép</Link>,
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.baseRoute}setting/admin_users?p=hr`}>Nhân viên</Link>,
+            key: (key++).toString(),
+            icon: <TeamOutlined />,
+        },
+        {
+            label: "Cài đặt",
+            key: (key++).toString(),
+            icon: <SettingFilled />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/ca_lam_viec?p=hr`}>Ca làm việc</Link>,
+                    key: (key++).toString(),
+                    icon: <CalendarOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/hop_dong_lao_dong?p=hr`}>Hợp đồng lao động</Link>,
+                    key: (key++).toString(),
+                    icon: <FileDoneOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/tai_san_cong_ty?p=hr`}>Tài sản công ty</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/kpi_danh_gia?p=hr`}>Đánh giá KPI</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.hrHuongDan}?p=hr`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <BookOutlined />,
                 },
             ],
         },

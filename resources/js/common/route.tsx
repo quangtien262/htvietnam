@@ -82,6 +82,13 @@ export const ROUTE = {
 
     // ERP - Dashboard
     erpDashboard: `${baseRoute}erp/dashboard/`,
+
+    // HR - Quản lý nhân sự
+    hrChamCong: `${baseRoute}hr/cham-cong/`,
+    hrBangLuong: `${baseRoute}hr/bang-luong/`,
+    hrNghiPhep: `${baseRoute}hr/nghi-phep/`,
+    hrBaoCao: `${baseRoute}hr/bao-cao/`,
+    hrHuongDan: `${baseRoute}hr/huong-dan/`,
 };
 
 export default ROUTE;
