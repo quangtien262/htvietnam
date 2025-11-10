@@ -418,6 +418,35 @@ const Dashboard: React.FC = () => {
                 {datas.map((item: any) => (
                     showDataDashboard(item)
                 ))}
+
+                <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link to={`${ROUTE.whmcsInvoices}?p=whmcs`}>
+                                <ShopFilled /> WHMCS
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <ShopFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GoldFilled /> Thu ngân</li>
+                                        <li><ReadFilled /> Quản lý Hóa đơn</li>
+                                        <li><TeamOutlined /> Quản lý khách hàng</li>
+                                        <li><UngroupOutlined /> Data telesale</li>
+                                        <li><CalendarOutlined /> Quy trình CSKH</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
             </Row>
         </div>
     ));

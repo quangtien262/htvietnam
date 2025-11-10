@@ -120,6 +120,30 @@ export const ROUTE = {
     documentsSettings: `${baseRoute}documents/settings/`,
     documentsUserGuide: `${baseRoute}documents/user-guide/`, // Trang hướng dẫn sử dụng
     documentsShare: `${baseRoute}share/`, // Public share link (no hash, will be /share/:hash)
+
+    // WHMCS - Billing & Hosting Management (Admin)
+    whmcsInvoices: `${baseRoute}whmcs/invoices/`,
+    whmcsServers: `${baseRoute}whmcs/servers/`,
+    whmcsServices: `${baseRoute}whmcs/services/`,
+    whmcsProducts: `${baseRoute}whmcs/products/`,
+    whmcsTickets: `${baseRoute}whmcs/tickets/`, // Phase 2: Admin ticket management
+    whmcsClients: `${baseRoute}whmcs/clients/`, // Phase 2: Client management
+    whmcsApiKeys: `${baseRoute}whmcs/api-keys/`, // Phase 3: API Key Management
+    whmcsWebhooks: `${baseRoute}whmcs/webhooks/`, // Phase 3: Webhooks System
+    whmcsAnalytics: `${baseRoute}whmcs/analytics/`, // Phase 3: Analytics Dashboard
+    whmcsCurrencies: `${baseRoute}whmcs/currencies/`, // Phase 3: Multi-Currency
+    whmcsTax: `${baseRoute}whmcs/tax/`, // Phase 3: Tax Management
+    whmcsAffiliates: `${baseRoute}whmcs/affiliates/`, // Phase 3: Affiliate System
+    whmcsKnowledgeBase: `${baseRoute}whmcs/knowledge-base/`, // Phase 3: Knowledge Base
+    whmcsUserGuide: `${baseRoute}whmcs/user-guide/`, // Phase 3: User Documentation
+    
+    // WHMCS - Client Portal (Customer-facing)
+    clientDashboard: `${baseRoute}client/dashboard/`,
+    clientInvoices: `${baseRoute}client/invoices/`,
+    clientServices: `${baseRoute}client/services/`,
+    clientDomains: `${baseRoute}client/domains/`,
+    clientTickets: `${baseRoute}client/tickets/`,
+    clientProfile: `${baseRoute}client/profile/`,
 };
 
 export default ROUTE;

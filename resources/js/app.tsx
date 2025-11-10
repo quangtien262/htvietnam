@@ -112,6 +112,22 @@ import SettingsPage from './pages/document/SettingsPage';
 import ShareLinkPage from './pages/document/ShareLinkPage';
 import UserGuidePage from './pages/document/UserGuidePage';
 
+// WHMCS - Billing & Hosting Management
+import WhmcsInvoiceList from './pages/whmcs/InvoiceList';
+import WhmcsServerList from './pages/whmcs/ServerList';
+import WhmcsServiceList from './pages/whmcs/ServiceList';
+import WhmcsProductList from './pages/whmcs/ProductList';
+import WhmcsTicketList from './pages/whmcs/TicketList'; // Phase 2
+import ClientDashboard from './pages/whmcs/client/ClientDashboard'; // Phase 2
+import ApiKeyList from './pages/whmcs/ApiKeyList'; // Phase 3
+import WebhookList from './pages/whmcs/WebhookList'; // Phase 3 - Webhooks
+import AnalyticsDashboard from './pages/whmcs/AnalyticsDashboard'; // Phase 3 - Analytics
+import CurrencyManagement from './pages/whmcs/CurrencyManagement'; // Phase 3 - Multi-Currency
+import TaxManagement from './pages/whmcs/TaxManagement'; // Phase 3 - Tax Management
+import AffiliateManagement from './pages/whmcs/AffiliateManagement'; // Phase 3 - Affiliate System
+import KnowledgeBaseManagement from './pages/whmcs/KnowledgeBaseManagement'; // Phase 3 - Knowledge Base
+import WhmcsUserGuide from './pages/whmcs/UserGuide'; // Phase 3 - Documentation
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -216,6 +232,24 @@ const App: React.FC = () => (
                 <Route path={ROUTE.documentsSettings} element={<SettingsPage />} />
                 <Route path={ROUTE.documentsUserGuide} element={<UserGuidePage />} />
                 <Route path="/share/:hash" element={<ShareLinkPage />} />
+
+                {/* WHMCS - Billing & Hosting Management */}
+                <Route path={ROUTE.whmcsInvoices} element={<WhmcsInvoiceList />} />
+                <Route path={ROUTE.whmcsServers} element={<WhmcsServerList />} />
+                <Route path={ROUTE.whmcsServices} element={<WhmcsServiceList />} />
+                <Route path={ROUTE.whmcsProducts} element={<WhmcsProductList />} />
+                <Route path={ROUTE.whmcsTickets} element={<WhmcsTicketList />} />
+                <Route path={ROUTE.whmcsApiKeys} element={<ApiKeyList />} />
+                <Route path={ROUTE.whmcsWebhooks} element={<WebhookList />} />
+                <Route path={ROUTE.whmcsAnalytics} element={<AnalyticsDashboard />} />
+                <Route path={ROUTE.whmcsCurrencies} element={<CurrencyManagement />} />
+                <Route path={ROUTE.whmcsTax} element={<TaxManagement />} />
+                <Route path={ROUTE.whmcsAffiliates} element={<AffiliateManagement />} />
+                <Route path={ROUTE.whmcsKnowledgeBase} element={<KnowledgeBaseManagement />} />
+                <Route path={ROUTE.whmcsUserGuide} element={<WhmcsUserGuide />} />
+                
+                {/* WHMCS - Client Portal (Phase 2) */}
+                <Route path={ROUTE.clientDashboard} element={<ClientDashboard />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

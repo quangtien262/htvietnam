@@ -291,3 +291,204 @@ Route::post('/documents/comments/delete/{id}', [BinhLuanController::class, 'dest
 Route::post('/documents/comments/toggle-resolve/{id}', [BinhLuanController::class, 'toggleResolve']);
 Route::get('/documents/comments/unresolved-count', [BinhLuanController::class, 'unresolvedCount']);
 
+// ============================
+// MODULE WHMCS (Billing & Hosting Management)
+// ============================
+
+use App\Http\Controllers\Admin\Whmcs\InvoiceController as WhmcsInvoiceController;
+use App\Http\Controllers\Admin\Whmcs\ServerController as WhmcsServerController;
+use App\Http\Controllers\Admin\Whmcs\ServiceController as WhmcsServiceController;
+use App\Http\Controllers\Admin\Whmcs\ProductController as WhmcsProductController;
+
+// Invoices
+Route::prefix('whmcs/invoices')->group(function () {
+    Route::get('/', [WhmcsInvoiceController::class, 'index'])->name('whmcs.invoices.index');
+    Route::post('/', [WhmcsInvoiceController::class, 'store'])->name('whmcs.invoices.store');
+    Route::get('/{id}', [WhmcsInvoiceController::class, 'show'])->name('whmcs.invoices.show');
+    Route::post('/{id}/payment', [WhmcsInvoiceController::class, 'recordPayment'])->name('whmcs.invoices.payment');
+    Route::post('/{id}/cancel', [WhmcsInvoiceController::class, 'cancel'])->name('whmcs.invoices.cancel');
+    Route::post('/{id}/send-reminder', [WhmcsInvoiceController::class, 'sendReminder'])->name('whmcs.invoices.reminder');
+    Route::post('/{id}/apply-credit', [WhmcsInvoiceController::class, 'applyCredit'])->name('whmcs.invoices.apply-credit');
+    Route::get('/overdue/list', [WhmcsInvoiceController::class, 'overdue'])->name('whmcs.invoices.overdue');
+    Route::get('/revenue/stats', [WhmcsInvoiceController::class, 'revenue'])->name('whmcs.invoices.revenue');
+});
+
+// Servers
+Route::prefix('whmcs/servers')->group(function () {
+    Route::get('/', [WhmcsServerController::class, 'index'])->name('whmcs.servers.index');
+    Route::post('/', [WhmcsServerController::class, 'store'])->name('whmcs.servers.store');
+    Route::get('/{id}', [WhmcsServerController::class, 'show'])->name('whmcs.servers.show');
+    Route::put('/{id}', [WhmcsServerController::class, 'update'])->name('whmcs.servers.update');
+    Route::delete('/{id}', [WhmcsServerController::class, 'destroy'])->name('whmcs.servers.destroy');
+    Route::post('/{id}/test-connection', [WhmcsServerController::class, 'testConnection'])->name('whmcs.servers.test');
+    Route::post('/{id}/sync-accounts', [WhmcsServerController::class, 'syncAccounts'])->name('whmcs.servers.sync');
+    Route::post('/{id}/update-status', [WhmcsServerController::class, 'updateStatus'])->name('whmcs.servers.status');
+    Route::get('/recommendations/find', [WhmcsServerController::class, 'recommendations'])->name('whmcs.servers.recommendations');
+});
+
+// Server Groups
+Route::prefix('whmcs/server-groups')->group(function () {
+    Route::get('/', [WhmcsServerController::class, 'groups'])->name('whmcs.server-groups.index');
+    Route::post('/', [WhmcsServerController::class, 'storeGroup'])->name('whmcs.server-groups.store');
+    Route::put('/{id}', [WhmcsServerController::class, 'updateGroup'])->name('whmcs.server-groups.update');
+    Route::delete('/{id}', [WhmcsServerController::class, 'destroyGroup'])->name('whmcs.server-groups.destroy');
+});
+
+// Services
+Route::prefix('whmcs/services')->group(function () {
+    Route::get('/', [WhmcsServiceController::class, 'index'])->name('whmcs.services.index');
+    Route::post('/', [WhmcsServiceController::class, 'store'])->name('whmcs.services.store');
+    Route::get('/{id}', [WhmcsServiceController::class, 'show'])->name('whmcs.services.show');
+    Route::put('/{id}', [WhmcsServiceController::class, 'update'])->name('whmcs.services.update');
+    Route::post('/{id}/provision', [WhmcsServiceController::class, 'provision'])->name('whmcs.services.provision');
+    Route::post('/{id}/suspend', [WhmcsServiceController::class, 'suspend'])->name('whmcs.services.suspend');
+    Route::post('/{id}/unsuspend', [WhmcsServiceController::class, 'unsuspend'])->name('whmcs.services.unsuspend');
+    Route::post('/{id}/terminate', [WhmcsServiceController::class, 'terminate'])->name('whmcs.services.terminate');
+    Route::post('/{id}/change-password', [WhmcsServiceController::class, 'changePassword'])->name('whmcs.services.change-password');
+    Route::post('/{id}/change-package', [WhmcsServiceController::class, 'changePackage'])->name('whmcs.services.change-package');
+    Route::get('/{id}/credentials', [WhmcsServiceController::class, 'credentials'])->name('whmcs.services.credentials');
+});
+
+// Products
+Route::prefix('whmcs/products')->group(function () {
+    Route::get('/', [WhmcsProductController::class, 'index'])->name('whmcs.products.index');
+    Route::post('/', [WhmcsProductController::class, 'store'])->name('whmcs.products.store');
+    Route::get('/{id}', [WhmcsProductController::class, 'show'])->name('whmcs.products.show');
+    Route::put('/{id}', [WhmcsProductController::class, 'update'])->name('whmcs.products.update');
+    Route::delete('/{id}', [WhmcsProductController::class, 'destroy'])->name('whmcs.products.destroy');
+    Route::post('/{id}/pricing', [WhmcsProductController::class, 'updatePricing'])->name('whmcs.products.pricing');
+    Route::delete('/{id}/pricing/{pricingId}', [WhmcsProductController::class, 'deletePricing'])->name('whmcs.products.pricing.delete');
+});
+
+// Product Groups
+Route::prefix('whmcs/product-groups')->group(function () {
+    Route::get('/', [WhmcsProductController::class, 'groups'])->name('whmcs.product-groups.index');
+    Route::post('/', [WhmcsProductController::class, 'storeGroup'])->name('whmcs.product-groups.store');
+    Route::put('/{id}', [WhmcsProductController::class, 'updateGroup'])->name('whmcs.product-groups.update');
+    Route::delete('/{id}', [WhmcsProductController::class, 'destroyGroup'])->name('whmcs.product-groups.destroy');
+});
+
+// Tickets (Admin)
+Route::prefix('whmcs/tickets')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'index'])->name('whmcs.tickets.index');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'show'])->name('whmcs.tickets.show');
+    Route::post('/{id}/assign', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'assign'])->name('whmcs.tickets.assign');
+    Route::post('/{id}/reply', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'reply'])->name('whmcs.tickets.reply');
+    Route::put('/{id}/status', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'updateStatus'])->name('whmcs.tickets.status');
+    Route::put('/{id}/priority', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'updatePriority'])->name('whmcs.tickets.priority');
+    Route::post('/{id}/close', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'close'])->name('whmcs.tickets.close');
+    Route::post('/{id}/reopen', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'reopen'])->name('whmcs.tickets.reopen');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'destroy'])->name('whmcs.tickets.destroy');
+    Route::get('/statistics/all', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'statistics'])->name('whmcs.tickets.statistics');
+});
+
+// API Key Management
+Route::prefix('whmcs/api-keys')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\ApiKeyController::class, 'index'])->name('whmcs.api-keys.index');
+    Route::post('/', [\App\Http\Controllers\Admin\ApiKeyController::class, 'store'])->name('whmcs.api-keys.store');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\ApiKeyController::class, 'show'])->name('whmcs.api-keys.show');
+    Route::put('/{id}', [\App\Http\Controllers\Admin\ApiKeyController::class, 'update'])->name('whmcs.api-keys.update');
+    Route::post('/{id}/revoke', [\App\Http\Controllers\Admin\ApiKeyController::class, 'revoke'])->name('whmcs.api-keys.revoke');
+    Route::post('/{id}/regenerate', [\App\Http\Controllers\Admin\ApiKeyController::class, 'regenerateSecret'])->name('whmcs.api-keys.regenerate');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\ApiKeyController::class, 'destroy'])->name('whmcs.api-keys.destroy');
+    Route::get('/{id}/statistics', [\App\Http\Controllers\Admin\ApiKeyController::class, 'statistics'])->name('whmcs.api-keys.statistics');
+    Route::get('/{id}/logs', [\App\Http\Controllers\Admin\ApiKeyController::class, 'logs'])->name('whmcs.api-keys.logs');
+});
+
+// Webhooks Management
+Route::prefix('whmcs/webhooks')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\WebhookController::class, 'index'])->name('whmcs.webhooks.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebhookController::class, 'store'])->name('whmcs.webhooks.store');
+    Route::get('/events', [\App\Http\Controllers\Admin\WebhookController::class, 'availableEvents'])->name('whmcs.webhooks.events');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\WebhookController::class, 'show'])->name('whmcs.webhooks.show');
+    Route::put('/{id}', [\App\Http\Controllers\Admin\WebhookController::class, 'update'])->name('whmcs.webhooks.update');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\WebhookController::class, 'destroy'])->name('whmcs.webhooks.destroy');
+    Route::post('/{id}/toggle', [\App\Http\Controllers\Admin\WebhookController::class, 'toggleActive'])->name('whmcs.webhooks.toggle');
+    Route::post('/{id}/test', [\App\Http\Controllers\Admin\WebhookController::class, 'test'])->name('whmcs.webhooks.test');
+    Route::get('/{id}/logs', [\App\Http\Controllers\Admin\WebhookController::class, 'logs'])->name('whmcs.webhooks.logs');
+    Route::post('/{id}/logs/{logId}/retry', [\App\Http\Controllers\Admin\WebhookController::class, 'retry'])->name('whmcs.webhooks.retry');
+});
+
+// Analytics Dashboard
+Route::prefix('whmcs/analytics')->group(function () {
+    Route::get('/overview', [\App\Http\Controllers\Admin\AnalyticsController::class, 'overview'])->name('whmcs.analytics.overview');
+    Route::get('/revenue', [\App\Http\Controllers\Admin\AnalyticsController::class, 'revenue'])->name('whmcs.analytics.revenue');
+    Route::get('/top-customers', [\App\Http\Controllers\Admin\AnalyticsController::class, 'topCustomers'])->name('whmcs.analytics.top-customers');
+    Route::get('/churn-rate', [\App\Http\Controllers\Admin\AnalyticsController::class, 'churnRate'])->name('whmcs.analytics.churn-rate');
+    Route::get('/payment-methods', [\App\Http\Controllers\Admin\AnalyticsController::class, 'paymentMethods'])->name('whmcs.analytics.payment-methods');
+    Route::get('/customer-growth', [\App\Http\Controllers\Admin\AnalyticsController::class, 'customerGrowth'])->name('whmcs.analytics.customer-growth');
+    Route::get('/product-performance', [\App\Http\Controllers\Admin\AnalyticsController::class, 'productPerformance'])->name('whmcs.analytics.product-performance');
+    Route::get('/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('whmcs.analytics.export');
+});
+
+// Currency Management
+Route::prefix('whmcs/currencies')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\CurrencyController::class, 'index'])->name('whmcs.currencies.index');
+    Route::post('/', [\App\Http\Controllers\Admin\CurrencyController::class, 'store'])->name('whmcs.currencies.store');
+    Route::get('/statistics', [\App\Http\Controllers\Admin\CurrencyController::class, 'statistics'])->name('whmcs.currencies.statistics');
+    Route::post('/convert', [\App\Http\Controllers\Admin\CurrencyController::class, 'convert'])->name('whmcs.currencies.convert');
+    Route::post('/update-rates', [\App\Http\Controllers\Admin\CurrencyController::class, 'updateRates'])->name('whmcs.currencies.update-rates');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\CurrencyController::class, 'show'])->name('whmcs.currencies.show');
+    Route::put('/{id}', [\App\Http\Controllers\Admin\CurrencyController::class, 'update'])->name('whmcs.currencies.update');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\CurrencyController::class, 'destroy'])->name('whmcs.currencies.destroy');
+    Route::post('/{id}/set-base', [\App\Http\Controllers\Admin\CurrencyController::class, 'setBase'])->name('whmcs.currencies.set-base');
+});
+
+// Tax Management
+Route::prefix('whmcs/tax')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\TaxController::class, 'index'])->name('whmcs.tax.index');
+    Route::post('/', [\App\Http\Controllers\Admin\TaxController::class, 'store'])->name('whmcs.tax.store');
+    Route::get('/statistics', [\App\Http\Controllers\Admin\TaxController::class, 'statistics'])->name('whmcs.tax.statistics');
+    Route::get('/report', [\App\Http\Controllers\Admin\TaxController::class, 'report'])->name('whmcs.tax.report');
+    Route::post('/preview', [\App\Http\Controllers\Admin\TaxController::class, 'preview'])->name('whmcs.tax.preview');
+    Route::post('/assign-product', [\App\Http\Controllers\Admin\TaxController::class, 'assignToProduct'])->name('whmcs.tax.assign-product');
+    Route::post('/remove-product', [\App\Http\Controllers\Admin\TaxController::class, 'removeFromProduct'])->name('whmcs.tax.remove-product');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\TaxController::class, 'show'])->name('whmcs.tax.show');
+    Route::put('/{id}', [\App\Http\Controllers\Admin\TaxController::class, 'update'])->name('whmcs.tax.update');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\TaxController::class, 'destroy'])->name('whmcs.tax.destroy');
+});
+
+// Affiliate System
+Route::prefix('whmcs/affiliate')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\AffiliateController::class, 'index'])->name('whmcs.affiliate.index');
+    Route::post('/', [\App\Http\Controllers\Admin\AffiliateController::class, 'store'])->name('whmcs.affiliate.store');
+    Route::get('/overview', [\App\Http\Controllers\Admin\AffiliateController::class, 'overview'])->name('whmcs.affiliate.overview');
+    Route::get('/top-affiliates', [\App\Http\Controllers\Admin\AffiliateController::class, 'topAffiliates'])->name('whmcs.affiliate.top');
+    Route::get('/payouts', [\App\Http\Controllers\Admin\AffiliateController::class, 'payouts'])->name('whmcs.affiliate.payouts');
+    Route::post('/request-payout', [\App\Http\Controllers\Admin\AffiliateController::class, 'requestPayout'])->name('whmcs.affiliate.request-payout');
+    Route::post('/approve-payout/{id}', [\App\Http\Controllers\Admin\AffiliateController::class, 'approvePayout'])->name('whmcs.affiliate.approve-payout');
+    Route::post('/reject-payout/{id}', [\App\Http\Controllers\Admin\AffiliateController::class, 'rejectPayout'])->name('whmcs.affiliate.reject-payout');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\AffiliateController::class, 'show'])->name('whmcs.affiliate.show');
+    Route::put('/{id}', [\App\Http\Controllers\Admin\AffiliateController::class, 'update'])->name('whmcs.affiliate.update');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\AffiliateController::class, 'destroy'])->name('whmcs.affiliate.destroy');
+    Route::get('/{id}/statistics', [\App\Http\Controllers\Admin\AffiliateController::class, 'statistics'])->name('whmcs.affiliate.statistics');
+    Route::get('/{id}/referrals', [\App\Http\Controllers\Admin\AffiliateController::class, 'referrals'])->name('whmcs.affiliate.referrals');
+});
+
+// Knowledge Base
+Route::prefix('whmcs/kb')->group(function () {
+    // Categories
+    Route::get('/categories', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'categories'])->name('whmcs.kb.categories');
+    Route::post('/categories', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'storeCategory'])->name('whmcs.kb.category.store');
+    Route::put('/categories/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'updateCategory'])->name('whmcs.kb.category.update');
+    Route::delete('/categories/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteCategory'])->name('whmcs.kb.category.delete');
+    
+    // Articles
+    Route::get('/articles', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'articles'])->name('whmcs.kb.articles');
+    Route::post('/articles', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'storeArticle'])->name('whmcs.kb.article.store');
+    Route::get('/articles/search', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'search'])->name('whmcs.kb.articles.search');
+    Route::get('/articles/popular', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'popular'])->name('whmcs.kb.articles.popular');
+    Route::get('/articles/recent', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'recent'])->name('whmcs.kb.articles.recent');
+    Route::get('/articles/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'showArticle'])->name('whmcs.kb.article.show');
+    Route::put('/articles/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'updateArticle'])->name('whmcs.kb.article.update');
+    Route::delete('/articles/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteArticle'])->name('whmcs.kb.article.delete');
+    Route::post('/articles/{id}/views', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'incrementViews'])->name('whmcs.kb.article.views');
+    Route::post('/articles/{id}/vote', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'vote'])->name('whmcs.kb.article.vote');
+    
+    // Attachments
+    Route::post('/articles/{id}/attachments', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'uploadAttachment'])->name('whmcs.kb.attachment.upload');
+    Route::delete('/attachments/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteAttachment'])->name('whmcs.kb.attachment.delete');
+    
+    // Statistics
+    Route::get('/statistics', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'statistics'])->name('whmcs.kb.statistics');
+});

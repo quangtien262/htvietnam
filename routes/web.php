@@ -50,6 +50,11 @@ Route::middleware('auth:admin_users')->group(function () {
         require __DIR__ . '/admin_route.php';
     });
 
+    // WHMCS Client Portal API routes
+    Route::group(['prefix' => 'aio/api'], function () {
+        require __DIR__ . '/client_route.php';
+    });
+
     Route::group(['prefix' => 'purchase'], function () {
         require __DIR__ . '/purchase_route.php';
     });

@@ -1,0 +1,261 @@
+<?php
+
+namespace App\Services\Whmcs;
+
+use App\Models\Whmcs\Invoice;
+use App\Models\Whmcs\InvoiceItem;
+use App\Models\User;
+use App\Models\Whmcs\Transaction;
+use App\Models\Whmcs\Service;
+use App\Services\Whmcs\Contracts\BillingServiceInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+
+class BillingService implements BillingServiceInterface
+{
+    public function createInvoice(int $clientId, array $items, array $options = []): Invoice
+    {
+        return DB::transaction(function () use ($clientId, $items, $options) {
+            $client = User::findOrFail($clientId);
+            
+            $subtotal = collect($items)->sum(fn($item) => $item['amount'] * ($item['quantity'] ?? 1));
+            $tax = $options['tax'] ?? 0;
+            $total = $subtotal + $tax;
+            
+            $invoice = Invoice::create([
+                'client_id' => $clientId,
+                'invoice_number' => $this->generateInvoiceNumber(),
+                'status' => 'unpaid',
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'total' => $total,
+                'date' => now(),
+                'due_date' => $options['due_date'] ?? now()->addDays(7),
+                'notes' => $options['notes'] ?? null,
+            ]);
+
+            foreach ($items as $item) {
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'type' => $item['type'] ?? 'product',
+                    'related_id' => $item['product_id'] ?? null,
+                    'description' => $item['description'],
+                    'amount' => $item['amount'],
+                    'quantity' => $item['quantity'] ?? 1,
+                    'taxed' => $item['taxed'] ?? true,
+                ]);
+            }
+
+            Log::info("Invoice #{$invoice->invoice_number} created for client #{$clientId}", [
+                'invoice_id' => $invoice->id,
+                'total' => $total,
+            ]);
+
+            return $invoice->load('items');
+        });
+    }
+
+    public function createServiceRenewalInvoice(int $serviceId, string $billingCycle): Invoice
+    {
+        $service = Service::with(['product.pricings', 'client'])->findOrFail($serviceId);
+        
+        $pricing = $service->product->pricings
+            ->where('billing_cycle', $billingCycle)
+            ->first();
+
+        if (!$pricing) {
+            throw new \Exception("No pricing found for billing cycle: {$billingCycle}");
+        }
+
+        $nextDueDate = Carbon::parse($service->next_due_date);
+        
+        return $this->createInvoice($service->client_id, [
+            [
+                'type' => 'service',
+                'product_id' => $service->product_id,
+                'description' => "Service Renewal - {$service->product->name} ({$service->domain})",
+                'amount' => $pricing->price,
+                'quantity' => 1,
+            ]
+        ], [
+            'due_date' => $nextDueDate,
+            'notes' => "Renewal for service period: {$nextDueDate->format('d/m/Y')} - {$nextDueDate->copy()->addMonths($this->getCycleMonths($billingCycle))->format('d/m/Y')}",
+        ]);
+    }
+
+    public function recordPayment(int $invoiceId, float $amount, string $paymentMethod, array $metadata = []): Invoice
+    {
+        return DB::transaction(function () use ($invoiceId, $amount, $paymentMethod, $metadata) {
+            $invoice = Invoice::findOrFail($invoiceId);
+
+            if ($invoice->status === 'paid') {
+                throw new \Exception("Invoice #{$invoice->invoice_number} is already paid");
+            }
+
+            $transaction = Transaction::create([
+                'client_id' => $invoice->client_id,
+                'invoice_id' => $invoice->id,
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
+                'transaction_id' => $metadata['transaction_id'] ?? null,
+                'gateway_response' => $metadata['gateway_response'] ?? null,
+                'date' => now(),
+            ]);
+
+            $invoice->amount_paid += $amount;
+
+            if ($invoice->amount_paid >= $invoice->total) {
+                $invoice->status = 'paid';
+                $invoice->date_paid = now();
+
+                // Trigger event for auto-provisioning
+                event(new \App\Events\Whmcs\InvoicePaid($invoice));
+            }
+
+            $invoice->save();
+
+            Log::info("Payment recorded for invoice #{$invoice->invoice_number}", [
+                'invoice_id' => $invoice->id,
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
+                'transaction_id' => $transaction->id,
+            ]);
+
+            return $invoice->fresh();
+        });
+    }
+
+    public function cancelInvoice(int $invoiceId, ?string $reason = null): Invoice
+    {
+        $invoice = Invoice::findOrFail($invoiceId);
+
+        if ($invoice->status === 'paid') {
+            throw new \Exception("Cannot cancel paid invoice #{$invoice->invoice_number}");
+        }
+
+        $invoice->update([
+            'status' => 'cancelled',
+            'notes' => $invoice->notes . "\n\nCancelled: " . ($reason ?? 'No reason provided'),
+        ]);
+
+        Log::info("Invoice #{$invoice->invoice_number} cancelled", [
+            'invoice_id' => $invoice->id,
+            'reason' => $reason,
+        ]);
+
+        return $invoice;
+    }
+
+    public function getOverdueInvoices(?int $daysOverdue = null): Collection
+    {
+        $query = Invoice::where('status', 'unpaid')
+            ->where('due_date', '<', now());
+
+        if ($daysOverdue !== null) {
+            $query->where('due_date', '<=', now()->subDays($daysOverdue));
+        }
+
+        return $query->with(['client', 'items'])->get();
+    }
+
+    public function sendPaymentReminder(int $invoiceId, string $type = 'first'): bool
+    {
+        $invoice = Invoice::with('client')->findOrFail($invoiceId);
+
+        // TODO: Implement email sending logic
+        // Mail::to($invoice->client->email)->send(new PaymentReminderMail($invoice, $type));
+
+        Log::info("Payment reminder sent for invoice #{$invoice->invoice_number}", [
+            'invoice_id' => $invoice->id,
+            'client_id' => $invoice->client_id,
+            'type' => $type,
+        ]);
+
+        return true;
+    }
+
+    public function applyCreditToInvoice(int $invoiceId, ?float $amount = null): Invoice
+    {
+        return DB::transaction(function () use ($invoiceId, $amount) {
+            $invoice = Invoice::with('client')->findOrFail($invoiceId);
+            $client = $invoice->client;
+
+            if ($client->credit <= 0) {
+                throw new \Exception("Client has no available credit");
+            }
+
+            $creditToApply = $amount ?? min($client->credit, $invoice->total - $invoice->amount_paid);
+            
+            $client->credit -= $creditToApply;
+            $client->save();
+
+            return $this->recordPayment($invoice->id, $creditToApply, 'credit', [
+                'transaction_id' => 'CREDIT-' . time(),
+            ]);
+        });
+    }
+
+    public function addCredit(int $clientId, float $amount, string $description): User
+    {
+        $client = User::findOrFail($clientId);
+        $client->credit += $amount;
+        $client->save();
+
+        Log::info("Credit added to client #{$clientId}", [
+            'amount' => $amount,
+            'description' => $description,
+            'new_balance' => $client->credit,
+        ]);
+
+        return $client;
+    }
+
+    public function getRevenue(string $startDate, string $endDate, ?string $status = 'paid'): array
+    {
+        $query = Invoice::whereBetween('date', [$startDate, $endDate]);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $invoices = $query->get();
+
+        $breakdown = $invoices->groupBy(function ($invoice) {
+            return Carbon::parse($invoice->date)->format('Y-m');
+        })->map(function ($monthInvoices) {
+            return [
+                'total' => $monthInvoices->sum('total'),
+                'count' => $monthInvoices->count(),
+            ];
+        });
+
+        return [
+            'total' => $invoices->sum('total'),
+            'count' => $invoices->count(),
+            'breakdown' => $breakdown->toArray(),
+        ];
+    }
+
+    protected function generateInvoiceNumber(): string
+    {
+        $latestInvoice = Invoice::latest('id')->first();
+        $nextNumber = $latestInvoice ? ($latestInvoice->id + 1) : 1;
+        
+        return 'INV-' . date('Ymd') . '-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+    }
+
+    protected function getCycleMonths(string $cycle): int
+    {
+        return match ($cycle) {
+            'monthly' => 1,
+            'quarterly' => 3,
+            'semiannually' => 6,
+            'annually' => 12,
+            'biennially' => 24,
+            'triennially' => 36,
+            default => 1,
+        };
+    }
+}
