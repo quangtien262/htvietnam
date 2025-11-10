@@ -20,8 +20,18 @@ class MoMoService implements PaymentGatewayInterface
         $this->partnerCode = config('whmcs.payment_gateways.momo.partner_code');
         $this->accessKey = config('whmcs.payment_gateways.momo.access_key');
         $this->secretKey = config('whmcs.payment_gateways.momo.secret_key');
-        $this->returnUrl = config('whmcs.payment_gateways.momo.return_url');
-        $this->notifyUrl = config('whmcs.payment_gateways.momo.notify_url');
+        
+        // Build full URLs for return_url and notify_url (config now stores relative paths)
+        $returnPath = config('whmcs.payment_gateways.momo.return_url');
+        $notifyPath = config('whmcs.payment_gateways.momo.notify_url');
+        
+        $this->returnUrl = str_starts_with($returnPath, 'http') 
+            ? $returnPath 
+            : url($returnPath);
+            
+        $this->notifyUrl = str_starts_with($notifyPath, 'http') 
+            ? $notifyPath 
+            : url($notifyPath);
     }
 
     /**

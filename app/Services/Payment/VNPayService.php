@@ -16,7 +16,12 @@ class VNPayService implements PaymentGatewayInterface
         $this->vnpUrl = config('whmcs.payment_gateways.vnpay.url');
         $this->vnpTmnCode = config('whmcs.payment_gateways.vnpay.tmn_code');
         $this->vnpHashSecret = config('whmcs.payment_gateways.vnpay.hash_secret');
-        $this->vnpReturnUrl = config('whmcs.payment_gateways.vnpay.return_url');
+        
+        // Build full URL for return_url (config now stores relative path)
+        $returnPath = config('whmcs.payment_gateways.vnpay.return_url');
+        $this->vnpReturnUrl = str_starts_with($returnPath, 'http') 
+            ? $returnPath 
+            : url($returnPath);
     }
 
     /**

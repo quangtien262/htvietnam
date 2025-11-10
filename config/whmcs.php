@@ -68,7 +68,7 @@ return [
             'url' => env('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
             'tmn_code' => env('VNPAY_TMN_CODE', ''),
             'hash_secret' => env('VNPAY_HASH_SECRET', ''),
-            'return_url' => env('VNPAY_RETURN_URL', url('/api/payment/vnpay/callback')),
+            'return_url' => env('VNPAY_RETURN_URL', '/api/payment/vnpay/callback'),
         ],
         'momo' => [
             'enabled' => env('MOMO_ENABLED', false),
@@ -76,8 +76,8 @@ return [
             'partner_code' => env('MOMO_PARTNER_CODE', ''),
             'access_key' => env('MOMO_ACCESS_KEY', ''),
             'secret_key' => env('MOMO_SECRET_KEY', ''),
-            'return_url' => env('MOMO_RETURN_URL', url('/api/payment/momo/return')),
-            'notify_url' => env('MOMO_NOTIFY_URL', url('/api/payment/momo/ipn')),
+            'return_url' => env('MOMO_RETURN_URL', '/api/payment/momo/return'),
+            'notify_url' => env('MOMO_NOTIFY_URL', '/api/payment/momo/ipn'),
         ],
     ],
 

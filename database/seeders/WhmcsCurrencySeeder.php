@@ -12,15 +12,23 @@ class WhmcsCurrencySeeder extends Seeder
      */
     public function run(): void
     {
+        // Skip if currencies already exist
+        if (DB::table('whmcs_currencies')->count() > 0) {
+            $this->command->info('Currencies already seeded, skipping...');
+            return;
+        }
+
         $currencies = [
             [
                 'code' => 'VND',
                 'name' => 'Vietnamese Dong',
                 'symbol' => '₫',
-                'exchange_rate' => 1.00,
-                'decimal_places' => 0,
-                'is_default' => true,
+                'format' => '{amount} {symbol}',
+                'exchange_rate' => 24000.000000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 0,
+                'position' => 'after',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -28,10 +36,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'USD',
                 'name' => 'US Dollar',
                 'symbol' => '$',
-                'exchange_rate' => 0.00004, // 1 VND = 0.00004 USD (example rate)
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 1.000000, // Base currency
+                'is_base' => true,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -39,10 +49,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'EUR',
                 'name' => 'Euro',
                 'symbol' => '€',
-                'exchange_rate' => 0.000037, // Example rate
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 0.920000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -50,10 +62,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'GBP',
                 'name' => 'British Pound',
                 'symbol' => '£',
-                'exchange_rate' => 0.000032, // Example rate
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 0.790000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -61,10 +75,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'JPY',
                 'name' => 'Japanese Yen',
                 'symbol' => '¥',
-                'exchange_rate' => 0.0061, // Example rate
-                'decimal_places' => 0,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 149.500000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 0,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -72,10 +88,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'CNY',
                 'name' => 'Chinese Yuan',
                 'symbol' => '¥',
-                'exchange_rate' => 0.00029, // Example rate
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 7.250000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -83,10 +101,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'SGD',
                 'name' => 'Singapore Dollar',
                 'symbol' => 'S$',
-                'exchange_rate' => 0.000054, // Example rate
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 1.340000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -94,10 +114,12 @@ class WhmcsCurrencySeeder extends Seeder
                 'code' => 'THB',
                 'name' => 'Thai Baht',
                 'symbol' => '฿',
-                'exchange_rate' => 0.0014, // Example rate
-                'decimal_places' => 2,
-                'is_default' => false,
+                'format' => '{symbol}{amount}',
+                'exchange_rate' => 35.500000,
+                'is_base' => false,
                 'is_active' => true,
+                'decimal_places' => 2,
+                'position' => 'before',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
