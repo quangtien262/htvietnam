@@ -172,6 +172,7 @@ ul li.ant-menu-item:first-child:hover a {
 .ant-menu-light .ant-menu-submenu-title {
     color: #000;
 }
+
 ul.ant-menu-root li .ant-menu-title-content,
 ul.ant-menu-root li .ant-menu-title-content a,
 ul.ant-menu-root li .ant-menu-title-content span,
@@ -228,12 +229,12 @@ ul.ant-menu-sub {
     font-weight: bold;
 }
 
+.tree-modal .ant-tree-title {
+    max-width: 100%;
+}
+
 .ant-tree-title {
     background: #dedede;
-    padding: 5px 10px;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-    max-width: 50%;
     display: block;
 }
 
@@ -889,9 +890,7 @@ ul.events01 li {
     border-radius: 8px !important;
 }
 
-.tree-modal .ant-tree-title {
-    max-width: 100%;
-}
+
 
 .btn-statistical {
     background-color: #3B6A25;
@@ -1227,9 +1226,9 @@ ul.menu-header li:first-child {
 
 /* tree */
 .ant-tree-switcher-icon {
-    font-size: 30px !important;
-    margin-left: -30px;
-    color: #838282;
+    font-size: 26px !important;
+    margin-left: -15px;
+    color: #09636d;
 }
 
 .ant-divider-horizontal.ant-divider-with-text::before,

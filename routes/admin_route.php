@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\BangLuongController;
 use App\Http\Controllers\Admin\NghiPhepController;
 use App\Http\Controllers\Admin\CaLamViecController;
 use App\Http\Controllers\Admin\BaoCaoNhanSuController;
+use App\Http\Controllers\Document\BinhLuanController;
 
 // ============================
 // MODULE NGÂN HÀNG
@@ -178,4 +179,115 @@ Route::get('/api/telesale/don-hang', [DonHangTelesaleController::class, 'index']
 Route::post('/api/telesale/don-hang/store', [DonHangTelesaleController::class, 'store']);
 Route::post('/api/telesale/don-hang/update-status/{id}', [DonHangTelesaleController::class, 'updateStatus']);
 Route::get('/api/telesale/don-hang/bao-cao', [DonHangTelesaleController::class, 'baoCao']);
+
+// ============================
+// MODULE QUẢN LÝ TÀI LIỆU
+// ============================
+
+use App\Http\Controllers\Document\ThuMucController;
+use App\Http\Controllers\Document\FileController;
+use App\Http\Controllers\Document\PhanQuyenController;
+use App\Http\Controllers\Document\ShareLinkController;
+
+// Test route
+Route::get('/test-db', function () {
+    $folders = \App\Models\Document\ThuMuc::root()->get();
+    $files = \App\Models\Document\File::limit(10)->get();
+    return response()->json([
+        'folders_count' => $folders->count(),
+        'folders' => $folders,
+        'files_count' => $files->count(),
+        'files' => $files,
+        'user_id' => auth('admin_users')->id(),
+    ]);
+});
+
+// Thư mục
+Route::get('/documents/folders', [ThuMucController::class, 'index']);
+Route::post('/documents/folders/store', [ThuMucController::class, 'store']);
+Route::post('/documents/folders/update/{id}', [ThuMucController::class, 'update']);
+Route::post('/documents/folders/sort-order', [ThuMucController::class, 'updateSortOrder']);
+Route::post('/documents/folders/share/{id}', [ThuMucController::class, 'share']);
+Route::get('/documents/folders/shared', [ThuMucController::class, 'sharedWithMe']);
+Route::get('/documents/folders/public', [ThuMucController::class, 'publicFolders']);
+Route::post('/documents/folders/delete/{id}', [ThuMucController::class, 'destroy']);
+Route::post('/documents/folders/restore/{id}', [ThuMucController::class, 'restore']);
+
+// Users list for sharing
+Route::get('/documents/users', function () {
+    try {
+        $users = \App\Models\AdminUser::select('id', 'name', 'email')
+            ->where('da_nghi_lam', 0) // Only active employees
+            ->orderBy('name')
+            ->get();
+        
+        return response()->json($users);
+    } catch (\Exception $e) {
+        \Log::error('Get users error: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// File
+Route::get('/documents/files', [FileController::class, 'index']);
+Route::post('/documents/files/upload', [FileController::class, 'upload']);
+Route::get('/documents/files/download/{id}', [FileController::class, 'download']);
+Route::get('/documents/files/preview/{id}', [FileController::class, 'preview']);
+Route::post('/documents/files/update/{id}', [FileController::class, 'update']);
+Route::post('/documents/files/star/{id}', [FileController::class, 'toggleStar']);
+Route::post('/documents/files/move/{id}', [FileController::class, 'move']);
+Route::post('/documents/files/copy/{id}', [FileController::class, 'copy']);
+Route::post('/documents/files/delete/{id}', [FileController::class, 'destroy']);
+Route::post('/documents/files/restore/{id}', [FileController::class, 'restore']);
+Route::get('/documents/files/starred', [FileController::class, 'starred']);
+Route::get('/documents/files/recent', [FileController::class, 'recent']);
+Route::get('/documents/files/trash', [FileController::class, 'trash']);
+
+// Quota & Settings
+Route::get('/documents/quota/me', function () {
+    $userId = auth('admin_users')->id();
+    $quota = \App\Models\Document\Quota::forUser($userId)->first();
+
+    if (!$quota) {
+        // Auto-create quota if not exists
+        $quota = \App\Models\Document\Quota::create([
+            'user_id' => $userId,
+            'loai' => 'user',
+            'dung_luong_gioi_han' => 10737418240, // 10GB
+            'dung_luong_su_dung' => 0,
+            'ty_le_su_dung' => 0,
+            'canh_bao_tu' => 80,
+            'da_canh_bao' => false,
+        ]);
+
+        // Calculate actual usage
+        $actualUsage = \App\Models\Document\File::where('nguoi_tai_len_id', $userId)
+            ->sum('kich_thuoc');
+        $quota->dung_luong_su_dung = $actualUsage;
+        $quota->ty_le_su_dung = ($actualUsage / $quota->dung_luong_gioi_han) * 100;
+        $quota->save();
+    }
+
+    return response()->json($quota);
+});
+
+// Phân quyền
+Route::get('/documents/permissions', [PhanQuyenController::class, 'index']);
+Route::post('/documents/permissions/share', [PhanQuyenController::class, 'share']);
+Route::post('/documents/permissions/update/{id}', [PhanQuyenController::class, 'update']);
+Route::post('/documents/permissions/revoke/{id}', [PhanQuyenController::class, 'revoke']);
+
+// Share link (public)
+Route::post('/documents/share-link/create', [ShareLinkController::class, 'create']);
+Route::get('/documents/share-link', [ShareLinkController::class, 'index']);
+Route::get('/share/{hash}', [ShareLinkController::class, 'access'])->name('share.access'); // Public route
+Route::post('/documents/share-link/revoke/{id}', [ShareLinkController::class, 'revoke']);
+
+// Comments (Bình luận)
+Route::get('/documents/comments', [BinhLuanController::class, 'index']);
+Route::post('/documents/comments', [BinhLuanController::class, 'store']);
+Route::post('/documents/comments/update/{id}', [BinhLuanController::class, 'update']);
+Route::post('/documents/comments/delete/{id}', [BinhLuanController::class, 'destroy']);
+Route::post('/documents/comments/toggle-resolve/{id}', [BinhLuanController::class, 'toggleResolve']);
+Route::get('/documents/comments/unresolved-count', [BinhLuanController::class, 'unresolvedCount']);
 

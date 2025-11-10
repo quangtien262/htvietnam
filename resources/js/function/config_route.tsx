@@ -13,43 +13,6 @@ export const tblWeb = ['images', 'contact', 'orders', 'news', 'doi_tac',
     'admin_user.change_password', 'web_config', 'video', 'emails', 'countries', 'library'
 ];
 
-// export const tblConfig = {
-//     tblWeb: {
-//         name: 'Quản lý website',
-//         data:['images', 'contact', 'orders', 'news', 'doi_tac', 
-//             'products', 'menus', 'admin_user.edit', 'admin_user.index', 
-//             'admin_user.change_password','web_config','video']
-//     },
-//     tblNhanSu: {
-//         name: 'Quản lý nhân sự',
-//         data:['permission_group', 'admin_user', 'khoa_hoc']
-//     },
-//     tblKhoHang: {
-//         name: 'Quản lý kho hàng',
-//         data:['kho_hang', 'nha_cung_cap_status']
-//     },
-//     tblSale: {
-//         name: 'Quản lý bán hàng',
-//         data:['data_telesales', 'dat_lich', 'users']
-//     },
-//     tblTaiChinh: {
-//         name: 'Quản lý tài chính',
-//         data:['hoa_don']
-//     },
-//     tblReport: {
-//         name: 'Báo cáo',
-//         data:[]
-//     },
-//     tblTaiSan: {
-//         name: 'Quản lý tài sản',
-//         data:['tai_san_kiem_ke', 'tai_san_bao_tri', 'tai_san_thanh_ly', 'tai_san_cap_phat']
-//     },
-//     tblTask: {
-//         name: 'Quản lý công việc',
-//         data:[]
-//     },
-// };
-
 export const tblConfig = {
     // website
     tblWeb: {
@@ -279,49 +242,6 @@ export const routeNhanSu = [
 
 ];
 
-// export const routeTask = [
-//     {
-//         parent: {
-//             link: route('task.dashboard'),
-//             display_name: 'Báo cáo',
-//             key: key++
-//         },
-//         sub: []
-//     },
-//     // {
-//     //     parent: {
-//     //         link: route('task.list'),
-//     //         display_name: 'Công việc',
-//     //         key: key++
-//     //     },
-//     //     sub: []
-//     // },
-//     {
-//         parent: {
-//             link: route('data.tblName', ['task_milestones']),
-//             display_name: 'Cài đặt',
-//             key: key++
-//         },
-//         sub: [
-//             {
-//                 link: route('data.tblName', ['task_milestones']),
-//                 display_name: 'Milestones',
-//                 key: key++
-//             },
-//             {
-//                 link: route('data.tblName', ['task_priority']),
-//                 display_name: 'Độ ưu tiên',
-//                 key: key++
-//             },
-//             {
-//                 link: route('data.tblName', ['task_status']),
-//                 display_name: 'Trạng thái',
-//                 key: key++
-//             },
-//         ]
-//     },
-
-// ];
 
 export const routeTaiChinh = [
     {
@@ -432,6 +352,40 @@ export const routeTaiSan = [
 ];
 
 export const routeFiles = [
+    {
+        parent: {
+            link: '/documents',
+            display_name: 'Quản lý tài liệu',
+            key: key++
+        },
+        sub: [
+            {
+                link: '/documents/explorer',
+                display_name: 'Trình duyệt file',
+                key: key++
+            },
+            {
+                link: '/documents/starred',
+                display_name: 'File đã gắn sao',
+                key: key++
+            },
+            {
+                link: '/documents/recent',
+                display_name: 'File gần đây',
+                key: key++
+            },
+            {
+                link: '/documents/trash',
+                display_name: 'Thùng rác',
+                key: key++
+            },
+            {
+                link: '/documents/settings',
+                display_name: 'Cài đặt & Quota',
+                key: key++
+            }
+        ]
+    }
 ];
 
 export const routeWeb = [

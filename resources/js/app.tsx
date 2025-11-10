@@ -103,6 +103,15 @@ import DonHangTelesalePage from './pages/telesale/DonHangTelesalePage';
 import BaoCaoTelesalePage from './pages/telesale/BaoCaoTelesalePage';
 import HuongDanTelesalePage from './pages/telesale/HuongDanTelesalePage';
 
+// Document Management
+import DocumentExplorerPage from './pages/document/DocumentExplorerPage';
+import StarredPage from './pages/document/StarredPage';
+import RecentPage from './pages/document/RecentPage';
+import TrashPage from './pages/document/TrashPage';
+import SettingsPage from './pages/document/SettingsPage';
+import ShareLinkPage from './pages/document/ShareLinkPage';
+import UserGuidePage from './pages/document/UserGuidePage';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -198,6 +207,15 @@ const App: React.FC = () => (
                 <Route path={ROUTE.telesaleDonHang} element={<DonHangTelesalePage />} />
                 <Route path={ROUTE.telesaleBaoCao} element={<BaoCaoTelesalePage />} />
                 <Route path={ROUTE.telesaleHuongDan} element={<HuongDanTelesalePage />} />
+
+                {/* Document Management */}
+                <Route path={ROUTE.documentsExplorer} element={<DocumentExplorerPage />} />
+                <Route path={ROUTE.documentsStarred} element={<StarredPage />} />
+                <Route path={ROUTE.documentsRecent} element={<RecentPage />} />
+                <Route path={ROUTE.documentsTrash} element={<TrashPage />} />
+                <Route path={ROUTE.documentsSettings} element={<SettingsPage />} />
+                <Route path={ROUTE.documentsUserGuide} element={<UserGuidePage />} />
+                <Route path="/share/:hash" element={<ShareLinkPage />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

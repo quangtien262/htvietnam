@@ -314,6 +314,57 @@ export const API = {
     erpDashboardCongNo: '/aio/api/erp/dashboard/cong-no',
     erpDashboardChart: '/aio/api/erp/dashboard/chart',
 
+    // ===== FILES =====
+
+    // ===== QUẢN LÝ TÀI LIỆU =====
+    // Thư mục (Folders)
+    documentFolders: '/aio/api/documents/folders',
+    documentFolderStore: '/aio/api/documents/folders/store',
+    documentFolderUpdate: (id: number) => `/aio/api/documents/folders/update/${id}`,
+    documentFolderSortOrder: '/aio/api/documents/folders/sort-order',
+    documentFolderShare: (id: number) => `/aio/api/documents/folders/share/${id}`,
+    documentFoldersShared: '/aio/api/documents/folders/shared',
+    documentFoldersPublic: '/aio/api/documents/folders/public',
+    documentFolderDelete: (id: number) => `/aio/api/documents/folders/delete/${id}`,
+    documentFolderRestore: (id: number) => `/aio/api/documents/folders/restore/${id}`,
+    
+    // Users for sharing
+    documentUsers: '/aio/api/documents/users',
+
+    // File
+    documentFiles: '/aio/api/documents/files',
+    documentFileUpload: '/aio/api/documents/files/upload',
+    documentFileDownload: (id: number) => `/aio/api/documents/files/download/${id}`,
+    documentFilePreview: (id: number) => `/aio/api/documents/files/preview/${id}`,
+    documentFileStar: (id: number) => `/aio/api/documents/files/star/${id}`,
+    documentFileUpdate: (id: number) => `/aio/api/documents/files/update/${id}`,
+    documentFileMove: (id: number) => `/aio/api/documents/files/move/${id}`,
+    documentFileCopy: (id: number) => `/aio/api/documents/files/copy/${id}`,
+    documentFileDelete: (id: number) => `/aio/api/documents/files/delete/${id}`,
+    documentFileRestore: (id: number) => `/aio/api/documents/files/restore/${id}`,
+    documentFilesStarred: '/aio/api/documents/files/starred',
+    documentFilesRecent: '/aio/api/documents/files/recent',
+    documentFilesTrash: '/aio/api/documents/files/trash',
+
+    // Phân quyền (Permissions)
+    documentPermissions: '/aio/api/documents/permissions',
+    documentPermissionShare: '/aio/api/documents/permissions/share',
+    documentPermissionUpdate: (id: number) => `/aio/api/documents/permissions/update/${id}`,
+    documentPermissionRevoke: (id: number) => `/aio/api/documents/permissions/revoke/${id}`,
+
+    // Share Link
+    documentShareLinkCreate: '/aio/api/documents/share-link/create',
+    documentShareLinks: '/aio/api/documents/share-link',
+    documentShareLinkRevoke: (id: number) => `/aio/api/documents/share-link/revoke/${id}`,
+
+    // Comments (Bình luận)
+    documentComments: '/aio/api/documents/comments',
+    documentCommentStore: '/aio/api/documents/comments',
+    documentCommentUpdate: (id: number) => `/aio/api/documents/comments/update/${id}`,
+    documentCommentDelete: (id: number) => `/aio/api/documents/comments/delete/${id}`,
+    documentCommentToggleResolve: (id: number) => `/aio/api/documents/comments/toggle-resolve/${id}`,
+    documentCommentUnresolvedCount: '/aio/api/documents/comments/unresolved-count',
+
 };
 
 export default API;

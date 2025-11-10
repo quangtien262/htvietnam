@@ -27,13 +27,9 @@ class HimalayaSeeder extends Seeder
             ['name' => 'Phổ Quang', 'code' => 'CN00002', 'sort_order' => 2, 'chi_nhanh_status_id' => 1],
         ]);
 
-        DB::table('users')->truncate();
+        // DB::table('users')->truncate();
         DB::table('users')->insert([
             ['code' => 'KH001', 'name' => 'Nguyễn Thị Huyền', 'phone' => '0911111111', 'phone02' => '0922222220', 'sort_order' => 1, 'chi_nhanh_id' => 1],
-            ['code' => 'KH002', 'name' => 'Nguyễn Thị Bình An', 'phone' => '0911111112', 'phone02' => '0922222222', 'sort_order' => 1, 'chi_nhanh_id' => 1],
-            ['code' => 'KH003', 'name' => 'Nguyễn Thị Khuyên', 'phone' => '0911111112', 'phone02' => '0922222222', 'sort_order' => 1, 'chi_nhanh_id' => 1],
-            ['code' => 'KH004', 'name' => 'Thái Ngọc Nhung', 'phone' => '0911111112', 'phone02' => '0922222222', 'sort_order' => 1, 'chi_nhanh_id' => 1],
-            ['code' => 'KH005', 'name' => 'Nguyễn Thị Thanh Mai', 'phone' => '0911111112', 'phone02' => '0922222222', 'sort_order' => 1, 'chi_nhanh_id' => 1]
         ]);
 
         // DB::table('type_cong_viec')->truncate();

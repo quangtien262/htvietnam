@@ -111,6 +111,15 @@ export const ROUTE = {
     telesaleDonHang: `${baseRoute}telesale/don-hang/`,
     telesaleBaoCao: `${baseRoute}telesale/bao-cao/`,
     telesaleHuongDan: `${baseRoute}telesale/huong-dan/`,
+
+    // Document Management - Quản lý tài liệu
+    documentsExplorer: `${baseRoute}documents/explorer/`,
+    documentsStarred: `${baseRoute}documents/starred/`,
+    documentsRecent: `${baseRoute}documents/recent/`,
+    documentsTrash: `${baseRoute}documents/trash/`,
+    documentsSettings: `${baseRoute}documents/settings/`,
+    documentsUserGuide: `${baseRoute}documents/user-guide/`, // Trang hướng dẫn sử dụng
+    documentsShare: `${baseRoute}share/`, // Public share link (no hash, will be /share/:hash)
 };
 
 export default ROUTE;

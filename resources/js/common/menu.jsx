@@ -24,7 +24,13 @@ import {
     DollarOutlined,
     TagsOutlined,
     SettingFilled,
-    PhoneOutlined
+    PhoneOutlined,
+    FolderOutlined,
+    StarOutlined,
+    ClockCircleOutlined,
+    DeleteOutlined,
+    SettingOutlined,
+    QuestionCircleOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -480,6 +486,11 @@ export const MENU = {
     ],
     business: [
         {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
             label: '💼 Quản lý Kinh doanh',
             key: (key++).toString(),
             icon: <DollarOutlined />,
@@ -506,32 +517,85 @@ export const MENU = {
         },
     ],
     telesale: [
+        
         {
-            label: '📞 Quản lý Telesale',
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.telesaleData}?p=telesale`}>📁 Data Khách hàng</Link>,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.telesaleCuocGoi}?p=telesale`}>📞 Cuộc gọi</Link>,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.telesaleDonHang}?p=telesale`}>🛒 Đơn hàng</Link>,
+            key: (key++).toString(),
+        },
+        {
+            label: 'Cài đặt',
             key: (key++).toString(),
             icon: <PhoneOutlined />,
             children: [
-                {
-                    label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.telesaleData}?p=telesale`}>📁 Data Khách hàng</Link>,
-                    key: (key++).toString(),
-                },
-                {
-                    label: <Link to={`${ROUTE.telesaleCuocGoi}?p=telesale`}>📞 Cuộc gọi</Link>,
-                    key: (key++).toString(),
-                },
-                {
-                    label: <Link to={`${ROUTE.telesaleDonHang}?p=telesale`}>🛒 Đơn hàng</Link>,
-                    key: (key++).toString(),
-                },
+               
                 {
                     label: <Link to={`${ROUTE.telesaleHuongDan}?p=telesale`}>📖 Hướng dẫn sử dụng</Link>,
                     key: (key++).toString(),
-                    icon: <BookOutlined />,
+                    icon: null,
+                },
+            ],
+        },
+    ],
+
+    // quản lý tài liệu
+    docs: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.documentsExplorer}?p=docs`}>📂 Trình duyệt File</Link>,
+            key: (key++).toString(),
+            icon: null,
+        },
+        {
+            label: <Link to={`${ROUTE.documentsStarred}?p=docs`}>⭐ File đã gắn sao</Link>,
+            key: (key++).toString(),
+            icon: null,
+        },
+        {
+            label: <Link to={`${ROUTE.documentsRecent}?p=docs`}>🕒 File gần đây</Link>,
+            key: (key++).toString(),
+            icon: null,
+        },
+        {
+            label: <Link to={`${ROUTE.documentsTrash}?p=docs`}>🗑️ Thùng rác</Link>,
+            key: (key++).toString(),
+            icon: null,
+        },
+        {
+            label: 'Cài đặt',
+            key: (key++).toString(),
+            icon: <FolderOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.documentsSettings}?p=docs`}>⚙️ Cài đặt & Quota</Link>,
+                    key: (key++).toString(),
+                    icon: <SettingOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.documentsUserGuide}?p=docs`}>📖 Hướng dẫn sử dụng</Link>,
+                    key: (key++).toString(),
+                    icon: <QuestionCircleOutlined />,
                 },
             ],
         },

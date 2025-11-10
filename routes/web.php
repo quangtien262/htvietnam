@@ -44,9 +44,7 @@ Route::middleware('auth:admin_users')->group(function () {
     // Route::get('/', [PagesController::class, 'index'])->name('home');
     // Route::get('/', [AdminController::class, 'index'])->name('home');
 
-    // SPA cho trang quản trị admin
-    Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
-
+    // ✅ API routes MUST come BEFORE SPA fallback route
     Route::group(['prefix' => 'aio/api'], function () {
         require __DIR__ . '/aio_route.php';
         require __DIR__ . '/admin_route.php';
@@ -57,10 +55,18 @@ Route::middleware('auth:admin_users')->group(function () {
     });
 
     Route::group(['prefix' => 'adm'], function () {
-        // require __DIR__ . '/admin_route.php';
         require __DIR__ . '/admin_web_route.php';
     });
+
     require __DIR__ . '/himalaya_route.php';
+
+    // Test page for document API
+    Route::get('aio/test-document-api', function () {
+        return view('test-document-api');
+    })->name('test.document.api');
+
+    // ⚠️ SPA fallback route MUST be LAST (catches all remaining /aio/* routes)
+    Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
 });
 
 // user_route

@@ -16,7 +16,7 @@ class AdminUserTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('admin_users')->truncate();
+        // DB::table('admin_users')->truncate();
         AdminUser::create([
             // 'id' => 1,
             'code' => 'NV00001',
