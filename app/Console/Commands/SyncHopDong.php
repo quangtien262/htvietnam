@@ -34,21 +34,23 @@ class SyncHopDong extends Command
     public function handle()
     {
 
+        
+
+
+        $this->info('Start import hợp đồng...');
+        $this->hopDongSync();
+
+        // $this->info('Start import phòng...');
+        $this->roomSync();
+
+        // $this->info('Start import user..');
+        $this->userSync();
+
+        $this->info('Start import số điện nước..');
+        $this->dienNuocSync02();
+
         $this->info('xóa service bị duplicate trong hợp đồng...');
         $this->removeDuplicateContractServices();
-
-
-        // $this->info('Start import hợp đồng...');
-        // $this->hopDongSync();
-
-        // // $this->info('Start import phòng...');
-        // $this->roomSync();
-
-        // // $this->info('Start import user..');
-        // $this->userSync();
-
-        // $this->info('Start import số điện nước..');
-        // $this->dienNuocSync02();
     }
 
     private function removeDuplicateContractServices()
