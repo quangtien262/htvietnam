@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, message, Popconfirm, Switch, Tooltip } from 'antd';
+import { Table, Button, Space, Tag, message, Popconfirm, Switch, Tooltip, Modal, Form, Input, Checkbox } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ApiOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ROUTE } from '@/common/route';
+
+const AVAILABLE_EVENTS = [
+    { label: 'Invoice Created', value: 'invoice_created' },
+    { label: 'Invoice Paid', value: 'invoice_paid' },
+    { label: 'Invoice Cancelled', value: 'invoice_cancelled' },
+    { label: 'Invoice Refunded', value: 'invoice_refunded' },
+    { label: 'Service Created', value: 'service_created' },
+    { label: 'Service Provisioned', value: 'service_provisioned' },
+    { label: 'Service Suspended', value: 'service_suspended' },
+    { label: 'Service Terminated', value: 'service_terminated' },
+    { label: 'Client Created', value: 'client_created' },
+    { label: 'Ticket Created', value: 'ticket_created' },
+    { label: 'Ticket Replied', value: 'ticket_replied' },
+];
 
 interface Webhook {
     id: number;
@@ -18,21 +32,42 @@ interface Webhook {
 
 interface ApiResponse {
     success: boolean;
-    data?: any;
+    data?: unknown;
     message?: string;
 }
 
-const api = axios.create({
-    baseURL: '',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
-});
+// Helper function to call API
+const callApi = async (url: string, method: string = 'GET', data?: unknown): Promise<ApiResponse> => {
+    try {
+        const response = await axios({
+            method,
+            url,
+            data,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        });
+        
+        return {
+            success: true,
+            data: response.data.data || response.data,
+            message: response.data.message
+        };
+    } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        return {
+            success: false,
+            message: err.response?.data?.message || 'An error occurred'
+        };
+    }
+};
 
 const WebhookList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [webhooks, setWebhooks] = useState<Webhook[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [form] = Form.useForm();
     const navigate = useNavigate();
 
     const fetchWebhooks = async () => {
@@ -40,9 +75,9 @@ const WebhookList: React.FC = () => {
         try {
             const response = await callApi('/aio/api/whmcs/webhooks');
             if (response.success) {
-                setWebhooks(response.data);
+                setWebhooks(response.data as Webhook[]);
             }
-        } catch (error) {
+        } catch {
             message.error('Không thể tải danh sách webhooks');
         } finally {
             setLoading(false);
@@ -60,7 +95,7 @@ const WebhookList: React.FC = () => {
                 message.success('Đã xóa webhook');
                 fetchWebhooks();
             }
-        } catch (error) {
+        } catch {
             message.error('Không thể xóa webhook');
         }
     };
@@ -74,7 +109,7 @@ const WebhookList: React.FC = () => {
                 message.success(is_active ? 'Đã tắt webhook' : 'Đã bật webhook');
                 fetchWebhooks();
             }
-        } catch (error) {
+        } catch {
             message.error('Không thể cập nhật webhook');
         }
     };
@@ -87,8 +122,24 @@ const WebhookList: React.FC = () => {
             } else {
                 message.error('Webhook test thất bại: ' + response.message);
             }
-        } catch (error) {
+        } catch {
             message.error('Không thể test webhook');
+        }
+    };
+
+    const handleCreateWebhook = async (values: unknown) => {
+        try {
+            const response = await callApi('/aio/api/whmcs/webhooks', 'POST', values);
+            if (response.success) {
+                message.success('Tạo webhook thành công!');
+                setIsModalOpen(false);
+                form.resetFields();
+                fetchWebhooks();
+            } else {
+                message.error(response.message || 'Tạo webhook thất bại!');
+            }
+        } catch {
+            message.error('Tạo webhook thất bại!');
         }
     };
 
@@ -146,7 +197,7 @@ const WebhookList: React.FC = () => {
             title: 'Hành động',
             key: 'action',
             width: 250,
-            render: (_: any, record: Webhook) => (
+            render: (_: unknown, record: Webhook) => (
                 <Space>
                     <Tooltip title="Test Webhook">
                         <Button
@@ -210,7 +261,7 @@ const WebhookList: React.FC = () => {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => navigate(`${ROUTE.whmcsWebhooks}create`)}
+                        onClick={() => setIsModalOpen(true)}
                     >
                         Thêm Webhook
                     </Button>
@@ -227,6 +278,73 @@ const WebhookList: React.FC = () => {
                     showTotal: (total) => `Tổng ${total} webhooks`
                 }}
             />
+
+            {/* Modal tạo webhook */}
+            <Modal
+                title="Tạo Webhook Mới"
+                open={isModalOpen}
+                onCancel={() => {
+                    setIsModalOpen(false);
+                    form.resetFields();
+                }}
+                onOk={() => form.submit()}
+                okText="Tạo Webhook"
+                cancelText="Hủy"
+                width={900}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleCreateWebhook}
+                    initialValues={{ is_active: true }}
+                >
+                    <Space.Compact block style={{ display: 'flex', gap: 16 }}>
+                        <Form.Item
+                            label="Tên Webhook"
+                            name="name"
+                            rules={[{ required: true, message: 'Vui lòng nhập tên webhook' }]}
+                            style={{ flex: 1 }}
+                        >
+                            <Input placeholder="VD: Invoice Payment Notification" />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="URL"
+                            name="url"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập URL' },
+                                { type: 'url', message: 'URL không hợp lệ' }
+                            ]}
+                            style={{ flex: 2 }}
+                        >
+                            <Input placeholder="https://your-domain.com/webhook" />
+                        </Form.Item>
+                    </Space.Compact>
+
+                    <Form.Item
+                        label="Events (Chọn ít nhất 1 event)"
+                        name="events"
+                        rules={[{
+                            required: true,
+                            message: 'Vui lòng chọn ít nhất 1 event',
+                            type: 'array',
+                            min: 1
+                        }]}
+                    >
+                        <Checkbox.Group
+                            options={AVAILABLE_EVENTS}
+                            style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="is_active"
+                        valuePropName="checked"
+                    >
+                        <Checkbox>Kích hoạt ngay sau khi tạo</Checkbox>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

@@ -10,8 +10,9 @@ return new class extends Migration
     {
         Schema::create('whmcs_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('whmcs_clients')->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained('whmcs_products')->cascadeOnDelete();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('users')->nullOnDelete();
+            $table->foreignId('product_id')->constrained('whmcs_products')->restrictOnDelete();
             $table->foreignId('server_id')->nullable()->constrained('whmcs_servers')->nullOnDelete();
             $table->string('domain')->nullable();
             $table->string('username')->nullable();

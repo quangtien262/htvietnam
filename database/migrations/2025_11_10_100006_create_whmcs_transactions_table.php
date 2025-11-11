@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('whmcs_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->nullable()->constrained('whmcs_invoices')->nullOnDelete();
-            $table->foreignId('client_id')->constrained('whmcs_clients')->cascadeOnDelete();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('users')->nullOnDelete();
             $table->string('gateway'); // vnpay, stripe, bank_transfer
             $table->string('transaction_id')->nullable();
             $table->decimal('amount', 15, 2);

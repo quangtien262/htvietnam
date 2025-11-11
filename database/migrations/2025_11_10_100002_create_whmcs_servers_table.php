@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('hostname');
             $table->string('ip_address');
             $table->string('type'); // shared, vps, dedicated
-            $table->string('panel'); // cpanel, plesk, directadmin, virtualizor, custom
+            $table->string('panel')->nullable(); // cpanel, plesk, directadmin, virtualizor, custom
             $table->integer('port')->default(2087);
             $table->text('api_token')->nullable();
             $table->string('username')->nullable();

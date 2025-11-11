@@ -16,7 +16,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Product::with(['group', 'pricings']);
+        $query = Product::with(['group', 'pricings']); // Ensure pricings are loaded
 
         if ($request->has('type')) {
             $query->where('type', $request->type);
@@ -36,10 +36,7 @@ class ProductController extends Controller
 
         $products = $query->orderBy('name')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $products,
-        ]);
+        return response()->json($products); // Return array directly for simpler frontend handling
     }
 
     /**
@@ -60,8 +57,8 @@ class ProductController extends Controller
             'active' => 'boolean',
             'status' => 'nullable|string|in:active,inactive',
             'pricings' => 'nullable|array',
-            'pricings.*.cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,onetime',
-            'pricings.*.price' => 'required|numeric|min:0',
+            'pricings.*.cycle' => 'required_with:pricings|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,onetime',
+            'pricings.*.price' => 'required_with:pricings|numeric|min:0',
             'pricings.*.setup_fee' => 'nullable|numeric|min:0',
         ]);
 
@@ -74,8 +71,13 @@ class ProductController extends Controller
         ]);
 
         // Tạo pricing cho các billing cycles
-        if (isset($validated['pricings'])) {
+        if (isset($validated['pricings']) && is_array($validated['pricings'])) {
             foreach ($validated['pricings'] as $pricing) {
+                // Skip empty pricings
+                if (empty($pricing['cycle']) || !isset($pricing['price'])) {
+                    continue;
+                }
+                
                 ProductPricing::create([
                     'product_id' => $product->id,
                     'cycle' => $pricing['cycle'],
@@ -166,9 +168,9 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $validated = $request->validate([
-            'pricings' => 'required|array',
-            'pricings.*.id' => 'nullable|exists:whmcs_product_pricings,id',
-            'pricings.*.billing_cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,one_time',
+            'pricings' => 'required|array|min:1',
+            'pricings.*.id' => 'nullable|exists:whmcs_product_pricing,id',
+            'pricings.*.cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,onetime',
             'pricings.*.price' => 'required|numeric|min:0',
             'pricings.*.setup_fee' => 'nullable|numeric|min:0',
         ]);
@@ -177,7 +179,9 @@ class ProductController extends Controller
             if (isset($pricingData['id'])) {
                 // Update existing pricing
                 ProductPricing::where('id', $pricingData['id'])
+                    ->where('product_id', $product->id) // Security check
                     ->update([
+                        'cycle' => $pricingData['cycle'],
                         'price' => $pricingData['price'],
                         'setup_fee' => $pricingData['setup_fee'] ?? 0,
                     ]);
@@ -185,7 +189,7 @@ class ProductController extends Controller
                 // Create new pricing
                 ProductPricing::create([
                     'product_id' => $product->id,
-                    'billing_cycle' => $pricingData['billing_cycle'],
+                    'cycle' => $pricingData['cycle'],
                     'price' => $pricingData['price'],
                     'setup_fee' => $pricingData['setup_fee'] ?? 0,
                 ]);

@@ -112,9 +112,9 @@ const TicketList: React.FC = () => {
         },
         {
             title: 'Client',
-            dataIndex: ['client', 'company_name'],
+            dataIndex: ['client', 'name'],
             key: 'client',
-            render: (text: string, record: any) => text || record.client?.user?.name,
+            render: (_: any, record: any) => record.client?.name || '-',
         },
         {
             title: 'Department',
@@ -229,7 +229,7 @@ const TicketList: React.FC = () => {
                         <div style={{ marginBottom: '16px' }}>
                             <strong>Subject:</strong> {selectedTicket.subject}
                             <br />
-                            <strong>Client:</strong> {selectedTicket.client?.company_name || selectedTicket.client?.user?.name}
+                            <strong>Client:</strong> {selectedTicket.client?.name || '-'}
                             <br />
                             <strong>Department:</strong> <Tag>{selectedTicket.department}</Tag>
                             <br />

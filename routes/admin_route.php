@@ -299,6 +299,7 @@ use App\Http\Controllers\Admin\Whmcs\InvoiceController as WhmcsInvoiceController
 use App\Http\Controllers\Admin\Whmcs\ServerController as WhmcsServerController;
 use App\Http\Controllers\Admin\Whmcs\ServiceController as WhmcsServiceController;
 use App\Http\Controllers\Admin\Whmcs\ProductController as WhmcsProductController;
+use App\Http\Controllers\Admin\Whmcs\ProductGroupController as WhmcsProductGroupController;
 use App\Http\Controllers\Admin\Whmcs\ClientController as WhmcsClientController;
 
 // Invoices
@@ -369,10 +370,20 @@ Route::prefix('whmcs/products')->group(function () {
 
 // Product Groups
 Route::prefix('whmcs/product-groups')->group(function () {
-    Route::get('/', [WhmcsProductController::class, 'groups'])->name('whmcs.product-groups.index');
-    Route::post('/', [WhmcsProductController::class, 'storeGroup'])->name('whmcs.product-groups.store');
-    Route::put('/{id}', [WhmcsProductController::class, 'updateGroup'])->name('whmcs.product-groups.update');
-    Route::delete('/{id}', [WhmcsProductController::class, 'destroyGroup'])->name('whmcs.product-groups.destroy');
+    Route::get('/', [WhmcsProductGroupController::class, 'index'])->name('whmcs.product-groups.index');
+    Route::post('/', [WhmcsProductGroupController::class, 'store'])->name('whmcs.product-groups.store');
+    Route::get('/{productGroup}', [WhmcsProductGroupController::class, 'show'])->name('whmcs.product-groups.show');
+    Route::put('/{productGroup}', [WhmcsProductGroupController::class, 'update'])->name('whmcs.product-groups.update');
+    Route::delete('/{productGroup}', [WhmcsProductGroupController::class, 'destroy'])->name('whmcs.product-groups.destroy');
+});
+
+// Client Tickets (Customer-facing)
+Route::prefix('whmcs/client/tickets')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\Whmcs\ClientTicketController::class, 'index'])->name('whmcs.client.tickets.index');
+    Route::post('/', [\App\Http\Controllers\Admin\Whmcs\ClientTicketController::class, 'store'])->name('whmcs.client.tickets.store');
+    Route::get('/{id}', [\App\Http\Controllers\Admin\Whmcs\ClientTicketController::class, 'show'])->name('whmcs.client.tickets.show');
+    Route::post('/{id}/reply', [\App\Http\Controllers\Admin\Whmcs\ClientTicketController::class, 'reply'])->name('whmcs.client.tickets.reply');
+    Route::post('/{id}/close', [\App\Http\Controllers\Admin\Whmcs\ClientTicketController::class, 'close'])->name('whmcs.client.tickets.close');
 });
 
 // Tickets (Admin)

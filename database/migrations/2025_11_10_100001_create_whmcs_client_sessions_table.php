@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('whmcs_client_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('whmcs_clients')->cascadeOnDelete();
+            $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
             $table->string('token', 64)->unique();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();

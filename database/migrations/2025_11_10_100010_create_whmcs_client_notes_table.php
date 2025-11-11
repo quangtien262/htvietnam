@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('whmcs_client_notes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('whmcs_clients')->cascadeOnDelete();
+            $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('admin_user_id')->constrained('admin_users')->cascadeOnDelete();
             $table->text('note');
             $table->boolean('is_sticky')->default(false); // Pin to top

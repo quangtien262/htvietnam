@@ -19,7 +19,7 @@ interface Service {
   recurring_amount: number;
   registration_date: string;
   next_due_date: string;
-  client?: { company_name: string };
+  client?: { name: string; email: string };
   product?: { name: string; type: string };
   server?: { name: string; hostname: string };
 }
@@ -226,13 +226,15 @@ const ServiceList: React.FC = () => {
     },
     {
       title: 'Khách hàng',
-      dataIndex: ['client', 'company_name'],
+      dataIndex: ['client', 'name'],
       key: 'client',
+      render: (_: any, record: Service) => record.client?.name || '-',
     },
     {
       title: 'Sản phẩm',
       dataIndex: ['product', 'name'],
       key: 'product',
+      render: (text: string) => text || '-',
     },
     {
       title: 'Server',
@@ -254,7 +256,7 @@ const ServiceList: React.FC = () => {
       key: 'price',
       render: (amount: number, record: Service) => (
         <div>
-          <div>{amount.toLocaleString()} VNĐ</div>
+          <div>{amount ? Number(amount).toLocaleString() : '0'} VNĐ</div>
           <div style={{ fontSize: 12, color: '#888' }}>{record.billing_cycle}</div>
         </div>
       ),

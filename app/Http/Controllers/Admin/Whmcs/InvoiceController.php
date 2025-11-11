@@ -33,18 +33,18 @@ class InvoiceController extends Controller
 
         // Filter by date range
         if ($request->has('date_from')) {
-            $query->where('date', '>=', $request->date_from);
+            $query->where('created_at', '>=', $request->date_from);
         }
         if ($request->has('date_to')) {
-            $query->where('date', '<=', $request->date_to);
+            $query->where('created_at', '<=', $request->date_to);
         }
 
         // Search by invoice number
         if ($request->has('search')) {
-            $query->where('invoice_number', 'like', "%{$request->search}%");
+            $query->where('number', 'like', "%{$request->search}%");
         }
 
-        $invoices = $query->orderBy('date', 'desc')
+        $invoices = $query->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 20);
 
         return response()->json($invoices);
@@ -59,19 +59,38 @@ class InvoiceController extends Controller
             'client_id' => 'required|exists:users,id',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
-            'items.*.amount' => 'required|numeric|min:0',
-            'items.*.quantity' => 'nullable|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.setup_fee' => 'nullable|numeric|min:0',
+            'items.*.qty' => 'nullable|integer|min:1',
             'items.*.type' => 'nullable|string',
             'items.*.product_id' => 'nullable|exists:whmcs_products,id',
+            'items.*.billing_cycle' => 'nullable|string',
             'due_date' => 'nullable|date',
             'notes' => 'nullable|string',
             'tax' => 'nullable|numeric|min:0',
         ]);
 
         try {
+            // Transform items data để tính total
+            $items = collect($validated['items'])->map(function ($item) {
+                $qty = $item['qty'] ?? 1;
+                $unitPrice = $item['unit_price'] ?? 0;
+                $setupFee = $item['setup_fee'] ?? 0;
+                $total = ($unitPrice * $qty) + $setupFee;
+
+                return [
+                    'description' => $item['description'],
+                    'type' => $item['type'] ?? 'product',
+                    'product_id' => $item['product_id'] ?? null,
+                    'qty' => $qty,
+                    'unit_price' => $unitPrice,
+                    'total' => $total,
+                ];
+            })->toArray();
+
             $invoice = $this->billingService->createInvoice(
                 $validated['client_id'],
-                $validated['items'],
+                $items,
                 [
                     'due_date' => $validated['due_date'] ?? null,
                     'notes' => $validated['notes'] ?? null,

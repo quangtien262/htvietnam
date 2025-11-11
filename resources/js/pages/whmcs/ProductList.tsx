@@ -14,12 +14,19 @@ interface Product {
   active: boolean;
   disk_space?: number;
   bandwidth?: number;
-  pricings?: Array<{ billing_cycle: string; price: number; setup_fee: number }>;
-  group?: { name: string };
+  group_id?: number;
+  pricings?: Array<{ id?: number; cycle: string; price: number; setup_fee: number }>;
+  group?: { id: number; name: string };
+}
+
+interface ProductGroup {
+  id: number;
+  name: string;
 }
 
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -27,6 +34,7 @@ const ProductList: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchProductGroups();
   }, []);
 
   const fetchProducts = async () => {
@@ -38,6 +46,16 @@ const ProductList: React.FC = () => {
       message.error('Không thể tải danh sách sản phẩm');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProductGroups = async () => {
+    try {
+      const response = await axios.get('/aio/api/whmcs/product-groups');
+      setProductGroups(response.data.data || response.data);
+    } catch {
+      // Nếu không load được, để empty array
+      setProductGroups([]);
     }
   };
 
@@ -158,7 +176,7 @@ const ProductList: React.FC = () => {
         const lowestPrice = Math.min(...record.pricings.map(p => p.price));
         return (
           <div>
-            <div style={{ fontWeight: 'bold' }}>{lowestPrice.toLocaleString()} VNĐ</div>
+            <div style={{ fontWeight: 'bold' }}>{lowestPrice ? Number(lowestPrice).toLocaleString() : '0'} VNĐ</div>
             <div style={{ fontSize: 11, color: '#888' }}>
               {record.pricings.length} gói giá
             </div>
@@ -256,6 +274,14 @@ const ProductList: React.FC = () => {
                 </Select>
               </Form.Item>
 
+              <Form.Item label="Nhóm sản phẩm" name="group_id">
+                <Select placeholder="Chọn nhóm (không bắt buộc)" allowClear>
+                  {productGroups.map((group) => (
+                    <Option key={group.id} value={group.id}>{group.name}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
               <Form.Item label="Disk Space (MB)" name="disk_space">
                 <InputNumber style={{ width: '100%' }} min={0} placeholder="0 = Unlimited" />
               </Form.Item>
@@ -281,7 +307,7 @@ const ProductList: React.FC = () => {
                       <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                         <Form.Item
                           {...restField}
-                          name={[name, 'billing_cycle']}
+                          name={[name, 'cycle']}
                           rules={[{ required: true, message: 'Chọn chu kỳ' }]}
                         >
                           <Select placeholder="Chu kỳ" style={{ width: 150 }}>

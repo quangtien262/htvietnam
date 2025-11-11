@@ -10,21 +10,19 @@ const { Option } = Select;
 
 interface Invoice {
   id: number;
-  invoice_number: string;
+  number: string;
   client_id: number;
-  client?: { id: number; company_name: string; email: string };
+  client?: { id: number; name: string; email: string };
   status: 'unpaid' | 'paid' | 'cancelled' | 'refunded';
   subtotal: number;
-  tax: number;
+  tax_total: number;
   total: number;
-  amount_paid: number;
-  date: string;
-  due_date: string;
-  date_paid?: string;
-  items?: Array<{ description: string; amount: number; quantity: number }>;
-}
-
-const InvoiceList: React.FC = () => {
+  credit_applied: number;
+  created_at: string;
+  due_date: string | null;
+  paid_at: string | null;
+  notes?: string;
+}const InvoiceList: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
@@ -33,12 +31,14 @@ const InvoiceList: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [clients, setClients] = useState<Array<{ value: number; label: string }>>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [form] = Form.useForm();
   const [paymentForm] = Form.useForm();
 
   useEffect(() => {
     fetchInvoices();
     fetchClients();
+    fetchProducts();
   }, [pagination.current, filters]);
 
   const fetchClients = async () => {
@@ -49,6 +49,29 @@ const InvoiceList: React.FC = () => {
       setClients(users.map((u: any) => ({ value: u.id, label: `${u.name} (${u.phone || ''})` })));
     } catch (error) {
       console.error('Failed to fetch clients:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('/aio/api/whmcs/products');
+      // Handle different response structures
+      let productsData = response.data;
+      
+      // If response has data property, use it
+      if (productsData && productsData.data) {
+        productsData = productsData.data;
+      }
+      
+      // Ensure it's an array
+      if (!Array.isArray(productsData)) {
+        productsData = [];
+      }
+      
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setProducts([]); // Set empty array on error
     }
   };
 
@@ -101,7 +124,7 @@ const InvoiceList: React.FC = () => {
   const handleCancelInvoice = (invoice: Invoice) => {
     Modal.confirm({
       title: 'Hủy hóa đơn',
-      content: `Bạn có chắc muốn hủy hóa đơn ${invoice.invoice_number}?`,
+      content: `Bạn có chắc muốn hủy hóa đơn ${invoice.number}?`,
       onOk: async () => {
         try {
           await axios.post(`/aio/api/whmcs/invoices/${invoice.id}/cancel`, {
@@ -144,14 +167,15 @@ const InvoiceList: React.FC = () => {
   const columns = [
     {
       title: 'Số hóa đơn',
-      dataIndex: 'invoice_number',
-      key: 'invoice_number',
+      dataIndex: 'number',
+      key: 'number',
       render: (text: string) => <strong>{text}</strong>,
     },
     {
       title: 'Khách hàng',
-      dataIndex: ['client', 'company_name'],
+      dataIndex: ['client', 'name'],
       key: 'client',
+      render: (_: any, record: any) => record.client?.name || '-',
     },
     {
       title: 'Trạng thái',
@@ -165,25 +189,20 @@ const InvoiceList: React.FC = () => {
       title: 'Tổng tiền',
       dataIndex: 'total',
       key: 'total',
-      render: (total: number) => `${total.toLocaleString()} VNĐ`,
-    },
-    {
-      title: 'Đã thanh toán',
-      dataIndex: 'amount_paid',
-      key: 'amount_paid',
-      render: (amount: number) => `${amount.toLocaleString()} VNĐ`,
+      render: (total: number) => total ? `${Number(total).toLocaleString()} VNĐ` : '0 VNĐ',
     },
     {
       title: 'Ngày tạo',
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-',
     },
     {
       title: 'Hạn thanh toán',
       dataIndex: 'due_date',
       key: 'due_date',
       render: (date: string, record: Invoice) => {
+        if (!date) return '-';
         const isOverdue = dayjs(date).isBefore(dayjs()) && record.status === 'unpaid';
         return (
           <span style={{ color: isOverdue ? 'red' : 'inherit' }}>
@@ -287,7 +306,7 @@ const InvoiceList: React.FC = () => {
           form.resetFields();
         }}
         onOk={() => form.submit()}
-        width={800}
+        width={1000}
       >
         <Form form={form} layout="vertical" onFinish={handleCreateInvoice}>
           <Form.Item
@@ -311,23 +330,143 @@ const InvoiceList: React.FC = () => {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'description']}
-                      rules={[{ required: true, message: 'Nhập mô tả' }]}
+                  <div key={key} style={{ 
+                    padding: '16px', 
+                    marginBottom: '16px', 
+                    border: '1px solid #d9d9d9', 
+                    borderRadius: '4px',
+                    backgroundColor: '#fafafa'
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                      <Form.Item
+                        {...restField}
+                        label="Sản phẩm/Dịch vụ"
+                        name={[name, 'product_id']}
+                        rules={[{ required: true, message: 'Chọn sản phẩm' }]}
+                      >
+                        <Select
+                          placeholder="Chọn sản phẩm"
+                          onChange={(productId) => {
+                            const product = products.find(p => p.id === productId);
+                            if (product && product.pricings && product.pricings.length > 0) {
+                              // Clear billing cycle khi đổi product
+                              const items = form.getFieldValue('items');
+                              items[name].billing_cycle = undefined;
+                              items[name].unit_price = undefined;
+                              items[name].setup_fee = undefined;
+                              form.setFieldsValue({ items });
+                            }
+                          }}
+                        >
+                          {Array.isArray(products) && products.map(product => (
+                            <Option key={product.id} value={product.id}>
+                              {product.name} ({product.type})
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Kỳ thanh toán"
+                        name={[name, 'billing_cycle']}
+                        rules={[{ required: true, message: 'Chọn kỳ thanh toán' }]}
+                      >
+                        <Select
+                          placeholder="Chọn kỳ thanh toán"
+                          onChange={(cycle) => {
+                            const items = form.getFieldValue('items');
+                            const productId = items[name].product_id;
+                            const product = products.find(p => p.id === productId);
+                            
+                            if (product && product.pricings) {
+                              const pricing = product.pricings.find((p: any) => p.cycle === cycle);
+                              if (pricing) {
+                                items[name].unit_price = pricing.price;
+                                items[name].setup_fee = pricing.setup_fee || 0;
+                                form.setFieldsValue({ items });
+                              }
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const items = form.getFieldValue('items') || [];
+                            const productId = items[name]?.product_id;
+                            const product = products.find(p => p.id === productId);
+                            
+                            if (!product || !product.pricings) return null;
+                            
+                            return product.pricings.map((pricing: any) => (
+                              <Option key={pricing.id} value={pricing.cycle}>
+                                {pricing.cycle} - {Number(pricing.price).toLocaleString()} VNĐ
+                              </Option>
+                            ));
+                          })()}
+                        </Select>
+                      </Form.Item>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '16px' }}>
+                      <Form.Item
+                        {...restField}
+                        label="Mô tả"
+                        name={[name, 'description']}
+                        rules={[{ required: true, message: 'Nhập mô tả' }]}
+                      >
+                        <Input placeholder="Mô tả chi tiết" />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Giá"
+                        name={[name, 'unit_price']}
+                        rules={[{ required: true, message: 'Nhập giá' }]}
+                      >
+                        <InputNumber 
+                          placeholder="Giá" 
+                          style={{ width: '100%' }}
+                          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Phí cài đặt"
+                        name={[name, 'setup_fee']}
+                        initialValue={0}
+                      >
+                        <InputNumber 
+                          placeholder="Phí cài đặt" 
+                          style={{ width: '100%' }}
+                          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Số lượng"
+                        name={[name, 'qty']}
+                        initialValue={1}
+                        rules={[{ required: true, message: 'Nhập SL' }]}
+                      >
+                        <InputNumber 
+                          placeholder="SL" 
+                          min={1}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </div>
+
+                    <Button 
+                      danger 
+                      onClick={() => remove(name)}
+                      style={{ marginTop: '8px' }}
                     >
-                      <Input placeholder="Mô tả" style={{ width: 300 }} />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'amount']}
-                      rules={[{ required: true, message: 'Nhập số tiền' }]}
-                    >
-                      <InputNumber placeholder="Số tiền" style={{ width: 150 }} />
-                    </Form.Item>
-                    <Button onClick={() => remove(name)}>Xóa</Button>
-                  </Space>
+                      Xóa item này
+                    </Button>
+                  </div>
                 ))}
                 <Form.Item>
                   <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
@@ -350,7 +489,7 @@ const InvoiceList: React.FC = () => {
 
       {/* Payment Modal */}
       <Modal
-        title={`Ghi nhận thanh toán - ${selectedInvoice?.invoice_number}`}
+        title={`Ghi nhận thanh toán - ${selectedInvoice?.number}`}
         open={isPaymentModalOpen}
         onCancel={() => {
           setIsPaymentModalOpen(false);

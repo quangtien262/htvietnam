@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Tag, Space, message, Card, Switch, Popconfirm } from 'antd';
+import { Table, Button, Tag, Space, message, Card, Switch, Popconfirm, Modal, Form, InputNumber, Select } from 'antd';
 import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ROUTE } from '@/common/route';
+
+const { Option } = Select;
 
 interface Affiliate {
     id: number;
@@ -22,6 +24,8 @@ const AffiliateList: React.FC = () => {
     const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [form] = Form.useForm();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -78,6 +82,24 @@ const AffiliateList: React.FC = () => {
         }
     };
 
+    const handleCreateAffiliate = async (values: {
+        user_id: number;
+        commission_rate: number;
+        commission_type: string;
+    }) => {
+        try {
+            const response = await axios.post('/aio/api/whmcs/affiliates', values);
+            if (response.data.success) {
+                message.success('Tạo affiliate thành công!');
+                setIsModalOpen(false);
+                form.resetFields();
+                fetchAffiliates();
+            }
+        } catch {
+            message.error('Tạo affiliate thất bại!');
+        }
+    };
+
     const columns = [
         {
             title: 'Affiliate',
@@ -130,7 +152,7 @@ const AffiliateList: React.FC = () => {
                     <Button
                         size="small"
                         icon={<EyeOutlined />}
-                        onClick={() => navigate(`${ROUTE.whmcsAffiliate}/${record.id}`)}
+                        onClick={() => navigate(`${ROUTE.whmcsAffiliates}${record.id}`)}
                     >
                         Chi Tiết
                     </Button>
@@ -165,7 +187,7 @@ const AffiliateList: React.FC = () => {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => navigate(`${ROUTE.whmcsAffiliate}/create`)}
+                        onClick={() => setIsModalOpen(true)}
                     >
                         Thêm Affiliate
                     </Button>
@@ -180,6 +202,63 @@ const AffiliateList: React.FC = () => {
                     onChange={(newPagination) => setPagination(newPagination as typeof pagination)}
                 />
             </Card>
+
+            {/* Modal tạo affiliate */}
+            <Modal
+                title="Tạo Affiliate Mới"
+                open={isModalOpen}
+                onCancel={() => {
+                    setIsModalOpen(false);
+                    form.resetFields();
+                }}
+                onOk={() => form.submit()}
+                okText="Tạo Affiliate"
+                cancelText="Hủy"
+                width={600}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleCreateAffiliate}
+                    initialValues={{ commission_rate: 10, commission_type: 'percentage' }}
+                >
+                    <Form.Item
+                        label="User ID"
+                        name="user_id"
+                        rules={[{ required: true, message: 'Vui lòng nhập User ID' }]}
+                        tooltip="ID của khách hàng muốn trở thành affiliate"
+                    >
+                        <InputNumber min={1} style={{ width: '100%' }} placeholder="Nhập User ID" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Loại Hoa Hồng"
+                        name="commission_type"
+                        rules={[{ required: true }]}
+                    >
+                        <Select>
+                            <Option value="percentage">Phần Trăm (%)</Option>
+                            <Option value="fixed">Cố Định (VND)</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Tỷ Lệ Hoa Hồng"
+                        name="commission_rate"
+                        rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ hoa hồng' }]}
+                        tooltip="Nhập % hoặc số tiền cố định tùy theo loại hoa hồng"
+                    >
+                        <InputNumber
+                            min={0}
+                            max={100}
+                            step={0.1}
+                            precision={2}
+                            style={{ width: '100%' }}
+                            placeholder="VD: 10 (cho 10%)"
+                        />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

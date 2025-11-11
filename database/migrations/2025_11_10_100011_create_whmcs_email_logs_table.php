@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('whmcs_email_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->nullable()->constrained('whmcs_clients')->nullOnDelete();
+            $table->foreignId('client_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('to_email');
             $table->string('subject');
             $table->enum('template', [

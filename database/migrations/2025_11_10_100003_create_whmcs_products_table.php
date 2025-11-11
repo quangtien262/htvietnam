@@ -18,7 +18,7 @@ return new class extends Migration
 
         Schema::create('whmcs_products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('whmcs_product_groups')->cascadeOnDelete();
+            $table->foreignId('group_id')->nullable()->constrained('whmcs_product_groups')->nullOnDelete();
             $table->foreignId('server_group_id')->nullable()->constrained('whmcs_server_groups')->nullOnDelete();
             $table->string('name');
             $table->text('description')->nullable();

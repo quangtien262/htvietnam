@@ -13,7 +13,7 @@ class InvoiceItem extends Model
     protected $table = 'whmcs_invoice_items';
 
     protected $fillable = [
-        'invoice_id', 'type', 'service_id', 'description', 'qty', 'unit_price', 'total'
+        'invoice_id', 'type', 'product_id', 'service_id', 'description', 'qty', 'unit_price', 'total'
     ];
 
     protected $casts = [
@@ -24,6 +24,11 @@ class InvoiceItem extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 
     public function service(): BelongsTo

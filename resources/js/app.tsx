@@ -292,11 +292,11 @@ const App: React.FC = () => (
 
                 {/* WHMCS Phase 3 - Webhooks Module (6 routes) */}
                 <Route path={ROUTE.whmcsWebhooks} element={<WebhookList />} />
-                <Route path={`${ROUTE.whmcsWebhooks}/create`} element={<WebhookCreate />} />
-                <Route path={`${ROUTE.whmcsWebhooks}/edit/:id`} element={<WebhookEdit />} />
-                <Route path={`${ROUTE.whmcsWebhooks}/:id/logs`} element={<WebhookLogs />} />
-                <Route path={`${ROUTE.whmcsWebhooks}/:id`} element={<WebhookDetail />} />
-                <Route path={`${ROUTE.whmcsWebhooks}/settings`} element={<WebhookSettings />} />
+                <Route path={`${ROUTE.whmcsWebhooks}create`} element={<WebhookCreate />} />
+                <Route path={`${ROUTE.whmcsWebhooks}settings`} element={<WebhookSettings />} />
+                <Route path={`${ROUTE.whmcsWebhooks}:id/edit`} element={<WebhookEdit />} />
+                <Route path={`${ROUTE.whmcsWebhooks}:id/logs`} element={<WebhookLogs />} />
+                <Route path={`${ROUTE.whmcsWebhooks}:id`} element={<WebhookDetail />} />
 
                 {/* WHMCS Phase 3 - Analytics Module (5 routes) */}
                 <Route path={ROUTE.whmcsAnalytics} element={<AnalyticsDashboard />} />

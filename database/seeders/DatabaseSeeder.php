@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');
         }
 
-        // Uncomment to seed WHMCS test data
-        // $this->call(WhmcsCompleteTestDataSeeder::class);
+        // WHMCS test data
+        $this->call(WhmcsCompleteTestDataSeeder::class);
     }
 };
