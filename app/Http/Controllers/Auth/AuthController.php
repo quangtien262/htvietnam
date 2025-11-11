@@ -38,7 +38,7 @@ class AuthController extends Controller
         if (Auth::guard('admin_users')->attempt($request->only('username', 'password'), true)) {
             //save table 2 session
             // $tables = TblService::getAdminMenu(0);
-            return redirect()->route('dashboard')->with('status', 'Đăng nhập thành công');
+            return redirect()->route('dashboard', ['p' => 'home'])->with('status', 'Đăng nhập thành công');
             // return $this->sendSuccessResponse(['role' => 'admin'], 'Đăng nhập thành công!');
         }
 
