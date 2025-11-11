@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
+// use App\Providers\RouteServiceProvider;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Web\Landingpage;
 use App\Services\Admin\TblService;

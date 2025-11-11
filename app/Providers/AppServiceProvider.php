@@ -9,6 +9,7 @@ use Illuminate\Pagination\Paginator;
 use App\Services\CommonService;
 use App\Services\DataService;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,9 +26,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(env('FORCE_HTTPS',false)) { // Default value should be false for local server
-            URL::forceScheme('https');
-        }
+        // if (!App::runningInConsole()) {
+            // URL::forceScheme('https');
+            // app('url')->forceRootUrl(config('app.url'));
+        // }
+
+        // Force HTTPS if configured
+        // if(env('FORCE_HTTPS',false)) { // Default value should be false for local server
+        //     URL::forceScheme('https');
+        // }
 
         $this->app->singleton('Helper', function () { return new Helper;});
         $this->app->singleton('DataService', function () { return new DataService;});

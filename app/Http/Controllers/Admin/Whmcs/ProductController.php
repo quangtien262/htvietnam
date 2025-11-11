@@ -51,15 +51,16 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|string|in:hosting,reseller,server,domain,ssl,other',
-            'product_group_id' => 'nullable|exists:whmcs_product_groups,id',
+            'group_id' => 'nullable|exists:whmcs_product_groups,id',
             'server_package_name' => 'nullable|string',
             'disk_space' => 'nullable|integer|min:0',
             'bandwidth' => 'nullable|integer|min:0',
             'features' => 'nullable|array',
             'welcome_email' => 'nullable|string',
             'active' => 'boolean',
+            'status' => 'nullable|string|in:active,inactive',
             'pricings' => 'nullable|array',
-            'pricings.*.billing_cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,one_time',
+            'pricings.*.cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially,onetime',
             'pricings.*.price' => 'required|numeric|min:0',
             'pricings.*.setup_fee' => 'nullable|numeric|min:0',
         ]);
@@ -68,13 +69,8 @@ class ProductController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
-            'product_group_id' => $validated['product_group_id'] ?? null,
-            'server_package_name' => $validated['server_package_name'] ?? null,
-            'disk_space' => $validated['disk_space'] ?? null,
-            'bandwidth' => $validated['bandwidth'] ?? null,
-            'features' => $validated['features'] ?? null,
-            'welcome_email' => $validated['welcome_email'] ?? null,
-            'active' => $validated['active'] ?? true,
+            'group_id' => $validated['group_id'] ?? null,
+            'status' => $validated['status'] ?? 'active',
         ]);
 
         // Tạo pricing cho các billing cycles
@@ -82,7 +78,7 @@ class ProductController extends Controller
             foreach ($validated['pricings'] as $pricing) {
                 ProductPricing::create([
                     'product_id' => $product->id,
-                    'billing_cycle' => $pricing['billing_cycle'],
+                    'cycle' => $pricing['cycle'],
                     'price' => $pricing['price'],
                     'setup_fee' => $pricing['setup_fee'] ?? 0,
                 ]);

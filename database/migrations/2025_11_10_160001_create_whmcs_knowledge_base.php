@@ -48,7 +48,11 @@ return new class extends Migration
             $table->index('category_id');
             $table->index('author_id');
             $table->index('is_published');
-            $table->fullText(['title', 'content', 'excerpt']);
+            
+            // Only create fulltext index for MySQL
+            if (DB::connection()->getDriverName() === 'mysql') {
+                $table->fullText(['title', 'content', 'excerpt']);
+            }
         });
 
         // Article Votes (track who voted)

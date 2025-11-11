@@ -119,7 +119,12 @@ import WhmcsServiceList from './pages/whmcs/ServiceList';
 import WhmcsProductList from './pages/whmcs/ProductList';
 import WhmcsTicketList from './pages/whmcs/TicketList'; // Phase 2
 import ClientDashboard from './pages/whmcs/client/ClientDashboard'; // Phase 2
+import ClientInvoices from './pages/whmcs/client/ClientInvoices';
+import ClientServices from './pages/whmcs/client/ClientServices';
+import ClientDomains from './pages/whmcs/client/ClientDomains';
+import ClientTickets from './pages/whmcs/client/ClientTickets';
 import ApiKeyList from './pages/whmcs/ApiKeyList'; // Phase 3
+import WhmcsUserGuide from './pages/whmcs/UserGuide'; // Phase 3
 
 // WHMCS Phase 3 - Webhooks Module
 import WebhookList from './pages/whmcs/webhooks/WebhookList';
@@ -276,7 +281,14 @@ const App: React.FC = () => (
                 <Route path={ROUTE.whmcsProducts} element={<WhmcsProductList />} />
                 <Route path={ROUTE.whmcsTickets} element={<WhmcsTicketList />} />
                 <Route path={ROUTE.whmcsApiKeys} element={<ApiKeyList />} />
+                <Route path={ROUTE.whmcsUserGuide} element={<WhmcsUserGuide />} />
+                
+                {/* WHMCS - Client Portal */}
                 <Route path={ROUTE.clientDashboard} element={<ClientDashboard />} />
+                <Route path={ROUTE.clientInvoices} element={<ClientInvoices />} />
+                <Route path={ROUTE.clientServices} element={<ClientServices />} />
+                <Route path={ROUTE.clientDomains} element={<ClientDomains />} />
+                <Route path={ROUTE.clientTickets} element={<ClientTickets />} />
 
                 {/* WHMCS Phase 3 - Webhooks Module (6 routes) */}
                 <Route path={ROUTE.whmcsWebhooks} element={<WebhookList />} />

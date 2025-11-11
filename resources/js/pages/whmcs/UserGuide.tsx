@@ -24,10 +24,15 @@ import {
     RocketOutlined,
     UserOutlined,
     CreditCardOutlined,
-    CloudCloudServerOutlined,
     ShoppingOutlined,
     ApiOutlined,
     LineChartOutlined,
+    CloudServerOutlined,
+    BellOutlined,
+    DollarOutlined,
+    PercentageOutlined,
+    TeamOutlined,
+    FileTextOutlined,
 } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
@@ -582,6 +587,343 @@ const ModuleDocumentation: React.FC = () => {
                                         'Webhook URL: Nhận thông báo thanh toán',
                                     ]}
                                     renderItem={(item) => <List.Item>{item}</List.Item>}
+                                />
+                            </Card>
+                        </Col>
+                    </Row>
+                </Panel>
+
+                {/* Webhooks - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <BellOutlined style={{ color: '#13c2c2' }} /> 8. Webhooks (Phase 3)
+                        </Title>
+                    }
+                    key="8"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Chức năng chính">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Tạo webhook endpoints để nhận events',
+                                        'Retry tự động khi delivery thất bại',
+                                        'Event types: invoice.paid, service.created, ticket.replied...',
+                                        'Xem logs chi tiết từng webhook call',
+                                        'Test webhook với sample payload',
+                                        'Secret verification với HMAC-SHA256',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Tạo Webhook">
+                                <Paragraph><Text strong>Bước thực hiện:</Text></Paragraph>
+                                <ol style={{fontSize: '13px'}}>
+                                    <li>Vào WHMCS {'>'} Webhooks</li>
+                                    <li>Click "Tạo Webhook"</li>
+                                    <li>Nhập URL endpoint (https://api.example.com/hooks)</li>
+                                    <li>Chọn events: invoice.paid, service.activated...</li>
+                                    <li>Nhập secret để verify signature</li>
+                                    <li>Enable/Disable webhook</li>
+                                </ol>
+                                <Alert
+                                    message="Retry Policy"
+                                    description="Tự động retry 3 lần với exponential backoff: 1 phút, 5 phút, 15 phút"
+                                    type="info"
+                                    showIcon
+                                />
+                            </Card>
+                        </Col>
+                    </Row>
+                </Panel>
+
+                {/* Analytics - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <LineChartOutlined style={{ color: '#1890ff' }} /> 9. Analytics & Reports (Phase 3)
+                        </Title>
+                    }
+                    key="9"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Revenue Analytics">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Doanh thu theo ngày/tuần/tháng/năm',
+                                        'Monthly Recurring Revenue (MRR)',
+                                        'Annual Recurring Revenue (ARR)',
+                                        'Average Revenue Per User (ARPU)',
+                                        'Revenue by product/service type',
+                                        'Payment method breakdown',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Customer Metrics">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Total active customers',
+                                        'New customers this month',
+                                        'Customer Lifetime Value (CLV)',
+                                        'Customer Churn Rate',
+                                        'Customer retention rate',
+                                        'Top customers by revenue',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                    </Row>
+                    <Divider />
+                    <Alert
+                        message="Biểu đồ & Visualization"
+                        description="Sử dụng @ant-design/plots để hiển thị Line Chart, Bar Chart, Pie Chart... với data real-time"
+                        type="success"
+                        showIcon
+                    />
+                </Panel>
+
+                {/* Currency Management - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <DollarOutlined style={{ color: '#fa8c16' }} /> 10. Currency Management (Phase 3)
+                        </Title>
+                    }
+                    key="10"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Multi-Currency Support">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Quản lý nhiều loại tiền tệ (VND, USD, EUR, GBP...)',
+                                        'Thiết lập base currency',
+                                        'Tỷ giá hối đoái tự động hoặc thủ công',
+                                        'Currency converter tool',
+                                        'Hiển thị giá theo currency khách chọn',
+                                        'Lịch sử thay đổi tỷ giá',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Exchange Rate">
+                                <Paragraph><Text strong>Cập nhật tỷ giá:</Text></Paragraph>
+                                <ul style={{fontSize: '13px'}}>
+                                    <li>Tự động: Tích hợp API exchangerate-api.com</li>
+                                    <li>Thủ công: Admin tự nhập tỷ giá</li>
+                                    <li>Schedule: Cập nhật mỗi 24h vào 00:00</li>
+                                </ul>
+                                <Divider />
+                                <Text code>1 USD = 24,500 VND</Text>
+                                <br />
+                                <Text code>1 EUR = 26,800 VND</Text>
+                                <br />
+                                <Text type="secondary" style={{fontSize: '12px'}}>Cập nhật: 10/11/2025 18:00</Text>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Panel>
+
+                {/* Tax Rules - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <PercentageOutlined style={{ color: '#722ed1' }} /> 11. Tax Rules (Phase 3)
+                        </Title>
+                    }
+                    key="11"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Quản lý Thuế">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Tạo tax rules theo quốc gia/khu vực',
+                                        'VAT (Value Added Tax)',
+                                        'GST (Goods and Services Tax)',
+                                        'Tax compound (thuế trên thuế)',
+                                        'Áp dụng tax cho products cụ thể',
+                                        'Tax exemptions (miễn thuế)',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Ví dụ Tax Rules">
+                                <Space direction="vertical" style={{width: '100%'}}>
+                                    <div>
+                                        <Tag color="blue">Vietnam VAT</Tag> - 10%
+                                        <br /><Text type="secondary">Áp dụng cho tất cả services</Text>
+                                    </div>
+                                    <div>
+                                        <Tag color="green">Singapore GST</Tag> - 8%
+                                        <br /><Text type="secondary">Chỉ áp dụng cho hosting</Text>
+                                    </div>
+                                    <div>
+                                        <Tag color="orange">EU VAT</Tag> - 19-27%
+                                        <br /><Text type="secondary">Tùy theo quốc gia EU</Text>
+                                    </div>
+                                </Space>
+                                <Divider />
+                                <Alert
+                                    message="Auto-apply"
+                                    description="Hệ thống tự động áp thuế dựa trên country của khách hàng"
+                                    type="info"
+                                />
+                            </Card>
+                        </Col>
+                    </Row>
+                </Panel>
+
+                {/* Affiliate System - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <TeamOutlined style={{ color: '#eb2f96' }} /> 12. Affiliate System (Phase 3)
+                        </Title>
+                    }
+                    key="12"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Affiliate Program">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Đăng ký làm affiliate',
+                                        'Unique referral links/codes',
+                                        'Commission tracking tự động',
+                                        'Hoa hồng % hoặc fixed amount',
+                                        'Multi-tier affiliates (cấp bậc)',
+                                        'Payout management',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Commission Tiers">
+                                <Paragraph><Text strong>Cấu trúc hoa hồng:</Text></Paragraph>
+                                <ul style={{fontSize: '13px'}}>
+                                    <li><Text strong>Tier 1 (Direct):</Text> 20% lifetime</li>
+                                    <li><Text strong>Tier 2 (Sub-affiliate):</Text> 5% lifetime</li>
+                                    <li><Text strong>First Order Bonus:</Text> +50,000 VND</li>
+                                </ul>
+                                <Divider />
+                                <Paragraph><Text strong>Ví dụ:</Text></Paragraph>
+                                <Text type="secondary" style={{fontSize: '12px'}}>
+                                    Affiliate A giới thiệu khách B mua hosting 100K/tháng
+                                    <br />→ A nhận: 20K/tháng + 50K bonus
+                                    <br />B trở thành affiliate, giới thiệu khách C mua 200K
+                                    <br />→ A nhận thêm: 10K/tháng (5% tier 2)
+                                </Text>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Panel>
+
+                {/* Knowledge Base - Phase 3 */}
+                <Panel
+                    header={
+                        <Title level={4} style={{ margin: 0 }}>
+                            <FileTextOutlined style={{ color: '#52c41a' }} /> 13. Knowledge Base (Phase 3)
+                        </Title>
+                    }
+                    key="13"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card size="small" title="Tự phục vụ Khách hàng">
+                                <List
+                                    size="small"
+                                    dataSource={[
+                                        'Tạo categories & articles',
+                                        'Rich text editor với media',
+                                        'Search full-text trong KB',
+                                        'Vote helpful/not helpful',
+                                        'View count tracking',
+                                        'Public/Private articles',
+                                    ]}
+                                    renderItem={(item) => (
+                                        <List.Item>
+                                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                                            {item}
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card size="small" title="Categories Mẫu">
+                                <Space direction="vertical" style={{width: '100%'}}>
+                                    <div>
+                                        <Tag color="blue">Getting Started</Tag>
+                                        <br /><Text type="secondary">12 articles - 1,234 views</Text>
+                                    </div>
+                                    <div>
+                                        <Tag color="green">Billing & Payments</Tag>
+                                        <br /><Text type="secondary">8 articles - 890 views</Text>
+                                    </div>
+                                    <div>
+                                        <Tag color="orange">Technical Support</Tag>
+                                        <br /><Text type="secondary">15 articles - 2,156 views</Text>
+                                    </div>
+                                    <div>
+                                        <Tag color="purple">cPanel Tutorials</Tag>
+                                        <br /><Text type="secondary">20 articles - 3,421 views</Text>
+                                    </div>
+                                </Space>
+                                <Divider />
+                                <Alert
+                                    message="SEO Friendly"
+                                    description="URL slug tự động, meta tags, sitemap generation"
+                                    type="success"
                                 />
                             </Card>
                         </Col>

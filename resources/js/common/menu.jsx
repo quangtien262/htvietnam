@@ -611,17 +611,17 @@ export const MENU = {
         {
             label: '💼 Admin Panel',
             key: (key++).toString(),
-            icon: <SettingFilled />,
+            // icon: <SettingFilled />,
             children: [
                 {
                     label: <Link to={`${ROUTE.whmcsInvoices}?p=whmcs`}>💳 Hóa đơn</Link>,
                     key: (key++).toString(),
-                    icon: <FileTextOutlined />,
+                    // icon: <FileTextOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsServices}?p=whmcs`}>🌐 Dịch vụ Hosting</Link>,
                     key: (key++).toString(),
-                    icon: <GlobalOutlined />,
+                    // icon: <GlobalOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsServers}?p=whmcs`}>🖥️ Máy chủ</Link>,
@@ -646,14 +646,14 @@ export const MENU = {
             ],
         },
         {
-            label: '🚀 Advanced Features (Phase 3)',
+            label: '🚀 Advanced Features',
             key: (key++).toString(),
-            icon: <BarChartOutlined />,
+            // icon: <BarChartOutlined />,
             children: [
                 {
                     label: <Link to={`${ROUTE.whmcsWebhooks}?p=whmcs`}>🔗 Webhooks</Link>,
                     key: (key++).toString(),
-                    icon: <ApiOutlined />,
+                    // icon: <ApiOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsAnalytics}?p=whmcs`}>📊 Analytics</Link>,
@@ -715,7 +715,7 @@ export const MENU = {
             ],
         },
         {
-            label: 'Cài đặt & Hướng dẫn',
+            label: 'Cài đặt',
             key: (key++).toString(),
             icon: <SettingFilled />,
             children: [

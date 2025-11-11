@@ -72,7 +72,7 @@ class ServiceController extends Controller
             'client_id' => $validated['client_id'],
             'product_id' => $validated['product_id'],
             'domain' => $validated['domain'],
-            'billing_cycle' => $validated['billing_cycle'],
+            'payment_cycle' => $validated['billing_cycle'], // Map billing_cycle to payment_cycle
             'recurring_amount' => $validated['recurring_amount'],
             'registration_date' => $validated['registration_date'] ?? now(),
             'next_due_date' => $validated['next_due_date'],
@@ -125,6 +125,7 @@ class ServiceController extends Controller
 
         $validated = $request->validate([
             'domain' => 'sometimes|string|max:255',
+            'status' => 'sometimes|string|in:pending,active,suspended,terminated,cancelled',
             'billing_cycle' => 'sometimes|string|in:monthly,quarterly,semiannually,annually,biennially,triennially',
             'recurring_amount' => 'sometimes|numeric|min:0',
             'next_due_date' => 'sometimes|date',
@@ -167,9 +168,14 @@ class ServiceController extends Controller
             'reason' => 'required|string',
         ]);
 
-        $result = $this->provisioning->suspendAccount($id, $validated['reason']);
+        $service = Service::findOrFail($id);
+        $service->suspend();
 
-        return response()->json($result, $result['success'] ? 200 : 400);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service suspended successfully',
+            'data' => $service->fresh(),
+        ]);
     }
 
     /**
@@ -177,9 +183,14 @@ class ServiceController extends Controller
      */
     public function unsuspend(int $id): JsonResponse
     {
-        $result = $this->provisioning->unsuspendAccount($id);
+        $service = Service::findOrFail($id);
+        $service->update(['status' => 'active']);
 
-        return response()->json($result, $result['success'] ? 200 : 400);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service unsuspended successfully',
+            'data' => $service->fresh(),
+        ]);
     }
 
     /**
@@ -187,16 +198,14 @@ class ServiceController extends Controller
      */
     public function terminate(Request $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'delete_backups' => 'boolean',
+        $service = Service::findOrFail($id);
+        $service->terminate();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Service terminated successfully',
+            'data' => $service->fresh(),
         ]);
-
-        $result = $this->provisioning->terminateAccount(
-            $id,
-            $validated['delete_backups'] ?? false
-        );
-
-        return response()->json($result, $result['success'] ? 200 : 400);
     }
 
     /**

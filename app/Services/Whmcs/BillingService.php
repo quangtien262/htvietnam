@@ -20,16 +20,22 @@ class BillingService implements BillingServiceInterface
         return DB::transaction(function () use ($clientId, $items, $options) {
             $client = User::findOrFail($clientId);
             
-            $subtotal = collect($items)->sum(fn($item) => $item['amount'] * ($item['quantity'] ?? 1));
+            // Calculate totals (handle both amount/quantity and unit_price/qty formats)
+            $subtotal = collect($items)->sum(function($item) {
+                $price = $item['unit_price'] ?? $item['amount'] ?? 0;
+                $qty = $item['qty'] ?? $item['quantity'] ?? 1;
+                return $price * $qty;
+            });
+            
             $tax = $options['tax'] ?? 0;
             $total = $subtotal + $tax;
             
             $invoice = Invoice::create([
                 'client_id' => $clientId,
-                'invoice_number' => $this->generateInvoiceNumber(),
-                'status' => 'unpaid',
+                'number' => $this->generateInvoiceNumber(),
+                'status' => $options['status'] ?? 'unpaid',
                 'subtotal' => $subtotal,
-                'tax' => $tax,
+                'tax_total' => $tax,
                 'total' => $total,
                 'date' => now(),
                 'due_date' => $options['due_date'] ?? now()->addDays(7),
@@ -37,18 +43,22 @@ class BillingService implements BillingServiceInterface
             ]);
 
             foreach ($items as $item) {
+                $unitPrice = $item['unit_price'] ?? $item['amount'] ?? 0;
+                $qty = $item['qty'] ?? $item['quantity'] ?? 1;
+                
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
+                    'product_id' => $item['product_id'] ?? null,
+                    'service_id' => $item['service_id'] ?? null,
                     'type' => $item['type'] ?? 'product',
-                    'related_id' => $item['product_id'] ?? null,
                     'description' => $item['description'],
-                    'amount' => $item['amount'],
-                    'quantity' => $item['quantity'] ?? 1,
-                    'taxed' => $item['taxed'] ?? true,
+                    'unit_price' => $unitPrice,
+                    'qty' => $qty,
+                    'total' => $unitPrice * $qty,
                 ]);
             }
 
-            Log::info("Invoice #{$invoice->invoice_number} created for client #{$clientId}", [
+            Log::info("Invoice #{$invoice->number} created for client #{$clientId}", [
                 'invoice_id' => $invoice->id,
                 'total' => $total,
             ]);
@@ -97,18 +107,18 @@ class BillingService implements BillingServiceInterface
             $transaction = Transaction::create([
                 'client_id' => $invoice->client_id,
                 'invoice_id' => $invoice->id,
+                'gateway' => $paymentMethod,
                 'amount' => $amount,
-                'payment_method' => $paymentMethod,
                 'transaction_id' => $metadata['transaction_id'] ?? null,
                 'gateway_response' => $metadata['gateway_response'] ?? null,
-                'date' => now(),
+                'status' => 'success',
             ]);
 
-            $invoice->amount_paid += $amount;
+            $invoice->credit_applied += $amount;
 
-            if ($invoice->amount_paid >= $invoice->total) {
+            if ($invoice->credit_applied >= $invoice->total) {
                 $invoice->status = 'paid';
-                $invoice->date_paid = now();
+                $invoice->paid_at = now();
 
                 // Trigger event for auto-provisioning
                 event(new \App\Events\Whmcs\InvoicePaid($invoice));

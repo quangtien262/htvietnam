@@ -299,6 +299,7 @@ use App\Http\Controllers\Admin\Whmcs\InvoiceController as WhmcsInvoiceController
 use App\Http\Controllers\Admin\Whmcs\ServerController as WhmcsServerController;
 use App\Http\Controllers\Admin\Whmcs\ServiceController as WhmcsServiceController;
 use App\Http\Controllers\Admin\Whmcs\ProductController as WhmcsProductController;
+use App\Http\Controllers\Admin\Whmcs\ClientController as WhmcsClientController;
 
 // Invoices
 Route::prefix('whmcs/invoices')->group(function () {
@@ -332,6 +333,12 @@ Route::prefix('whmcs/server-groups')->group(function () {
     Route::post('/', [WhmcsServerController::class, 'storeGroup'])->name('whmcs.server-groups.store');
     Route::put('/{id}', [WhmcsServerController::class, 'updateGroup'])->name('whmcs.server-groups.update');
     Route::delete('/{id}', [WhmcsServerController::class, 'destroyGroup'])->name('whmcs.server-groups.destroy');
+});
+
+// Clients (Users for WHMCS)
+Route::prefix('whmcs/clients')->group(function () {
+    Route::get('/', [WhmcsClientController::class, 'index'])->name('whmcs.clients.index');
+    Route::get('/{id}', [WhmcsClientController::class, 'show'])->name('whmcs.clients.show');
 });
 
 // Services

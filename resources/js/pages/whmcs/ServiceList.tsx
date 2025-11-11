@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Drawer, Descriptions, Alert, DatePicker } from 'antd';
-import { PlusOutlined, SearchOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, KeyOutlined, SwapOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, KeyOutlined, SwapOutlined, EyeOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { ROUTE } from '@/common/route';
 
 const { Option } = Select;
 
@@ -45,7 +46,8 @@ const ServiceList: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get('/aio/api/whmcs/products');
-      setProducts(response.data.data || response.data);
+      const data = response.data.data || response.data;
+      setProducts(Array.isArray(data) ? data : []);
     } catch {
       message.error('Không thể tải danh sách sản phẩm');
     }
@@ -54,7 +56,8 @@ const ServiceList: React.FC = () => {
   const fetchClients = async () => {
     try {
       const response = await axios.get('/aio/api/whmcs/clients');
-      setClients(response.data.data || response.data);
+      const data = response.data.data || response.data;
+      setClients(Array.isArray(data) ? data : []);
     } catch {
       message.error('Không thể tải danh sách khách hàng');
     }
@@ -432,9 +435,10 @@ const ServiceList: React.FC = () => {
             label="Khách hàng"
             name="client_id"
             rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
+            extra={clients.length === 0 ? "Chưa có khách hàng nào trong hệ thống" : undefined}
           >
             <Select
-              placeholder="Chọn khách hàng"
+              placeholder={clients.length === 0 ? "Chưa có khách hàng" : "Chọn khách hàng"}
               showSearch
               filterOption={(input, option) =>
                 (option?.children as string).toLowerCase().includes(input.toLowerCase())
@@ -442,19 +446,33 @@ const ServiceList: React.FC = () => {
             >
               {clients.map((client) => (
                 <Option key={client.id} value={client.id}>
-                  {client.first_name} {client.last_name} ({client.email})
+                  {client.name} ({client.email})
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Sản phẩm/Gói dịch vụ"
+            label={
+              <Space>
+                Sản phẩm/Gói dịch vụ
+                <a 
+                  href={ROUTE.whmcsProducts} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  title="Quản lý sản phẩm"
+                  style={{ color: '#1890ff' }}
+                >
+                  <UnorderedListOutlined />
+                </a>
+              </Space>
+            }
             name="product_id"
             rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
+            extra={products.length === 0 ? "Chưa có sản phẩm nào. Vui lòng tạo sản phẩm trước." : undefined}
           >
             <Select
-              placeholder="Chọn sản phẩm"
+              placeholder={products.length === 0 ? "Chưa có sản phẩm" : "Chọn sản phẩm"}
               showSearch
               filterOption={(input, option) =>
                 (option?.children as string).toLowerCase().includes(input.toLowerCase())

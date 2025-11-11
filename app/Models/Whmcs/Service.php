@@ -2,6 +2,7 @@
 
 namespace App\Models\Whmcs;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'whmcs_services';
 
@@ -31,6 +32,20 @@ class Service extends Model
     ];
 
     protected $hidden = ['password'];
+
+    protected $appends = ['billing_cycle'];
+
+    // Accessor cho billing_cycle (alias của payment_cycle)
+    public function getBillingCycleAttribute(): ?string
+    {
+        return $this->payment_cycle;
+    }
+
+    // Mutator cho billing_cycle (alias của payment_cycle)
+    public function setBillingCycleAttribute($value): void
+    {
+        $this->attributes['payment_cycle'] = $value;
+    }
 
     public function client(): BelongsTo
     {
