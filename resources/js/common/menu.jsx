@@ -510,7 +510,7 @@ export const MENU = {
         },
     ],
     telesale: [
-        
+
         {
             label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
             icon: <HomeOutlined />,
@@ -538,7 +538,7 @@ export const MENU = {
             key: (key++).toString(),
             icon: <PhoneOutlined />,
             children: [
-               
+
                 {
                     label: <Link to={`${ROUTE.telesaleHuongDan}?p=telesale`}>📖 Hướng dẫn sử dụng</Link>,
                     key: (key++).toString(),
@@ -619,22 +619,22 @@ export const MENU = {
                 {
                     label: <Link to={`${ROUTE.whmcsServers}?p=whmcs`}>🖥️ Máy chủ</Link>,
                     key: (key++).toString(),
-                    icon: <ApartmentOutlined />,
+                    // icon: <ApartmentOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsProducts}?p=whmcs`}>📦 Gói sản phẩm</Link>,
                     key: (key++).toString(),
-                    icon: <ShopOutlined />,
+                    // icon: <ShopOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsTickets}?p=whmcs`}>🎫 Support Tickets</Link>,
                     key: (key++).toString(),
-                    icon: <MessageOutlined />,
+                    // icon: <MessageOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsApiKeys}?p=whmcs`}>🔑 API Keys</Link>,
                     key: (key++).toString(),
-                    icon: <ApiOutlined />,
+                    // icon: <ApiOutlined />,
                 },
             ],
         },
@@ -651,81 +651,81 @@ export const MENU = {
                 {
                     label: <Link to={`${ROUTE.whmcsAnalytics}?p=whmcs`}>📊 Analytics</Link>,
                     key: (key++).toString(),
-                    icon: <BarChartOutlined />,
+                    // icon: <BarChartOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsCurrencies}?p=whmcs`}>💱 Multi-Currency</Link>,
                     key: (key++).toString(),
-                    icon: <DollarOutlined />,
+                    // icon: <DollarOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsTax}?p=whmcs`}>� Tax Management</Link>,
                     key: (key++).toString(),
-                    icon: <FileTextOutlined />,
+                    // icon: <FileTextOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsAffiliates}?p=whmcs`}>👥 Affiliate System</Link>,
                     key: (key++).toString(),
-                    icon: <TeamOutlined />,
+                    // icon: <TeamOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsKnowledgeBase}?p=whmcs`}>📚 Knowledge Base</Link>,
                     key: (key++).toString(),
-                    icon: <BookOutlined />,
+                    // icon: <BookOutlined />,
                 },
             ],
         },
         {
             label: '👤 Client Portal',
             key: (key++).toString(),
-            icon: <UserOutlined />,
+            // icon: <UserOutlined />,
             children: [
                 {
                     label: <Link to={`${ROUTE.clientDashboard}?p=whmcs`}>📊 Dashboard</Link>,
                     key: (key++).toString(),
-                    icon: <DashboardOutlined />,
+                    // icon: <DashboardOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.clientInvoices}?p=whmcs`}>💳 My Invoices</Link>,
                     key: (key++).toString(),
-                    icon: <FileTextOutlined />,
+                    // icon: <FileTextOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.clientServices}?p=whmcs`}>🌐 My Services</Link>,
                     key: (key++).toString(),
-                    icon: <GlobalOutlined />,
+                    // icon: <GlobalOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.clientDomains}?p=whmcs`}>🌍 My Domains</Link>,
                     key: (key++).toString(),
-                    icon: <GlobalOutlined />,
+                    // icon: <GlobalOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.clientTickets}?p=whmcs`}>🎫 Support</Link>,
                     key: (key++).toString(),
-                    icon: <MessageOutlined />,
+                    // icon: <MessageOutlined />,
                 },
             ],
         },
         {
             label: 'Cài đặt',
             key: (key++).toString(),
-            icon: <SettingFilled />,
+            // icon: <SettingFilled />,
             children: [
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/whmcs_payment_gateways?p=whmcs`}>💰 Payment Gateways</Link>,
                     key: (key++).toString(),
-                    icon: <DollarOutlined />,
+                    // icon: <DollarOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/whmcs_email_templates?p=whmcs`}>📧 Email Templates</Link>,
                     key: (key++).toString(),
-                    icon: <MessageOutlined />,
+                    // icon: <MessageOutlined />,
                 },
                 {
                     label: <Link to={`${ROUTE.whmcsUserGuide}?p=whmcs`}>📖 Hướng dẫn WHMCS</Link>,
                     key: (key++).toString(),
-                    icon: <BookOutlined />,
+                    // icon: <BookOutlined />,
                 },
             ],
         },

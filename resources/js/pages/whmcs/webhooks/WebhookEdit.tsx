@@ -3,20 +3,7 @@ import { Form, Input, Checkbox, Button, Card, message, Space, Spin } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ROUTE } from '@/common/route';
-
-const AVAILABLE_EVENTS = [
-    { label: 'Invoice Created', value: 'invoice_created' },
-    { label: 'Invoice Paid', value: 'invoice_paid' },
-    { label: 'Invoice Cancelled', value: 'invoice_cancelled' },
-    { label: 'Invoice Refunded', value: 'invoice_refunded' },
-    { label: 'Service Created', value: 'service_created' },
-    { label: 'Service Provisioned', value: 'service_provisioned' },
-    { label: 'Service Suspended', value: 'service_suspended' },
-    { label: 'Service Terminated', value: 'service_terminated' },
-    { label: 'Client Created', value: 'client_created' },
-    { label: 'Ticket Created', value: 'ticket_created' },
-    { label: 'Ticket Replied', value: 'ticket_replied' },
-];
+import { AVAILABLE_EVENTS } from './constants';
 
 const WebhookEdit: React.FC = () => {
     const { id } = useParams();
@@ -84,9 +71,9 @@ const WebhookEdit: React.FC = () => {
     return (
         <div style={{ padding: 24 }}>
             <Card title="Chỉnh Sửa Webhook">
-                <Form 
-                    form={form} 
-                    layout="vertical" 
+                <Form
+                    form={form}
+                    layout="vertical"
                     onFinish={handleSubmit}
                 >
                     <Form.Item
@@ -120,7 +107,7 @@ const WebhookEdit: React.FC = () => {
                         name="events"
                         rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 event' }]}
                     >
-                        <Checkbox.Group 
+                        <Checkbox.Group
                             options={AVAILABLE_EVENTS}
                             style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}
                         />

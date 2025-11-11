@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Whmcs\Ticket;
 use App\Models\Whmcs\TicketReply;
 use App\Models\Admin\AdminUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -70,6 +71,48 @@ class TicketController extends Controller
         ])->findOrFail($id);
 
         return response()->json($ticket);
+    }
+
+    /**
+     * Create new ticket (Admin creates ticket for client)
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'client_id' => 'required|exists:users,id',
+            'service_id' => 'nullable|exists:whmcs_services,id',
+            'department' => 'required|in:technical,sales,billing,general',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+            'status' => 'nullable|in:open,awaiting_reply,in_progress',
+        ]);
+
+        // Generate unique ticket number
+        $ticketNumber = 'TKT-' . strtoupper(uniqid());
+
+        $ticket = Ticket::create([
+            'ticket_number' => $ticketNumber,
+            'client_id' => $validated['client_id'],
+            'service_id' => $validated['service_id'] ?? null,
+            'department' => $validated['department'],
+            'priority' => $validated['priority'],
+            'subject' => $validated['subject'],
+            'status' => $validated['status'] ?? 'open',
+        ]);
+
+        // Add initial message as first reply
+        $ticket->replies()->create([
+            'author_type' => \App\Models\User::class,
+            'author_id' => $validated['client_id'],
+            'message' => $validated['message'],
+            'is_internal' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Ticket created successfully',
+            'ticket' => $ticket->load(['client', 'replies.author']),
+        ], 201);
     }
 
     /**

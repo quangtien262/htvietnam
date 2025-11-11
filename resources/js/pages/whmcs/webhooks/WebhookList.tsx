@@ -4,20 +4,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, ApiOutlined, ReloadOutlined
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ROUTE } from '@/common/route';
-
-const AVAILABLE_EVENTS = [
-    { label: 'Invoice Created', value: 'invoice_created' },
-    { label: 'Invoice Paid', value: 'invoice_paid' },
-    { label: 'Invoice Cancelled', value: 'invoice_cancelled' },
-    { label: 'Invoice Refunded', value: 'invoice_refunded' },
-    { label: 'Service Created', value: 'service_created' },
-    { label: 'Service Provisioned', value: 'service_provisioned' },
-    { label: 'Service Suspended', value: 'service_suspended' },
-    { label: 'Service Terminated', value: 'service_terminated' },
-    { label: 'Client Created', value: 'client_created' },
-    { label: 'Ticket Created', value: 'ticket_created' },
-    { label: 'Ticket Replied', value: 'ticket_replied' },
-];
+import { AVAILABLE_EVENTS } from './constants';
 
 interface Webhook {
     id: number;
@@ -28,6 +15,18 @@ interface Webhook {
     secret_key: string;
     created_at: string;
     last_triggered_at: string | null;
+}
+
+interface WebhookLog {
+    id: number;
+    event: string;
+    url: string;
+    payload: unknown;
+    response_code: number | null;
+    response_body: string | null;
+    success: boolean;
+    error_message: string | null;
+    created_at: string;
 }
 
 interface ApiResponse {
@@ -48,7 +47,7 @@ const callApi = async (url: string, method: string = 'GET', data?: unknown): Pro
                 'X-Requested-With': 'XMLHttpRequest',
             }
         });
-        
+
         return {
             success: true,
             data: response.data.data || response.data,
@@ -67,6 +66,10 @@ const WebhookList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [webhooks, setWebhooks] = useState<Webhook[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
+    const [logsLoading, setLogsLoading] = useState(false);
+    const [selectedWebhook, setSelectedWebhook] = useState<Webhook | null>(null);
+    const [webhookLogs, setWebhookLogs] = useState<WebhookLog[]>([]);
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
@@ -143,6 +146,28 @@ const WebhookList: React.FC = () => {
         }
     };
 
+    const handleViewLogs = async (webhook: Webhook) => {
+        setSelectedWebhook(webhook);
+        setIsLogsModalOpen(true);
+        setLogsLoading(true);
+
+        try {
+            const response = await callApi(`/aio/api/whmcs/webhooks/${webhook.id}/logs`);
+            if (response.success) {
+                const data = response.data as { data?: WebhookLog[] };
+                setWebhookLogs(data.data || []);
+            } else {
+                message.error('Không thể tải logs');
+                setWebhookLogs([]);
+            }
+        } catch {
+            message.error('Không thể tải logs');
+            setWebhookLogs([]);
+        } finally {
+            setLogsLoading(false);
+        }
+    };
+
     const columns = [
         {
             title: 'Tên',
@@ -214,7 +239,7 @@ const WebhookList: React.FC = () => {
                             type="default"
                             size="small"
                             icon={<EyeOutlined />}
-                            onClick={() => navigate(`${ROUTE.whmcsWebhooks}${record.id}/logs`)}
+                            onClick={() => handleViewLogs(record)}
                         >
                             Logs
                         </Button>
@@ -344,6 +369,156 @@ const WebhookList: React.FC = () => {
                         <Checkbox>Kích hoạt ngay sau khi tạo</Checkbox>
                     </Form.Item>
                 </Form>
+            </Modal>
+
+            {/* Modal xem Logs */}
+            <Modal
+                title={
+                    <div>
+                        <EyeOutlined style={{ marginRight: 8 }} />
+                        Webhook Logs: {selectedWebhook?.name}
+                    </div>
+                }
+                open={isLogsModalOpen}
+                onCancel={() => {
+                    setIsLogsModalOpen(false);
+                    setSelectedWebhook(null);
+                    setWebhookLogs([]);
+                }}
+                footer={[
+                    <Button key="close" onClick={() => setIsLogsModalOpen(false)}>
+                        Đóng
+                    </Button>
+                ]}
+                width={1200}
+            >
+                <Table
+                    dataSource={webhookLogs}
+                    loading={logsLoading}
+                    rowKey="id"
+                    size="small"
+                    pagination={{
+                        pageSize: 10,
+                        showTotal: (total) => `Tổng ${total} logs`
+                    }}
+                    scroll={{ x: 1000 }}
+                    columns={[
+                        {
+                            title: 'Time',
+                            dataIndex: 'created_at',
+                            key: 'created_at',
+                            width: 160,
+                            render: (date: string) => new Date(date).toLocaleString('vi-VN')
+                        },
+                        {
+                            title: 'Event',
+                            dataIndex: 'event',
+                            key: 'event',
+                            width: 150,
+                            render: (event: string) => <Tag color="blue">{event}</Tag>
+                        },
+                        {
+                            title: 'Status',
+                            dataIndex: 'success',
+                            key: 'success',
+                            width: 100,
+                            render: (success: boolean, record: WebhookLog) => (
+                                <Tooltip title={record.response_code ? `HTTP ${record.response_code}` : 'No response'}>
+                                    <Tag color={success ? 'green' : 'red'}>
+                                        {success ? 'Success' : 'Failed'}
+                                    </Tag>
+                                </Tooltip>
+                            )
+                        },
+                        {
+                            title: 'Response Code',
+                            dataIndex: 'response_code',
+                            key: 'response_code',
+                            width: 120,
+                            render: (code: number | null) => code || '-'
+                        },
+                        {
+                            title: 'Error',
+                            dataIndex: 'error_message',
+                            key: 'error_message',
+                            ellipsis: true,
+                            render: (error: string | null) => (
+                                error ? (
+                                    <Tooltip title={error}>
+                                        <Tag color="red">{error.substring(0, 50)}...</Tag>
+                                    </Tooltip>
+                                ) : '-'
+                            )
+                        },
+                        {
+                            title: 'Actions',
+                            key: 'actions',
+                            width: 100,
+                            render: (_: unknown, record: WebhookLog) => (
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        Modal.info({
+                                            title: 'Log Details',
+                                            width: 800,
+                                            content: (
+                                                <div>
+                                                    <p><strong>Event:</strong> {record.event}</p>
+                                                    <p><strong>URL:</strong> {record.url}</p>
+                                                    <p><strong>Response Code:</strong> {record.response_code || 'N/A'}</p>
+                                                    <p><strong>Time:</strong> {new Date(record.created_at).toLocaleString('vi-VN')}</p>
+
+                                                    {record.error_message && (
+                                                        <>
+                                                            <p><strong>Error:</strong></p>
+                                                            <pre style={{
+                                                                background: '#f5f5f5',
+                                                                padding: 12,
+                                                                borderRadius: 4,
+                                                                maxHeight: 200,
+                                                                overflow: 'auto'
+                                                            }}>
+                                                                {record.error_message}
+                                                            </pre>
+                                                        </>
+                                                    )}
+
+                                                    <p><strong>Payload:</strong></p>
+                                                    <pre style={{
+                                                        background: '#f5f5f5',
+                                                        padding: 12,
+                                                        borderRadius: 4,
+                                                        maxHeight: 300,
+                                                        overflow: 'auto'
+                                                    }}>
+                                                        {JSON.stringify(record.payload, null, 2)}
+                                                    </pre>
+
+                                                    {record.response_body && (
+                                                        <>
+                                                            <p><strong>Response:</strong></p>
+                                                            <pre style={{
+                                                                background: '#f5f5f5',
+                                                                padding: 12,
+                                                                borderRadius: 4,
+                                                                maxHeight: 300,
+                                                                overflow: 'auto'
+                                                            }}>
+                                                                {record.response_body}
+                                                            </pre>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ),
+                                        });
+                                    }}
+                                >
+                                    Chi tiết
+                                </Button>
+                            )
+                        }
+                    ]}
+                />
             </Modal>
         </div>
     );

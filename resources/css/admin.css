@@ -1382,3 +1382,6 @@ ul.ul-info li {
     border: 1px #0162ff solid;
     padding: 3px 15px;
 }
+.ant-table-placeholder {
+    z-index: 1 !important;
+}

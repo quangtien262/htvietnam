@@ -220,7 +220,7 @@ Route::get('/documents/users', function () {
             ->where('da_nghi_lam', 0) // Only active employees
             ->orderBy('name')
             ->get();
-        
+
         return response()->json($users);
     } catch (\Exception $e) {
         \Log::error('Get users error: ' . $e->getMessage());
@@ -389,6 +389,7 @@ Route::prefix('whmcs/client/tickets')->group(function () {
 // Tickets (Admin)
 Route::prefix('whmcs/tickets')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'index'])->name('whmcs.tickets.index');
+    Route::post('/', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'store'])->name('whmcs.tickets.store');
     Route::get('/{id}', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'show'])->name('whmcs.tickets.show');
     Route::post('/{id}/assign', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'assign'])->name('whmcs.tickets.assign');
     Route::post('/{id}/reply', [\App\Http\Controllers\Admin\Whmcs\TicketController::class, 'reply'])->name('whmcs.tickets.reply');
@@ -490,7 +491,7 @@ Route::prefix('whmcs/kb')->group(function () {
     Route::post('/categories', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'storeCategory'])->name('whmcs.kb.category.store');
     Route::put('/categories/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'updateCategory'])->name('whmcs.kb.category.update');
     Route::delete('/categories/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteCategory'])->name('whmcs.kb.category.delete');
-    
+
     // Articles
     Route::get('/articles', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'articles'])->name('whmcs.kb.articles');
     Route::post('/articles', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'storeArticle'])->name('whmcs.kb.article.store');
@@ -502,11 +503,11 @@ Route::prefix('whmcs/kb')->group(function () {
     Route::delete('/articles/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteArticle'])->name('whmcs.kb.article.delete');
     Route::post('/articles/{id}/views', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'incrementViews'])->name('whmcs.kb.article.views');
     Route::post('/articles/{id}/vote', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'vote'])->name('whmcs.kb.article.vote');
-    
+
     // Attachments
     Route::post('/articles/{id}/attachments', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'uploadAttachment'])->name('whmcs.kb.attachment.upload');
     Route::delete('/attachments/{id}', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'deleteAttachment'])->name('whmcs.kb.attachment.delete');
-    
+
     // Statistics
     Route::get('/statistics', [\App\Http\Controllers\Admin\KnowledgeBaseController::class, 'statistics'])->name('whmcs.kb.statistics');
 });
