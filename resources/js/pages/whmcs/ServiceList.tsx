@@ -33,10 +33,32 @@ const ServiceList: React.FC = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createForm] = Form.useForm();
+  const [products, setProducts] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
 
   useEffect(() => {
     fetchServices();
+    fetchProducts();
+    fetchClients();
   }, [pagination.current, filters]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('/aio/api/whmcs/products');
+      setProducts(response.data.data || response.data);
+    } catch {
+      message.error('Không thể tải danh sách sản phẩm');
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get('/aio/api/whmcs/clients');
+      setClients(response.data.data || response.data);
+    } catch {
+      message.error('Không thể tải danh sách khách hàng');
+    }
+  };
 
   const fetchServices = async () => {
     setLoading(true);
@@ -418,9 +440,11 @@ const ServiceList: React.FC = () => {
                 (option?.children as string).toLowerCase().includes(input.toLowerCase())
               }
             >
-              {/* TODO: Load clients from API */}
-              <Option value={1}>Khách hàng mẫu 1</Option>
-              <Option value={2}>Khách hàng mẫu 2</Option>
+              {clients.map((client) => (
+                <Option key={client.id} value={client.id}>
+                  {client.first_name} {client.last_name} ({client.email})
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -436,10 +460,11 @@ const ServiceList: React.FC = () => {
                 (option?.children as string).toLowerCase().includes(input.toLowerCase())
               }
             >
-              {/* TODO: Load products from API */}
-              <Option value={1}>Hosting Basic - 100GB</Option>
-              <Option value={2}>Hosting Pro - 500GB</Option>
-              <Option value={3}>VPS Cloud - 2GB RAM</Option>
+              {products.map((product) => (
+                <Option key={product.id} value={product.id}>
+                  {product.name} ({product.type})
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
