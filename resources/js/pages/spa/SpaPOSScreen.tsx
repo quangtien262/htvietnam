@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input } from 'antd';
-import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty } from 'antd';
+import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { API } from '../../common/api';
+
+const { Search } = Input;
+const { TabPane } = Tabs;
 
 interface CartItem {
     key: string;
@@ -14,6 +18,19 @@ interface CartItem {
     ktv_name?: string;
 }
 
+interface ServiceProduct {
+    id: number;
+    ma_dich_vu?: string;
+    ma_san_pham?: string;
+    ten_dich_vu?: string;
+    ten_san_pham?: string;
+    gia_ban: number;
+    gia_thanh_vien?: number;
+    danh_muc_id?: number;
+    danh_muc_ten?: string;
+    trang_thai?: string;
+}
+
 const SpaPOSScreen: React.FC = () => {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
@@ -24,16 +41,121 @@ const SpaPOSScreen: React.FC = () => {
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
     const [form] = Form.useForm();
 
-    const addToCart = (item: { id: number; name: string; price: number; type: 'service' | 'product' }) => {
+    // New states for product/service listing
+    const [services, setServices] = useState<ServiceProduct[]>([]);
+    const [products, setProducts] = useState<ServiceProduct[]>([]);
+    const [filteredServices, setFilteredServices] = useState<ServiceProduct[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<ServiceProduct[]>([]);
+    const [serviceSearch, setServiceSearch] = useState('');
+    const [productSearch, setProductSearch] = useState('');
+    const [serviceCategory, setServiceCategory] = useState<number | null>(null);
+    const [productCategory, setProductCategory] = useState<number | null>(null);
+    const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+    const [productCategories, setProductCategories] = useState<any[]>([]);
+    const [loadingData, setLoadingData] = useState(false);
+
+    // Fetch services and products on mount
+    useEffect(() => {
+        fetchServices();
+        fetchProducts();
+        fetchCategories();
+    }, []);
+
+    // Filter services when search or category changes
+    useEffect(() => {
+        let filtered = services;
+        
+        if (serviceSearch) {
+            filtered = filtered.filter(s => 
+                s.ten_dich_vu?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
+                s.ma_dich_vu?.toLowerCase().includes(serviceSearch.toLowerCase())
+            );
+        }
+        
+        if (serviceCategory) {
+            filtered = filtered.filter(s => s.danh_muc_id === serviceCategory);
+        }
+        
+        setFilteredServices(filtered);
+    }, [serviceSearch, serviceCategory, services]);
+
+    // Filter products when search or category changes
+    useEffect(() => {
+        let filtered = products;
+        
+        if (productSearch) {
+            filtered = filtered.filter(p => 
+                p.ten_san_pham?.toLowerCase().includes(productSearch.toLowerCase()) ||
+                p.ma_san_pham?.toLowerCase().includes(productSearch.toLowerCase())
+            );
+        }
+        
+        if (productCategory) {
+            filtered = filtered.filter(p => p.danh_muc_id === productCategory);
+        }
+        
+        setFilteredProducts(filtered);
+    }, [productSearch, productCategory, products]);
+
+    const fetchServices = async () => {
+        setLoadingData(true);
+        try {
+            const response = await axios.get(API.spaServiceList, {
+                params: { per_page: 1000, trang_thai: 'active' }
+            });
+            setServices(response.data.data || []);
+            setFilteredServices(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+            message.error('Không thể tải danh sách dịch vụ');
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    const fetchProducts = async () => {
+        setLoadingData(true);
+        try {
+            const response = await axios.get(API.spaProductList, {
+                params: { per_page: 1000, trang_thai: 'active' }
+            });
+            setProducts(response.data.data || []);
+            setFilteredProducts(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            message.error('Không thể tải danh sách sản phẩm');
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const [serviceRes, productRes] = await Promise.all([
+                axios.get(API.spaServiceCategoryList),
+                axios.get(API.spaProductCategoryList)
+            ]);
+            setServiceCategories(serviceRes.data.data || []);
+            setProductCategories(productRes.data.data || []);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    const addToCart = (item: ServiceProduct, type: 'service' | 'product') => {
+        const name = type === 'service' ? item.ten_dich_vu : item.ten_san_pham;
+        const price = selectedCustomer && item.gia_thanh_vien ? item.gia_thanh_vien : item.gia_ban;
+        
         const newItem: CartItem = {
-            key: `${item.type}-${item.id}-${Date.now()}`,
-            type: item.type,
+            key: `${type}-${item.id}-${Date.now()}`,
+            type: type,
             id: item.id,
-            name: item.name,
-            price: item.price,
+            name: name || 'Unknown',
+            price: price,
             quantity: 1,
         };
         setCart([...cart, newItem]);
+        message.success(`Đã thêm ${name} vào giỏ hàng`);
     };
 
     const updateQuantity = (key: string, quantity: number) => {
@@ -75,6 +197,7 @@ const SpaPOSScreen: React.FC = () => {
                     san_pham_id: item.type === 'product' ? item.id : null,
                     ktv_id: item.ktv_id,
                     so_luong: item.quantity,
+                    don_gia: item.price, // Add price to each item
                 })),
                 thanh_toan: true,
                 phuong_thuc_thanh_toan: values.payment_methods,
@@ -84,7 +207,7 @@ const SpaPOSScreen: React.FC = () => {
                 nguoi_ban: 'Admin', // TODO: Get from auth
             };
 
-            const response = await axios.post('/api/admin/spa/pos/invoices', invoiceData);
+            const response = await axios.post(API.spaPOSCreateInvoice, invoiceData);
             
             if (response.data.success) {
                 message.success('Thanh toán thành công!');
@@ -158,33 +281,167 @@ const SpaPOSScreen: React.FC = () => {
             <Row gutter={16}>
                 {/* Products & Services List */}
                 <Col span={16}>
-                    <Card title="Dịch vụ" style={{ marginBottom: 16 }}>
-                        <Space wrap>
-                            <Button onClick={() => addToCart({ id: 1, name: 'Massage toàn thân 90 phút', price: 500000, type: 'service' })}>
-                                Massage toàn thân - 500k
-                            </Button>
-                            <Button onClick={() => addToCart({ id: 2, name: 'Chăm sóc da mặt 60 phút', price: 300000, type: 'service' })}>
-                                Chăm sóc da - 300k
-                            </Button>
-                            <Button onClick={() => addToCart({ id: 3, name: 'Tắm trắng toàn thân 120 phút', price: 800000, type: 'service' })}>
-                                Tắm trắng - 800k
-                            </Button>
-                        </Space>
-                    </Card>
+                    <Tabs defaultActiveKey="services">
+                        <TabPane tab={<span><Badge count={filteredServices.length} showZero>Dịch vụ</Badge></span>} key="services">
+                            <Card 
+                                size="small"
+                                title={
+                                    <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                        <Search
+                                            placeholder="Tìm kiếm dịch vụ theo tên hoặc mã..."
+                                            allowClear
+                                            style={{ width: 300 }}
+                                            value={serviceSearch}
+                                            onChange={(e) => setServiceSearch(e.target.value)}
+                                            prefix={<SearchOutlined />}
+                                        />
+                                        <Select
+                                            placeholder="Lọc theo danh mục"
+                                            allowClear
+                                            style={{ width: 200 }}
+                                            value={serviceCategory}
+                                            onChange={setServiceCategory}
+                                        >
+                                            {serviceCategories.map(cat => (
+                                                <Select.Option key={cat.id} value={cat.id}>
+                                                    {cat.ten_danh_muc}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Space>
+                                }
+                            >
+                                <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                                    {loadingData ? (
+                                        <div style={{ textAlign: 'center', padding: '40px' }}>Đang tải...</div>
+                                    ) : filteredServices.length === 0 ? (
+                                        <Empty description="Không tìm thấy dịch vụ" />
+                                    ) : (
+                                        <Row gutter={[8, 8]}>
+                                            {filteredServices.map(service => (
+                                                <Col span={8} key={service.id}>
+                                                    <Card
+                                                        hoverable
+                                                        size="small"
+                                                        onClick={() => addToCart(service, 'service')}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        <Card.Meta
+                                                            title={
+                                                                <div style={{ fontSize: '13px' }}>
+                                                                    {service.ten_dich_vu}
+                                                                    {service.danh_muc_ten && (
+                                                                        <Tag color="blue" style={{ marginLeft: 8, fontSize: '11px' }}>
+                                                                            {service.danh_muc_ten}
+                                                                        </Tag>
+                                                                    )}
+                                                                </div>
+                                                            }
+                                                            description={
+                                                                <div>
+                                                                    <div style={{ fontSize: '12px', color: '#888' }}>
+                                                                        {service.ma_dich_vu}
+                                                                    </div>
+                                                                    <div style={{ fontWeight: 'bold', color: '#1890ff', marginTop: 4 }}>
+                                                                        {new Intl.NumberFormat('vi-VN').format(service.gia_ban)} đ
+                                                                    </div>
+                                                                    {service.gia_thanh_vien && (
+                                                                        <div style={{ fontSize: '12px', color: '#52c41a' }}>
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(service.gia_thanh_vien)} đ
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            }
+                                                        />
+                                                    </Card>
+                                                </Col>
+                                            ))}
+                                        </Row>
+                                    )}
+                                </div>
+                            </Card>
+                        </TabPane>
 
-                    <Card title="Sản phẩm">
-                        <Space wrap>
-                            <Button onClick={() => addToCart({ id: 1, name: 'Kem dưỡng da cao cấp', price: 450000, type: 'product' })}>
-                                Kem dưỡng da - 450k
-                            </Button>
-                            <Button onClick={() => addToCart({ id: 2, name: 'Serum Vitamin C', price: 350000, type: 'product' })}>
-                                Serum Vit C - 350k
-                            </Button>
-                            <Button onClick={() => addToCart({ id: 3, name: 'Mặt nạ collagen', price: 250000, type: 'product' })}>
-                                Mặt nạ - 250k
-                            </Button>
-                        </Space>
-                    </Card>
+                        <TabPane tab={<span><Badge count={filteredProducts.length} showZero>Sản phẩm</Badge></span>} key="products">
+                            <Card 
+                                size="small"
+                                title={
+                                    <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                        <Search
+                                            placeholder="Tìm kiếm sản phẩm theo tên hoặc mã..."
+                                            allowClear
+                                            style={{ width: 300 }}
+                                            value={productSearch}
+                                            onChange={(e) => setProductSearch(e.target.value)}
+                                            prefix={<SearchOutlined />}
+                                        />
+                                        <Select
+                                            placeholder="Lọc theo danh mục"
+                                            allowClear
+                                            style={{ width: 200 }}
+                                            value={productCategory}
+                                            onChange={setProductCategory}
+                                        >
+                                            {productCategories.map(cat => (
+                                                <Select.Option key={cat.id} value={cat.id}>
+                                                    {cat.ten_danh_muc}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Space>
+                                }
+                            >
+                                <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                                    {loadingData ? (
+                                        <div style={{ textAlign: 'center', padding: '40px' }}>Đang tải...</div>
+                                    ) : filteredProducts.length === 0 ? (
+                                        <Empty description="Không tìm thấy sản phẩm" />
+                                    ) : (
+                                        <Row gutter={[8, 8]}>
+                                            {filteredProducts.map(product => (
+                                                <Col span={8} key={product.id}>
+                                                    <Card
+                                                        hoverable
+                                                        size="small"
+                                                        onClick={() => addToCart(product, 'product')}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        <Card.Meta
+                                                            title={
+                                                                <div style={{ fontSize: '13px' }}>
+                                                                    {product.ten_san_pham}
+                                                                    {product.danh_muc_ten && (
+                                                                        <Tag color="green" style={{ marginLeft: 8, fontSize: '11px' }}>
+                                                                            {product.danh_muc_ten}
+                                                                        </Tag>
+                                                                    )}
+                                                                </div>
+                                                            }
+                                                            description={
+                                                                <div>
+                                                                    <div style={{ fontSize: '12px', color: '#888' }}>
+                                                                        {product.ma_san_pham}
+                                                                    </div>
+                                                                    <div style={{ fontWeight: 'bold', color: '#1890ff', marginTop: 4 }}>
+                                                                        {new Intl.NumberFormat('vi-VN').format(product.gia_ban)} đ
+                                                                    </div>
+                                                                    {product.gia_thanh_vien && (
+                                                                        <div style={{ fontSize: '12px', color: '#52c41a' }}>
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(product.gia_thanh_vien)} đ
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            }
+                                                        />
+                                                    </Card>
+                                                </Col>
+                                            ))}
+                                        </Row>
+                                    )}
+                                </div>
+                            </Card>
+                        </TabPane>
+                    </Tabs>
                 </Col>
 
                 {/* Cart & Payment */}
@@ -228,7 +485,7 @@ const SpaPOSScreen: React.FC = () => {
                                             value={discount}
                                             onChange={(value) => setDiscount(value || 0)}
                                             formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                                             style={{ width: 150 }}
                                         />
                                     </div>
@@ -249,7 +506,7 @@ const SpaPOSScreen: React.FC = () => {
                                             value={tip}
                                             onChange={(value) => setTip(value || 0)}
                                             formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                                             style={{ width: 150 }}
                                         />
                                     </div>

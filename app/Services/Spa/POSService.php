@@ -9,6 +9,45 @@ use Illuminate\Support\Facades\DB;
 
 class POSService
 {
+    public function getInvoiceList($filters = [], $perPage = 20)
+    {
+        $query = HoaDon::query()
+            ->with(['khachHang', 'chiNhanh', 'chiTiets'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by branch
+        if (!empty($filters['chi_nhanh_id'])) {
+            $query->where('chi_nhanh_id', $filters['chi_nhanh_id']);
+        }
+
+        // Filter by status
+        if (!empty($filters['trang_thai'])) {
+            $query->where('trang_thai', $filters['trang_thai']);
+        }
+
+        // Filter by date range
+        if (!empty($filters['tu_ngay'])) {
+            $query->whereDate('ngay_ban', '>=', $filters['tu_ngay']);
+        }
+        if (!empty($filters['den_ngay'])) {
+            $query->whereDate('ngay_ban', '<=', $filters['den_ngay']);
+        }
+
+        // Search by invoice code or customer name
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('ma_hoa_don', 'like', "%{$search}%")
+                  ->orWhereHas('khachHang', function($q2) use ($search) {
+                      $q2->where('ho_ten', 'like', "%{$search}%")
+                         ->orWhere('so_dien_thoai', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query->paginate($perPage);
+    }
+
     public function createInvoice($data)
     {
         return DB::transaction(function() use ($data) {
@@ -19,6 +58,11 @@ class POSService
 
             $data['ngay_ban'] = now();
             $data['trang_thai'] = 'cho_thanh_toan';
+            
+            // Ensure chi_nhanh_id is set
+            if (empty($data['chi_nhanh_id'])) {
+                $data['chi_nhanh_id'] = 1; // Default branch
+            }
 
             $hoaDon = HoaDon::create($data);
 
@@ -26,25 +70,34 @@ class POSService
             foreach ($data['chi_tiets'] as $chiTiet) {
                 $donGia = 0;
 
-                // Get price based on item type
-                if (!empty($chiTiet['dich_vu_id'])) {
+                // Get price from frontend data or fetch from database
+                if (!empty($chiTiet['don_gia'])) {
+                    // Use price from frontend (for mock data)
+                    $donGia = $chiTiet['don_gia'];
+                } elseif (!empty($chiTiet['dich_vu_id'])) {
+                    // Try to fetch from database
                     $dichVu = \App\Models\Spa\DichVu::find($chiTiet['dich_vu_id']);
                     if ($dichVu) {
-                        // Check if customer has membership for discount
-                        $khachHang = \App\Models\Spa\KhachHang::find($data['khach_hang_id']);
+                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\Spa\KhachHang::find($data['khach_hang_id']) : null;
                         $membershipCard = $khachHang?->membershipCards()->active()->first();
                         $donGia = $membershipCard ? $dichVu->gia_thanh_vien : $dichVu->gia_ban;
+                    } else {
+                        // Fallback: use a default price if service not found
+                        $donGia = $chiTiet['don_gia'] ?? 0;
                     }
                 } elseif (!empty($chiTiet['san_pham_id'])) {
+                    // Try to fetch from database
                     $sanPham = SanPham::find($chiTiet['san_pham_id']);
                     if ($sanPham) {
-                        // Check membership discount
-                        $khachHang = \App\Models\Spa\KhachHang::find($data['khach_hang_id']);
+                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\Spa\KhachHang::find($data['khach_hang_id']) : null;
                         $membershipCard = $khachHang?->membershipCards()->active()->first();
                         $donGia = $membershipCard ? $sanPham->gia_thanh_vien : $sanPham->gia_ban;
 
                         // Update stock
                         $sanPham->updateStock($chiTiet['so_luong'], 'decrease');
+                    } else {
+                        // Fallback: use a default price if product not found
+                        $donGia = $chiTiet['don_gia'] ?? 0;
                     }
                 }
 

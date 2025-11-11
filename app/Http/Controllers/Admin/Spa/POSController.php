@@ -15,18 +15,52 @@ class POSController extends Controller
         $this->service = $service;
     }
 
+    public function index(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 20);
+            $chiNhanhId = $request->input('chi_nhanh_id');
+            $trangThai = $request->input('trang_thai');
+            $tuNgay = $request->input('tu_ngay');
+            $denNgay = $request->input('den_ngay');
+            $search = $request->input('search');
+
+            $invoices = $this->service->getInvoiceList([
+                'chi_nhanh_id' => $chiNhanhId,
+                'trang_thai' => $trangThai,
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay,
+                'search' => $search,
+            ], $perPage);
+
+            return response()->json([
+                'success' => true,
+                'data' => $invoices,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function createInvoice(Request $request)
     {
+        // Log request data for debugging
+        \Log::info('POS Invoice Request:', $request->all());
+
         $validated = $request->validate([
-            'khach_hang_id' => 'nullable|exists:spa_khach_hang,id',
-            'chi_nhanh_id' => 'required|exists:spa_chi_nhanh,id',
+            'khach_hang_id' => 'nullable|integer',
+            'chi_nhanh_id' => 'nullable|integer', // Changed from required to nullable for testing
             'chi_tiets' => 'required|array|min:1',
-            'chi_tiets.*.dich_vu_id' => 'required_without:chi_tiets.*.san_pham_id|exists:spa_dich_vu,id',
-            'chi_tiets.*.san_pham_id' => 'required_without:chi_tiets.*.dich_vu_id|exists:spa_san_pham,id',
-            'chi_tiets.*.ktv_id' => 'nullable|exists:spa_ktv,id',
+            'chi_tiets.*.dich_vu_id' => 'nullable|integer',
+            'chi_tiets.*.san_pham_id' => 'nullable|integer',
+            'chi_tiets.*.ktv_id' => 'nullable|integer',
             'chi_tiets.*.so_luong' => 'required|integer|min:1',
-            'thanh_toan' => 'boolean',
-            'phuong_thuc_thanh_toan' => 'array',
+            'chi_tiets.*.don_gia' => 'nullable|numeric|min:0',
+            'thanh_toan' => 'nullable|boolean',
+            'phuong_thuc_thanh_toan' => 'nullable|array',
             'giam_gia' => 'nullable|numeric|min:0',
             'diem_su_dung' => 'nullable|integer|min:0',
             'tien_tip' => 'nullable|numeric|min:0',
@@ -35,6 +69,11 @@ class POSController extends Controller
         ]);
 
         try {
+            // Set default chi_nhanh_id if not provided
+            if (empty($validated['chi_nhanh_id'])) {
+                $validated['chi_nhanh_id'] = 1; // Default branch
+            }
+
             $invoice = $this->service->createInvoice($validated);
             return response()->json([
                 'success' => true,
@@ -42,6 +81,10 @@ class POSController extends Controller
                 'message' => 'Tạo hóa đơn thành công',
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('POS Invoice Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),

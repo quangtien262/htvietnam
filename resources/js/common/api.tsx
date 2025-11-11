@@ -367,6 +367,171 @@ export const API = {
     documentCommentToggleResolve: (id: number) => `/aio/api/documents/comments/toggle-resolve/${id}`,
     documentCommentUnresolvedCount: '/aio/api/documents/comments/unresolved-count',
 
+    // ===== MODULE SPA MANAGEMENT =====
+    
+    // Khách hàng (Customers)
+    spaCustomerList: '/aio/api/spa/customers',
+    spaCustomerCreate: '/aio/api/spa/customers',
+    spaCustomerUpdate: (id: number) => `/aio/api/spa/customers/${id}`,
+    spaCustomerDelete: (id: number) => `/aio/api/spa/customers/${id}`,
+    spaCustomerDetail: '/aio/api/spa/customers/detail',
+    spaCustomerSearch: '/aio/api/spa/customers/search',
+    spaCustomerCreateOrUpdate: '/aio/api/spa/customers/create-or-update',
+    spaCustomerLichSuMuaHang: (id: number) => `/aio/api/spa/customers/${id}/lich-su-mua-hang`,
+    spaCustomerGoiDichVu: '/aio/api/spa/customers/goi-dich-vu',
+    spaCustomerCardGT: '/aio/api/spa/customers/card-gt',
+
+    // Đặt lịch (Bookings)
+    spaBookingList: '/aio/api/spa/bookings',
+    spaBookingCreate: '/aio/api/spa/bookings',
+    spaBookingUpdate: (id: number) => `/aio/api/spa/bookings/${id}`,
+    spaBookingConfirm: (id: number) => `/aio/api/spa/bookings/${id}/confirm`,
+    spaBookingStart: (id: number) => `/aio/api/spa/bookings/${id}/start`,
+    spaBookingComplete: (id: number) => `/aio/api/spa/bookings/${id}/complete`,
+    spaBookingCancel: (id: number) => `/aio/api/spa/bookings/${id}/cancel`,
+    spaBookingCalendar: '/aio/api/spa/bookings/calendar',
+    spaBookingAvailableKTVs: '/aio/api/spa/bookings/available-ktvs',
+    spaBookingAvailableRooms: '/aio/api/spa/bookings/available-rooms',
+
+    // POS - Bán hàng
+    spaPOSInvoiceList: '/aio/api/spa/pos/invoices',
+    spaPOSCreateInvoice: '/aio/api/spa/pos/invoices',
+    spaPOSGetInvoice: (id: number) => `/aio/api/spa/pos/invoices/${id}`,
+    spaPOSProcessPayment: (id: number) => `/aio/api/spa/pos/invoices/${id}/payment`,
+    spaPOSCancelInvoice: (id: number) => `/aio/api/spa/pos/invoices/${id}/cancel`,
+    spaPOSTodaySales: '/aio/api/spa/pos/today-sales',
+
+    // Dịch vụ (Services)
+    spaServiceList: '/aio/api/spa/services',
+    spaServiceDetail: (id: number) => `/aio/api/spa/services/${id}`,
+    spaServiceCreate: '/aio/api/spa/services',
+    spaServiceUpdate: (id: number) => `/aio/api/spa/services/${id}`,
+    spaServiceDelete: (id: number) => `/aio/api/spa/services/${id}`,
+
+    // Danh mục dịch vụ (Service Categories)
+    spaServiceCategoryList: '/aio/api/spa/service-categories',
+    spaServiceCategoryDetail: (id: number) => `/aio/api/spa/service-categories/${id}`,
+    spaServiceCategoryCreate: '/aio/api/spa/service-categories',
+    spaServiceCategoryUpdate: (id: number) => `/aio/api/spa/service-categories/${id}`,
+    spaServiceCategoryDelete: (id: number) => `/aio/api/spa/service-categories/${id}`,
+
+    // Liệu trình (Treatment Packages)
+    spaTreatmentPackageList: '/aio/api/spa/treatment-packages',
+    spaTreatmentPackageDetail: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
+    spaTreatmentPackageCreate: '/aio/api/spa/treatment-packages',
+    spaTreatmentPackageUpdate: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
+    spaTreatmentPackageDelete: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
+
+    // Sản phẩm (Products)
+    spaProductList: '/aio/api/spa/products',
+    spaProductDetail: (id: number) => `/aio/api/spa/products/${id}`,
+    spaProductCreate: '/aio/api/spa/products',
+    spaProductUpdate: (id: number) => `/aio/api/spa/products/${id}`,
+    spaProductDelete: (id: number) => `/aio/api/spa/products/${id}`,
+
+    // Danh mục sản phẩm (Product Categories)
+    spaProductCategoryList: '/aio/api/spa/product-categories',
+    spaProductCategoryDetail: (id: number) => `/aio/api/spa/product-categories/${id}`,
+    spaProductCategoryCreate: '/aio/api/spa/product-categories',
+    spaProductCategoryUpdate: (id: number) => `/aio/api/spa/product-categories/${id}`,
+    spaProductCategoryDelete: (id: number) => `/aio/api/spa/product-categories/${id}`,
+
+    // Thương hiệu (Brands)
+    spaBrandList: '/aio/api/spa/brands',
+    spaBrandDetail: (id: number) => `/aio/api/spa/brands/${id}`,
+    spaBrandCreate: '/aio/api/spa/brands',
+    spaBrandUpdate: (id: number) => `/aio/api/spa/brands/${id}`,
+    spaBrandDelete: (id: number) => `/aio/api/spa/brands/${id}`,
+
+    // Nhập kho (Inventory)
+    spaInventoryList: '/aio/api/spa/inventory',
+    spaInventoryDetail: (id: number) => `/aio/api/spa/inventory/${id}`,
+    spaInventoryCreate: '/aio/api/spa/inventory',
+    spaInventoryUpdate: (id: number) => `/aio/api/spa/inventory/${id}`,
+    spaInventoryDelete: (id: number) => `/aio/api/spa/inventory/${id}`,
+    spaInventoryTransactions: (id: number) => `/aio/api/spa/inventory/${id}/transactions`,
+
+    // Nhân viên/KTV (Staff)
+    spaStaffList: '/aio/api/spa/staff',
+    spaStaffDetail: (id: number) => `/aio/api/spa/staff/${id}`,
+    spaStaffCreate: '/aio/api/spa/staff',
+    spaStaffUpdate: (id: number) => `/aio/api/spa/staff/${id}`,
+    spaStaffDelete: (id: number) => `/aio/api/spa/staff/${id}`,
+    spaStaffSchedule: (id: number) => `/aio/api/spa/staff/${id}/schedule`,
+    spaStaffUpdateSchedule: (id: number) => `/aio/api/spa/staff/${id}/schedule`,
+    spaStaffCommissions: (id: number) => `/aio/api/spa/staff/${id}/commissions`,
+    spaStaffLeaveRequests: (id: number) => `/aio/api/spa/staff/${id}/leave-requests`,
+
+    // Hạng thành viên (Membership Tiers)
+    spaMembershipTierList: '/aio/api/spa/membership-tiers',
+    spaMembershipTierDetail: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
+    spaMembershipTierCreate: '/aio/api/spa/membership-tiers',
+    spaMembershipTierUpdate: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
+    spaMembershipTierDelete: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
+
+    // Thẻ thành viên (Memberships)
+    spaMembershipRenew: (id: number) => `/aio/api/spa/memberships/${id}/renew`,
+    spaMembershipUpgrade: (id: number) => `/aio/api/spa/memberships/${id}/upgrade`,
+
+    // Chương trình khuyến mãi (Promotions)
+    spaPromotionList: '/aio/api/spa/promotions',
+    spaPromotionDetail: (id: number) => `/aio/api/spa/promotions/${id}`,
+    spaPromotionCreate: '/aio/api/spa/promotions',
+    spaPromotionUpdate: (id: number) => `/aio/api/spa/promotions/${id}`,
+    spaPromotionDelete: (id: number) => `/aio/api/spa/promotions/${id}`,
+
+    // Voucher
+    spaVoucherList: '/aio/api/spa/vouchers',
+    spaVoucherDetail: (id: number) => `/aio/api/spa/vouchers/${id}`,
+    spaVoucherCreate: '/aio/api/spa/vouchers',
+    spaVoucherUpdate: (id: number) => `/aio/api/spa/vouchers/${id}`,
+    spaVoucherDelete: (id: number) => `/aio/api/spa/vouchers/${id}`,
+
+    // Email Marketing
+    spaEmailCampaignList: '/aio/api/spa/email-campaigns',
+    spaEmailCampaignDetail: (id: number) => `/aio/api/spa/email-campaigns/${id}`,
+    spaEmailCampaignCreate: '/aio/api/spa/email-campaigns',
+    spaEmailCampaignUpdate: (id: number) => `/aio/api/spa/email-campaigns/${id}`,
+    spaEmailCampaignDelete: (id: number) => `/aio/api/spa/email-campaigns/${id}`,
+
+    // SMS Marketing
+    spaSMSCampaignList: '/aio/api/spa/sms-campaigns',
+    spaSMSCampaignDetail: (id: number) => `/aio/api/spa/sms-campaigns/${id}`,
+    spaSMSCampaignCreate: '/aio/api/spa/sms-campaigns',
+    spaSMSCampaignUpdate: (id: number) => `/aio/api/spa/sms-campaigns/${id}`,
+    spaSMSCampaignDelete: (id: number) => `/aio/api/spa/sms-campaigns/${id}`,
+
+    // Chi nhánh (Branches)
+    spaBranchList: '/aio/api/spa/branches',
+    spaBranchDetail: (id: number) => `/aio/api/spa/branches/${id}`,
+    spaBranchCreate: '/aio/api/spa/branches',
+    spaBranchUpdate: (id: number) => `/aio/api/spa/branches/${id}`,
+    spaBranchDelete: (id: number) => `/aio/api/spa/branches/${id}`,
+
+    // Phòng (Rooms)
+    spaRoomList: '/aio/api/spa/rooms',
+    spaRoomDetail: (id: number) => `/aio/api/spa/rooms/${id}`,
+    spaRoomCreate: '/aio/api/spa/rooms',
+    spaRoomUpdate: (id: number) => `/aio/api/spa/rooms/${id}`,
+    spaRoomDelete: (id: number) => `/aio/api/spa/rooms/${id}`,
+
+    // Cấu hình hệ thống (Settings)
+    spaSettingList: '/aio/api/spa/settings',
+    spaSettingUpdate: '/aio/api/spa/settings',
+
+    // Đánh giá (Reviews)
+    spaReviewList: '/aio/api/spa/reviews',
+    spaReviewDetail: (id: number) => `/aio/api/spa/reviews/${id}`,
+    spaReviewCreate: '/aio/api/spa/reviews',
+    spaReviewUpdate: (id: number) => `/aio/api/spa/reviews/${id}`,
+    spaReviewDelete: (id: number) => `/aio/api/spa/reviews/${id}`,
+
+    // Báo cáo & Phân tích (Analytics & Reports)
+    spaAnalyticsDashboard: '/aio/api/spa/analytics/dashboard',
+    spaAnalyticsRevenue: '/aio/api/spa/analytics/revenue',
+    spaAnalyticsCustomerSegmentation: '/aio/api/spa/analytics/customer-segmentation',
+    spaAnalyticsExportReport: '/aio/api/spa/analytics/export-report',
+
 };
 
 export default API;

@@ -517,7 +517,7 @@ export const MENU = {
         },
     ],
     telesale: [
-        
+
         {
             label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
             icon: <HomeOutlined />,
@@ -545,7 +545,7 @@ export const MENU = {
             key: (key++).toString(),
             icon: <PhoneOutlined />,
             children: [
-               
+
                 {
                     label: <Link to={`${ROUTE.telesaleHuongDan}?p=telesale`}>📖 Hướng dẫn sử dụng</Link>,
                     key: (key++).toString(),
@@ -603,6 +603,11 @@ export const MENU = {
 
     // Himalaya SPA
     spa: [
+        {
+            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <DashboardOutlined />,
+            key: (key++).toString(),
+        },
         {
             label: <Link className='normal' to={`${ROUTE.spa_dashboard}?p=spa`}>Dashboard</Link>,
             icon: <DashboardOutlined />,
@@ -734,6 +739,11 @@ export const MENU = {
                     label: <Link to={`${ROUTE.spa_settings}?p=spa`}>Cấu hình</Link>,
                     key: (key++).toString(),
                     icon: <SettingFilled />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_documentation}?p=spa`}>Hướng dẫn sử dụng</Link>,
+                    icon: <QuestionCircleOutlined />,
+                    key: (key++).toString(),
                 },
             ],
         },

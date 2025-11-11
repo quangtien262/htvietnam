@@ -118,6 +118,20 @@ import SpaBookingCalendar from './pages/spa/SpaBookingCalendar';
 import SpaPOSScreen from './pages/spa/SpaPOSScreen';
 import SpaCustomerList from './pages/spa/SpaCustomerList';
 import SpaAnalyticsDashboard from './pages/spa/SpaAnalyticsDashboard';
+import ServiceList from './pages/spa/ServiceList';
+import SpaProductList from './pages/spa/ProductList';
+import TreatmentPackageList from './pages/spa/TreatmentPackageList';
+import StaffList from './pages/spa/StaffList';
+import StaffSchedule from './pages/spa/StaffSchedule';
+import MembershipList from './pages/spa/MembershipList';
+import VoucherList from './pages/spa/VoucherList';
+import MarketingCampaign from './pages/spa/MarketingCampaign';
+import ReportPage from './pages/spa/ReportPage';
+import BranchList from './pages/spa/BranchList';
+import RoomList from './pages/spa/RoomList';
+import Settings from './pages/spa/Settings';
+import Documentation from './pages/spa/Documentation';
+import InventoryList from './pages/spa/InventoryList';
 
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
@@ -230,6 +244,20 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_pos} element={<SpaPOSScreen />} />
                 <Route path={ROUTE.spa_customers} element={<SpaCustomerList />} />
                 <Route path={ROUTE.spa_analytics} element={<SpaAnalyticsDashboard />} />
+                <Route path={ROUTE.spa_services} element={<ServiceList />} />
+                <Route path={ROUTE.spa_products} element={<SpaProductList />} />
+                <Route path={ROUTE.spa_treatment_packages} element={<TreatmentPackageList />} />
+                <Route path={ROUTE.spa_staff} element={<StaffList />} />
+                <Route path={ROUTE.spa_staff_schedule} element={<StaffSchedule />} />
+                <Route path={ROUTE.spa_membership} element={<MembershipList />} />
+                <Route path={ROUTE.spa_vouchers} element={<VoucherList />} />
+                <Route path={ROUTE.spa_campaigns} element={<MarketingCampaign />} />
+                <Route path={ROUTE.spa_reports} element={<ReportPage />} />
+                <Route path={ROUTE.spa_inventory} element={<InventoryList />} />
+                <Route path={ROUTE.spa_branches} element={<BranchList />} />
+                <Route path={ROUTE.spa_rooms} element={<RoomList />} />
+                <Route path={ROUTE.spa_settings} element={<Settings />} />
+                <Route path={ROUTE.spa_documentation} element={<Documentation />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

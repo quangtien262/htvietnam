@@ -34,10 +34,14 @@ Route::prefix('spa')->name('spa.')->group(function () {
 
     // Customer Management - sử dụng CustomerController (bảng users)
     Route::prefix('customers')->name('customers.')->group(function () {
+        Route::get('/', [CustomerController::class, 'indexApi'])->name('index'); // GET for listing
         Route::post('/list', [CustomerController::class, 'indexApi'])->name('list');
         Route::post('/search', [CustomerController::class, 'search'])->name('search');
         Route::post('/detail', [CustomerController::class, 'detail'])->name('detail');
         Route::post('/create-or-update', [CustomerController::class, 'createOrUpdate'])->name('create_or_update');
+        Route::post('/', [CustomerController::class, 'createOrUpdate'])->name('store'); // POST for creating
+        Route::put('/{id}', [CustomerController::class, 'createOrUpdate'])->name('update'); // PUT for updating
+        Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('destroy'); // DELETE for deleting
         Route::get('/{id}/lich-su-mua-hang', [CustomerController::class, 'lichSuMuaHang'])->name('lich_su_mua_hang');
         Route::post('/goi-dich-vu', [CustomerController::class, 'goiDichVu'])->name('goi_dich_vu');
         Route::post('/card-gt', [CustomerController::class, 'cardGT'])->name('card_gt');
@@ -59,6 +63,7 @@ Route::prefix('spa')->name('spa.')->group(function () {
 
     // POS - Point of Sale
     Route::prefix('pos')->name('pos.')->group(function () {
+        Route::get('/invoices', [POSController::class, 'index'])->name('invoices_list');
         Route::post('/invoices', [POSController::class, 'createInvoice'])->name('create_invoice');
         Route::get('/invoices/{id}', [POSController::class, 'getInvoice'])->name('get_invoice');
         Route::post('/invoices/{id}/payment', [POSController::class, 'processPayment'])->name('process_payment');

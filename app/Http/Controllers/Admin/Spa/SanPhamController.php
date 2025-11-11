@@ -15,15 +15,21 @@ class SanPhamController extends Controller
             ->leftJoin('spa_thuong_hieu', 'spa_san_pham.thuong_hieu_id', '=', 'spa_thuong_hieu.id')
             ->select(
                 'spa_san_pham.*',
-                'spa_danh_muc_san_pham.ten_danh_muc',
+                'spa_danh_muc_san_pham.ten_danh_muc as danh_muc_ten',
                 'spa_thuong_hieu.ten_thuong_hieu'
             );
 
-        // Filter
+        // Filter by status
+        if ($request->has('trang_thai')) {
+            $query->where('spa_san_pham.trang_thai', $request->trang_thai);
+        }
+
+        // Filter by category
         if ($request->has('danh_muc_id') && $request->danh_muc_id) {
             $query->where('spa_san_pham.danh_muc_id', $request->danh_muc_id);
         }
 
+        // Search by name or code
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {

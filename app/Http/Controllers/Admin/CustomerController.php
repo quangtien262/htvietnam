@@ -149,4 +149,15 @@ class CustomerController extends Controller
         $users = User::getUsers($request->all());
         return $this->sendSuccessResponse($users);
     }
+
+    public function destroy($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            return $this->sendSuccessResponse(['message' => 'Xóa khách hàng thành công']);
+        } catch (\Exception $e) {
+            return $this->sendErrorResponse('Lỗi khi xóa khách hàng: ' . $e->getMessage());
+        }
+    }
 }

@@ -3,22 +3,27 @@ import { Table, Button, Space, Tag, Input, DatePicker, Modal, Form, Select, mess
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 interface Customer {
     id: number;
-    ma_khach_hang: string;
-    ho_ten: string;
-    so_dien_thoai: string;
+    code: string;
+    name: string;
+    phone: string;
     email?: string;
     ngay_sinh?: string;
-    gioi_tinh?: string;
-    loai_khach: string;
-    tong_chi_tieu: number;
-    diem_tich_luy: number;
-    trang_thai: string;
+    gioi_tinh_id?: number;
+    customer_group_id?: number;
+    customer_status_id?: number;
+    tong_tien_da_nap?: number;
+    tien_con_lai?: number;
+    cong_no_hien_tai?: number;
+    address?: string;
+    note?: string;
+    created_at?: string;
 }
 
 const SpaCustomerList: React.FC = () => {
@@ -37,18 +42,24 @@ const SpaCustomerList: React.FC = () => {
     const fetchCustomers = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/admin/spa/customers', {
+            const response = await axios.get(API.spaCustomerList, {
                 params: {
                     page: pagination.current,
                     per_page: pagination.pageSize,
                     ...filters,
                 },
             });
+            
+            console.log('API Response:', response.data); // Debug log
+            
             if (response.data.success) {
-                setCustomers(response.data.data.data);
+                // Backend trả về structure: { success: true, data: { users: {...}, ... } }
+                const usersData = response.data.data.users;
+                setCustomers(usersData.data || []);
                 setPagination({
                     ...pagination,
-                    total: response.data.data.total,
+                    total: usersData.total || 0,
+                    current: usersData.current_page || 1,
                 });
             }
         } catch (error) {
@@ -64,7 +75,7 @@ const SpaCustomerList: React.FC = () => {
     };
 
     const handleSearch = (value: string) => {
-        setFilters({ ...filters, search: value });
+        setFilters({ ...filters, keyword: value }); // Backend expect 'keyword' not 'search'
         setPagination({ ...pagination, current: 1 });
     };
 
@@ -88,8 +99,8 @@ const SpaCustomerList: React.FC = () => {
         try {
             const values = await form.validateFields();
             const url = editingCustomer
-                ? `/api/admin/spa/customers/${editingCustomer.id}`
-                : '/api/admin/spa/customers';
+                ? API.spaCustomerUpdate(editingCustomer.id)
+                : API.spaCustomerCreate;
             const method = editingCustomer ? 'put' : 'post';
 
             const response = await axios[method](url, values);
@@ -110,7 +121,7 @@ const SpaCustomerList: React.FC = () => {
             content: 'Bạn có chắc chắn muốn xóa khách hàng này?',
             onOk: async () => {
                 try {
-                    const response = await axios.delete(`/api/admin/spa/customers/${id}`);
+                    const response = await axios.delete(API.spaCustomerDelete(id));
                     if (response.data.success) {
                         message.success('Xóa thành công');
                         fetchCustomers();
@@ -129,22 +140,22 @@ const SpaCustomerList: React.FC = () => {
     const columns = [
         {
             title: 'Mã KH',
-            dataIndex: 'ma_khach_hang',
-            key: 'ma_khach_hang',
+            dataIndex: 'code',
+            key: 'code',
             width: 120,
         },
         {
             title: 'Họ tên',
-            dataIndex: 'ho_ten',
-            key: 'ho_ten',
+            dataIndex: 'name',
+            key: 'name',
             width: 200,
         },
         {
             title: 'SĐT',
-            dataIndex: 'so_dien_thoai',
-            key: 'so_dien_thoai',
+            dataIndex: 'phone',
+            key: 'phone',
             width: 120,
-            render: (text: string) => (
+            render: (text: string) => text && (
                 <Space>
                     <PhoneOutlined />
                     {text}
@@ -164,36 +175,42 @@ const SpaCustomerList: React.FC = () => {
             ),
         },
         {
-            title: 'Loại',
-            dataIndex: 'loai_khach',
-            key: 'loai_khach',
+            title: 'Nhóm KH',
+            dataIndex: 'customer_group_id',
+            key: 'customer_group_id',
             width: 100,
-            render: (type: string) => {
-                const colors: any = { VIP: 'gold', Thuong: 'blue', Moi: 'green' };
-                return <Tag color={colors[type] || 'default'}>{type}</Tag>;
+            render: (id: number) => {
+                const groups: any = { 1: 'VIP', 2: 'Thường', 3: 'Mới' };
+                const colors: any = { 1: 'gold', 2: 'blue', 3: 'green' };
+                return <Tag color={colors[id] || 'default'}>{groups[id] || 'N/A'}</Tag>;
             },
         },
         {
-            title: 'Tổng chi tiêu',
-            dataIndex: 'tong_chi_tieu',
-            key: 'tong_chi_tieu',
+            title: 'Số dư thẻ',
+            dataIndex: 'tien_con_lai',
+            key: 'tien_con_lai',
             width: 150,
-            render: (value: number) => formatCurrency(value),
+            render: (value: number) => formatCurrency(value || 0),
         },
         {
-            title: 'Điểm',
-            dataIndex: 'diem_tich_luy',
-            key: 'diem_tich_luy',
-            width: 100,
+            title: 'Công nợ',
+            dataIndex: 'cong_no_hien_tai',
+            key: 'cong_no_hien_tai',
+            width: 150,
+            render: (value: number) => (
+                <span style={{ color: value > 0 ? 'red' : 'green' }}>
+                    {formatCurrency(value || 0)}
+                </span>
+            ),
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'trang_thai',
-            key: 'trang_thai',
+            dataIndex: 'customer_status_id',
+            key: 'customer_status_id',
             width: 120,
-            render: (status: string) => (
-                <Tag color={status === 'active' ? 'green' : 'red'}>
-                    {status === 'active' ? 'Hoạt động' : 'Ngừng'}
+            render: (status: number) => (
+                <Tag color={status === 1 ? 'green' : 'red'}>
+                    {status === 1 ? 'Hoạt động' : 'Ngừng'}
                 </Tag>
             ),
         },
@@ -229,23 +246,23 @@ const SpaCustomerList: React.FC = () => {
                     allowClear
                 />
                 <Select
-                    placeholder="Loại khách hàng"
+                    placeholder="Nhóm khách hàng"
                     style={{ width: 150 }}
-                    onChange={(value) => handleFilterChange('loai_khach', value)}
+                    onChange={(value) => handleFilterChange('customer_group_id', value)}
                     allowClear
                 >
-                    <Select.Option value="VIP">VIP</Select.Option>
-                    <Select.Option value="Thuong">Thường</Select.Option>
-                    <Select.Option value="Moi">Mới</Select.Option>
+                    <Select.Option value={1}>VIP</Select.Option>
+                    <Select.Option value={2}>Thường</Select.Option>
+                    <Select.Option value={3}>Mới</Select.Option>
                 </Select>
                 <Select
                     placeholder="Trạng thái"
                     style={{ width: 150 }}
-                    onChange={(value) => handleFilterChange('trang_thai', value)}
+                    onChange={(value) => handleFilterChange('customer_status_id', value)}
                     allowClear
                 >
-                    <Select.Option value="active">Hoạt động</Select.Option>
-                    <Select.Option value="inactive">Ngừng</Select.Option>
+                    <Select.Option value={1}>Hoạt động</Select.Option>
+                    <Select.Option value={0}>Ngừng</Select.Option>
                 </Select>
             </Space>
 
@@ -267,10 +284,10 @@ const SpaCustomerList: React.FC = () => {
                 width={600}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item name="ho_ten" label="Họ tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
+                    <Form.Item name="name" label="Họ tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="so_dien_thoai" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập SĐT' }]}>
+                    <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập SĐT' }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item name="email" label="Email">
@@ -279,23 +296,33 @@ const SpaCustomerList: React.FC = () => {
                     <Form.Item name="ngay_sinh" label="Ngày sinh">
                         <DatePicker style={{ width: '100%' }} />
                     </Form.Item>
-                    <Form.Item name="gioi_tinh" label="Giới tính">
+                    <Form.Item name="gioi_tinh_id" label="Giới tính">
                         <Select>
-                            <Select.Option value="Nam">Nam</Select.Option>
-                            <Select.Option value="Nữ">Nữ</Select.Option>
-                            <Select.Option value="Khác">Khác</Select.Option>
+                            <Select.Option value={1}>Nam</Select.Option>
+                            <Select.Option value={2}>Nữ</Select.Option>
+                            <Select.Option value={3}>Khác</Select.Option>
                         </Select>
                     </Form.Item>
-                    <Form.Item name="dia_chi" label="Địa chỉ">
+                    <Form.Item name="address" label="Địa chỉ">
                         <Input.TextArea rows={2} />
                     </Form.Item>
-                    <Form.Item name="nguon_khach" label="Nguồn khách">
+                    <Form.Item name="customer_group_id" label="Nhóm khách hàng">
                         <Select>
-                            <Select.Option value="facebook">Facebook</Select.Option>
-                            <Select.Option value="zalo">Zalo</Select.Option>
-                            <Select.Option value="gioi_thieu">Giới thiệu</Select.Option>
-                            <Select.Option value="walk_in">Walk-in</Select.Option>
+                            <Select.Option value={1}>VIP</Select.Option>
+                            <Select.Option value={2}>Thường</Select.Option>
+                            <Select.Option value={3}>Mới</Select.Option>
                         </Select>
+                    </Form.Item>
+                    <Form.Item name="user_source_id" label="Nguồn khách">
+                        <Select>
+                            <Select.Option value={1}>Facebook</Select.Option>
+                            <Select.Option value={2}>Zalo</Select.Option>
+                            <Select.Option value={3}>Giới thiệu</Select.Option>
+                            <Select.Option value={4}>Walk-in</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="note" label="Ghi chú">
+                        <Input.TextArea rows={2} />
                     </Form.Item>
                 </Form>
             </Modal>

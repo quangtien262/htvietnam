@@ -11,7 +11,7 @@ class CauHinhController extends Controller
     public function index()
     {
         $settings = DB::table('spa_cau_hinh')->get();
-        
+
         // Convert to key-value pairs
         $config = [];
         foreach ($settings as $setting) {
