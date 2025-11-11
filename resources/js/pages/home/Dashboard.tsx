@@ -415,9 +415,6 @@ const Dashboard: React.FC = () => {
     return ((
         <div className="dashboard-container">
             <Row gutter={[16, 16]}>
-                {datas.map((item: any) => (
-                    showDataDashboard(item)
-                ))}
 
                 <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
@@ -437,9 +434,9 @@ const Dashboard: React.FC = () => {
                                     <ul className="dashboard-list-item">
                                         <li><GoldFilled /> Thu ngân</li>
                                         <li><ReadFilled /> Quản lý Hóa đơn</li>
-                                        <li><TeamOutlined /> Quản lý khách hàng</li>
-                                        <li><UngroupOutlined /> Data telesale</li>
-                                        <li><CalendarOutlined /> Quy trình CSKH</li>
+                                        <li><TeamOutlined /> Server</li>
+                                        <li><UngroupOutlined /> Hotting</li>
+                                        <li><CalendarOutlined /> Thanh toán</li>
                                     </ul>
                                 </div>
                             </div>
@@ -447,6 +444,11 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Card>
             </Col>
+
+
+                {datas.map((item: any) => (
+                    showDataDashboard(item)
+                ))}
             </Row>
         </div>
     ));

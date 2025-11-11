@@ -430,14 +430,15 @@ const ApiKeyList: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div className="p-6">
             <Card>
-                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2>
                         <KeyOutlined /> Quản lý API Keys
                     </h2>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                        Tạo API Key
+                        <span className="hidden sm:inline">Tạo API Key</span>
+                        <span className="sm:hidden">Tạo</span>
                     </Button>
                 </div>
 
@@ -450,6 +451,7 @@ const ApiKeyList: React.FC = () => {
                         ...pagination,
                         onChange: (page) => setPagination({ ...pagination, current: page }),
                     }}
+                    scroll={{ x: 1200 }}
                 />
             </Card>
 
@@ -459,76 +461,95 @@ const ApiKeyList: React.FC = () => {
                 open={modalVisible}
                 onCancel={() => setModalVisible(false)}
                 footer={null}
-                width={600}
+                width="100%"
+                style={{ maxWidth: 1000, top: 20 }}
             >
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
-                    <Form.Item
-                        name="name"
-                        label="Tên API Key"
-                        rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
-                    >
-                        <Input placeholder="Ví dụ: Mobile App API" />
-                    </Form.Item>
-
-                    {modalMode === 'create' && (
-                        <>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} sm={24} md={12}>
                             <Form.Item
-                                name="client_id"
-                                label="Client ID (tùy chọn)"
+                                name="name"
+                                label="Tên API Key"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                             >
-                                <Input type="number" placeholder="Để trống nếu là Admin API key" />
+                                <Input placeholder="Ví dụ: Mobile App API" />
                             </Form.Item>
+                        </Col>
 
-                            <Form.Item
-                                name="admin_user_id"
-                                label="Admin User ID (tùy chọn)"
-                            >
-                                <Input type="number" placeholder="Để trống nếu là Client API key" />
+                        {modalMode === 'create' && (
+                            <>
+                                <Col xs={24} sm={24} md={12}>
+                                    <Form.Item
+                                        name="client_id"
+                                        label="Client ID (tùy chọn)"
+                                    >
+                                        <Input type="number" placeholder="Để trống nếu là Admin API key" />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} sm={24} md={12}>
+                                    <Form.Item
+                                        name="admin_user_id"
+                                        label="Admin User ID (tùy chọn)"
+                                    >
+                                        <Input type="number" placeholder="Để trống nếu là Client API key" />
+                                    </Form.Item>
+                                </Col>
+                            </>
+                        )}
+
+                        {modalMode === 'edit' && (
+                            <Col xs={24} sm={24} md={12}>
+                                <Form.Item name="status" label="Trạng thái">
+                                    <Select>
+                                        <Option value="active">Active</Option>
+                                        <Option value="inactive">Inactive</Option>
+                                        <Option value="revoked">Revoked</Option>
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        )}
+
+                        <Col xs={24} sm={24} md={12}>
+                            <Form.Item name="expires_at" label="Ngày hết hạn (tùy chọn)">
+                                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
                             </Form.Item>
-                        </>
-                    )}
+                        </Col>
 
-                    <Form.Item name="permissions" label="Permissions">
-                        <Select mode="tags" placeholder="Nhập permissions (VD: invoices.read, services.create)">
-                            <Option value="*">* (Full Access)</Option>
-                            <Option value="invoices.read">invoices.read</Option>
-                            <Option value="invoices.write">invoices.write</Option>
-                            <Option value="services.read">services.read</Option>
-                            <Option value="services.write">services.write</Option>
-                            <Option value="servers.read">servers.read</Option>
-                            <Option value="servers.write">servers.write</Option>
-                        </Select>
-                    </Form.Item>
+                        <Col span={24}>
+                            <Form.Item name="permissions" label="Permissions">
+                                <Select mode="tags" placeholder="Nhập permissions (VD: invoices.read, services.create)">
+                                    <Option value="*">* (Full Access)</Option>
+                                    <Option value="invoices.read">invoices.read</Option>
+                                    <Option value="invoices.write">invoices.write</Option>
+                                    <Option value="services.read">services.read</Option>
+                                    <Option value="services.write">services.write</Option>
+                                    <Option value="servers.read">servers.read</Option>
+                                    <Option value="servers.write">servers.write</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item name="allowed_ips" label="Allowed IPs (tùy chọn)">
-                        <TextArea
-                            rows={3}
-                            placeholder="1.2.3.4, 5.6.7.8 (phân cách bằng dấu phẩy, để trống = cho phép tất cả)"
-                        />
-                    </Form.Item>
+                        <Col span={24}>
+                            <Form.Item name="allowed_ips" label="Allowed IPs (tùy chọn)">
+                                <TextArea
+                                    rows={3}
+                                    placeholder="1.2.3.4, 5.6.7.8 (phân cách bằng dấu phẩy, để trống = cho phép tất cả)"
+                                />
+                            </Form.Item>
+                        </Col>
 
-                    {modalMode === 'edit' && (
-                        <Form.Item name="status" label="Trạng thái">
-                            <Select>
-                                <Option value="active">Active</Option>
-                                <Option value="inactive">Inactive</Option>
-                                <Option value="revoked">Revoked</Option>
-                            </Select>
-                        </Form.Item>
-                    )}
-
-                    <Form.Item name="expires_at" label="Ngày hết hạn (tùy chọn)">
-                        <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Space>
-                            <Button type="primary" htmlType="submit">
-                                {modalMode === 'create' ? 'Tạo' : 'Cập nhật'}
-                            </Button>
-                            <Button onClick={() => setModalVisible(false)}>Hủy</Button>
-                        </Space>
-                    </Form.Item>
+                        <Col span={24}>
+                            <Form.Item>
+                                <Space>
+                                    <Button type="primary" htmlType="submit">
+                                        {modalMode === 'create' ? 'Tạo' : 'Cập nhật'}
+                                    </Button>
+                                    <Button onClick={() => setModalVisible(false)}>Hủy</Button>
+                                </Space>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             </Modal>
 
@@ -538,17 +559,18 @@ const ApiKeyList: React.FC = () => {
                 open={statisticsModalVisible}
                 onCancel={() => setStatisticsModalVisible(false)}
                 footer={null}
-                width={800}
+                width="100%"
+                style={{ maxWidth: 800, top: 20 }}
             >
                 {statistics && (
                     <div>
-                        <Row gutter={16}>
-                            <Col span={8}>
+                        <Row gutter={[16, 16]}>
+                            <Col xs={24} sm={12} md={8}>
                                 <Card>
                                     <Statistic title="Total Requests" value={statistics.total_requests} />
                                 </Card>
                             </Col>
-                            <Col span={8}>
+                            <Col xs={24} sm={12} md={8}>
                                 <Card>
                                     <Statistic
                                         title="Success Rate"
@@ -565,7 +587,7 @@ const ApiKeyList: React.FC = () => {
                                     />
                                 </Card>
                             </Col>
-                            <Col span={8}>
+                            <Col xs={24} sm={12} md={8}>
                                 <Card>
                                     <Statistic
                                         title="Avg Response Time"
@@ -585,7 +607,8 @@ const ApiKeyList: React.FC = () => {
                 open={logsModalVisible}
                 onCancel={() => setLogsModalVisible(false)}
                 footer={null}
-                width={1200}
+                width="100%"
+                style={{ maxWidth: 1200, top: 20 }}
             >
                 <Table
                     columns={logsColumns}
@@ -593,6 +616,7 @@ const ApiKeyList: React.FC = () => {
                     rowKey="id"
                     size="small"
                     pagination={{ pageSize: 20 }}
+                    scroll={{ x: 900 }}
                 />
             </Modal>
         </div>

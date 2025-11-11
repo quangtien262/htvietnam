@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Drawer, Descriptions, Alert, DatePicker } from 'antd';
+import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Drawer, Descriptions, Alert, DatePicker, Row, Col } from 'antd';
 import { PlusOutlined, SearchOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, KeyOutlined, SwapOutlined, EyeOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -334,7 +334,8 @@ const ServiceList: React.FC = () => {
             icon={<PlusOutlined />}
             onClick={() => setIsCreateModalOpen(true)}
           >
-            Tạo Service Mới
+            <span className="hidden sm:inline">Tạo Service Mới</span>
+            <span className="sm:hidden">Tạo mới</span>
           </Button>
         }
       >
@@ -368,6 +369,7 @@ const ServiceList: React.FC = () => {
             ...pagination,
             onChange: (page) => setPagination({ ...pagination, current: page }),
           }}
+          scroll={{ x: 1200 }}
         />
       </Card>
 
@@ -422,7 +424,8 @@ const ServiceList: React.FC = () => {
           createForm.resetFields();
         }}
         onOk={() => createForm.submit()}
-        width={700}
+        width="100%"
+        style={{ maxWidth: 1000, top: 20 }}
         okText="Tạo Service"
         cancelText="Hủy"
       >
@@ -431,148 +434,173 @@ const ServiceList: React.FC = () => {
           layout="vertical"
           onFinish={handleCreateService}
         >
-          <Form.Item
-            label="Khách hàng"
-            name="client_id"
-            rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
-            extra={clients.length === 0 ? "Chưa có khách hàng nào trong hệ thống" : undefined}
-          >
-            <Select
-              placeholder={clients.length === 0 ? "Chưa có khách hàng" : "Chọn khách hàng"}
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as string).toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {clients.map((client) => (
-                <Option key={client.id} value={client.id}>
-                  {client.name} ({client.email})
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label={
-              <Space>
-                Sản phẩm/Gói dịch vụ
-                <a 
-                  href={ROUTE.whmcsProducts} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title="Quản lý sản phẩm"
-                  style={{ color: '#1890ff' }}
+          <Row gutter={[16, 0]}>
+            {/* Row 1 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Khách hàng"
+                name="client_id"
+                rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
+                extra={clients.length === 0 ? "Chưa có khách hàng nào trong hệ thống" : undefined}
+              >
+                <Select
+                  placeholder={clients.length === 0 ? "Chưa có khách hàng" : "Chọn khách hàng"}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.children as string).toLowerCase().includes(input.toLowerCase())
+                  }
                 >
-                  <UnorderedListOutlined />
-                </a>
-              </Space>
-            }
-            name="product_id"
-            rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
-            extra={products.length === 0 ? "Chưa có sản phẩm nào. Vui lòng tạo sản phẩm trước." : undefined}
-          >
-            <Select
-              placeholder={products.length === 0 ? "Chưa có sản phẩm" : "Chọn sản phẩm"}
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as string).toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {products.map((product) => (
-                <Option key={product.id} value={product.id}>
-                  {product.name} ({product.type})
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+                  {clients.map((client) => (
+                    <Option key={client.id} value={client.id}>
+                      {client.name} ({client.email})
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Domain"
-            name="domain"
-            rules={[
-              { required: true, message: 'Vui lòng nhập domain' },
-              { pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/, message: 'Domain không hợp lệ' }
-            ]}
-          >
-            <Input placeholder="example.com" />
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    Sản phẩm/Gói dịch vụ
+                    <a 
+                      href={ROUTE.whmcsProducts} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      title="Quản lý sản phẩm"
+                      style={{ color: '#1890ff' }}
+                    >
+                      <UnorderedListOutlined />
+                    </a>
+                  </Space>
+                }
+                name="product_id"
+                rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
+                extra={products.length === 0 ? "Chưa có sản phẩm nào. Vui lòng tạo sản phẩm trước." : undefined}
+              >
+                <Select
+                  placeholder={products.length === 0 ? "Chưa có sản phẩm" : "Chọn sản phẩm"}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.children as string).toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {products.map((product) => (
+                    <Option key={product.id} value={product.id}>
+                      {product.name} ({product.type})
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Username (tùy chọn)"
-            name="username"
-            extra="Để trống để hệ thống tự động tạo"
-          >
-            <Input placeholder="Tự động tạo nếu để trống" />
-          </Form.Item>
+            {/* Row 2 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Domain"
+                name="domain"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập domain' },
+                  { pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/, message: 'Domain không hợp lệ' }
+                ]}
+              >
+                <Input placeholder="example.com" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Chu kỳ thanh toán"
-            name="billing_cycle"
-            rules={[{ required: true, message: 'Vui lòng chọn chu kỳ' }]}
-            initialValue="monthly"
-          >
-            <Select>
-              <Option value="monthly">Hàng tháng</Option>
-              <Option value="quarterly">3 tháng</Option>
-              <Option value="semiannually">6 tháng</Option>
-              <Option value="annually">1 năm</Option>
-              <Option value="biennially">2 năm</Option>
-              <Option value="triennially">3 năm</Option>
-            </Select>
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Username (tùy chọn)"
+                name="username"
+                extra="Để trống để hệ thống tự động tạo"
+              >
+                <Input placeholder="Tự động tạo nếu để trống" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Giá định kỳ"
-            name="recurring_amount"
-            rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-              addonAfter="VNĐ"
-            />
-          </Form.Item>
+            {/* Row 3 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Chu kỳ thanh toán"
+                name="billing_cycle"
+                rules={[{ required: true, message: 'Vui lòng chọn chu kỳ' }]}
+                initialValue="monthly"
+              >
+                <Select>
+                  <Option value="monthly">Hàng tháng</Option>
+                  <Option value="quarterly">3 tháng</Option>
+                  <Option value="semiannually">6 tháng</Option>
+                  <Option value="annually">1 năm</Option>
+                  <Option value="biennially">2 năm</Option>
+                  <Option value="triennially">3 năm</Option>
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Ngày đến hạn đầu tiên"
-            name="next_due_date"
-            rules={[{ required: true, message: 'Vui lòng chọn ngày đến hạn' }]}
-            initialValue={dayjs().add(1, 'month')}
-            extra="Ngày khách hàng cần thanh toán hóa đơn tiếp theo"
-          >
-            <DatePicker 
-              style={{ width: '100%' }} 
-              format="YYYY-MM-DD"
-              placeholder="Chọn ngày đến hạn"
-            />
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Giá định kỳ"
+                name="recurring_amount"
+                rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
+              >
+                <InputNumber
+                  style={{ width: '100%' }}
+                  min={0}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                  addonAfter="VNĐ"
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Server (tùy chọn)"
-            name="server_id"
-            extra="Để trống để hệ thống tự động chọn server phù hợp"
-          >
-            <Select placeholder="Tự động chọn" allowClear>
-              {/* TODO: Load servers from API */}
-              <Option value={1}>Server01-VN (103.56.158.199)</Option>
-              <Option value={2}>Server02-VN (103.56.158.200)</Option>
-            </Select>
-          </Form.Item>
+            {/* Row 4 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Ngày đến hạn đầu tiên"
+                name="next_due_date"
+                rules={[{ required: true, message: 'Vui lòng chọn ngày đến hạn' }]}
+                initialValue={dayjs().add(1, 'month')}
+                extra="Ngày khách hàng cần thanh toán hóa đơn tiếp theo"
+              >
+                <DatePicker 
+                  style={{ width: '100%' }} 
+                  format="YYYY-MM-DD"
+                  placeholder="Chọn ngày đến hạn"
+                />
+              </Form.Item>
+            </Col>
 
-          <Alert
-            message="Lưu ý"
-            description={
-              <ul style={{ margin: 0, paddingLeft: 20 }}>
-                <li>Service sẽ được tạo với trạng thái "Pending"</li>
-                <li>Cần provision service để kích hoạt trên server</li>
-                <li>Hóa đơn sẽ được tạo tự động khi provision thành công</li>
-              </ul>
-            }
-            type="info"
-            showIcon
-          />
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Server (tùy chọn)"
+                name="server_id"
+                extra="Để trống để hệ thống tự động chọn server phù hợp"
+              >
+                <Select placeholder="Tự động chọn" allowClear>
+                  {/* TODO: Load servers from API */}
+                  <Option value={1}>Server01-VN (103.56.158.199)</Option>
+                  <Option value={2}>Server02-VN (103.56.158.200)</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            {/* Alert full width */}
+            <Col span={24}>
+              <Alert
+                message="Lưu ý"
+                description={
+                  <ul style={{ margin: 0, paddingLeft: 20 }}>
+                    <li>Service sẽ được tạo với trạng thái "Pending"</li>
+                    <li>Cần provision service để kích hoạt trên server</li>
+                    <li>Hóa đơn sẽ được tạo tự động khi provision thành công</li>
+                  </ul>
+                }
+                type="info"
+                showIcon
+              />
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>

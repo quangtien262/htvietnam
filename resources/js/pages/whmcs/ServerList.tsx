@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Switch, Badge, Tooltip } from 'antd';
+import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Switch, Badge, Tooltip, Row, Col } from 'antd';
 import { PlusOutlined, SearchOutlined, CloudServerOutlined, SyncOutlined, CheckCircleOutlined, CloseCircleOutlined, ApiOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -273,7 +273,8 @@ const ServerList: React.FC = () => {
               setIsModalOpen(true);
             }}
           >
-            Thêm Server mới
+            <span className="hidden sm:inline">Thêm Server mới</span>
+            <span className="sm:hidden">Thêm</span>
           </Button>
         }
       >
@@ -282,6 +283,7 @@ const ServerList: React.FC = () => {
           columns={columns}
           loading={loading}
           rowKey="id"
+          scroll={{ x: 1200 }}
         />
       </Card>
 
@@ -295,69 +297,97 @@ const ServerList: React.FC = () => {
           setEditingServer(null);
         }}
         onOk={() => form.submit()}
-        width={700}
+        width="100%"
+        style={{ maxWidth: 1000, top: 20 }}
       >
         <Form form={form} layout="vertical" onFinish={handleSaveServer}>
-          <Form.Item
-            label="Tên Server"
-            name="name"
-            rules={[{ required: true, message: 'Vui lòng nhập tên server' }]}
-          >
-            <Input placeholder="VD: Server-HN-01" />
-          </Form.Item>
+          <Row gutter={[16, 0]}>
+            {/* Row 1 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Tên Server"
+                name="name"
+                rules={[{ required: true, message: 'Vui lòng nhập tên server' }]}
+              >
+                <Input placeholder="VD: Server-HN-01" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Hostname"
-            name="hostname"
-            rules={[{ required: true, message: 'Vui lòng nhập hostname' }]}
-          >
-            <Input placeholder="VD: server1.example.com" />
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Hostname"
+                name="hostname"
+                rules={[{ required: true, message: 'Vui lòng nhập hostname' }]}
+              >
+                <Input placeholder="VD: server1.example.com" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="IP Address"
-            name="ip_address"
-            rules={[{ required: true, message: 'Vui lòng nhập IP' }]}
-          >
-            <Input placeholder="VD: 103.123.456.789" />
-          </Form.Item>
+            {/* Row 2 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="IP Address"
+                name="ip_address"
+                rules={[{ required: true, message: 'Vui lòng nhập IP' }]}
+              >
+                <Input placeholder="VD: 103.123.456.789" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Loại"
-            name="type"
-            rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
-          >
-            <Select placeholder="Chọn loại control panel">
-              <Option value="cpanel">cPanel/WHM</Option>
-              <Option value="plesk">Plesk</Option>
-              <Option value="directadmin">DirectAdmin</Option>
-              <Option value="other">Khác</Option>
-            </Select>
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item
+                label="Loại"
+                name="type"
+                rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
+              >
+                <Select placeholder="Chọn loại control panel">
+                  <Option value="cpanel">cPanel/WHM</Option>
+                  <Option value="plesk">Plesk</Option>
+                  <Option value="directadmin">DirectAdmin</Option>
+                  <Option value="other">Khác</Option>
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Username" name="username" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
+            {/* Row 3 */}
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item label="Username" name="username" rules={[{ required: true }]}>
+                <Input placeholder="API Username" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Access Hash/Token" name="access_hash">
-            <Input.TextArea rows={3} placeholder="API Key hoặc Access Hash" />
-          </Form.Item>
+            <Col xs={24} sm={24} md={12}>
+              <Form.Item label="Active" name="active" valuePropName="checked" initialValue={true}>
+                <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Max Accounts" name="max_accounts">
-            <InputNumber style={{ width: '100%' }} min={0} />
-          </Form.Item>
+            {/* Row 4 - Access Hash full width */}
+            <Col span={24}>
+              <Form.Item label="Access Hash/Token" name="access_hash">
+                <Input.TextArea rows={3} placeholder="API Key hoặc Access Hash" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Max Disk Space (MB)" name="max_disk_space">
-            <InputNumber style={{ width: '100%' }} min={0} />
-          </Form.Item>
+            {/* Row 5 */}
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item label="Max Accounts" name="max_accounts">
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="Unlimited" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Max Bandwidth (MB)" name="max_bandwidth">
-            <InputNumber style={{ width: '100%' }} min={0} />
-          </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item label="Max Disk Space (MB)" name="max_disk_space">
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="Unlimited" />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Active" name="active" valuePropName="checked" initialValue={true}>
-            <Switch />
-          </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item label="Max Bandwidth (MB)" name="max_bandwidth">
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="Unlimited" />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>

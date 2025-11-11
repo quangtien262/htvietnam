@@ -491,29 +491,22 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
-            label: '💼 Quản lý Kinh doanh',
+            label: <Link to={`${ROUTE.businessCoHoi}?p=business`}>🎯 Cơ hội Kinh doanh</Link>,
             key: (key++).toString(),
-            icon: <DollarOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.businessCoHoi}?p=business`}>🎯 Cơ hội Kinh doanh</Link>,
-                    key: (key++).toString(),
-                },
-                {
-                    label: <Link to={`${ROUTE.businessBaoGia}?p=business`}>📋 Báo giá</Link>,
-                    key: (key++).toString(),
-                },
-                {
-                    label: <Link to={`${ROUTE.businessBaoCao}?p=business`}>📊 Báo cáo</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.businessHuongDan}?p=business`}>📖 Hướng dẫn sử dụng</Link>,
-                    key: (key++).toString(),
-                    icon: <BookOutlined />,
-                },
-            ],
+        },
+        {
+            label: <Link to={`${ROUTE.businessBaoGia}?p=business`}>📋 Báo giá</Link>,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.businessBaoCao}?p=business`}>📊 Báo cáo</Link>,
+            key: (key++).toString(),
+            icon: <BarChartOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.businessHuongDan}?p=business`}>📖 Hướng dẫn</Link>,
+            key: (key++).toString(),
+            icon: <BookOutlined />,
         },
     ],
     telesale: [

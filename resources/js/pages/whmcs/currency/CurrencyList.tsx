@@ -94,7 +94,10 @@ const CurrencyList: React.FC = () => {
             title: 'Tỷ Giá',
             dataIndex: 'exchange_rate',
             key: 'exchange_rate',
-            render: (rate: number) => rate.toFixed(4),
+            render: (rate: number | string) => {
+                const numRate = typeof rate === 'string' ? parseFloat(rate) : rate;
+                return isNaN(numRate) ? '0.0000' : numRate.toFixed(4);
+            },
         },
         {
             title: 'Trạng Thái',
