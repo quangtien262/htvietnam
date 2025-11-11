@@ -78,7 +78,6 @@ const icon = {
         RiseOutlined:<RiseOutlined />,
         RetweetOutlined:<RetweetOutlined />,
         SettingOutlined:<SettingOutlined />,
-        QuestionCircleOutlined:<QuestionCircleOutlined />,
 
 }
 export {icon};

@@ -264,6 +264,100 @@ export const API = {
     purchaseReportByPaymentMethod: '/purchase/api/report/by-payment-method',
     purchaseReportExport: '/purchase/api/report/export',
 
+    // WHMCS APIs
+    whmcs_clientsList: `${BASE_API_URL}whmcs/clients/list`,
+    whmcs_clientsDetail: (id: number) => `${BASE_API_URL}whmcs/clients/detail/${id}`,
+    whmcs_clientsAdd: `${BASE_API_URL}whmcs/clients/add`,
+    whmcs_clientsUpdate: (id: number) => `${BASE_API_URL}whmcs/clients/update/${id}`,
+    whmcs_clientsDelete: (id: number) => `${BASE_API_URL}whmcs/clients/delete/${id}`,
+    whmcs_clientsStatistics: `${BASE_API_URL}whmcs/clients/statistics`,
+
+    whmcs_productsList: `${BASE_API_URL}whmcs/products/list`,
+    whmcs_productsDetail: (id: number) => `${BASE_API_URL}whmcs/products/detail/${id}`,
+    whmcs_productsAdd: `${BASE_API_URL}whmcs/products/add`,
+    whmcs_productsUpdate: (id: number) => `${BASE_API_URL}whmcs/products/update/${id}`,
+    whmcs_productsDelete: (id: number) => `${BASE_API_URL}whmcs/products/delete/${id}`,
+    whmcs_productsGroups: `${BASE_API_URL}whmcs/products/groups`,
+
+    whmcs_ordersList: `${BASE_API_URL}whmcs/orders/list`,
+    whmcs_ordersDetail: (id: number) => `${BASE_API_URL}whmcs/orders/detail/${id}`,
+    whmcs_ordersAdd: `${BASE_API_URL}whmcs/orders/add`,
+    whmcs_ordersUpdateStatus: (id: number) => `${BASE_API_URL}whmcs/orders/update-status/${id}`,
+    whmcs_ordersDelete: (id: number) => `${BASE_API_URL}whmcs/orders/delete/${id}`,
+
+    whmcs_servicesList: `${BASE_API_URL}whmcs/services/list`,
+    whmcs_servicesDetail: (id: number) => `${BASE_API_URL}whmcs/services/detail/${id}`,
+    whmcs_servicesSuspend: (id: number) => `${BASE_API_URL}whmcs/services/suspend/${id}`,
+    whmcs_servicesUnsuspend: (id: number) => `${BASE_API_URL}whmcs/services/unsuspend/${id}`,
+    whmcs_servicesTerminate: (id: number) => `${BASE_API_URL}whmcs/services/terminate/${id}`,
+    whmcs_servicesStatistics: `${BASE_API_URL}whmcs/services/statistics`,
+
+    whmcs_invoicesList: `${BASE_API_URL}whmcs/invoices/list`,
+    whmcs_invoicesDetail: (id: number) => `${BASE_API_URL}whmcs/invoices/detail/${id}`,
+    whmcs_invoicesAdd: `${BASE_API_URL}whmcs/invoices/add`,
+    whmcs_invoicesUpdate: (id: number) => `${BASE_API_URL}whmcs/invoices/update/${id}`,
+    whmcs_invoicesMarkPaid: (id: number) => `${BASE_API_URL}whmcs/invoices/mark-paid/${id}`,
+    whmcs_invoicesDelete: (id: number) => `${BASE_API_URL}whmcs/invoices/delete/${id}`,
+    whmcs_invoicesStatistics: `${BASE_API_URL}whmcs/invoices/statistics`,
+
+    whmcs_domainsList: `${BASE_API_URL}whmcs/domains/list`,
+    whmcs_domainsDetail: (id: number) => `${BASE_API_URL}whmcs/domains/detail/${id}`,
+    whmcs_domainsAdd: `${BASE_API_URL}whmcs/domains/add`,
+    whmcs_domainsUpdate: (id: number) => `${BASE_API_URL}whmcs/domains/update/${id}`,
+    whmcs_domainsRenew: (id: number) => `${BASE_API_URL}whmcs/domains/renew/${id}`,
+    whmcs_domainsTlds: `${BASE_API_URL}whmcs/domains/tlds`,
+
+    whmcs_ticketsList: `${BASE_API_URL}whmcs/tickets/list`,
+    whmcs_ticketsDetail: (id: number) => `${BASE_API_URL}whmcs/tickets/detail/${id}`,
+    whmcs_ticketsAdd: `${BASE_API_URL}whmcs/tickets/add`,
+    whmcs_ticketsReply: (id: number) => `${BASE_API_URL}whmcs/tickets/reply/${id}`,
+    whmcs_ticketsClose: (id: number) => `${BASE_API_URL}whmcs/tickets/close/${id}`,
+    whmcs_ticketsDepartments: `${BASE_API_URL}whmcs/tickets/departments`,
+
+    whmcs_paymentsTransactions: `${BASE_API_URL}whmcs/payments/transactions`,
+    whmcs_paymentsGateways: `${BASE_API_URL}whmcs/payments/gateways`,
+    whmcs_paymentsAddPayment: `${BASE_API_URL}whmcs/payments/add-payment`,
+
+    whmcs_reportsDashboard: `${BASE_API_URL}whmcs/reports/dashboard`,
+    whmcs_reportsRevenue: `${BASE_API_URL}whmcs/reports/revenue`,
+    whmcs_reportsClientsGrowth: `${BASE_API_URL}whmcs/reports/clients-growth`,
+    whmcs_reportsServicesStatistics: `${BASE_API_URL}whmcs/reports/services-statistics`,
+
+    whmcs_settingsCurrencies: `${BASE_API_URL}whmcs/settings/currencies`,
+    whmcs_settingsTaxRules: `${BASE_API_URL}whmcs/settings/tax-rules`,
+    whmcs_settingsPromoCodes: `${BASE_API_URL}whmcs/settings/promo-codes`,
+
+    // Settings CRUD endpoints (nếu cần thêm sau)
+    whmcs_currenciesList: `${BASE_API_URL}whmcs/settings/currencies`,
+    whmcs_currenciesCreate: `${BASE_API_URL}whmcs/settings/currencies/add`,
+    whmcs_currenciesUpdate: (id: number) => `${BASE_API_URL}whmcs/settings/currencies/update/${id}`,
+    whmcs_currenciesDelete: (id: number) => `${BASE_API_URL}whmcs/settings/currencies/delete/${id}`,
+
+    whmcs_taxRulesList: `${BASE_API_URL}whmcs/settings/tax-rules`,
+    whmcs_taxRulesCreate: `${BASE_API_URL}whmcs/settings/tax-rules/add`,
+    whmcs_taxRulesUpdate: (id: number) => `${BASE_API_URL}whmcs/settings/tax-rules/update/${id}`,
+    whmcs_taxRulesDelete: (id: number) => `${BASE_API_URL}whmcs/settings/tax-rules/delete/${id}`,
+
+    whmcs_promoCodesList: `${BASE_API_URL}whmcs/settings/promo-codes`,
+    whmcs_promoCodesCreate: `${BASE_API_URL}whmcs/settings/promo-codes/add`,
+    whmcs_promoCodesUpdate: (id: number) => `${BASE_API_URL}whmcs/settings/promo-codes/update/${id}`,
+    whmcs_promoCodesDelete: (id: number) => `${BASE_API_URL}whmcs/settings/promo-codes/delete/${id}`,
+
+    // Servers Management
+    whmcs_serversList: `${BASE_API_URL}whmcs/servers/list`,
+    whmcs_serversDetail: (id: number) => `${BASE_API_URL}whmcs/servers/detail/${id}`,
+    whmcs_serversAdd: `${BASE_API_URL}whmcs/servers/add`,
+    whmcs_serversUpdate: (id: number) => `${BASE_API_URL}whmcs/servers/update/${id}`,
+    whmcs_serversDelete: (id: number) => `${BASE_API_URL}whmcs/servers/delete/${id}`,
+    whmcs_serversTestConnection: (id: number) => `${BASE_API_URL}whmcs/servers/test-connection/${id}`,
+
+    // Hosting Products
+    hostingProductsList: `${BASE_API_URL}whmcs/hosting-products/list`,
+    hostingProductsDetail: (id: number) => `${BASE_API_URL}whmcs/hosting-products/detail/${id}`,
+    hostingProductsAdd: `${BASE_API_URL}whmcs/hosting-products/add`,
+    hostingProductsUpdate: (id: number) => `${BASE_API_URL}whmcs/hosting-products/update/${id}`,
+    hostingProductsDelete: (id: number) => `${BASE_API_URL}whmcs/hosting-products/delete/${id}`,
+
 };
 
 export default API;

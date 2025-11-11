@@ -65,10 +65,24 @@ export const ROUTE = {
     supplierPaymentManagement: `${baseRoute}purchase/payments/`,
     purchaseReportManagement: `${baseRoute}purchase/reports/`,
 
-    // tài chính
+    // Tài chính
     taiChinhDashboard: `${baseRoute}tai-chinh/dashboard/`,
     taiChinhReport: `${baseRoute}tai-chinh/report/`,
     taiChinhInvoice: `${baseRoute}tai-chinh/invoice/`,
+
+    // WHMCS Routes
+    whmcs_dashboard: `${baseRoute}whmcs/dashboard`,
+    whmcs_clients: `${baseRoute}whmcs/clients`,
+    whmcs_products: `${baseRoute}whmcs/products`,
+    whmcs_orders: `${baseRoute}whmcs/orders`,
+    whmcs_services: `${baseRoute}whmcs/services`,
+    whmcs_invoices: `${baseRoute}whmcs/invoices`,
+    whmcs_domains: `${baseRoute}whmcs/domains`,
+    whmcs_tickets: `${baseRoute}whmcs/tickets`,
+    whmcs_reports: `${baseRoute}whmcs/reports`,
+    whmcs_settings: `${baseRoute}whmcs/settings`,
+    whmcs_server_management: `${baseRoute}whmcs/server-management`,
+    whmcs_hosting_products: `${baseRoute}whmcs/hosting-products`,
 };
 
 export default ROUTE;

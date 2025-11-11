@@ -68,6 +68,20 @@ import StockReceiptList from './pages/purchase/StockReceiptList';
 import SupplierPaymentList from './pages/purchase/SupplierPaymentList';
 import PurchaseReport from './pages/purchase/PurchaseReport';
 
+// WHMCS
+import WhmcsDashboard from './pages/whmcs/WhmcsDashboard';
+import ClientList from './pages/whmcs/ClientList';
+import ProductList_WHMCS from './pages/whmcs/ProductList';
+import OrderList from './pages/whmcs/OrderList';
+import ServiceList from './pages/whmcs/ServiceList';
+import InvoiceList_WHMCS from './pages/whmcs/InvoiceList';
+import DomainList from './pages/whmcs/DomainList';
+import TicketList from './pages/whmcs/TicketList';
+import ReportPage from './pages/whmcs/ReportPage';
+import SettingPage from './pages/whmcs/SettingPage';
+import ServerManagement from './pages/whmcs/ServerManagement';
+import HostingProducts from './pages/whmcs/HostingProducts';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -119,6 +133,20 @@ const App: React.FC = () => (
                 <Route path={ROUTE.stockReceiptManagement} element={<StockReceiptList />} />
                 <Route path={ROUTE.supplierPaymentManagement} element={<SupplierPaymentList />} />
                 <Route path={ROUTE.purchaseReportManagement} element={<PurchaseReport />} />
+
+                {/* WHMCS */}
+                <Route path={ROUTE.whmcs_dashboard} element={<WhmcsDashboard />} />
+                <Route path={ROUTE.whmcs_clients} element={<ClientList />} />
+                <Route path={ROUTE.whmcs_products} element={<ProductList_WHMCS />} />
+                <Route path={ROUTE.whmcs_orders} element={<OrderList />} />
+                <Route path={ROUTE.whmcs_services} element={<ServiceList />} />
+                <Route path={ROUTE.whmcs_invoices} element={<InvoiceList_WHMCS />} />
+                <Route path={ROUTE.whmcs_domains} element={<DomainList />} />
+                <Route path={ROUTE.whmcs_tickets} element={<TicketList />} />
+                <Route path={ROUTE.whmcs_reports} element={<ReportPage />} />
+                <Route path={ROUTE.whmcs_settings} element={<SettingPage />} />
+                <Route path={ROUTE.whmcs_server_management} element={<ServerManagement />} />
+                <Route path={ROUTE.whmcs_hosting_products} element={<HostingProducts />} />
 
                 {/* customer */}
                 <Route path={ROUTE.customerList} element={<CustomerList />} />

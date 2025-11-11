@@ -24,8 +24,8 @@ class AdminMenuSeeder extends Seeder
 
         $aitilen = DB::table('admin_menu')->insertGetId(
             [
-                'name' => 'parent_aitilen',
-                'display_name' => 'BĐS AITILEN',
+                'name' => 'parent_whmcs',
+                'display_name' => 'WHMCS',
                 'icon' => 'ShopFilled',
                 'route' => 'aitilen.dashboard',
                 'link' => '',
@@ -65,16 +65,6 @@ class AdminMenuSeeder extends Seeder
             ['parent_id' => $toaNha->id, 'name' => 'aitilen_dien_nuoc', 'display_name' => 'Chốt Điện/Nước', 'table_name' => 'aitilen_dien_nuoc', 'route' => 'aitilen.service.dienNuoc', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++, 'link' => '', 'parameter' => ''],
         ]);
 
-        $websiteAitilen = DB::table('admin_menu')->where('name', 'website_aitilen')->first();
-        DB::table('admin_menu')->insert([
-            ['parent_id' => $websiteAitilen->id, 'name' => 'menus', 'display_name' => 'Menu', 'table_name' => 'menus', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'news', 'display_name' => 'Tin tức', 'table_name' => 'news', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'products', 'display_name' => 'Sản phẩm', 'table_name' => 'products', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'video', 'display_name' => 'Video', 'table_name' => 'video', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'library', 'display_name' => 'Thư viện ảnh', 'table_name' => 'library', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'page_setting', 'display_name' => 'Landingpage', 'table_name' => 'page_setting', 'route' => 'adm.landingpage.index', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-            ['parent_id' => $websiteAitilen->id, 'name' => 'contact', 'display_name' => 'Liên hệ', 'table_name' => 'contact', 'route' => 'data.tblName', 'icon' => '', 'is_active' => 1, 'sort_order' => $order++],
-        ]);
 
         // web
         $web = DB::table('admin_menu')->insertGetId(

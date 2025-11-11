@@ -262,40 +262,6 @@
 
         <script src="/layouts/Aitilen/js/script01.js?ver={{ env('APP_VERSION') }}"></script>
 
-        {{-- location --}}
-        <script>
-            if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-                    console.log("Latitude:", latitude, "Longitude:", longitude);
-
-                    // Gọi API Nominatim để lấy thông tin địa lý
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.address && data.address.country) {
-                                fetch(
-                                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-                                console.log("Quốc gia:", data.address.country);
-                                // Sếp có thể hiển thị ra web hoặc xử lý tiếp ở đây
-                            } else {
-                                console.log("Không xác định được quốc gia.");
-                            }
-                        })
-                        .catch(err => {
-                            console.log("Lỗi khi gọi Nominatim:", err);
-                        });
-                },
-                function(error) {
-                    console.log("Lỗi lấy vị trí:", error.message);
-                }
-            );
-        } else {
-            console.log("Trình duyệt không hỗ trợ lấy vị trí.");
-        }
-        </script>
     </body>
 
 </html>

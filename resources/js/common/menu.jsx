@@ -21,7 +21,8 @@ import {
     FileDoneOutlined,
     ShopOutlined,
     InboxOutlined,
-    DollarOutlined
+    DollarOutlined,
+    CloudServerOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -298,6 +299,91 @@ export const MENU = {
             label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
             key: (key++).toString(),
             icon: <BarChartOutlined />,
+        },
+    ],
+
+    // WHMCS
+    whmcs: [
+        {
+            label: <Link to={`${ROUTE.dashboard}?p=whmcs`}>Dashboard</Link>,
+            icon: <DashboardOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.whmcs_clients}?p=whmcs`}>Khách hàng</Link>,
+            icon: <UserOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <span>Sản phẩm & Dịch vụ</span>,
+            key: (key++).toString(),
+            icon: <ShopOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.whmcs_products}?p=whmcs`}>Sản phẩm</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.whmcs_services}?p=whmcs`}>Dịch vụ đang chạy</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
+                },
+            ],
+        },
+        {
+            label: <span>Đơn hàng & Hóa đơn</span>,
+            key: (key++).toString(),
+            icon: <FileDoneOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.whmcs_orders}?p=whmcs`}>Đơn hàng</Link>,
+                    key: (key++).toString(),
+                    icon: <FileDoneOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.whmcs_invoices}?p=whmcs`}>Hóa đơn</Link>,
+                    key: (key++).toString(),
+                    icon: <CopyOutlined />,
+                },
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.whmcs_domains}?p=whmcs`}>Tên miền</Link>,
+            icon: <GlobalOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <span>Hạ tầng</span>,
+            key: (key++).toString(),
+            icon: <CloudServerOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.whmcs_server_management}?p=whmcs`}>Server Management</Link>,
+                    key: (key++).toString(),
+                    icon: <CloudServerOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.whmcs_hosting_products}?p=whmcs`}>Gói Hosting</Link>,
+                    key: (key++).toString(),
+                    icon: <ShopOutlined />,
+                },
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.whmcs_tickets}?p=whmcs`}>Hỗ trợ</Link>,
+            icon: <MessageOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.whmcs_reports}?p=whmcs`}>Báo cáo</Link>,
+            icon: <BarChartOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link to={`${ROUTE.whmcs_settings}?p=whmcs`}>Cài đặt</Link>,
+            icon: <FileTextOutlined />,
+            key: (key++).toString(),
         },
     ],
 }

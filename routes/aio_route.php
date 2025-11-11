@@ -24,6 +24,18 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\CongNoController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsClientController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsProductController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsOrderController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsServiceController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsInvoiceController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsDomainController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsTicketController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsPaymentController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsReportController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsSettingController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsServerController;
+use App\Http\Controllers\Admin\Whmcs\WhmcsHostingProductController;
 
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
@@ -312,4 +324,119 @@ Route::group(['prefix' => 'cong-no'], function () {
     Route::post('statistics', [CongNoController::class, 'apiStatistics'])->name('api.congNo.statistics');
     Route::post('bulk-update-status', [CongNoController::class, 'apiBulkUpdateStatus'])->name('api.congNo.bulkUpdateStatus');
     Route::post('export', [CongNoController::class, 'apiExport'])->name('api.congNo.export');
+});
+
+// WHMCS Routes
+Route::group(['prefix' => 'whmcs'], function () {
+
+    // Clients
+    Route::group(['prefix' => 'clients'], function () {
+        Route::post('list', [WhmcsClientController::class, 'apiList'])->name('api.whmcs.clients.list');
+        Route::post('detail/{id}', [WhmcsClientController::class, 'apiDetail'])->name('api.whmcs.clients.detail');
+        Route::post('add', [WhmcsClientController::class, 'apiAdd'])->name('api.whmcs.clients.add');
+        Route::post('update/{id}', [WhmcsClientController::class, 'apiUpdate'])->name('api.whmcs.clients.update');
+        Route::post('delete/{id}', [WhmcsClientController::class, 'apiDelete'])->name('api.whmcs.clients.delete');
+        Route::post('statistics', [WhmcsClientController::class, 'apiStatistics'])->name('api.whmcs.clients.statistics');
+    });
+
+    // Products
+    Route::group(['prefix' => 'products'], function () {
+        Route::post('list', [WhmcsProductController::class, 'apiList'])->name('api.whmcs.products.list');
+        Route::post('detail/{id}', [WhmcsProductController::class, 'apiDetail'])->name('api.whmcs.products.detail');
+        Route::post('add', [WhmcsProductController::class, 'apiAdd'])->name('api.whmcs.products.add');
+        Route::post('update/{id}', [WhmcsProductController::class, 'apiUpdate'])->name('api.whmcs.products.update');
+        Route::post('delete/{id}', [WhmcsProductController::class, 'apiDelete'])->name('api.whmcs.products.delete');
+        Route::post('groups', [WhmcsProductController::class, 'apiGroups'])->name('api.whmcs.products.groups');
+    });
+
+    // Orders
+    Route::group(['prefix' => 'orders'], function () {
+        Route::post('list', [WhmcsOrderController::class, 'apiList'])->name('api.whmcs.orders.list');
+        Route::post('detail/{id}', [WhmcsOrderController::class, 'apiDetail'])->name('api.whmcs.orders.detail');
+        Route::post('add', [WhmcsOrderController::class, 'apiAdd'])->name('api.whmcs.orders.add');
+        Route::post('update-status/{id}', [WhmcsOrderController::class, 'apiUpdateStatus'])->name('api.whmcs.orders.updateStatus');
+        Route::post('delete/{id}', [WhmcsOrderController::class, 'apiDelete'])->name('api.whmcs.orders.delete');
+    });
+
+    // Services
+    Route::group(['prefix' => 'services'], function () {
+        Route::post('list', [WhmcsServiceController::class, 'apiList'])->name('api.whmcs.services.list');
+        Route::post('detail/{id}', [WhmcsServiceController::class, 'apiDetail'])->name('api.whmcs.services.detail');
+        Route::post('suspend/{id}', [WhmcsServiceController::class, 'apiSuspend'])->name('api.whmcs.services.suspend');
+        Route::post('unsuspend/{id}', [WhmcsServiceController::class, 'apiUnsuspend'])->name('api.whmcs.services.unsuspend');
+        Route::post('terminate/{id}', [WhmcsServiceController::class, 'apiTerminate'])->name('api.whmcs.services.terminate');
+        Route::post('statistics', [WhmcsServiceController::class, 'apiStatistics'])->name('api.whmcs.services.statistics');
+    });
+
+    // Invoices
+    Route::group(['prefix' => 'invoices'], function () {
+        Route::post('list', [WhmcsInvoiceController::class, 'apiList'])->name('api.whmcs.invoices.list');
+        Route::post('detail/{id}', [WhmcsInvoiceController::class, 'apiDetail'])->name('api.whmcs.invoices.detail');
+        Route::post('add', [WhmcsInvoiceController::class, 'apiAdd'])->name('api.whmcs.invoices.add');
+        Route::post('update/{id}', [WhmcsInvoiceController::class, 'apiUpdate'])->name('api.whmcs.invoices.update');
+        Route::post('mark-paid/{id}', [WhmcsInvoiceController::class, 'apiMarkPaid'])->name('api.whmcs.invoices.markPaid');
+        Route::post('delete/{id}', [WhmcsInvoiceController::class, 'apiDelete'])->name('api.whmcs.invoices.delete');
+        Route::post('statistics', [WhmcsInvoiceController::class, 'apiStatistics'])->name('api.whmcs.invoices.statistics');
+    });
+
+    // Domains
+    Route::group(['prefix' => 'domains'], function () {
+        Route::post('list', [WhmcsDomainController::class, 'apiList'])->name('api.whmcs.domains.list');
+        Route::post('detail/{id}', [WhmcsDomainController::class, 'apiDetail'])->name('api.whmcs.domains.detail');
+        Route::post('add', [WhmcsDomainController::class, 'apiAdd'])->name('api.whmcs.domains.add');
+        Route::post('update/{id}', [WhmcsDomainController::class, 'apiUpdate'])->name('api.whmcs.domains.update');
+        Route::post('renew/{id}', [WhmcsDomainController::class, 'apiRenew'])->name('api.whmcs.domains.renew');
+        Route::post('tlds', [WhmcsDomainController::class, 'apiTlds'])->name('api.whmcs.domains.tlds');
+    });
+
+    // Tickets
+    Route::group(['prefix' => 'tickets'], function () {
+        Route::post('list', [WhmcsTicketController::class, 'apiList'])->name('api.whmcs.tickets.list');
+        Route::post('detail/{id}', [WhmcsTicketController::class, 'apiDetail'])->name('api.whmcs.tickets.detail');
+        Route::post('add', [WhmcsTicketController::class, 'apiAdd'])->name('api.whmcs.tickets.add');
+        Route::post('reply/{id}', [WhmcsTicketController::class, 'apiReply'])->name('api.whmcs.tickets.reply');
+        Route::post('close/{id}', [WhmcsTicketController::class, 'apiClose'])->name('api.whmcs.tickets.close');
+        Route::post('departments', [WhmcsTicketController::class, 'apiDepartments'])->name('api.whmcs.tickets.departments');
+    });
+
+    // Payments
+    Route::group(['prefix' => 'payments'], function () {
+        Route::post('transactions', [WhmcsPaymentController::class, 'apiTransactions'])->name('api.whmcs.payments.transactions');
+        Route::post('gateways', [WhmcsPaymentController::class, 'apiGateways'])->name('api.whmcs.payments.gateways');
+        Route::post('add-payment', [WhmcsPaymentController::class, 'apiAddPayment'])->name('api.whmcs.payments.addPayment');
+    });
+
+    // Reports
+    Route::group(['prefix' => 'reports'], function () {
+        Route::post('dashboard', [WhmcsReportController::class, 'apiDashboard'])->name('api.whmcs.reports.dashboard');
+        Route::post('revenue', [WhmcsReportController::class, 'apiRevenue'])->name('api.whmcs.reports.revenue');
+        Route::post('clients-growth', [WhmcsReportController::class, 'apiClientsGrowth'])->name('api.whmcs.reports.clientsGrowth');
+        Route::post('services-statistics', [WhmcsReportController::class, 'apiServicesStatistics'])->name('api.whmcs.reports.servicesStatistics');
+    });
+
+    // Settings
+    Route::group(['prefix' => 'settings'], function () {
+        Route::post('currencies', [WhmcsSettingController::class, 'apiCurrencies'])->name('api.whmcs.settings.currencies');
+        Route::post('tax-rules', [WhmcsSettingController::class, 'apiTaxRules'])->name('api.whmcs.settings.taxRules');
+        Route::post('promo-codes', [WhmcsSettingController::class, 'apiPromoCodes'])->name('api.whmcs.settings.promoCodes');
+    });
+
+    // Servers
+    Route::group(['prefix' => 'servers'], function () {
+        Route::post('list', [WhmcsServerController::class, 'apiList'])->name('api.whmcs.servers.list');
+        Route::post('detail/{id}', [WhmcsServerController::class, 'apiDetail'])->name('api.whmcs.servers.detail');
+        Route::post('add', [WhmcsServerController::class, 'apiAdd'])->name('api.whmcs.servers.add');
+        Route::post('update/{id}', [WhmcsServerController::class, 'apiUpdate'])->name('api.whmcs.servers.update');
+        Route::post('delete/{id}', [WhmcsServerController::class, 'apiDelete'])->name('api.whmcs.servers.delete');
+        Route::post('test-connection/{id}', [WhmcsServerController::class, 'apiTestConnection'])->name('api.whmcs.servers.testConnection');
+    });
+
+    // Hosting Products
+    Route::group(['prefix' => 'hosting-products'], function () {
+        Route::post('list', [WhmcsHostingProductController::class, 'apiList'])->name('api.whmcs.hostingProducts.list');
+        Route::post('detail/{id}', [WhmcsHostingProductController::class, 'apiDetail'])->name('api.whmcs.hostingProducts.detail');
+        Route::post('add', [WhmcsHostingProductController::class, 'apiAdd'])->name('api.whmcs.hostingProducts.add');
+        Route::post('update/{id}', [WhmcsHostingProductController::class, 'apiUpdate'])->name('api.whmcs.hostingProducts.update');
+        Route::post('delete/{id}', [WhmcsHostingProductController::class, 'apiDelete'])->name('api.whmcs.hostingProducts.delete');
+    });
 });

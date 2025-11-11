@@ -67,28 +67,28 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
-        if (item.name === 'parent_aitilen') {
+        if (item.name === 'parent_whmcs') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
+
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
-                                <HomeOutlined /> BĐS AITILEN
+                            <Link to={`${ROUTE.whmcs_dashboard}?p=whmcs`}>
+                                <ShopFilled /> WHMCS - Quản lý Hosting & Domain
                             </Link>
                         </div>
-
                         <div className="ant-statistic-content" >
                             <div className="ant-statistic-content-prefix">
-                                <HomeOutlined />
+                                <ShopFilled />
                             </div>
                             <div className="ant-statistic-content-value">
                                 <div>
                                     <ul className="dashboard-list-item">
-                                        <li><HomeOutlined /> Căn hộ</li>
-                                        <li><BookOutlined /> Phòng cho thuê</li>
-                                        <li><IdcardOutlined /> Hợp đồng</li>
-                                        <li><ProfileOutlined /> Hóa đơn</li>
-                                        <li><WalletOutlined /> Công việc</li>
+                                        <li><TeamOutlined /> Quản lý khách hàng</li>
+                                        <li><HddOutlined /> Sản phẩm (Hosting/VPS/SSL/Domain)</li>
+                                        <li><GlobalOutlined /> Quản lý tên miền</li>
+                                        <li><ReadFilled /> Hóa đơn & Đơn hàng</li>
+                                        <li><WalletOutlined /> Hỗ trợ & Báo cáo</li>
                                     </ul>
                                 </div>
                             </div>
