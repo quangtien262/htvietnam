@@ -299,8 +299,8 @@ const ApiKeyList: React.FC = () => {
             title: 'Loại',
             key: 'type',
             render: (record: any) => (
-                <Tag color={record.client_id ? 'blue' : 'green'}>
-                    {record.client_id ? 'Client' : 'Admin'}
+                <Tag color={record.user_id ? 'blue' : 'green'}>
+                    {record.user_id ? 'Client' : 'Admin'}
                 </Tag>
             ),
         },
@@ -480,7 +480,7 @@ const ApiKeyList: React.FC = () => {
                             <>
                                 <Col xs={24} sm={24} md={12}>
                                     <Form.Item
-                                        name="client_id"
+                                        name="user_id"
                                         label="Client ID (tùy chọn)"
                                     >
                                         <Input type="number" placeholder="Để trống nếu là Admin API key" />

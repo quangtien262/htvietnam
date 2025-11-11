@@ -24,7 +24,7 @@ class TicketController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 20);
 
-        $query = Ticket::with(['client', 'service', 'assignedTo']);
+        $query = Ticket::with(['user', 'service', 'assignedTo']);
 
         if ($status) {
             if ($status === 'open') {
@@ -64,7 +64,7 @@ class TicketController extends Controller
     public function show($id)
     {
         $ticket = Ticket::with([
-            'client',
+            'user',
             'service',
             'assignedTo',
             'replies.author'
@@ -79,7 +79,7 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'service_id' => 'nullable|exists:whmcs_services,id',
             'department' => 'required|in:technical,sales,billing,general',
             'priority' => 'required|in:low,medium,high,urgent',
@@ -93,7 +93,7 @@ class TicketController extends Controller
 
         $ticket = Ticket::create([
             'ticket_number' => $ticketNumber,
-            'client_id' => $validated['client_id'],
+            'user_id' => $validated['user_id'],
             'service_id' => $validated['service_id'] ?? null,
             'department' => $validated['department'],
             'priority' => $validated['priority'],
@@ -104,14 +104,14 @@ class TicketController extends Controller
         // Add initial message as first reply
         $ticket->replies()->create([
             'author_type' => \App\Models\User::class,
-            'author_id' => $validated['client_id'],
+            'author_id' => $validated['user_id'],
             'message' => $validated['message'],
             'is_internal' => false,
         ]);
 
         return response()->json([
             'message' => 'Ticket created successfully',
-            'ticket' => $ticket->load(['client', 'replies.author']),
+            'ticket' => $ticket->load(['user', 'replies.author']),
         ], 201);
     }
 

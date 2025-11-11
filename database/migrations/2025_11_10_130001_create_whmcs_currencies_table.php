@@ -32,7 +32,7 @@ return new class extends Migration
 
         // Add currency_id to invoices
         Schema::table('whmcs_invoices', function (Blueprint $table) {
-            $table->foreignId('currency_id')->nullable()->after('client_id')->constrained('whmcs_currencies')->nullOnDelete();
+            $table->foreignId('currency_id')->nullable()->after('user_id')->constrained('whmcs_currencies')->nullOnDelete();
         });
 
         // Add currency_id to services

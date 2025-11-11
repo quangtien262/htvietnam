@@ -1219,7 +1219,7 @@ GET /api/whmcs/invoices?status=unpaid&page=1
                             {`// Request
 POST /api/whmcs/invoices
 {
-  "client_id": 123,
+  "user_id": 123,
   "due_date": "2025-12-31",
   "items": [
     {

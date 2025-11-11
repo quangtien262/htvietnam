@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('whmcs_email_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('to_email');
             $table->string('subject');
             $table->enum('template', [
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
 
-            $table->index(['client_id', 'template']);
+            $table->index(['user_id', 'template']);
             $table->index(['status', 'created_at']);
         });
     }

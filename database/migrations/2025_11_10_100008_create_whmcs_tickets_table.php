@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('whmcs_tickets', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')->references('id')->on('users')->nullOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
             $table->foreignId('service_id')->nullable()->constrained('whmcs_services')->nullOnDelete();
             $table->string('ticket_number', 20)->unique();
             $table->string('subject');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['client_id', 'status']);
+            $table->index(['user_id', 'status']);
             $table->index('ticket_number');
             $table->index(['department', 'status']);
         });

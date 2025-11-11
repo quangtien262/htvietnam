@@ -13,7 +13,7 @@ class ApiKey extends Model
     protected $table = 'whmcs_api_keys';
 
     protected $fillable = [
-        'client_id',
+        'user_id',
         'admin_user_id',
         'name',
         'key',
@@ -36,9 +36,9 @@ class ApiKey extends Model
     ];
 
     // Relationships
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function adminUser(): BelongsTo

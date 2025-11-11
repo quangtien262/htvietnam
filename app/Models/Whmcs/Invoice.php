@@ -15,7 +15,7 @@ class Invoice extends Model
     protected $table = 'whmcs_invoices';
 
     protected $fillable = [
-        'number', 'client_id', 'currency_id', 'status', 'currency', 'subtotal',
+        'number', 'user_id', 'currency_id', 'status', 'currency', 'subtotal',
         'tax_total', 'credit_applied', 'total', 'due_date', 'paid_at', 'notes'
     ];
 
@@ -28,9 +28,9 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function currency(): BelongsTo

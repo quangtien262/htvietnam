@@ -10,7 +10,7 @@ class EmailLog extends Model
     protected $table = 'whmcs_email_logs';
 
     protected $fillable = [
-        'client_id',
+        'user_id',
         'to_email',
         'subject',
         'template',
@@ -24,9 +24,9 @@ class EmailLog extends Model
     ];
 
     // Relationships
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     // Helper Methods

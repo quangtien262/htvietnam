@@ -15,7 +15,7 @@ class Ticket extends Model
     protected $table = 'whmcs_tickets';
 
     protected $fillable = [
-        'client_id',
+        'user_id',
         'service_id',
         'ticket_number',
         'subject',
@@ -42,9 +42,9 @@ class Ticket extends Model
     }
 
     // Relationships
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function service(): BelongsTo

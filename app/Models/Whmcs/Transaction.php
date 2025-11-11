@@ -10,7 +10,7 @@ class Transaction extends Model
     protected $table = 'whmcs_transactions';
 
     protected $fillable = [
-        'invoice_id', 'client_id', 'gateway', 'transaction_id',
+        'invoice_id', 'user_id', 'gateway', 'transaction_id',
         'amount', 'currency', 'status', 'gateway_response', 'notes'
     ];
 
@@ -24,9 +24,9 @@ class Transaction extends Model
         return $this->belongsTo(Invoice::class);
     }
 
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function isSuccess(): bool

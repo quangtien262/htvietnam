@@ -112,9 +112,9 @@ const TicketList: React.FC = () => {
         },
         {
             title: 'Client',
-            dataIndex: ['client', 'name'],
-            key: 'client',
-            render: (_: any, record: any) => record.client?.name || '-',
+            dataIndex: ['user', 'name'],
+            key: 'user',
+            render: (_: any, record: any) => record.user?.name || '-',
         },
         {
             title: 'Department',
@@ -229,7 +229,7 @@ const TicketList: React.FC = () => {
                         <div style={{ marginBottom: '16px' }}>
                             <strong>Subject:</strong> {selectedTicket.subject}
                             <br />
-                            <strong>Client:</strong> {selectedTicket.client?.name || '-'}
+                            <strong>Client:</strong> {selectedTicket.user?.name || '-'}
                             <br />
                             <strong>Department:</strong> <Tag>{selectedTicket.department}</Tag>
                             <br />
@@ -308,7 +308,7 @@ const TicketList: React.FC = () => {
                         <Col xs={24} sm={24} md={12}>
                             <Form.Item
                                 label="Khách hàng"
-                                name="client_id"
+                                name="user_id"
                                 rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
                             >
                                 <Select

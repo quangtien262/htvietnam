@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('whmcs_domains', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')->references('id')->on('users')->nullOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
             $table->string('domain')->unique();
             $table->string('registrar')->nullable(); // registrar module name
             $table->string('status')->default('pending'); // pending, active, expired, cancelled

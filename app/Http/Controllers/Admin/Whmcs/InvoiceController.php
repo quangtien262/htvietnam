@@ -19,7 +19,7 @@ class InvoiceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Invoice::with(['client', 'items']);
+        $query = Invoice::with(['user', 'items']);
 
         // Filter by status
         if ($request->has('status')) {
@@ -27,8 +27,8 @@ class InvoiceController extends Controller
         }
 
         // Filter by client
-        if ($request->has('client_id')) {
-            $query->where('client_id', $request->client_id);
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         // Filter by date range
@@ -56,7 +56,7 @@ class InvoiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.unit_price' => 'required|numeric|min:0',
@@ -89,7 +89,7 @@ class InvoiceController extends Controller
             })->toArray();
 
             $invoice = $this->billingService->createInvoice(
-                $validated['client_id'],
+                $validated['user_id'],
                 $items,
                 [
                     'due_date' => $validated['due_date'] ?? null,
@@ -101,7 +101,7 @@ class InvoiceController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice created successfully',
-                'data' => $invoice->load(['client', 'items']),
+                'data' => $invoice->load(['user', 'items']),
             ], 201);
 
         } catch (\Exception $e) {
@@ -117,12 +117,51 @@ class InvoiceController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $invoice = Invoice::with(['client', 'items', 'transactions'])->findOrFail($id);
+        $invoice = Invoice::with(['user', 'items', 'transactions'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
             'data' => $invoice,
         ]);
+    }
+
+    /**
+     * Cập nhật hóa đơn
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'user_id' => 'sometimes|exists:users,id',
+            'status' => 'sometimes|string|in:unpaid,paid,cancelled,refunded',
+            'due_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        try {
+            $invoice = Invoice::findOrFail($id);
+
+            // Không cho phép cập nhật nếu hóa đơn đã thanh toán hoàn toàn
+            if ($invoice->status === 'paid' && isset($validated['status']) && $validated['status'] !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi trạng thái của hóa đơn đã thanh toán',
+                ], 422);
+            }
+
+            $invoice->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice updated successfully',
+                'data' => $invoice->load(['user', 'items']),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

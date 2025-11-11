@@ -15,10 +15,10 @@ use Carbon\Carbon;
 
 class BillingService implements BillingServiceInterface
 {
-    public function createInvoice(int $clientId, array $items, array $options = []): Invoice
+    public function createInvoice(int $userId, array $items, array $options = []): Invoice
     {
-        return DB::transaction(function () use ($clientId, $items, $options) {
-            $client = User::findOrFail($clientId);
+        return DB::transaction(function () use ($userId, $items, $options) {
+            $client = User::findOrFail($userId);
             
             // Calculate totals (handle both amount/quantity and unit_price/qty formats)
             $subtotal = collect($items)->sum(function($item) {
@@ -31,7 +31,7 @@ class BillingService implements BillingServiceInterface
             $total = $subtotal + $tax;
             
             $invoice = Invoice::create([
-                'client_id' => $clientId,
+                'user_id' => $userId,
                 'number' => $this->generateInvoiceNumber(),
                 'status' => $options['status'] ?? 'unpaid',
                 'subtotal' => $subtotal,
@@ -58,7 +58,7 @@ class BillingService implements BillingServiceInterface
                 ]);
             }
 
-            Log::info("Invoice #{$invoice->number} created for client #{$clientId}", [
+            Log::info("Invoice #{$invoice->number} created for client #{$userId}", [
                 'invoice_id' => $invoice->id,
                 'total' => $total,
             ]);
@@ -69,7 +69,7 @@ class BillingService implements BillingServiceInterface
 
     public function createServiceRenewalInvoice(int $serviceId, string $billingCycle): Invoice
     {
-        $service = Service::with(['product.pricings', 'client'])->findOrFail($serviceId);
+        $service = Service::with(['product.pricings', 'user'])->findOrFail($serviceId);
         
         $pricing = $service->product->pricings
             ->where('billing_cycle', $billingCycle)
@@ -81,7 +81,7 @@ class BillingService implements BillingServiceInterface
 
         $nextDueDate = Carbon::parse($service->next_due_date);
         
-        return $this->createInvoice($service->client_id, [
+        return $this->createInvoice($service->user_id, [
             [
                 'type' => 'service',
                 'product_id' => $service->product_id,
@@ -105,7 +105,7 @@ class BillingService implements BillingServiceInterface
             }
 
             $transaction = Transaction::create([
-                'client_id' => $invoice->client_id,
+                'user_id' => $invoice->user_id,
                 'invoice_id' => $invoice->id,
                 'gateway' => $paymentMethod,
                 'amount' => $amount,
@@ -175,11 +175,11 @@ class BillingService implements BillingServiceInterface
         $invoice = Invoice::with('client')->findOrFail($invoiceId);
 
         // TODO: Implement email sending logic
-        // Mail::to($invoice->client->email)->send(new PaymentReminderMail($invoice, $type));
+        // Mail::to($invoice->user->email)->send(new PaymentReminderMail($invoice, $type));
 
         Log::info("Payment reminder sent for invoice #{$invoice->invoice_number}", [
             'invoice_id' => $invoice->id,
-            'client_id' => $invoice->client_id,
+            'user_id' => $invoice->user_id,
             'type' => $type,
         ]);
 
@@ -190,7 +190,7 @@ class BillingService implements BillingServiceInterface
     {
         return DB::transaction(function () use ($invoiceId, $amount) {
             $invoice = Invoice::with('client')->findOrFail($invoiceId);
-            $client = $invoice->client;
+            $client = $invoice->user;
 
             if ($client->credit <= 0) {
                 throw new \Exception("Client has no available credit");
@@ -207,13 +207,13 @@ class BillingService implements BillingServiceInterface
         });
     }
 
-    public function addCredit(int $clientId, float $amount, string $description): User
+    public function addCredit(int $userId, float $amount, string $description): User
     {
-        $client = User::findOrFail($clientId);
+        $client = User::findOrFail($userId);
         $client->credit += $amount;
         $client->save();
 
-        Log::info("Credit added to client #{$clientId}", [
+        Log::info("Credit added to client #{$userId}", [
             'amount' => $amount,
             'description' => $description,
             'new_balance' => $client->credit,

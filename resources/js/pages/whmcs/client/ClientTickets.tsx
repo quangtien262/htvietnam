@@ -36,7 +36,7 @@ const ClientTickets: React.FC = () => {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/aio/api/whmcs/client/tickets', {
+      const response = await axios.get('/aio/api/whmcs/user/tickets', {
         params: {
           page: pagination.current,
           per_page: pagination.pageSize,
@@ -54,7 +54,7 @@ const ClientTickets: React.FC = () => {
 
   const handleCreateTicket = async (values: any) => {
     try {
-      await axios.post('/aio/api/whmcs/client/tickets', values);
+      await axios.post('/aio/api/whmcs/user/tickets', values);
       message.success('Tạo ticket thành công');
       setIsCreateModalOpen(false);
       createForm.resetFields();

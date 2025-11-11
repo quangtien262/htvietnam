@@ -77,7 +77,7 @@ return new class extends Migration
 
         // Add affiliate tracking to invoices
         Schema::table('whmcs_invoices', function (Blueprint $table) {
-            $table->foreignId('affiliate_id')->nullable()->after('client_id')->constrained('whmcs_affiliates')->nullOnDelete();
+            $table->foreignId('affiliate_id')->nullable()->after('user_id')->constrained('whmcs_affiliates')->nullOnDelete();
         });
     }
 

@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('whmcs_invoices', function (Blueprint $table) {
             $table->id();
             $table->string('number')->unique();
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')->references('id')->on('users')->nullOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
             $table->string('status')->default('unpaid'); // unpaid, paid, cancelled, refunded
             $table->string('currency', 3)->default('VND');
             $table->decimal('subtotal', 15, 2)->default(0);

@@ -9,7 +9,7 @@ const { Option } = Select;
 
 interface Service {
   id: number;
-  client_id: number;
+  user_id: number;
   product_id: number;
   server_id?: number;
   domain: string;
@@ -19,7 +19,7 @@ interface Service {
   recurring_amount: number;
   registration_date: string;
   next_due_date: string;
-  client?: { name: string; email: string };
+  user?: { name: string; email: string };
   product?: { name: string; type: string };
   server?: { name: string; hostname: string };
 }
@@ -226,9 +226,9 @@ const ServiceList: React.FC = () => {
     },
     {
       title: 'Khách hàng',
-      dataIndex: ['client', 'name'],
-      key: 'client',
-      render: (_: any, record: Service) => record.client?.name || '-',
+      dataIndex: ['user', 'name'],
+      key: 'user',
+      render: (_: any, record: Service) => record.user?.name || '-',
     },
     {
       title: 'Sản phẩm',
@@ -441,7 +441,7 @@ const ServiceList: React.FC = () => {
             <Col xs={24} sm={24} md={12}>
               <Form.Item
                 label="Khách hàng"
-                name="client_id"
+                name="user_id"
                 rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
                 extra={clients.length === 0 ? "Chưa có khách hàng nào trong hệ thống" : undefined}
               >

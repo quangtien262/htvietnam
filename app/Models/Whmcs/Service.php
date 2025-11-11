@@ -15,7 +15,7 @@ class Service extends Model
     protected $table = 'whmcs_services';
 
     protected $fillable = [
-        'client_id', 'product_id', 'currency_id', 'server_id', 'domain', 'username', 'password',
+        'user_id', 'product_id', 'currency_id', 'server_id', 'domain', 'username', 'password',
         'status', 'payment_cycle', 'recurring_amount', 'registration_date',
         'next_due_date', 'termination_date', 'config_options',
         'disk_usage', 'bandwidth_usage', 'notes'
@@ -47,9 +47,9 @@ class Service extends Model
         $this->attributes['payment_cycle'] = $value;
     }
 
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function currency(): BelongsTo

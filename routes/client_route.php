@@ -1,18 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Client\Whmcs\ClientPortalController;
+// use App\Http\Controllers\Client\Whmcs\ClientPortalController;
 
 /*
 |--------------------------------------------------------------------------
-| Client Portal Routes
+| Client Portal Routes - DISABLED
 |--------------------------------------------------------------------------
 |
-| Routes for WHMCS Client Portal - Customer-facing area
-| These routes require client authentication (separate from admin auth)
+| Client-specific routes have been removed. 
+| All user functionality now uses the main users table.
 |
 */
 
+/*
 // Client Portal - Public endpoints
 Route::prefix('client')->group(function () {
     
@@ -44,6 +45,7 @@ Route::prefix('client')->group(function () {
     // Payment Methods
     Route::get('/payment-methods', [ClientPortalController::class, 'paymentMethods'])->name('client.payment-methods');
 });
+*/
 
 // Payment Gateway Callbacks (No auth required)
 Route::prefix('payment')->group(function () {

@@ -19,14 +19,14 @@ class ServiceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Service::with(['client', 'product', 'server']);
+        $query = Service::with(['user', 'product', 'server']);
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('client_id')) {
-            $query->where('client_id', $request->client_id);
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         if ($request->has('product_id')) {
@@ -56,7 +56,7 @@ class ServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'product_id' => 'required|exists:whmcs_products,id',
             'domain' => 'required|string|max:255',
             'billing_cycle' => 'required|string|in:monthly,quarterly,semiannually,annually,biennially,triennially',
@@ -69,7 +69,7 @@ class ServiceController extends Controller
         ]);
 
         $service = Service::create([
-            'client_id' => $validated['client_id'],
+            'user_id' => $validated['user_id'],
             'product_id' => $validated['product_id'],
             'domain' => $validated['domain'],
             'payment_cycle' => $validated['billing_cycle'], // Map billing_cycle to payment_cycle
@@ -99,7 +99,7 @@ class ServiceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Service created successfully',
-            'data' => $service->fresh(['client', 'product', 'server']),
+            'data' => $service->fresh(['user', 'product', 'server']),
         ], 201);
     }
 
@@ -108,7 +108,7 @@ class ServiceController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $service = Service::with(['client', 'product', 'server'])->findOrFail($id);
+        $service = Service::with(['user', 'product', 'server'])->findOrFail($id);
 
         return response()->json([
             'success' => true,

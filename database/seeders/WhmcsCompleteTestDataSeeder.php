@@ -461,7 +461,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         // Client 1: 2 hosting services, 1 domain
         $client1 = $clients[0];
         $services[] = $this->createService([
-            'client_id' => $client1->id,
+            'user_id' => $client1->id,
             'product_id' => $products[0]->id, // Hosting Basic
             'server_id' => $cpanelServers[0]->id ?? null,
             'domain' => 'example1.com',
@@ -474,7 +474,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         ]);
 
         $services[] = $this->createService([
-            'client_id' => $client1->id,
+            'user_id' => $client1->id,
             'product_id' => $products[6]->id, // Domain .com
             'server_id' => null,
             'domain' => 'example1.com',
@@ -489,7 +489,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         // Client 2: 1 standard hosting, 1 VPS
         $client2 = $clients[1];
         $services[] = $this->createService([
-            'client_id' => $client2->id,
+            'user_id' => $client2->id,
             'product_id' => $products[1]->id, // Hosting Standard
             'server_id' => $cpanelServers[1]->id ?? null,
             'domain' => 'company-xyz.vn',
@@ -502,7 +502,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         ]);
 
         $services[] = $this->createService([
-            'client_id' => $client2->id,
+            'user_id' => $client2->id,
             'product_id' => $products[3]->id, // VPS Starter
             'server_id' => $vpsServers[0]->id ?? null,
             'domain' => 'vps.company-xyz.vn',
@@ -517,7 +517,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         // Client 3: Premium hosting
         $client3 = $clients[2];
         $services[] = $this->createService([
-            'client_id' => $client3->id,
+            'user_id' => $client3->id,
             'product_id' => $products[2]->id, // Hosting Premium
             'server_id' => $cpanelServers[0]->id ?? null,
             'domain' => 'mybusiness.vn',
@@ -532,7 +532,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         // Client 4: VPS Business (suspended)
         $client4 = $clients[3];
         $services[] = $this->createService([
-            'client_id' => $client4->id,
+            'user_id' => $client4->id,
             'product_id' => $products[4]->id, // VPS Business
             'server_id' => $vpsServers[0]->id ?? null,
             'domain' => 'vps-business.com',
@@ -547,7 +547,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         // Client 5: Domain + SSL
         $client5 = $clients[4];
         $services[] = $this->createService([
-            'client_id' => $client5->id,
+            'user_id' => $client5->id,
             'product_id' => $products[7]->id, // SSL Basic (index 7)
             'server_id' => null,
             'domain' => 'mycoolsite.vn',
@@ -574,7 +574,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         $invoice1 = Invoice::firstOrCreate(
             ['number' => 'INV-' . now()->format('Ym') . '-001'],
             [
-                'client_id' => $clients[0]->id,
+                'user_id' => $clients[0]->id,
                 'due_date' => now()->subMonths(3)->addDays(7),
                 'subtotal' => 750000,
                 'tax_total' => 75000,
@@ -608,7 +608,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         ]);
 
         $transactions[] = Transaction::create([
-            'client_id' => $clients[0]->id,
+            'user_id' => $clients[0]->id,
             'invoice_id' => $invoice1->id,
             'gateway' => 'bank_transfer',
             'transaction_id' => 'TXN-' . strtoupper(bin2hex(random_bytes(6))),
@@ -623,7 +623,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         $invoice2 = Invoice::firstOrCreate(
             ['number' => 'INV-' . now()->format('Ym') . '-002'],
             [
-                'client_id' => $clients[1]->id,
+                'user_id' => $clients[1]->id,
                 'due_date' => now()->subMonths(2)->addDays(7),
                 'subtotal' => 480000,
                 'tax_total' => 48000,
@@ -647,7 +647,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         ]);
 
         $transactions[] = Transaction::create([
-            'client_id' => $clients[1]->id,
+            'user_id' => $clients[1]->id,
             'invoice_id' => $invoice2->id,
             'gateway' => 'bank_transfer',
             'transaction_id' => 'TXN-' . strtoupper(bin2hex(random_bytes(6))),
@@ -662,7 +662,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         $invoice3 = Invoice::firstOrCreate(
             ['number' => 'INV-' . now()->format('Ym') . '-003'],
             [
-                'client_id' => $clients[2]->id,
+                'user_id' => $clients[2]->id,
                 'due_date' => now()->subMonths(6)->addDays(7),
                 'subtotal' => 1800000,
                 'tax_total' => 180000,
@@ -686,7 +686,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         ]);
 
         $transactions[] = Transaction::create([
-            'client_id' => $clients[2]->id,
+            'user_id' => $clients[2]->id,
             'invoice_id' => $invoice3->id,
             'gateway' => 'vnpay',
             'transaction_id' => 'VNPAY-' . strtoupper(bin2hex(random_bytes(6))),
@@ -701,7 +701,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         $invoice4 = Invoice::firstOrCreate(
             ['number' => 'INV-' . now()->format('Ym') . '-004'],
             [
-                'client_id' => $clients[3]->id,
+                'user_id' => $clients[3]->id,
                 'due_date' => now()->subDays(7),
                 'subtotal' => 600000,
                 'tax_total' => 60000,
@@ -728,7 +728,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
         $invoice5 = Invoice::firstOrCreate(
             ['number' => 'INV-' . now()->format('Ym') . '-005'],
             [
-                'client_id' => $clients[4]->id,
+                'user_id' => $clients[4]->id,
                 'due_date' => now()->addDays(7),
                 'subtotal' => 500000,
                 'tax_total' => 50000,
@@ -763,7 +763,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
 
         // Ticket 1: Client 1 - Open
         $ticket1 = Ticket::create([
-            'client_id' => $clients[0]->id,
+            'user_id' => $clients[0]->id,
             'department' => 'support',
             'subject' => 'Không thể truy cập email',
             'status' => 'open',
@@ -789,7 +789,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
 
         // Ticket 2: Client 2 - In Progress
         $ticket2 = Ticket::create([
-            'client_id' => $clients[1]->id,
+            'user_id' => $clients[1]->id,
             'department' => 'technical',
             'subject' => 'Website bị chậm',
             'status' => 'in_progress',
@@ -815,7 +815,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
 
         // Ticket 3: Client 3 - Closed
         $ticket3 = Ticket::create([
-            'client_id' => $clients[2]->id,
+            'user_id' => $clients[2]->id,
             'department' => 'billing',
             'subject' => 'Hỏi về hóa đơn',
             'status' => 'closed',
@@ -832,7 +832,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
 
         // Ticket 4: Client 4 - Open (High priority)
         $ticket4 = Ticket::create([
-            'client_id' => $clients[3]->id,
+            'user_id' => $clients[3]->id,
             'department' => 'support',
             'subject' => 'Dịch vụ bị suspend',
             'status' => 'open',
@@ -847,7 +847,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
 
         // Ticket 5: Client 5 - Answered
         $ticket5 = Ticket::create([
-            'client_id' => $clients[4]->id,
+            'user_id' => $clients[4]->id,
             'department' => 'sales',
             'subject' => 'Tư vấn nâng cấp hosting',
             'status' => 'answered',
@@ -875,7 +875,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
             'name' => 'Mobile App API',
             'key' => 'test_' . bin2hex(random_bytes(16)),
             'secret' => bin2hex(random_bytes(32)),
-            'client_id' => $clients[0]->id,
+            'user_id' => $clients[0]->id,
             'admin_user_id' => null,
             'permissions' => json_encode(['read:services', 'read:invoices', 'create:tickets']),
             'allowed_ips' => null,
@@ -889,7 +889,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
             'name' => 'Website Integration',
             'key' => 'test_' . bin2hex(random_bytes(16)),
             'secret' => bin2hex(random_bytes(32)),
-            'client_id' => $clients[1]->id,
+            'user_id' => $clients[1]->id,
             'admin_user_id' => null,
             'permissions' => json_encode(['read:services', 'read:invoices']),
             'allowed_ips' => '103.56.158.1',
@@ -903,7 +903,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
             'name' => 'Admin Full Access',
             'key' => 'admin_' . bin2hex(random_bytes(16)),
             'secret' => bin2hex(random_bytes(32)),
-            'client_id' => null,
+            'user_id' => null,
             'admin_user_id' => $admin->id,
             'permissions' => json_encode(['*']),
             'allowed_ips' => null,
@@ -917,7 +917,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
             'name' => 'Old Integration',
             'key' => 'test_' . bin2hex(random_bytes(16)),
             'secret' => bin2hex(random_bytes(32)),
-            'client_id' => $clients[2]->id,
+            'user_id' => $clients[2]->id,
             'admin_user_id' => null,
             'permissions' => json_encode(['read:services']),
             'allowed_ips' => null,
@@ -965,7 +965,7 @@ class WhmcsCompleteTestDataSeeder extends Seeder
     {
         return Service::firstOrCreate(
             [
-                'client_id' => $data['client_id'],
+                'user_id' => $data['user_id'],
                 'product_id' => $data['product_id'],
                 'domain' => $data['domain'],
             ],

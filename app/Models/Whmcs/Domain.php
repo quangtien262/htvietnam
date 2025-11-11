@@ -13,7 +13,7 @@ class Domain extends Model
     protected $table = 'whmcs_domains';
 
     protected $fillable = [
-        'client_id', 'domain', 'registrar', 'status', 'registration_date',
+        'user_id', 'domain', 'registrar', 'status', 'registration_date',
         'expiry_date', 'auto_renew', 'nameserver1', 'nameserver2',
         'nameserver3', 'nameserver4', 'whois_privacy', 'domain_lock',
         'epp_code', 'whois_data'
@@ -28,9 +28,9 @@ class Domain extends Model
         'whois_data' => 'array',
     ];
 
-    public function client(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'client_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function isActive(): bool

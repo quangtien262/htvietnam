@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('whmcs_api_keys', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('admin_user_id')->nullable()->constrained('admin_users')->nullOnDelete();
             $table->string('name'); // Friendly name for the key
             $table->string('key', 64)->unique(); // API key
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['key', 'status']);
-            $table->index('client_id');
+            $table->index('user_id');
             $table->index('admin_user_id');
         });
     }
