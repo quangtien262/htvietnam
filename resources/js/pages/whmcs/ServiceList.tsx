@@ -31,6 +31,8 @@ const ServiceList: React.FC = () => {
   const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
   const [credentials, setCredentials] = useState<Record<string, string> | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createForm] = Form.useForm();
 
   useEffect(() => {
     fetchServices();
@@ -143,6 +145,20 @@ const ServiceList: React.FC = () => {
       setIsCredentialsModalOpen(true);
     } catch {
       message.error('Không thể lấy thông tin đăng nhập');
+    }
+  };
+
+  const handleCreateService = async (values: any) => {
+    try {
+      await axios.post('/aio/api/whmcs/services', values);
+      message.success('Tạo service mới thành công');
+      setIsCreateModalOpen(false);
+      createForm.resetFields();
+      fetchServices();
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        message.error(error.response?.data?.message || 'Không thể tạo service');
+      }
     }
   };
 
@@ -273,6 +289,15 @@ const ServiceList: React.FC = () => {
     <div className="p-6">
       <Card
         title={<h2 className="text-xl font-semibold">Quản lý Services (Hosting/Domain)</h2>}
+        extra={
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            Tạo Service Mới
+          </Button>
+        }
       >
         <Space style={{ marginBottom: 16 }} wrap>
           <Input
@@ -347,6 +372,137 @@ const ServiceList: React.FC = () => {
             </Descriptions>
           </>
         )}
+      </Modal>
+
+      {/* Create Service Modal */}
+      <Modal
+        title="Tạo Service Mới"
+        open={isCreateModalOpen}
+        onCancel={() => {
+          setIsCreateModalOpen(false);
+          createForm.resetFields();
+        }}
+        onOk={() => createForm.submit()}
+        width={700}
+        okText="Tạo Service"
+        cancelText="Hủy"
+      >
+        <Form
+          form={createForm}
+          layout="vertical"
+          onFinish={handleCreateService}
+        >
+          <Form.Item
+            label="Khách hàng"
+            name="client_id"
+            rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
+          >
+            <Select
+              placeholder="Chọn khách hàng"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as string).toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {/* TODO: Load clients from API */}
+              <Option value={1}>Khách hàng mẫu 1</Option>
+              <Option value={2}>Khách hàng mẫu 2</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Sản phẩm/Gói dịch vụ"
+            name="product_id"
+            rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
+          >
+            <Select
+              placeholder="Chọn sản phẩm"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as string).toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {/* TODO: Load products from API */}
+              <Option value={1}>Hosting Basic - 100GB</Option>
+              <Option value={2}>Hosting Pro - 500GB</Option>
+              <Option value={3}>VPS Cloud - 2GB RAM</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Domain"
+            name="domain"
+            rules={[
+              { required: true, message: 'Vui lòng nhập domain' },
+              { pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/, message: 'Domain không hợp lệ' }
+            ]}
+          >
+            <Input placeholder="example.com" />
+          </Form.Item>
+
+          <Form.Item
+            label="Username (tùy chọn)"
+            name="username"
+            extra="Để trống để hệ thống tự động tạo"
+          >
+            <Input placeholder="Tự động tạo nếu để trống" />
+          </Form.Item>
+
+          <Form.Item
+            label="Chu kỳ thanh toán"
+            name="billing_cycle"
+            rules={[{ required: true, message: 'Vui lòng chọn chu kỳ' }]}
+            initialValue="monthly"
+          >
+            <Select>
+              <Option value="monthly">Hàng tháng</Option>
+              <Option value="quarterly">3 tháng</Option>
+              <Option value="semiannually">6 tháng</Option>
+              <Option value="annually">1 năm</Option>
+              <Option value="biennially">2 năm</Option>
+              <Option value="triennially">3 năm</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Giá định kỳ"
+            name="recurring_amount"
+            rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
+          >
+            <InputNumber
+              style={{ width: '100%' }}
+              min={0}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+              addonAfter="VNĐ"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Server (tùy chọn)"
+            name="server_id"
+            extra="Để trống để hệ thống tự động chọn server phù hợp"
+          >
+            <Select placeholder="Tự động chọn" allowClear>
+              {/* TODO: Load servers from API */}
+              <Option value={1}>Server01-VN (103.56.158.199)</Option>
+              <Option value={2}>Server02-VN (103.56.158.200)</Option>
+            </Select>
+          </Form.Item>
+
+          <Alert
+            message="Lưu ý"
+            description={
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                <li>Service sẽ được tạo với trạng thái "Pending"</li>
+                <li>Cần provision service để kích hoạt trên server</li>
+                <li>Hóa đơn sẽ được tạo tự động khi provision thành công</li>
+              </ul>
+            }
+            type="info"
+            showIcon
+          />
+        </Form>
       </Modal>
     </div>
   );
