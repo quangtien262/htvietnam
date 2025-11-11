@@ -18,8 +18,8 @@ class DichVuController extends Controller
             );
 
         // Filter by status
-        if ($request->has('trang_thai')) {
-            $query->where('spa_dich_vu.trang_thai', $request->trang_thai);
+        if ($request->has('is_active')) {
+            $query->where('spa_dich_vu.is_active', $request->is_active);
         }
 
         // Filter by category
@@ -52,10 +52,10 @@ class DichVuController extends Controller
             'ma_dich_vu' => 'DV' . time(),
             'ten_dich_vu' => $request->ten_dich_vu,
             'danh_muc_id' => $request->danh_muc_id,
-            'gia' => $request->gia,
-            'thoi_luong' => $request->thoi_luong ?? 60,
+            'gia_ban' => $request->gia ?? 0,
+            'thoi_gian_thuc_hien' => $request->thoi_luong ?? 60,
             'mo_ta' => $request->mo_ta,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -65,15 +65,30 @@ class DichVuController extends Controller
 
     public function update(Request $request, $id)
     {
-        DB::table('spa_dich_vu')->where('id', $id)->update([
-            'ten_dich_vu' => $request->ten_dich_vu,
-            'danh_muc_id' => $request->danh_muc_id,
-            'gia' => $request->gia,
-            'thoi_luong' => $request->thoi_luong,
-            'mo_ta' => $request->mo_ta,
-            'trang_thai' => $request->trang_thai,
-            'updated_at' => now(),
-        ]);
+        $updateData = [];
+        
+        if ($request->has('ten_dich_vu')) {
+            $updateData['ten_dich_vu'] = $request->ten_dich_vu;
+        }
+        if ($request->has('danh_muc_id')) {
+            $updateData['danh_muc_id'] = $request->danh_muc_id;
+        }
+        if ($request->has('gia')) {
+            $updateData['gia_ban'] = $request->gia;
+        }
+        if ($request->has('thoi_luong')) {
+            $updateData['thoi_gian_thuc_hien'] = $request->thoi_luong;
+        }
+        if ($request->has('mo_ta')) {
+            $updateData['mo_ta'] = $request->mo_ta;
+        }
+        if ($request->has('is_active')) {
+            $updateData['is_active'] = $request->is_active;
+        }
+        
+        $updateData['updated_at'] = now();
+
+        DB::table('spa_dich_vu')->where('id', $id)->update($updateData);
 
         return $this->sendSuccessResponse(null, 'Cập nhật thành công');
     }

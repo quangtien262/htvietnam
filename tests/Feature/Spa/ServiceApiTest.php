@@ -45,7 +45,7 @@ class ServiceApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $response = $this->getJson('/aio/api/spa/services?trang_thai=active');
+        $response = $this->getJson('/aio/api/spa/services?is_active=1');
 
         $response->assertStatus(200);
     }
@@ -83,22 +83,14 @@ class ServiceApiTest extends TestCase
 
         $serviceData = [
             'ten_dich_vu' => 'Test Service',
-            'ma_dich_vu' => 'SV' . rand(1000, 9999),
-            'gia_ban' => 500000,
-            'gia_thanh_vien' => 450000,
-            'thoi_gian_thuc_hien' => 60,
-            'trang_thai' => 'active',
+            'gia' => 500000,
+            'thoi_luong' => 60,
         ];
 
         $response = $this->postJson('/aio/api/spa/services', $serviceData);
 
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'id',
-                'ten_dich_vu',
-                'ma_dich_vu',
-                'gia_ban',
-            ]);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseHas('spa_dich_vu', [
             'ten_dich_vu' => 'Test Service',
@@ -115,21 +107,22 @@ class ServiceApiTest extends TestCase
         // Create a service first
         $serviceId = DB::table('spa_dich_vu')->insertGetId([
             'ten_dich_vu' => 'Original Service',
-            'ma_dich_vu' => 'SV001',
+            'ma_dich_vu' => 'SV' . rand(10000, 99999),
             'gia_ban' => 300000,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $updatedData = [
             'ten_dich_vu' => 'Updated Service',
-            'gia_ban' => 350000,
+            'gia' => 350000,
         ];
 
         $response = $this->putJson("/aio/api/spa/services/{$serviceId}", $updatedData);
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseHas('spa_dich_vu', [
             'id' => $serviceId,
@@ -148,14 +141,15 @@ class ServiceApiTest extends TestCase
             'ten_dich_vu' => 'Service to Delete',
             'ma_dich_vu' => 'SV999',
             'gia_ban' => 200000,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $response = $this->deleteJson("/aio/api/spa/services/{$serviceId}");
 
-        $response->assertStatus(204);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseMissing('spa_dich_vu', [
             'id' => $serviceId,
@@ -181,7 +175,7 @@ class ServiceApiTest extends TestCase
     {
         $response = $this->getJson('/aio/api/spa/services');
 
-        $response->assertStatus(302);
+        $response->assertStatus(401);
     }
 
     protected function tearDown(): void

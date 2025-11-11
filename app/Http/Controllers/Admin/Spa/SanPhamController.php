@@ -20,8 +20,8 @@ class SanPhamController extends Controller
             );
 
         // Filter by status
-        if ($request->has('trang_thai')) {
-            $query->where('spa_san_pham.trang_thai', $request->trang_thai);
+        if ($request->has('is_active')) {
+            $query->where('spa_san_pham.is_active', $request->is_active);
         }
 
         // Filter by category
@@ -61,11 +61,11 @@ class SanPhamController extends Controller
             'gia_nhap' => $request->gia_nhap ?? 0,
             'gia_ban' => $request->gia_ban,
             'don_vi_tinh' => $request->don_vi_tinh,
-            'ton_kho' => 0,
-            'ton_kho_toi_thieu' => $request->ton_kho_toi_thieu ?? 0,
-            'mo_ta' => $request->mo_ta,
-            'hinh_anh' => $request->hinh_anh,
-            'trang_thai' => 'active',
+            'ton_kho' => $request->ton_kho ?? 0,
+            'ton_kho_canh_bao' => $request->ton_kho_toi_thieu ?? 10,
+            'mo_ta_ngan' => $request->mo_ta,
+            'hinh_anh_ids' => $request->hinh_anh,
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -87,10 +87,10 @@ class SanPhamController extends Controller
             'gia_nhap' => $request->gia_nhap ?? $product->gia_nhap,
             'gia_ban' => $request->gia_ban ?? $product->gia_ban,
             'don_vi_tinh' => $request->don_vi_tinh ?? $product->don_vi_tinh,
-            'ton_kho_toi_thieu' => $request->ton_kho_toi_thieu ?? $product->ton_kho_toi_thieu,
-            'mo_ta' => $request->mo_ta ?? $product->mo_ta,
-            'hinh_anh' => $request->hinh_anh ?? $product->hinh_anh,
-            'trang_thai' => $request->trang_thai ?? $product->trang_thai,
+            'ton_kho_canh_bao' => $request->ton_kho_toi_thieu ?? $product->ton_kho_canh_bao,
+            'mo_ta_ngan' => $request->mo_ta ?? $product->mo_ta_ngan,
+            'hinh_anh_ids' => $request->hinh_anh ?? $product->hinh_anh_ids,
+            'is_active' => $request->is_active ?? $product->is_active,
             'updated_at' => now(),
         ]);
 

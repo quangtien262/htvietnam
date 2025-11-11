@@ -142,6 +142,7 @@ class BookingService
 
     public function getAvailableKTVs($date, $time, $duration)
     {
+        $duration = (int) $duration; // Cast to integer
         $endTime = \Carbon\Carbon::parse($time)->addMinutes($duration)->format('H:i:s');
 
         return KTV::active()
@@ -153,6 +154,7 @@ class BookingService
 
     public function getAvailableRooms($date, $time, $duration, $roomType = null)
     {
+        $duration = (int) $duration; // Cast to integer
         $endTime = \Carbon\Carbon::parse($time)->addMinutes($duration)->format('H:i:s');
 
         $query = Phong::available();

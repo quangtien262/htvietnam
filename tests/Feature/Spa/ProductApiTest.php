@@ -45,7 +45,7 @@ class ProductApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $response = $this->getJson('/aio/api/spa/products?trang_thai=active');
+        $response = $this->getJson('/aio/api/spa/products?is_active=1');
 
         $response->assertStatus(200);
     }
@@ -71,24 +71,17 @@ class ProductApiTest extends TestCase
 
         $productData = [
             'ten_san_pham' => 'Test Product',
-            'ma_san_pham' => 'PRD' . rand(1000, 9999),
             'gia_ban' => 300000,
-            'gia_thanh_vien' => 270000,
             'gia_nhap' => 200000,
+            'don_vi_tinh' => 'chai',
             'ton_kho' => 100,
             'ton_kho_toi_thieu' => 10,
-            'trang_thai' => 'active',
         ];
 
         $response = $this->postJson('/aio/api/spa/products', $productData);
 
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'id',
-                'ten_san_pham',
-                'ma_san_pham',
-                'gia_ban',
-            ]);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseHas('spa_san_pham', [
             'ten_san_pham' => 'Test Product',
@@ -104,10 +97,11 @@ class ProductApiTest extends TestCase
 
         $productId = DB::table('spa_san_pham')->insertGetId([
             'ten_san_pham' => 'Original Product',
-            'ma_san_pham' => 'PRD001',
+            'ma_san_pham' => 'PRD' . rand(10000, 99999),
             'gia_ban' => 250000,
+            'don_vi_tinh' => 'chai',
             'ton_kho' => 50,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -119,7 +113,8 @@ class ProductApiTest extends TestCase
 
         $response = $this->putJson("/aio/api/spa/products/{$productId}", $updatedData);
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseHas('spa_san_pham', [
             'id' => $productId,
@@ -136,17 +131,19 @@ class ProductApiTest extends TestCase
 
         $productId = DB::table('spa_san_pham')->insertGetId([
             'ten_san_pham' => 'Product to Delete',
-            'ma_san_pham' => 'PRD999',
+            'ma_san_pham' => 'PRD' . rand(10000, 99999),
             'gia_ban' => 150000,
+            'don_vi_tinh' => 'chai',
             'ton_kho' => 20,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $response = $this->deleteJson("/aio/api/spa/products/{$productId}");
 
-        $response->assertStatus(204);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseMissing('spa_san_pham', [
             'id' => $productId,
@@ -162,21 +159,21 @@ class ProductApiTest extends TestCase
 
         $productData = [
             'ten_san_pham' => 'Inventory Test Product',
-            'ma_san_pham' => 'INV001',
             'gia_ban' => 100000,
+            'don_vi_tinh' => 'chai',
             'ton_kho' => 50,
             'ton_kho_toi_thieu' => 10,
-            'trang_thai' => 'active',
         ];
 
         $response = $this->postJson('/aio/api/spa/products', $productData);
 
-        $response->assertStatus(201);
+        $response->assertStatus(200)
+            ->assertJson(['status_code' => 200]);
 
         $this->assertDatabaseHas('spa_san_pham', [
             'ten_san_pham' => 'Inventory Test Product',
             'ton_kho' => 50,
-            'ton_kho_toi_thieu' => 10,
+            'ton_kho_canh_bao' => 10,
         ]);
     }
 

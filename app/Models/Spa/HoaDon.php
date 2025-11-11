@@ -182,7 +182,9 @@ class HoaDon extends Model
     {
         if (!$this->khach_hang_id) return;
 
-        $khachHang = $this->khachHang;
+        $khachHang = $this->khachHang ?? \App\Models\Spa\KhachHang::find($this->khach_hang_id);
+        
+        if (!$khachHang) return; // Customer not found, skip loyalty processing
         
         // Get membership tier multiplier
         $membershipCard = $khachHang->membershipCards()->active()->first();

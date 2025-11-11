@@ -4,7 +4,6 @@ namespace Tests\Feature\Spa;
 
 use Tests\TestCase;
 use App\Models\AdminUser;
-use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -14,7 +13,7 @@ class BookingApiTest extends TestCase
     use WithFaker;
 
     protected $adminUser;
-    protected $customer;
+    protected $customerId;
     protected $serviceId;
     protected $staffId;
     protected $roomId;
@@ -28,35 +27,56 @@ class BookingApiTest extends TestCase
             $this->adminUser = AdminUser::factory()->create();
         }
 
-        // Create test data
-        $this->customer = User::create([
-            'name' => 'Booking Test Customer',
-            'phone' => '0888777666',
-            'email' => 'bookingtest@example.com',
+        // Create test customer in spa_khach_hang
+        $this->customerId = DB::table('spa_khach_hang')->insertGetId([
+            'ma_khach_hang' => 'KH' . rand(10000, 99999),
+            'ho_ten' => 'Nguyen Van Test',
+            'sdt' => '0888777' . rand(100, 999),
+            'email' => 'test' . rand(100, 999) . '@example.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
+
+        // Ensure chi_nhanh exists
+        if (!DB::table('spa_chi_nhanh')->where('id', 1)->exists()) {
+            DB::table('spa_chi_nhanh')->insert([
+                'id' => 1,
+                'ma_chi_nhanh' => 'CN001',
+                'ten_chi_nhanh' => 'Test Branch',
+                'dia_chi' => 'Test Address',
+                'thanh_pho' => 'Ha Noi',
+                'sdt' => '0246287878',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         $this->serviceId = DB::table('spa_dich_vu')->insertGetId([
             'ten_dich_vu' => 'Booking Test Service',
-            'ma_dich_vu' => 'BKS001',
+            'ma_dich_vu' => 'BKS' . rand(1000, 9999),
             'gia_ban' => 500000,
             'thoi_gian_thuc_hien' => 60,
-            'trang_thai' => 'active',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $this->staffId = DB::table('spa_ktv')->insertGetId([
-            'ten_ktv' => 'Test Staff',
-            'ma_ktv' => 'KTV001',
-            'trang_thai' => 'active',
+            'ma_ktv' => 'KTV' . rand(100, 999),
+            'admin_user_id' => $this->adminUser->id,
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $this->roomId = DB::table('spa_phong')->insertGetId([
             'ten_phong' => 'Test Room',
-            'ma_phong' => 'R001',
+            'ma_phong' => 'R' . rand(100, 999),
+            'chi_nhanh_id' => 1,
             'trang_thai' => 'trong',
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -82,29 +102,44 @@ class BookingApiTest extends TestCase
         $this->actingAs($this->adminUser, 'admin_users');
 
         $bookingData = [
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
-            'ktv_id' => $this->staffId,
-            'phong_id' => $this->roomId,
+            'khach_hang_id' => $this->customerId,
+            'chi_nhanh_id' => 1,
+            'nguon_booking' => 'web',
+            'dich_vus' => [
+                [
+                    'dich_vu_id' => $this->serviceId,
+                    'ktv_id' => $this->staffId,
+                ]
+            ],
             'ngay_hen' => Carbon::tomorrow()->format('Y-m-d'),
-            'gio_hen' => '10:00:00',
-            'ghi_chu' => 'Test booking',
-            'trang_thai' => 'cho_xac_nhan',
+            'gio_hen' => '10:00',
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:00:00',
+            'phong_id' => $this->roomId,
+            'ghi_chu_khach' => 'Test booking',
         ];
 
         $response = $this->postJson('/aio/api/spa/bookings', $bookingData);
+        
+        if ($response->status() !== 201) {
+            $this->fail('Create booking failed with status ' . $response->status() . ': ' . json_encode($response->json()));
+        }
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'id',
-                'khach_hang_id',
-                'dich_vu_id',
-                'ngay_hen',
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'ma_booking',
+                    'khach_hang_id',
+                    'ngay_hen',
+                ],
             ]);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $this->assertDatabaseHas('spa_bookings', [
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
         ]);
     }
 
@@ -115,18 +150,22 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $bookingId = DB::table('spa_dat_lich')->insertGetId([
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $bookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK' . rand(10000, 99999),
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
             'ngay_hen' => Carbon::tomorrow()->format('Y-m-d'),
-            'gio_hen' => '10:00:00',
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:00:00',
+            'dich_vu_ids' => json_encode([$this->serviceId]),
             'trang_thai' => 'cho_xac_nhan',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $updatedData = [
-            'gio_hen' => '14:00:00',
+            'gio_bat_dau' => '14:00:00',
+            'gio_ket_thuc' => '15:00:00',
             'ktv_id' => $this->staffId,
         ];
 
@@ -134,9 +173,9 @@ class BookingApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
+        $this->assertDatabaseHas('spa_bookings', [
             'id' => $bookingId,
-            'gio_hen' => '14:00:00',
+            'gio_bat_dau' => '14:00:00',
         ]);
     }
 
@@ -147,11 +186,14 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $bookingId = DB::table('spa_dat_lich')->insertGetId([
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $bookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK' . rand(10000, 99999),
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
             'ngay_hen' => Carbon::tomorrow()->format('Y-m-d'),
-            'gio_hen' => '10:00:00',
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:00:00',
+            'dich_vu_ids' => json_encode([$this->serviceId]),
             'trang_thai' => 'cho_xac_nhan',
             'created_at' => now(),
             'updated_at' => now(),
@@ -161,7 +203,7 @@ class BookingApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
+        $this->assertDatabaseHas('spa_bookings', [
             'id' => $bookingId,
             'trang_thai' => 'da_xac_nhan',
         ]);
@@ -174,11 +216,14 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $bookingId = DB::table('spa_dat_lich')->insertGetId([
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $bookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK' . rand(10000, 99999),
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
             'ngay_hen' => now()->format('Y-m-d'),
-            'gio_hen' => now()->format('H:i:s'),
+            'gio_bat_dau' => now()->format('H:i:s'),
+            'gio_ket_thuc' => now()->addHour()->format('H:i:s'),
+            'dich_vu_ids' => json_encode([$this->serviceId]),
             'trang_thai' => 'da_xac_nhan',
             'created_at' => now(),
             'updated_at' => now(),
@@ -188,7 +233,7 @@ class BookingApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
+        $this->assertDatabaseHas('spa_bookings', [
             'id' => $bookingId,
             'trang_thai' => 'dang_thuc_hien',
         ]);
@@ -201,11 +246,14 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $bookingId = DB::table('spa_dat_lich')->insertGetId([
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $bookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK' . rand(10000, 99999),
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
             'ngay_hen' => now()->format('Y-m-d'),
-            'gio_hen' => now()->format('H:i:s'),
+            'gio_bat_dau' => now()->format('H:i:s'),
+            'gio_ket_thuc' => now()->addHour()->format('H:i:s'),
+            'dich_vu_ids' => json_encode([$this->serviceId]),
             'trang_thai' => 'dang_thuc_hien',
             'created_at' => now(),
             'updated_at' => now(),
@@ -215,7 +263,7 @@ class BookingApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
+        $this->assertDatabaseHas('spa_bookings', [
             'id' => $bookingId,
             'trang_thai' => 'hoan_thanh',
         ]);
@@ -228,23 +276,28 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $bookingId = DB::table('spa_dat_lich')->insertGetId([
-            'khach_hang_id' => $this->customer->id,
-            'dich_vu_id' => $this->serviceId,
+        $bookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK' . rand(10000, 99999),
+            'khach_hang_id' => $this->customerId,
+            'nguon_booking' => 'web',
             'ngay_hen' => Carbon::tomorrow()->format('Y-m-d'),
-            'gio_hen' => '10:00:00',
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:00:00',
+            'dich_vu_ids' => json_encode([$this->serviceId]),
             'trang_thai' => 'cho_xac_nhan',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        $response = $this->postJson("/aio/api/spa/bookings/{$bookingId}/cancel");
+        $response = $this->postJson("/aio/api/spa/bookings/{$bookingId}/cancel", [
+            'ly_do' => 'Test cancellation',
+        ]);
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('spa_dat_lich', [
+        $this->assertDatabaseHas('spa_bookings', [
             'id' => $bookingId,
-            'trang_thai' => 'da_huy',
+            'trang_thai' => 'huy',
         ]);
     }
 
@@ -267,7 +320,13 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $response = $this->getJson('/aio/api/spa/bookings/available-ktvs?ngay_hen=' . Carbon::tomorrow()->format('Y-m-d') . '&gio_hen=10:00:00');
+        $params = [
+            'date' => Carbon::tomorrow()->format('Y-m-d'),
+            'time' => '10:00:00',
+            'duration' => 60,
+        ];
+
+        $response = $this->getJson('/aio/api/spa/bookings/available-ktvs?' . http_build_query($params));
 
         $response->assertStatus(200);
     }
@@ -279,18 +338,24 @@ class BookingApiTest extends TestCase
     {
         $this->actingAs($this->adminUser, 'admin_users');
 
-        $response = $this->getJson('/aio/api/spa/bookings/available-rooms?ngay_hen=' . Carbon::tomorrow()->format('Y-m-d') . '&gio_hen=10:00:00');
+        $params = [
+            'date' => Carbon::tomorrow()->format('Y-m-d'),
+            'time' => '10:00:00',
+            'duration' => 60,
+        ];
+
+        $response = $this->getJson('/aio/api/spa/bookings/available-rooms?' . http_build_query($params));
 
         $response->assertStatus(200);
     }
 
     protected function tearDown(): void
     {
-        DB::table('spa_dat_lich')->where('khach_hang_id', $this->customer->id)->delete();
+        DB::table('spa_bookings')->where('khach_hang_id', $this->customerId)->delete();
         DB::table('spa_dich_vu')->where('id', $this->serviceId)->delete();
         DB::table('spa_ktv')->where('id', $this->staffId)->delete();
         DB::table('spa_phong')->where('id', $this->roomId)->delete();
-        $this->customer->delete();
+        DB::table('spa_khach_hang')->where('id', $this->customerId)->delete();
         
         parent::tearDown();
     }

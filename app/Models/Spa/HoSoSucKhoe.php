@@ -3,13 +3,10 @@
 namespace App\Models\Spa;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Casts\Json;
 
 class HoSoSucKhoe extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'spa_ho_so_suc_khoe';
 
     protected $fillable = [

@@ -605,7 +605,7 @@ export const MENU = {
     spa: [
         {
             label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <DashboardOutlined />,
+            icon: <HomeOutlined />,
             key: (key++).toString(),
         },
         {

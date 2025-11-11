@@ -81,6 +81,16 @@ class AitilenInvoice extends Model
             $datas = $datas->where('aitilen_invoice.is_active', $dataFilter['active']);
         }
 
+        if(!empty($dataFilter['sort_by'])) {
+            if($dataFilter['sort_by'] == 'user_name') {
+                $datas = $datas->orderBy('users.name', 'asc');
+            } elseif($dataFilter['sort_by'] == 'total_asc') {
+                $datas = $datas->orderBy('aitilen_invoice.total', 'asc');
+            } elseif($dataFilter['sort_by'] == 'total_desc') {
+                $datas = $datas->orderBy('aitilen_invoice.total', 'desc');
+            }
+        }
+
         if (!empty($dataFilter['count'])) {
             $datas = $datas->paginate($dataFilter['count']);
         } else {

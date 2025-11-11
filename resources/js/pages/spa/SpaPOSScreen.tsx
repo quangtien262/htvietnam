@@ -54,46 +54,55 @@ const SpaPOSScreen: React.FC = () => {
     const [productCategories, setProductCategories] = useState<any[]>([]);
     const [loadingData, setLoadingData] = useState(false);
 
+    // Customer states
+    const [customers, setCustomers] = useState<any[]>([]);
+    const [customerSearch, setCustomerSearch] = useState('');
+
     // Fetch services and products on mount
     useEffect(() => {
         fetchServices();
         fetchProducts();
         fetchCategories();
+        fetchCustomers();
     }, []);
 
     // Filter services when search or category changes
     useEffect(() => {
-        let filtered = services;
-        
+        // Ensure services is always an array
+        const serviceList = Array.isArray(services) ? services : [];
+        let filtered = serviceList;
+
         if (serviceSearch) {
-            filtered = filtered.filter(s => 
+            filtered = filtered.filter(s =>
                 s.ten_dich_vu?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
                 s.ma_dich_vu?.toLowerCase().includes(serviceSearch.toLowerCase())
             );
         }
-        
+
         if (serviceCategory) {
             filtered = filtered.filter(s => s.danh_muc_id === serviceCategory);
         }
-        
+
         setFilteredServices(filtered);
     }, [serviceSearch, serviceCategory, services]);
 
     // Filter products when search or category changes
     useEffect(() => {
-        let filtered = products;
-        
+        // Ensure products is always an array
+        const productList = Array.isArray(products) ? products : [];
+        let filtered = productList;
+
         if (productSearch) {
-            filtered = filtered.filter(p => 
+            filtered = filtered.filter(p =>
                 p.ten_san_pham?.toLowerCase().includes(productSearch.toLowerCase()) ||
                 p.ma_san_pham?.toLowerCase().includes(productSearch.toLowerCase())
             );
         }
-        
+
         if (productCategory) {
             filtered = filtered.filter(p => p.danh_muc_id === productCategory);
         }
-        
+
         setFilteredProducts(filtered);
     }, [productSearch, productCategory, products]);
 
@@ -103,11 +112,16 @@ const SpaPOSScreen: React.FC = () => {
             const response = await axios.get(API.spaServiceList, {
                 params: { per_page: 1000, trang_thai: 'active' }
             });
-            setServices(response.data.data || []);
-            setFilteredServices(response.data.data || []);
+
+            // Handle pagination response - response.data.data is pagination object
+            const serviceData = response.data.data?.data || response.data.data || [];
+            setServices(Array.isArray(serviceData) ? serviceData : []);
+            setFilteredServices(Array.isArray(serviceData) ? serviceData : []);
         } catch (error) {
             console.error('Error fetching services:', error);
             message.error('Không thể tải danh sách dịch vụ');
+            setServices([]);
+            setFilteredServices([]);
         } finally {
             setLoadingData(false);
         }
@@ -119,11 +133,20 @@ const SpaPOSScreen: React.FC = () => {
             const response = await axios.get(API.spaProductList, {
                 params: { per_page: 1000, trang_thai: 'active' }
             });
-            setProducts(response.data.data || []);
-            setFilteredProducts(response.data.data || []);
+
+            console.log('Product API Response:', response.data);
+
+            // Handle pagination response - response.data.data is pagination object
+            const productData = response.data.data?.data || response.data.data || [];
+            console.log('Extracted product data:', productData);
+
+            setProducts(Array.isArray(productData) ? productData : []);
+            setFilteredProducts(Array.isArray(productData) ? productData : []);
         } catch (error) {
             console.error('Error fetching products:', error);
             message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
+            setFilteredProducts([]);
         } finally {
             setLoadingData(false);
         }
@@ -142,10 +165,30 @@ const SpaPOSScreen: React.FC = () => {
         }
     };
 
+    // Fetch customers from users table (API.userList)
+    const fetchCustomers = async (keyword: string = '') => {
+        try {
+            const response = await axios.get(API.userList, {
+                params: {
+                    per_page: 1000,
+                    keyword: keyword || undefined,
+                },
+            });
+
+            // API may return pagination object or array
+            const data = response.data.data?.data || response.data.data || response.data || [];
+            const users = Array.isArray(data) ? data : (data.data || []);
+            setCustomers(users);
+        } catch (error) {
+            console.error('Error fetching customers:', error);
+            setCustomers([]);
+        }
+    };
+
     const addToCart = (item: ServiceProduct, type: 'service' | 'product') => {
         const name = type === 'service' ? item.ten_dich_vu : item.ten_san_pham;
         const price = selectedCustomer && item.gia_thanh_vien ? item.gia_thanh_vien : item.gia_ban;
-        
+
         const newItem: CartItem = {
             key: `${type}-${item.id}-${Date.now()}`,
             type: type,
@@ -188,7 +231,7 @@ const SpaPOSScreen: React.FC = () => {
     const handleConfirmPayment = async () => {
         try {
             const values = await form.validateFields();
-            
+
             const invoiceData = {
                 khach_hang_id: selectedCustomer?.id,
                 chi_nhanh_id: 1, // Default branch
@@ -208,7 +251,7 @@ const SpaPOSScreen: React.FC = () => {
             };
 
             const response = await axios.post(API.spaPOSCreateInvoice, invoiceData);
-            
+
             if (response.data.success) {
                 message.success('Thanh toán thành công!');
                 // Reset form
@@ -254,7 +297,7 @@ const SpaPOSScreen: React.FC = () => {
         {
             title: 'Thành tiền',
             key: 'total',
-            render: (_: any, record: CartItem) => 
+            render: (_: any, record: CartItem) =>
                 new Intl.NumberFormat('vi-VN').format(record.price * record.quantity) + ' đ',
         },
         {
@@ -283,7 +326,7 @@ const SpaPOSScreen: React.FC = () => {
                 <Col span={16}>
                     <Tabs defaultActiveKey="services">
                         <TabPane tab={<span><Badge count={filteredServices.length} showZero>Dịch vụ</Badge></span>} key="services">
-                            <Card 
+                            <Card
                                 size="small"
                                 title={
                                     <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -363,7 +406,7 @@ const SpaPOSScreen: React.FC = () => {
                         </TabPane>
 
                         <TabPane tab={<span><Badge count={filteredProducts.length} showZero>Sản phẩm</Badge></span>} key="products">
-                            <Card 
+                            <Card
                                 size="small"
                                 title={
                                     <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -451,16 +494,25 @@ const SpaPOSScreen: React.FC = () => {
                             <Select
                                 placeholder="Chọn khách hàng"
                                 style={{ width: '100%' }}
-                                onChange={(value, option: any) => setSelectedCustomer(option.data)}
+                                value={selectedCustomer?.id}
+                                onChange={(value: any) => {
+                                    const user = customers.find(u => u.id === value);
+                                    setSelectedCustomer(user || null);
+                                }}
                                 showSearch
                                 allowClear
+                                filterOption={(input, option: any) => {
+                                    // allow client-side filtering on label
+                                    return (option?.children || '').toLowerCase().includes(input.toLowerCase());
+                                }}
+                                onSearch={(val) => fetchCustomers(val)}
                             >
-                                <Select.Option value={1} data={{ id: 1, name: 'Nguyễn Văn A', points: 100 }}>
-                                    Nguyễn Văn A - 100 điểm
-                                </Select.Option>
-                                <Select.Option value={2} data={{ id: 2, name: 'Trần Thị B', points: 250 }}>
-                                    Trần Thị B - 250 điểm
-                                </Select.Option>
+                                {customers.map(user => (
+                                    <Select.Option key={user.id} value={user.id}>
+                                        {user.name || user.ho_ten || user.username || `${user.email || ''}`}{' '}
+                                        - {user.points ?? user.diem_tich_luy ?? 0} điểm
+                                    </Select.Option>
+                                ))}
                             </Select>
 
                             <Table
@@ -491,11 +543,11 @@ const SpaPOSScreen: React.FC = () => {
                                     </div>
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span>Dùng điểm ({selectedCustomer?.points || 0}):</span>
+                                        <span>Dùng điểm ({selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}):</span>
                                         <InputNumber
                                             value={pointsUsed}
                                             onChange={(value) => setPointsUsed(value || 0)}
-                                            max={selectedCustomer?.points || 0}
+                                            max={selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}
                                             style={{ width: 150 }}
                                         />
                                     </div>

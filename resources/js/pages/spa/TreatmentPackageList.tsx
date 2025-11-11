@@ -180,15 +180,14 @@ const TreatmentPackageList: React.FC = () => {
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            
-            // Calculate discount percentage
-            const giamGia = values.gia_goc > 0 
-                ? ((values.gia_goc - values.gia_ban) / values.gia_goc) * 100 
-                : 0;
+  // Calculate discount percentage
+            const giamGia = values.gia_goc > 0
+               ? ((values.gia_goc - values.gia_ban) / values.gia_goc) * 100
+                           : 0;
 
             const payload = {
                 id: selectedPackage?.id,
-                ...values,
+                 ...values,
                 hinh_anh: imageUrl,
                 giam_gia_phan_tram: Math.round(giamGia),
             };
@@ -484,9 +483,8 @@ const TreatmentPackageList: React.FC = () => {
 
                 return (
                     <Col xs={24} sm={12} md={8} lg={6} key={pkg.id}>
-                        <Badge.Ribbon 
-                            text={pkg.hot ? 'HOT' : `-${pkg.giam_gia_phan_tram}%`} 
-                            color={pkg.hot ? 'red' : 'volcano'}
+                        <Badge.Ribbon
+                            text={pkg.hot ? 'HOT' : `-${pkg.giam_gia_phan_tram}%`}                            color={pkg.hot ? 'red' : 'volcano'}
                         >
                             <Card
                                 hoverable
@@ -494,7 +492,7 @@ const TreatmentPackageList: React.FC = () => {
                                     pkg.hinh_anh ? (
                                         <Image
                                             src={pkg.hinh_anh}
-                                            height={200}
+                                             height={200}
                                             style={{ objectFit: 'cover' }}
                                             preview={false}
                                         />
@@ -529,8 +527,7 @@ const TreatmentPackageList: React.FC = () => {
                                             )}
                                             <Tag color="purple">{pkg.so_buoi} buổi</Tag>
                                             <Tag color="orange">{pkg.thoi_han_su_dung} ngày</Tag>
-                                            
-                                            <div style={{ marginTop: 12 }}>
+  <div style={{ marginTop: 12 }}>
                                                 <div style={{ textDecoration: 'line-through', color: '#999', fontSize: 12 }}>
                                                     {pkg.gia_goc.toLocaleString()} VNĐ
                                                 </div>

@@ -163,14 +163,16 @@ class POSService
             // Update customer statistics
             if ($hoaDon->khach_hang_id) {
                 $khachHang = \App\Models\Spa\KhachHang::find($hoaDon->khach_hang_id);
-                $khachHang->tong_chi_tieu += $hoaDon->tong_thanh_toan;
-                $khachHang->lan_mua_cuoi = now();
-                $khachHang->so_lan_su_dung_dich_vu += 1;
-                $khachHang->save();
+                if ($khachHang) {
+                    $khachHang->tong_chi_tieu += $hoaDon->tong_thanh_toan;
+                    $khachHang->lan_mua_cuoi = now();
+                    $khachHang->so_lan_su_dung_dich_vu += 1;
+                    $khachHang->save();
 
-                // Update RFM classification
-                $khachHang->updateRFMScore();
-                $khachHang->save();
+                    // Update RFM classification
+                    $khachHang->updateRFMScore();
+                    $khachHang->save();
+                }
             }
 
             // Calculate commissions for staff

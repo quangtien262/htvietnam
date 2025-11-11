@@ -774,6 +774,33 @@ const InvoiceList_BDS: React.FC = () => {
                                     </>,
                                 },
                                 {
+                                    title: <span> Sắp xếp</span>,
+                                    description: <>
+                                        <Form.Item
+                                            name="sort_by"
+                                        >
+                                            <Select
+                                                onChange={() => formSearch.submit()}
+                                                showSearch
+                                                allowClear={true}
+                                                style={{ width: "100%" }}
+                                                placeholder="Chọn sắp xếp"
+                                                optionFilterProp="children"
+                                                filterOption={(input, option) =>
+                                                    (option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
+                                                }
+                                                options={[
+                                                    { label: 'Tên khách hàng', value: 'user_name' },
+                                                    { label: 'Tổng tiền tăng dần', value: 'total_asc' },
+                                                    { label: 'Tổng tiền giảm dần', value: 'total_desc' },
+                                                ]}
+                                            />
+                                        </Form.Item>
+                                    </>,
+                                },
+                                {
                                     title: <span> Thời gian</span>,
                                     description: <>
                                         <Form.Item

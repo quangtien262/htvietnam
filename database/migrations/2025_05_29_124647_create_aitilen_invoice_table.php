@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->text('name')->nullable();
             $table->text('code')->nullable();
+            $table->integer('add2soquy')->default(0)->nullable();
             $table->integer('room_id')->nullable();
             $table->text('apartment_id')->nullable();
             $table->text('user_id')->nullable();

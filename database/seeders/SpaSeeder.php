@@ -171,6 +171,434 @@ class SpaSeeder extends Seeder
             ],
         ]);
 
+        // Khách hàng
+        DB::table('spa_khach_hang')->insert([
+            [
+                'ma_khach_hang' => 'KH001',
+                'ho_ten' => 'Nguyễn Văn An',
+                'sdt' => '0912345678',
+                'email' => 'vanan@example.com',
+                'ngay_sinh' => '1990-05-15',
+                'gioi_tinh' => 'Nam',
+                'dia_chi' => '123 Lê Lợi, Q1, TP.HCM',
+                'nguon_khach' => 'facebook',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_khach_hang' => 'KH002',
+                'ho_ten' => 'Trần Thị Bình',
+                'sdt' => '0923456789',
+                'email' => 'ttbinh@example.com',
+                'ngay_sinh' => '1992-08-20',
+                'gioi_tinh' => 'Nữ',
+                'dia_chi' => '456 Nguyễn Trãi, Q5, TP.HCM',
+                'nguon_khach' => 'website',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_khach_hang' => 'KH003',
+                'ho_ten' => 'Phạm Minh Châu',
+                'sdt' => '0934567890',
+                'email' => 'pmchau@example.com',
+                'ngay_sinh' => '1988-12-10',
+                'gioi_tinh' => 'Nữ',
+                'dia_chi' => '789 Võ Văn Tần, Q3, TP.HCM',
+                'nguon_khach' => 'gioi_thieu',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Tạo admin users cho KTV trước
+        $ktvUsers = [
+            [
+                'name' => 'Lê Thị Mai',
+                'email' => 'ltmai@himalayaspa.vn',
+                'phone' => '0945678901',
+                'password' => bcrypt('123456'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Nguyễn Văn Bình',
+                'email' => 'nvbinh@himalayaspa.vn',
+                'phone' => '0956789012',
+                'password' => bcrypt('123456'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Trương Thị Hoa',
+                'email' => 'tthoa@himalayaspa.vn',
+                'phone' => '0967890123',
+                'password' => bcrypt('123456'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ];
+
+        $adminUserIds = [];
+        foreach ($ktvUsers as $user) {
+            $adminUserIds[] = DB::table('admin_users')->insertGetId($user);
+        }
+
+        // KTV (Kỹ thuật viên)
+        DB::table('spa_ktv')->insert([
+            [
+                'ma_ktv' => 'KTV001',
+                'admin_user_id' => $adminUserIds[0],
+                'chuyen_mon_ids' => json_encode([1, 2]), // Massage và Chăm sóc da
+                'trinh_do' => 'senior',
+                'so_nam_kinh_nghiem' => 5,
+                'luong_co_ban' => 8000000,
+                'phan_tram_hoa_hong' => 25,
+                'rating_tb' => 4.8,
+                'so_luot_danh_gia' => 50,
+                'ngay_vao_lam' => now()->subYears(5),
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_ktv' => 'KTV002',
+                'admin_user_id' => $adminUserIds[1],
+                'chuyen_mon_ids' => json_encode([1]), // Massage
+                'trinh_do' => 'junior',
+                'so_nam_kinh_nghiem' => 3,
+                'luong_co_ban' => 6000000,
+                'phan_tram_hoa_hong' => 20,
+                'rating_tb' => 4.5,
+                'so_luot_danh_gia' => 30,
+                'ngay_vao_lam' => now()->subYears(3),
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_ktv' => 'KTV003',
+                'admin_user_id' => $adminUserIds[2],
+                'chuyen_mon_ids' => json_encode([2]), // Chăm sóc da
+                'trinh_do' => 'senior',
+                'so_nam_kinh_nghiem' => 4,
+                'luong_co_ban' => 7500000,
+                'phan_tram_hoa_hong' => 22,
+                'rating_tb' => 4.9,
+                'so_luot_danh_gia' => 45,
+                'ngay_vao_lam' => now()->subYears(4),
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Phòng
+        DB::table('spa_phong')->insert([
+            [
+                'ma_phong' => 'P001',
+                'ten_phong' => 'Phòng VIP 1',
+                'loai_phong' => 'vip',
+                'chi_nhanh_id' => 1,
+                'suc_chua' => 2,
+                'trang_thai' => 'trong',
+                'thu_tu' => 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_phong' => 'P002',
+                'ten_phong' => 'Phòng đơn 1',
+                'loai_phong' => 'standard',
+                'chi_nhanh_id' => 1,
+                'suc_chua' => 1,
+                'trang_thai' => 'trong',
+                'thu_tu' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_phong' => 'P003',
+                'ten_phong' => 'Phòng đôi 1',
+                'loai_phong' => 'couple',
+                'chi_nhanh_id' => 1,
+                'suc_chua' => 2,
+                'trang_thai' => 'trong',
+                'thu_tu' => 3,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_phong' => 'P004',
+                'ten_phong' => 'Phòng VIP 2',
+                'loai_phong' => 'vip',
+                'chi_nhanh_id' => 2,
+                'suc_chua' => 2,
+                'trang_thai' => 'trong',
+                'thu_tu' => 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Cấp độ thành viên (Membership Tier)
+        DB::table('spa_membership_tier')->insert([
+            [
+                'ten_cap' => 'SILVER',
+                'chi_tieu_toi_thieu' => 1000000,
+                'phan_tram_giam_dich_vu' => 5,
+                'phan_tram_giam_san_pham' => 3,
+                'he_so_tich_diem' => 1.0,
+                'mau_the' => '#C0C0C0',
+                'thu_tu' => 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ten_cap' => 'GOLD',
+                'chi_tieu_toi_thieu' => 5000000,
+                'phan_tram_giam_dich_vu' => 10,
+                'phan_tram_giam_san_pham' => 7,
+                'he_so_tich_diem' => 1.5,
+                'mau_the' => '#FFD700',
+                'thu_tu' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ten_cap' => 'PLATINUM',
+                'chi_tieu_toi_thieu' => 15000000,
+                'phan_tram_giam_dich_vu' => 15,
+                'phan_tram_giam_san_pham' => 12,
+                'he_so_tich_diem' => 2.0,
+                'mau_the' => '#E5E4E2',
+                'thu_tu' => 3,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ten_cap' => 'DIAMOND',
+                'chi_tieu_toi_thieu' => 50000000,
+                'phan_tram_giam_dich_vu' => 20,
+                'phan_tram_giam_san_pham' => 15,
+                'he_so_tich_diem' => 3.0,
+                'mau_the' => '#B9F2FF',
+                'thu_tu' => 4,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Thẻ thành viên cho khách hàng
+        DB::table('spa_khach_hang_the')->insert([
+            [
+                'khach_hang_id' => 1,
+                'membership_tier_id' => 2, // GOLD
+                'ma_the' => 'THE001',
+                'ngay_kich_hoat' => now(),
+                'ngay_het_han' => now()->addYear(),
+                'diem_hien_tai' => 500,
+                'diem_su_dung' => 100,
+                'chi_tieu_nam_nay' => 7500000,
+                'trang_thai' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'khach_hang_id' => 3,
+                'membership_tier_id' => 4, // DIAMOND
+                'ma_the' => 'THE002',
+                'ngay_kich_hoat' => now()->subMonths(6),
+                'ngay_het_han' => now()->addMonths(6),
+                'diem_hien_tai' => 2500,
+                'diem_su_dung' => 500,
+                'chi_tieu_nam_nay' => 55000000,
+                'trang_thai' => 'active',
+                'created_at' => now()->subMonths(6),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Booking mẫu
+        DB::table('spa_bookings')->insert([
+            [
+                'ma_booking' => 'BK00001',
+                'khach_hang_id' => 1,
+                'chi_nhanh_id' => 1,
+                'nguon_booking' => 'web',
+                'ngay_hen' => now()->addDays(2),
+                'gio_hen' => '10:00:00',
+                'gio_bat_dau' => '10:00:00',
+                'gio_ket_thuc' => '11:30:00',
+                'thoi_gian_du_kien' => 90,
+                'trang_thai' => 'da_xac_nhan',
+                'tien_coc' => 100000,
+                'ghi_chu_khach' => 'Muốn massage nhẹ nhàng',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_booking' => 'BK00002',
+                'khach_hang_id' => 2,
+                'chi_nhanh_id' => 1,
+                'nguon_booking' => 'app',
+                'ngay_hen' => now()->addDays(1),
+                'gio_hen' => '14:00:00',
+                'gio_bat_dau' => '14:00:00',
+                'gio_ket_thuc' => '15:00:00',
+                'thoi_gian_du_kien' => 60,
+                'trang_thai' => 'cho_xac_nhan',
+                'tien_coc' => 50000,
+                'ghi_chu_khach' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_booking' => 'BK00003',
+                'khach_hang_id' => 3,
+                'chi_nhanh_id' => 2,
+                'nguon_booking' => 'dien_thoai',
+                'ngay_hen' => now()->addDays(3),
+                'gio_hen' => '16:00:00',
+                'gio_bat_dau' => '16:00:00',
+                'gio_ket_thuc' => '18:00:00',
+                'thoi_gian_du_kien' => 120,
+                'trang_thai' => 'da_xac_nhan',
+                'tien_coc' => 200000,
+                'ghi_chu_khach' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Chi tiết booking - dịch vụ
+        DB::table('spa_booking_dich_vu')->insert([
+            [
+                'booking_id' => 1,
+                'dich_vu_id' => 1,
+                'ktv_id' => 1,
+                'phong_id' => 1,
+                'gio_bat_dau' => '10:00:00',
+                'gio_ket_thuc' => '11:30:00',
+                'gia_dich_vu' => 500000,
+                'trang_thai' => 'chua_lam',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'booking_id' => 2,
+                'dich_vu_id' => 2,
+                'ktv_id' => 3,
+                'phong_id' => 2,
+                'gio_bat_dau' => '14:00:00',
+                'gio_ket_thuc' => '15:00:00',
+                'gia_dich_vu' => 300000,
+                'trang_thai' => 'chua_lam',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'booking_id' => 3,
+                'dich_vu_id' => 3,
+                'ktv_id' => 3,
+                'phong_id' => 4,
+                'gio_bat_dau' => '16:00:00',
+                'gio_ket_thuc' => '18:00:00',
+                'gia_dich_vu' => 800000,
+                'trang_thai' => 'chua_lam',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Hóa đơn mẫu (cho booking đã hoàn thành)
+        $completedBookingId = DB::table('spa_bookings')->insertGetId([
+            'ma_booking' => 'BK00004',
+            'khach_hang_id' => 1,
+            'chi_nhanh_id' => 1,
+            'nguon_booking' => 'truc_tiep',
+            'ngay_hen' => now()->subDays(2),
+            'gio_hen' => '10:00:00',
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:30:00',
+            'thoi_gian_du_kien' => 90,
+            'trang_thai' => 'hoan_thanh',
+            'created_at' => now()->subDays(2),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('spa_booking_dich_vu')->insert([
+            'booking_id' => $completedBookingId,
+            'dich_vu_id' => 1,
+            'ktv_id' => 1,
+            'phong_id' => 1,
+            'gio_bat_dau' => '10:00:00',
+            'gio_ket_thuc' => '11:30:00',
+            'gia_dich_vu' => 450000,
+            'trang_thai' => 'hoan_thanh',
+            'created_at' => now()->subDays(2),
+            'updated_at' => now(),
+        ]);
+
+        $hoaDonId = DB::table('spa_hoa_don')->insertGetId([
+            'ma_hoa_don' => 'HD00001',
+            'booking_id' => $completedBookingId,
+            'khach_hang_id' => 1,
+            'chi_nhanh_id' => 1,
+            'nhan_vien_ban_id' => $adminUserIds[0],
+            'ngay_ban' => now()->subDays(2),
+            'tong_tien_dich_vu' => 450000,
+            'tong_tien_san_pham' => 350000,
+            'tong_tien' => 800000,
+            'giam_gia' => 80000,
+            'tien_tip' => 50000,
+            'thue_vat' => 0,
+            'tong_thanh_toan' => 770000,
+            'phuong_thuc_thanh_toan' => 'tien_mat',
+            'trang_thai' => 'da_thanh_toan',
+            'diem_tich_luy' => 77,
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2),
+        ]);
+
+        DB::table('spa_hoa_don_chi_tiet')->insert([
+            [
+                'hoa_don_id' => $hoaDonId,
+                'loai' => 'dich_vu',
+                'dich_vu_id' => 1,
+                'san_pham_id' => null,
+                'so_luong' => 1,
+                'don_gia' => 450000,
+                'thanh_tien' => 450000,
+                'ktv_id' => 1,
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
+            ],
+            [
+                'hoa_don_id' => $hoaDonId,
+                'loai' => 'san_pham',
+                'dich_vu_id' => null,
+                'san_pham_id' => 2,
+                'so_luong' => 1,
+                'don_gia' => 350000,
+                'thanh_tien' => 350000,
+                'ktv_id' => null,
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
+            ],
+        ]);
+
         echo "✅ Đã seed dữ liệu SPA mẫu thành công!\n";
     }
 }

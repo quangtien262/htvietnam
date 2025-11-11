@@ -3,12 +3,9 @@
 namespace App\Models\Spa;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class KhachHangThe extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'spa_khach_hang_the';
 
     protected $fillable = [

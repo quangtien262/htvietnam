@@ -11,6 +11,7 @@ interface InventoryItem {
     id: number;
     ma_san_pham: string;
     ten_san_pham: string;
+    danh_muc_id?: number;
     danh_muc_ten?: string;
     don_vi_tinh: string;
     ton_kho: number;
@@ -262,8 +263,8 @@ const InventoryList: React.FC = () => {
             dataIndex: 'loai',
             key: 'loai',
             width: 100,
-            render: (loai) => {
-                const config = {
+            render: (loai: 'nhap' | 'xuat' | 'dieu_chinh') => {
+                const config: Record<'nhap' | 'xuat' | 'dieu_chinh', { color: string; text: string }> = {
                     nhap: { color: 'green', text: 'Nhập kho' },
                     xuat: { color: 'orange', text: 'Xuất kho' },
                     dieu_chinh: { color: 'blue', text: 'Điều chỉnh' },

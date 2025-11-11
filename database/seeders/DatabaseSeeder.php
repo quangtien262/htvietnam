@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminMenuSeeder::class);
 
         $this->call(HimalayaSeeder::class);
+        
+        $this->call(SpaSeeder::class);
 
         if(!empty(env('APP_LAYOUT'))) {
             $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');
