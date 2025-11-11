@@ -22,9 +22,11 @@ class AitilenInvoice extends Model
             'users.code as ma_khach_hang',
             'users.phone as phone',
             'contract.name as hop_dong_name',
+            'room.name as ten_phong',
         )
             ->leftJoin('contract', 'contract.id', 'aitilen_invoice.contract_id')
-            ->leftJoin('users', 'users.id', 'aitilen_invoice.user_id');
+            ->leftJoin('users', 'users.id', 'aitilen_invoice.user_id')
+            ->leftJoin('room', 'room.id', 'aitilen_invoice.room_id');
 
         // check thùng rác
         if ($showRecycle) {
@@ -88,6 +90,8 @@ class AitilenInvoice extends Model
                 $datas = $datas->orderBy('aitilen_invoice.total', 'asc');
             } elseif($dataFilter['sort_by'] == 'total_desc') {
                 $datas = $datas->orderBy('aitilen_invoice.total', 'desc');
+            } elseif($dataFilter['sort_by'] == 'room') {
+                $datas = $datas->orderBy('room.name', 'asc');
             }
         }
 

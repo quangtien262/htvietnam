@@ -792,6 +792,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                         .includes(input.toLowerCase())
                                                 }
                                                 options={[
+                                                    { label: 'Tên phòng', value: 'room' },
                                                     { label: 'Tên khách hàng', value: 'user_name' },
                                                     { label: 'Tổng tiền tăng dần', value: 'total_asc' },
                                                     { label: 'Tổng tiền giảm dần', value: 'total_desc' },
