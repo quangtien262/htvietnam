@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('whmcs_invoice_items', function (Blueprint $table) {
-            //
+            $table->foreignId('product_id')->nullable()->after('invoice_id')->constrained('whmcs_products')->nullOnDelete();
         });
     }
 
@@ -22,7 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('whmcs_invoice_items', function (Blueprint $table) {
-            //
+            $table->dropForeign(['product_id']);
+            $table->dropColumn('product_id');
         });
     }
 };

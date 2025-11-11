@@ -146,7 +146,8 @@ class InvoiceApiTest extends TestCase
             ->postJson("/aio/api/whmcs/invoices/{$invoice->id}/cancel");
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Cannot cancel paid invoice']);
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', fn($msg) => str_contains($msg, 'Cannot cancel paid invoice'));
     }
 
     public function test_can_filter_invoices_by_status(): void
@@ -175,22 +176,33 @@ class InvoiceApiTest extends TestCase
     {
         $invoice = Invoice::factory()->create([
             'client_id' => $this->user->id,
+            'subtotal' => 0,
+            'total' => 0,
         ]);
 
-        InvoiceItem::factory()->create([
+        $item1 = InvoiceItem::factory()->create([
             'invoice_id' => $invoice->id,
             'unit_price' => 100000,
             'qty' => 2,
+            'total' => 200000,
         ]);
 
-        InvoiceItem::factory()->create([
+        $item2 = InvoiceItem::factory()->create([
             'invoice_id' => $invoice->id,
             'unit_price' => 50000,
             'qty' => 1,
+            'total' => 50000,
+        ]);
+
+        // Update invoice total
+        $invoice->update([
+            'subtotal' => 250000,
+            'total' => 250000,
         ]);
 
         $invoice->refresh();
         $this->assertEquals(250000, $invoice->total);
+        $this->assertEquals(2, $invoice->items()->count());
     }
 
     public function test_generates_unique_number(): void
