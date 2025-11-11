@@ -748,6 +748,32 @@ export const MENU = {
             ],
         },
     ],
+
+    // Project Management System
+    projects: [
+        {
+            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
+            icon: <HomeOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: <Link className='normal' to={`${ROUTE.project_dashboard}?p=projects`}>Dashboard</Link>,
+            icon: <DashboardOutlined />,
+            key: (key++).toString(),
+        },
+        {
+            label: "Dự án",
+            key: (key++).toString(),
+            icon: <ApartmentOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.project_list}?p=projects`}>Danh sách dự án</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+            ],
+        },
+    ],
 }
 
 

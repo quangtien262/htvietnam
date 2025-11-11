@@ -142,6 +142,16 @@ export const ROUTE = {
     spa_branches: `${baseRoute}spa/branches/`,
     spa_rooms: `${baseRoute}spa/rooms/`,
     spa_settings: `${baseRoute}spa/settings/`,
+
+    // Project Management - Quản lý dự án
+    project_dashboard: `${baseRoute}project/dashboard/`,
+    project_list: `${baseRoute}project/list/`,
+    project_detail: `${baseRoute}project/:id/`,
+    project_kanban: `${baseRoute}project/:id/kanban/`,
+    project_gantt: `${baseRoute}project/:id/gantt/`,
+    project_tasks: `${baseRoute}project/:id/tasks/`,
+    project_settings: `${baseRoute}project/settings/`,
 };
 
 export default ROUTE;
+

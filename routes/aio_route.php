@@ -13,8 +13,8 @@ use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MeetingController;
-use App\Http\Controllers\Admin\ProjectController;
-use App\Http\Controllers\Admin\TaskController;
+use App\Http\Controllers\Admin\ProController;
+use App\Http\Controllers\Admin\SubProController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
 use App\Http\Controllers\Auth\AuthController;
@@ -60,73 +60,67 @@ Route::group(['prefix' => 'data'], function () {
 
 //tasks: api
 Route::group(['prefix' => 'task'], function () {
-    Route::post('sort-order', [TaskController::class, 'updateSortOrder'])->name('aio.task.updateSortOrder');
-    Route::post('fast-edit', [TaskController::class, 'fastEditTaskColumn'])->name('aio.task.fastEditTask');
+    Route::post('sort-order', [SubProController::class, 'updateSortOrder'])->name('aio.task.updateSortOrder');
+    Route::post('fast-edit', [SubProController::class, 'fastEditTaskColumn'])->name('aio.task.fastEditTask');
 
-    Route::post('delete', [TaskController::class, 'destroy'])->name('aio.task.delete');
-    Route::post('info', [TaskController::class, 'getTaskInfo'])->name('aio.task.getTaskInfo');
+    Route::post('delete', [SubProController::class, 'destroy'])->name('aio.task.delete');
+    Route::post('info', [SubProController::class, 'getTaskInfo'])->name('aio.task.getTaskInfo');
 
-    Route::post('checklist/add', [TaskController::class, 'addChecklist'])->name('aio.task.addChecklist');
-    Route::post('checklist/change-status', [TaskController::class, 'changeStatusChecklist'])->name('aio.task.changeChecklistStatus');
-    Route::post('checklist/delete', [TaskController::class, 'deleteChecklist'])->name('aio.task.deleteChecklist');
+    Route::post('checklist/add', [SubProController::class, 'addChecklist'])->name('aio.task.addChecklist');
+    Route::post('checklist/change-status', [SubProController::class, 'changeStatusChecklist'])->name('aio.task.changeChecklistStatus');
+    Route::post('checklist/delete', [SubProController::class, 'deleteChecklist'])->name('aio.task.deleteChecklist');
 
-    Route::post('comment/add', [TaskController::class, 'addComment'])->name('aio.task.addComment');
-    Route::post('comment/delete', [TaskController::class, 'deleteComment'])->name('aio.task.deleteComment');
+    Route::post('comment/add', [SubProController::class, 'addComment'])->name('aio.task.addComment');
+    Route::post('comment/delete', [SubProController::class, 'deleteComment'])->name('aio.task.deleteComment');
 
     // list & kanban
-    Route::post('list', [TaskController::class, 'listApi'])->name('aio.task.list');
-    Route::post('list/search', [TaskController::class, 'searchTaskList'])->name('aio.task.list.search');
-    Route::post('add', [TaskController::class, 'store'])->name('aio.task.add');
-    Route::post('add-express', [TaskController::class, 'addExpress'])->name('aio.task.addTaskExpress');
-    Route::post('list/search', [TaskController::class, 'searchTaskList'])->name('aio.task.list.search');
-    Route::post('kanban/search', [TaskController::class, 'searchTaskKanban'])->name('aio.task.kanban.search');
+    Route::post('list', [SubProController::class, 'listApi'])->name('aio.task.list');
+    Route::post('list/search', [SubProController::class, 'searchTaskList'])->name('aio.task.list.search');
+    Route::post('add', [SubProController::class, 'store'])->name('aio.task.add');
+    Route::post('add-express', [SubProController::class, 'addExpress'])->name('aio.task.addTaskExpress');
+    Route::post('list/search', [SubProController::class, 'searchTaskList'])->name('aio.task.list.search');
+    Route::post('kanban/search', [SubProController::class, 'searchTaskKanban'])->name('aio.task.kanban.search');
 
     // add/edit status, priority
-    Route::post('edit-config', [TaskController::class, 'editTableConfig'])->name('aio.task.editConfigTask');
-    Route::post('status/sort-order', [TaskController::class, 'updateSortOrder_config'])->name('aio.task.updateSortOrder_taskStatus');
-    Route::post('{parentName}/delete-config/{currentTable}', [TaskController::class, 'deleteTableConfig'])->name('aio.task.deleteTableConfig');
+    Route::post('edit-config', [SubProController::class, 'editTableConfig'])->name('aio.task.editConfigTask');
+    Route::post('status/sort-order', [SubProController::class, 'updateSortOrder_config'])->name('aio.task.updateSortOrder_taskStatus');
+    Route::post('{parentName}/delete-config/{currentTable}', [SubProController::class, 'deleteTableConfig'])->name('aio.task.deleteTableConfig');
 });
 
 // task
 Route::group(['prefix' => 'tasks'], function () {
-    Route::get('dashboard', [TaskController::class, 'dashboard'])->name('aio.task.dashboard');
+    Route::get('dashboard', [SubProController::class, 'dashboard'])->name('aio.task.dashboard');
 
-    Route::get('{parentName}/list', [TaskController::class, 'index'])->name('aio.task.list');
-    // Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('aio.task.sortOrder');
+    Route::get('{parentName}/list', [SubProController::class, 'index'])->name('aio.task.list');
+    Route::post('{parentName}/sort-order', [SubProController::class, 'sortOrder'])->name('project.sortOrder');
+    // Route::post('{parentName}/sort-order', [SubProController::class, 'sortOrder'])->name('aio.task.sortOrder');
 });
 
 // project: api
 Route::group(['prefix' => 'project'], function () {
-    Route::put('update-sort-order/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
-    Route::post('sort-order/project-status', [ProjectController::class, 'updateSortOrderStatus'])->name('project.updateSortOrderStatus');
+    Route::put('update-sort-order/{id}', [ProController::class, 'updateSortOrder'])->name('project.updateSortOrder');
+    Route::post('sort-order/project-status', [ProController::class, 'updateSortOrderStatus'])->name('project.updateSortOrderStatus');
 
-    Route::post('add-checklist', [ProjectController::class, 'addChecklist'])->name('project.addChecklist');
-    Route::post('add-comment', [ProjectController::class, 'addComment'])->name('project.addComment');
-    Route::post('info', [ProjectController::class, 'getProjectInfo'])->name('project.getProjectInfo');
+    Route::post('add-checklist', [ProController::class, 'addChecklist'])->name('project.addChecklist');
+    Route::post('add-comment', [ProController::class, 'addComment'])->name('project.addComment');
+    Route::post('info', [ProController::class, 'getProjectInfo'])->name('project.getProjectInfo');
 
     // OK
-    Route::post('list', [ProjectController::class, 'indexApi'])->name('project.list');
-    Route::post('fast-edit', [ProjectController::class, 'fastEditProject'])->name('project.fastEditProject');
-    Route::post('search', [ProjectController::class, 'search'])->name('project.search');
-    Route::post('edit-config', [ProjectController::class, 'editConfig'])->name('project.editConfig');
-    Route::post('add', [ProjectController::class, 'store'])->name('project.add');
-    Route::post('delete', [ProjectController::class, 'destroy'])->name('project.delete');
-    Route::post('comment/delete', [ProjectController::class, 'deleteComment'])->name('project.deleteComment');
+    Route::post('list', [ProController::class, 'indexApi'])->name('project.list');
+    Route::post('fast-edit', [ProController::class, 'fastEditProject'])->name('project.fastEditProject');
+    Route::post('search', [ProController::class, 'search'])->name('project.search');
+    Route::post('edit-config', [ProController::class, 'editConfig'])->name('project.editConfig');
+    Route::post('add', [ProController::class, 'store'])->name('project.add');
+    Route::post('delete', [ProController::class, 'destroy'])->name('project.delete');
+    Route::post('comment/delete', [ProController::class, 'deleteComment'])->name('project.deleteComment');
 });
 
 Route::group(['prefix' => 'pj'], function () {
-    Route::get('{parentName}/list', [ProjectController::class, 'index'])->name('project.list');
-
-    // Route::put('{parentName}/update/{id}', [ProjectController::class, 'updateSortOrder'])->name('project.updateSortOrder');
-    // Route::delete('{parentName}/delete/{id}', [ProjectController::class, 'destroy'])->name('project.delete');
-    // Route::post('{parentName}/add-checklist', [TaskController::class, 'addChecklist'])->name('project.addChecklist');
-
-    // Route::post('{parentName}/add-comment', [TaskController::class, 'addComment'])->name('project.addComment');
-    Route::post('{parentName}/sort-order', [TaskController::class, 'sortOrder'])->name('project.sortOrder');
-    Route::post('{parentName}/add-express', [ProjectController::class, 'addExpress'])->name('project.addExpress');
+    Route::get('{parentName}/list', [ProController::class, 'index'])->name('project.list');
+    Route::post('{parentName}/add-express', [ProController::class, 'addExpress'])->name('project.addExpress');
 
 
-    Route::post('{parentName}/delete-config/{currentTable}', [ProjectController::class, 'deleteConfig'])->name('project.deleteConfig');
+    Route::post('{parentName}/delete-config/{currentTable}', [ProController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 
 // invoice: api

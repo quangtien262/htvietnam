@@ -50,6 +50,11 @@ Route::middleware('auth:admin_users')->group(function () {
         require __DIR__ . '/admin_route.php';
     });
 
+    // Project Management API
+    Route::group(['prefix' => 'project/api'], function () {
+        require __DIR__ . '/project_route.php';
+    });
+
     Route::group(['prefix' => 'purchase'], function () {
         require __DIR__ . '/purchase_route.php';
     });

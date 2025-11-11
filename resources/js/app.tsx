@@ -133,6 +133,14 @@ import Settings from './pages/spa/Settings';
 import Documentation from './pages/spa/Documentation';
 import InventoryList from './pages/spa/InventoryList';
 
+// Project Management System
+import ProjectDashboard from './pages/project/ProjectDashboard';
+import ProjectList_PM from './pages/project/ProjectList';
+import ProjectDetail from './pages/project/ProjectDetail';
+import TaskKanban_PM from './pages/project/TaskKanban';
+import TaskList_PM from './pages/project/TaskList';
+import GanttChart_PM from './pages/project/GanttChart';
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -258,6 +266,14 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_rooms} element={<RoomList />} />
                 <Route path={ROUTE.spa_settings} element={<Settings />} />
                 <Route path={ROUTE.spa_documentation} element={<Documentation />} />
+
+                {/* Project Management System */}
+                <Route path={ROUTE.project_dashboard} element={<ProjectDashboard />} />
+                <Route path={ROUTE.project_list} element={<ProjectList_PM />} />
+                <Route path={ROUTE.project_detail} element={<ProjectDetail />} />
+                <Route path={ROUTE.project_kanban} element={<TaskKanban_PM />} />
+                <Route path={ROUTE.project_gantt} element={<GanttChart_PM />} />
+                <Route path={ROUTE.project_tasks} element={<TaskList_PM />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>

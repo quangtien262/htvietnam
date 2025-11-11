@@ -20,7 +20,7 @@ use App\Models\AdminUser;
 use App\Services\Admin\TblModel;
 use Illuminate\Support\Facades\Auth;
 
-class TaskController extends Controller
+class SubProController extends Controller
 {
 
     public function getTaskInfo(Request $request)

@@ -20,7 +20,7 @@ use App\Models\AdminUser;
 use App\Services\Admin\TblModel;
 use Illuminate\Support\Facades\Auth;
 
-class ProjectController extends Controller
+class ProController extends Controller
 {
     public function getProjectInfo(Request $request)
     {
