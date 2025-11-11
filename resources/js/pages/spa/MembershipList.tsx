@@ -74,11 +74,13 @@ const MembershipList: React.FC = () => {
     const loadTiers = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/membership-tiers/list', {
-                page: pagination.current,
-                limit: pagination.pageSize,
-                search: searchText,
-                trang_thai: selectedStatus,
+            const response = await axios.get('/aio/api/spa/membership-tiers', {
+                params: {
+                    page: pagination.current,
+                    limit: pagination.pageSize,
+                    search: searchText,
+                    trang_thai: selectedStatus,
+                }
             });
 
             if (response.data.success) {
@@ -125,12 +127,18 @@ const MembershipList: React.FC = () => {
         try {
             const values = await form.validateFields();
             const payload = {
-                id: selectedTier?.id,
                 ...values,
-                mau_sac: selectedColor,
+                mau_the: selectedColor,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/membership-tiers/create-or-update', payload);
+            let response;
+            if (selectedTier?.id) {
+                // Update existing tier
+                response = await axios.put(`/aio/api/spa/membership-tiers/${selectedTier.id}`, payload);
+            } else {
+                // Create new tier
+                response = await axios.post('/aio/api/spa/membership-tiers', payload);
+            }
 
             if (response.data.success) {
                 message.success(selectedTier ? 'Cập nhật hạng thành viên thành công' : 'Tạo hạng thành viên mới thành công');
@@ -144,7 +152,7 @@ const MembershipList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/membership-tiers/delete', { id });
+            const response = await axios.delete(`/aio/api/spa/membership-tiers/${id}`);
             if (response.data.success) {
                 message.success('Xóa hạng thành viên thành công');
                 loadTiers();
@@ -157,8 +165,7 @@ const MembershipList: React.FC = () => {
     const handleStatusToggle = async (record: MembershipTier) => {
         try {
             const newStatus = record.trang_thai === 'hoat_dong' ? 'tam_dung' : 'hoat_dong';
-            const response = await axios.post('/aio/api/admin/spa/membership-tiers/create-or-update', {
-                id: record.id,
+            const response = await axios.put(`/aio/api/spa/membership-tiers/${record.id}`, {
                 trang_thai: newStatus,
             });
 
@@ -479,24 +486,25 @@ const MembershipList: React.FC = () => {
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
-                                name="ma_hang"
-                                label="Mã hạng"
-                                rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
+                                name="cap_do"
+                                label="Cấp độ"
+                                rules={[{ required: true, message: 'Vui lòng nhập cấp độ' }]}
+                                tooltip="Số thứ tự cấp bậc (1, 2, 3...)"
                             >
-                                <Input placeholder="VD: VIP01" />
+                                <InputNumber placeholder="VD: 1" min={1} style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
                         <Col span={16}>
                             <Form.Item
-                                name="ten_hang"
-                                label="Tên hạng"
+                                name="ten_cap_bac"
+                                label="Tên cấp bậc"
                                 rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                             >
                                 <Input placeholder="VD: Hạng Kim cương" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item label="Màu sắc">
+                            <Form.Item label="Màu thẻ">
                                 <ColorPicker
                                     value={selectedColor}
                                     onChange={(color: Color) => setSelectedColor(color.toHexString())}
@@ -504,29 +512,12 @@ const MembershipList: React.FC = () => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="thu_tu"
-                                label="Thứ tự"
-                                initialValue={1}
-                                rules={[{ required: true, message: 'Vui lòng nhập thứ tự' }]}
-                            >
-                                <InputNumber style={{ width: '100%' }} min={1} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="trang_thai" label="Trạng thái" initialValue="hoat_dong">
-                                <Select>
-                                    <Option value="hoat_dong">Hoạt động</Option>
-                                    <Option value="tam_dung">Tạm dừng</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="chi_tieu_toi_thieu"
-                                label="Chi tiêu tối thiểu (VNĐ)"
-                                rules={[{ required: true, message: 'Vui lòng nhập chi tiêu tối thiểu' }]}
+                                name="chi_tieu_yeu_cau"
+                                label="Chi tiêu yêu cầu (VNĐ)"
+                                rules={[{ required: true, message: 'Vui lòng nhập chi tiêu yêu cầu' }]}
+                                tooltip="Tổng chi tiêu tối thiểu để đạt hạng này"
                             >
                                 <InputNumber
                                     style={{ width: '100%' }}
@@ -538,25 +529,10 @@ const MembershipList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="chi_tieu_toi_da"
-                                label="Chi tiêu tối đa (VNĐ)"
-                                tooltip="Để trống nếu không giới hạn"
-                            >
-                                <InputNumber
-                                    style={{ width: '100%' }}
-                                    min={0}
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                    parser={(value) => value!.replace(/\$\s?|(,*)/g, '') as any}
-                                    placeholder="Không giới hạn"
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="ty_le_giam_gia"
+                                name="ti_le_giam_gia"
                                 label="Tỷ lệ giảm giá (%)"
                                 rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ giảm giá' }]}
-                                initialValue={5}
+                                initialValue={0}
                             >
                                 <InputNumber
                                     style={{ width: '100%' }}
@@ -568,7 +544,7 @@ const MembershipList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="ty_le_tich_diem"
+                                name="ti_le_tich_diem"
                                 label="Tỷ lệ tích điểm (%)"
                                 rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ tích điểm' }]}
                                 initialValue={1}
@@ -583,16 +559,11 @@ const MembershipList: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Form.Item name="uu_dai_dac_biet" label="Ưu đãi đặc biệt">
+                            <Form.Item name="uu_dai_khac" label="Ưu đãi khác">
                                 <TextArea
                                     rows={3}
                                     placeholder="VD: Miễn phí 1 dịch vụ spa hàng tháng, Tặng quà sinh nhật, Ưu tiên đặt lịch..."
                                 />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item name="mo_ta" label="Mô tả">
-                                <TextArea rows={2} placeholder="Mô tả về hạng thành viên..." />
                             </Form.Item>
                         </Col>
                     </Row>

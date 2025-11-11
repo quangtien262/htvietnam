@@ -39,8 +39,10 @@ class POSService
             $query->where(function($q) use ($search) {
                 $q->where('ma_hoa_don', 'like', "%{$search}%")
                   ->orWhereHas('khachHang', function($q2) use ($search) {
-                      $q2->where('ho_ten', 'like', "%{$search}%")
-                         ->orWhere('so_dien_thoai', 'like', "%{$search}%");
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('ho_ten', 'like', "%{$search}%")
+                         ->orWhere('phone', 'like', "%{$search}%")
+                         ->orWhere('sdt', 'like', "%{$search}%");
                   });
             });
         }
@@ -58,7 +60,7 @@ class POSService
 
             $data['ngay_ban'] = now();
             $data['trang_thai'] = 'cho_thanh_toan';
-            
+
             // Ensure chi_nhanh_id is set
             if (empty($data['chi_nhanh_id'])) {
                 $data['chi_nhanh_id'] = 1; // Default branch
@@ -78,9 +80,8 @@ class POSService
                     // Try to fetch from database
                     $dichVu = \App\Models\Spa\DichVu::find($chiTiet['dich_vu_id']);
                     if ($dichVu) {
-                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\Spa\KhachHang::find($data['khach_hang_id']) : null;
-                        $membershipCard = $khachHang?->membershipCards()->active()->first();
-                        $donGia = $membershipCard ? $dichVu->gia_thanh_vien : $dichVu->gia_ban;
+                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\User::find($data['khach_hang_id']) : null;
+                        $donGia = $dichVu->gia_ban;
                     } else {
                         // Fallback: use a default price if service not found
                         $donGia = $chiTiet['don_gia'] ?? 0;
@@ -89,9 +90,8 @@ class POSService
                     // Try to fetch from database
                     $sanPham = SanPham::find($chiTiet['san_pham_id']);
                     if ($sanPham) {
-                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\Spa\KhachHang::find($data['khach_hang_id']) : null;
-                        $membershipCard = $khachHang?->membershipCards()->active()->first();
-                        $donGia = $membershipCard ? $sanPham->gia_thanh_vien : $sanPham->gia_ban;
+                        $khachHang = !empty($data['khach_hang_id']) ? \App\Models\User::find($data['khach_hang_id']) : null;
+                        $donGia = $sanPham->gia_ban;
 
                         // Update stock
                         $sanPham->updateStock($chiTiet['so_luong'], 'decrease');
@@ -149,12 +149,15 @@ class POSService
 
             // Deduct loyalty points if used
             if ($hoaDon->diem_su_dung > 0 && $hoaDon->khach_hang_id) {
-                $khachHang = \App\Models\Spa\KhachHang::find($hoaDon->khach_hang_id);
-                $khachHang->usePoints(
-                    $hoaDon->diem_su_dung,
-                    $hoaDon->id,
-                    "Sử dụng điểm thanh toán hóa đơn {$hoaDon->ma_hoa_don}"
-                );
+                $khachHang = \App\Models\User::find($hoaDon->khach_hang_id);
+                if ($khachHang) {
+                    $currentPoints = $khachHang->diem_tich_luy ?? $khachHang->points ?? 0;
+                    $newPoints = max(0, $currentPoints - $hoaDon->diem_su_dung);
+                    $khachHang->update([
+                        'diem_tich_luy' => $newPoints,
+                        'points' => $newPoints,
+                    ]);
+                }
             }
 
             // Award loyalty points for purchase
@@ -162,16 +165,14 @@ class POSService
 
             // Update customer statistics
             if ($hoaDon->khach_hang_id) {
-                $khachHang = \App\Models\Spa\KhachHang::find($hoaDon->khach_hang_id);
+                $khachHang = \App\Models\User::find($hoaDon->khach_hang_id);
                 if ($khachHang) {
-                    $khachHang->tong_chi_tieu += $hoaDon->tong_thanh_toan;
-                    $khachHang->lan_mua_cuoi = now();
-                    $khachHang->so_lan_su_dung_dich_vu += 1;
-                    $khachHang->save();
-
-                    // Update RFM classification
-                    $khachHang->updateRFMScore();
-                    $khachHang->save();
+                    // Update user spending statistics (if fields exist)
+                    $currentSpending = $khachHang->tong_chi_tieu ?? 0;
+                    $khachHang->update([
+                        'tong_chi_tieu' => $currentSpending + $hoaDon->tong_thanh_toan,
+                        'updated_at' => now(),
+                    ]);
                 }
             }
 
@@ -230,32 +231,30 @@ class POSService
 
             // Refund loyalty points if customer paid
             if ($hoaDon->trang_thai === 'da_thanh_toan' && $hoaDon->khach_hang_id) {
-                $khachHang = \App\Models\Spa\KhachHang::find($hoaDon->khach_hang_id);
+                $khachHang = \App\Models\User::find($hoaDon->khach_hang_id);
 
-                // Return used points
-                if ($hoaDon->diem_su_dung > 0) {
-                    $khachHang->addPoints(
-                        $hoaDon->diem_su_dung,
-                        'huy',
-                        $hoaDon->id,
-                        "Hoàn điểm do hủy hóa đơn {$hoaDon->ma_hoa_don}"
-                    );
+                if ($khachHang) {
+                    $currentPoints = $khachHang->diem_tich_luy ?? $khachHang->points ?? 0;
+
+                    // Return used points
+                    if ($hoaDon->diem_su_dung > 0) {
+                        $currentPoints += $hoaDon->diem_su_dung;
+                    }
+
+                    // Deduct earned points from this purchase
+                    $earnedPoints = floor($hoaDon->tong_thanh_toan / 10000);
+                    if ($earnedPoints > 0) {
+                        $currentPoints = max(0, $currentPoints - $earnedPoints);
+                    }
+
+                    // Update customer points and statistics
+                    $currentSpending = $khachHang->tong_chi_tieu ?? 0;
+                    $khachHang->update([
+                        'diem_tich_luy' => $currentPoints,
+                        'points' => $currentPoints,
+                        'tong_chi_tieu' => max(0, $currentSpending - $hoaDon->tong_thanh_toan),
+                    ]);
                 }
-
-                // Deduct earned points from this purchase
-                $earnedPoints = floor($hoaDon->tong_thanh_toan / 10000);
-                if ($earnedPoints > 0) {
-                    $khachHang->usePoints(
-                        $earnedPoints,
-                        $hoaDon->id,
-                        "Trừ điểm do hủy hóa đơn {$hoaDon->ma_hoa_don}"
-                    );
-                }
-
-                // Update customer statistics
-                $khachHang->tong_chi_tieu -= $hoaDon->tong_thanh_toan;
-                $khachHang->so_lan_su_dung_dich_vu -= 1;
-                $khachHang->save();
             }
 
             // Cancel invoice

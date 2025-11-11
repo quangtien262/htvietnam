@@ -49,7 +49,7 @@ class HoaDon extends Model
     // Relationships
     public function khachHang()
     {
-        return $this->belongsTo(KhachHang::class, 'khach_hang_id');
+        return $this->belongsTo(\App\Models\User::class, 'khach_hang_id');
     }
 
     public function chiNhanh()
@@ -182,31 +182,20 @@ class HoaDon extends Model
     {
         if (!$this->khach_hang_id) return;
 
-        $khachHang = $this->khachHang ?? \App\Models\Spa\KhachHang::find($this->khach_hang_id);
-        
+        $khachHang = $this->khachHang ?? \App\Models\User::find($this->khach_hang_id);
+
         if (!$khachHang) return; // Customer not found, skip loyalty processing
-        
-        // Get membership tier multiplier
-        $membershipCard = $khachHang->membershipCards()->active()->first();
-        $multiplier = 1;
-        if ($membershipCard && $membershipCard->tier) {
-            $multiplier = $membershipCard->tier->he_so_tich_diem;
-        }
 
         // Calculate points (1 point per 10,000 VND)
         $basePoints = floor($this->tong_thanh_toan / 10000);
-        $finalPoints = $basePoints * $multiplier;
+        $finalPoints = $basePoints;
 
-        // Award points
-        $khachHang->addPoints(
-            $finalPoints,
-            'mua_hang',
-            $this->id,
-            "Tích điểm từ hóa đơn {$this->ma_hoa_don}"
-        );
-
-        // Check for tier upgrade
-        $this->checkTierUpgrade();
+        // Award points to user
+        $currentPoints = $khachHang->diem_tich_luy ?? $khachHang->points ?? 0;
+        $khachHang->update([
+            'diem_tich_luy' => $currentPoints + $finalPoints,
+            'points' => $currentPoints + $finalPoints,
+        ]);
 
         return $finalPoints;
     }

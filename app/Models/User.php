@@ -45,6 +45,21 @@ class User extends Authenticatable
         'tong_mua',
         'cong_no_hien_tai',
         'diem_tich_luy',
+        // SPA fields
+        'sdt',
+        'ho_ten',
+        'dia_chi',
+        'address',
+        'ghi_chu',
+        'note',
+        'nguon_khach',
+        'loai_khach',
+        'trang_thai',
+        'tong_chi_tieu',
+        'points',
+        'lan_mua_cuoi',
+        'ngay_sinh',
+        'gioi_tinh_id',
     ];
 
     /**

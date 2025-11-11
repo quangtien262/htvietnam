@@ -2,7 +2,7 @@
 
 namespace App\Services\Spa;
 
-use App\Models\Spa\KhachHang;
+use App\Models\User;
 use App\Models\Spa\HoSoSucKhoe;
 use App\Models\Spa\HoSoDa;
 use Illuminate\Support\Facades\DB;
@@ -11,16 +11,17 @@ class KhachHangService
 {
     public function getList($params = [])
     {
-        $query = KhachHang::query()->with(['membershipCards.tier']);
+        $query = User::query();
 
         // Search
         if (!empty($params['search'])) {
             $search = $params['search'];
             $query->where(function($q) use ($search) {
-                $q->where('ho_ten', 'like', "%{$search}%")
-                    ->orWhere('so_dien_thoai', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('ma_khach_hang', 'like', "%{$search}%");
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('ho_ten', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('sdt', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -52,111 +53,129 @@ class KhachHangService
     public function create($data)
     {
         return DB::transaction(function() use ($data) {
-            // Generate customer code
-            $lastCustomer = KhachHang::orderBy('id', 'desc')->first();
-            $nextNumber = $lastCustomer ? (int)substr($lastCustomer->ma_khach_hang, 2) + 1 : 1;
-            $data['ma_khach_hang'] = 'KH' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+            // Map field names from frontend to users table
+            $userData = [
+                'name' => $data['ho_ten'] ?? null,
+                'ho_ten' => $data['ho_ten'] ?? null,
+                'phone' => $data['so_dien_thoai'] ?? null,
+                'sdt' => $data['so_dien_thoai'] ?? null,
+                'email' => $data['email'] ?? null,
+                'ngay_sinh' => $data['ngay_sinh'] ?? null,
+                'gioi_tinh' => $data['gioi_tinh'] ?? null,
+                'dia_chi' => $data['dia_chi'] ?? null,
+                'nguon_khach' => $data['nguon_khach'] ?? null,
+                'ghi_chu' => $data['ghi_chu'] ?? null,
+                'password' => bcrypt('123456'), // Default password
+            ];
 
-            $khachHang = KhachHang::create($data);
+            $user = User::create($userData);
 
             // Create health record if provided
             if (!empty($data['health_record'])) {
                 HoSoSucKhoe::create(array_merge($data['health_record'], [
-                    'khach_hang_id' => $khachHang->id,
+                    'khach_hang_id' => $user->id,
                 ]));
             }
 
             // Create skin record if provided
             if (!empty($data['skin_record'])) {
                 HoSoDa::create(array_merge($data['skin_record'], [
-                    'khach_hang_id' => $khachHang->id,
+                    'khach_hang_id' => $user->id,
                 ]));
             }
 
-            return $khachHang->load(['hoSoSucKhoe', 'hoSoDa']);
+            return $user;
         });
     }
 
     public function update($id, $data)
     {
         return DB::transaction(function() use ($id, $data) {
-            $khachHang = KhachHang::findOrFail($id);
-            $khachHang->update($data);
+            $user = User::findOrFail($id);
+
+            // Map field names from frontend to users table
+            $userData = [];
+            if (isset($data['ho_ten'])) {
+                $userData['name'] = $data['ho_ten'];
+                $userData['ho_ten'] = $data['ho_ten'];
+            }
+            if (isset($data['so_dien_thoai'])) {
+                $userData['phone'] = $data['so_dien_thoai'];
+                $userData['sdt'] = $data['so_dien_thoai'];
+            }
+            if (isset($data['email'])) $userData['email'] = $data['email'];
+            if (isset($data['ngay_sinh'])) $userData['ngay_sinh'] = $data['ngay_sinh'];
+            if (isset($data['gioi_tinh'])) $userData['gioi_tinh'] = $data['gioi_tinh'];
+            if (isset($data['dia_chi'])) $userData['dia_chi'] = $data['dia_chi'];
+            if (isset($data['ghi_chu'])) $userData['ghi_chu'] = $data['ghi_chu'];
+
+            $user->update($userData);
 
             // Update health record
             if (!empty($data['health_record'])) {
-                $healthRecord = $khachHang->hoSoSucKhoe()->latest()->first();
+                $healthRecord = HoSoSucKhoe::where('khach_hang_id', $user->id)->latest()->first();
                 if ($healthRecord) {
                     $healthRecord->update($data['health_record']);
                 } else {
                     HoSoSucKhoe::create(array_merge($data['health_record'], [
-                        'khach_hang_id' => $khachHang->id,
+                        'khach_hang_id' => $user->id,
                     ]));
                 }
             }
 
             // Update skin record
             if (!empty($data['skin_record'])) {
-                $skinRecord = $khachHang->hoSoDa()->latest()->first();
+                $skinRecord = HoSoDa::where('khach_hang_id', $user->id)->latest()->first();
                 if ($skinRecord) {
                     $skinRecord->update($data['skin_record']);
                 } else {
                     HoSoDa::create(array_merge($data['skin_record'], [
-                        'khach_hang_id' => $khachHang->id,
+                        'khach_hang_id' => $user->id,
                     ]));
                 }
             }
 
-            return $khachHang->load(['hoSoSucKhoe', 'hoSoDa']);
+            return $user;
         });
     }
 
     public function delete($id)
     {
-        $khachHang = KhachHang::findOrFail($id);
-        return $khachHang->delete();
+        $user = User::findOrFail($id);
+        return $user->delete();
     }
 
     public function getDetail($id)
     {
-        return KhachHang::with([
-            'hoSoSucKhoe',
-            'hoSoDa',
-            'progressPhotos',
-            'bookings',
-            'hoaDons',
-            'lieuTrinhs',
-            'membershipCards.tier',
-            'diemThuongLichSu',
-            'danhGias',
-        ])->findOrFail($id);
+        return User::findOrFail($id);
     }
 
     public function getStatistics($id)
     {
-        $khachHang = KhachHang::findOrFail($id);
+        $user = User::findOrFail($id);
+
+        // Count related SPA records
+        $totalBookings = \App\Models\Spa\Booking::where('khach_hang_id', $id)->count();
+        $totalInvoices = \App\Models\Spa\HoaDon::where('khach_hang_id', $id)->count();
+        $totalSpending = \App\Models\Spa\HoaDon::where('khach_hang_id', $id)->sum('tong_thanh_toan');
+        $lastVisit = \App\Models\Spa\HoaDon::where('khach_hang_id', $id)->max('created_at');
 
         return [
-            'total_spending' => $khachHang->tong_chi_tieu,
-            'total_visits' => $khachHang->so_lan_su_dung_dich_vu,
-            'loyalty_points' => $khachHang->diem_tich_luy,
-            'last_visit' => $khachHang->lan_mua_cuoi,
-            'membership_tier' => $khachHang->membershipCards()->active()->first()?->tier,
-            'rfm_score' => $khachHang->updateRFMScore(),
-            'total_bookings' => $khachHang->bookings()->count(),
-            'completed_treatments' => $khachHang->lieuTrinhs()->completed()->count(),
-            'active_treatments' => $khachHang->lieuTrinhs()->active()->count(),
-            'average_rating' => $khachHang->danhGias()->avg('trung_binh'),
+            'total_spending' => $totalSpending ?? 0,
+            'total_visits' => $totalInvoices,
+            'loyalty_points' => $user->diem_tich_luy ?? $user->points ?? 0,
+            'last_visit' => $lastVisit,
+            'total_bookings' => $totalBookings,
         ];
     }
 
     public function getCustomersBySegment($segment)
     {
-        $query = KhachHang::query();
+        $query = User::query();
 
         switch ($segment) {
             case 'vip':
-                $query->vip();
+                $query->where('loai_khach', 'VIP');
                 break;
             case 'high_value':
                 $query->where('tong_chi_tieu', '>=', 20000000);
@@ -165,10 +184,10 @@ class KhachHangService
                 $query->where('so_lan_su_dung_dich_vu', '>=', 10);
                 break;
             case 'recent':
-                $query->where('lan_mua_cuoi', '>=', now()->subDays(30));
+                $query->where('updated_at', '>=', now()->subDays(30));
                 break;
             case 'inactive':
-                $query->where('lan_mua_cuoi', '<', now()->subDays(90));
+                $query->where('updated_at', '<', now()->subDays(90));
                 break;
         }
 

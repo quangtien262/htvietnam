@@ -41,7 +41,7 @@ class DanhGia extends Model
     // Relationships
     public function khachHang()
     {
-        return $this->belongsTo(KhachHang::class, 'khach_hang_id');
+        return $this->belongsTo(\App\Models\User::class, 'khach_hang_id');
     }
 
     public function hoaDon()
@@ -79,9 +79,9 @@ class DanhGia extends Model
             $this->diem_khong_gian,
             $this->diem_gia_ca,
         ];
-        
+
         $validRatings = array_filter($ratings, fn($r) => $r > 0);
-        
+
         if (count($validRatings) > 0) {
             $this->trung_binh = round(array_sum($validRatings) / count($validRatings), 1);
         }

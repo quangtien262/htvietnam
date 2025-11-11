@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     Card, Form, Input, Select, DatePicker, TimePicker, Button, Steps, Row, Col,
     message, Space, Divider, Avatar, Tag, Radio, InputNumber, Switch, Alert,
-    Checkbox, Badge, Empty, Spin, Modal, Table, Tooltip, Image, List
+    Checkbox, Badge, Empty, Spin, Modal, Table, Tooltip, Image, List,
+    Descriptions, Statistic
 } from 'antd';
 import {
     UserOutlined, CalendarOutlined, ScissorOutlined, ClockCircleOutlined,
@@ -20,11 +21,16 @@ const { Option } = Select;
 
 interface Customer {
     id: number;
-    ma_khach_hang: string;
-    ho_ten: string;
-    so_dien_thoai: string;
+    ma_khach_hang?: string;
+    name?: string;
+    ho_ten?: string;
+    phone?: string;
+    sdt?: string;
+    so_dien_thoai?: string;
     email?: string;
-    diem_tich_luy: number;
+    diem_tich_luy?: number;
+    points?: number;
+    avatar?: string;
     membershipCard?: {
         tier: {
             ten_cap_bac: string;
@@ -106,13 +112,34 @@ const BookingForm: React.FC = () => {
         setLoading(true);
         try {
             const [customersRes, servicesRes, branchesRes] = await Promise.all([
-                axios.post('/aio/api/admin/spa/customers/list'),
+                axios.get('/aio/api/spa/customers', {
+                    params: {
+                        per_page: 1000, // Load nhiều để có đủ danh sách
+                    }
+                }),
                 axios.post('/aio/api/admin/spa/services/list'),
                 axios.post('/aio/api/admin/spa/branches/list'),
             ]);
 
+            console.log('Customers response:', customersRes.data);
+
             if (customersRes.data.success) {
-                setCustomers(customersRes.data.data.data || []);
+                // Handle paginated response
+                const customerData = customersRes.data.data;
+                if (customerData.data) {
+                    // Paginated response
+                    console.log('Setting customers (paginated):', customerData.data);
+                    setCustomers(customerData.data || []);
+                } else if (Array.isArray(customerData)) {
+                    // Direct array response
+                    console.log('Setting customers (array):', customerData);
+                    setCustomers(customerData);
+                } else {
+                    console.log('No customer data found');
+                    setCustomers([]);
+                }
+            } else {
+                console.error('API returned success=false:', customersRes.data);
             }
             if (servicesRes.data.success) {
                 setServices(servicesRes.data.data.data || []);
@@ -122,7 +149,7 @@ const BookingForm: React.FC = () => {
             }
         } catch (error) {
             message.error('Không thể tải dữ liệu ban đầu');
-            console.error(error);
+            console.error('Load initial data error:', error);
         } finally {
             setLoading(false);
         }
@@ -427,6 +454,20 @@ const BookingForm: React.FC = () => {
                         <Button type="dashed" block onClick={() => setShowNewCustomerForm(true)}>
                             + Tạo khách hàng mới
                         </Button>
+                        {customers.length > 0 && (
+                            <Alert
+                                message={`Đã tải ${customers.length} khách hàng`}
+                                type="info"
+                                showIcon
+                            />
+                        )}
+                        {!loading && customers.length === 0 && (
+                            <Alert
+                                message="Không có khách hàng nào trong hệ thống"
+                                type="warning"
+                                showIcon
+                            />
+                        )}
                     </Space>
 
                     {selectedCustomer && (
@@ -436,16 +477,16 @@ const BookingForm: React.FC = () => {
                                 <Space>
                                     <Avatar src={selectedCustomer.avatar} icon={<UserOutlined />} />
                                     <div>
-                                        <strong>{selectedCustomer.ho_ten}</strong>
+                                        <strong>{selectedCustomer.ho_ten || selectedCustomer.name}</strong>
                                         {selectedCustomer.membershipCard && (
                                             <Tag color="gold" style={{ marginLeft: 8 }}>
                                                 <CrownOutlined /> {selectedCustomer.membershipCard.tier.ten_cap_bac}
                                             </Tag>
                                         )}
                                         <div>
-                                            <span>{selectedCustomer.so_dien_thoai}</span>
+                                            <span>{selectedCustomer.sdt || selectedCustomer.phone || selectedCustomer.so_dien_thoai}</span>
                                             <Divider type="vertical" />
-                                            <span>Điểm: {selectedCustomer.diem_tich_luy}</span>
+                                            <span>Điểm: {selectedCustomer.diem_tich_luy || selectedCustomer.points || 0}</span>
                                         </div>
                                     </div>
                                 </Space>
@@ -465,36 +506,46 @@ const BookingForm: React.FC = () => {
                             <Select
                                 showSearch
                                 size="large"
-                                placeholder="Chọn khách hàng"
+                                placeholder={loading ? "Đang tải danh sách..." : "Chọn khách hàng"}
                                 optionFilterProp="children"
                                 onChange={handleCustomerSelect}
+                                loading={loading}
+                                notFoundContent={loading ? <Spin size="small" /> : <Empty description="Không có khách hàng" />}
                                 filterOption={(input, option: any) => {
                                     const customer = customers.find(c => c.id === option.value);
                                     if (!customer) return false;
-                                    const searchStr = `${customer.ho_ten} ${customer.so_dien_thoai} ${customer.ma_khach_hang}`.toLowerCase();
+                                    const name = customer.ho_ten || customer.name || '';
+                                    const phone = customer.sdt || customer.phone || customer.so_dien_thoai || '';
+                                    const code = customer.ma_khach_hang || '';
+                                    const searchStr = `${name} ${phone} ${code}`.toLowerCase();
                                     return searchStr.includes(input.toLowerCase());
                                 }}
                             >
-                                {customers
-                                    .filter(c => {
-                                        if (!customerSearchText) return true;
-                                        const searchStr = `${c.ho_ten} ${c.so_dien_thoai} ${c.ma_khach_hang}`.toLowerCase();
-                                        return searchStr.includes(customerSearchText.toLowerCase());
-                                    })
-                                    .map(customer => (
-                                        <Option key={customer.id} value={customer.id}>
-                                            <Space>
-                                                <Avatar size="small" src={customer.avatar} icon={<UserOutlined />} />
-                                                <span>{customer.ho_ten}</span>
-                                                <Tag size="small">{customer.so_dien_thoai}</Tag>
-                                                {customer.membershipCard && (
-                                                    <Tag color="gold" size="small">
-                                                        {customer.membershipCard.tier.ten_cap_bac}
-                                                    </Tag>
-                                                )}
-                                            </Space>
-                                        </Option>
-                                    ))}
+                                {customers.length > 0 ? (
+                                    customers
+                                        .filter(c => {
+                                            if (!customerSearchText) return true;
+                                            const name = c.ho_ten || c.name || '';
+                                            const phone = c.sdt || c.phone || c.so_dien_thoai || '';
+                                            const code = c.ma_khach_hang || '';
+                                            const searchStr = `${name} ${phone} ${code}`.toLowerCase();
+                                            return searchStr.includes(customerSearchText.toLowerCase());
+                                        })
+                                        .map(customer => (
+                                            <Option key={customer.id} value={customer.id}>
+                                                <Space>
+                                                    <Avatar size="small" src={customer.avatar} icon={<UserOutlined />} />
+                                                    <span>{customer.ho_ten || customer.name || 'N/A'}</span>
+                                                    <Tag>{customer.sdt || customer.phone || customer.so_dien_thoai || 'N/A'}</Tag>
+                                                    {customer.membershipCard && (
+                                                        <Tag color="gold">
+                                                            {customer.membershipCard.tier.ten_cap_bac}
+                                                        </Tag>
+                                                    )}
+                                                </Space>
+                                            </Option>
+                                        ))
+                                ) : null}
                             </Select>
                         </Form.Item>
                     </Form>
@@ -767,8 +818,8 @@ const BookingForm: React.FC = () => {
                                 <Space>
                                     <Avatar src={selectedCustomer?.avatar} icon={<UserOutlined />} />
                                     <div>
-                                        <strong>{selectedCustomer?.ho_ten}</strong>
-                                        <div>{selectedCustomer?.so_dien_thoai}</div>
+                                        <strong>{selectedCustomer?.ho_ten || selectedCustomer?.name}</strong>
+                                        <div>{selectedCustomer?.sdt || selectedCustomer?.phone || selectedCustomer?.so_dien_thoai}</div>
                                     </div>
                                     {selectedCustomer?.membershipCard && (
                                         <Tag color="gold">
@@ -886,7 +937,7 @@ const BookingForm: React.FC = () => {
                                 message="Điểm thưởng"
                                 description={
                                     <div>
-                                        <p>Điểm hiện tại: <strong>{selectedCustomer.diem_tich_luy}</strong></p>
+                                        <p>Điểm hiện tại: <strong>{selectedCustomer.diem_tich_luy || selectedCustomer.points || 0}</strong></p>
                                         <p>
                                             Điểm sẽ được cộng:{' '}
                                             <strong style={{ color: 'green' }}>

@@ -10,20 +10,26 @@ const { RangePicker } = DatePicker;
 
 interface Customer {
     id: number;
-    ma_khach_hang: string;
-    ho_ten: string;
-    so_dien_thoai: string;
+    name?: string;
+    ho_ten?: string;
+    phone?: string;
+    sdt?: string;
+    so_dien_thoai?: string;
     email?: string;
     ngay_sinh?: string;
-    gioi_tinh?: string;
+    gioi_tinh?: string | number;
+    gioi_tinh_id?: number;
     dia_chi?: string;
+    address?: string;
     nguon_khach?: string;
     loai_khach?: string;
     trang_thai?: string;
     tong_chi_tieu?: number;
     diem_tich_luy?: number;
+    points?: number;
     lan_mua_cuoi?: string;
     ghi_chu?: string;
+    note?: string;
     created_at?: string;
 }
 
@@ -34,6 +40,8 @@ const SpaCustomerList: React.FC = () => {
     const [filters, setFilters] = useState<any>({});
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+    const [isDetailDrawerVisible, setIsDetailDrawerVisible] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -50,9 +58,9 @@ const SpaCustomerList: React.FC = () => {
                     ...filters,
                 },
             });
-            
+
             console.log('API Response:', response.data);
-            
+
             if (response.data.success) {
                 // Backend trả về: { success: true, data: {pagination data} }
                 const customerData = response.data.data;
@@ -85,6 +93,16 @@ const SpaCustomerList: React.FC = () => {
         setPagination({ ...pagination, current: 1 });
     };
 
+    const showDetailDrawer = (customer: Customer) => {
+        setSelectedCustomer(customer);
+        setIsDetailDrawerVisible(true);
+    };
+
+    const closeDetailDrawer = () => {
+        setIsDetailDrawerVisible(false);
+        setSelectedCustomer(null);
+    };
+
     const showModal = (customer?: Customer) => {
         if (customer) {
             setEditingCustomer(customer);
@@ -109,7 +127,7 @@ const SpaCustomerList: React.FC = () => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            
+
             // Format ngày sinh nếu có
             const formData = {
                 ...values,
@@ -124,9 +142,9 @@ const SpaCustomerList: React.FC = () => {
             console.log('Sending data:', formData);
 
             const response = await axios[method](url, formData);
-            
+
             console.log('Response:', response.data);
-            
+
             if (response.data.success) {
                 message.success(editingCustomer ? 'Cập nhật thành công' : 'Thêm mới thành công');
                 setIsModalVisible(false);
@@ -172,28 +190,26 @@ const SpaCustomerList: React.FC = () => {
 
     const columns = [
         {
-            title: 'Mã KH',
-            dataIndex: 'ma_khach_hang',
-            key: 'ma_khach_hang',
-            width: 120,
-        },
-        {
             title: 'Họ tên',
             dataIndex: 'ho_ten',
             key: 'ho_ten',
             width: 200,
+            render: (text: string, record: Customer) => text || record.name || 'N/A',
         },
         {
             title: 'SĐT',
-            dataIndex: 'so_dien_thoai',
-            key: 'so_dien_thoai',
+            dataIndex: 'sdt',
+            key: 'sdt',
             width: 120,
-            render: (text: string) => text && (
-                <Space>
-                    <PhoneOutlined />
-                    {text}
-                </Space>
-            ),
+            render: (text: string, record: Customer) => {
+                const phone = text || record.phone || record.so_dien_thoai;
+                return phone && (
+                    <Space>
+                        <PhoneOutlined />
+                        {phone}
+                    </Space>
+                );
+            },
         },
         {
             title: 'Email',
@@ -213,8 +229,8 @@ const SpaCustomerList: React.FC = () => {
             key: 'loai_khach',
             width: 100,
             render: (type: string) => {
-                const colors: any = { 'vip': 'gold', 'thuong': 'blue', 'moi': 'green' };
-                const labels: any = { 'vip': 'VIP', 'thuong': 'Thường', 'moi': 'Mới' };
+                const colors: any = { 'VIP': 'gold', 'Thuong': 'blue', 'Moi': 'green' };
+                const labels: any = { 'VIP': 'VIP', 'Thuong': 'Thường', 'Moi': 'Mới' };
                 return <Tag color={colors[type] || 'default'}>{labels[type] || type || 'N/A'}</Tag>;
             },
         },
@@ -252,7 +268,7 @@ const SpaCustomerList: React.FC = () => {
             width: 150,
             render: (_: any, record: Customer) => (
                 <Space>
-                    <Button type="link" size="small" icon={<EyeOutlined />} />
+                    <Button type="link" size="small" icon={<EyeOutlined />} onClick={() => showDetailDrawer(record)} />
                     <Button type="link" size="small" icon={<EditOutlined />} onClick={() => showModal(record)} />
                     <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
                 </Space>
@@ -314,8 +330,8 @@ const SpaCustomerList: React.FC = () => {
                 onCancel={() => setIsModalVisible(false)}
                 width={1000}
             >
-                <Form 
-                    form={form} 
+                <Form
+                    form={form}
                     layout="vertical"
                     style={{
                         maxWidth: '100%',
@@ -395,6 +411,233 @@ const SpaCustomerList: React.FC = () => {
                     </div>
                 </Form>
             </Modal>
+
+            <Drawer
+                title={
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            background: selectedCustomer?.loai_khach === 'VIP' ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                selectedCustomer?.loai_khach === 'Thuong' ? 'linear-gradient(135deg, #1890ff 0%, #36cfc9 100%)' :
+                                'linear-gradient(135deg, #52c41a 0%, #95de64 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}>
+                            {(selectedCustomer?.ho_ten || selectedCustomer?.name || 'K')?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                                {selectedCustomer?.ho_ten || selectedCustomer?.name || 'Khách hàng'}
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 400, color: '#8c8c8c', marginTop: '2px' }}>
+                                <PhoneOutlined style={{ marginRight: '6px' }} />
+                                {selectedCustomer?.sdt || selectedCustomer?.phone || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                }
+                placement="right"
+                width={680}
+                onClose={closeDetailDrawer}
+                open={isDetailDrawerVisible}
+                styles={{
+                    header: { borderBottom: '2px solid #f0f0f0', paddingBottom: '20px' }
+                }}
+            >
+                {selectedCustomer && (
+                    <div style={{ fontSize: '14px' }}>
+                        {/* Header Stats Cards */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: '12px',
+                            marginBottom: '24px'
+                        }}>
+                            <div style={{
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                            }}>
+                                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Tổng chi tiêu</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                    {(selectedCustomer.tong_chi_tieu || 0).toLocaleString('vi-VN')} đ
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                boxShadow: '0 4px 12px rgba(245, 87, 108, 0.3)'
+                            }}>
+                                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Điểm tích lũy</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                    {selectedCustomer.diem_tich_luy || selectedCustomer.points || 0} điểm
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)'
+                            }}>
+                                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Lần mua cuối</div>
+                                <div style={{ fontSize: '13px', fontWeight: 600 }}>
+                                    {selectedCustomer.lan_mua_cuoi ? dayjs(selectedCustomer.lan_mua_cuoi).format('DD/MM/YYYY') : 'Chưa mua'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Thông tin cơ bản */}
+                        <div style={{
+                            marginBottom: '20px',
+                            padding: '20px',
+                            background: '#fafafa',
+                            borderRadius: '8px',
+                            border: '1px solid #f0f0f0'
+                        }}>
+                            <h3 style={{
+                                marginBottom: '16px',
+                                fontSize: '15px',
+                                fontWeight: 600,
+                                color: '#262626',
+                                borderLeft: '3px solid #1890ff',
+                                paddingLeft: '12px'
+                            }}>
+                                Thông tin cơ bản
+                            </h3>
+                            <div style={{ display: 'grid', gap: '14px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Email:</span>
+                                    <span style={{ color: '#262626' }}>
+                                        <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+                                        {selectedCustomer.email || 'Chưa có'}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Ngày sinh:</span>
+                                    <span style={{ color: '#262626' }}>
+                                        {selectedCustomer.ngay_sinh ? dayjs(selectedCustomer.ngay_sinh).format('DD/MM/YYYY') : 'Chưa có'}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Giới tính:</span>
+                                    <Tag color={
+                                        (selectedCustomer.gioi_tinh_id === 1 || selectedCustomer.gioi_tinh === '1' || selectedCustomer.gioi_tinh === 1) ? 'blue' :
+                                        (selectedCustomer.gioi_tinh_id === 2 || selectedCustomer.gioi_tinh === '2' || selectedCustomer.gioi_tinh === 2) ? 'pink' : 'default'
+                                    }>
+                                        {(selectedCustomer.gioi_tinh_id === 1 || selectedCustomer.gioi_tinh === '1' || selectedCustomer.gioi_tinh === 1) ? 'Nam' :
+                                         (selectedCustomer.gioi_tinh_id === 2 || selectedCustomer.gioi_tinh === '2' || selectedCustomer.gioi_tinh === 2) ? 'Nữ' : 'Khác'}
+                                    </Tag>
+                                </div>
+                                <div style={{ display: 'flex' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959', flexShrink: 0 }}>Địa chỉ:</span>
+                                    <span style={{ color: '#262626', flex: 1 }}>
+                                        {selectedCustomer.dia_chi || selectedCustomer.address || 'Chưa có'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Phân loại khách hàng */}
+                        <div style={{
+                            marginBottom: '20px',
+                            padding: '20px',
+                            background: '#fafafa',
+                            borderRadius: '8px',
+                            border: '1px solid #f0f0f0'
+                        }}>
+                            <h3 style={{
+                                marginBottom: '16px',
+                                fontSize: '15px',
+                                fontWeight: 600,
+                                color: '#262626',
+                                borderLeft: '3px solid #52c41a',
+                                paddingLeft: '12px'
+                            }}>
+                                Phân loại
+                            </h3>
+                            <div style={{ display: 'grid', gap: '14px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Loại khách:</span>
+                                    <Tag color={
+                                        selectedCustomer.loai_khach === 'VIP' ? 'gold' :
+                                        selectedCustomer.loai_khach === 'Thuong' ? 'blue' : 'green'
+                                    } style={{ fontSize: '13px', padding: '4px 12px' }}>
+                                        {selectedCustomer.loai_khach === 'VIP' ? '⭐ VIP' :
+                                         selectedCustomer.loai_khach === 'Thuong' ? '👤 Thường' : '🆕 Mới'}
+                                    </Tag>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Nguồn khách:</span>
+                                    <span style={{ color: '#262626' }}>{selectedCustomer.nguon_khach || 'Chưa xác định'}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ width: '120px', fontWeight: 500, color: '#595959' }}>Trạng thái:</span>
+                                    <Tag color={selectedCustomer.trang_thai === 'active' ? 'success' : 'error'}>
+                                        {selectedCustomer.trang_thai === 'active' ? '✓ Đang hoạt động' : '✕ Ngừng hoạt động'}
+                                    </Tag>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Ghi chú */}
+                        {(selectedCustomer.ghi_chu || selectedCustomer.note) && (
+                            <div style={{
+                                marginBottom: '20px',
+                                padding: '20px',
+                                background: '#fafafa',
+                                borderRadius: '8px',
+                                border: '1px solid #f0f0f0'
+                            }}>
+                                <h3 style={{
+                                    marginBottom: '16px',
+                                    fontSize: '15px',
+                                    fontWeight: 600,
+                                    color: '#262626',
+                                    borderLeft: '3px solid #faad14',
+                                    paddingLeft: '12px'
+                                }}>
+                                    📝 Ghi chú
+                                </h3>
+                                <div style={{
+                                    padding: '14px',
+                                    background: '#fff',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e8e8e8',
+                                    whiteSpace: 'pre-wrap',
+                                    color: '#595959',
+                                    lineHeight: '1.6'
+                                }}>
+                                    {selectedCustomer.ghi_chu || selectedCustomer.note}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Ngày tạo */}
+                        <div style={{
+                            marginTop: '24px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid #e8e8e8',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                                Ngày tạo: {selectedCustomer.created_at ? dayjs(selectedCustomer.created_at).format('DD/MM/YYYY HH:mm') : 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Drawer>
         </div>
     );
 };

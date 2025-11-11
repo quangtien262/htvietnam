@@ -4,7 +4,7 @@ namespace App\Services\Spa;
 
 use App\Models\Spa\Booking;
 use App\Models\Spa\BookingDichVu;
-use App\Models\Spa\KhachHang;
+use App\Models\User;
 use App\Models\Spa\KTV;
 use App\Models\Spa\Phong;
 use Illuminate\Support\Facades\DB;
@@ -158,7 +158,7 @@ class BookingService
         $endTime = \Carbon\Carbon::parse($time)->addMinutes($duration)->format('H:i:s');
 
         $query = Phong::available();
-        
+
         if ($roomType) {
             $query->byType($roomType);
         }
@@ -183,9 +183,10 @@ class BookingService
         $bookings = $query->get();
 
         return $bookings->map(function($booking) {
+            $khachHang = $booking->khachHang; // User model
             return [
                 'id' => $booking->id,
-                'title' => $booking->khachHang->ho_ten,
+                'title' => $khachHang->ho_ten ?? $khachHang->name ?? 'N/A',
                 'start' => $booking->ngay_hen->format('Y-m-d') . ' ' . $booking->gio_hen,
                 'duration' => $booking->thoi_gian_du_kien,
                 'status' => $booking->trang_thai,

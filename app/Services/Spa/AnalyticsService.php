@@ -3,7 +3,7 @@
 namespace App\Services\Spa;
 
 use App\Models\Spa\HoaDon;
-use App\Models\Spa\KhachHang;
+use App\Models\User;
 use App\Models\Spa\Booking;
 use App\Models\Spa\KTV;
 use Illuminate\Support\Facades\DB;
@@ -71,15 +71,15 @@ class AnalyticsService
 
     public function getCustomerStats($startDate, $endDate)
     {
-        $totalCustomers = KhachHang::count();
-        $newCustomers = KhachHang::whereBetween('ngay_dang_ky', [$startDate, $endDate])->count();
-        $activeCustomers = KhachHang::whereBetween('lan_mua_cuoi', [$startDate, $endDate])->count();
+        $totalCustomers = User::count();
+        $newCustomers = User::whereBetween('created_at', [$startDate, $endDate])->count();
+        $activeCustomers = User::whereBetween('updated_at', [$startDate, $endDate])->count();
 
         return [
             'total' => $totalCustomers,
             'new' => $newCustomers,
             'active' => $activeCustomers,
-            'vip' => KhachHang::vip()->count(),
+            'vip' => User::where('loai_khach', 'VIP')->count(),
             'retention_rate' => $totalCustomers > 0 ? ($activeCustomers / $totalCustomers) * 100 : 0,
         ];
     }
@@ -162,28 +162,19 @@ class AnalyticsService
 
     public function getCustomerSegmentation()
     {
-        $rfmData = KhachHang::select('id', 'tong_chi_tieu', 'lan_mua_cuoi', 'so_lan_su_dung_dich_vu')
-            ->get()
-            ->map(function($customer) {
-                $recency = $customer->lan_mua_cuoi ? now()->diffInDays($customer->lan_mua_cuoi) : 365;
-                $frequency = $customer->so_lan_su_dung_dich_vu;
-                $monetary = $customer->tong_chi_tieu;
+        // Simplified segmentation based on User table
+        $totalCustomers = User::count();
+        $vipCustomers = User::where('loai_khach', 'VIP')->count();
+        $regularCustomers = User::where('loai_khach', 'Thuong')->count();
+        $newCustomers = User::where('loai_khach', 'Moi')->count();
 
-                $rfm = $customer->updateRFMScore();
-
-                return [
-                    'id' => $customer->id,
-                    'type' => $customer->loai_khach,
-                    'rfm_score' => $rfm['total'],
-                    'segment' => $this->getRFMSegment($rfm['total']),
-                ];
-            })
-            ->groupBy('segment')
-            ->map(function($group) {
-                return $group->count();
-            });
-
-        return $rfmData;
+        return [
+            'Champions' => $vipCustomers,
+            'Loyal Customers' => $regularCustomers,
+            'Potential Loyalists' => $newCustomers,
+            'At Risk' => 0,
+            'Lost' => 0,
+        ];
     }
 
     private function getRFMSegment($score)
@@ -212,15 +203,14 @@ class AnalyticsService
     private function exportRevenueReport($startDate, $endDate, $params)
     {
         $dailyRevenue = $this->getDailyRevenue($startDate, $endDate, $params['chi_nhanh_id'] ?? null);
-        
+
         // TODO: Generate Excel file
         return $dailyRevenue;
     }
 
     private function exportCustomerReport($startDate, $endDate)
     {
-        $customers = KhachHang::with('membershipCards.tier')
-            ->whereBetween('ngay_dang_ky', [$startDate, $endDate])
+        $customers = User::whereBetween('created_at', [$startDate, $endDate])
             ->get();
 
         // TODO: Generate Excel file

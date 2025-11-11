@@ -27,7 +27,7 @@ class KhachHangThe extends Model
     // Relationships
     public function khachHang()
     {
-        return $this->belongsTo(KhachHang::class, 'khach_hang_id');
+        return $this->belongsTo(\App\Models\User::class, 'khach_hang_id');
     }
 
     public function tier()

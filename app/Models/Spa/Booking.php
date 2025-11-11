@@ -41,7 +41,7 @@ class Booking extends Model
     // Relationships
     public function khachHang()
     {
-        return $this->belongsTo(KhachHang::class, 'khach_hang_id');
+        return $this->belongsTo(\App\Models\User::class, 'khach_hang_id');
     }
 
     public function chiNhanh()
@@ -121,7 +121,7 @@ class Booking extends Model
         $this->trang_thai = 'da_xac_nhan';
         $this->sms_xac_nhan = true;
         $this->save();
-        
+
         // TODO: Send SMS confirmation
         return $this;
     }
@@ -152,7 +152,7 @@ class Booking extends Model
     {
         $this->sms_nhac_nho = true;
         $this->save();
-        
+
         // TODO: Send SMS reminder
         return $this;
     }

@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\Spa\DanhGiaController;
 
 Route::prefix('spa')->name('spa.')->group(function () {
 
-    // Customer Management - sử dụng KhachHangController (bảng spa_khach_hang)
+    // Customer Management - sử dụng KhachHangController (bảng users)
     Route::prefix('customers')->name('customers.')->group(function () {
         Route::get('/', [KhachHangController::class, 'index'])->name('index');
         Route::post('/', [KhachHangController::class, 'store'])->name('store');
