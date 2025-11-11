@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Drawer, Descriptions, Alert } from 'antd';
+import { Table, Card, Button, Tag, Space, Input, Select, message, Modal, Form, InputNumber, Drawer, Descriptions, Alert, DatePicker } from 'antd';
 import { PlusOutlined, SearchOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, KeyOutlined, SwapOutlined, EyeOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -150,14 +150,28 @@ const ServiceList: React.FC = () => {
 
   const handleCreateService = async (values: any) => {
     try {
-      await axios.post('/aio/api/whmcs/services', values);
+      // Format date to YYYY-MM-DD
+      const payload = {
+        ...values,
+        next_due_date: values.next_due_date ? dayjs(values.next_due_date).format('YYYY-MM-DD') : undefined,
+      };
+      
+      await axios.post('/aio/api/whmcs/services', payload);
       message.success('Tạo service mới thành công');
       setIsCreateModalOpen(false);
       createForm.resetFields();
       fetchServices();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        message.error(error.response?.data?.message || 'Không thể tạo service');
+        const errors = error.response?.data?.errors;
+        if (errors) {
+          // Hiển thị lỗi validation từng field
+          Object.keys(errors).forEach((key) => {
+            message.error(`${key}: ${errors[key][0]}`);
+          });
+        } else {
+          message.error(error.response?.data?.message || 'Không thể tạo service');
+        }
       }
     }
   };
@@ -475,6 +489,20 @@ const ServiceList: React.FC = () => {
               formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => value!.replace(/\$\s?|(,*)/g, '')}
               addonAfter="VNĐ"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Ngày đến hạn đầu tiên"
+            name="next_due_date"
+            rules={[{ required: true, message: 'Vui lòng chọn ngày đến hạn' }]}
+            initialValue={dayjs().add(1, 'month')}
+            extra="Ngày khách hàng cần thanh toán hóa đơn tiếp theo"
+          >
+            <DatePicker 
+              style={{ width: '100%' }} 
+              format="YYYY-MM-DD"
+              placeholder="Chọn ngày đến hạn"
             />
           </Form.Item>
 
