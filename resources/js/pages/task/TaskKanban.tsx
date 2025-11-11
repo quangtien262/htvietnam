@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useContext } from "react";
 
 import axios from "../../utils/axiosConfig";
-import { useParams } from "react-router-dom";
+import { data, useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { API } from "../../common/api";
@@ -14,31 +14,22 @@ import {
     Select,
     Row,
     Space,
-    Tag,
     Divider, TableColumnsType,
-    Col, Drawer, Empty, ColorPicker, Table,
-    Checkbox, Popconfirm, List, Timeline, Popover, DatePicker, Flex, Progress, Input
+    Col, Drawer,
+    Popconfirm, Timeline, Input
 } from "antd";
 import {
-    RollbackOutlined, CheckOutlined,
     ToolFilled, DeleteOutlined,
     ApartmentOutlined,
     SettingFilled, InsertRowAboveOutlined,
-    PlusCircleFilled, ProfileOutlined, FileMarkdownOutlined, FileSearchOutlined, FileSyncOutlined,
-    EditOutlined, DiffFilled, CheckSquareFilled, ScheduleFilled, FlagFilled, ClockCircleFilled,
-    PushpinFilled, HddFilled, UsergroupAddOutlined, UserOutlined, DownOutlined, CaretRightFilled,
-    FireFilled, InfoCircleFilled, PlusSquareFilled, EditFilled, SnippetsFilled, CopyOutlined,
-    PlusCircleOutlined, HolderOutlined
+    PlusCircleFilled, ProfileOutlined,
+    EditOutlined,HolderOutlined
 } from "@ant-design/icons";
 
 import {
     arrayMove,
-    SortableContext,
     useSortable,
-    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { DndContext } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
@@ -318,17 +309,21 @@ const TaskKanban: React.FC = () => {
         setIsShowStatusSetting(false);
     }
 
+    function search(values: any) {
+        axios.post(API.searchKanbanList, values).then(response => {
+            setDataSource(response.data.data);
+        }).catch(error => {
+            message.error('Lọc dữ liệu thất bại')
+        });
+    }
+
     const onFinishSearch = (values: any) => {
         values.display = display;
         values.pid = pid;
         values.parentName = parent;
         console.log('values', values);
         setSearchData(values);
-        axios.post(API.searchKanbanList, values).then(response => {
-            setDataSource(response.data.data);
-        }).catch(error => {
-            message.error('Lọc dữ liệu thất bại')
-        });
+        search(values);
     };
 
 
@@ -488,9 +483,6 @@ const TaskKanban: React.FC = () => {
         });
     };
 
-
-
-
     // TODO:
     function updateTaskColumn(columnName: string, value: any) {
         axios.post(API.fastEditTaskColumn, {
@@ -508,8 +500,11 @@ const TaskKanban: React.FC = () => {
                 ...((typeof dataAction === 'object' && dataAction !== null) ? dataAction : {}),
                 [columnName]: value,
             });
-            setDataSource(response.data.data.datas);
-            setDataAction(response.data.data.data);
+
+            search(searchData);
+
+            // setDataSource(response.data.data.datas);
+            // setDataAction(response.data.data.data);
             // response.data.data.data,
 
 
