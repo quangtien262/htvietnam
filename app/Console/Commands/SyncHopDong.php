@@ -640,7 +640,7 @@ class SyncHopDong extends Command
     {
         /////////////////////////////////////save user  /////////////////////////////////////
 
-        DB::table('users')->truncate();
+        // DB::table('users')->truncate();
 
         // reset auto increment
         DB::statement('ALTER TABLE users AUTO_INCREMENT = 1;');
