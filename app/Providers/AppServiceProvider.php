@@ -9,6 +9,11 @@ use Illuminate\Pagination\Paginator;
 use App\Services\CommonService;
 use App\Services\DataService;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Project\Project;
+use App\Models\Project\Task;
+use App\Policies\Project\ProjectPolicy;
+use App\Policies\Project\TaskPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,5 +40,9 @@ class AppServiceProvider extends ServiceProvider
 	    $this->app->singleton('CommonService', function () { return new CommonService;});
         Paginator::useBootstrapFive();
         // Paginator::useBootstrapFour();
+
+        // Register policies
+        Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
     }
 }
