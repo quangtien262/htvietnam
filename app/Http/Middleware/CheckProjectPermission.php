@@ -26,7 +26,7 @@ class CheckProjectPermission
     public function handle(Request $request, Closure $next, string $permission, string $projectParam = 'project'): Response
     {
         $user = $request->user('admin');
-        
+
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -36,7 +36,7 @@ class CheckProjectPermission
 
         // Get project ID from route parameter
         $projectId = $request->route($projectParam);
-        
+
         if (!$projectId) {
             // Try to get from request body for POST/PUT requests
             $projectId = $request->input('project_id');

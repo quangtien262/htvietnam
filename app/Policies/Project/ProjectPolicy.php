@@ -96,7 +96,7 @@ class ProjectPolicy
         }
 
         $userRole = $this->permissionService->getUserRoleInProject($user->id, $project->id);
-        
+
         if (!$userRole) {
             return false;
         }

@@ -16,30 +16,30 @@ interface CanProps {
 
 /**
  * Can Component - Conditional rendering based on permissions
- * 
+ *
  * Usage examples:
- * 
+ *
  * 1. Single permission:
  * ```tsx
  * <Can permission="task.create">
  *   <button>Tạo task mới</button>
  * </Can>
  * ```
- * 
+ *
  * 2. Any of multiple permissions:
  * ```tsx
  * <Can anyPermission={['task.update', 'task.update_own']}>
  *   <button>Chỉnh sửa</button>
  * </Can>
  * ```
- * 
+ *
  * 3. All permissions required:
  * ```tsx
  * <Can allPermissions={['task.delete', 'project.update']}>
  *   <button>Xóa task</button>
  * </Can>
  * ```
- * 
+ *
  * 4. With fallback:
  * ```tsx
  * <Can permission="task.create" fallback={<span>Bạn không có quyền tạo task</span>}>
@@ -47,12 +47,12 @@ interface CanProps {
  * </Can>
  * ```
  */
-export const Can: React.FC<CanProps> = ({ 
-  permission, 
-  anyPermission, 
+export const Can: React.FC<CanProps> = ({
+  permission,
+  anyPermission,
   allPermissions,
-  children, 
-  fallback = null 
+  children,
+  fallback = null
 }) => {
   const { hasPermission, hasAnyPermission, hasAllPermissions } = usePermission();
 
@@ -80,9 +80,9 @@ interface CannotProps {
 
 /**
  * Cannot Component - Inverse of Can component
- * 
+ *
  * Renders content only if user does NOT have the permission.
- * 
+ *
  * Usage:
  * ```tsx
  * <Cannot permission="project.delete">
@@ -90,10 +90,10 @@ interface CannotProps {
  * </Cannot>
  * ```
  */
-export const Cannot: React.FC<CannotProps> = ({ 
-  permission, 
+export const Cannot: React.FC<CannotProps> = ({
+  permission,
   anyPermission,
-  children 
+  children
 }) => {
   const { hasPermission, hasAnyPermission } = usePermission();
 
@@ -119,22 +119,22 @@ interface RoleCheckProps {
 
 /**
  * RoleCheck Component - Conditional rendering based on user role
- * 
+ *
  * Usage:
  * ```tsx
  * <RoleCheck roles="admin">
  *   <button>Xóa dự án</button>
  * </RoleCheck>
- * 
+ *
  * <RoleCheck roles={['admin', 'manager']}>
  *   <button>Quản lý thành viên</button>
  * </RoleCheck>
  * ```
  */
-export const RoleCheck: React.FC<RoleCheckProps> = ({ 
-  roles, 
-  children, 
-  fallback = null 
+export const RoleCheck: React.FC<RoleCheckProps> = ({
+  roles,
+  children,
+  fallback = null
 }) => {
   const { role } = usePermission();
 

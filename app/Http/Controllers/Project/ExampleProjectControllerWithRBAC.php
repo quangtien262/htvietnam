@@ -10,14 +10,14 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * EXAMPLE CONTROLLER: Demonstrates RBAC usage
- * 
+ *
  * This controller shows how to integrate permission checks in your Project controllers.
  * You can copy these patterns to your actual controllers.
  */
 class ExampleProjectControllerWithRBAC extends Controller
 {
     use AuthorizesRequests;
-    
+
     protected $projectService;
     protected $permissionService;
 
@@ -31,7 +31,7 @@ class ExampleProjectControllerWithRBAC extends Controller
 
     /**
      * Example 1: Using Policy with $this->authorize()
-     * 
+     *
      * This is the recommended approach - Laravel will automatically
      * call the appropriate policy method
      */
@@ -39,11 +39,11 @@ class ExampleProjectControllerWithRBAC extends Controller
     {
         try {
             $project = $this->projectService->getById($id);
-            
+
             // Automatically calls ProjectPolicy::view()
             // Throws AuthorizationException if permission denied
             $this->authorize('view', $project);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $project,
@@ -68,10 +68,10 @@ class ExampleProjectControllerWithRBAC extends Controller
     {
         try {
             $project = $this->projectService->getById($id);
-            
+
             // Check permission via policy
             $this->authorize('update', $project);
-            
+
             $validated = $request->validate([
                 'ten_du_an' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -102,7 +102,7 @@ class ExampleProjectControllerWithRBAC extends Controller
 
     /**
      * Example 3: Using PermissionService directly
-     * 
+     *
      * Useful when you need more control or want to check
      * permissions without throwing exceptions
      */
@@ -111,7 +111,7 @@ class ExampleProjectControllerWithRBAC extends Controller
         try {
             $user = auth('admin')->user();
             $project = $this->projectService->getById($id);
-            
+
             // Check permission manually
             if (!$this->permissionService->userHasPermissionInProject(
                 $user->id,
@@ -123,19 +123,19 @@ class ExampleProjectControllerWithRBAC extends Controller
                     'message' => 'Bạn không có quyền xem dự án này',
                 ], 403);
             }
-            
+
             // Get all user permissions in this project
             $permissions = $this->permissionService->getUserPermissionsInProject(
                 $user->id,
                 $project->id
             );
-            
+
             // Get user role
             $role = $this->permissionService->getUserRoleInProject(
                 $user->id,
                 $project->id
             );
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -161,27 +161,27 @@ class ExampleProjectControllerWithRBAC extends Controller
     {
         try {
             $project = $this->projectService->getById($projectId);
-            
+
             // Check if user can manage members
             $this->authorize('manageMembers', $project);
-            
+
             $validated = $request->validate([
                 'role_id' => 'required|exists:pro___roles,id',
             ]);
-            
+
             $role = \App\Models\Project\Role::findOrFail($validated['role_id']);
-            
+
             // Check if user has permission to assign this role
             // (user must have higher priority role)
             $this->authorize('assignRole', [$project, $role->priority]);
-            
+
             // Assign role
             $this->permissionService->assignRoleToUser(
                 $memberId,
                 $projectId,
                 $validated['role_id']
             );
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Phân quyền thành công',
@@ -207,23 +207,23 @@ class ExampleProjectControllerWithRBAC extends Controller
         try {
             $user = auth('admin')->user();
             $project = $this->projectService->getById($id);
-            
+
             // Check if user has ANY of these permissions
             $canProceed = $this->permissionService->userHasAnyPermissionInProject(
                 $user->id,
                 $project->id,
                 ['project.update', 'project.manage_members']
             );
-            
+
             if (!$canProceed) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Bạn cần có quyền cập nhật hoặc quản lý thành viên',
                 ], 403);
             }
-            
+
             // Perform the action...
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Thực hiện thành công',
@@ -243,7 +243,7 @@ class ExampleProjectControllerWithRBAC extends Controller
     {
         try {
             $roles = $this->permissionService->getAllRoles();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $roles,
@@ -263,7 +263,7 @@ class ExampleProjectControllerWithRBAC extends Controller
     {
         try {
             $permissions = $this->permissionService->getAllPermissionsGrouped();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $permissions,

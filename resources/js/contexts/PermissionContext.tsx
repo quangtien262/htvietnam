@@ -26,9 +26,9 @@ interface PermissionProviderProps {
 
 /**
  * Permission Provider Component
- * 
+ *
  * Wrap your project-related components with this provider to enable permission checks.
- * 
+ *
  * Usage:
  * ```tsx
  * <PermissionProvider permissions={projectPermissions} role={userRole}>
@@ -36,10 +36,10 @@ interface PermissionProviderProps {
  * </PermissionProvider>
  * ```
  */
-export const PermissionProvider: React.FC<PermissionProviderProps> = ({ 
-  permissions, 
+export const PermissionProvider: React.FC<PermissionProviderProps> = ({
+  permissions,
   role = null,
-  children 
+  children
 }) => {
   const hasPermission = (permission: string): boolean => {
     return permissions.includes(permission);
@@ -54,13 +54,13 @@ export const PermissionProvider: React.FC<PermissionProviderProps> = ({
   };
 
   return (
-    <PermissionContext.Provider 
-      value={{ 
-        permissions, 
+    <PermissionContext.Provider
+      value={{
+        permissions,
         role,
-        hasPermission, 
+        hasPermission,
         hasAnyPermission,
-        hasAllPermissions 
+        hasAllPermissions
       }}
     >
       {children}
@@ -70,13 +70,13 @@ export const PermissionProvider: React.FC<PermissionProviderProps> = ({
 
 /**
  * Permission Hook
- * 
+ *
  * Hook to access permission checking functions and user role.
- * 
+ *
  * Usage:
  * ```tsx
  * const { hasPermission, role } = usePermission();
- * 
+ *
  * if (hasPermission('task.create')) {
  *   // Show create button
  * }
@@ -84,10 +84,10 @@ export const PermissionProvider: React.FC<PermissionProviderProps> = ({
  */
 export const usePermission = (): PermissionContextValue => {
   const context = useContext(PermissionContext);
-  
+
   if (context === undefined) {
     throw new Error('usePermission must be used within a PermissionProvider');
   }
-  
+
   return context;
 };

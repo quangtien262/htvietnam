@@ -141,6 +141,7 @@ import TaskKanban_PM from './pages/project/TaskKanban';
 import TaskList_PM from './pages/project/TaskList';
 import GanttChart_PM from './pages/project/GanttChart';
 import UserGuide from './pages/project/UserGuide';
+import ProjectPermissionsPage from './pages/project/ProjectPermissionsPage';
 
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
@@ -275,6 +276,7 @@ const App: React.FC = () => (
                 <Route path={ROUTE.project_kanban} element={<TaskKanban_PM />} />
                 <Route path={ROUTE.project_gantt} element={<GanttChart_PM />} />
                 <Route path={ROUTE.project_tasks} element={<TaskList_PM />} />
+                <Route path={ROUTE.project_permissions} element={<ProjectPermissionsPage />} />
                 <Route path={ROUTE.project_guide} element={<UserGuide />} />
             </Routes>
         </AppLayout>

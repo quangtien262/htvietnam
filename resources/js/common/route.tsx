@@ -150,6 +150,7 @@ export const ROUTE = {
     project_kanban: `${baseRoute}project/:id/kanban/`,
     project_gantt: `${baseRoute}project/:id/gantt/`,
     project_tasks: `${baseRoute}project/:id/tasks/`,
+    project_permissions: `${baseRoute}project/:id/permissions/`,
     project_settings: `${baseRoute}project/settings/`,
     project_guide: `${baseRoute}project/guide/`,
 };

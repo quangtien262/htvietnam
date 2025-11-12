@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TblController;
+use App\Http\Controllers\Project\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,4 +60,13 @@ Route::post('language/detail', [ApiController::class, 'languagesDetail'])->name(
 Route::group(['prefix' => 'files'], function () {
     Route::post('upload', [FileController::class, 'upload'])->name('file.upload');
     Route::post('editor/upload', [FileController::class, 'editorUpload'])->name('editor.upload');
+});
+
+// Project RBAC Management
+Route::group(['prefix' => 'admin/projects'], function () {
+    Route::get('roles', [PermissionController::class, 'getRoles'])->name('api.projects.roles');
+    Route::get('permissions', [PermissionController::class, 'getPermissions'])->name('api.projects.permissions');
+    Route::get('{projectId}/members', [PermissionController::class, 'getProjectMembers'])->name('api.projects.members');
+    Route::post('{projectId}/members/{memberId}/assign-role', [PermissionController::class, 'assignRole'])->name('api.projects.assign_role');
+    Route::get('{projectId}/user-permissions', [PermissionController::class, 'getUserPermissions'])->name('api.projects.user_permissions');
 });

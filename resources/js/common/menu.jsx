@@ -30,7 +30,8 @@ import {
     ClockCircleOutlined,
     DeleteOutlined,
     SettingOutlined,
-    QuestionCircleOutlined
+    QuestionCircleOutlined,
+    KeyOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -788,10 +789,15 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
+                {
+                    label: <Link to={`/project/1/permissions?p=projects`}>Quản lý phân quyền</Link>,
+                    key: (key++).toString(),
+                    icon: <KeyOutlined />,
+                },
             ],
         },
         {
-            label: <Link to={`${ROUTE.documentsUserGuide}?p=projects`}>Hướng dẫn</Link>,
+            label: <Link to={`${ROUTE.project_guide}?p=projects`}>Hướng dẫn</Link>,
             key: (key++).toString(),
             icon: <QuestionCircleOutlined />,
         },

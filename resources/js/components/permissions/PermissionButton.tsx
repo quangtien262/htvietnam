@@ -18,7 +18,7 @@ interface PermissionButtonProps {
 
 /**
  * PermissionButton - Button that only renders if user has permission
- * 
+ *
  * Usage:
  * ```tsx
  * <PermissionButton
@@ -75,9 +75,9 @@ interface PermissionActionMenuProps {
 
 /**
  * PermissionActionMenu - Dropdown menu with permission-based actions
- * 
+ *
  * Only shows menu items that the user has permission for.
- * 
+ *
  * Usage:
  * ```tsx
  * <PermissionActionMenu
@@ -123,11 +123,11 @@ export const PermissionActionMenu: React.FC<PermissionActionMenuProps> = ({
       >
         {buttonLabel}
       </button>
-      
+
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-10" 
+          <div
+            className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1">

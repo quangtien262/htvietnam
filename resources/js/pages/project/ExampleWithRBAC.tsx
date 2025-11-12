@@ -5,7 +5,7 @@ import { PermissionButton, PermissionActionMenu } from '../../components/permiss
 
 /**
  * EXAMPLE: Project Detail Page with RBAC Integration
- * 
+ *
  * This example shows how to use the Permission system in a real component.
  * Copy these patterns to your actual project pages.
  */
@@ -99,8 +99,8 @@ export const ProjectDetailExample: React.FC<ProjectDetailExampleProps> = ({
           </Can>
 
           {/* Example 2: Can with fallback */}
-          <Can 
-            permission="project.update" 
+          <Can
+            permission="project.update"
             fallback={<p className="text-gray-500">Bạn không có quyền chỉnh sửa</p>}
           >
             <button onClick={handleEditProject} className="btn btn-secondary">
@@ -173,7 +173,7 @@ export const ProjectDetailExample: React.FC<ProjectDetailExampleProps> = ({
         {/* Example 8: Conditional form fields */}
         <div className="bg-white p-4 rounded-lg shadow mt-6">
           <h2 className="text-lg font-semibold mb-4">Chi tiết task</h2>
-          
+
           <Can permission="task.view">
             <div className="mb-4">
               <label className="block mb-2">Tên task</label>
@@ -222,26 +222,26 @@ export const ProjectDetailExample: React.FC<ProjectDetailExampleProps> = ({
 
 /**
  * EXAMPLE: How to get permissions from backend
- * 
+ *
  * In your Laravel controller:
  * ```php
  * use App\Services\Project\PermissionService;
- * 
+ *
  * public function show($projectId)
  * {
  *     $user = auth('admin')->user();
  *     $permissionService = app(PermissionService::class);
- *     
+ *
  *     $permissions = $permissionService->getUserPermissionsInProject(
  *         $user->id,
  *         $projectId
  *     );
- *     
+ *
  *     $role = $permissionService->getUserRoleInProject(
  *         $user->id,
  *         $projectId
  *     );
- *     
+ *
  *     return Inertia::render('Project/Show', [
  *         'project' => $project,
  *         'userPermissions' => $permissions,
@@ -249,12 +249,12 @@ export const ProjectDetailExample: React.FC<ProjectDetailExampleProps> = ({
  *     ]);
  * }
  * ```
- * 
+ *
  * Or via API:
  * ```typescript
  * const response = await fetch(`/api/projects/${projectId}`);
  * const data = await response.json();
- * 
+ *
  * // data.user_permissions = ['project.view', 'task.create', ...]
  * // data.user_role = { name: 'member', display_name: 'Thành viên', priority: 50 }
  * ```
