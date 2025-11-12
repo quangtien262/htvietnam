@@ -181,4 +181,83 @@ class ProjectController extends Controller
             ], 500);
         }
     }
+
+    public function uploadAttachment(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'file' => 'required|file|max:10240',
+                'mo_ta' => 'nullable|string',
+            ]);
+
+            $attachment = $this->projectService->uploadAttachment(
+                $id, 
+                $validated['file'],
+                $validated['mo_ta'] ?? null
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tải file thành công',
+                'data' => $attachment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateAttachment(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'mo_ta' => 'required|string',
+            ]);
+
+            $attachment = $this->projectService->updateAttachment($id, $validated['mo_ta']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật mô tả thành công',
+                'data' => $attachment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function downloadAttachment($id)
+    {
+        try {
+            $attachment = \App\Models\Project\ProjectAttachment::findOrFail($id);
+            return \Illuminate\Support\Facades\Storage::download($attachment->duong_dan, $attachment->ten_file);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File không tồn tại',
+            ], 404);
+        }
+    }
+
+    public function deleteAttachment($id)
+    {
+        try {
+            $this->projectService->deleteAttachment($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa file thành công',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

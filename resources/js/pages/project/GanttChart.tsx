@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, message, Spin, Empty, Button, Space } from 'antd';
-import { ReloadOutlined, FullscreenOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
+import { ReloadOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { taskApi } from '../../common/api/projectApi';
 // @ts-ignore
 import Gantt from 'frappe-gantt';
 
 const GanttChart: React.FC = () => {
     const { id: projectId } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const ganttRef = useRef<HTMLDivElement>(null);
     const ganttInstance = useRef<any>(null);
 
@@ -134,6 +136,14 @@ const GanttChart: React.FC = () => {
 
     return (
         <div style={{ padding: 24 }}>
+            <div style={{ marginBottom: 16 }}>
+                <Button
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => navigate(-1)}
+                >
+                    Quay lại
+                </Button>
+            </div>
             <Card
                 title="Gantt Chart - Timeline dự án"
                 extra={
@@ -209,6 +219,13 @@ const GanttChart: React.FC = () => {
                     fill: #fcf8e3;
                     opacity: 0.5;
                 }
+                
+                /* Grid Text Labels */
+                .gantt text {
+                    fill: #595959 !important;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+                
                 .gantt .arrow {
                     fill: none;
                     stroke: #666;
@@ -260,7 +277,7 @@ const GanttChart: React.FC = () => {
                     fill: #333;
                     font-weight: 500;
                 }
-                
+
                 /* Custom Task Colors */
                 .gantt-task-completed {
                     fill: #52c41a !important;
@@ -271,7 +288,7 @@ const GanttChart: React.FC = () => {
                 .gantt-task-blocked {
                     fill: #ff4d4f !important;
                 }
-                
+
                 /* Popup Styles */
                 .gantt-popup {
                     background: white;

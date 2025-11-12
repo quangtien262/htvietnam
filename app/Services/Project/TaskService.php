@@ -5,12 +5,38 @@ namespace App\Services\Project;
 use App\Models\Project\Task;
 use App\Models\Project\TaskChecklist;
 use App\Models\Project\TaskComment;
+use App\Models\Project\TaskAttachment;
 use App\Models\Project\ActivityLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
 class TaskService
 {
+    public function getById($id)
+    {
+        return Task::with([
+            'trangThai',
+            'uuTien',
+            'nguoiThucHien',
+            'project',
+            'parent',
+            'checklists' => function ($query) {
+                $query->orderBy('thu_tu');
+            },
+            'comments' => function ($query) {
+                $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
+            },
+            'comments.replies' => function ($query) {
+                $query->with('adminUser')->orderBy('created_at', 'asc');
+            },
+            'attachments' => function ($query) {
+                $query->with('uploader')->orderBy('created_at', 'desc');
+            }
+        ])->findOrFail($id);
+    }
+
     public function getList($params = [])
     {
         $query = Task::with([
@@ -165,15 +191,20 @@ class TaskService
 
             // Update checklists if provided
             if (isset($data['checklists'])) {
+                \Log::info('📝 Updating checklists for task ' . $id, [
+                    'checklists' => $data['checklists']
+                ]);
+
                 TaskChecklist::where('task_id', $id)->delete();
 
-                foreach ($data['checklists'] as $index => $checklist) {
-                    TaskChecklist::create([
+                foreach ($data['checklists'] as $checklist) {
+                    $created = TaskChecklist::create([
                         'task_id' => $id,
                         'noi_dung' => $checklist['noi_dung'],
-                        'thu_tu' => $index,
+                        'thu_tu' => isset($checklist['thu_tu']) ? $checklist['thu_tu'] : 0,
                         'is_completed' => $checklist['is_completed'] ?? false,
                     ]);
+                    \Log::info('✅ Created checklist: ' . $created->id);
                 }
             }
 
@@ -184,7 +215,24 @@ class TaskService
             app(ProjectService::class)->updateProgress($task->project_id);
 
             DB::commit();
-            return $task->load(['trangThai', 'uuTien', 'nguoiThucHien', 'checklists']);
+            
+            // Re-query task from DB with all relationships to get updated checklists
+            $updatedTask = Task::with([
+                'trangThai',
+                'uuTien',
+                'nguoiThucHien',
+                'checklists' => function ($query) {
+                    $query->orderBy('thu_tu');
+                }
+            ])->find($id);
+
+            \Log::info('📦 Returning task with checklists:', [
+                'task_id' => $id,
+                'checklists_count' => $updatedTask->checklists->count(),
+                'checklists' => $updatedTask->checklists->toArray()
+            ]);
+
+            return $updatedTask;
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -251,6 +299,75 @@ class TaskService
         ]);
 
         return $comment->load('adminUser');
+    }
+
+    public function uploadAttachment($taskId, UploadedFile $file, $description = null)
+    {
+        DB::beginTransaction();
+        try {
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . str_replace(' ', '_', $originalName);
+            
+            // Store file in storage/app/project_attachments
+            $path = $file->storeAs('project_attachments', $filename);
+
+            // Create attachment record
+            $attachment = TaskAttachment::create([
+                'task_id' => $taskId,
+                'ten_file' => $originalName,
+                'duong_dan' => $path,
+                'loai_file' => $file->getMimeType(),
+                'kich_thuoc' => $file->getSize(),
+                'uploaded_by' => Auth::guard('admin_users')->id(),
+                'mo_ta' => $description,
+            ]);
+
+            // Log activity
+            $this->logActivity($taskId, 'attachment_uploaded', "Tải lên file: {$originalName}");
+
+            DB::commit();
+            return $attachment->load('uploader');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function updateAttachment($attachmentId, $description)
+    {
+        $attachment = TaskAttachment::findOrFail($attachmentId);
+        $attachment->update(['mo_ta' => $description]);
+        
+        return $attachment->load('uploader');
+    }
+
+    public function deleteAttachment($attachmentId)
+    {
+        DB::beginTransaction();
+        try {
+            $attachment = TaskAttachment::findOrFail($attachmentId);
+            $taskId = $attachment->task_id;
+            $filename = $attachment->ten_file;
+
+            // Delete file from storage
+            if (Storage::exists($attachment->duong_dan)) {
+                Storage::delete($attachment->duong_dan);
+            }
+
+            // Delete record
+            $attachment->delete();
+
+            // Log activity
+            $this->logActivity($taskId, 'attachment_deleted', "Xóa file: {$filename}");
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     private function generateTaskCode($projectId)

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { projectApi, taskApi, referenceApi } from '../../common/api/projectApi';
 import { Project, ActivityLog, Task } from '../../types/project';
 import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
+import ProjectAttachments from '../../components/project/ProjectAttachments';
 import dayjs from 'dayjs';
 
 type TaskViewMode = 'table' | 'kanban';
@@ -21,9 +23,15 @@ const ProjectDetail: React.FC = () => {
     const [detailVisible, setDetailVisible] = useState(false);
     const [detailTaskId, setDetailTaskId] = useState<number | null>(null);
 
-    // Task view mode
-    const [taskViewMode, setTaskViewMode] = useState<TaskViewMode>('table');
-    const [kanbanData, setKanbanData] = useState<any[]>([]);
+    // Detect mobile
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // Task view mode - Default to Kanban on desktop, Table on mobile
+    const getDefaultViewMode = (): TaskViewMode => {
+        return window.innerWidth < 768 ? 'table' : 'kanban';
+    };
+    const [taskViewMode, setTaskViewMode] = useState<TaskViewMode>(getDefaultViewMode());
+    const [kanbanData, setKanbanData] = useState<{ [key: number]: Task[] }>({});
     const [kanbanLoading, setKanbanLoading] = useState(false);
 
     // Add Task Modal
@@ -38,12 +46,33 @@ const ProjectDetail: React.FC = () => {
     const [addMemberForm] = Form.useForm();
     const [allAdminUsers, setAllAdminUsers] = useState<any[]>([]);
 
+    // Handle window resize for responsive view mode
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            // Auto switch to table view on mobile if currently on kanban
+            if (mobile && taskViewMode === 'kanban') {
+                setTaskViewMode('table');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [taskViewMode]);
+
     useEffect(() => {
         if (id) {
             loadProject();
             loadReferenceData();
         }
     }, [id]);
+
+    useEffect(() => {
+        if (id && taskStatuses.length > 0 && taskViewMode === 'kanban') {
+            loadKanbanData();
+        }
+    }, [id, taskStatuses, taskViewMode]);
 
     const loadReferenceData = async () => {
         try {
@@ -121,15 +150,6 @@ const ProjectDetail: React.FC = () => {
         });
         setAddTaskModalVisible(true);
     };
-                loadProject(); // Reload to show new task
-                if (taskViewMode === 'kanban') {
-                    loadKanbanData();
-                }
-            }
-        } catch (error: any) {
-            message.error(error.response?.data?.message || 'Không thể tạo nhiệm vụ');
-        }
-    };
 
     const loadKanbanData = async () => {
         if (!id) return;
@@ -138,11 +158,24 @@ const ProjectDetail: React.FC = () => {
         try {
             const response = await taskApi.getKanban(Number(id));
             if (response.data.success) {
-                setKanbanData(response.data.data || []); // Ensure it's always an array
+                const data = response.data.data;
+
+                // Initialize empty arrays for all statuses
+                const kanban: { [key: number]: Task[] } = {};
+                taskStatuses.forEach(status => {
+                    kanban[status.id] = data[status.id] || [];
+                });
+
+                setKanbanData(kanban);
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể tải dữ liệu kanban');
-            setKanbanData([]); // Set empty array on error
+            // Initialize empty arrays on error
+            const kanban: { [key: number]: Task[] } = {};
+            taskStatuses.forEach(status => {
+                kanban[status.id] = [];
+            });
+            setKanbanData(kanban);
         } finally {
             setKanbanLoading(false);
         }
@@ -156,6 +189,51 @@ const ProjectDetail: React.FC = () => {
             loadProject();
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể cập nhật trạng thái');
+        }
+    };
+
+    const handleDragEnd = async (result: DropResult) => {
+        const { source, destination, draggableId } = result;
+
+        // Dropped outside the list
+        if (!destination) return;
+
+        // No change
+        if (source.droppableId === destination.droppableId && source.index === destination.index) {
+            return;
+        }
+
+        const sourceStatusId = Number(source.droppableId);
+        const destStatusId = Number(destination.droppableId);
+        const taskId = Number(draggableId);
+
+        // Create new kanban data
+        const newKanbanData = { ...kanbanData };
+        const sourceTasks = Array.from(newKanbanData[sourceStatusId]);
+        const destTasks = sourceStatusId === destStatusId
+            ? sourceTasks
+            : Array.from(newKanbanData[destStatusId]);
+
+        // Remove from source
+        const [movedTask] = sourceTasks.splice(source.index, 1);
+
+        // Add to destination
+        destTasks.splice(destination.index, 0, movedTask);
+
+        // Update state
+        newKanbanData[sourceStatusId] = sourceTasks;
+        newKanbanData[destStatusId] = destTasks;
+        setKanbanData(newKanbanData);
+
+        // Update on server
+        try {
+            await taskApi.updateStatus(taskId, destStatusId, destination.index);
+            message.success('Cập nhật trạng thái thành công');
+            loadProject(); // Reload to update task counts
+        } catch (error: any) {
+            message.error('Không thể cập nhật trạng thái');
+            // Revert on error
+            loadKanbanData();
         }
     };
 
@@ -219,24 +297,26 @@ const ProjectDetail: React.FC = () => {
                 <Card
                     extra={
                         <Space>
-                            <Radio.Group
-                                value={taskViewMode}
-                                onChange={(e) => setTaskViewMode(e.target.value)}
-                                buttonStyle="solid"
-                            >
-                                <Radio.Button value="table">
-                                    <TableOutlined /> Bảng
-                                </Radio.Button>
-                                <Radio.Button value="kanban">
-                                    <AppstoreOutlined /> Kanban
-                                </Radio.Button>
-                            </Radio.Group>
+                            {!isMobile && (
+                                <Radio.Group
+                                    value={taskViewMode}
+                                    onChange={(e) => setTaskViewMode(e.target.value)}
+                                    buttonStyle="solid"
+                                >
+                                    <Radio.Button value="table">
+                                        <TableOutlined /> Bảng
+                                    </Radio.Button>
+                                    <Radio.Button value="kanban">
+                                        <AppstoreOutlined /> Kanban
+                                    </Radio.Button>
+                                </Radio.Group>
+                            )}
                             <Button
                                 type="primary"
                                 icon={<PlusOutlined />}
                                 onClick={handleOpenAddTaskModal}
                             >
-                                Thêm nhiệm vụ
+                                {isMobile ? 'Thêm' : 'Thêm nhiệm vụ'}
                             </Button>
                         </Space>
                     }
@@ -306,70 +386,108 @@ const ProjectDetail: React.FC = () => {
                     ) : (
                         // Kanban View
                         <Spin spinning={kanbanLoading}>
-                            {kanbanData && kanbanData.length > 0 ? (
+                            <DragDropContext onDragEnd={handleDragEnd}>
                                 <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16 }}>
-                                    {kanbanData.map((column) => (
-                                        <div
-                                            key={column.status.id}
-                                            style={{
-                                            flex: '0 0 300px',
-                                            backgroundColor: '#f5f5f5',
-                                            borderRadius: 8,
-                                            padding: 16,
-                                        }}
-                                    >
-                                        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Space>
-                                                <Tag color={column.status.ma_mau}>{column.status.ten_trang_thai}</Tag>
-                                                <Badge count={column.tasks.length} showZero style={{ backgroundColor: '#999' }} />
-                                            </Space>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                            {column.tasks.map((task: Task) => (
-                                                <Card
-                                                    key={task.id}
-                                                    size="small"
-                                                    hoverable
-                                                    onClick={() => {
-                                                        setDetailTaskId(task.id);
-                                                        setDetailVisible(true);
-                                                    }}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <div style={{ marginBottom: 8 }}>
-                                                        <strong>{task.ma_nhiem_vu}</strong>
-                                                    </div>
-                                                    <div style={{ marginBottom: 8 }}>{task.tieu_de}</div>
-                                                    <Space wrap style={{ marginBottom: 8 }}>
-                                                        <Tag color={task.uu_tien?.ma_mau} style={{ margin: 0 }}>
-                                                            {task.uu_tien?.ten_uu_tien}
-                                                        </Tag>
-                                                        {task.nguoi_thuc_hien && (
-                                                            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
-                                                                {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                            </Avatar>
-                                                        )}
+                                    {taskStatuses.map((status) => {
+                                        const tasks = kanbanData[status.id] || [];
+                                        return (
+                                            <div
+                                                key={status.id}
+                                                style={{
+                                                    flex: '0 0 300px',
+                                                    backgroundColor: '#f5f5f5',
+                                                    borderRadius: 8,
+                                                    padding: 16,
+                                                }}
+                                            >
+                                                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Space>
+                                                        <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                                        <Badge count={tasks.length} showZero style={{ backgroundColor: '#999' }} />
                                                     </Space>
-                                                    {task.tien_do !== undefined && task.tien_do !== null && (
-                                                        <Progress percent={task.tien_do} size="small" showInfo={false} />
-                                                    )}
-                                                    {task.ngay_ket_thuc_du_kien && (
-                                                        <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-                                                            <ClockCircleOutlined /> {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY')}
+                                                </div>
+
+                                                <Droppable droppableId={String(status.id)}>
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.droppableProps}
+                                                            style={{
+                                                                minHeight: 200,
+                                                                backgroundColor: snapshot.isDraggingOver ? '#e6f7ff' : 'transparent',
+                                                                borderRadius: 4,
+                                                                padding: 4,
+                                                            }}
+                                                        >
+                                                            {tasks.length === 0 ? (
+                                                                <Empty
+                                                                    description="Không có nhiệm vụ"
+                                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                                    style={{ margin: '20px 0' }}
+                                                                />
+                                                            ) : (
+                                                                tasks.map((task: Task, index: number) => (
+                                                                    <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                                                                        {(provided, snapshot) => (
+                                                                            <div
+                                                                                ref={provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                style={{
+                                                                                    ...provided.draggableProps.style,
+                                                                                    marginBottom: 8,
+                                                                                }}
+                                                                            >
+                                                                                <Card
+                                                                                    size="small"
+                                                                                    hoverable
+                                                                                    onClick={() => {
+                                                                                        setDetailTaskId(task.id);
+                                                                                        setDetailVisible(true);
+                                                                                    }}
+                                                                                    style={{
+                                                                                        cursor: 'pointer',
+                                                                                        backgroundColor: snapshot.isDragging ? '#f0f0f0' : '#fff',
+                                                                                        borderLeft: `3px solid ${task.uu_tien?.ma_mau || '#1890ff'}`,
+                                                                                    }}
+                                                                                >
+                                                                                    <div style={{ marginBottom: 8 }}>
+                                                                                        <strong>{task.ma_nhiem_vu}</strong>
+                                                                                    </div>
+                                                                                    <div style={{ marginBottom: 8 }}>{task.tieu_de}</div>
+                                                                                    <Space wrap style={{ marginBottom: 8 }}>
+                                                                                        <Tag color={task.uu_tien?.ma_mau} style={{ margin: 0 }}>
+                                                                                            {task.uu_tien?.ten_uu_tien}
+                                                                                        </Tag>
+                                                                                        {task.nguoi_thuc_hien && (
+                                                                                            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
+                                                                                                {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                                                            </Avatar>
+                                                                                        )}
+                                                                                    </Space>
+                                                                                    {task.tien_do !== undefined && task.tien_do !== null && (
+                                                                                        <Progress percent={task.tien_do} size="small" showInfo={false} />
+                                                                                    )}
+                                                                                    {task.ngay_ket_thuc_du_kien && (
+                                                                                        <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
+                                                                                            <ClockCircleOutlined /> {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY')}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </Card>
+                                                                            </div>
+                                                                        )}
+                                                                    </Draggable>
+                                                                ))
+                                                            )}
+                                                            {provided.placeholder}
                                                         </div>
                                                     )}
-                                                </Card>
-                                            ))}
-                                            {column.tasks.length === 0 && (
-                                                <Empty description="Không có nhiệm vụ" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (
-                                <Empty description="Chưa có dữ liệu kanban" />
-                            )}
+                                                </Droppable>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </DragDropContext>
                         </Spin>
                     )}
                 </Card>
@@ -449,6 +567,23 @@ const ProjectDetail: React.FC = () => {
                     ) : (
                         <Empty description="Chưa có thành viên" />
                     )}
+                </Card>
+            ),
+        },
+        {
+            key: 'attachments',
+            label: (
+                <span>
+                    <FileOutlined /> Files ({project.attachments?.length || 0})
+                </span>
+            ),
+            children: (
+                <Card>
+                    <ProjectAttachments
+                        projectId={project.id}
+                        attachments={project.attachments || []}
+                        onUpdate={loadProject}
+                    />
                 </Card>
             ),
         },

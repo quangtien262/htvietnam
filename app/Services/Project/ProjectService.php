@@ -170,7 +170,10 @@ class ProjectService
             'members.adminUser',
             'tasks.trangThai',
             'tasks.uuTien',
-            'tasks.nguoiThucHien'
+            'tasks.nguoiThucHien',
+            'attachments' => function ($query) {
+                $query->with('uploader')->orderBy('created_at', 'desc');
+            }
         ])->findOrFail($id);
     }
 
@@ -220,6 +223,70 @@ class ProjectService
         $lastProject = Project::withTrashed()->orderBy('id', 'desc')->first();
         $number = $lastProject ? (int)substr($lastProject->ma_du_an, 4) + 1 : 1;
         return 'PRJ-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function uploadAttachment($projectId, $file, $description = null)
+    {
+        DB::beginTransaction();
+        try {
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $filename = time() . '_' . str_replace(' ', '_', $originalName);
+            
+            // Store file
+            $path = $file->storeAs('project_attachments', $filename);
+
+            // Create attachment record
+            $attachment = \App\Models\Project\ProjectAttachment::create([
+                'project_id' => $projectId,
+                'ten_file' => $originalName,
+                'duong_dan' => $path,
+                'loai_file' => $file->getMimeType(),
+                'kich_thuoc' => $file->getSize(),
+                'uploaded_by' => Auth::guard('admin_users')->id(),
+                'mo_ta' => $description,
+            ]);
+
+            $this->logActivity($projectId, 'attachment_uploaded', "Tải lên file: {$originalName}");
+
+            DB::commit();
+            return $attachment->load('uploader');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function updateAttachment($attachmentId, $description)
+    {
+        $attachment = \App\Models\Project\ProjectAttachment::findOrFail($attachmentId);
+        $attachment->update(['mo_ta' => $description]);
+        
+        return $attachment->load('uploader');
+    }
+
+    public function deleteAttachment($attachmentId)
+    {
+        DB::beginTransaction();
+        try {
+            $attachment = \App\Models\Project\ProjectAttachment::findOrFail($attachmentId);
+            $projectId = $attachment->project_id;
+            $filename = $attachment->ten_file;
+
+            // Delete file from storage
+            if (\Illuminate\Support\Facades\Storage::exists($attachment->duong_dan)) {
+                \Illuminate\Support\Facades\Storage::delete($attachment->duong_dan);
+            }
+
+            $attachment->delete();
+            $this->logActivity($projectId, 'attachment_deleted', "Xóa file: {$filename}");
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     private function logActivity($projectId, $action, $description, $oldData = null, $newData = null)

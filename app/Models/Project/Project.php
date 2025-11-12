@@ -78,6 +78,11 @@ class Project extends Model
         return $this->hasMany(ProjectMember::class, 'project_id');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ProjectAttachment::class, 'project_id');
+    }
+
     public function activityLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class, 'doi_tuong_id')

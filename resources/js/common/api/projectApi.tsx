@@ -46,6 +46,34 @@ export const projectApi = {
     removeMember: (projectId: number, memberId: number) => {
         return axios.delete(`${API_BASE}/projects/${projectId}/members/${memberId}`);
     },
+
+    // Upload attachment
+    uploadAttachment: (projectId: number, formData: FormData) => {
+        return axios.post(`${API_BASE}/projects/${projectId}/attachments`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
+
+    // Update attachment description
+    updateAttachment: (attachmentId: number, description: string) => {
+        return axios.put(`${API_BASE}/project-attachments/${attachmentId}`, {
+            mo_ta: description,
+        });
+    },
+
+    // Download attachment
+    downloadAttachment: (attachmentId: number) => {
+        return axios.get(`${API_BASE}/project-attachments/${attachmentId}/download`, {
+            responseType: 'blob',
+        });
+    },
+
+    // Delete attachment
+    deleteAttachment: (attachmentId: number) => {
+        return axios.delete(`${API_BASE}/project-attachments/${attachmentId}`);
+    },
 };
 
 // ============================================
@@ -56,6 +84,11 @@ export const taskApi = {
     // Get list tasks with filters
     getList: (params?: any) => {
         return axios.get(`${API_BASE}/tasks`, { params });
+    },
+
+    // Get task by ID with full details (checklists, comments)
+    getById: (id: number) => {
+        return axios.get(`${API_BASE}/tasks/${id}`);
     },
 
     // Get kanban data for project
@@ -97,6 +130,30 @@ export const taskApi = {
             noi_dung: content,
             parent_id: parentId,
         });
+    },
+
+    uploadAttachment: (taskId: number, formData: FormData) => {
+        return axios.post(`${API_BASE}/tasks/${taskId}/attachments`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
+
+    updateAttachment: (attachmentId: number, description: string) => {
+        return axios.put(`${API_BASE}/task-attachments/${attachmentId}`, {
+            mo_ta: description,
+        });
+    },
+
+    downloadAttachment: (attachmentId: number) => {
+        return axios.get(`${API_BASE}/task-attachments/${attachmentId}/download`, {
+            responseType: 'blob',
+        });
+    },
+
+    deleteAttachment: (attachmentId: number) => {
+        return axios.delete(`${API_BASE}/task-attachments/${attachmentId}`);
     },
 };
 

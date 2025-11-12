@@ -19,10 +19,13 @@ Route::prefix('projects')->name('projects.')->group(function () {
     Route::get('/{id}', [ProjectController::class, 'show'])->name('show');
     Route::put('/{id}', [ProjectController::class, 'update'])->name('update');
     Route::delete('/{id}', [ProjectController::class, 'destroy'])->name('destroy');
-    
+
     // Project members
     Route::post('/{id}/members', [ProjectController::class, 'addMember'])->name('add_member');
     Route::delete('/{id}/members/{memberId}', [ProjectController::class, 'removeMember'])->name('remove_member');
+
+    // Project attachments
+    Route::post('/{id}/attachments', [ProjectController::class, 'uploadAttachment'])->name('upload_attachment');
 });
 
 // Task routes
@@ -31,11 +34,23 @@ Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::post('/', [TaskController::class, 'store'])->name('store');
     Route::get('/kanban/{projectId}', [TaskController::class, 'kanban'])->name('kanban');
     Route::get('/gantt/{projectId}', [TaskController::class, 'gantt'])->name('gantt');
+    Route::get('/{id}', [TaskController::class, 'show'])->name('show');
     Route::put('/{id}', [TaskController::class, 'update'])->name('update');
     Route::put('/{id}/status', [TaskController::class, 'updateStatus'])->name('update_status');
     Route::delete('/{id}', [TaskController::class, 'destroy'])->name('destroy');
     Route::post('/{id}/comments', [TaskController::class, 'addComment'])->name('add_comment');
+    Route::post('/{id}/attachments', [TaskController::class, 'uploadAttachment'])->name('upload_attachment');
 });
+
+// Task attachment routes
+Route::get('/task-attachments/{id}/download', [TaskController::class, 'downloadAttachment'])->name('task_attachments.download');
+Route::put('/task-attachments/{id}', [TaskController::class, 'updateAttachment'])->name('task_attachments.update');
+Route::delete('/task-attachments/{id}', [TaskController::class, 'deleteAttachment'])->name('task_attachments.delete');
+
+// Project attachment routes
+Route::get('/project-attachments/{id}/download', [ProjectController::class, 'downloadAttachment'])->name('project_attachments.download');
+Route::put('/project-attachments/{id}', [ProjectController::class, 'updateAttachment'])->name('project_attachments.update');
+Route::delete('/project-attachments/{id}', [ProjectController::class, 'deleteAttachment'])->name('project_attachments.delete');
 
 // Reference data routes
 Route::get('/project-statuses', function () {
@@ -69,7 +84,7 @@ Route::get('/priorities', function () {
 Route::get('/admin-users', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\AdminUser::where('status', 1)
+        'data' => \App\Models\AdminUser::where('admin_user_status_id', 1)
             ->select('id', 'name', 'email', 'phone')
             ->orderBy('name')
             ->get(),

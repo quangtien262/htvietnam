@@ -134,6 +134,7 @@ export interface Project {
     nguoi_tao?: AdminUser;
     members?: ProjectMember[];
     tasks?: Task[];
+    attachments?: ProjectAttachment[];
     activity_logs?: ActivityLog[];
 
     // Computed
@@ -174,6 +175,25 @@ export interface TaskAttachment {
     kich_thuoc?: number;
     uploaded_by?: number;
     uploader?: AdminUser;
+    mo_ta?: string;
+    formatted_size?: string;
+    extension?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ProjectAttachment {
+    id: number;
+    project_id: number;
+    ten_file: string;
+    duong_dan: string;
+    loai_file?: string;
+    kich_thuoc?: number;
+    uploaded_by?: number;
+    uploader?: AdminUser;
+    mo_ta?: string;
+    formatted_size?: string;
+    extension?: string;
     created_at?: string;
     updated_at?: string;
 }

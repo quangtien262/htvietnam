@@ -19,6 +19,9 @@ import {
     message,
     Divider,
     Empty,
+    Image,
+    Modal,
+    Upload,
 } from 'antd';
 import {
     CloseOutlined,
@@ -28,9 +31,17 @@ import {
     UserOutlined,
     CheckOutlined,
     SendOutlined,
+    UploadOutlined,
+    DownloadOutlined,
+    FileOutlined,
+    FilePdfOutlined,
+    FileImageOutlined,
+    FileWordOutlined,
+    FileExcelOutlined,
+    EyeOutlined,
 } from '@ant-design/icons';
 import { taskApi, referenceApi, projectApi } from '../../common/api/projectApi';
-import { Task, TaskStatusType, PriorityType, TaskChecklist, TaskComment, ProjectMember } from '../../types/project';
+import { Task, TaskStatusType, PriorityType, TaskChecklist, TaskComment as TaskCommentType, ProjectMember } from '../../types/project';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -66,6 +77,11 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
     // Comments
     const [replyTo, setReplyTo] = useState<number | null>(null);
+
+    // Attachments
+    const [uploading, setUploading] = useState(false);
+    const [editingAttachment, setEditingAttachment] = useState<any>(null);
+    const [descriptionForm] = Form.useForm();
 
     useEffect(() => {
         if (visible) {
@@ -110,10 +126,9 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
         setLoading(true);
         try {
-            // Assuming we have a getById endpoint
-            const response = await taskApi.getList({ id: taskId });
-            if (response.data.success && response.data.data.data.length > 0) {
-                const taskData = response.data.data.data[0];
+            const response = await taskApi.getById(taskId);
+            if (response.data.success) {
+                const taskData = response.data.data;
                 setTask(taskData);
                 form.setFieldsValue({
                     ...taskData,
@@ -159,18 +174,30 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
             if (!task) return;
 
+            // Map existing checklists to clean format (no id, task_id, timestamps)
+            const existingChecklists = (task.checklists || []).map((item, index) => ({
+                noi_dung: item.noi_dung,
+                is_completed: item.is_completed,
+                thu_tu: index + 1,
+            }));
+
+            // Add new checklist
             const updatedChecklists = [
-                ...(task.checklists || []),
+                ...existingChecklists,
                 {
                     noi_dung: values.noi_dung,
                     is_completed: false,
-                    thu_tu: (task.checklists?.length || 0) + 1,
+                    thu_tu: existingChecklists.length + 1,
                 }
             ];
+
+            console.log('📝 Sending checklist update:', updatedChecklists);
 
             const response = await taskApi.update(taskId!, {
                 checklists: updatedChecklists,
             });
+
+            console.log('✅ Update response:', response.data);
 
             if (response.data.success) {
                 message.success('Thêm checklist thành công');
@@ -179,6 +206,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 loadTask();
             }
         } catch (error: any) {
+            console.error('❌ Checklist update error:', error);
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
@@ -186,9 +214,12 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     const handleToggleChecklist = async (checklistId: number, isCompleted: boolean) => {
         if (!task) return;
 
-        const updatedChecklists = task.checklists?.map(item =>
-            item.id === checklistId ? { ...item, is_completed: !isCompleted } : item
-        );
+        // Map to clean format with updated is_completed
+        const updatedChecklists = (task.checklists || []).map((item, index) => ({
+            noi_dung: item.noi_dung,
+            is_completed: item.id === checklistId ? !isCompleted : item.is_completed,
+            thu_tu: index + 1,
+        }));
 
         try {
             const response = await taskApi.update(taskId!, {
@@ -206,7 +237,14 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     const handleDeleteChecklist = async (checklistId: number) => {
         if (!task) return;
 
-        const updatedChecklists = task.checklists?.filter(item => item.id !== checklistId);
+        // Filter out deleted item and remap to clean format
+        const updatedChecklists = (task.checklists || [])
+            .filter(item => item.id !== checklistId)
+            .map((item, index) => ({
+                noi_dung: item.noi_dung,
+                is_completed: item.is_completed,
+                thu_tu: index + 1,
+            }));
 
         try {
             const response = await taskApi.update(taskId!, {
@@ -233,6 +271,74 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 message.success('Thêm bình luận thành công');
                 commentForm.resetFields();
                 setReplyTo(null);
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleFileUpload = async (file: File, description?: string) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (description) {
+            formData.append('mo_ta', description);
+        }
+
+        setUploading(true);
+        try {
+            const response = await taskApi.uploadAttachment(taskId!, formData);
+
+            if (response.data.success) {
+                message.success('Tải file thành công');
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        } finally {
+            setUploading(false);
+        }
+
+        return false;
+    };
+
+    const handleEditDescription = async () => {
+        try {
+            const values = await descriptionForm.validateFields();
+            const response = await taskApi.updateAttachment(editingAttachment.id, values.mo_ta);
+
+            if (response.data.success) {
+                message.success('Cập nhật mô tả thành công');
+                setEditingAttachment(null);
+                descriptionForm.resetFields();
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleDownloadAttachment = async (attachmentId: number, filename: string) => {
+        try {
+            const response = await taskApi.downloadAttachment(attachmentId);
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error: any) {
+            message.error('Không thể tải file');
+        }
+    };
+
+    const handleDeleteAttachment = async (attachmentId: number) => {
+        try {
+            const response = await taskApi.deleteAttachment(attachmentId);
+
+            if (response.data.success) {
+                message.success('Xóa file thành công');
                 loadTask();
             }
         } catch (error: any) {
@@ -320,27 +426,47 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
         );
     };
 
-    const renderCommentItem = (comment: TaskComment, isReply = false) => (
-        <Comment
+    const renderCommentItem = (comment: TaskCommentType, isReply = false) => (
+        <div
             key={comment.id}
-            author={comment.admin_user?.name || 'Unknown'}
-            avatar={<Avatar icon={<UserOutlined />} />}
-            content={<p>{comment.noi_dung}</p>}
-            datetime={
-                <Tooltip title={dayjs(comment.created_at).format('DD/MM/YYYY HH:mm')}>
-                    <span>{dayjs(comment.created_at).fromNow()}</span>
-                </Tooltip>
-            }
-            actions={[
-                <span key="reply" onClick={() => setReplyTo(comment.id)}>Trả lời</span>
-            ]}
+            style={{
+                marginBottom: isReply ? 12 : 24,
+                padding: 16,
+                backgroundColor: isReply ? '#fafafa' : '#fff',
+                border: '1px solid #f0f0f0',
+                borderRadius: 8,
+            }}
         >
+            <div style={{ display: 'flex', gap: 12 }}>
+                <Avatar icon={<UserOutlined />} />
+                <div style={{ flex: 1 }}>
+                    <div style={{ marginBottom: 8 }}>
+                        <strong>{comment.admin_user?.name || 'Unknown'}</strong>
+                        <span style={{ marginLeft: 12, color: '#8c8c8c', fontSize: 12 }}>
+                            {dayjs(comment.created_at).fromNow()}
+                        </span>
+                    </div>
+                    <div style={{ marginBottom: 8, color: '#262626' }}>
+                        {comment.noi_dung}
+                    </div>
+                    {!isReply && (
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => setReplyTo(comment.id)}
+                            style={{ padding: 0 }}
+                        >
+                            Trả lời
+                        </Button>
+                    )}
+                </div>
+            </div>
             {comment.replies && comment.replies.length > 0 && (
-                <div style={{ marginTop: 16 }}>
-                    {comment.replies.map(reply => renderCommentItem(reply, true))}
+                <div style={{ marginTop: 16, marginLeft: 48 }}>
+                    {comment.replies.map((reply: TaskCommentType) => renderCommentItem(reply, true))}
                 </div>
             )}
-        </Comment>
+        </div>
     );
 
     const renderCommentsTab = () => (
@@ -378,6 +504,173 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             ) : (
                 <Empty description="Chưa có bình luận" />
             )}
+        </div>
+    );
+
+    const getFileIcon = (extension: string) => {
+        const ext = extension?.toLowerCase();
+        if (ext === 'pdf') return <FilePdfOutlined style={{ fontSize: 24, color: '#ff4d4f' }} />;
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) return <FileImageOutlined style={{ fontSize: 24, color: '#52c41a' }} />;
+        if (['doc', 'docx'].includes(ext)) return <FileWordOutlined style={{ fontSize: 24, color: '#1890ff' }} />;
+        if (['xls', 'xlsx'].includes(ext)) return <FileExcelOutlined style={{ fontSize: 24, color: '#52c41a' }} />;
+        return <FileOutlined style={{ fontSize: 24, color: '#8c8c8c' }} />;
+    };
+
+    const isImageFile = (extension: string) => {
+        const ext = extension?.toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext);
+    };
+
+    const getImageUrl = (attachment: any) => {
+        return `/storage/${attachment.duong_dan}`;
+    };
+
+    const renderAttachmentsTab = () => (
+        <div>
+            <Upload
+                beforeUpload={(file) => {
+                    Modal.confirm({
+                        title: 'Thêm mô tả cho file (tùy chọn)',
+                        content: (
+                            <Input.TextArea
+                                id="upload-description"
+                                placeholder="Nhập mô tả cho file..."
+                                rows={3}
+                            />
+                        ),
+                        onOk: () => {
+                            const description = (document.getElementById('upload-description') as HTMLTextAreaElement)?.value;
+                            handleFileUpload(file, description);
+                        },
+                        okText: 'Upload',
+                        cancelText: 'Hủy',
+                    });
+                    return false;
+                }}
+                showUploadList={false}
+            >
+                <Button
+                    type="primary"
+                    icon={<UploadOutlined />}
+                    loading={uploading}
+                    style={{ marginBottom: 16 }}
+                >
+                    Tải file lên
+                </Button>
+            </Upload>
+
+            <List
+                dataSource={task?.attachments || []}
+                locale={{ emptyText: <Empty description="Chưa có file đính kèm" /> }}
+                renderItem={(attachment: any) => (
+                    <List.Item
+                        actions={[
+                            isImageFile(attachment.extension) && (
+                                <Tooltip title="Xem ảnh">
+                                    <Button
+                                        type="text"
+                                        icon={<EyeOutlined />}
+                                        onClick={() => {
+                                            Modal.info({
+                                                title: attachment.ten_file,
+                                                content: (
+                                                    <Image
+                                                        src={getImageUrl(attachment)}
+                                                        alt={attachment.ten_file}
+                                                        style={{ width: '100%' }}
+                                                    />
+                                                ),
+                                                width: 800,
+                                                okText: 'Đóng',
+                                            });
+                                        }}
+                                    />
+                                </Tooltip>
+                            ),
+                            <Tooltip title="Sửa mô tả">
+                                <Button
+                                    type="text"
+                                    icon={<EditOutlined />}
+                                    onClick={() => {
+                                        setEditingAttachment(attachment);
+                                        descriptionForm.setFieldsValue({ mo_ta: attachment.mo_ta || '' });
+                                    }}
+                                />
+                            </Tooltip>,
+                            <Tooltip title="Tải xuống">
+                                <Button
+                                    type="text"
+                                    icon={<DownloadOutlined />}
+                                    onClick={() => handleDownloadAttachment(attachment.id, attachment.ten_file)}
+                                />
+                            </Tooltip>,
+                            <Popconfirm
+                                title="Xác nhận xóa file này?"
+                                onConfirm={() => handleDeleteAttachment(attachment.id)}
+                                okText="Xóa"
+                                cancelText="Hủy"
+                            >
+                                <Tooltip title="Xóa">
+                                    <Button type="text" danger icon={<DeleteOutlined />} />
+                                </Tooltip>
+                            </Popconfirm>,
+                        ].filter(Boolean)}
+                    >
+                        <List.Item.Meta
+                            avatar={
+                                isImageFile(attachment.extension) ? (
+                                    <Image
+                                        src={getImageUrl(attachment)}
+                                        alt={attachment.ten_file}
+                                        width={50}
+                                        height={50}
+                                        style={{ objectFit: 'cover', borderRadius: 4 }}
+                                        preview={false}
+                                    />
+                                ) : (
+                                    getFileIcon(attachment.extension)
+                                )
+                            }
+                            title={attachment.ten_file}
+                            description={
+                                <div>
+                                    {attachment.mo_ta && (
+                                        <div style={{ marginBottom: 4, color: '#595959' }}>
+                                            {attachment.mo_ta}
+                                        </div>
+                                    )}
+                                    <Space size="small">
+                                        <span>{attachment.formatted_size}</span>
+                                        <span>•</span>
+                                        <span>{attachment.uploader?.name || 'Unknown'}</span>
+                                        <span>•</span>
+                                        <span>{dayjs(attachment.created_at).fromNow()}</span>
+                                    </Space>
+                                </div>
+                            }
+                        />
+                    </List.Item>
+                )}
+            />
+
+            {/* Edit Description Modal */}
+            <Modal
+                title="Sửa mô tả file"
+                open={!!editingAttachment}
+                onOk={handleEditDescription}
+                onCancel={() => {
+                    setEditingAttachment(null);
+                    descriptionForm.resetFields();
+                }}
+                okText="Lưu"
+                cancelText="Hủy"
+            >
+                <Form form={descriptionForm} layout="vertical">
+                    <Form.Item name="mo_ta" label="Mô tả">
+                        <Input.TextArea rows={4} placeholder="Nhập mô tả cho file..." />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 
@@ -507,6 +800,11 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             key: 'comments',
             label: `Bình luận (${task?.comments?.length || 0})`,
             children: renderCommentsTab(),
+        },
+        {
+            key: 'attachments',
+            label: `Files (${task?.attachments?.length || 0})`,
+            children: renderAttachmentsTab(),
         },
     ];
 

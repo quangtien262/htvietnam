@@ -3,14 +3,14 @@
 namespace App\Models\Project;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\AdminUser;
 
-class TaskAttachment extends Model
+class ProjectAttachment extends Model
 {
-    protected $table = 'pro___task_attachments';
+    protected $table = 'pro___project_attachments';
 
     protected $fillable = [
-        'task_id',
+        'project_id',
         'ten_file',
         'duong_dan',
         'loai_file',
@@ -19,25 +19,24 @@ class TaskAttachment extends Model
         'mo_ta',
     ];
 
-    protected $casts = [
-        'kich_thuoc' => 'integer',
-    ];
-
-    public function task(): BelongsTo
+    // Relationships
+    public function project()
     {
-        return $this->belongsTo(Task::class, 'task_id');
+        return $this->belongsTo(Project::class, 'project_id');
     }
 
-    public function uploader(): BelongsTo
+    public function uploader()
     {
-        return $this->belongsTo(\App\Models\AdminUser::class, 'uploaded_by');
+        return $this->belongsTo(AdminUser::class, 'uploaded_by');
     }
 
-    /**
-     * Get file size in human-readable format
-     */
-    public function getFormattedSizeAttribute(): string
+    // Helper: Get formatted file size
+    public function getFormattedSizeAttribute()
     {
+        if (!$this->kich_thuoc) {
+            return '-';
+        }
+
         $bytes = $this->kich_thuoc;
         if ($bytes < 1024) {
             return $bytes . ' B';
@@ -50,10 +49,8 @@ class TaskAttachment extends Model
         }
     }
 
-    /**
-     * Get file extension
-     */
-    public function getExtensionAttribute(): string
+    // Helper: Get file extension
+    public function getExtensionAttribute()
     {
         return pathinfo($this->ten_file, PATHINFO_EXTENSION);
     }
