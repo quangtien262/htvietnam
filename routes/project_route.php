@@ -17,6 +17,7 @@ Route::prefix('projects')->name('projects.')->group(function () {
     Route::post('/', [ProjectController::class, 'store'])->name('store');
     Route::get('/dashboard', [ProjectController::class, 'dashboard'])->name('dashboard');
     Route::get('/{id}', [ProjectController::class, 'show'])->name('show');
+    Route::get('/{id}/dashboard-stats', [ProjectController::class, 'getDashboardStats'])->name('dashboard_stats');
     Route::put('/{id}', [ProjectController::class, 'update'])->name('update');
     Route::delete('/{id}', [ProjectController::class, 'destroy'])->name('destroy');
 
@@ -40,7 +41,17 @@ Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::delete('/{id}', [TaskController::class, 'destroy'])->name('destroy');
     Route::post('/{id}/comments', [TaskController::class, 'addComment'])->name('add_comment');
     Route::post('/{id}/attachments', [TaskController::class, 'uploadAttachment'])->name('upload_attachment');
+    
+    // Time tracking
+    Route::post('/{id}/time/start', [TaskController::class, 'startTimer'])->name('start_timer');
+    Route::post('/{id}/time/manual', [TaskController::class, 'addManualTimeLog'])->name('add_manual_time');
+    Route::get('/{id}/time-logs', [TaskController::class, 'getTimeLogs'])->name('get_time_logs');
 });
+
+// Time tracking global
+Route::get('/time/running', [TaskController::class, 'getRunningTimer'])->name('get_running_timer');
+Route::post('/time/{timeLogId}/stop', [TaskController::class, 'stopTimer'])->name('stop_timer');
+Route::delete('/time/{timeLogId}', [TaskController::class, 'deleteTimeLog'])->name('delete_time_log');
 
 // Task attachment routes
 Route::get('/task-attachments/{id}/download', [TaskController::class, 'downloadAttachment'])->name('task_attachments.download');

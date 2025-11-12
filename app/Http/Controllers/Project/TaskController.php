@@ -294,4 +294,119 @@ class TaskController extends Controller
             ], 500);
         }
     }
+
+    // ============================================
+    // TIME TRACKING ENDPOINTS
+    // ============================================
+
+    public function startTimer($id)
+    {
+        try {
+            $timeLog = $this->taskService->startTimer($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bắt đầu đếm thời gian',
+                'data' => $timeLog,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function stopTimer($timeLogId)
+    {
+        try {
+            $timeLog = $this->taskService->stopTimer($timeLogId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dừng đếm thời gian',
+                'data' => $timeLog,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function addManualTimeLog(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'started_at' => 'required|date',
+                'ended_at' => 'required|date|after:started_at',
+                'mo_ta' => 'nullable|string',
+            ]);
+
+            $timeLog = $this->taskService->addManualTimeLog($id, $validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Thêm log thời gian thành công',
+                'data' => $timeLog,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getTimeLogs($id)
+    {
+        try {
+            $timeLogs = $this->taskService->getTimeLogs($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $timeLogs,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteTimeLog($timeLogId)
+    {
+        try {
+            $this->taskService->deleteTimeLog($timeLogId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa log thời gian thành công',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getRunningTimer()
+    {
+        try {
+            $timer = $this->taskService->getRunningTimer();
+
+            return response()->json([
+                'success' => true,
+                'data' => $timer,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

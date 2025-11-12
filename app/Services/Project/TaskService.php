@@ -6,6 +6,7 @@ use App\Models\Project\Task;
 use App\Models\Project\TaskChecklist;
 use App\Models\Project\TaskComment;
 use App\Models\Project\TaskAttachment;
+use App\Models\Project\TaskTimeLog;
 use App\Models\Project\ActivityLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,14 @@ use Illuminate\Http\UploadedFile;
 
 class TaskService
 {
+    /**
+     * Get task by ID with all relationships
+     *
+     * @param int $id Task ID
+     * @return Task Model with loaded relationships (status, priority, assignee,
+     *              checklists, comments, attachments, time logs)
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException if task not found
+     */
     public function getById($id)
     {
         return Task::with([
@@ -33,6 +42,9 @@ class TaskService
             },
             'attachments' => function ($query) {
                 $query->with('uploader')->orderBy('created_at', 'desc');
+            },
+            'timeLogs' => function ($query) {
+                $query->with('user')->orderBy('started_at', 'desc');
             }
         ])->findOrFail($id);
     }
@@ -215,7 +227,7 @@ class TaskService
             app(ProjectService::class)->updateProgress($task->project_id);
 
             DB::commit();
-            
+
             // Re-query task from DB with all relationships to get updated checklists
             $updatedTask = Task::with([
                 'trangThai',
@@ -309,7 +321,7 @@ class TaskService
             $originalName = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . str_replace(' ', '_', $originalName);
-            
+
             // Store file in storage/app/project_attachments
             $path = $file->storeAs('project_attachments', $filename);
 
@@ -339,7 +351,7 @@ class TaskService
     {
         $attachment = TaskAttachment::findOrFail($attachmentId);
         $attachment->update(['mo_ta' => $description]);
-        
+
         return $attachment->load('uploader');
     }
 
@@ -368,6 +380,178 @@ class TaskService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    // ============================================
+    // TIME TRACKING METHODS
+    // ============================================
+
+    /**
+     * Start a timer for a task
+     *
+     * Creates a new time log entry with is_running=true. Validates that the user
+     * doesn't already have a running timer (only one timer per user allowed).
+     *
+     * @param int $taskId The task ID to track time for
+     * @return TaskTimeLog The created time log with user relationship loaded
+     * @throws \Exception if user already has a running timer
+     * @throws \Exception on database error
+     */
+    public function startTimer($taskId)
+    {
+        $userId = Auth::guard('admin_users')->id();
+
+        // Check if there's already a running timer for this user
+        $runningTimer = TaskTimeLog::where('admin_user_id', $userId)
+            ->where('is_running', true)
+            ->first();
+
+        if ($runningTimer) {
+            throw new \Exception('Bạn đang có timer đang chạy. Vui lòng dừng timer hiện tại trước.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $timeLog = TaskTimeLog::create([
+                'task_id' => $taskId,
+                'admin_user_id' => $userId,
+                'started_at' => now(),
+                'is_running' => true,
+            ]);
+
+            $this->logActivity($taskId, 'timer_started', 'Bắt đầu đếm thời gian');
+
+            DB::commit();
+            return $timeLog->load('user');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Stop a running timer
+     *
+     * Calculates the duration and updates the time log with ended_at and duration.
+     *
+     * @param int $timeLogId The time log ID to stop
+     * @return TaskTimeLog The updated time log with user relationship loaded
+     * @throws \Exception if timer is already stopped
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException if time log not found
+     * @throws \Exception on database error
+     */
+    public function stopTimer($timeLogId)
+    {
+        DB::beginTransaction();
+        try {
+            $timeLog = TaskTimeLog::findOrFail($timeLogId);
+
+            if (!$timeLog->is_running) {
+                throw new \Exception('Timer này đã được dừng.');
+            }
+
+            $endedAt = now();
+            $duration = $endedAt->diffInSeconds($timeLog->started_at);
+
+            $timeLog->update([
+                'ended_at' => $endedAt,
+                'duration' => $duration,
+                'is_running' => false,
+            ]);
+
+            $this->logActivity($timeLog->task_id, 'timer_stopped', 'Dừng đếm thời gian: ' . $timeLog->formatted_duration);
+
+            DB::commit();
+            return $timeLog->fresh()->load('user');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Add a manual time log entry
+     *
+     * Creates a time log entry with specific start and end times.
+     * Validates that end time is after start time.
+     *
+     * @param int $taskId The task ID
+     * @param array $data [
+     *   'started_at' => string, // DateTime string (ISO format)
+     *   'ended_at' => string, // DateTime string (ISO format)
+     *   'mo_ta' => string, // Optional description
+     * ]
+     * @return TaskTimeLog The created time log with user relationship loaded
+     * @throws \Exception if end time is before or equal to start time
+     * @throws \Exception on database error
+     */
+    public function addManualTimeLog($taskId, $data)
+    {
+        DB::beginTransaction();
+        try {
+            $startedAt = new \DateTime($data['started_at']);
+            $endedAt = new \DateTime($data['ended_at']);
+            $duration = $endedAt->getTimestamp() - $startedAt->getTimestamp();
+
+            if ($duration <= 0) {
+                throw new \Exception('Thời gian kết thúc phải sau thời gian bắt đầu.');
+            }
+
+            $timeLog = TaskTimeLog::create([
+                'task_id' => $taskId,
+                'admin_user_id' => Auth::guard('admin_users')->id(),
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'duration' => $duration,
+                'mo_ta' => $data['mo_ta'] ?? null,
+                'is_running' => false,
+            ]);
+
+            $this->logActivity($taskId, 'manual_time_logged', 'Thêm log thời gian thủ công: ' . $timeLog->formatted_duration);
+
+            DB::commit();
+            return $timeLog->load('user');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function getTimeLogs($taskId)
+    {
+        return TaskTimeLog::where('task_id', $taskId)
+            ->with('user')
+            ->orderBy('started_at', 'desc')
+            ->get();
+    }
+
+    public function deleteTimeLog($timeLogId)
+    {
+        DB::beginTransaction();
+        try {
+            $timeLog = TaskTimeLog::findOrFail($timeLogId);
+            $taskId = $timeLog->task_id;
+
+            $timeLog->delete();
+
+            $this->logActivity($taskId, 'time_log_deleted', 'Xóa log thời gian');
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function getRunningTimer($userId = null)
+    {
+        $userId = $userId ?? Auth::guard('admin_users')->id();
+
+        return TaskTimeLog::where('admin_user_id', $userId)
+            ->where('is_running', true)
+            ->with(['task', 'user'])
+            ->first();
     }
 
     private function generateTaskCode($projectId)

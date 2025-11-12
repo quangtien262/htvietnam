@@ -365,7 +365,7 @@ const TaskKanban: React.FC = () => {
         return result;
     }
 
-    const onDragEnd = async (result: import("react-beautiful-dnd").DropResult) => {
+    const onDragEnd = async (result: import("@hello-pangea/dnd").DropResult) => {
         const { source, destination } = result;
         if (!destination) return;
 

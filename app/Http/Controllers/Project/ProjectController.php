@@ -260,4 +260,21 @@ class ProjectController extends Controller
             ], 500);
         }
     }
+
+    public function getDashboardStats(Request $request, $id)
+    {
+        try {
+            $stats = $this->projectService->getProjectDashboardStats($id, $request->all());
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

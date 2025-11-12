@@ -1,5 +1,5 @@
 import React from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Tag } from "antd";
 import dayjs from "dayjs";
 import axios from "../../utils/axiosConfig";

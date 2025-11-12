@@ -2,6 +2,10 @@
 // ENUMS
 // ============================================
 
+/**
+ * Project status enumeration
+ * Maps to database pro___project_statuses table
+ */
 export enum ProjectStatus {
     PLANNING = 1,
     IN_PROGRESS = 2,
@@ -10,6 +14,10 @@ export enum ProjectStatus {
     CANCELLED = 5,
 }
 
+/**
+ * Task status enumeration
+ * Maps to database pro___task_statuses table
+ */
 export enum TaskStatus {
     NOT_STARTED = 1,
     IN_PROGRESS = 2,
@@ -18,6 +26,10 @@ export enum TaskStatus {
     BLOCKED = 5,
 }
 
+/**
+ * Priority level enumeration
+ * Maps to database pro___priorities table
+ */
 export enum Priority {
     LOW = 1,
     MEDIUM = 2,
@@ -25,6 +37,10 @@ export enum Priority {
     URGENT = 4,
 }
 
+/**
+ * Project member role types
+ * Used in pro___project_members.vai_tro field
+ */
 export enum MemberRole {
     MANAGER = 'quan_ly',
     MEMBER = 'thanh_vien',
@@ -208,6 +224,29 @@ export interface TaskDependency {
     updated_at?: string;
 }
 
+/**
+ * Time log entry for task time tracking
+ * Represents a record in pro___task_time_logs table
+ *
+ * Supports both automatic timer (start/stop) and manual entry modes.
+ * Duration is calculated automatically when timer is stopped.
+ */
+export interface TaskTimeLog {
+    id: number;
+    task_id: number;
+    admin_user_id: number;
+    started_at: string; // ISO datetime string
+    ended_at?: string; // ISO datetime string (null if timer is running)
+    duration?: number; // Total seconds (calculated on stop)
+    mo_ta?: string; // Optional description
+    is_running: boolean; // True if timer is currently active
+    user?: AdminUser; // Relationship to user who created the log
+    formatted_duration?: string; // Human-readable format (e.g., "2h 15m")
+    current_duration?: number; // Live duration in seconds (for running timers)
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface Task {
     id: number;
     project_id: number;
@@ -246,6 +285,8 @@ export interface Task {
     comments?: TaskComment[];
     attachments?: TaskAttachment[];
     dependencies?: TaskDependency[];
+    timeLogs?: TaskTimeLog[];
+    time_logs?: TaskTimeLog[]; // Laravel snake_case
 }
 
 export interface ActivityLog {
@@ -359,6 +400,48 @@ export interface DashboardStats {
     completed_tasks?: number;
     in_progress_tasks?: number;
     overdue_tasks?: number;
+}
+
+/**
+ * Project dashboard statistics data structure
+ *
+ * Contains aggregated metrics and chart data for a single project.
+ * Used by ProjectDetailDashboard component.
+ *
+ * Data can be filtered by date range (tu_ngay, den_ngay parameters).
+ */
+export interface ProjectDashboardStats {
+    overview: {
+        total_tasks: number;
+        completed_tasks: number;
+        in_progress_tasks: number;
+        not_started_tasks: number;
+        completion_rate: number; // Percentage (0-100)
+        total_time_logged: number; // Total seconds
+        total_hours_logged: number; // Total hours (decimal)
+        team_size: number; // Number of active members
+    };
+    tasks_by_status: Array<{
+        status: string; // Status name (e.g., "Hoàn thành")
+        count: number; // Number of tasks
+        color: string; // Hex color code
+    }>;
+    tasks_by_priority: Array<{
+        priority: string; // Priority name (e.g., "Cao")
+        count: number; // Number of tasks
+        color: string; // Hex color code
+    }>;
+    progress_trend: Array<{
+        date: string; // Date in Y-m-d format
+        completed: number;
+        in_progress: number;
+        not_started: number;
+    }>;
+    time_by_member: Array<{
+        member: string; // User name
+        total_seconds: number; // Total time in seconds
+        total_hours: number; // Total time in hours (decimal)
+    }>;
 }
 
 export interface GanttTask {

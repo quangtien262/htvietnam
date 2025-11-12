@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Progress, Table, Tag, Space, Spin } from 'antd';
+import { Card, Row, Col, Statistic, Progress, Table, Tag, Space, Spin, Button } from 'antd';
 import {
     ProjectOutlined,
     CheckCircleOutlined,
@@ -7,6 +7,7 @@ import {
     WarningOutlined,
     RiseOutlined,
     FallOutlined,
+    QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { projectApi } from '../../common/api/projectApi';
 import { DashboardStats, Project } from '../../types/project';
@@ -110,9 +111,17 @@ const ProjectDashboard: React.FC = () => {
 
     return (
         <div style={{ padding: 24 }}>
-            <h1 style={{ marginBottom: 24 }}>
-                <ProjectOutlined /> Dashboard - Tổng quan dự án
-            </h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h1 style={{ margin: 0 }}>
+                    <ProjectOutlined /> Dashboard - Tổng quan dự án
+                </h1>
+                <Button
+                    icon={<QuestionCircleOutlined />}
+                    onClick={() => navigate(ROUTE.project_guide)}
+                >
+                    Hướng Dẫn Sử Dụng
+                </Button>
+            </div>
 
             {/* Statistics Cards */}
             <Row gutter={16} style={{ marginBottom: 24 }}>

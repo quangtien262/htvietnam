@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { projectApi, taskApi, referenceApi } from '../../common/api/projectApi';
 import { Project, ActivityLog, Task } from '../../types/project';
 import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
 import ProjectAttachments from '../../components/project/ProjectAttachments';
+import ProjectDetailDashboard from './ProjectDetailDashboard';
 import dayjs from 'dayjs';
 
 type TaskViewMode = 'table' | 'kanban';
@@ -669,53 +670,13 @@ const ProjectDetail: React.FC = () => {
             ),
         },
         {
-            key: 'stats',
-            label: 'Thống kê',
-            children: (
-                <Card>
-                    <Row gutter={16}>
-                        <Col xs={24} sm={12} md={6}>
-                            <Card>
-                                <Statistic
-                                    title="Tổng nhiệm vụ"
-                                    value={project.tasks?.length || 0}
-                                    prefix={<CheckCircleOutlined />}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <Card>
-                                <Statistic
-                                    title="Hoàn thành"
-                                    value={project.tasks?.filter(t => t.trang_thai?.is_done).length || 0}
-                                    valueStyle={{ color: '#52c41a' }}
-                                    prefix={<CheckCircleOutlined />}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <Card>
-                                <Statistic
-                                    title="Đang làm"
-                                    value={project.tasks?.filter(t => !t.trang_thai?.is_done).length || 0}
-                                    valueStyle={{ color: '#1890ff' }}
-                                    prefix={<ClockCircleOutlined />}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <Card>
-                                <Statistic
-                                    title="Tiến độ"
-                                    value={project.tien_do || 0}
-                                    suffix="%"
-                                    valueStyle={{ color: project.tien_do === 100 ? '#52c41a' : '#1890ff' }}
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
-                </Card>
+            key: 'dashboard',
+            label: (
+                <span>
+                    <DashboardOutlined /> Dashboard
+                </span>
             ),
+            children: <ProjectDetailDashboard projectId={Number(id)} />,
         },
         {
             key: 'activity',

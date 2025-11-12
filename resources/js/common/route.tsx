@@ -151,6 +151,7 @@ export const ROUTE = {
     project_gantt: `${baseRoute}project/:id/gantt/`,
     project_tasks: `${baseRoute}project/:id/tasks/`,
     project_settings: `${baseRoute}project/settings/`,
+    project_guide: `${baseRoute}project/guide/`,
 };
 
 export default ROUTE;

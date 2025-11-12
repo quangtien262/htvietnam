@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Project\TaskTimeLog;
 
 class Task extends Model
 {
@@ -105,7 +106,7 @@ class Task extends Model
 
     public function timeLogs(): HasMany
     {
-        return $this->hasMany(TimeLog::class, 'task_id');
+        return $this->hasMany(TaskTimeLog::class, 'task_id');
     }
 
     public function activityLogs(): HasMany

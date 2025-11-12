@@ -773,6 +773,28 @@ export const MENU = {
                 },
             ],
         },
+        {
+            label: "Cài đặt",
+            key: (key++).toString(),
+            icon: <SettingFilled />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/status?p=sales`}>Trạng thái dự án</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.project_list}?p=projects`}>Trạng thái task</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.documentsUserGuide}?p=projects`}>Hướng dẫn</Link>,
+            key: (key++).toString(),
+            icon: <QuestionCircleOutlined />,
+        },
     ],
 }
 

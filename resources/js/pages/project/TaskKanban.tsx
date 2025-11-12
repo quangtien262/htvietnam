@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Space, Tag, Avatar, Tooltip, message, Modal, Form, Input, Select, DatePicker, Empty, Spin } from 'antd';
 import { PlusOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { taskApi, referenceApi } from '../../common/api/projectApi';
 import { Task, TaskStatusType, PriorityType, TaskFormData } from '../../types/project';
 import { useParams } from 'react-router-dom';

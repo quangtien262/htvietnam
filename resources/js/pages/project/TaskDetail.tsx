@@ -22,6 +22,10 @@ import {
     Image,
     Modal,
     Upload,
+    Statistic,
+    Card,
+    Row,
+    Col,
 } from 'antd';
 import {
     CloseOutlined,
@@ -39,6 +43,10 @@ import {
     FileWordOutlined,
     FileExcelOutlined,
     EyeOutlined,
+    PlayCircleOutlined,
+    PauseCircleOutlined,
+    ClockCircleOutlined,
+    FieldTimeOutlined,
 } from '@ant-design/icons';
 import { taskApi, referenceApi, projectApi } from '../../common/api/projectApi';
 import { Task, TaskStatusType, PriorityType, TaskChecklist, TaskComment as TaskCommentType, ProjectMember } from '../../types/project';
@@ -83,6 +91,12 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     const [editingAttachment, setEditingAttachment] = useState<any>(null);
     const [descriptionForm] = Form.useForm();
 
+    // Time Tracking
+    const [runningTimer, setRunningTimer] = useState<any>(null);
+    const [currentDuration, setCurrentDuration] = useState(0);
+    const [addManualTimeModal, setAddManualTimeModal] = useState(false);
+    const [manualTimeForm] = Form.useForm();
+
     useEffect(() => {
         if (visible) {
             loadReferenceData();
@@ -93,8 +107,27 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     useEffect(() => {
         if (taskId && visible) {
             loadTask();
+            checkRunningTimer();
+        } else {
+            // Reset timer state khi đóng drawer
+            setRunningTimer(null);
+            setCurrentDuration(0);
         }
     }, [taskId, visible]);
+
+    // Timer update every second
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (runningTimer && runningTimer.is_running) {
+            interval = setInterval(() => {
+                const duration = Math.floor((Date.now() - new Date(runningTimer.started_at).getTime()) / 1000);
+                setCurrentDuration(duration);
+            }, 1000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [runningTimer]);
 
     const loadReferenceData = async () => {
         try {
@@ -129,6 +162,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             const response = await taskApi.getById(taskId);
             if (response.data.success) {
                 const taskData = response.data.data;
+                console.log('Task Data:', taskData);
+                console.log('Time Logs:', taskData.timeLogs);
                 setTask(taskData);
                 form.setFieldsValue({
                     ...taskData,
@@ -344,6 +379,120 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
+    };
+
+    // ============================================
+    // TIME TRACKING HANDLERS
+    // ============================================
+
+    const checkRunningTimer = async () => {
+        try {
+            const response = await taskApi.getRunningTimer();
+            if (response.data.success && response.data.data) {
+                const timer = response.data.data;
+                // Chỉ hiển thị timer nếu đúng task hiện tại
+                if (timer.task_id === taskId) {
+                    setRunningTimer(timer);
+                    const duration = Math.floor((Date.now() - new Date(timer.started_at).getTime()) / 1000);
+                    setCurrentDuration(duration);
+                } else {
+                    // Timer đang chạy ở task khác, clear state
+                    setRunningTimer(null);
+                    setCurrentDuration(0);
+                }
+            } else {
+                // Không có timer nào đang chạy
+                setRunningTimer(null);
+                setCurrentDuration(0);
+            }
+        } catch (error) {
+            // No running timer
+            setRunningTimer(null);
+            setCurrentDuration(0);
+        }
+    };
+
+    const handleStartTimer = async () => {
+        try {
+            const response = await taskApi.startTimer(taskId!);
+            if (response.data.success) {
+                message.success('Bắt đầu đếm thời gian');
+                setRunningTimer(response.data.data);
+                setCurrentDuration(0);
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleStopTimer = async () => {
+        if (!runningTimer) return;
+
+        try {
+            const response = await taskApi.stopTimer(runningTimer.id);
+            if (response.data.success) {
+                message.success('Dừng đếm thời gian');
+                setRunningTimer(null);
+                setCurrentDuration(0);
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleAddManualTime = async () => {
+        try {
+            const values = await manualTimeForm.validateFields();
+            const response = await taskApi.addManualTimeLog(taskId!, {
+                started_at: values.started_at.toISOString(),
+                ended_at: values.ended_at.toISOString(),
+                mo_ta: values.mo_ta,
+            });
+
+            if (response.data.success) {
+                message.success('Thêm log thời gian thành công');
+                setAddManualTimeModal(false);
+                manualTimeForm.resetFields();
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleDeleteTimeLog = async (timeLogId: number) => {
+        try {
+            const response = await taskApi.deleteTimeLog(timeLogId);
+            if (response.data.success) {
+                message.success('Xóa log thời gian thành công');
+                loadTask();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const formatDuration = (seconds: number) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${secs}s`;
+        } else {
+            return `${secs}s`;
+        }
+    };
+
+    const getTotalTimeLogged = () => {
+        const logs = task?.time_logs || task?.timeLogs || [];
+        return logs.reduce((total, log) => {
+            return total + (log.duration || 0);
+        }, 0);
     };
 
     const renderChecklistTab = () => {
@@ -674,6 +823,159 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
         </div>
     );
 
+    const renderTimeTrackingTab = () => (
+        <div>
+            {/* Timer Controls */}
+            <Card style={{ marginBottom: 16 }}>
+                <Row gutter={[16, 16]}>
+                    <Col span={12}>
+                        <Statistic
+                            title="Thời gian đang chạy"
+                            value={runningTimer ? formatDuration(currentDuration) : 'Chưa bắt đầu'}
+                            prefix={runningTimer ? <ClockCircleOutlined /> : null}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <Statistic
+                            title="Tổng thời gian"
+                            value={formatDuration(getTotalTimeLogged())}
+                            prefix={<FieldTimeOutlined />}
+                        />
+                    </Col>
+                </Row>
+
+                <Space style={{ marginTop: 16 }}>
+                    {!runningTimer ? (
+                        <Button
+                            type="primary"
+                            icon={<PlayCircleOutlined />}
+                            onClick={handleStartTimer}
+                        >
+                            Bắt đầu đếm giờ
+                        </Button>
+                    ) : (
+                        <Button
+                            danger
+                            icon={<PauseCircleOutlined />}
+                            onClick={handleStopTimer}
+                        >
+                            Dừng đếm giờ
+                        </Button>
+                    )}
+
+                    <Button
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                            setAddManualTimeModal(true);
+                            manualTimeForm.resetFields();
+                        }}
+                    >
+                        Thêm thủ công
+                    </Button>
+                </Space>
+            </Card>
+
+            {/* Time Logs List */}
+            <List
+                dataSource={task?.time_logs || task?.timeLogs || []}
+                locale={{ emptyText: <Empty description="Chưa có log thời gian" /> }}
+                renderItem={(log: any) => (
+                    <List.Item
+                        actions={[
+                            <Popconfirm
+                                title="Xác nhận xóa log này?"
+                                onConfirm={() => handleDeleteTimeLog(log.id)}
+                                okText="Xóa"
+                                cancelText="Hủy"
+                            >
+                                <Button type="text" danger icon={<DeleteOutlined />} />
+                            </Popconfirm>,
+                        ]}
+                    >
+                        <List.Item.Meta
+                            avatar={<ClockCircleOutlined style={{ fontSize: 24 }} />}
+                            title={
+                                <Space>
+                                    <span>{log.user?.name || 'Unknown'}</span>
+                                    <Tag color={log.is_running ? 'green' : 'blue'}>
+                                        {log.is_running ? 'Đang chạy' : log.formatted_duration || formatDuration(log.duration)}
+                                    </Tag>
+                                </Space>
+                            }
+                            description={
+                                <div>
+                                    <div>
+                                        <b>Bắt đầu:</b> {dayjs(log.started_at).format('DD/MM/YYYY HH:mm')}
+                                        {log.ended_at && (
+                                            <> - <b>Kết thúc:</b> {dayjs(log.ended_at).format('DD/MM/YYYY HH:mm')}</>
+                                        )}
+                                    </div>
+                                    {log.mo_ta && <div style={{ marginTop: 4, color: '#595959' }}>{log.mo_ta}</div>}
+                                </div>
+                            }
+                        />
+                    </List.Item>
+                )}
+            />
+
+            {/* Add Manual Time Modal */}
+            <Modal
+                title="Thêm log thời gian thủ công"
+                open={addManualTimeModal}
+                onOk={handleAddManualTime}
+                onCancel={() => {
+                    setAddManualTimeModal(false);
+                    manualTimeForm.resetFields();
+                }}
+                okText="Thêm"
+                cancelText="Hủy"
+            >
+                <Form form={manualTimeForm} layout="vertical">
+                    <Form.Item
+                        name="started_at"
+                        label="Thời gian bắt đầu"
+                        rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu' }]}
+                    >
+                        <DatePicker
+                            showTime
+                            format="DD/MM/YYYY HH:mm"
+                            style={{ width: '100%' }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="ended_at"
+                        label="Thời gian kết thúc"
+                        rules={[
+                            { required: true, message: 'Vui lòng chọn thời gian kết thúc' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || !getFieldValue('started_at')) {
+                                        return Promise.resolve();
+                                    }
+                                    if (value.isAfter(getFieldValue('started_at'))) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Thời gian kết thúc phải sau thời gian bắt đầu'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <DatePicker
+                            showTime
+                            format="DD/MM/YYYY HH:mm"
+                            style={{ width: '100%' }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item name="mo_ta" label="Mô tả">
+                        <Input.TextArea rows={3} placeholder="Mô tả công việc đã làm..." />
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </div>
+    );
+
     const renderInfoTab = () => (
         <div>
             {editing ? (
@@ -805,6 +1107,15 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             key: 'attachments',
             label: `Files (${task?.attachments?.length || 0})`,
             children: renderAttachmentsTab(),
+        },
+        {
+            key: 'timeTracking',
+            label: (
+                <span>
+                    <FieldTimeOutlined /> Time Tracking ({formatDuration(getTotalTimeLogged())})
+                </span>
+            ),
+            children: renderTimeTrackingTab(),
         },
     ];
 

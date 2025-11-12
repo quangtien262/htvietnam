@@ -25,6 +25,7 @@ import {
     SearchOutlined,
     ReloadOutlined,
     ProjectOutlined,
+    QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { projectApi, referenceApi } from '../../common/api/projectApi';
 import { Project, ProjectFormData, ProjectFilter, ProjectStatusType, ProjectType, PriorityType } from '../../types/project';
@@ -328,9 +329,17 @@ const ProjectList: React.FC = () => {
                     </Space>
                 }
                 extra={
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                        Tạo dự án mới
-                    </Button>
+                    <Space>
+                        <Button
+                            icon={<QuestionCircleOutlined />}
+                            onClick={() => navigate(ROUTE.project_guide)}
+                        >
+                            Hướng Dẫn
+                        </Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                            Tạo dự án mới
+                        </Button>
+                    </Space>
                 }
             >
                 {/* Filters */}

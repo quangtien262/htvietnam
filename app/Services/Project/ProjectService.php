@@ -10,6 +10,23 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectService
 {
+    /**
+     * Get paginated list of projects with filters
+     *
+     * @param array $params [
+     *   'search' => string, // Search in ma_du_an, ten_du_an, ten_khach_hang
+     *   'trang_thai_id' => int,
+     *   'loai_du_an_id' => int,
+     *   'uu_tien_id' => int,
+     *   'quan_ly_du_an_id' => int,
+     *   'tu_ngay' => string, // Date format: Y-m-d
+     *   'den_ngay' => string, // Date format: Y-m-d
+     *   'sort_by' => string, // Default: 'created_at'
+     *   'sort_order' => string, // 'asc' or 'desc', default: 'desc'
+     *   'per_page' => int, // Default: 20
+     * ]
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
     public function getList($params = [])
     {
         $query = Project::with(['trangThai', 'loaiDuAn', 'uuTien', 'quanLyDuAn']);
@@ -59,6 +76,28 @@ class ProjectService
         return $query->paginate($perPage);
     }
 
+    /**
+     * Create a new project with members
+     *
+     * @param array $data [
+     *   'ma_du_an' => string (optional, auto-generated if empty),
+     *   'ten_du_an' => string (required),
+     *   'ten_khach_hang' => string,
+     *   'ngay_bat_dau' => string,
+     *   'ngay_ket_thuc_du_kien' => string,
+     *   'quan_ly_du_an_id' => int,
+     *   'trang_thai_id' => int,
+     *   'loai_du_an_id' => int,
+     *   'uu_tien_id' => int,
+     *   'mo_ta' => string,
+     *   'members' => array [ // Optional array of team members
+     *     ['admin_user_id' => int, 'vai_tro' => string],
+     *     ...
+     *   ]
+     * ]
+     * @return Project Model with loaded relationships
+     * @throws \Exception on database error
+     */
     public function create($data)
     {
         DB::beginTransaction();
@@ -232,7 +271,7 @@ class ProjectService
             // Generate unique filename
             $originalName = $file->getClientOriginalName();
             $filename = time() . '_' . str_replace(' ', '_', $originalName);
-            
+
             // Store file
             $path = $file->storeAs('project_attachments', $filename);
 
@@ -261,7 +300,7 @@ class ProjectService
     {
         $attachment = \App\Models\Project\ProjectAttachment::findOrFail($attachmentId);
         $attachment->update(['mo_ta' => $description]);
-        
+
         return $attachment->load('uploader');
     }
 
@@ -347,5 +386,176 @@ class ProjectService
         );
 
         $member->delete();
+    }
+
+    // ============================================
+    // DASHBOARD STATISTICS
+    // ============================================
+
+    /**
+     * Get comprehensive dashboard statistics for a project
+     *
+     * This method aggregates various metrics including task distribution,
+     * time tracking data, and project overview statistics.
+     *
+     * @param int $projectId The project ID
+     * @param array $params [
+     *   'tu_ngay' => string, // Start date filter (Y-m-d format)
+     *   'den_ngay' => string, // End date filter (Y-m-d format)
+     * ]
+     * @return array [
+     *   'tasks_by_status' => array, // Task count grouped by status
+     *   'tasks_by_priority' => array, // Task count grouped by priority
+     *   'tasks_progress' => array, // Progress data over time
+     *   'time_by_member' => array, // Time logged by each team member
+     *   'overview' => array, // Summary statistics (total tasks, completion rate, etc.)
+     * ]
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException if project not found
+     */
+    public function getProjectDashboardStats($projectId, $params = [])
+    {
+        $project = Project::findOrFail($projectId);
+
+        return [
+            'tasks_by_status' => $this->getTasksByStatus($projectId),
+            'tasks_by_priority' => $this->getTasksByPriority($projectId),
+            'tasks_progress' => $this->getTasksProgress($projectId, $params),
+            'time_by_member' => $this->getTimeSpentByMember($projectId, $params),
+            'overview' => $this->getProjectOverview($projectId),
+        ];
+    }
+
+    private function getTasksByStatus($projectId)
+    {
+        return DB::table('pro___tasks')
+            ->join('pro___task_statuses', 'pro___tasks.trang_thai_id', '=', 'pro___task_statuses.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->whereNull('pro___tasks.deleted_at')
+            ->select(
+                'pro___task_statuses.ten_trang_thai as status',
+                'pro___task_statuses.ma_mau as color',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('pro___task_statuses.id', 'pro___task_statuses.ten_trang_thai', 'pro___task_statuses.ma_mau')
+            ->get();
+    }
+
+    private function getTasksByPriority($projectId)
+    {
+        return DB::table('pro___tasks')
+            ->join('pro___priorities', 'pro___tasks.uu_tien_id', '=', 'pro___priorities.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->whereNull('pro___tasks.deleted_at')
+            ->select(
+                'pro___priorities.ten_uu_tien as priority',
+                'pro___priorities.ma_mau as color',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('pro___priorities.id', 'pro___priorities.ten_uu_tien', 'pro___priorities.ma_mau')
+            ->orderBy('pro___priorities.id')
+            ->get();
+    }
+
+    private function getTasksProgress($projectId, $params = [])
+    {
+        $query = DB::table('pro___tasks')
+            ->where('project_id', $projectId)
+            ->whereNull('deleted_at');
+
+        // Apply date filter
+        if (!empty($params['tu_ngay'])) {
+            $query->where('created_at', '>=', $params['tu_ngay']);
+        }
+        if (!empty($params['den_ngay'])) {
+            $query->where('created_at', '<=', $params['den_ngay']);
+        }
+
+        return $query->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN tien_do = 100 THEN 1 ELSE 0 END) as completed'),
+                DB::raw('SUM(CASE WHEN tien_do > 0 AND tien_do < 100 THEN 1 ELSE 0 END) as in_progress'),
+                DB::raw('SUM(CASE WHEN tien_do = 0 THEN 1 ELSE 0 END) as not_started')
+            )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+    }
+
+    private function getTimeSpentByMember($projectId, $params = [])
+    {
+        $query = DB::table('pro___task_time_logs')
+            ->join('pro___tasks', 'pro___task_time_logs.task_id', '=', 'pro___tasks.id')
+            ->join('admin_users', 'pro___task_time_logs.admin_user_id', '=', 'admin_users.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->where('pro___task_time_logs.is_running', false)
+            ->whereNotNull('pro___task_time_logs.duration');
+
+        // Apply date filter
+        if (!empty($params['tu_ngay'])) {
+            $query->where('pro___task_time_logs.started_at', '>=', $params['tu_ngay']);
+        }
+        if (!empty($params['den_ngay'])) {
+            $query->where('pro___task_time_logs.started_at', '<=', $params['den_ngay']);
+        }
+
+        return $query->select(
+                'admin_users.name as member',
+                DB::raw('SUM(pro___task_time_logs.duration) as total_seconds'),
+                DB::raw('ROUND(SUM(pro___task_time_logs.duration) / 3600, 2) as total_hours')
+            )
+            ->groupBy('admin_users.id', 'admin_users.name')
+            ->orderBy('total_seconds', 'desc')
+            ->get();
+    }
+
+    private function getProjectOverview($projectId)
+    {
+        $project = Project::with('members')->findOrFail($projectId);
+
+        $tasksByStatus = $this->getTasksByStatus($projectId);
+
+        $totalTasks = $tasksByStatus->sum('count');
+
+        // Count completed tasks where is_done = 1
+        $completedTasks = DB::table('pro___tasks')
+            ->join('pro___task_statuses', 'pro___tasks.trang_thai_id', '=', 'pro___task_statuses.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->where('pro___task_statuses.is_done', 1)
+            ->whereNull('pro___tasks.deleted_at')
+            ->count();
+
+        // Count not-started tasks: status name contains specific keywords
+        $notStartedTasks = DB::table('pro___tasks')
+            ->join('pro___task_statuses', 'pro___tasks.trang_thai_id', '=', 'pro___task_statuses.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->where('pro___task_statuses.is_done', 0)
+            ->where(function($query) {
+                $query->where('pro___task_statuses.ten_trang_thai', 'LIKE', '%chưa bắt đầu%')
+                      ->orWhere('pro___task_statuses.ten_trang_thai', 'LIKE', '%mới%')
+                      ->orWhere('pro___task_statuses.ten_trang_thai', 'LIKE', '%to do%');
+            })
+            ->whereNull('pro___tasks.deleted_at')
+            ->count();
+
+        // In-progress: all other tasks (not completed and not "not started")
+        $inProgressTasks = $totalTasks - $completedTasks - $notStartedTasks;
+
+        $totalTimeLogged = DB::table('pro___task_time_logs')
+            ->join('pro___tasks', 'pro___task_time_logs.task_id', '=', 'pro___tasks.id')
+            ->where('pro___tasks.project_id', $projectId)
+            ->where('pro___task_time_logs.is_running', false)
+            ->sum('pro___task_time_logs.duration');
+
+        return [
+            'total_tasks' => $totalTasks,
+            'completed_tasks' => $completedTasks,
+            'in_progress_tasks' => $inProgressTasks,
+            'not_started_tasks' => $notStartedTasks,
+            'completion_rate' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 2) : 0,
+            'total_time_logged' => $totalTimeLogged,
+            'total_hours_logged' => round($totalTimeLogged / 3600, 2),
+            'team_size' => $project->members()->count(),
+        ];
     }
 }
