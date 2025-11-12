@@ -325,6 +325,8 @@ const InvoiceList_BDS: React.FC = () => {
                             {service.name}: {numberFormat(service.price_total)}
                         </Tag>
                     })}
+
+                    <Button className="float-btn-option"><FormOutlined /></Button>
                 </>;
             }
         },
@@ -608,6 +610,7 @@ const InvoiceList_BDS: React.FC = () => {
 
     function showFormDataDetail() {
         return dataService.map((data: any, idx: number) => {
+            console.log('datadatadatadata', data);
             return <tr key={idx}>
                 {/* chon dịch vụ */}
                 <td>

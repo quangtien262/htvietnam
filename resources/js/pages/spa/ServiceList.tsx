@@ -52,6 +52,8 @@ const ServiceList: React.FC = () => {
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+    const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+    const [categoryForm] = Form.useForm();
 
     // Filters
     const [searchText, setSearchText] = useState('');
@@ -104,7 +106,7 @@ const ServiceList: React.FC = () => {
 
     const loadCategories = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/service-categories/list');
+            const response = await axios.post('/aio/api/spa/service-categories/list');
             if (response.data.success) {
                 setCategories(response.data.data.data || []);
             }
@@ -205,6 +207,31 @@ const ServiceList: React.FC = () => {
         return false;
     };
 
+    // Handle quick create category
+    const handleQuickCreateCategory = () => {
+        categoryForm.resetFields();
+        setCategoryModalVisible(true);
+    };
+
+    const handleCategorySubmit = async () => {
+        try {
+            const values = await categoryForm.validateFields();
+            const response = await axios.post('/aio/api/spa/service-categories', values);
+
+            if (response.data.success) {
+                message.success('Tạo danh mục mới thành công');
+                setCategoryModalVisible(false);
+                await loadCategories();
+
+                // Auto-select the newly created category
+                const newCategoryId = response.data.data.id;
+                form.setFieldsValue({ danh_muc_id: newCategoryId });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
     // Table columns
     const columns: ColumnsType<Service> = [
         {
@@ -236,7 +263,7 @@ const ServiceList: React.FC = () => {
                 <div>
                     <div style={{ fontWeight: 500 }}>{text}</div>
                     {record.danh_muc && (
-                        <Tag size="small" color="blue">{record.danh_muc.ten_danh_muc}</Tag>
+                        <Tag color="blue">{record.danh_muc.ten_danh_muc}</Tag>
                     )}
                 </div>
             ),
@@ -537,7 +564,20 @@ const ServiceList: React.FC = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="danh_muc_id"
-                                label="Danh mục"
+                                label={
+                                    <Space>
+                                        <span>Danh mục</span>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={handleQuickCreateCategory}
+                                            style={{ padding: 0, height: 'auto' }}
+                                        >
+                                            Thêm mới
+                                        </Button>
+                                    </Space>
+                                }
                                 rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
                             >
                                 <Select placeholder="Chọn danh mục">
@@ -692,6 +732,40 @@ const ServiceList: React.FC = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Quick Create Category Modal */}
+            <Modal
+                title="Thêm danh mục mới"
+                open={categoryModalVisible}
+                onCancel={() => setCategoryModalVisible(false)}
+                onOk={handleCategorySubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={categoryForm} layout="vertical">
+                    <Form.Item
+                        name="ten_danh_muc"
+                        label="Tên danh mục"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên danh mục' }]}
+                    >
+                        <Input placeholder="VD: Chăm sóc da mặt" />
+                    </Form.Item>
+                    <Form.Item
+                        name="mo_ta"
+                        label="Mô tả"
+                    >
+                        <TextArea rows={3} placeholder="Mô tả về danh mục..." />
+                    </Form.Item>
+                    <Form.Item
+                        name="thu_tu"
+                        label="Thứ tự"
+                        initialValue={0}
+                    >
+                        <InputNumber style={{ width: '100%' }} min={0} />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

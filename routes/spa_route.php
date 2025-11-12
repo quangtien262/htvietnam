@@ -78,6 +78,7 @@ Route::prefix('spa')->name('spa.')->group(function () {
 
     // Services Management (CRUD)
     Route::apiResource('services', \App\Http\Controllers\Admin\Spa\DichVuController::class);
+    Route::post('service-categories/list', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'list'])->name('service_categories.list');
     Route::apiResource('service-categories', \App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class);
     Route::apiResource('treatment-packages', \App\Http\Controllers\Admin\Spa\LieuTrinhController::class);
 
