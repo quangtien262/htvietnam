@@ -55,9 +55,6 @@ const InvoiceList: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [dueDate, setDueDate] = useState<any>(null);
   const [notes, setNotes] = useState('');
-  const [paymentAmount, setPaymentAmount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<string>('');
-  const [transactionId, setTransactionId] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
@@ -164,67 +161,12 @@ const InvoiceList: React.FC = () => {
     }
   };
 
-  const handleCreateAndPayInvoice = async () => {
-    try {
-      // Validate payment fields
-      if (!paymentAmount || paymentAmount <= 0) {
-        message.error('Vui lòng nhập số tiền thanh toán');
-        return;
-      }
-      if (!paymentMethod) {
-        message.error('Vui lòng chọn phương thức thanh toán');
-        return;
-      }
-
-      // Transform cart items to API format
-      const items = cart.map(item => ({
-        product_id: item.product_id,
-        description: item.description,
-        type: 'product',
-        billing_cycle: item.billing_cycle,
-        qty: item.qty,
-        unit_price: item.unit_price,
-        setup_fee: item.setup_fee || 0,
-      }));
-
-      const invoicePayload = {
-        user_id: selectedUserId,
-        items: items,
-        due_date: dueDate ? dayjs(dueDate).format('YYYY-MM-DD') : null,
-        notes: notes || null,
-      };
-
-      // Create invoice
-      const invoiceResponse = await axios.post('/aio/api/whmcs/invoices', invoicePayload);
-      const createdInvoice = invoiceResponse.data.data || invoiceResponse.data;
-
-      // Record payment immediately
-      const paymentPayload = {
-        amount: paymentAmount,
-        payment_method: paymentMethod,
-        transaction_id: transactionId || null,
-      };
-
-      await axios.post(`/aio/api/whmcs/invoices/${createdInvoice.id}/payment`, paymentPayload);
-
-      message.success('Tạo hóa đơn và ghi nhận thanh toán thành công');
-      setIsCreateModalOpen(false);
-      resetCreateForm();
-      fetchInvoices();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || 'Không thể tạo hóa đơn và thanh toán');
-    }
-  };
-
   const resetCreateForm = () => {
     setCart([]);
     setSelectedUserId(null);
     setDueDate(null);
     setNotes('');
     setProductSearchText('');
-    setPaymentAmount(0);
-    setPaymentMethod('');
-    setTransactionId('');
   };
 
   const addToCart = (product: any, pricing: any) => {
@@ -240,15 +182,15 @@ const InvoiceList: React.FC = () => {
           : item
       ));
     } else {
-      // Add new item - Convert price to number
+      // Add new item
       const newItem: CartItem = {
         product_id: product.id,
         product_name: product.name,
         product_type: product.type,
         billing_cycle: pricing.cycle,
         billing_cycle_display: pricing.cycle_display,
-        unit_price: Number(pricing.price) || 0,
-        setup_fee: Number(pricing.setup_fee) || 0,
+        unit_price: pricing.price,
+        setup_fee: pricing.setup_fee || 0,
         qty: 1,
         description: `${product.name} - ${pricing.cycle_display}`,
       };
@@ -267,20 +209,11 @@ const InvoiceList: React.FC = () => {
   };
 
   const calculateSubtotal = () => {
-    return cart.reduce((sum, item) => {
-      const itemTotal = (Number(item.unit_price) * Number(item.qty)) + Number(item.setup_fee);
-      return sum + itemTotal;
-    }, 0);
+    return cart.reduce((sum, item) => sum + (item.unit_price * item.qty) + item.setup_fee, 0);
   };
 
   const calculateTotal = () => {
     return calculateSubtotal(); // Add tax logic here if needed
-  };
-
-  // Format currency helper
-  const formatCurrency = (value: number | string): string => {
-    const numValue = Number(value) || 0;
-    return numValue.toLocaleString('vi-VN');
   };
 
   // Filter products based on search
@@ -295,12 +228,6 @@ const InvoiceList: React.FC = () => {
       setFilteredProducts(products);
     }
   }, [productSearchText, products]);
-
-  // Auto-update payment amount when cart changes
-  useEffect(() => {
-    const total = calculateTotal();
-    setPaymentAmount(total);
-  }, [cart]);
 
   const handleCreateInvoiceOld = async (values: any) => {
     try {
@@ -580,19 +507,11 @@ const InvoiceList: React.FC = () => {
                 Hủy
               </Button>
               <Button 
-                type="default" 
+                type="primary" 
                 onClick={handleCreateInvoice}
                 disabled={cart.length === 0 || !selectedUserId}
               >
                 Tạo hóa đơn
-              </Button>
-              <Button 
-                type="primary" 
-                icon={<DollarOutlined />}
-                onClick={handleCreateAndPayInvoice}
-                disabled={cart.length === 0 || !selectedUserId}
-              >
-                Tạo & Thanh toán
               </Button>
             </Space>
           </div>
@@ -680,11 +599,11 @@ const InvoiceList: React.FC = () => {
                                   {pricing.cycle_display}
                                 </Text>
                                 <Text style={{ fontSize: 13, color: '#000' }}>
-                                  {Number(pricing.price).toLocaleString('vi-VN')} VNĐ
+                                  {pricing.price.toLocaleString('vi-VN')} VNĐ
                                 </Text>
-                                {Number(pricing.setup_fee) > 0 && (
+                                {pricing.setup_fee > 0 && (
                                   <Text type="secondary" style={{ fontSize: 11 }}>
-                                    + Phí setup: {Number(pricing.setup_fee).toLocaleString('vi-VN')} VNĐ
+                                    + Phí setup: {pricing.setup_fee.toLocaleString('vi-VN')} VNĐ
                                   </Text>
                                 )}
                               </Button>
@@ -746,59 +665,6 @@ const InvoiceList: React.FC = () => {
               </div>
             </Card>
 
-            {/* Payment Information (Optional) */}
-            <Card 
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <DollarOutlined />
-                  <span>Thông tin thanh toán (tùy chọn)</span>
-                </div>
-              }
-              size="small"
-              style={{ marginBottom: 16 }}
-            >
-              <div style={{ marginBottom: 12 }}>
-                <Text strong>Tiền đã thu của khách</Text>
-                <InputNumber
-                  value={paymentAmount}
-                  onChange={(value) => setPaymentAmount(value || 0)}
-                  style={{ width: '100%', marginTop: 8 }}
-                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                  addonAfter="VNĐ"
-                  placeholder="Số tiền đã thu"
-                />
-              </div>
-
-              <div style={{ marginBottom: 12 }}>
-                <Text strong>Phương thức thanh toán</Text>
-                <Select
-                  value={paymentMethod}
-                  onChange={setPaymentMethod}
-                  placeholder="Chọn phương thức"
-                  style={{ width: '100%', marginTop: 8 }}
-                  allowClear
-                >
-                  <Option value="bank_transfer">Chuyển khoản ngân hàng</Option>
-                  <Option value="vnpay">VNPay</Option>
-                  <Option value="momo">MoMo</Option>
-                  <Option value="cash">Tiền mặt</Option>
-                  <Option value="credit">Credit Balance</Option>
-                </Select>
-              </div>
-
-              <div>
-                <Text strong>Mã giao dịch</Text>
-                <Input
-                  value={transactionId}
-                  onChange={(e) => setTransactionId(e.target.value)}
-                  placeholder="Mã giao dịch (nếu có)"
-                  style={{ marginTop: 8 }}
-                  allowClear
-                />
-              </div>
-            </Card>
-
             {/* Shopping Cart */}
             <Card 
               title={
@@ -846,7 +712,7 @@ const InvoiceList: React.FC = () => {
                                 {item.product_name}
                               </Text>
                               <div>
-                                <Tag color="blue" style={{ marginTop: 4, fontSize: 11 }}>
+                                <Tag size="small" color="blue" style={{ marginTop: 4 }}>
                                   {item.billing_cycle_display}
                                 </Tag>
                               </div>
@@ -856,13 +722,13 @@ const InvoiceList: React.FC = () => {
                             <div style={{ marginTop: 8 }}>
                               <div style={{ marginBottom: 4 }}>
                                 <Text style={{ fontSize: 13 }}>
-                                  Đơn giá: {Number(item.unit_price).toLocaleString('vi-VN')} VNĐ
+                                  Đơn giá: {item.unit_price.toLocaleString('vi-VN')} VNĐ
                                 </Text>
                               </div>
-                              {Number(item.setup_fee) > 0 && (
+                              {item.setup_fee > 0 && (
                                 <div style={{ marginBottom: 4 }}>
                                   <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Phí setup: {Number(item.setup_fee).toLocaleString('vi-VN')} VNĐ
+                                    Phí setup: {item.setup_fee.toLocaleString('vi-VN')} VNĐ
                                   </Text>
                                 </div>
                               )}
@@ -878,7 +744,7 @@ const InvoiceList: React.FC = () => {
                               </div>
                               <div style={{ marginTop: 8 }}>
                                 <Text strong style={{ fontSize: 13, color: '#1890ff' }}>
-                                  Thành tiền: {((Number(item.unit_price) * Number(item.qty)) + Number(item.setup_fee)).toLocaleString('vi-VN')} VNĐ
+                                  Thành tiền: {((item.unit_price * item.qty) + item.setup_fee).toLocaleString('vi-VN')} VNĐ
                                 </Text>
                               </div>
                             </div>
@@ -919,6 +785,377 @@ const InvoiceList: React.FC = () => {
           }
         `}</style>
       </Drawer>
+
+      {/* Payment Modal/Drawer */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: '16px' }}>
+              <Form.Item
+                label="Khách hàng"
+                name="user_id"
+                rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn khách hàng"
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={clients}
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+
+              <Form.Item label="Hạn thanh toán" name="due_date">
+                <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+              </Form.Item>
+            </div>
+
+            <Form.List name="items">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ 
+                      padding: isMobile ? '12px' : '16px', 
+                      marginBottom: '16px', 
+                      border: '1px solid #d9d9d9', 
+                      borderRadius: '4px',
+                      backgroundColor: '#fafafa'
+                    }}>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                        gap: '16px', 
+                        marginBottom: '16px' 
+                      }}>
+                      <Form.Item
+                        {...restField}
+                        label="Sản phẩm/Dịch vụ"
+                        name={[name, 'product_id']}
+                        rules={[{ required: true, message: 'Chọn sản phẩm' }]}
+                      >
+                        <Select
+                          placeholder="Chọn sản phẩm"
+                          onChange={(productId) => {
+                            const product = products.find(p => p.id === productId);
+                            if (product && product.pricings && product.pricings.length > 0) {
+                              // Clear billing cycle khi đổi product
+                              const items = form.getFieldValue('items');
+                              items[name].billing_cycle = undefined;
+                              items[name].unit_price = undefined;
+                              items[name].setup_fee = undefined;
+                              form.setFieldsValue({ items });
+                            }
+                          }}
+                        >
+                          {Array.isArray(products) && products.map(product => (
+                            <Option key={product.id} value={product.id}>
+                              {product.name} ({product.type})
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Kỳ thanh toán"
+                        name={[name, 'billing_cycle']}
+                        rules={[{ required: true, message: 'Chọn kỳ thanh toán' }]}
+                      >
+                        <Select
+                          placeholder="Chọn kỳ thanh toán"
+                          onChange={(cycle) => {
+                            const items = form.getFieldValue('items');
+                            const productId = items[name].product_id;
+                            const product = products.find(p => p.id === productId);
+                            
+                            if (product && product.pricings) {
+                              const pricing = product.pricings.find((p: any) => p.cycle === cycle);
+                              if (pricing) {
+                                items[name].unit_price = pricing.price;
+                                items[name].setup_fee = pricing.setup_fee || 0;
+                                form.setFieldsValue({ items });
+                              }
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const items = form.getFieldValue('items') || [];
+                            const productId = items[name]?.product_id;
+                            const product = products.find(p => p.id === productId);
+                            
+                            if (!product || !product.pricings) return null;
+                            
+                            return product.pricings.map((pricing: any) => (
+                              <Option key={pricing.id} value={pricing.cycle}>
+                                {pricing.cycle} - {Number(pricing.price).toLocaleString()} VNĐ
+                              </Option>
+                            ));
+                          })()}
+                        </Select>
+                      </Form.Item>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '16px' }}>
+                      <Form.Item
+                        {...restField}
+                        label="Mô tả"
+                        name={[name, 'description']}
+                        rules={[{ required: true, message: 'Nhập mô tả' }]}
+                      >
+                        <Input placeholder="Mô tả chi tiết" />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Giá"
+                        name={[name, 'unit_price']}
+                        rules={[{ required: true, message: 'Nhập giá' }]}
+                      >
+                        <InputNumber 
+                          placeholder="Giá" 
+                          style={{ width: '100%' }}
+                          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Phí cài đặt"
+                        name={[name, 'setup_fee']}
+                        initialValue={0}
+                      >
+                        <InputNumber 
+                          placeholder="Phí cài đặt" 
+                          style={{ width: '100%' }}
+                          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        label="Số lượng"
+                        name={[name, 'qty']}
+                        initialValue={1}
+                        rules={[{ required: true, message: 'Nhập SL' }]}
+                      >
+                        <InputNumber 
+                          placeholder="SL" 
+                          min={1}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </div>
+
+                    <Button 
+                      danger 
+                      onClick={() => remove(name)}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Xóa item này
+                    </Button>
+                  </div>
+                ))}
+                <Form.Item>
+                  <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                    Thêm item
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+
+          <Form.Item label="Ghi chú" name="notes">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+        </Form>
+        </Drawer>
+      ) : (
+        <Modal
+          title="Tạo hóa đơn mới"
+          open={isCreateModalOpen}
+          onCancel={() => {
+            setIsCreateModalOpen(false);
+            form.resetFields();
+          }}
+          onOk={() => form.submit()}
+          width={1000}
+        >
+          <Form form={form} layout="vertical" onFinish={handleCreateInvoice}>
+            {/* Khách hàng và Hạn thanh toán trên cùng 1 hàng */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+              <Form.Item
+                label="Khách hàng"
+                name="user_id"
+                rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn khách hàng"
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={clients}
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+
+              <Form.Item label="Hạn thanh toán" name="due_date">
+                <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+              </Form.Item>
+            </div>
+
+            <Form.List name="items">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ 
+                      padding: '16px', 
+                      marginBottom: '16px', 
+                      border: '1px solid #d9d9d9', 
+                      borderRadius: '4px',
+                      backgroundColor: '#fafafa'
+                    }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <Form.Item
+                          {...restField}
+                          label="Sản phẩm/Dịch vụ"
+                          name={[name, 'product_id']}
+                          rules={[{ required: true, message: 'Chọn sản phẩm' }]}
+                        >
+                          <Select
+                            placeholder="Chọn sản phẩm"
+                            onChange={(productId) => {
+                              const product = products.find(p => p.id === productId);
+                              if (product && product.pricings && product.pricings.length > 0) {
+                                const items = form.getFieldValue('items');
+                                items[name].billing_cycle = undefined;
+                                items[name].unit_price = undefined;
+                                items[name].setup_fee = undefined;
+                                form.setFieldsValue({ items });
+                              }
+                            }}
+                          >
+                            {Array.isArray(products) && products.map(product => (
+                              <Option key={product.id} value={product.id}>
+                                {product.name} ({product.type})
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          label="Kỳ thanh toán"
+                          name={[name, 'billing_cycle']}
+                          rules={[{ required: true, message: 'Chọn kỳ thanh toán' }]}
+                        >
+                          <Select
+                            placeholder="Chọn kỳ thanh toán"
+                            onChange={(cycle) => {
+                              const items = form.getFieldValue('items');
+                              const productId = items[name].product_id;
+                              const product = products.find(p => p.id === productId);
+                              
+                              if (product && product.pricings) {
+                                const pricing = product.pricings.find((p: any) => p.cycle === cycle);
+                                if (pricing) {
+                                  items[name].unit_price = pricing.price;
+                                  items[name].setup_fee = pricing.setup_fee || 0;
+                                  form.setFieldsValue({ items });
+                                }
+                              }
+                            }}
+                          >
+                            {(() => {
+                              const items = form.getFieldValue('items');
+                              if (!items || !items[name]) return null;
+                              
+                              const productId = items[name].product_id;
+                              const product = products.find(p => p.id === productId);
+                              
+                              if (!product || !product.pricings) return null;
+                              
+                              return product.pricings.map((pricing: any) => (
+                                <Option key={pricing.cycle} value={pricing.cycle}>
+                                  {pricing.cycle_display} - {pricing.price.toLocaleString()} VNĐ
+                                </Option>
+                              ));
+                            })()}
+                          </Select>
+                        </Form.Item>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                        <Form.Item
+                          {...restField}
+                          label="Đơn giá"
+                          name={[name, 'unit_price']}
+                          rules={[{ required: true, message: 'Nhập giá' }]}
+                        >
+                          <InputNumber 
+                            placeholder="Đơn giá" 
+                            style={{ width: '100%' }}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          label="Phí cài đặt"
+                          name={[name, 'setup_fee']}
+                          initialValue={0}
+                        >
+                          <InputNumber 
+                            placeholder="Phí cài đặt" 
+                            style={{ width: '100%' }}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          label="Số lượng"
+                          name={[name, 'qty']}
+                          initialValue={1}
+                          rules={[{ required: true, message: 'Nhập SL' }]}
+                        >
+                          <InputNumber 
+                            placeholder="SL" 
+                            min={1}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </div>
+
+                      <Button 
+                        danger 
+                        onClick={() => remove(name)}
+                        style={{ marginTop: '8px' }}
+                      >
+                        Xóa item này
+                      </Button>
+                    </div>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Thêm item
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+
+            <Form.Item label="Ghi chú" name="notes">
+              <Input.TextArea rows={3} />
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
 
       {/* Payment Modal/Drawer */}
       {isMobile ? (
