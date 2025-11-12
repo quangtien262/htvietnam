@@ -9,6 +9,8 @@ import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
 import ProjectAttachments from '../../components/project/ProjectAttachments';
 import ProjectDetailDashboard from './ProjectDetailDashboard';
+import { Can } from '../../components/rbac';
+import { PermissionProvider } from '../../contexts/PermissionContext';
 import dayjs from 'dayjs';
 
 type TaskViewMode = 'table' | 'kanban';

@@ -19,6 +19,11 @@ class PermissionService
      */
     public function userHasPermissionInProject($userId, $projectId, $permissionName)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($userId === 1) {
+            return true;
+        }
+
         $cacheKey = "user_{$userId}_project_{$projectId}_permission_{$permissionName}";
 
         return Cache::remember($cacheKey, 3600, function () use ($userId, $projectId, $permissionName) {
@@ -64,6 +69,11 @@ class PermissionService
      */
     public function getUserPermissionsInProject($userId, $projectId)
     {
+        // Super admin (ID = 1) always has all permissions
+        if ($userId === 1) {
+            return Permission::pluck('name')->toArray();
+        }
+
         $cacheKey = "user_{$userId}_project_{$projectId}_permissions";
 
         return Cache::remember($cacheKey, 3600, function () use ($userId, $projectId) {

@@ -32,6 +32,11 @@ class ProjectPolicy
      */
     public function view(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -54,6 +59,11 @@ class ProjectPolicy
      */
     public function update(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -66,6 +76,11 @@ class ProjectPolicy
      */
     public function delete(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -78,6 +93,11 @@ class ProjectPolicy
      */
     public function manageMembers(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -91,6 +111,11 @@ class ProjectPolicy
      */
     public function assignRole(AdminUser $user, Project $project, $targetRolePriority)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         if (!$this->manageMembers($user, $project)) {
             return false;
         }

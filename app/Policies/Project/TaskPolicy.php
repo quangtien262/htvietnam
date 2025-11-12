@@ -24,6 +24,11 @@ class TaskPolicy
      */
     public function viewAny(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -36,6 +41,11 @@ class TaskPolicy
      */
     public function view(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -48,6 +58,11 @@ class TaskPolicy
      */
     public function create(AdminUser $user, Project $project)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -60,6 +75,11 @@ class TaskPolicy
      */
     public function update(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         // Check if user has general task.update permission
         if ($this->permissionService->userHasPermissionInProject(
             $user->id,
@@ -86,6 +106,11 @@ class TaskPolicy
      */
     public function delete(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -98,6 +123,11 @@ class TaskPolicy
      */
     public function assign(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -110,6 +140,11 @@ class TaskPolicy
      */
     public function comment(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -122,6 +157,11 @@ class TaskPolicy
      */
     public function deleteComment(AdminUser $user, $comment, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         // Check if user has general comment.delete permission
         if ($this->permissionService->userHasPermissionInProject(
             $user->id,
@@ -148,6 +188,11 @@ class TaskPolicy
      */
     public function uploadAttachment(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -160,6 +205,11 @@ class TaskPolicy
      */
     public function downloadAttachment(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -172,6 +222,11 @@ class TaskPolicy
      */
     public function deleteAttachment(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -184,6 +239,11 @@ class TaskPolicy
      */
     public function logTime(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -196,6 +256,11 @@ class TaskPolicy
      */
     public function viewAllTimeLogs(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -208,6 +273,11 @@ class TaskPolicy
      */
     public function deleteTimeLog(AdminUser $user, Task $task)
     {
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return true;
+        }
+
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,

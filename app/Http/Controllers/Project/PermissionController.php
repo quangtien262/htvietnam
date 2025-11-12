@@ -114,7 +114,7 @@ class PermissionController extends Controller
             $targetRole = Role::findOrFail($validated['role_id']);
 
             // Check if user has permission to manage members
-            $user = auth('admin')->user();
+            $user = auth('admin_users')->user();
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -122,15 +122,18 @@ class PermissionController extends Controller
                 ], 401);
             }
 
-            // Get user's role in project
-            $userRole = $this->permissionService->getUserRoleInProject($user->id, $projectId);
-            
-            // Check if user has higher priority than target role
-            if (!$userRole || $userRole->priority <= $targetRole->priority) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn chỉ có thể phân quyền role có priority thấp hơn role của bạn',
-                ], 403);
+            // Super admin (ID = 1) can assign any role
+            if ($user->id !== 1) {
+                // Get user's role in project
+                $userRole = $this->permissionService->getUserRoleInProject($user->id, $projectId);
+
+                // Check if user has higher priority than target role
+                if (!$userRole || $userRole->priority <= $targetRole->priority) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Bạn chỉ có thể phân quyền role có priority thấp hơn role của bạn',
+                    ], 403);
+                }
             }
 
             // Assign role
@@ -164,7 +167,7 @@ class PermissionController extends Controller
     public function getUserPermissions(Request $request, $projectId)
     {
         try {
-            $user = auth('admin')->user();
+            $user = auth('admin_users')->user();
             if (!$user) {
                 return response()->json([
                     'success' => false,

@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Project;
 
 use App\Http\Controllers\Controller;
 use App\Services\Project\ProjectService;
+use App\Models\Project\Project;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+    
     protected $projectService;
 
     public function __construct(ProjectService $projectService)
@@ -66,10 +70,19 @@ class ProjectController extends Controller
     {
         try {
             $project = $this->projectService->getById($id);
+            
+            // Check permission
+            $this->authorize('view', $project);
+            
             return response()->json([
                 'success' => true,
                 'data' => $project,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xem dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -81,6 +94,11 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $project = Project::findOrFail($id);
+            
+            // Check permission
+            $this->authorize('update', $project);
+            
             $validated = $request->validate([
                 'ten_du_an' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -101,6 +119,11 @@ class ProjectController extends Controller
                 'message' => 'Cập nhật dự án thành công',
                 'data' => $project,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền sửa dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -112,11 +135,21 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         try {
+            $project = Project::findOrFail($id);
+            
+            // Check permission
+            $this->authorize('delete', $project);
+            
             $this->projectService->delete($id);
             return response()->json([
                 'success' => true,
                 'message' => 'Xóa dự án thành công',
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xóa dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -144,6 +177,11 @@ class ProjectController extends Controller
     public function addMember(Request $request, $id)
     {
         try {
+            $project = Project::findOrFail($id);
+            
+            // Check permission
+            $this->authorize('manageMembers', $project);
+            
             $validated = $request->validate([
                 'admin_user_id' => 'required|exists:admin_users,id',
                 'vai_tro' => 'required|in:quan_ly,thanh_vien,xem',
@@ -157,6 +195,11 @@ class ProjectController extends Controller
                 'message' => 'Thêm thành viên thành công',
                 'data' => $member,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền quản lý thành viên dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -168,12 +211,22 @@ class ProjectController extends Controller
     public function removeMember($id, $memberId)
     {
         try {
+            $project = Project::findOrFail($id);
+            
+            // Check permission
+            $this->authorize('manageMembers', $project);
+            
             $this->projectService->removeMember($id, $memberId);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Xóa thành viên thành công',
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền quản lý thành viên dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -185,6 +238,11 @@ class ProjectController extends Controller
     public function uploadAttachment(Request $request, $id)
     {
         try {
+            $project = Project::findOrFail($id);
+            
+            // Check permission to upload attachment
+            $this->authorize('update', $project);
+            
             $validated = $request->validate([
                 'file' => 'required|file|max:10240',
                 'mo_ta' => 'nullable|string',
@@ -201,6 +259,11 @@ class ProjectController extends Controller
                 'message' => 'Tải file thành công',
                 'data' => $attachment,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền upload file cho dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -247,12 +310,23 @@ class ProjectController extends Controller
     public function deleteAttachment($id)
     {
         try {
+            $attachment = \App\Models\Project\ProjectAttachment::findOrFail($id);
+            $project = Project::findOrFail($attachment->project_id);
+            
+            // Check permission to delete attachment
+            $this->authorize('update', $project);
+            
             $this->projectService->deleteAttachment($id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Xóa file thành công',
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xóa file này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

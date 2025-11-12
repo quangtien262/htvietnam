@@ -4,17 +4,22 @@ namespace App\Http\Controllers\Project;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project\TaskAttachment;
+use App\Models\Project\Task;
+use App\Models\Project\Project;
 use App\Services\Project\TaskService;
+use App\Services\Project\PermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
     protected $taskService;
+    protected $permissionService;
 
-    public function __construct(TaskService $taskService)
+    public function __construct(TaskService $taskService, PermissionService $permissionService)
     {
         $this->taskService = $taskService;
+        $this->permissionService = $permissionService;
     }
 
     public function index(Request $request)
@@ -97,6 +102,22 @@ class TaskController extends Controller
                 'thoi_gian_uoc_tinh' => 'nullable|integer|min:0',
             ]);
 
+            // Check permission to create task
+            $user = auth('admin_users')->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $validated['project_id'], 'task.create')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền tạo task trong dự án này',
+                ], 403);
+            }
+
             $task = $this->taskService->create($validated);
 
             return response()->json([
@@ -115,6 +136,29 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $task = Task::findOrFail($id);
+            
+            // Check permission to update task
+            $user = auth('admin_users')->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            // Check if user has task.update OR (task.update_own AND is assignee)
+            $hasUpdatePermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update');
+            $hasUpdateOwnPermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update_own') 
+                && $task->nguoi_thuc_hien_id === $user->id;
+
+            if (!$hasUpdatePermission && !$hasUpdateOwnPermission) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền sửa task này',
+                ], 403);
+            }
+            
             $validated = $request->validate([
                 'tieu_de' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -176,6 +220,24 @@ class TaskController extends Controller
     public function destroy($id)
     {
         try {
+            $task = Task::findOrFail($id);
+            
+            // Check permission to delete task
+            $user = auth('admin_users')->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.delete')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền xóa task này',
+                ], 403);
+            }
+            
             $this->taskService->delete($id);
             return response()->json([
                 'success' => true,
@@ -192,6 +254,24 @@ class TaskController extends Controller
     public function addComment(Request $request, $id)
     {
         try {
+            $task = Task::findOrFail($id);
+            $user = auth('admin_users')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+            
+            // Check permission to add comment
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'comment.create')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền thêm bình luận',
+                ], 403);
+            }
+            
             $validated = $request->validate([
                 'noi_dung' => 'required|string',
                 'parent_id' => 'nullable|exists:pro___task_comments,id',
@@ -219,6 +299,24 @@ class TaskController extends Controller
     public function uploadAttachment(Request $request, $id)
     {
         try {
+            $task = Task::findOrFail($id);
+            $user = auth('admin_users')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+            
+            // Check permission to upload attachment
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'attachment.upload')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền upload file',
+                ], 403);
+            }
+            
             $validated = $request->validate([
                 'file' => 'required|file|max:10240', // Max 10MB
                 'mo_ta' => 'nullable|string',
@@ -281,6 +379,25 @@ class TaskController extends Controller
     public function deleteAttachment($id)
     {
         try {
+            $attachment = TaskAttachment::findOrFail($id);
+            $task = Task::findOrFail($attachment->task_id);
+            $user = auth('admin_users')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+            
+            // Check permission to delete attachment
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'attachment.delete')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền xóa file',
+                ], 403);
+            }
+            
             $this->taskService->deleteAttachment($id);
 
             return response()->json([
@@ -302,11 +419,29 @@ class TaskController extends Controller
     public function startTimer($id)
     {
         try {
+            $task = Task::findOrFail($id);
+            $user = auth('admin_users')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+            
+            // Check permission to log time
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền log thời gian',
+                ], 403);
+            }
+            
             $timeLog = $this->taskService->startTimer($id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Bắt đầu đếm thời gian',
+                'message' => 'Bắt đầu tính giờ',
                 'data' => $timeLog,
             ]);
         } catch (\Exception $e) {
@@ -338,6 +473,24 @@ class TaskController extends Controller
     public function addManualTimeLog(Request $request, $id)
     {
         try {
+            $task = Task::findOrFail($id);
+            $user = auth('admin_users')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+            
+            // Check permission to log time
+            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền log thời gian',
+                ], 403);
+            }
+            
             $validated = $request->validate([
                 'started_at' => 'required|date',
                 'ended_at' => 'required|date|after:started_at',

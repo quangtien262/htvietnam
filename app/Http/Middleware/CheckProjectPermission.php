@@ -25,13 +25,18 @@ class CheckProjectPermission
      */
     public function handle(Request $request, Closure $next, string $permission, string $projectParam = 'project'): Response
     {
-        $user = $request->user('admin');
+        $user = $request->user('admin_users');
 
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - Authentication required'
             ], 401);
+        }
+
+        // Super admin (ID = 1) always has full permissions
+        if ($user->id === 1) {
+            return $next($request);
         }
 
         // Get project ID from route parameter
