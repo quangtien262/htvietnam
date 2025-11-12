@@ -9,12 +9,15 @@ class Priority extends Model
     protected $table = 'pro___priorities';
 
     protected $fillable = [
-        'ten_uu_tien',
+        'name',
         'cap_do',
-        'ma_mau',
+        'color',
+        'sort_order',
+        'note',
     ];
 
     protected $casts = [
         'cap_do' => 'integer',
+        'sort_order' => 'integer',
     ];
 }

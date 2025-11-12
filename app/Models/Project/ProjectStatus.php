@@ -9,14 +9,15 @@ class ProjectStatus extends Model
     protected $table = 'pro___project_statuses';
 
     protected $fillable = [
-        'ten_trang_thai',
-        'ma_mau',
-        'thu_tu',
+        'name',
+        'color',
+        'icon',
+        'sort_order',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'thu_tu' => 'integer',
+        'sort_order' => 'integer',
     ];
 }

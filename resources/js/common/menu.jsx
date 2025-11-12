@@ -763,16 +763,9 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
-            label: "Dự án",
+            label: <Link to={`${ROUTE.project_list}?p=projects`}>Dự án</Link>,
             key: (key++).toString(),
             icon: <ApartmentOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.project_list}?p=projects`}>Danh sách dự án</Link>,
-                    key: (key++).toString(),
-                    icon: <UnorderedListOutlined />,
-                },
-            ],
         },
         {
             label: "Cài đặt",

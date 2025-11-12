@@ -13,12 +13,12 @@ class TaskChecklist extends Model
         'task_id',
         'noi_dung',
         'is_completed',
-        'thu_tu',
+        'sort_order',
     ];
 
     protected $casts = [
         'is_completed' => 'boolean',
-        'thu_tu' => 'integer',
+        'sort_order' => 'integer',
     ];
 
     public function task(): BelongsTo

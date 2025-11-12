@@ -11,9 +11,11 @@ return new class extends Migration
         // Bảng trạng thái dự án
         Schema::create('pro___project_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_trang_thai', 100);
-            $table->string('ma_mau', 20)->default('#1890ff')->comment('Màu hiển thị');
-            $table->integer('thu_tu')->default(0);
+            $table->string('name', 100);
+            $table->string('color', 20)->default('#1890ff')->comment('Màu hiển thị');
+            $table->string('icon')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->text('note')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -21,9 +23,11 @@ return new class extends Migration
         // Bảng loại dự án
         Schema::create('pro___project_types', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_loai', 100);
-            $table->string('mo_ta')->nullable();
-            $table->string('icon', 50)->nullable();
+            $table->string('name', 100);
+            $table->text('note')->nullable();
+            $table->string('color')->nullable();
+            $table->string('icon')->nullable();
+            $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -31,9 +35,11 @@ return new class extends Migration
         // Bảng ưu tiên
         Schema::create('pro___priorities', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_uu_tien', 50);
+            $table->string('name', 50);
             $table->integer('cap_do')->comment('1=Thấp, 2=Trung bình, 3=Cao, 4=Khẩn cấp');
-            $table->string('ma_mau', 20)->default('#1890ff');
+            $table->string('color', 20)->default('#1890ff');
+            $table->integer('sort_order')->default(0);
+            $table->text('note')->nullable();
             $table->timestamps();
         });
 
@@ -100,9 +106,11 @@ return new class extends Migration
         // Bảng trạng thái nhiệm vụ
         Schema::create('pro___task_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_trang_thai', 100);
-            $table->string('ma_mau', 20)->default('#1890ff');
-            $table->integer('thu_tu')->default(0);
+            $table->string('name', 100);
+            $table->string('color', 20)->default('#1890ff');
+            $table->string('icon')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->text('note')->nullable();
             $table->boolean('is_done')->default(false)->comment('Đánh dấu hoàn thành');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
@@ -178,7 +186,7 @@ return new class extends Migration
             $table->unsignedBigInteger('task_id');
             $table->string('noi_dung', 255);
             $table->boolean('is_completed')->default(false);
-            $table->integer('thu_tu')->default(0);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
             
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');

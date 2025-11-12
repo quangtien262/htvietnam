@@ -172,5 +172,20 @@ class AdminMenuSeeder extends Seeder
                 'sort_order' => $order++
             ]
         );
+
+
+
+
+        $setting = DB::table('admin_menu')->insertGetId(
+            [
+                'name' => 'parent_setting',
+                'display_name' => 'CÀI ĐẶT - PHÂN QUYỀN',
+                'icon' => 'SettingFilled',
+                'route' => 'setting.index',
+                'link' => '',
+                'parent_id' => 0,
+                'sort_order' => $order++
+            ]
+        );
     }
 }

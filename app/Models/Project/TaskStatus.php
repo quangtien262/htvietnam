@@ -9,9 +9,11 @@ class TaskStatus extends Model
     protected $table = 'pro___task_statuses';
 
     protected $fillable = [
-        'ten_trang_thai',
-        'ma_mau',
-        'thu_tu',
+        'name',
+        'color',
+        'icon',
+        'sort_order',
+        'note',
         'is_done',
         'is_active',
     ];
@@ -19,6 +21,6 @@ class TaskStatus extends Model
     protected $casts = [
         'is_done' => 'boolean',
         'is_active' => 'boolean',
-        'thu_tu' => 'integer',
+        'sort_order' => 'integer',
     ];
 }

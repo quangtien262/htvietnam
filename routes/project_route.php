@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Project\ProjectController;
@@ -135,3 +136,5 @@ Route::prefix('rbac')->name('rbac.')->group(function () {
     Route::post('projects/{projectId}/members/{memberId}/assign-role', [PermissionController::class, 'assignRole'])->name('assign_role');
     Route::get('projects/{projectId}/user-permissions', [PermissionController::class, 'getUserPermissions'])->name('user_permissions');
 });
+=======
+>>>>>>> 7aa265d92adf5cf9e2fd102b64445c607cad4f9e

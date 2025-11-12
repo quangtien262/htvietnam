@@ -50,7 +50,8 @@ class AitilenController extends Controller
         return Inertia::render('Admin/Dashboard/sales', $props);
     }
 
-    public function apartmentList(Request $request) {
+    public function apartmentList(Request $request)
+    {
         $searchData = $request->all();
 
         $query = \App\Models\Admin\Apartment::where('is_recycle_bin', '!=', 1);
@@ -58,9 +59,9 @@ class AitilenController extends Controller
         // Filter by keyword (search name, code)
         if (!empty($searchData['keyword'])) {
             $keyword = $searchData['keyword'];
-            $query->where(function($q) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
+                    ->orWhere('code', 'like', "%{$keyword}%");
             });
         }
 
@@ -97,7 +98,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($props);
     }
 
-    public function saveApartment(Request $request) {
+    public function saveApartment(Request $request)
+    {
         if (empty($request->id)) {
             $apartment = new \App\Models\Admin\Apartment();
         } else {
@@ -127,7 +129,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($apartment, empty($request->id) ? 'Thêm tòa nhà thành công!' : 'Cập nhật tòa nhà thành công!');
     }
 
-    public function deleteApartment(Request $request) {
+    public function deleteApartment(Request $request)
+    {
         if (empty($request->ids)) {
             return $this->sendErrorResponse('Vui lòng chọn tòa nhà cần xóa!');
         }
@@ -152,7 +155,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse([], 'Xóa tòa nhà thành công!');
     }
 
-    public function fastEditApartment(Request $request) {
+    public function fastEditApartment(Request $request)
+    {
         if (empty($request->id) || empty($request->field) || !isset($request->value)) {
             return $this->sendErrorResponse('Dữ liệu không hợp lệ!');
         }
@@ -166,9 +170,20 @@ class AitilenController extends Controller
         $value = $request->value;
 
         $allowedFields = [
-            'name', 'code', 'gia_thue', 'tien_coc', 'ky_thanh_toan',
-            'tien_moi_gioi', 'tien_mua_nhuong', 'gia_thue_tang',
-            'start', 'end', 'thoi_gian_tang_gia', 'password', 'description', 'color'
+            'name',
+            'code',
+            'gia_thue',
+            'tien_coc',
+            'ky_thanh_toan',
+            'tien_moi_gioi',
+            'tien_mua_nhuong',
+            'gia_thue_tang',
+            'start',
+            'end',
+            'thoi_gian_tang_gia',
+            'password',
+            'description',
+            'color'
         ];
 
         if (!in_array($field, $allowedFields)) {
@@ -181,7 +196,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($apartment, 'Cập nhật thành công!');
     }
 
-    public function getApartmentDetail(Request $request) {
+    public function getApartmentDetail(Request $request)
+    {
         if (empty($request->id)) {
             return $this->sendErrorResponse('Vui lòng chọn tòa nhà!');
         }
@@ -204,7 +220,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($apartment);
     }
 
-    public function getApartmentRooms(Request $request) {
+    public function getApartmentRooms(Request $request)
+    {
         if (empty($request->apartment_id)) {
             return $this->sendErrorResponse('Vui lòng chọn tòa nhà!');
         }
@@ -236,7 +253,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($rooms);
     }
 
-    public function saveRoom(Request $request) {
+    public function saveRoom(Request $request)
+    {
         if (empty($request->apartment_id)) {
             return $this->sendErrorResponse('Vui lòng chọn tòa nhà!');
         }
@@ -263,7 +281,8 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse($room, empty($request->id) ? 'Thêm phòng thành công!' : 'Cập nhật phòng thành công!');
     }
 
-    public function deleteRoom(Request $request) {
+    public function deleteRoom(Request $request)
+    {
         if (empty($request->ids)) {
             return $this->sendErrorResponse('Vui lòng chọn phòng cần xóa!');
         }
@@ -287,7 +306,8 @@ class AitilenController extends Controller
         }
 
         return $this->sendSuccessResponse([], 'Xóa phòng thành công!');
-    }    public function searchDienNuoc(Request $request)
+    }
+    public function searchDienNuoc(Request $request)
     {
         $searchData = $request->all();
         $searchData['month'] = date('m');
@@ -687,11 +707,11 @@ class AitilenController extends Controller
 
         // Lấy dịch vụ từ hợp đồng
         $services = ContractService::select(
-                'contract_service.id as contract_service_id',
-                'contract_service.price as service_price',
-                'contract_service.per as service_per',
-                'aitilen_service.name as service_name'
-            )
+            'contract_service.id as contract_service_id',
+            'contract_service.price as service_price',
+            'contract_service.per as service_per',
+            'aitilen_service.name as service_name'
+        )
             ->leftJoin('aitilen_service', 'aitilen_service.id', '=', 'contract_service.service_id')
             ->where('contract_service.contract_id', $contract->id)
             ->where('contract_service.is_recycle_bin', '!=', 1)
@@ -701,22 +721,26 @@ class AitilenController extends Controller
         $total = $contract->gia_thue ?? 0; // Tiền thuê cứng
 
         foreach ($services as $service) {
+            $note = '';
+            $aitilenSer = AitilenService::where('name', $service->service_name)->first();
             $serviceItem = [
+                'id' => (string)$aitilenSer->id,
                 'name' => $service->service_name,
                 'price_default' => $service->service_price,
                 'per_default' => $service->service_per,
-                'so_nguoi' => $contract->so_nguoi,
+                'so_nguoi' => $soNguoi,
             ];
 
             // Tính tổng tiền dịch vụ dựa trên đơn vị tính
             $priceCurrentServiceTotal = 0;
             if ($service->service_per == 'Người') {
                 $priceCurrentServiceTotal = $service->service_price * $soNguoi;
+                $note = 'Giá: ' . number_format($service->service_price) . '/người (' . $soNguoi . ' người)';
             } elseif ($service->service_per == 'Phòng') {
                 $priceCurrentServiceTotal = $service->service_price;
             } elseif ($service->service_per == 'Xe') {
                 $priceCurrentServiceTotal = $service->service_price * $contract->so_luong_xe;
-            }  elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
+            } elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
                 // Tính điện (nếu có dữ liệu điện nước)
                 if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
                     $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
@@ -737,6 +761,7 @@ class AitilenController extends Controller
             }
 
             $serviceItem['price_total'] = $priceCurrentServiceTotal;
+            $serviceItem['note'] = $note;
 
             // Cộng dồn tổng tiền
             $total += $priceCurrentServiceTotal;

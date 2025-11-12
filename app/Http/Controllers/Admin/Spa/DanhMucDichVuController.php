@@ -14,16 +14,27 @@ class DanhMucDichVuController extends Controller
         return $this->sendSuccessResponse($categories);
     }
 
+    public function list()
+    {
+        $categories = DB::table('spa_danh_muc_dich_vu')
+            ->orderBy('thu_tu', 'asc')
+            ->get();
+        return $this->sendSuccessResponse(['data' => $categories]);
+    }
+
     public function store(Request $request)
     {
         $id = DB::table('spa_danh_muc_dich_vu')->insertGetId([
             'ten_danh_muc' => $request->ten_danh_muc,
             'mo_ta' => $request->mo_ta,
+            'thu_tu' => $request->thu_tu ?? 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return $this->sendSuccessResponse(['id' => $id]);
+        $category = DB::table('spa_danh_muc_dich_vu')->where('id', $id)->first();
+
+        return $this->sendSuccessResponse(['id' => $id, 'data' => $category]);
     }
 
     public function update(Request $request, $id)

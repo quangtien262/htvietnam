@@ -90,8 +90,8 @@ return new class extends Migration
             if (!$this->indexExists('pro___task_checklists', 'pro___task_checklists_task_id_index')) {
                 $table->index('task_id');
             }
-            if (!$this->indexExists('pro___task_checklists', 'pro___task_checklists_thu_tu_index')) {
-                $table->index('thu_tu');
+            if (!$this->indexExists('pro___task_checklists', 'pro___task_checklists_sort_order_index')) {
+                $table->index('sort_order');
             }
         });
 
@@ -136,15 +136,15 @@ return new class extends Migration
     {
         $conn = Schema::getConnection();
         $dbName = $conn->getDatabaseName();
-
+        
         $indexes = $conn->select(
-            "SELECT * FROM INFORMATION_SCHEMA.STATISTICS
-             WHERE table_schema = ?
-             AND table_name = ?
+            "SELECT * FROM INFORMATION_SCHEMA.STATISTICS 
+             WHERE table_schema = ? 
+             AND table_name = ? 
              AND index_name = ?",
             [$dbName, $table, $index]
         );
-
+        
         return count($indexes) > 0;
     }
 
@@ -188,7 +188,7 @@ return new class extends Migration
         // Drop indexes from pro___task_checklists
         Schema::table('pro___task_checklists', function (Blueprint $table) {
             $table->dropIndex(['task_id']);
-            $table->dropIndex(['thu_tu']);
+            $table->dropIndex(['sort_order']);
         });
 
         // Drop indexes from pro___task_comments

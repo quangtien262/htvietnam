@@ -11,11 +11,11 @@ class ProjectManagementSeeder extends Seeder
     {
         // Seed Project Statuses
         $projectStatuses = [
-            ['ten_trang_thai' => 'Lên kế hoạch', 'ma_mau' => '#faad14', 'thu_tu' => 1, 'is_active' => true],
-            ['ten_trang_thai' => 'Đang thực hiện', 'ma_mau' => '#1890ff', 'thu_tu' => 2, 'is_active' => true],
-            ['ten_trang_thai' => 'Tạm dừng', 'ma_mau' => '#ff4d4f', 'thu_tu' => 3, 'is_active' => true],
-            ['ten_trang_thai' => 'Hoàn thành', 'ma_mau' => '#52c41a', 'thu_tu' => 4, 'is_active' => true],
-            ['ten_trang_thai' => 'Đã hủy', 'ma_mau' => '#d9d9d9', 'thu_tu' => 5, 'is_active' => true],
+            ['name' => 'Lên kế hoạch', 'color' => '#faad14', 'icon' => 'ClockCircleOutlined', 'sort_order' => 1, 'is_active' => true],
+            ['name' => 'Đang thực hiện', 'color' => '#1890ff', 'icon' => 'SyncOutlined', 'sort_order' => 2, 'is_active' => true],
+            ['name' => 'Tạm dừng', 'color' => '#ff4d4f', 'icon' => 'PauseCircleOutlined', 'sort_order' => 3, 'is_active' => true],
+            ['name' => 'Hoàn thành', 'color' => '#52c41a', 'icon' => 'CheckCircleOutlined', 'sort_order' => 4, 'is_active' => true],
+            ['name' => 'Đã hủy', 'color' => '#d9d9d9', 'icon' => 'CloseCircleOutlined', 'sort_order' => 5, 'is_active' => true],
         ];
 
         foreach ($projectStatuses as $status) {
@@ -27,11 +27,11 @@ class ProjectManagementSeeder extends Seeder
 
         // Seed Project Types
         $projectTypes = [
-            ['ten_loai' => 'Website', 'mo_ta' => 'Dự án phát triển website', 'icon' => 'GlobalOutlined', 'is_active' => true],
-            ['ten_loai' => 'Mobile App', 'mo_ta' => 'Dự án phát triển ứng dụng di động', 'icon' => 'MobileOutlined', 'is_active' => true],
-            ['ten_loai' => 'Hệ thống ERP', 'mo_ta' => 'Dự án hệ thống quản lý doanh nghiệp', 'icon' => 'AppstoreOutlined', 'is_active' => true],
-            ['ten_loai' => 'Marketing', 'mo_ta' => 'Dự án marketing và quảng cáo', 'icon' => 'RocketOutlined', 'is_active' => true],
-            ['ten_loai' => 'Khác', 'mo_ta' => 'Các loại dự án khác', 'icon' => 'FolderOutlined', 'is_active' => true],
+            ['name' => 'Website', 'note' => 'Dự án phát triển website', 'color' => '#1890ff', 'icon' => 'GlobalOutlined', 'sort_order' => 1, 'is_active' => true],
+            ['name' => 'Mobile App', 'note' => 'Dự án phát triển ứng dụng di động', 'color' => '#52c41a', 'icon' => 'MobileOutlined', 'sort_order' => 2, 'is_active' => true],
+            ['name' => 'Hệ thống ERP', 'note' => 'Dự án hệ thống quản lý doanh nghiệp', 'color' => '#722ed1', 'icon' => 'AppstoreOutlined', 'sort_order' => 3, 'is_active' => true],
+            ['name' => 'Marketing', 'note' => 'Dự án marketing và quảng cáo', 'color' => '#fa8c16', 'icon' => 'RocketOutlined', 'sort_order' => 4, 'is_active' => true],
+            ['name' => 'Khác', 'note' => 'Các loại dự án khác', 'color' => '#8c8c8c', 'icon' => 'FolderOutlined', 'sort_order' => 5, 'is_active' => true],
         ];
 
         foreach ($projectTypes as $type) {
@@ -43,10 +43,10 @@ class ProjectManagementSeeder extends Seeder
 
         // Seed Priorities
         $priorities = [
-            ['ten_uu_tien' => 'Thấp', 'cap_do' => 1, 'ma_mau' => '#52c41a'],
-            ['ten_uu_tien' => 'Trung bình', 'cap_do' => 2, 'ma_mau' => '#1890ff'],
-            ['ten_uu_tien' => 'Cao', 'cap_do' => 3, 'ma_mau' => '#faad14'],
-            ['ten_uu_tien' => 'Khẩn cấp', 'cap_do' => 4, 'ma_mau' => '#ff4d4f'],
+            ['name' => 'Thấp', 'cap_do' => 1, 'color' => '#52c41a', 'sort_order' => 1, 'note' => 'Độ ưu tiên thấp'],
+            ['name' => 'Trung bình', 'cap_do' => 2, 'color' => '#1890ff', 'sort_order' => 2, 'note' => 'Độ ưu tiên trung bình'],
+            ['name' => 'Cao', 'cap_do' => 3, 'color' => '#faad14', 'sort_order' => 3, 'note' => 'Độ ưu tiên cao'],
+            ['name' => 'Khẩn cấp', 'cap_do' => 4, 'color' => '#ff4d4f', 'sort_order' => 4, 'note' => 'Cần xử lý ngay lập tức'],
         ];
 
         foreach ($priorities as $priority) {
@@ -58,11 +58,11 @@ class ProjectManagementSeeder extends Seeder
 
         // Seed Task Statuses
         $taskStatuses = [
-            ['ten_trang_thai' => 'Chưa bắt đầu', 'ma_mau' => '#d9d9d9', 'thu_tu' => 1, 'is_done' => false, 'is_active' => true],
-            ['ten_trang_thai' => 'Đang làm', 'ma_mau' => '#1890ff', 'thu_tu' => 2, 'is_done' => false, 'is_active' => true],
-            ['ten_trang_thai' => 'Đang review', 'ma_mau' => '#faad14', 'thu_tu' => 3, 'is_done' => false, 'is_active' => true],
-            ['ten_trang_thai' => 'Hoàn thành', 'ma_mau' => '#52c41a', 'thu_tu' => 4, 'is_done' => true, 'is_active' => true],
-            ['ten_trang_thai' => 'Bị block', 'ma_mau' => '#ff4d4f', 'thu_tu' => 5, 'is_done' => false, 'is_active' => true],
+            ['name' => 'Chưa bắt đầu', 'color' => '#d9d9d9', 'icon' => 'MinusCircleOutlined', 'sort_order' => 1, 'note' => 'Task chưa được bắt đầu', 'is_done' => false, 'is_active' => true],
+            ['name' => 'Đang làm', 'color' => '#1890ff', 'icon' => 'SyncOutlined', 'sort_order' => 2, 'note' => 'Đang thực hiện task', 'is_done' => false, 'is_active' => true],
+            ['name' => 'Đang review', 'color' => '#faad14', 'icon' => 'EyeOutlined', 'sort_order' => 3, 'note' => 'Chờ review/kiểm tra', 'is_done' => false, 'is_active' => true],
+            ['name' => 'Hoàn thành', 'color' => '#52c41a', 'icon' => 'CheckCircleOutlined', 'sort_order' => 4, 'note' => 'Task đã hoàn thành', 'is_done' => true, 'is_active' => true],
+            ['name' => 'Bị block', 'color' => '#ff4d4f', 'icon' => 'StopOutlined', 'sort_order' => 5, 'note' => 'Bị chặn/cần hỗ trợ', 'is_done' => false, 'is_active' => true],
         ];
 
         foreach ($taskStatuses as $status) {

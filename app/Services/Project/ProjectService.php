@@ -242,14 +242,14 @@ class ProjectService
         $stats = [
             'total_projects' => Project::count(),
             'active_projects' => Project::whereHas('trangThai', function($query) {
-                $query->where('ten_trang_thai', 'Đang thực hiện');
+                $query->where('name', 'Đang thực hiện');
             })->count(),
             'completed_projects' => Project::whereHas('trangThai', function($query) {
-                $query->where('ten_trang_thai', 'Hoàn thành');
+                $query->where('name', 'Hoàn thành');
             })->count(),
             'delayed_projects' => Project::where('ngay_ket_thuc_du_kien', '<', now())
                 ->whereHas('trangThai', function($query) {
-                    $query->where('ten_trang_thai', '!=', 'Hoàn thành');
+                    $query->where('name', '!=', 'Hoàn thành');
                 })->count(),
         ];
 

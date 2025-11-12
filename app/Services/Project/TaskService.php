@@ -32,7 +32,7 @@ class TaskService
             'project',
             'parent',
             'checklists' => function ($query) {
-                $query->orderBy('thu_tu');
+                $query->orderBy('sort_order');
             },
             'comments' => function ($query) {
                 $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
@@ -143,7 +143,7 @@ class TaskService
                 'end' => $task->ngay_ket_thuc_du_kien->format('Y-m-d'),
                 'progress' => $task->tien_do,
                 'assignee' => $task->nguoiThucHien?->name,
-                'status' => $task->trangThai->ten_trang_thai,
+                'status' => $task->trangThai->name,
                 'dependencies' => $task->dependencies->pluck('depends_on_task_id')->toArray(),
             ];
         });
@@ -171,7 +171,7 @@ class TaskService
                     TaskChecklist::create([
                         'task_id' => $task->id,
                         'noi_dung' => $checklist['noi_dung'],
-                        'thu_tu' => $index,
+                        'sort_order' => $index,
                         'is_completed' => false,
                     ]);
                 }
@@ -213,7 +213,7 @@ class TaskService
                     $created = TaskChecklist::create([
                         'task_id' => $id,
                         'noi_dung' => $checklist['noi_dung'],
-                        'thu_tu' => isset($checklist['thu_tu']) ? $checklist['thu_tu'] : 0,
+                        'sort_order' => isset($checklist['sort_order']) ? $checklist['sort_order'] : 0,
                         'is_completed' => $checklist['is_completed'] ?? false,
                     ]);
                     \Log::info('✅ Created checklist: ' . $created->id);
@@ -234,7 +234,7 @@ class TaskService
                 'uuTien',
                 'nguoiThucHien',
                 'checklists' => function ($query) {
-                    $query->orderBy('thu_tu');
+                    $query->orderBy('sort_order');
                 }
             ])->find($id);
 

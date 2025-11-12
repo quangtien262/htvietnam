@@ -172,7 +172,7 @@ class TaskController extends Controller
                 'checklists' => 'nullable|array',
                 'checklists.*.noi_dung' => 'required|string|max:255',
                 'checklists.*.is_completed' => 'required|boolean',
-                'checklists.*.thu_tu' => 'required|integer',
+                'checklists.*.sort_order' => 'required|integer',
             ]);
 
             $task = $this->taskService->update($id, $validated);
