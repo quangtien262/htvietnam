@@ -7,26 +7,34 @@ export const TABLE_NAME_MAP: Record<string, string> = {
     // Sổ quỹ
     'so_quy_type': 'Loại sổ quỹ',
     'so_quy_status': 'Trạng thái sổ quỹ',
-    
+
     // Thu chi
     'loai_thu': 'Loại thu',
     'loai_chi': 'Loại chi',
-    
+
     // Task & Project
     'task_status': 'Trạng thái công việc',
     'task_priority': 'Mức độ ưu tiên',
     'project_status': 'Trạng thái dự án',
-    
+
     // Hóa đơn & Hợp đồng
     'invoice_status': 'Trạng thái hóa đơn',
     'contract_status': 'Trạng thái hợp đồng',
-    
+
     // Hàng hóa & Đơn mua hàng
     'loai_hang_hoa': 'Loại hàng hóa',
     'don_vi_hang_hoa': 'Đơn vị hàng hóa',
     'purchase_order_statuses': 'Trạng thái đơn mua hàng',
-    
+
+    // project management
+    'pro___project_statuses': 'Trạng thái dự án',
+    'pro___project_types': 'Loại công việc',
+    'pro___priorities': 'Mức độ ưu tiên',
+    'pro___task_statuses': 'Trạng thái công việc',
+
     // Thêm các bảng setting khác ở đây...
+
+
 };
 
 /**

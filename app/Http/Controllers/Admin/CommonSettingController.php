@@ -9,15 +9,45 @@ use Illuminate\Support\Facades\Schema;
 
 class CommonSettingController extends Controller
 {
+    const COLUMN_SETTING_DEFAULT_VALUE = [];
+
+    const TABLE_SETTING_DEFAULT = [
+        "so_quy_type"=> [],
+    ];
+
+    /**
+     * Danh sách các bảng settings được phép quản lý
+     */
+    private static $allowedTables = [
+        'so_quy_type',
+        'so_quy_status',
+        'loai_thu',
+        'loai_chi',
+        'task_status',
+        'task_priority',
+        'project_status',
+        'invoice_status',
+        'contract_status',
+        'loai_hang_hoa',
+        'don_vi_hang_hoa',
+        'purchase_order_statuses',
+    ];
+
+    /**
+     * Lấy danh sách các bảng được phép quản lý
+     */
+    public static function getAllowedTables()
+    {
+        return self::$allowedTables;
+    }
+
     /**
      * Validate table name để tránh SQL injection
      */
     private function validateTableName($tableName)
     {
-        // Lấy danh sách các bảng cho phép từ config
-        $allowedTables = config('constant.allowed_setting_tables', []);
-
-        if (!in_array($tableName, $allowedTables)) {
+        // Kiểm tra bảng có trong danh sách cho phép không
+        if (!in_array($tableName, self::$allowedTables)) {
             return false;
         }
 
@@ -97,6 +127,11 @@ class CommonSettingController extends Controller
                 ], 400);
             }
 
+            // Validate required field
+            $request->validate([
+                'name' => 'required|string|max:255',
+            ]);
+
             DB::beginTransaction();
 
             $data = [
@@ -109,6 +144,9 @@ class CommonSettingController extends Controller
             }
             if (Schema::hasColumn($tableName, 'icon')) {
                 $data['icon'] = $request->icon;
+            }
+            if (Schema::hasColumn($tableName, 'note')) {
+                $data['note'] = $request->note;
             }
             if (Schema::hasColumn($tableName, 'is_default')) {
                 $data['is_default'] = $request->is_default ?? 0;
@@ -155,6 +193,12 @@ class CommonSettingController extends Controller
                 ], 400);
             }
 
+            // Validate
+            $request->validate([
+                'id' => 'required|integer',
+                'name' => 'required|string|max:255',
+            ]);
+
             DB::beginTransaction();
 
             $id = $request->id;
@@ -168,6 +212,9 @@ class CommonSettingController extends Controller
             }
             if (Schema::hasColumn($tableName, 'icon')) {
                 $data['icon'] = $request->icon;
+            }
+            if (Schema::hasColumn($tableName, 'note')) {
+                $data['note'] = $request->note;
             }
             if (Schema::hasColumn($tableName, 'is_default')) {
                 $data['is_default'] = $request->is_default ?? 0;
@@ -214,6 +261,21 @@ class CommonSettingController extends Controller
                     'status_code' => 400,
                     'message' => 'Vui lòng chọn mục cần xóa',
                 ], 400);
+            }
+
+            // Kiểm tra nếu bảng có cột is_default, không cho xóa item mặc định
+            if (Schema::hasColumn($tableName, 'is_default')) {
+                $hasDefault = DB::table($tableName)
+                    ->whereIn('id', $ids)
+                    ->where('is_default', 1)
+                    ->exists();
+
+                if ($hasDefault) {
+                    return response()->json([
+                        'status_code' => 400,
+                        'message' => 'Không thể xóa mục được đánh dấu là mặc định',
+                    ], 400);
+                }
             }
 
             DB::table($tableName)->whereIn('id', $ids)->delete();

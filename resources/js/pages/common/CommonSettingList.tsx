@@ -25,6 +25,7 @@ interface SettingItem {
     name: string;
     color?: string;
     icon?: string;
+    note?: string;
     sort_order?: number;
     is_default?: number;
 }
@@ -36,15 +37,6 @@ interface SearchParams {
 // Danh sách icon có sẵn
 const iconList = Object.keys(icon);
 
-interface SettingItem {
-    id: number;
-    name: string;
-    color?: string;
-    icon?: string;
-    sort_order?: number;
-    is_default?: number;
-}
-
 // Draggable Row Component
 const DraggableRow = ({ children, ...props }: any) => {
     const {
@@ -54,12 +46,15 @@ const DraggableRow = ({ children, ...props }: any) => {
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: props['data-row-key'] });
+    } = useSortable({
+        id: props['data-row-key'],
+    });
 
     const style: React.CSSProperties = {
         ...props.style,
         transform: CSS.Translate.toString(transform),
         transition,
+        cursor: 'default',
         ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
     };
 
@@ -68,15 +63,23 @@ const DraggableRow = ({ children, ...props }: any) => {
             {...props}
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
         >
-            {children}
+            {React.Children.map(children, (child, index) => {
+                if (index === 0) {
+                    // First column - add drag handle
+                    return React.cloneElement(child, {
+                        children: (
+                            <div {...attributes} {...listeners} style={{ cursor: 'grab', padding: '4px' }}>
+                                <DragOutlined />
+                            </div>
+                        ),
+                    });
+                }
+                return child;
+            })}
         </tr>
     );
-};
-
-const CommonSettingList: React.FC = () => {
+};const CommonSettingList: React.FC = () => {
     const { tableName } = useParams<{ tableName: string }>();
     const [loading, setLoading] = useState(false);
     const [dataSource, setDataSource] = useState<SettingItem[]>([]);
@@ -144,12 +147,14 @@ const CommonSettingList: React.FC = () => {
     };
 
     const handleEdit = (record: SettingItem) => {
+        console.log('Editing record:', record);
         setModalMode('edit');
         setEditingRecord(record);
         form.setFieldsValue({
             name: record.name,
             color: record.color,
             icon: record.icon,
+            note: record.note,
             is_default: record.is_default,
         });
         setSelectedColor(record.color || '#1890ff');
@@ -164,13 +169,19 @@ const CommonSettingList: React.FC = () => {
             content: `Bạn có chắc chắn muốn xóa ${ids.length} mục đã chọn?`,
             onOk: async () => {
                 try {
+                    console.log('Deleting items:', ids, 'from table:', tableName);
                     const res = await axios.post(API.commonSettingDelete(tableName), { ids });
+                    console.log('Delete response:', res.data);
+
                     if (res?.data?.status_code === 200) {
                         message.success('Xóa thành công');
                         fetchData();
+                    } else {
+                        message.error(res?.data?.message || 'Có lỗi xảy ra khi xóa');
                     }
                 } catch (error: any) {
-                    message.error('Có lỗi xảy ra khi xóa');
+                    console.error('Delete error:', error);
+                    message.error(error.response?.data?.message || 'Có lỗi xảy ra khi xóa');
                 }
             },
         });
@@ -180,6 +191,8 @@ const CommonSettingList: React.FC = () => {
         if (!tableName) return;
 
         try {
+            console.log('Submitting:', modalMode, values, 'editingRecord:', editingRecord);
+
             const data = {
                 ...values,
                 color: selectedColor,
@@ -190,16 +203,22 @@ const CommonSettingList: React.FC = () => {
                 ? API.commonSettingAdd(tableName)
                 : API.commonSettingUpdate(tableName);
 
+            console.log('Endpoint:', endpoint, 'Data:', data);
+
             const res = await axios.post(endpoint, data);
+            console.log('Submit response:', res.data);
 
             if (res?.data?.status_code === 200) {
                 message.success(modalMode === 'add' ? 'Thêm mới thành công' : 'Cập nhật thành công');
                 setIsModalVisible(false);
                 form.resetFields();
                 fetchData();
+            } else {
+                message.error(res?.data?.message || 'Có lỗi xảy ra');
             }
         } catch (error: any) {
-            message.error('Có lỗi xảy ra');
+            console.error('Submit error:', error);
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
 
@@ -246,7 +265,7 @@ const CommonSettingList: React.FC = () => {
             key: 'drag',
             width: 50,
             align: 'center' as const,
-            render: () => <DragOutlined />, // Icon hiển thị trong cell
+            render: () => null, // Rendered by DraggableRow
         },
         {
             title: 'Tên',
@@ -417,6 +436,10 @@ const CommonSettingList: React.FC = () => {
                         rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                     >
                         <Input placeholder="Nhập tên" />
+                    </Form.Item>
+
+                    <Form.Item name="note" label="Ghi chú">
+                        <Input.TextArea rows={3} placeholder="Nhập ghi chú (tùy chọn)" />
                     </Form.Item>
 
                     <Row gutter={16}>
