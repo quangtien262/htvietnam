@@ -217,7 +217,7 @@ const InvoiceList_BDS: React.FC = () => {
 
         values.services = dataService;
         values.id = dataAction.id;
-        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total = (Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
         values.tra_coc = tienTraCoc;
@@ -1344,7 +1344,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             <b>Tổng tiền phòng & dịch vụ:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc)}</b>
+                                            <b className="_red">{numberFormat((Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc)}</b>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -1391,7 +1391,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             <b>Tổng cộng:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0))}</b>
+                                            <b className="_red">{numberFormat((Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0))}</b>
                                         </td>
                                         <td></td>
                                     </tr>
