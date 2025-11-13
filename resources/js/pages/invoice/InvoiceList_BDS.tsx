@@ -153,6 +153,14 @@ const InvoiceList_BDS: React.FC = () => {
                     },
                 });
 
+                // set search data
+                setSearchData({
+                    year: propsTmp.searchData.year,
+                    month: propsTmp.searchData.month,
+                    status: propsTmp.searchData.status,
+                });
+
+                // set search form
                 formSearch.setFieldValue('date', dayjs().year(propsTmp.searchData.year).month(propsTmp.searchData.month - 1));
                 formSearch.setFieldValue('status', propsTmp.searchData.status);
                 setLoadingTable(false);
