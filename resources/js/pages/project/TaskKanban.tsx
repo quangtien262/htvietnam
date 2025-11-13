@@ -170,7 +170,7 @@ const TaskKanban: React.FC = () => {
                             setDetailVisible(true);
                         }}
                         style={{
-                            borderLeft: `3px solid ${task.uu_tien?.ma_mau || '#1890ff'}`,
+                            borderLeft: `3px solid ${task.uu_tien?.color || '#1890ff'}`,
                             backgroundColor: snapshot.isDragging ? '#f0f0f0' : '#fff',
                             cursor: 'pointer',
                         }}
@@ -186,8 +186,8 @@ const TaskKanban: React.FC = () => {
                         )}
 
                         <Space size="small" wrap>
-                            <Tag color={task.uu_tien?.ma_mau} style={{ fontSize: 11 }}>
-                                {task.uu_tien?.ten_uu_tien}
+                            <Tag color={task.uu_tien?.color} style={{ fontSize: 11 }}>
+                                {task.uu_tien?.name}
                             </Tag>
 
                             {task.ngay_ket_thuc_du_kien && (
@@ -233,8 +233,8 @@ const TaskKanban: React.FC = () => {
                 <Card
                     title={
                         <Space>
-                            <span style={{ color: status.ma_mau }}>●</span>
-                            <span>{status.ten_trang_thai}</span>
+                            <span style={{ color: status.color }}>●</span>
+                            <span>{status.name}</span>
                             <Tag>{tasks.length}</Tag>
                         </Space>
                     }
@@ -327,7 +327,7 @@ const TaskKanban: React.FC = () => {
                             <Select placeholder="Chọn mức ưu tiên" style={{ width: 150 }}>
                                 {priorities.map(priority => (
                                     <Option key={priority.id} value={priority.id}>
-                                        <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                                        <Tag color={priority.color}>{priority.name}</Tag>
                                     </Option>
                                 ))}
                             </Select>

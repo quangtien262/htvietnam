@@ -1000,7 +1000,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                         <Select>
                             {taskStatuses.map(status => (
                                 <Option key={status.id} value={status.id}>
-                                    <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                    <Tag color={status.color}>{status.name}</Tag>
                                 </Option>
                             ))}
                         </Select>
@@ -1014,7 +1014,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                         <Select>
                             {priorities.map(priority => (
                                 <Option key={priority.id} value={priority.id}>
-                                    <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                                    <Tag color={priority.color}>{priority.name}</Tag>
                                 </Option>
                             ))}
                         </Select>
@@ -1061,13 +1061,13 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                         {task?.mo_ta || '-'}
                     </Descriptions.Item>
                     <Descriptions.Item label="Trạng thái">
-                        <Tag color={task?.trang_thai?.ma_mau}>
-                            {task?.trang_thai?.ten_trang_thai}
+                        <Tag color={task?.trang_thai?.color}>
+                            {task?.trang_thai?.name}
                         </Tag>
                     </Descriptions.Item>
                     <Descriptions.Item label="Ưu tiên">
-                        <Tag color={task?.uu_tien?.ma_mau}>
-                            {task?.uu_tien?.ten_uu_tien}
+                        <Tag color={task?.uu_tien?.color}>
+                            {task?.uu_tien?.name}
                         </Tag>
                     </Descriptions.Item>
                     <Descriptions.Item label="Người thực hiện">
@@ -1124,7 +1124,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             title={
                 <Space>
                     <span>{task?.ma_nhiem_vu}</span>
-                    <Tag color={task?.trang_thai?.ma_mau}>{task?.trang_thai?.ten_trang_thai}</Tag>
+                    <Tag color={task?.trang_thai?.color}>{task?.trang_thai?.name}</Tag>
                 </Space>
             }
             width={720}

@@ -773,15 +773,26 @@ export const MENU = {
             icon: <SettingFilled />,
             children: [
                 {
-                    label: <Link to={`${ROUTE.baseRoute}setting/status?p=sales`}>Trạng thái dự án</Link>,
+                    label: <Link to={`${ROUTE.baseRoute}setting/pro___project_statuses?p=projects`}>Trạng thái dự án</Link>,
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.project_list}?p=projects`}>Trạng thái task</Link>,
+                    label: <Link to={`${ROUTE.baseRoute}setting/pro___project_types?p=projects`}>Loại dự án</Link>,
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/pro___priorities?p=projects`}>Mức độ ưu tiên</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/pro___task_statuses?p=projects`}>Trạng thái task</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+
                 {
                     label: <Link to={`/project/1/permissions?p=projects`}>Quản lý phân quyền</Link>,
                     key: (key++).toString(),

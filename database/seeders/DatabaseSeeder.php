@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
         
         $this->call(SpaSeeder::class);
 
+        $this->call(ProjectManagementSeeder::class);
+
         if(!empty(env('APP_LAYOUT'))) {
             $this->call('Database\Seeders\TablesLayout'.env('APP_LAYOUT').'Seeder');
         }

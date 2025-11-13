@@ -76,7 +76,7 @@ const ProjectDashboard: React.FC = () => {
             key: 'trang_thai',
             width: 150,
             render: (trangThai: any) => (
-                <Tag color={trangThai?.ma_mau}>{trangThai?.ten_trang_thai}</Tag>
+                <Tag color={trangThai?.color}>{trangThai?.name}</Tag>
             ),
         },
         {

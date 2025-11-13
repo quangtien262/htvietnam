@@ -53,9 +53,10 @@ export enum MemberRole {
 
 export interface ProjectStatusType {
     id: number;
-    ten_trang_thai: string;
-    ma_mau: string;
-    thu_tu: number;
+    name: string;
+    color: string;
+    icon?: string;
+    sort_order: number;
     is_active: boolean;
     created_at?: string;
     updated_at?: string;
@@ -63,10 +64,11 @@ export interface ProjectStatusType {
 
 export interface ProjectType {
     id: number;
-    ten_loai: string;
-    mo_ta?: string;
-    ma_mau?: string;
+    name: string;
+    note?: string;
+    color?: string;
     icon?: string;
+    sort_order: number;
     is_active: boolean;
     created_at?: string;
     updated_at?: string;
@@ -74,19 +76,22 @@ export interface ProjectType {
 
 export interface PriorityType {
     id: number;
-    ten_uu_tien: string;
-    muc_uu_tien: number;
+    name: string;
     cap_do: number;
-    ma_mau: string;
+    color: string;
+    sort_order: number;
+    note?: string;
     created_at?: string;
     updated_at?: string;
 }
 
 export interface TaskStatusType {
     id: number;
-    ten_trang_thai: string;
-    ma_mau: string;
-    thu_tu: number;
+    name: string;
+    color: string;
+    icon?: string;
+    sort_order: number;
+    note?: string;
     is_done: boolean;
     is_active: boolean;
     created_at?: string;
@@ -164,7 +169,7 @@ export interface TaskChecklist {
     task_id: number;
     noi_dung: string;
     is_completed: boolean;
-    thu_tu: number;
+    sort_order: number;
     created_at?: string;
     updated_at?: string;
 }

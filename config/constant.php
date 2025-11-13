@@ -285,6 +285,11 @@ return [
         'loai_hang_hoa',
         'don_vi_hang_hoa',
         'purchase_order_statuses',
-        // Thêm các bảng khác nếu cần
+
+        // project
+        'pro___project_statuses',
+        'pro___project_types',
+        'pro___priorities',
+        'pro___task_statuses'
     ]
 ];

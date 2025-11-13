@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('spa_membership_tier', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_cap_bac', 100)->comment('Tên cấp bậc: Bạc, Vàng, Bạch Kim, Kim Cương');
-            $table->integer('cap_do')->comment('Thứ tự cấp độ: 1, 2, 3, 4...');
-            $table->decimal('chi_tieu_yeu_cau', 15, 2)->default(0)->comment('Chi tiêu tối thiểu để đạt hạng');
-            $table->decimal('ti_le_giam_gia', 5, 2)->default(0)->comment('% giảm giá cho hạng này');
-            $table->decimal('ti_le_tich_diem', 5, 2)->default(1)->comment('% tích điểm (1%, 1.5%, 2%...)');
-            $table->text('uu_dai_khac')->nullable()->comment('Các ưu đãi đặc biệt khác');
-            $table->string('mau_the', 20)->nullable()->comment('Màu thẻ hex code');
+            $table->string('ten_cap', 50)->comment('SILVER, GOLD, PLATINUM, DIAMOND');
+            $table->decimal('chi_tieu_toi_thieu', 15, 2)->default(0);
+            $table->decimal('phan_tram_giam_dich_vu', 5, 2)->default(0);
+            $table->decimal('phan_tram_giam_san_pham', 5, 2)->default(0);
+            $table->decimal('he_so_tich_diem', 3, 2)->default(1)->comment('1x, 1.5x, 2x, 3x');
+            $table->json('uu_dai_dac_biet')->nullable()->comment('Special benefits JSON');
+            $table->string('mau_the', 20)->nullable();
+            $table->string('icon', 100)->nullable();
+            $table->integer('thu_tu')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 

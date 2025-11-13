@@ -231,7 +231,7 @@ const ProjectList: React.FC = () => {
             dataIndex: 'loai_du_an',
             key: 'loai_du_an',
             width: 120,
-            render: (loai: ProjectType) => loai?.ten_loai || '-',
+            render: (loai: ProjectType) => loai?.name || '-',
         },
         {
             title: 'Trạng thái',
@@ -239,7 +239,7 @@ const ProjectList: React.FC = () => {
             key: 'trang_thai',
             width: 150,
             render: (trangThai: ProjectStatusType) => (
-                <Tag color={trangThai?.ma_mau}>{trangThai?.ten_trang_thai}</Tag>
+                <Tag color={trangThai?.color}>{trangThai?.name}</Tag>
             ),
         },
         {
@@ -248,7 +248,7 @@ const ProjectList: React.FC = () => {
             key: 'uu_tien',
             width: 120,
             render: (uuTien: PriorityType) => (
-                <Tag color={uuTien?.ma_mau}>{uuTien?.ten_uu_tien}</Tag>
+                <Tag color={uuTien?.color}>{uuTien?.name}</Tag>
             ),
         },
         {
@@ -361,7 +361,7 @@ const ProjectList: React.FC = () => {
                     >
                         {projectStatuses.map(status => (
                             <Option key={status.id} value={status.id}>
-                                <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                <Tag color={status.color}>{status.name}</Tag>
                             </Option>
                         ))}
                     </Select>
@@ -374,7 +374,7 @@ const ProjectList: React.FC = () => {
                         value={filters.loai_du_an_id}
                     >
                         {projectTypes.map(type => (
-                            <Option key={type.id} value={type.id}>{type.ten_loai}</Option>
+                            <Option key={type.id} value={type.id}>{type.name}</Option>
                         ))}
                     </Select>
                     <Button icon={<ReloadOutlined />} onClick={handleResetFilters}>
@@ -428,7 +428,7 @@ const ProjectList: React.FC = () => {
                         <Form.Item name="loai_du_an_id" label="Loại dự án" style={{ width: 200 }}>
                             <Select placeholder="Chọn loại" allowClear>
                                 {projectTypes.map(type => (
-                                    <Option key={type.id} value={type.id}>{type.ten_loai}</Option>
+                                    <Option key={type.id} value={type.id}>{type.name}</Option>
                                 ))}
                             </Select>
                         </Form.Item>
@@ -442,7 +442,7 @@ const ProjectList: React.FC = () => {
                             <Select placeholder="Chọn trạng thái">
                                 {projectStatuses.map(status => (
                                     <Option key={status.id} value={status.id}>
-                                        <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                        <Tag color={status.color}>{status.name}</Tag>
                                     </Option>
                                 ))}
                             </Select>
@@ -457,7 +457,7 @@ const ProjectList: React.FC = () => {
                             <Select placeholder="Chọn mức ưu tiên">
                                 {priorities.map(priority => (
                                     <Option key={priority.id} value={priority.id}>
-                                        <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                                        <Tag color={priority.color}>{priority.name}</Tag>
                                     </Option>
                                 ))}
                             </Select>

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Line, Bar } from '@ant-design/plots';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from "../../utils/axiosConfig";
 import API from '../../common/api';
 import ROUTE from '../../common/route';
-import { Select, Col, Row, Card, Modal, Button } from 'antd';
+import { Col, Row, Card} from 'antd';
 import {
     DribbbleSquareOutlined, GlobalOutlined, FileProtectOutlined, CopyOutlined, LineChartOutlined,
     HddOutlined, NodeExpandOutlined, DeleteColumnOutlined, OrderedListOutlined, IssuesCloseOutlined,
@@ -23,42 +22,6 @@ import "../../../css/home.css";
 
 
 const Dashboard: React.FC = () => {
-
-    // Example data for charts
-    const lineData = [
-        { year: '2021', value: 120 },
-        { year: '2022', value: 200 },
-        { year: '2023', value: 150 },
-        { year: '2024', value: 278 },
-        { year: '2025', value: 189 },
-    ];
-    const barData = [
-        { type: 'Spa', value: 38 },
-        { type: 'Clinic', value: 52 },
-        { type: 'Salon', value: 61 },
-        { type: 'Gym', value: 45 },
-        { type: 'Yoga', value: 48 },
-    ];
-    const lineConfig = {
-        data: lineData,
-        xField: 'year',
-        yField: 'value',
-        point: { size: 5, shape: 'diamond' },
-        color: '#1677ff',
-        height: 220,
-        autoFit: true,
-        smooth: true,
-        label: { style: { fill: '#595959' } },
-    };
-    const barConfig = {
-        data: barData,
-        xField: 'type',
-        yField: 'value',
-        color: '#13c2c2',
-        height: 220,
-        autoFit: true,
-        label: { position: 'middle', style: { fill: '#fff' } },
-    };
     const [datas, setDatas] = useState([]);
 
     useEffect(() => {
@@ -265,7 +228,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.project_list}?p=projects`}>
+                            <Link to={`${ROUTE.project_dashboard}?p=projects`}>
                                 <CalendarFilled /> DỰ ÁN & CÔNG VIỆC
                             </Link>
                             {/* <Link to={`${ROUTE.dashboardProject}?p=pro`}>
@@ -355,6 +318,7 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
+        //parent_ban_hang
         if (item.name === 'parent_ban_hang') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
@@ -385,7 +349,7 @@ const Dashboard: React.FC = () => {
                 </Card>
             </Col>
         }
-
+        // telesale
         if (item.name === 'parent_telesale') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
@@ -417,6 +381,7 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
+        //parent_business
         if (item.name === 'parent_business') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
@@ -450,18 +415,6 @@ const Dashboard: React.FC = () => {
     }
 
     return <>
-        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-            <Col xs={24} md={12}>
-                <Card title="Biểu đồ doanh thu theo năm (Demo)" bordered={false}>
-                    <Line {...lineConfig} />
-                </Card>
-            </Col>
-            <Col xs={24} md={12}>
-                <Card title="Số lượng khách theo loại hình (Demo)" bordered={false}>
-                    <Bar {...barConfig} />
-                </Card>
-            </Col>
-        </Row>
         <Row gutter={[24, 24]}>
             {
                 datas && datas.length > 0 && datas.map((item: any, index: number) => {

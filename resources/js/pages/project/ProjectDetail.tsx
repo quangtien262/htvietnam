@@ -353,7 +353,7 @@ const ProjectDetail: React.FC = () => {
                                         key: 'trang_thai',
                                         width: 130,
                                         render: (status: any) => (
-                                            <Tag color={status?.ma_mau}>{status?.ten_trang_thai}</Tag>
+                                            <Tag color={status?.color}>{status?.name}</Tag>
                                         ),
                                     },
                                     {
@@ -362,7 +362,7 @@ const ProjectDetail: React.FC = () => {
                                         key: 'uu_tien',
                                         width: 120,
                                         render: (priority: any) => (
-                                            <Tag color={priority?.ma_mau}>{priority?.ten_uu_tien}</Tag>
+                                            <Tag color={priority?.color}>{priority?.name}</Tag>
                                         ),
                                     },
                                     {
@@ -405,7 +405,7 @@ const ProjectDetail: React.FC = () => {
                                             >
                                                 <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <Space>
-                                                        <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                                        <Tag color={status.color}>{status.name}</Tag>
                                                         <Badge count={tasks.length} showZero style={{ backgroundColor: '#999' }} />
                                                     </Space>
                                                 </div>
@@ -451,7 +451,7 @@ const ProjectDetail: React.FC = () => {
                                                                                     style={{
                                                                                         cursor: 'pointer',
                                                                                         backgroundColor: snapshot.isDragging ? '#f0f0f0' : '#fff',
-                                                                                        borderLeft: `3px solid ${task.uu_tien?.ma_mau || '#1890ff'}`,
+                                                                                        borderLeft: `3px solid ${task.uu_tien?.color || '#1890ff'}`,
                                                                                     }}
                                                                                 >
                                                                                     <div style={{ marginBottom: 8 }}>
@@ -459,8 +459,8 @@ const ProjectDetail: React.FC = () => {
                                                                                     </div>
                                                                                     <div style={{ marginBottom: 8 }}>{task.tieu_de}</div>
                                                                                     <Space wrap style={{ marginBottom: 8 }}>
-                                                                                        <Tag color={task.uu_tien?.ma_mau} style={{ margin: 0 }}>
-                                                                                            {task.uu_tien?.ten_uu_tien}
+                                                                                        <Tag color={task.uu_tien?.color} style={{ margin: 0 }}>
+                                                                                            {task.uu_tien?.name}
                                                                                         </Tag>
                                                                                         {task.nguoi_thuc_hien && (
                                                                                             <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
@@ -604,19 +604,19 @@ const ProjectDetail: React.FC = () => {
                         </Descriptions.Item>
 
                         <Descriptions.Item label="Loại dự án" span={1}>
-                            <Tag color={project.loai_du_an?.ma_mau}>
-                                {project.loai_du_an?.ten_loai} {project.loai_du_an?.icon}
+                            <Tag color={project.loai_du_an?.color}>
+                                {project.loai_du_an?.name} {project.loai_du_an?.icon}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Trạng thái" span={1}>
-                            <Tag color={project.trang_thai?.ma_mau}>
-                                {project.trang_thai?.ten_trang_thai}
+                            <Tag color={project.trang_thai?.color}>
+                                {project.trang_thai?.name}
                             </Tag>
                         </Descriptions.Item>
 
                         <Descriptions.Item label="Ưu tiên" span={1}>
-                            <Tag color={project.uu_tien?.ma_mau}>
-                                {project.uu_tien?.ten_uu_tien} (Mức {project.uu_tien?.muc_uu_tien})
+                            <Tag color={project.uu_tien?.color}>
+                                {project.uu_tien?.name} (Cấp độ {project.uu_tien?.cap_do})
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Tiến độ" span={1}>
@@ -803,7 +803,7 @@ const ProjectDetail: React.FC = () => {
                                 <Select placeholder="Chọn trạng thái">
                                     {taskStatuses.map(status => (
                                         <Select.Option key={status.id} value={status.id}>
-                                            <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                            <Tag color={status.color}>{status.name}</Tag>
                                         </Select.Option>
                                     ))}
                                 </Select>
@@ -818,7 +818,7 @@ const ProjectDetail: React.FC = () => {
                                 <Select placeholder="Chọn độ ưu tiên">
                                     {priorities.map(priority => (
                                         <Select.Option key={priority.id} value={priority.id}>
-                                            <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                                            <Tag color={priority.color}>{priority.name}</Tag>
                                         </Select.Option>
                                     ))}
                                 </Select>

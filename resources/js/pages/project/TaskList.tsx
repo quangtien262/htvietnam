@@ -212,7 +212,7 @@ const TaskList: React.FC = () => {
             key: 'trang_thai',
             width: 130,
             render: (status: TaskStatusType) => (
-                <Tag color={status?.ma_mau}>{status?.ten_trang_thai}</Tag>
+                <Tag color={status?.color}>{status?.name}</Tag>
             ),
         },
         {
@@ -221,7 +221,7 @@ const TaskList: React.FC = () => {
             key: 'uu_tien',
             width: 120,
             render: (priority: PriorityType) => (
-                <Tag color={priority?.ma_mau}>{priority?.ten_uu_tien}</Tag>
+                <Tag color={priority?.color}>{priority?.name}</Tag>
             ),
         },
         {
@@ -333,7 +333,7 @@ const TaskList: React.FC = () => {
                 >
                     {taskStatuses.map(status => (
                         <Option key={status.id} value={status.id}>
-                            <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                            <Tag color={status.color}>{status.name}</Tag>
                         </Option>
                     ))}
                 </Select>
@@ -347,7 +347,7 @@ const TaskList: React.FC = () => {
                 >
                     {priorities.map(priority => (
                         <Option key={priority.id} value={priority.id}>
-                            <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                            <Tag color={priority.color}>{priority.name}</Tag>
                         </Option>
                     ))}
                 </Select>
@@ -435,7 +435,7 @@ const TaskList: React.FC = () => {
                         <Select placeholder="Chọn trạng thái">
                             {taskStatuses.map(status => (
                                 <Option key={status.id} value={status.id}>
-                                    <Tag color={status.ma_mau}>{status.ten_trang_thai}</Tag>
+                                    <Tag color={status.color}>{status.name}</Tag>
                                 </Option>
                             ))}
                         </Select>
@@ -449,7 +449,7 @@ const TaskList: React.FC = () => {
                         <Select placeholder="Chọn mức ưu tiên">
                             {priorities.map(priority => (
                                 <Option key={priority.id} value={priority.id}>
-                                    <Tag color={priority.ma_mau}>{priority.ten_uu_tien}</Tag>
+                                    <Tag color={priority.color}>{priority.name}</Tag>
                                 </Option>
                             ))}
                         </Select>
