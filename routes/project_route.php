@@ -92,21 +92,21 @@ Route::delete('/project-attachments/{id}', [ProjectController::class, 'deleteAtt
 Route::get('/project-statuses', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\Project\ProjectStatus::where('is_active', true)->orderBy('thu_tu')->get(),
+        'data' => \App\Models\Project\ProjectStatus::where('is_active', true)->orderBy('sort_order')->get(),
     ]);
 });
 
 Route::get('/project-types', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\Project\ProjectType::where('is_active', true)->get(),
+        'data' => \App\Models\Project\ProjectType::where('is_active', true)->orderBy('sort_order')->get(),
     ]);
 });
 
 Route::get('/task-statuses', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\Project\TaskStatus::where('is_active', true)->orderBy('thu_tu')->get(),
+        'data' => \App\Models\Project\TaskStatus::where('is_active', true)->orderBy('sort_order')->get(),
     ]);
 });
 
