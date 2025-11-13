@@ -9,7 +9,7 @@ import {
 import { DollarOutlined, HomeOutlined, FileTextOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import API from '../../../common/api';
-import { numberFormat } from '../../../function/common';
+import { numberFormat, showInfo } from '../../../function/common';
 
 const { Option } = Select;
 
@@ -125,27 +125,22 @@ const InvestmentReport: React.FC = () => {
             title: 'Tên chi phí',
             dataIndex: 'name',
             key: 'name',
-            width: 200,
+            width: 250,
         },
         {
             title: 'Loại chi',
             dataIndex: 'loai_chi_name',
             key: 'loai_chi_name',
-            width: 150,
-            render: (text: string) => text || '-',
-        },
-        {
-            title: 'Nhà cung cấp',
-            dataIndex: 'supplier_name',
-            key: 'supplier_name',
-            width: 150,
-            render: (text: string) => text || '-',
+            width: 180,
+            render: (text: string) => (
+                <Tag color="blue">{text || 'Chưa phân loại'}</Tag>
+            ),
         },
         {
             title: 'Số tiền',
             dataIndex: 'price',
             key: 'price',
-            width: 150,
+            width: 180,
             align: 'right' as const,
             render: (value: number) => (
                 <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
@@ -297,26 +292,71 @@ const InvestmentReport: React.FC = () => {
                         </Card>
                     </Col>
                     <Col xs={24} lg={10}>
-                        <Card title="Tỷ trọng chi phí theo tòa nhà" bordered={false}>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <PieChart>
-                                    <Pie
-                                        data={pieChartData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={(entry) => `${entry.name}: ${(((entry.value ?? 0) / totalAmount) * 100).toFixed(1)}%`}
-                                        outerRadius={120}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {pieChartData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value: number) => numberFormat(value) + ' ₫'} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <Card title={<span>Tỷ trọng chi phí theo tòa nhà {showInfo(<>
+                            <p>🎯 Ý nghĩa của biểu đồ này:</p>
+                            <p>Tỷ trọng (Pie Chart) giúp bạn nhìn thấy:</p>
+                            <ul>
+                                <li>% phần trăm chi phí của từng tòa nhà so với tổng chi phí đầu tư</li>
+                                <li>So sánh trực quan xem tòa nhà nào chiếm nhiều chi phí nhất</li>
+                                <li>Phân bổ ngân sách - tòa nhà nào "ăn tiền" hơn</li>
+                            </ul>
+                            <p>Ví dụ thực tế:</p>
+                            <ul>
+                                <li>Nếu bạn đầu tư 1 tỷ vào 3 tòa nhà: A (600 triệu), B (300 triệu), C (100 triệu)</li>
+                                <li>Biểu đồ sẽ hiển thị: A 60%, B 30%, C 10%</li>
+                                <li>Giúp bạn thấy ngay tòa nhà A chiếm phần lớn chi phí đầu tư</li>
+                                <li>Từ đó bạn có thể đánh giá hiệu quả đầu tư từng tòa nhà</li>
+                            </ul>
+                        </>)}</span>}>
+                            {pieChartData.length > 0 && totalAmount > 0 ? (
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <PieChart>
+                                        <Pie
+                                            data={pieChartData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={true}
+                                            label={(entry) => {
+                                                const percent = (((entry.value ?? 0) / totalAmount) * 100).toFixed(1);
+                                                return `${percent}%`;
+                                            }}
+                                            outerRadius={120}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {pieChartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value: number, name: string, props: any) => [
+                                                `${numberFormat(value)} ₫ (${(((value ?? 0) / totalAmount) * 100).toFixed(1)}%)`,
+                                                props.payload.name
+                                            ]}
+                                        />
+                                        <Legend
+                                            layout="vertical"
+                                            align="right"
+                                            verticalAlign="middle"
+                                            formatter={(value, entry: any) => {
+                                                const data = entry.payload;
+                                                const percent = (((data.value ?? 0) / totalAmount) * 100).toFixed(1);
+                                                return `${data.name} (${percent}%)`;
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div style={{
+                                    height: 400,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#999'
+                                }}>
+                                    Chưa có dữ liệu chi phí đầu tư
+                                </div>
+                            )}
                         </Card>
                     </Col>
                 </Row>

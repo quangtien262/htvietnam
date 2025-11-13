@@ -385,7 +385,6 @@ class AitilenDauTuController extends Controller
             $detailQuery = DB::table('aitilen_dau_tu as dt')
                 ->leftJoin('apartment as a', 'dt.apartment_id', '=', 'a.id')
                 ->leftJoin('loai_chi as lc', 'dt.loai_chi_id', '=', 'lc.id')
-                ->leftJoin('suppliers as s', 'dt.supplier_id', '=', 's.id')
                 ->select(
                     'dt.id',
                     'dt.name',
@@ -394,9 +393,9 @@ class AitilenDauTuController extends Controller
                     'a.name as apartment_name',
                     'dt.loai_chi_id',
                     'lc.name as loai_chi_name',
-                    's.name as supplier_name',
                     'dt.created_at'
                 )
+                ->whereNotNull('dt.apartment_id')
                 ->orderBy('a.name')
                 ->orderBy('dt.created_at', 'desc');
 
