@@ -38,7 +38,7 @@ class AitilenDauTu extends Model
     // Relationships
     public function supplier()
     {
-        return $this->belongsTo(\App\Models\Admin\Supplier::class, 'supplier_id');
+        return $this->belongsTo(\App\Models\Supplier::class, 'supplier_id');
     }
 
     public function loaiChi()

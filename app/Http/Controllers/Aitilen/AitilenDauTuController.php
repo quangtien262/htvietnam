@@ -232,23 +232,25 @@ class AitilenDauTuController extends Controller
     {
         try {
             // Get suppliers (if table exists)
-            $suppliers = DB::table('suppliers')
-                ->select('id', 'name')
-                ->where('is_active', 1)
-                ->orderBy('name', 'asc')
-                ->get();
+            try {
+                $suppliers = DB::table('suppliers')
+                    ->select('id', 'name')
+                    ->where('is_active', 1)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e) {
+                $suppliers = [];
+            }
 
             // Get loai_chi
             $loaiChi = DB::table('loai_chi')
                 ->select('id', 'name')
-                ->where('is_active', 1)
                 ->orderBy('name', 'asc')
                 ->get();
 
-            // Get apartments
+            // Get apartments (không có is_active column)
             $apartments = DB::table('apartment')
                 ->select('id', 'name')
-                ->where('is_active', 1)
                 ->orderBy('name', 'asc')
                 ->get();
 

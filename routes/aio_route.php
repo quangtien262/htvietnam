@@ -143,6 +143,16 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('service/search-dien-nuoc', [AitilenController::class, 'searchDienNuoc'])->name('aitilen.service.dienNuocSearch');
     Route::post('service/create-data-dien-nuoc-thang', [AitilenController::class, 'createDataDienNuocThang'])->name('aitilen.service.createDataDienNuocThang');
 
+     // dau tu (investment costs)
+    Route::post('dau-tu/list', [AitilenDauTuController::class, 'list'])->name('aitilen.dauTu.list');
+    Route::post('dau-tu/add', [AitilenDauTuController::class, 'add'])->name('aitilen.dauTu.add');
+    Route::post('dau-tu/add-bulk', [AitilenDauTuController::class, 'addBulk'])->name('aitilen.dauTu.addBulk');
+    Route::post('dau-tu/update', [AitilenDauTuController::class, 'update'])->name('aitilen.dauTu.update');
+    Route::post('dau-tu/delete', [AitilenDauTuController::class, 'delete'])->name('aitilen.dauTu.delete');
+    Route::post('dau-tu/update-sort-order', [AitilenDauTuController::class, 'updateSortOrder'])->name('aitilen.dauTu.updateSortOrder');
+    Route::post('dau-tu/select-data', [AitilenDauTuController::class, 'selectData'])->name('aitilen.dauTu.selectData');
+
+
     // apartment
     Route::post('apartment/list', [AitilenController::class, 'apartmentList'])->name('aitilen.apartment.list');
     Route::post('apartment/save', [AitilenController::class, 'saveApartment'])->name('aitilen.apartment.save');
@@ -185,15 +195,6 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('so-quy/add', [SoQuyController::class, 'apiAdd'])->name('aitilen.soQuy.add');
     Route::post('so-quy/update', [SoQuyController::class, 'apiUpdate'])->name('aitilen.soQuy.update');
     Route::post('so-quy/delete', [SoQuyController::class, 'apiDelete'])->name('aitilen.soQuy.delete');
-
-    // dau tu (investment costs)
-    Route::post('dau-tu/list', [AitilenDauTuController::class, 'list'])->name('aitilen.dauTu.list');
-    Route::post('dau-tu/add', [AitilenDauTuController::class, 'add'])->name('aitilen.dauTu.add');
-    Route::post('dau-tu/add-bulk', [AitilenDauTuController::class, 'addBulk'])->name('aitilen.dauTu.addBulk');
-    Route::post('dau-tu/update', [AitilenDauTuController::class, 'update'])->name('aitilen.dauTu.update');
-    Route::post('dau-tu/delete', [AitilenDauTuController::class, 'delete'])->name('aitilen.dauTu.delete');
-    Route::post('dau-tu/update-sort-order', [AitilenDauTuController::class, 'updateSortOrder'])->name('aitilen.dauTu.updateSortOrder');
-    Route::post('dau-tu/select-data', [AitilenDauTuController::class, 'selectData'])->name('aitilen.dauTu.selectData');
 
     // master data for so quy
     Route::post('so-quy-type/list', [SoQuyController::class, 'getSoQuyTypes'])->name('aitilen.soQuyType.list');

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Button, Space, Tag, message, Modal, Form, Input, Select, InputNumber,
-    Row, Col, Checkbox
+    Row, Col, Checkbox, Popconfirm
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined,
-    DollarOutlined
+    DollarOutlined, PlusCircleOutlined, MinusCircleOutlined, AppstoreAddOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
@@ -52,9 +52,11 @@ const AitilenDauTu: React.FC = () => {
     });
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isBulkModalVisible, setIsBulkModalVisible] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [editingRecord, setEditingRecord] = useState<DauTu | null>(null);
     const [form] = Form.useForm();
+    const [bulkForm] = Form.useForm();
 
     // Master data
     const [supplierList, setSupplierList] = useState<any[]>([]);
@@ -149,6 +151,20 @@ const AitilenDauTu: React.FC = () => {
         setIsModalVisible(true);
     };
 
+    const handleBulkAdd = () => {
+        bulkForm.resetFields();
+        // Mặc định 5 items
+        bulkForm.setFieldsValue({
+            items: Array(5).fill(null).map(() => ({
+                name: '',
+                price: undefined,
+                apartment_id: undefined,
+                loai_chi_id: undefined
+            }))
+        });
+        setIsBulkModalVisible(true);
+    };
+
     const handleEdit = (record: DauTu) => {
         setModalMode('edit');
         setEditingRecord(record);
@@ -210,6 +226,26 @@ const AitilenDauTu: React.FC = () => {
         } catch (error: any) {
             console.error('Error submitting:', error);
             message.error('Có lỗi xảy ra');
+        }
+    };
+
+    const handleBulkSubmit = async (values: any) => {
+        try {
+            const res = await axios.post(API.dauTuAddBulk, {
+                items: values.items
+            });
+
+            if (res?.data?.status_code === 200) {
+                message.success(res.data.message || 'Thêm nhanh thành công');
+                setIsBulkModalVisible(false);
+                bulkForm.resetFields();
+                fetchData();
+            } else {
+                message.error(res?.data?.message || 'Có lỗi xảy ra');
+            }
+        } catch (error: any) {
+            console.error('Error bulk adding:', error);
+            message.error(error?.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
 
@@ -353,9 +389,14 @@ const AitilenDauTu: React.FC = () => {
                     </Space>
                 }
                 extra={
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-                        Thêm chi phí
-                    </Button>
+                    <Space>
+                        <Button type="default" icon={<AppstoreAddOutlined />} onClick={handleBulkAdd}>
+                            Thêm nhanh
+                        </Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+                            Thêm chi phí
+                        </Button>
+                    </Space>
                 }
             >
                 {/* Search Filters */}
@@ -586,6 +627,152 @@ const AitilenDauTu: React.FC = () => {
                             placeholder="Nhập thứ tự"
                         />
                     </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Bulk Add Modal */}
+            <Modal
+                title={<><AppstoreAddOutlined /> Thêm nhanh nhiều chi phí</>}
+                open={isBulkModalVisible}
+                onCancel={() => {
+                    setIsBulkModalVisible(false);
+                    bulkForm.resetFields();
+                }}
+                onOk={() => bulkForm.submit()}
+                width={1000}
+                okText="Lưu tất cả"
+                cancelText="Hủy"
+            >
+                <Form
+                    form={bulkForm}
+                    layout="vertical"
+                    onFinish={handleBulkSubmit}
+                >
+                    <Form.List name="items">
+                        {(fields, { add, remove }) => (
+                            <>
+                                <Table
+                                    dataSource={fields}
+                                    pagination={false}
+                                    size="small"
+                                    scroll={{ x: 800 }}
+                                    columns={[
+                                        {
+                                            title: '#',
+                                            width: 50,
+                                            render: (_, __, index) => index + 1,
+                                        },
+                                        {
+                                            title: <span style={{ color: 'red' }}>* Tên chi phí</span>,
+                                            width: 250,
+                                            render: (_, field) => (
+                                                <Form.Item
+                                                    name={[field.name, 'name']}
+                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Input placeholder="Nhập tên chi phí" />
+                                                </Form.Item>
+                                            ),
+                                        },
+                                        {
+                                            title: <span style={{ color: 'red' }}>* Giá trị</span>,
+                                            width: 150,
+                                            render: (_, field) => (
+                                                <Form.Item
+                                                    name={[field.name, 'price']}
+                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <InputNumber
+                                                        style={{ width: '100%' }}
+                                                        placeholder="Giá trị"
+                                                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                        min={0}
+                                                    />
+                                                </Form.Item>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Tòa nhà',
+                                            width: 180,
+                                            render: (_, field) => (
+                                                <Form.Item
+                                                    name={[field.name, 'apartment_id']}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Select
+                                                        placeholder="Chọn tòa nhà"
+                                                        allowClear
+                                                        showSearch
+                                                        optionFilterProp="children"
+                                                    >
+                                                        {apartmentList.map(item => (
+                                                            <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Loại chi',
+                                            width: 150,
+                                            render: (_, field) => (
+                                                <Form.Item
+                                                    name={[field.name, 'loai_chi_id']}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Select
+                                                        placeholder="Chọn loại chi"
+                                                        allowClear
+                                                        showSearch
+                                                        optionFilterProp="children"
+                                                    >
+                                                        {loaiChiList.map(item => (
+                                                            <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Xóa',
+                                            width: 60,
+                                            align: 'center',
+                                            render: (_, field) => (
+                                                fields.length > 1 ? (
+                                                    <Popconfirm
+                                                        title="Xóa dòng này?"
+                                                        onConfirm={() => remove(field.name)}
+                                                        okText="Xóa"
+                                                        cancelText="Hủy"
+                                                    >
+                                                        <Button
+                                                            type="link"
+                                                            danger
+                                                            size="small"
+                                                            icon={<MinusCircleOutlined />}
+                                                        />
+                                                    </Popconfirm>
+                                                ) : null
+                                            ),
+                                        },
+                                    ]}
+                                />
+
+                                <div style={{ marginTop: 16 }}>
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => add()}
+                                        block
+                                        icon={<PlusCircleOutlined />}
+                                    >
+                                        Thêm item
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </Form.List>
                 </Form>
             </Modal>
         </div>
