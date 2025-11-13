@@ -60,6 +60,7 @@ const InvoiceList_BDS: React.FC = () => {
     const p = searchParams.get("p");
 
     const dataService_empty = {
+        aitilen_service_id: null,
         name: null,
         price_default: 0,
         per_default: 'Người',
@@ -227,7 +228,8 @@ const InvoiceList_BDS: React.FC = () => {
         axios.post(API.aitilen_updateInvoice, values).then((response) => {
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
-                location.reload();
+                refresh(searchData);
+                setIsOpenFormEdit(false);
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
@@ -326,7 +328,7 @@ const InvoiceList_BDS: React.FC = () => {
                         </Tag>
                     })}
 
-                    <Button className="float-btn-option"><FormOutlined /></Button>
+                    <Button className="float-btn-option btn-default" onClick={() => setDataEdit(record)}><FormOutlined /></Button>
                 </>;
             }
         },
@@ -610,14 +612,14 @@ const InvoiceList_BDS: React.FC = () => {
 
     function showFormDataDetail() {
         return dataService.map((data: any, idx: number) => {
-            console.log('datadatadatadata', data);
+            console.log('xxxxxxxxxxxxxxxxx', data);
             return <tr key={idx}>
                 {/* chon dịch vụ */}
                 <td>
                     <Select className="select03"
                         placeholder="Chọn dich vụ"
                         optionFilterProp="children"
-                        onChange={(value, info) => {
+                        onChange={(value, info: any) => {
                             let isError = false;
 
                             // check duplication
@@ -627,10 +629,18 @@ const InvoiceList_BDS: React.FC = () => {
 
                             let data_tmp = cloneDeep(dataService);
                             data_tmp[idx].aitilen_service_id = value;
-                            setDataService(data_tmp);
+
+                            // Update giá và đơn vị từ service được chọn
+                            if (info && info.info) {
+                                data_tmp[idx].price_default = info.info.price || 0;
+                                data_tmp[idx].per_default = info.info.per || 'Tháng';
+                            }
+
+                            // Tính lại tổng tiền
+                            total(soNgayThue, data_tmp, daysInMonth, soNguoi);
                         }}
                         allowClear={true}
-                        value={data.id}
+                        value={data.aitilen_service_id}
                         options={optionEntries(props.service)}
                     />
 
@@ -664,7 +674,19 @@ const InvoiceList_BDS: React.FC = () => {
 
                 {/* Tổng */}
                 <td className="td-input">
-                    <b>{numberFormat(data.price_total)}</b>
+                    {
+                        data.per_default === 'KWH' || data.per_default === 'm3'
+                            ? <InputNumber min={0}
+                                onChange={(value) => {
+                                    let data_tmp = cloneDeep(dataService);
+                                    data_tmp[idx].price_total = value;
+                                    setDataService(data_tmp);
+                                }}
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                value={data.price_total} />
+                            : <b>{numberFormat(data.price_total)}</b>
+                    }
+
                 </td>
 
                 {/* ghi chú */}
@@ -728,11 +750,13 @@ const InvoiceList_BDS: React.FC = () => {
             key: '1',
             icon: <EditOutlined />,
         },
+        { type: 'divider' },
         {
             label: <a className="text-success" onClick={() => setIsOpenModalActiveAll(true)}>Active tất cả</a>,
             key: '2',
             icon: <CheckCircleOutlined />,
         },
+        { type: 'divider' },
         {
             label: <a onClick={() => setIsOpenModalCreateDataMonth(true)}>Tạo nhanh hóa đơn tháng</a>,
             key: '3',
@@ -952,33 +976,39 @@ const InvoiceList_BDS: React.FC = () => {
                 <Col span={18} className="main-content02">
                     <Row>
                         <Col className="text-left" span={12}>
-                            <Button className="btn-success _left"
-                                icon={<CheckOutlined />}
+                            <Dropdown.Button
+                                type="primary"
+                                className="btn-dropdown _left"
                                 disabled={!hasSelected}
-                                loading={loadingBtnDelete}
                                 onClick={() => setIsModalActiveCurrentOpen(true)}
+                                menu={{
+                                    items: [
+                                        {
+                                            key: '1',
+                                            label: `Active ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <CheckOutlined />,
+                                            onClick: () => setIsModalActiveCurrentOpen(true),
+                                        },
+                                        { type: 'divider' },
+                                        {
+                                            key: '2',
+                                            label: `Tính lại tiền ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <DollarOutlined />,
+                                            onClick: () => setIsModalRecalculateOpen(true),
+                                        },
+                                        { type: 'divider' },
+                                        {
+                                            key: '3',
+                                            label: `Xóa ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <DeleteOutlined />,
+                                            danger: true,
+                                            onClick: () => setIsModalXoaOpen(true),
+                                        },
+                                    ],
+                                }}
                             >
-                                Active {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
-
-                            <Button className="btn-success _left"
-                                icon={<DollarOutlined />}
-                                disabled={!hasSelected}
-                                loading={loadingBtnDelete}
-                                onClick={() => setIsModalRecalculateOpen(true)}
-                            >
-                                Tính lại tiền {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
-
-                            <span> </span>
-                            <Button type="primary"
-                                icon={<DeleteOutlined />}
-                                disabled={!hasSelected}
-                                loading={loadingBtnDelete}
-                                onClick={() => { setIsModalXoaOpen(true); }}
-                            >
-                                Xóa {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
+                                Active {hasSelected ? `(${selectedRowKeys.length})` : ''}
+                            </Dropdown.Button>
                         </Col>
 
                         <Col className="text-right" span={12}>
@@ -992,7 +1022,7 @@ const InvoiceList_BDS: React.FC = () => {
                                 }}
                                 menu={{ items }}
                             >
-                                <PlusCircleOutlined /> Thêm nhanh
+                                <PlusCircleOutlined /> Thêm mới
                             </Dropdown.Button>
 
                             <Button className="btn-primary _right"
@@ -1447,7 +1477,7 @@ const InvoiceList_BDS: React.FC = () => {
                         if (result.status === 200) {
                             message.success("Đã tính lại tiền hóa đơn thành công");
                             setSelectedRowKeys([]);
-                            // refresh(searchData);
+                            refresh(searchData);
                         } else {
                             message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
                         }

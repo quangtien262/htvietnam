@@ -724,7 +724,8 @@ class AitilenController extends Controller
             $note = '';
             $aitilenSer = AitilenService::where('name', $service->service_name)->first();
             $serviceItem = [
-                'id' => (string)$aitilenSer->id,
+                'aitilen_service_id' => (string)$aitilenSer->id,
+                'aitilen_service_code' => $aitilenSer->code,
                 'name' => $service->service_name,
                 'price_default' => $service->service_price,
                 'per_default' => $service->service_per,
@@ -738,6 +739,7 @@ class AitilenController extends Controller
                 $note = 'Giá: ' . number_format($service->service_price) . '/người (' . $soNguoi . ' người)';
             } elseif ($service->service_per == 'Phòng') {
                 $priceCurrentServiceTotal = $service->service_price;
+                $note = 'Giá: ' . number_format($service->service_price) . '/phòng';
             } elseif ($service->service_per == 'Xe') {
                 $priceCurrentServiceTotal = $service->service_price * $contract->so_luong_xe;
             } elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
@@ -745,18 +747,23 @@ class AitilenController extends Controller
                 if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
                     $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
                     $priceCurrentServiceTotal = $service->service_price * $soDien;
+                    $note = 'Giá ' . $service->service_price . '/KWH, Tổng số điện sử dụng'. $soDien . ' ('.$dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end .')';
                 } else {
                     // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
                     $priceCurrentServiceTotal = 0;
+                    $note = 'Chưa có dữ liệu điện';
                 }
+                $serviceItem['per_default'] = 'KWH';
             } elseif ($service->service_per == 'M3') {
                 // Tính nước (nếu có dữ liệu điện nước)
                 if ($dienNuocData && $dienNuocData->nuoc_end && $dienNuocData->nuoc_start) {
                     $soNuoc = $dienNuocData->nuoc_end - $dienNuocData->nuoc_start;
                     $priceCurrentServiceTotal = $service->service_price * $soNuoc;
+                    $note = 'Giá ' . $service->service_price . '/M3, Tổng số nước sử dụng'. $soNuoc . ' ('.$dienNuocData->nuoc_start . ' - ' . $dienNuocData->nuoc_end .')';
                 } else {
                     // Nếu chưa có dữ liệu nước, để 0 hoặc giá trị mặc định
                     $priceCurrentServiceTotal = 0;
+                    $note = 'Chưa có dữ liệu nước';
                 }
             }
 
