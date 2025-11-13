@@ -722,6 +722,8 @@ class AitilenController extends Controller
 
         foreach ($services as $service) {
             $note = '';
+            $start = 0; // số điên/nước đầu kỳ (nếu có)
+            $end = 0; // số điện/nước cuối kỳ (nếu có)
             $aitilenSer = AitilenService::where('name', $service->service_name)->first();
             $serviceItem = [
                 'aitilen_service_id' => (string)$aitilenSer->id,
@@ -747,6 +749,9 @@ class AitilenController extends Controller
                 if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
                     $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
                     $priceCurrentServiceTotal = $service->service_price * $soDien;
+
+                    $start = $dienNuocData->dien_start;
+                    $end = $dienNuocData->dien_end;
                     $note = 'Giá ' . $service->service_price . '/KWH, Tổng số điện sử dụng'. $soDien . ' ('.$dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end .')';
                 } else {
                     // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
@@ -759,6 +764,8 @@ class AitilenController extends Controller
                 if ($dienNuocData && $dienNuocData->nuoc_end && $dienNuocData->nuoc_start) {
                     $soNuoc = $dienNuocData->nuoc_end - $dienNuocData->nuoc_start;
                     $priceCurrentServiceTotal = $service->service_price * $soNuoc;
+                    $start = $dienNuocData->nuoc_start;
+                    $end = $dienNuocData->nuoc_end;
                     $note = 'Giá ' . $service->service_price . '/M3, Tổng số nước sử dụng'. $soNuoc . ' ('.$dienNuocData->nuoc_start . ' - ' . $dienNuocData->nuoc_end .')';
                 } else {
                     // Nếu chưa có dữ liệu nước, để 0 hoặc giá trị mặc định
@@ -769,6 +776,8 @@ class AitilenController extends Controller
 
             $serviceItem['price_total'] = $priceCurrentServiceTotal;
             $serviceItem['note'] = $note;
+            $serviceItem['start'] = $start;
+            $serviceItem['end'] = $end;
 
             // Cộng dồn tổng tiền
             $total += $priceCurrentServiceTotal;
@@ -784,6 +793,8 @@ class AitilenController extends Controller
             $invoiceService->per = $service->service_per;
             $invoiceService->so_nguoi = $soNguoi;
             $invoiceService->total = $priceCurrentServiceTotal;
+            $invoiceService->start = $start;
+            $invoiceService->end = $end;
             $invoiceService->save();
         }
 

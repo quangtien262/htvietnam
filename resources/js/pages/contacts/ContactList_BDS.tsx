@@ -344,7 +344,7 @@ const ContactList_BDS: React.FC = () => {
                     {record.tien_coc ? <Tag color="#bb9e02">Cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
 
                     {services.map((service: any, idx: number) => {
-                        const serviceName = service.name ?? service.name ?? 'xxx';
+                        const serviceName = service.name ?? service.name ?? '';
                         const price = service.price ?? service.price_default ?? 0;
                         return (
                             <Tag color="blue" key={idx}>
@@ -357,9 +357,9 @@ const ContactList_BDS: React.FC = () => {
                     <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
 
                     {/* fast edit dv */}
-                    <a className="float-btn-option" onClick={() => { setDataEdit(record); }}>
+                    <Button className="float-btn-option btn-default" onClick={() => { setDataEdit(record); }}>
                         <FormOutlined />
-                    </a>
+                    </Button>
                 </>;
             }
         },

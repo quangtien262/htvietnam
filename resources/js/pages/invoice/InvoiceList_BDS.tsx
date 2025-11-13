@@ -645,11 +645,13 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     function total(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
-        // let dataService_tmp = cloneDeep(dataService);
+        console.log('start', dataService_new);
         dataService_new.forEach((data: any, idx: number) => {
             let total = (data.price_default ?? 0);
-            if (['kWh', 'm3'].includes(data.per_default)) {
-                total = 0;;
+
+            if (['KWH', 'M3'].includes(data.per_default)) {
+                console.log('ok');
+                total = (data.end - data.start) * data.price_default;
             } else {
                 if (data.per_default === 'Người') {
                     total = total * soNguoi_new;
