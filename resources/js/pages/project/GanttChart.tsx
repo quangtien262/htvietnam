@@ -25,7 +25,11 @@ const GanttChart: React.FC = () => {
 
     useEffect(() => {
         if (ganttTasks.length > 0 && ganttRef.current) {
-            renderGantt();
+            // Delay rendering to ensure DOM is ready
+            const timer = setTimeout(() => {
+                renderGantt();
+            }, 100);
+            return () => clearTimeout(timer);
         }
     }, [ganttTasks, viewMode]);
 
@@ -70,18 +74,54 @@ const GanttChart: React.FC = () => {
     };
 
     const renderGantt = () => {
-        if (!ganttRef.current || ganttTasks.length === 0) return;
+        const container = ganttRef.current;
+
+        if (!container || ganttTasks.length === 0) {
+            console.log('Cannot render Gantt: ref or tasks missing', {
+                hasRef: !!container,
+                tasksLength: ganttTasks.length
+            });
+            return;
+        }
+
+        // Double check container exists and is in DOM
+        if (!document.body.contains(container)) {
+            console.error('Gantt container is not in DOM');
+            return;
+        }
+
+        // Check if container has proper dimensions
+        const rect = container.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn('Gantt container has zero dimensions, retrying...', rect);
+            setTimeout(() => renderGantt(), 100);
+            return;
+        }
 
         // Destroy existing gantt instance
         if (ganttInstance.current) {
-            ganttInstance.current = null;
+            try {
+                ganttInstance.current = null;
+            } catch (error) {
+                console.error('Error destroying Gantt instance:', error);
+            }
         }
 
-        // Clear container
-        ganttRef.current.innerHTML = '';
-
+        // Clear container safely
         try {
-            ganttInstance.current = new Gantt(ganttRef.current, ganttTasks, {
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+        } catch (error) {
+            console.error('Error clearing container:', error);
+            container.innerHTML = '';
+        }
+
+        // Initialize Gantt with error handling
+        try {
+            console.log('Initializing Gantt with tasks:', ganttTasks.length);
+
+            ganttInstance.current = new Gantt(container, ganttTasks, {
                 view_mode: viewMode,
                 date_format: 'DD/MM/YYYY',
                 language: 'vi',
@@ -98,20 +138,18 @@ const GanttChart: React.FC = () => {
                     `;
                 },
                 on_click: (task: any) => {
-                    // Extract task ID from 'task-123' format
                     const taskId = parseInt(task.id.replace('task-', ''));
                     console.log('Clicked task:', taskId);
-                    // Could open TaskDetail drawer here
                 },
                 on_date_change: (task: any, start: Date, end: Date) => {
                     console.log('Date changed:', task, start, end);
-                    // Could update task dates via API here
                 },
                 on_progress_change: (task: any, progress: number) => {
                     console.log('Progress changed:', task, progress);
-                    // Could update task progress via API here
                 },
             });
+
+            console.log('Gantt initialized successfully');
         } catch (error) {
             console.error('Error rendering Gantt:', error);
             message.error('Không thể hiển thị Gantt chart');
@@ -145,168 +183,357 @@ const GanttChart: React.FC = () => {
                 </Button>
             </div>
             <Card
-                title="Gantt Chart - Timeline dự án"
+                title={
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div
+                            style={{
+                                width: 4,
+                                height: 24,
+                                background: 'linear-gradient(180deg, #1890ff 0%, #096dd9 100%)',
+                                borderRadius: 2,
+                            }}
+                        />
+                        <span style={{ fontSize: 18, fontWeight: 600, color: '#262626' }}>
+                            Gantt Chart - Timeline Dự án
+                        </span>
+                    </div>
+                }
                 extra={
-                    <Space>
-                        <Button.Group>
+                    <Space size="middle">
+                        <div style={{
+                            display: 'flex',
+                            gap: 8,
+                            padding: '4px 6px',
+                            background: '#f5f5f5',
+                            borderRadius: 8,
+                        }}>
                             <Button
-                                type={viewMode === 'Day' ? 'primary' : 'default'}
+                                type={viewMode === 'Day' ? 'primary' : 'text'}
                                 onClick={() => setViewMode('Day')}
+                                size="small"
+                                style={{
+                                    borderRadius: 6,
+                                    fontWeight: 500,
+                                }}
                             >
-                                Ngày
+                                📅 Ngày
                             </Button>
                             <Button
-                                type={viewMode === 'Week' ? 'primary' : 'default'}
+                                type={viewMode === 'Week' ? 'primary' : 'text'}
                                 onClick={() => setViewMode('Week')}
+                                size="small"
+                                style={{
+                                    borderRadius: 6,
+                                    fontWeight: 500,
+                                }}
                             >
-                                Tuần
+                                📆 Tuần
                             </Button>
                             <Button
-                                type={viewMode === 'Month' ? 'primary' : 'default'}
+                                type={viewMode === 'Month' ? 'primary' : 'text'}
                                 onClick={() => setViewMode('Month')}
+                                size="small"
+                                style={{
+                                    borderRadius: 6,
+                                    fontWeight: 500,
+                                }}
                             >
-                                Tháng
+                                📊 Tháng
                             </Button>
-                        </Button.Group>
-                        <Button icon={<ReloadOutlined />} onClick={loadGanttData}>
+                        </div>
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={loadGanttData}
+                            style={{
+                                borderRadius: 8,
+                                fontWeight: 500,
+                            }}
+                        >
                             Làm mới
                         </Button>
                     </Space>
                 }
+                style={{
+                    borderRadius: 12,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                }}
+                styles={{
+                    body: {
+                        padding: 24,
+                    },
+                }}
             >
-                <div
-                    ref={ganttRef}
-                    style={{
-                        overflowX: 'auto',
-                        minHeight: '400px',
-                    }}
-                />
+                <div style={{ position: 'relative', width: '100%' }}>
+                    <div
+                        ref={ganttRef}
+                        style={{
+                            overflowX: 'auto',
+                            minHeight: '450px',
+                            background: '#fafafa',
+                            borderRadius: 8,
+                            padding: '16px 0',
+                        }}
+                    />
+                </div>
             </Card>
 
             <style>{`
-                /* Frappe Gantt Base Styles */
+                /* Modern Gantt Chart Styles */
                 .gantt-container {
                     position: relative;
                     overflow: auto;
-                    font-size: 12px;
+                    font-size: 13px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
+
+                /* Grid Styling */
                 .gantt .grid-background {
                     fill: none;
                 }
+
                 .gantt .grid-header {
-                    fill: #f5f5f5;
-                    stroke: #e0e0e0;
-                    stroke-width: 1.4;
+                    fill: #ffffff;
+                    stroke: #d9d9d9;
+                    stroke-width: 1;
                 }
+
                 .gantt .grid-row {
                     fill: #ffffff;
+                    transition: fill 0.2s ease;
                 }
+
                 .gantt .grid-row:nth-child(even) {
-                    fill: #fafafa;
+                    fill: #f9f9f9;
                 }
+
+                .gantt .grid-row:hover {
+                    fill: #f0f5ff !important;
+                }
+
                 .gantt .row-line {
-                    stroke: #e0e0e0;
+                    stroke: #e8e8e8;
+                    stroke-width: 0.5;
                 }
+
                 .gantt .tick {
-                    stroke: #e0e0e0;
-                    stroke-width: 0.2;
+                    stroke: #e8e8e8;
+                    stroke-width: 0.3;
                 }
+
                 .gantt .tick.thick {
-                    stroke: #b0b0b0;
-                    stroke-width: 0.4;
+                    stroke: #bfbfbf;
+                    stroke-width: 0.6;
                 }
+
                 .gantt .today-highlight {
-                    fill: #fcf8e3;
-                    opacity: 0.5;
+                    fill: #e6f7ff;
+                    opacity: 0.6;
                 }
-                
-                /* Grid Text Labels */
+
+                /* Text Styling */
                 .gantt text {
                     fill: #595959 !important;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-                
-                .gantt .arrow {
-                    fill: none;
-                    stroke: #666;
-                    stroke-width: 1.4;
-                }
-                .gantt .bar {
-                    fill: #1890ff;
-                    stroke: #0050b3;
-                    stroke-width: 0;
-                    transition: stroke-width 0.3s ease;
-                    opacity: 0.8;
-                }
-                .gantt .bar:hover {
-                    opacity: 1;
-                }
-                .gantt .bar-progress {
-                    fill: #096dd9;
-                }
-                .gantt .bar-label {
-                    fill: #fff;
-                    dominant-baseline: central;
-                    text-anchor: middle;
-                    font-size: 11px;
-                    font-weight: lighter;
-                }
-                .gantt .bar-label.big {
-                    fill: #555;
-                    text-anchor: start;
-                }
-                .gantt .handle {
-                    fill: #ddd;
-                    cursor: ew-resize;
-                    opacity: 0;
-                    visibility: hidden;
-                    transition: opacity 0.3s ease;
-                }
-                .gantt .bar-wrapper:hover .handle {
-                    visibility: visible;
-                    opacity: 1;
-                }
-                .gantt .lower-text, .gantt .upper-text {
-                    font-size: 11px;
-                    text-anchor: middle;
-                }
-                .gantt .upper-text {
-                    fill: #555;
-                }
-                .gantt .lower-text {
-                    fill: #333;
                     font-weight: 500;
                 }
 
-                /* Custom Task Colors */
-                .gantt-task-completed {
-                    fill: #52c41a !important;
-                }
-                .gantt-task-inprogress {
-                    fill: #1890ff !important;
-                }
-                .gantt-task-blocked {
-                    fill: #ff4d4f !important;
+                /* Arrow Styling */
+                .gantt .arrow {
+                    fill: none;
+                    stroke: #8c8c8c;
+                    stroke-width: 1.5;
+                    marker-end: url(#arrowhead);
                 }
 
-                /* Popup Styles */
+                /* Modern Task Bar with Gradient */
+                .gantt .bar {
+                    fill: url(#taskGradient);
+                    stroke: #096dd9;
+                    stroke-width: 0;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    opacity: 0.9;
+                    rx: 4;
+                    ry: 4;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+                }
+
+                .gantt .bar:hover {
+                    opacity: 1;
+                    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+                    transform: translateY(-1px);
+                }
+
+                .gantt .bar-progress {
+                    fill: url(#progressGradient);
+                    rx: 4;
+                    ry: 4;
+                }
+
+                .gantt .bar-label {
+                    fill: #ffffff;
+                    dominant-baseline: central;
+                    text-anchor: middle;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                }
+
+                .gantt .bar-label.big {
+                    fill: #262626;
+                    text-anchor: start;
+                    font-weight: 500;
+                    text-shadow: none;
+                }
+
+                /* Handle for Resizing */
+                .gantt .handle {
+                    fill: #ffffff;
+                    stroke: #1890ff;
+                    stroke-width: 2;
+                    cursor: ew-resize;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: opacity 0.2s ease;
+                    rx: 2;
+                    ry: 2;
+                }
+
+                .gantt .bar-wrapper:hover .handle {
+                    visibility: visible;
+                    opacity: 0.9;
+                }
+
+                .gantt .handle:hover {
+                    opacity: 1;
+                    fill: #e6f7ff;
+                }
+
+                /* Date Labels */
+                .gantt .lower-text, .gantt .upper-text {
+                    font-size: 12px;
+                    text-anchor: middle;
+                    font-weight: 500;
+                }
+
+                .gantt .upper-text {
+                    fill: #8c8c8c;
+                    font-size: 11px;
+                    font-weight: 400;
+                }
+
+                .gantt .lower-text {
+                    fill: #262626;
+                    font-weight: 600;
+                }
+
+                /* Custom Task Status Colors with Gradients */
+                .gantt-task-completed {
+                    fill: url(#completedGradient) !important;
+                    stroke: #389e0d !important;
+                }
+
+                .gantt-task-inprogress {
+                    fill: url(#inprogressGradient) !important;
+                    stroke: #096dd9 !important;
+                }
+
+                .gantt-task-blocked {
+                    fill: url(#blockedGradient) !important;
+                    stroke: #cf1322 !important;
+                }
+
+                /* Modern Popup Styles */
                 .gantt-popup {
-                    background: white;
-                    border-radius: 4px;
-                    padding: 12px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+                    border-radius: 12px;
+                    padding: 16px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+                    border: 1px solid #e8e8e8;
+                    min-width: 240px;
                 }
+
                 .gantt-popup-title {
-                    font-weight: bold;
-                    margin-bottom: 8px;
+                    font-weight: 600;
+                    font-size: 15px;
+                    margin-bottom: 12px;
                     color: #262626;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #f0f0f0;
                 }
+
                 .gantt-popup-content p {
-                    margin: 4px 0;
+                    margin: 8px 0;
                     font-size: 13px;
                     color: #595959;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .gantt-popup-content strong {
+                    color: #262626;
+                    font-weight: 600;
+                    min-width: 70px;
+                    display: inline-block;
+                }
+
+                /* Add gradient definitions */
+                .gantt svg defs {
+                    display: none;
+                }
+
+                /* Scrollbar Styling */
+                .gantt-container::-webkit-scrollbar {
+                    width: 10px;
+                    height: 10px;
+                }
+
+                .gantt-container::-webkit-scrollbar-track {
+                    background: #f0f0f0;
+                    border-radius: 5px;
+                }
+
+                .gantt-container::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg, #bfbfbf 0%, #8c8c8c 100%);
+                    border-radius: 5px;
+                    border: 2px solid #f0f0f0;
+                }
+
+                .gantt-container::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(180deg, #8c8c8c 0%, #595959 100%);
+                }
+
+                /* Add SVG gradients inline */
+                .gantt svg {
+                    background: transparent;
                 }
             `}</style>
+
+            {/* Add gradient definitions */}
+            <svg width="0" height="0" style={{ position: 'absolute' }}>
+                <defs>
+                    <linearGradient id="taskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#40a9ff" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#1890ff" stopOpacity="1" />
+                    </linearGradient>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#096dd9" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#0050b3" stopOpacity="1" />
+                    </linearGradient>
+                    <linearGradient id="completedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#73d13d" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#52c41a" stopOpacity="1" />
+                    </linearGradient>
+                    <linearGradient id="inprogressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#40a9ff" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#1890ff" stopOpacity="1" />
+                    </linearGradient>
+                    <linearGradient id="blockedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#ff7875" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#ff4d4f" stopOpacity="1" />
+                    </linearGradient>
+                </defs>
+            </svg>
         </div>
     );
 };

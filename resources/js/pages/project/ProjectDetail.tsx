@@ -854,27 +854,64 @@ const ProjectDetail: React.FC = () => {
                             />
                         )
                     ) : (
-                        // Kanban View
+                        // Kanban View - Modern Design
                         <Spin spinning={kanbanLoading}>
                             <DragDropContext onDragEnd={handleDragEnd}>
-                                <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: 20,
+                                    overflowX: 'auto',
+                                    paddingBottom: 16,
+                                    paddingTop: 8,
+                                }}>
                                     {taskStatuses.map((status) => {
                                         const tasks = kanbanData[status.id] || [];
                                         return (
                                             <div
                                                 key={status.id}
                                                 style={{
-                                                    flex: '0 0 300px',
-                                                    backgroundColor: '#f5f5f5',
-                                                    borderRadius: 8,
+                                                    flex: '0 0 320px',
+                                                    backgroundColor: '#fafafa',
+                                                    borderRadius: 12,
                                                     padding: 16,
+                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                                    border: '1px solid #f0f0f0',
                                                 }}
                                             >
-                                                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Space>
-                                                        <Tag color={status.color}>{status.name}</Tag>
-                                                        <Badge count={tasks.length} showZero style={{ backgroundColor: '#999' }} />
-                                                    </Space>
+                                                <div style={{
+                                                    marginBottom: 16,
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    paddingBottom: 12,
+                                                    borderBottom: '2px solid #e8e8e8',
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <div
+                                                            style={{
+                                                                width: 8,
+                                                                height: 8,
+                                                                borderRadius: '50%',
+                                                                backgroundColor: status.color,
+                                                            }}
+                                                        />
+                                                        <span style={{
+                                                            fontSize: 14,
+                                                            fontWeight: 600,
+                                                            color: '#262626',
+                                                        }}>
+                                                            {status.name}
+                                                        </span>
+                                                    </div>
+                                                    <Badge
+                                                        count={tasks.length}
+                                                        showZero
+                                                        style={{
+                                                            backgroundColor: status.color,
+                                                            fontWeight: 600,
+                                                            boxShadow: 'none',
+                                                        }}
+                                                    />
                                                 </div>
 
                                                 <Droppable droppableId={String(status.id)}>
@@ -884,16 +921,21 @@ const ProjectDetail: React.FC = () => {
                                                             {...provided.droppableProps}
                                                             style={{
                                                                 minHeight: 200,
-                                                                backgroundColor: snapshot.isDraggingOver ? '#e6f7ff' : 'transparent',
-                                                                borderRadius: 4,
+                                                                backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
+                                                                borderRadius: 8,
                                                                 padding: 4,
+                                                                transition: 'background-color 0.2s ease',
                                                             }}
                                                         >
                                                             {tasks.length === 0 ? (
                                                                 <Empty
-                                                                    description="Không có nhiệm vụ"
+                                                                    description={
+                                                                        <span style={{ color: '#bfbfbf', fontSize: 13 }}>
+                                                                            Không có nhiệm vụ
+                                                                        </span>
+                                                                    }
                                                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                                    style={{ margin: '20px 0' }}
+                                                                    style={{ margin: '30px 0' }}
                                                                 />
                                                             ) : (
                                                                 tasks.map((task: Task, index: number) => (
@@ -905,7 +947,7 @@ const ProjectDetail: React.FC = () => {
                                                                                 {...provided.dragHandleProps}
                                                                                 style={{
                                                                                     ...provided.draggableProps.style,
-                                                                                    marginBottom: 8,
+                                                                                    marginBottom: 12,
                                                                                 }}
                                                                             >
                                                                                 <Card
@@ -917,32 +959,141 @@ const ProjectDetail: React.FC = () => {
                                                                                     }}
                                                                                     style={{
                                                                                         cursor: 'pointer',
-                                                                                        backgroundColor: snapshot.isDragging ? '#f0f0f0' : '#fff',
-                                                                                        borderLeft: `3px solid ${task.uu_tien?.color || '#1890ff'}`,
+                                                                                        backgroundColor: snapshot.isDragging ? '#fff' : '#fff',
+                                                                                        borderLeft: `4px solid ${task.uu_tien?.color || '#1890ff'}`,
+                                                                                        borderRadius: 8,
+                                                                                        boxShadow: snapshot.isDragging
+                                                                                            ? '0 8px 24px rgba(0,0,0,0.15)'
+                                                                                            : '0 2px 4px rgba(0,0,0,0.08)',
+                                                                                        transition: 'all 0.2s ease',
+                                                                                        transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
                                                                                     }}
+                                                                                    bodyStyle={{ padding: 12 }}
                                                                                 >
-                                                                                    <div style={{ marginBottom: 8 }}>
-                                                                                        <strong>{task.ma_nhiem_vu}</strong>
-                                                                                    </div>
-                                                                                    <div style={{ marginBottom: 8 }}>{task.tieu_de}</div>
-                                                                                    <Space wrap style={{ marginBottom: 8 }}>
-                                                                                        <Tag color={task.uu_tien?.color} style={{ margin: 0 }}>
+                                                                                    {/* Task Code & Priority */}
+                                                                                    <div style={{
+                                                                                        display: 'flex',
+                                                                                        justifyContent: 'space-between',
+                                                                                        alignItems: 'center',
+                                                                                        marginBottom: 10,
+                                                                                    }}>
+                                                                                        <Tag
+                                                                                            color={task.uu_tien?.color}
+                                                                                            style={{
+                                                                                                margin: 0,
+                                                                                                fontSize: 11,
+                                                                                                fontWeight: 600,
+                                                                                                padding: '2px 8px',
+                                                                                                borderRadius: 10,
+                                                                                            }}
+                                                                                        >
+                                                                                            {task.ma_nhiem_vu}
+                                                                                        </Tag>
+                                                                                        <Tag
+                                                                                            style={{
+                                                                                                margin: 0,
+                                                                                                fontSize: 10,
+                                                                                                padding: '2px 6px',
+                                                                                                borderRadius: 8,
+                                                                                                backgroundColor: '#f0f0f0',
+                                                                                                color: '#595959',
+                                                                                                border: 'none',
+                                                                                            }}
+                                                                                        >
                                                                                             {task.uu_tien?.name}
                                                                                         </Tag>
-                                                                                        {task.nguoi_thuc_hien && (
-                                                                                            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
-                                                                                                {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                                                            </Avatar>
-                                                                                        )}
-                                                                                    </Space>
+                                                                                    </div>
+
+                                                                                    {/* Task Title */}
+                                                                                    <div style={{
+                                                                                        marginBottom: 12,
+                                                                                        fontSize: 14,
+                                                                                        fontWeight: 500,
+                                                                                        color: '#262626',
+                                                                                        lineHeight: 1.5,
+                                                                                        overflow: 'hidden',
+                                                                                        textOverflow: 'ellipsis',
+                                                                                        display: '-webkit-box',
+                                                                                        WebkitLineClamp: 2,
+                                                                                        WebkitBoxOrient: 'vertical',
+                                                                                    }}>
+                                                                                        {task.tieu_de}
+                                                                                    </div>
+
+                                                                                    {/* Progress Bar */}
                                                                                     {task.tien_do !== undefined && task.tien_do !== null && (
-                                                                                        <Progress percent={task.tien_do} size="small" showInfo={false} />
-                                                                                    )}
-                                                                                    {task.ngay_ket_thuc_du_kien && (
-                                                                                        <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-                                                                                            <ClockCircleOutlined /> {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY')}
+                                                                                        <div style={{ marginBottom: 12 }}>
+                                                                                            <div style={{
+                                                                                                display: 'flex',
+                                                                                                justifyContent: 'space-between',
+                                                                                                alignItems: 'center',
+                                                                                                marginBottom: 4,
+                                                                                            }}>
+                                                                                                <span style={{ fontSize: 11, color: '#8c8c8c' }}>
+                                                                                                    Tiến độ
+                                                                                                </span>
+                                                                                                <span style={{
+                                                                                                    fontSize: 12,
+                                                                                                    fontWeight: 600,
+                                                                                                    color: '#262626',
+                                                                                                }}>
+                                                                                                    {task.tien_do}%
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <Progress
+                                                                                                percent={task.tien_do}
+                                                                                                size="small"
+                                                                                                showInfo={false}
+                                                                                                strokeColor={{
+                                                                                                    '0%': '#108ee9',
+                                                                                                    '100%': '#87d068',
+                                                                                                }}
+                                                                                                trailColor="#f0f0f0"
+                                                                                            />
                                                                                         </div>
                                                                                     )}
+
+                                                                                    {/* Footer: Assignee & Deadline */}
+                                                                                    <div style={{
+                                                                                        display: 'flex',
+                                                                                        justifyContent: 'space-between',
+                                                                                        alignItems: 'center',
+                                                                                        paddingTop: 8,
+                                                                                        borderTop: '1px solid #f0f0f0',
+                                                                                    }}>
+                                                                                        {task.nguoi_thuc_hien ? (
+                                                                                            <Tooltip title={task.nguoi_thuc_hien.name}>
+                                                                                                <Avatar
+                                                                                                    size={28}
+                                                                                                    style={{
+                                                                                                        backgroundColor: '#1890ff',
+                                                                                                        fontSize: 12,
+                                                                                                        fontWeight: 600,
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                                                                </Avatar>
+                                                                                            </Tooltip>
+                                                                                        ) : (
+                                                                                            <div style={{ width: 28 }} />
+                                                                                        )}
+
+                                                                                        {task.ngay_ket_thuc_du_kien && (
+                                                                                            <div style={{
+                                                                                                fontSize: 11,
+                                                                                                color: dayjs(task.ngay_ket_thuc_du_kien).isBefore(dayjs(), 'day')
+                                                                                                    ? '#ff4d4f'
+                                                                                                    : '#8c8c8c',
+                                                                                                display: 'flex',
+                                                                                                alignItems: 'center',
+                                                                                                gap: 4,
+                                                                                                fontWeight: 500,
+                                                                                            }}>
+                                                                                                <ClockCircleOutlined />
+                                                                                                {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM')}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </Card>
                                                                             </div>
                                                                         )}
