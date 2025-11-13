@@ -83,6 +83,11 @@ class Project extends Model
         return $this->hasMany(ProjectAttachment::class, 'project_id');
     }
 
+    public function checklists(): HasMany
+    {
+        return $this->hasMany(ProjectChecklist::class, 'project_id')->orderBy('sort_order');
+    }
+
     public function activityLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class, 'doi_tuong_id')

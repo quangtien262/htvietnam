@@ -28,4 +28,10 @@ class ActivityLog extends Model
     {
         return $this->belongsTo(\App\Models\AdminUser::class, 'admin_user_id');
     }
+
+    // Alias for frontend compatibility
+    public function user(): BelongsTo
+    {
+        return $this->adminUser();
+    }
 }

@@ -155,6 +155,7 @@ export interface Project {
     nguoi_tao?: AdminUser;
     members?: ProjectMember[];
     tasks?: Task[];
+    checklists?: ProjectChecklist[];
     attachments?: ProjectAttachment[];
     activity_logs?: ActivityLog[];
 
@@ -169,6 +170,9 @@ export interface TaskChecklist {
     task_id: number;
     noi_dung: string;
     is_completed: boolean;
+    assigned_to?: number;
+    assigned_user?: AdminUser;
+    mo_ta?: string;
     sort_order: number;
     created_at?: string;
     updated_at?: string;
@@ -215,6 +219,19 @@ export interface ProjectAttachment {
     mo_ta?: string;
     formatted_size?: string;
     extension?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ProjectChecklist {
+    id: number;
+    project_id: number;
+    noi_dung: string;
+    is_completed: boolean;
+    assigned_to?: number;
+    assigned_user?: AdminUser;
+    mo_ta?: string;
+    sort_order: number;
     created_at?: string;
     updated_at?: string;
 }

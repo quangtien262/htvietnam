@@ -172,6 +172,8 @@ class TaskController extends Controller
                 'checklists' => 'nullable|array',
                 'checklists.*.noi_dung' => 'required|string|max:255',
                 'checklists.*.is_completed' => 'required|boolean',
+                'checklists.*.assigned_to' => 'nullable|exists:admin_users,id',
+                'checklists.*.mo_ta' => 'nullable|string',
                 'checklists.*.sort_order' => 'required|integer',
             ]);
 

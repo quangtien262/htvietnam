@@ -170,11 +170,27 @@ class ProjectService
                 }
             }
 
+            // Update checklists if provided
+            if (isset($data['checklists'])) {
+                \App\Models\Project\ProjectChecklist::where('project_id', $id)->delete();
+
+                foreach ($data['checklists'] as $checklist) {
+                    \App\Models\Project\ProjectChecklist::create([
+                        'project_id' => $id,
+                        'noi_dung' => $checklist['noi_dung'],
+                        'assigned_to' => $checklist['assigned_to'] ?? null,
+                        'mo_ta' => $checklist['mo_ta'] ?? null,
+                        'sort_order' => isset($checklist['sort_order']) ? $checklist['sort_order'] : 0,
+                        'is_completed' => $checklist['is_completed'] ?? false,
+                    ]);
+                }
+            }
+
             // Log activity
             $this->logActivity($id, 'updated', 'Cập nhật thông tin dự án', $oldData, $project->toArray());
 
             DB::commit();
-            return $project->load(['trangThai', 'loaiDuAn', 'uuTien', 'quanLyDuAn', 'members.adminUser']);
+            return $project->load(['trangThai', 'loaiDuAn', 'uuTien', 'quanLyDuAn', 'members.adminUser', 'checklists.assignedUser', 'activityLogs.user']);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -210,9 +226,13 @@ class ProjectService
             'tasks.trangThai',
             'tasks.uuTien',
             'tasks.nguoiThucHien',
+            'checklists' => function ($query) {
+                $query->with('assignedUser')->orderBy('sort_order');
+            },
             'attachments' => function ($query) {
                 $query->with('uploader')->orderBy('created_at', 'desc');
-            }
+            },
+            'activityLogs.user'
         ])->findOrFail($id);
     }
 

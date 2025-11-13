@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class ProjectController extends Controller
 {
     use AuthorizesRequests;
-    
+
     protected $projectService;
 
     public function __construct(ProjectService $projectService)
@@ -70,10 +70,10 @@ class ProjectController extends Controller
     {
         try {
             $project = $this->projectService->getById($id);
-            
+
             // Check permission
             $this->authorize('view', $project);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $project,
@@ -95,10 +95,10 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             // Check permission
             $this->authorize('update', $project);
-            
+
             $validated = $request->validate([
                 'ten_du_an' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -110,6 +110,12 @@ class ProjectController extends Controller
                 'ngan_sach_du_kien' => 'nullable|numeric|min:0',
                 'quan_ly_du_an_id' => 'nullable|exists:admin_users,id',
                 'tien_do' => 'nullable|integer|min:0|max:100',
+                'checklists' => 'nullable|array',
+                'checklists.*.noi_dung' => 'required|string|max:255',
+                'checklists.*.is_completed' => 'required|boolean',
+                'checklists.*.assigned_to' => 'nullable|exists:admin_users,id',
+                'checklists.*.mo_ta' => 'nullable|string',
+                'checklists.*.sort_order' => 'required|integer',
             ]);
 
             $project = $this->projectService->update($id, $validated);
@@ -136,10 +142,10 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             // Check permission
             $this->authorize('delete', $project);
-            
+
             $this->projectService->delete($id);
             return response()->json([
                 'success' => true,
@@ -178,10 +184,10 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             // Check permission
             $this->authorize('manageMembers', $project);
-            
+
             $validated = $request->validate([
                 'admin_user_id' => 'required|exists:admin_users,id',
                 'vai_tro' => 'required|in:quan_ly,thanh_vien,xem',
@@ -212,10 +218,10 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             // Check permission
             $this->authorize('manageMembers', $project);
-            
+
             $this->projectService->removeMember($id, $memberId);
 
             return response()->json([
@@ -239,10 +245,10 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             // Check permission to upload attachment
             $this->authorize('update', $project);
-            
+
             $validated = $request->validate([
                 'file' => 'required|file|max:10240',
                 'mo_ta' => 'nullable|string',
@@ -312,10 +318,10 @@ class ProjectController extends Controller
         try {
             $attachment = \App\Models\Project\ProjectAttachment::findOrFail($id);
             $project = Project::findOrFail($attachment->project_id);
-            
+
             // Check permission to delete attachment
             $this->authorize('update', $project);
-            
+
             $this->projectService->deleteAttachment($id);
 
             return response()->json([

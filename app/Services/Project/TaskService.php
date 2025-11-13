@@ -32,7 +32,7 @@ class TaskService
             'project',
             'parent',
             'checklists' => function ($query) {
-                $query->orderBy('sort_order');
+                $query->with('assignedUser')->orderBy('sort_order');
             },
             'comments' => function ($query) {
                 $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
@@ -171,6 +171,7 @@ class TaskService
                     TaskChecklist::create([
                         'task_id' => $task->id,
                         'noi_dung' => $checklist['noi_dung'],
+                        'assigned_to' => $checklist['assigned_to'] ?? null,
                         'sort_order' => $index,
                         'is_completed' => false,
                     ]);
@@ -213,6 +214,8 @@ class TaskService
                     $created = TaskChecklist::create([
                         'task_id' => $id,
                         'noi_dung' => $checklist['noi_dung'],
+                        'assigned_to' => $checklist['assigned_to'] ?? null,
+                        'mo_ta' => $checklist['mo_ta'] ?? null,
                         'sort_order' => isset($checklist['sort_order']) ? $checklist['sort_order'] : 0,
                         'is_completed' => $checklist['is_completed'] ?? false,
                     ]);
@@ -228,13 +231,27 @@ class TaskService
 
             DB::commit();
 
-            // Re-query task from DB with all relationships to get updated checklists
+            // Re-query task from DB with all relationships to get updated data
             $updatedTask = Task::with([
                 'trangThai',
                 'uuTien',
                 'nguoiThucHien',
+                'project',
+                'parent',
                 'checklists' => function ($query) {
-                    $query->orderBy('sort_order');
+                    $query->with('assignedUser')->orderBy('sort_order');
+                },
+                'comments' => function ($query) {
+                    $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
+                },
+                'comments.replies' => function ($query) {
+                    $query->with('adminUser')->orderBy('created_at', 'asc');
+                },
+                'attachments' => function ($query) {
+                    $query->with('uploader')->orderBy('created_at', 'desc');
+                },
+                'timeLogs' => function ($query) {
+                    $query->with('user')->orderBy('started_at', 'desc');
                 }
             ])->find($id);
 
