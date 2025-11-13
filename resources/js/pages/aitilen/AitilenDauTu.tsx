@@ -15,6 +15,24 @@ import API from '../../common/api';
 const { Option } = Select;
 const { TextArea } = Input;
 
+// Hàm normalize string: loại bỏ dấu và chuyển về lowercase
+const normalizeString = (str: string): string => {
+    if (!str) return '';
+    return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'd');
+};
+
+// Hàm filter option cho Select
+const filterOption = (input: string, option: any): boolean => {
+    const normalizedInput = normalizeString(input);
+    const normalizedLabel = normalizeString(option?.children || option?.label || '');
+    return normalizedLabel.includes(normalizedInput);
+};
+
 interface DauTu {
     id: number;
     name: string;
@@ -435,7 +453,6 @@ const AitilenDauTu: React.FC = () => {
                         <Col span={6}>
                             <Input
                                 placeholder="Tìm theo tên chi phí"
-                                allowClear
                                 prefix={<SearchOutlined />}
                                 value={searchParams.keyword}
                                 onChange={(e) => setSearchParams({ ...searchParams, keyword: e.target.value })}
@@ -444,6 +461,8 @@ const AitilenDauTu: React.FC = () => {
                         </Col>
                         <Col span={5}>
                             <Select
+                                showSearch
+                                filterOption={filterOption}
                                 placeholder="Chọn tòa nhà"
                                 allowClear
                                 style={{ width: '100%' }}
@@ -457,6 +476,8 @@ const AitilenDauTu: React.FC = () => {
                         </Col>
                         <Col span={5}>
                             <Select
+                                showSearch
+                                filterOption={filterOption}
                                 placeholder="Chọn loại chi"
                                 allowClear
                                 style={{ width: '100%' }}
@@ -557,6 +578,8 @@ const AitilenDauTu: React.FC = () => {
                                 label="Tòa nhà"
                             >
                                 <Select
+                                    showSearch
+                                    filterOption={filterOption}
                                     placeholder="Chọn tòa nhà"
                                     allowClear
                                     onChange={handleApartmentChange}
@@ -573,6 +596,8 @@ const AitilenDauTu: React.FC = () => {
                                 label="Phòng"
                             >
                                 <Select
+                                    showSearch
+                                    filterOption={filterOption}
                                     placeholder="Chọn phòng"
                                     allowClear
                                     disabled={!form.getFieldValue('apartment_id')}
@@ -592,10 +617,10 @@ const AitilenDauTu: React.FC = () => {
                                 label="Nhà cung cấp"
                             >
                                 <Select
+                                    showSearch
+                                    filterOption={filterOption}
                                     placeholder="Chọn nhà cung cấp"
                                     allowClear
-                                    showSearch
-                                    optionFilterProp="children"
                                 >
                                     {supplierList.map(item => (
                                         <Option key={item.id} value={item.id}>{item.name}</Option>
@@ -609,6 +634,8 @@ const AitilenDauTu: React.FC = () => {
                                 label="Loại chi"
                             >
                                 <Select
+                                    showSearch
+                                    filterOption={filterOption}
                                     placeholder="Chọn loại chi"
                                     allowClear
                                 >
@@ -742,7 +769,7 @@ const AitilenDauTu: React.FC = () => {
                                                             placeholder="Chọn tòa nhà chung"
                                                             allowClear
                                                             showSearch
-                                                            optionFilterProp="children"
+                                                            filterOption={filterOption}
                                                             style={{ width: '100%', marginTop: 4 }}
                                                             value={commonApartmentId}
                                                             onChange={(value) => setCommonApartmentId(value)}
@@ -769,7 +796,7 @@ const AitilenDauTu: React.FC = () => {
                                                             placeholder="Chọn tòa nhà"
                                                             allowClear
                                                             showSearch
-                                                            optionFilterProp="children"
+                                                            filterOption={filterOption}
                                                         >
                                                             {apartmentList.map(item => (
                                                                 <Option key={item.id} value={item.id}>{item.name}</Option>
@@ -800,7 +827,7 @@ const AitilenDauTu: React.FC = () => {
                                                             placeholder="Chọn loại chi chung"
                                                             allowClear
                                                             showSearch
-                                                            optionFilterProp="children"
+                                                            filterOption={filterOption}
                                                             style={{ width: '100%', marginTop: 4 }}
                                                             value={commonLoaiChiId}
                                                             onChange={(value) => setCommonLoaiChiId(value)}
@@ -827,7 +854,7 @@ const AitilenDauTu: React.FC = () => {
                                                             placeholder="Chọn loại chi"
                                                             allowClear
                                                             showSearch
-                                                            optionFilterProp="children"
+                                                            filterOption={filterOption}
                                                         >
                                                             {loaiChiList.map(item => (
                                                                 <Option key={item.id} value={item.id}>{item.name}</Option>
