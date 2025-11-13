@@ -350,7 +350,7 @@ const InvoiceList_BDS: React.FC = () => {
             tra_coc: record.tra_coc,
             giam_gia: record.giam_gia,
         });
-        setDataService(record.services);
+        setDataService(Array.isArray(record.services) ? record.services : []);
         setSoNguoi(record.so_nguoi);
         setTienPhong(record.tien_phong);
         setTienCoc(record.tien_coc);
@@ -611,6 +611,9 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     function showFormDataDetail() {
+        if (!dataService || !Array.isArray(dataService)) {
+            return null;
+        }
         return dataService.map((data: any, idx: number) => {
             return <tr key={idx}>
                 {/* chon dịch vụ */}
@@ -744,6 +747,14 @@ const InvoiceList_BDS: React.FC = () => {
             label: <a onClick={() => {
                 setIsOpenFormEdit(true);
                 setDataAction({ id: 0 });
+                setDataService([]);
+                formEdit.resetFields();
+                setTienPhong(0);
+                setTienCoc(0);
+                setTienTraCoc(0);
+                setTienGiamGia(0);
+                setSoNguoi(1);
+                setSoNgayThue(daysInMonth_default);
             }}
             >Thêm mới</a>,
             key: '1',
@@ -1018,6 +1029,14 @@ const InvoiceList_BDS: React.FC = () => {
                                 onClick={() => {
                                     setIsOpenFormEdit(true);
                                     setDataAction({ id: 0 });
+                                    setDataService([]);
+                                    formEdit.resetFields();
+                                    setTienPhong(0);
+                                    setTienCoc(0);
+                                    setTienTraCoc(0);
+                                    setTienGiamGia(0);
+                                    setSoNguoi(1);
+                                    setSoNgayThue(daysInMonth_default);
                                 }}
                                 menu={{ items }}
                             >
@@ -1097,7 +1116,7 @@ const InvoiceList_BDS: React.FC = () => {
                 onOk={() => {
                     formEdit.submit();
                 }}
-                okText="Xác nhận Tạo hóa đơn "
+                okText={dataAction.id === 0 ? "Thêm mới hóa đơn" : "Chỉnh sửa hóa đơn"}
                 cancelText="Hủy"
                 maskClosable={false}
                 width={1000}
