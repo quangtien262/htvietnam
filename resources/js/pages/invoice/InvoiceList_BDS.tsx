@@ -331,7 +331,7 @@ const InvoiceList_BDS: React.FC = () => {
                     <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
-                    {record.services.map((service: any, idx: number) => {
+                    {Array.isArray(record.services) && record.services.map((service: any, idx: number) => {
                         return <Tag color="blue" key={idx}>
                             {service.name}: {numberFormat(service.price_total)}
                         </Tag>
