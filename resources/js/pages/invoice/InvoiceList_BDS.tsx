@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { cloneDeep, create, set } from 'lodash';
+import ContractFormModal from "../../components/contract/ContractFormModal";
 
 import {
     Button, List,
@@ -91,6 +92,9 @@ const InvoiceList_BDS: React.FC = () => {
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
     const [isReplaceAllContract, setIsReplaceAllContract] = useState(true);
 
+    // user
+    const [contractIdAction, setContractIdAction] = useState(0);
+
     // modal active
     const [isModalRecalculateOpen, setIsModalRecalculateOpen] = useState(false);
 
@@ -112,11 +116,23 @@ const InvoiceList_BDS: React.FC = () => {
     const [loadingCreateDataMonth, setLoadingCreateDataMonth] = useState(false);
     const [loadingActive, setLoadingActive] = useState(false);
 
-    const [isDraft, setIsDraft] = useState(2);
     const [note_applyAll, setNote_applyAll] = useState(false);
 
     const [props, setProps] = useState([]);
     const [searchData, setSearchData] = useState({});
+
+    // Contract form states
+    const [isOpenContractForm, setIsOpenContractForm] = useState(false);
+    const [formContract] = Form.useForm();
+    const [contractDataAction, setContractDataAction] = useState({ id: 0 });
+    const [contractDataService, setContractDataService] = useState([]);
+    const [contractSoNguoi, setContractSoNguoi] = useState(1);
+    const [contractTienPhong, setContractTienPhong] = useState(0);
+    const [contractTienCoc, setContractTienCoc] = useState(0);
+    const [contractDaysInMonth, setContractDaysInMonth] = useState(30);
+    const [contractSoNgayThue, setContractSoNgayThue] = useState(30);
+    const [contractNoteApplyAll, setContractNoteApplyAll] = useState(false);
+    const dataService_thangMay = { id: '7', price_default: 50000, per_default: 'Người', price_total: 50000, note: '' };
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -164,6 +180,22 @@ const InvoiceList_BDS: React.FC = () => {
                 formSearch.setFieldValue('date', dayjs().year(propsTmp.searchData.year).month(propsTmp.searchData.month - 1));
                 formSearch.setFieldValue('status', propsTmp.searchData.status);
                 setLoadingTable(false);
+
+                // get danh sách users để add vào props, phục vụ cho việc sửa khách hàng, nên để trong fetchData để tránh lỗi không có props.users khi mở form edit
+                axios.post(API.userSelect, {})
+                    .then((res: any) => {
+                        console.log('resssss', res.data.data);
+
+                        // handle response
+                        setProps((prevProps: any) => ({
+                            ...prevProps,
+                            users: res.data.data,
+                        }));
+                    })
+                    .catch((err: any) => {
+                        console.error(err);
+                        message.error("Lấy danh sách admin users thất bại");
+                    });
             })
             .catch((err: any) => {
                 console.error(err);
@@ -172,8 +204,11 @@ const InvoiceList_BDS: React.FC = () => {
             });
 
     }
+
+    //
     useEffect(() => {
         fetchData();
+        // fetchUsers();
     }, []);
 
     function refresh(request = {}) {
@@ -265,7 +300,7 @@ const InvoiceList_BDS: React.FC = () => {
                 return <>
                     <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
                     {record.ten_khach_hang ? <Tag color="green">{record.ten_khach_hang}</Tag> : ''}
-                    {record.is_active ? <Tag color="cyan">Active</Tag> : <Tag color="red">Unactive</Tag>}
+                    {record.contract_code ? <p>Mã Hđồng: <a style={{ cursor: 'pointer', color: '#1890ff' }} onClick={() => {handleOpenContractForm(record.contract_id); setContractIdAction(record.contract_id); }}>{record.contract_code}</a></p> : ''}
                 </>;
             }
         },
@@ -323,6 +358,9 @@ const InvoiceList_BDS: React.FC = () => {
                         </div>}>
                         <a className="float-btn-option"><FormOutlined /></a>
                     </Popconfirm>
+
+
+                    {record.is_active ? <Tag color="cyan">Active</Tag> : <Tag color="red">Unactive</Tag>}
                 </>;
             }
         },
@@ -758,6 +796,211 @@ const InvoiceList_BDS: React.FC = () => {
         };
         return result;
     }
+
+    // ========== CONTRACT FORM HELPER FUNCTIONS ==========
+    function addSubContract() {
+        let dataDetail_tmp = cloneDeep(contractDataService);
+        dataDetail_tmp.push(dataService_empty);
+        setContractDataService(dataDetail_tmp);
+    }
+
+    function totalContract(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
+        dataService_new.forEach((data: any, idx: number) => {
+            let total = (data.price_default ?? 0);
+            if (['KWH', 'M3'].includes(data.per_default)) {
+                total = 0;
+            } else {
+                if (data.per_default === 'Người') {
+                    total = total * soNguoi_new;
+                }
+            }
+            total = (total * soNgay / tongSoNgay);
+            total = Math.ceil(total);
+            dataService_new[idx].price_total = total;
+        });
+        setContractDataService(dataService_new);
+    }
+
+    function showContractFormDataDetail() {
+        return contractDataService.map((data: any, idx: number) => {
+            return <tr key={idx}>
+                <td>
+                    <Select className="select03"
+                        placeholder="Chọn dich vụ"
+                        optionFilterProp="children"
+                        onChange={(value, info) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].id = value;
+                            setContractDataService(data_tmp);
+                        }}
+                        allowClear={true}
+                        value={data.id ? data.id.toString() : null}
+                        options={optionEntries(props.service)}
+                    />
+                </td>
+                <td className="td-input">
+                    <InputNumber min={0}
+                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        value={data.price_default} onChange={(value) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].price_default = value;
+                            totalContract(contractSoNgayThue, data_tmp, contractDaysInMonth, contractSoNguoi);
+                        }} />
+                </td>
+                <td>
+                    <Select className="select03"
+                        placeholder="Đơn vị"
+                        optionFilterProp="children"
+                        onChange={(value) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].per_default = value;
+                            totalContract(contractSoNgayThue, data_tmp, contractDaysInMonth, contractSoNguoi);
+                        }}
+                        value={data.per_default.toString()}
+                        options={DON_VI_SERVICE}
+                    />
+                </td>
+                <td className="td-input">
+                    <b>{numberFormat(data.price_total)}</b>
+                </td>
+                <td className="td-input">
+                    <Input value={data.note} onChange={(e) => {
+                        let data_tmp = cloneDeep(contractDataService);
+                        data_tmp[idx].note = e.target.value;
+                        if (contractNoteApplyAll) {
+                            data_tmp = data_tmp.map((item: any) => {
+                                item.note = e.target.value;
+                                return item;
+                            });
+                        }
+                        setContractDataService(data_tmp);
+                    }} />
+                </td>
+                <td>
+                    <a className="btn-delete02"
+                        onClick={() => {
+                            let dataDetail_tmp = cloneDeep(contractDataService);
+                            dataDetail_tmp = removeByIndex(dataDetail_tmp, idx);
+                            totalContract(contractSoNgayThue, dataDetail_tmp, contractDaysInMonth, contractSoNguoi);
+                        }}
+                    >
+                        <CloseCircleOutlined />
+                    </a>
+                </td>
+            </tr>
+        });
+    }
+
+    function initialsFormatContractData() {
+        let result: any = {
+            so_nguoi: 1,
+            ngay_hen_dong_tien: 5,
+            so_ngay_thue: contractDaysInMonth,
+        };
+        return result;
+    }
+
+    async function handleOpenContractForm(contractId: number) {
+
+        // get contract data from API
+        try {
+            const response = await axios.post(API.getContractInfo, { id: contractId });
+            if (response.data.status_code === 200) {
+                const record = response.data.data;
+                setContractDataEdit(record);
+            } else {
+                message.error('Không thể tải thông tin hợp đồng');
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải thông tin hợp đồng');
+        }
+    }
+
+    function setContractDataEdit(record: any) {
+        setContractDataAction(record);
+        setIsOpenContractForm(true);
+
+        const toDayjs = (d: any) => (d ? dayjs(d) : null);
+
+        formContract.setFieldsValue({
+            id: record.id?.toString(),
+            room_id: record.room_id?.toString(),
+            contract_status_id: record.contract_status_id?.toString(),
+            start_date: toDayjs(record.start_date),
+            end_date: toDayjs(record.end_date),
+            gia_thue: record.gia_thue,
+            tien_coc: record.tien_coc,
+            ky_thanh_toan: record.ky_thanh_toan,
+            so_nguoi: record.so_nguoi,
+            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
+            total: record.total,
+            user_id: record.user_id?.toString(),
+            ho_ten: record.ho_ten,
+            dob: record.dob ? dayjs(record.dob) : undefined,
+            phone: record.phone,
+            email: record.email,
+            cccd: record.cccd,
+            ngay_cap: record.ngay_cap ? dayjs(record.ngay_cap) : undefined,
+            noi_cap: record.noi_cap,
+            hktt: record.hktt,
+            note: record.note,
+            phi_moi_gioi: record.phi_moi_gioi,
+        });
+
+        setContractSoNguoi(record.so_nguoi);
+        setContractTienPhong(record.gia_thue);
+        setContractTienCoc(record.tien_coc);
+        setContractDataService(record.services ? (Array.isArray(record.services) ? record.services : parseJson(record.services)) : []);
+    }
+
+    function onFinishContractForm(values: any) {
+        values.services = contractDataService;
+
+        // Tính tổng tiền dịch vụ
+        const totalService = Array.isArray(contractDataService)
+            ? contractDataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0)
+            : 0;
+
+        values.total_service = totalService;
+        values.total_phi_co_dinh = contractTienPhong + contractTienCoc;
+        values.total = totalService + contractTienPhong + contractTienCoc;
+
+        // Format dates to MySQL format (YYYY-MM-DD)
+        if (values.start_date) {
+            values.start_date = dayjs(values.start_date).format('YYYY-MM-DD');
+        }
+        if (values.end_date) {
+            values.end_date = dayjs(values.end_date).format('YYYY-MM-DD');
+        }
+        if (values.dob) {
+            values.dob = dayjs(values.dob).format('YYYY-MM-DD');
+        }
+        if (values.ngay_cap) {
+            values.ngay_cap = dayjs(values.ngay_cap).format('YYYY-MM-DD');
+        }
+
+        values.id = contractIdAction;
+        values.tien_phong = values.gia_thue;
+
+        console.log('Contract Update Data:', values);
+
+        axios.post(API.updateContract, values)
+            .then((res) => {
+                if (res.data.status_code === 200) {
+                    message.success('Cập nhật hợp đồng thành công!');
+                    setIsOpenContractForm(false);
+                    formContract.resetFields();
+                    refresh(searchData);
+                } else {
+                    message.error(res.data.message || 'Cập nhật hợp đồng thất bại!');
+                }
+            })
+            .catch((error) => {
+                console.error('Contract Update Error:', error);
+                message.error('Lỗi kết nối server!');
+            });
+    }
+    // ========== END CONTRACT FORM HELPER FUNCTIONS ==========
 
     const items: MenuProps['items'] = [
         {
@@ -1508,7 +1751,7 @@ const InvoiceList_BDS: React.FC = () => {
                     axios.post(API.aitilen_recalculateInvoice, {
                         ids: selectedRowKeys,
                     }).then((result: any) => {
-                        console.log('   result', result );
+                        console.log('   result', result);
                         if (result.status === 200) {
                             message.success("Đã tính lại tiền hóa đơn thành công");
                             setSelectedRowKeys([]);
@@ -1647,6 +1890,39 @@ const InvoiceList_BDS: React.FC = () => {
                     </div>
                 )}
             </Modal>
+
+            {/* Contract Form Modal */}
+            <ContractFormModal
+                open={isOpenContractForm}
+                dataAction={contractDataAction}
+                formEdit={formContract}
+                props={props}
+                dataService={contractDataService}
+                dataService_thangMay={dataService_thangMay}
+                tienPhong={contractTienPhong}
+                tienCoc={contractTienCoc}
+                soNguoi={contractSoNguoi}
+                soNgayThue={contractSoNgayThue}
+                daysInMonth={contractDaysInMonth}
+                note_applyAll={contractNoteApplyAll}
+
+                onCancel={() => {
+                    setIsOpenContractForm(false);
+                    formContract.resetFields();
+                }}
+                onFinish={onFinishContractForm}
+                onSetDataService={setContractDataService}
+                onSetTienPhong={setContractTienPhong}
+                onSetTienCoc={setContractTienCoc}
+                onSetSoNguoi={setContractSoNguoi}
+                onSetDaysInMonth={setContractDaysInMonth}
+                onSetNoteApplyAll={setContractNoteApplyAll}
+                onTotal={totalContract}
+
+                showFormDataDetail={showContractFormDataDetail}
+                addSub={addSubContract}
+                initialsFormatData={initialsFormatContractData}
+            />
 
         </div>
     );

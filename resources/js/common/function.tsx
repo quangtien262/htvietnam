@@ -1,6 +1,6 @@
 import { result } from 'lodash';
 import React from 'react';
-import { showCheckbox } from './table';
+// import { showCheckbox } from './table';
 import {
     Tooltip
 } from "antd";
@@ -118,109 +118,6 @@ export function parseJson(str: string) {
     } catch (e) {
         return false;
     }
-}
-
-export function onDrop(info, gData) {
-    const dropKey = info.node.key;
-    const dragKey = info.dragNode.key;
-    const dropPos = info.node.pos.split('-');
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
-    const loop = (data, key, callback) => {
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].key === key) {
-                return callback(data[i], i, data);
-            }
-            if (data[i].children) {
-                loop(data[i].children, key, callback);
-            }
-        }
-    };
-    const data = [...gData];
-
-    // Find dragObject
-    let dragObj;
-    loop(data, dragKey, (item, index, arr) => {
-        arr.splice(index, 1);
-        dragObj = item;
-    });
-    if (!info.dropToGap) {
-        // Drop on the content
-        loop(data, dropKey, (item) => {
-            item.children = item.children || [];
-            // where to insert 示例添加到头部，可以是随意位置
-            item.children.unshift(dragObj);
-        });
-    } else if (
-        (info.node.props.children || []).length > 0 &&
-        // Has children
-        info.node.props.expanded &&
-        // Is expanded
-        dropPosition === 1 // On the bottom gap
-    ) {
-        loop(data, dropKey, (item) => {
-            item.children = item.children || [];
-            // where to insert 示例添加到头部，可以是随意位置
-            item.children.unshift(dragObj);
-            // in previous version, we use item.children.push(dragObj) to insert the
-            // item to the tail of the children
-        });
-    } else {
-        let ar = [];
-        let i;
-        loop(data, dropKey, (_item, index, arr) => {
-            ar = arr;
-            i = index;
-        });
-        if (dropPosition === -1) {
-            ar.splice(i, 0, dragObj);
-        } else {
-            ar.splice(i + 1, 0, dragObj);
-        }
-    }
-    // setGData(data);
-    return data;
-};
-
-export function formatGdata_column(data) {
-    return formatGdata_column_item(data);
-}
-
-function formatGdata_column_item(values) {
-    return values.map((val) => {
-        let children;
-        if (val.children && val.children.length > 0) {
-            children = formatGdata_column_item(val.children);
-        }
-        let title = <div>
-            <span>{val.title}</span>
-            <hr />
-            {val.block_type !== '' ? '' : showsetting(val)}
-        </div>;
-        if (val.is_label === 1) {
-            title = val.title;
-        }
-        return {
-            'title': title,
-            'key': val.key,
-            'children': children
-        };
-    })
-}
-
-function showsetting(data) {
-    let listDefault = ['show_in_list', 'add2search', 'require'];
-    if (data.type_edit === 'select') {
-        listDefault = ['show_in_list', 'add2search', 'require', 'add_express'];
-    }
-    return listDefault.map((name, displayName) => {
-        return showCheckbox(data, name, 'column.update.edit')
-    });
-}
-
-export function showsettingMenu(data) {
-    return ['setting_shotcut', 'import', 'export'].map((name, displayName) => {
-        return showCheckbox(data, name, 'table.update.edit')
-    });
 }
 
 export function intval(value) {

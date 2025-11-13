@@ -192,14 +192,11 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('loai-chi/list', [SoQuyController::class, 'getLoaiChi'])->name('aitilen.loaiChi.list');
     Route::post('chi-nhanh/list', [SoQuyController::class, 'getChiNhanh'])->name('aitilen.chiNhanh.list');
     Route::post('admin-users/list', [SoQuyController::class, 'getAdminUsers'])->name('aitilen.adminUsers.list');
-
-
-
-
 });
 
 // contact: api
 Route::group(['prefix' => 'contract'], function () {
+    Route::post('info', [ContractController::class, 'info'])->name('contract.info');
     Route::post('index-api/bds', [ContractController::class, 'indexBds'])->name('contract.index');
     Route::post('update', [ContractController::class, 'update'])->name('contract.update');
     Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
@@ -306,4 +303,8 @@ Route::group(['prefix' => 'cong-no'], function () {
     Route::post('statistics', [CongNoController::class, 'apiStatistics'])->name('api.congNo.statistics');
     Route::post('bulk-update-status', [CongNoController::class, 'apiBulkUpdateStatus'])->name('api.congNo.bulkUpdateStatus');
     Route::post('export', [CongNoController::class, 'apiExport'])->name('api.congNo.export');
+});
+
+Route::group(['prefix' => 'user'], function () {
+    Route::post('select-data', [CustomerController::class, 'apiSelectData'])->name('api.user.selectData');
 });

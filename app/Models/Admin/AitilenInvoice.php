@@ -22,6 +22,7 @@ class AitilenInvoice extends Model
             'users.code as ma_khach_hang',
             'users.phone as phone',
             'contract.name as hop_dong_name',
+            'contract.code as contract_code',
             'room.name as ten_phong',
         )
             ->leftJoin('contract', 'contract.id', 'aitilen_invoice.contract_id')

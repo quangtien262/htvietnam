@@ -160,4 +160,14 @@ class CustomerController extends Controller
             return $this->sendErrorResponse('Lỗi khi xóa khách hàng: ' . $e->getMessage());
         }
     }
+
+    function apiSelectData()
+    {
+        try {
+            $users = User::select('id as value', 'name as label', 'code as code')->get();
+            return $this->sendSuccessResponse($users);
+        } catch (\Exception $e) {
+            return $this->sendErrorResponse('Lỗi khi lấy danh sách khách hàng: ' . $e->getMessage());
+        }
+    }
 }

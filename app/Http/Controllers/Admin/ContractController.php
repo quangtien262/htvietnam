@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Log;
 
 class ContractController extends Controller
 {
+    public function info(Request $request) {
+        $contract = Contract::find($request->id);
+        return $this->sendSuccessResponse($contract);
+    }
     public function search(Request $request)
     {
         $searchData = $request->all();
@@ -93,6 +97,7 @@ class ContractController extends Controller
 
     public function update(Request $request)
     {
+        // dd($request->all());
         // save hợp đồng
         if (empty($request->id)) {
             $hopDong = new Contract();
@@ -127,8 +132,7 @@ class ContractController extends Controller
             }
         }
 
-
-        $hopDong->gia_thue = $request->tien_phong;
+        $hopDong->gia_thue = $request->gia_thue;
         $hopDong->tien_coc = $request->tien_coc;
 
         $hopDong->contract_status_id = $request->contract_status_id;
@@ -147,7 +151,7 @@ class ContractController extends Controller
         $adminUser = auth()->guard('admin_users')->user();
         $hopDong->create_by = $adminUser->id;
         $hopDong->save();
-        if (empty($request->id)) {
+        if (empty($hopDong->code)) {
             $hopDong->code = 'AHD' . str_pad($hopDong->id, 6, '0', STR_PAD_LEFT);
         }
         // end save hợp đồng

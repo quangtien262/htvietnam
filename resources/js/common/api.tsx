@@ -94,6 +94,7 @@ export const API = {
     contractStatistics: `${BASE_API_URL}contract/statistics`,
     contractStatisticsByApartment: `${BASE_API_URL}contract/statistics-by-apartment`,
     contractByService: `${BASE_API_URL}contract/by-service`,
+    getContractInfo: `${BASE_API_URL}contract/info`,
 
     // so quy
     soQuyList: `${BASE_API_URL}aitilen/so-quy/list`,
@@ -112,6 +113,7 @@ export const API = {
     userAdd: `${BASE_API_URL}user/add`,
     userUpdate: `${BASE_API_URL}user/update`,
     userDelete: `${BASE_API_URL}user/delete`,
+    userSelect: `${BASE_API_URL}user/select-data`,
 
     // aitilen
     aitilen_DienNuoc: `${BASE_API_URL}aitilen/service/dien-nuoc`,
@@ -328,7 +330,7 @@ export const API = {
     documentFolderDelete: (id: number) => `/aio/api/documents/folders/delete/${id}`,
     documentFolderRestore: (id: number) => `/aio/api/documents/folders/restore/${id}`,
     documentFolderForceDelete: (id: number) => `/aio/api/documents/folders/force-delete/${id}`,
-    
+
     // Users for sharing
     documentUsers: '/aio/api/documents/users',
 
@@ -368,7 +370,7 @@ export const API = {
     documentCommentUnresolvedCount: '/aio/api/documents/comments/unresolved-count',
 
     // ===== MODULE SPA MANAGEMENT =====
-    
+
     // Khách hàng (Customers)
     spaCustomerList: '/aio/api/spa/customers',
     spaCustomerCreate: '/aio/api/spa/customers',

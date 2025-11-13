@@ -4,40 +4,30 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { API } from "../../common/api";
 import cloneDeep from "lodash/cloneDeep";
+import ContractExpandedRow from "../../components/contract/ContractExpandedRow";
+import ContractFormModal from "../../components/contract/ContractFormModal";
 import {
     Button, List,
     Table, DatePicker,
-    message, FloatButton,
-    Modal, Space,
+    message,
+    Modal,
     Form,
     Input,
     InputNumber,
     Popconfirm,
     Select,
     Row, Col,
-    Checkbox,
     Tag,
     Divider,
-    Image,
-    Upload,
-    Dropdown,
-    MenuProps,
 } from "antd";
 
 
 import {
-    CloudOutlined, MehOutlined, DownOutlined,
-    RiseOutlined, CloseCircleOutlined,
-    PlusCircleOutlined, CheckOutlined, HomeOutlined,
-    DeleteOutlined, CheckCircleOutlined,
-    EditOutlined, CloseSquareOutlined,
-    EyeOutlined, PlusSquareOutlined,
-    ClockCircleOutlined, FormOutlined,
-    FileTextOutlined, InsertRowAboveOutlined,
-    UserOutlined,
-    CaretRightOutlined, LoginOutlined
+    CloudOutlined, MehOutlined,
+    RiseOutlined, CloseCircleOutlined, CheckOutlined, HomeOutlined,
+    DeleteOutlined, CheckCircleOutlined, PlusSquareOutlined, FormOutlined,
+    CaretRightOutlined
 } from "@ant-design/icons";
-
 
 import "../../../css/form.css";
 
@@ -445,121 +435,15 @@ const ContactList_BDS: React.FC = () => {
     }
 
     const expandedRowRender = (record: any, index: number) => {
-
-        const items: MenuProps['items'] = [
-            {
-                label: <a onClick={() => {
-                    setDataEdit(record);
-                }}
-                >Cập nhật</a>,
-                key: '1',
-                icon: <EditOutlined />,
-            },
-            {
-                label: <a onClick={() => { setDataAction(record) }}>Active</a>,
-                key: '2',
-                icon: <CheckCircleOutlined />,
-            },
-            {
-                label: 'Hủy hóa đơn',
-                key: '3',
-                icon: <CloseSquareOutlined />,
-                danger: true,
-                disabled: false,
-            },
-        ];
-
-        const menuProps = {
-            items,
-        };
-        return <>
-            <div className="float-btn-option">
-                <Dropdown menu={menuProps}>
-                    <Button className="btn-default02">
-                        <Space>
-                            Thao tác
-                            <DownOutlined />
-                        </Space>
-                    </Button>
-                </Dropdown>
-            </div>
-            <Row>
-                <Col span={10}>
-                    {record.images ? <Image width={150} src={record.images} /> : <Image className="image-list" src='/images/contract-updating.png'></Image>}
-                </Col>
-                <Col span={14}>
-                    <ul className="ul-info">
-                        <li><b><CaretRightOutlined /> Tiêu đề:</b> {record.name}</li>
-                        <li><b><FileTextOutlined /> Mã Hợp đồng:</b> {record.code}</li>
-                        <li>
-                            <b><UserOutlined /> Khách hàng: </b>
-                            {record.ho_ten}
-                            <span>  </span>
-                            <button className="btn-default" onClick={() => loginCustomer(record)}> <LoginOutlined /> Login</button>
-                        </li>
-                        <li><b><CloudOutlined /> Phòng:</b> {props.room && props.room[record.room_id] ? props.room[record.room_id].name : ''}</li>
-                        <li><b><MehOutlined /> Số người ở:</b> {record.so_nguoi}</li>
-                        <li><b><ClockCircleOutlined /> Ngày hẹn đóng tiền:</b> {record.ngay_hen_dong_tien}</li>
-                    </ul>
-                </Col>
-                <Col span={24}>
-                    <table className="table-info01">
-                        <thead>
-                            <tr>
-                                <th className="text-left">Dịch vụ</th>
-                                <th className="text-right">Giá</th>
-                                <th className="text-right">Đơn vị</th>
-                                <th className="text-right">Thành tiền</th>
-                                <th>Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td className="text-left">Tiền phòng</td>
-                                <td className="text-right">{numberFormat(record.gia_thue)}</td>
-                                <td className="text-right">Phòng</td>
-                                <td className="text-right"><b>{numberFormat(record.gia_thue)}</b></td>
-                                <td></td>
-                            </tr>
-                            {record.tien_coc ? <tr>
-                                <td className="text-left">Tiền cọc</td>
-                                <td className="text-right">{numberFormat(record.tien_coc)}</td>
-                                <td className="text-right">VNĐ</td>
-                                <td className="text-right"><b>{numberFormat(record.tien_coc)}</b></td>
-                                <td></td>
-                            </tr> : ''}
-
-                            {/* show services */}
-                            {(() => {
-                                if (record.services) {
-                                    return record.services.map((service: any, idx: number) => {
-                                        const serviceName = service.name ?? service.service_name ?? 'Dịch vụ';
-                                        const per = service.per ?? service.per_default ?? '';
-                                        const price = service.price ?? service.price_default ?? 0;
-                                        const priceTotal = service.price_total ?? price;
-                                        return (
-                                            <tr key={idx}>
-                                                <td className="text-left">{serviceName}</td>
-                                                <td className="text-right">{numberFormat(price)}</td>
-                                                <td className="text-right">{per}</td>
-                                                <td className="text-right"><b>{numberFormat(priceTotal)}</b></td>
-                                                <td>{service.note ?? ''}</td>
-                                            </tr>
-                                        );
-                                    });
-                                }
-                            })()}
-
-                            <tr>
-                                <td colSpan={3} className="text-right _red"><b>Tổng</b></td>
-                                <td className="text-right _red"><b>{numberFormat(record.total)}</b></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </Col>
-            </Row>
-        </>;
+        return (
+            <ContractExpandedRow
+                record={record}
+                props={props}
+                onEdit={setDataEdit}
+                onActive={setDataAction}
+                onLogin={loginCustomer}
+            />
+        );
     };
 
     // state expandedRowRender
@@ -1012,298 +896,32 @@ const ContactList_BDS: React.FC = () => {
             </Modal>
 
             {/* form thêm sửa */}
-            <Modal title={dataAction.id === 0 ? "Thêm mới hợp đồng" : "Chỉnh sửa hợp đồng"}
+            <ContractFormModal
                 open={isOpenFormEdit}
-                onOk={() => {
-                    formEdit.submit();
-                }}
-                okText={dataAction.id === 0 ? "Tạo hợp đồng" : "Cập nhật hợp đồng"}
-                cancelText="Hủy"
-                maskClosable={false}
-                width={1000}
-                onCancel={() => { setIsOpenFormEdit(false); }}>
-                <Form
-                    form={formEdit}
-                    layout="vertical"
-                    onFinish={onFinishFormEdit}
-                    initialValues={initialsFormatData()}
-                >
-                    <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="user_id"
-                                label="Khách hàng"
-                                rules={[{ required: true, message: 'Vui lòng chọn khách hàng' }]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn khách hàng"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={props.users}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item
-                                name="room_id"
-                                label="Phòng"
-                                rules={[{ required: true, message: 'Vui lòng chọn phòng' }]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn phòng"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(props.room)}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={6}>
-                            <Form.Item
-                                name="contract_status_id"
-                                label="Trạng thái"
-                                rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: "100%" }}
-                                    placeholder="Chọn phòng"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
-                                    options={optionEntries(props.status)}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={6}>
-                            <Form.Item
-                                name="start_date"
-                                label={<><span>Ngày bắt đầu</span> {showInfo('Ngày bắt đầu hợp đồng')}</>}
-                                rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                            >
-                                <DatePicker className="form-item01"
-                                    style={{ width: "100%" }}
-                                    format="DD/MM/YYYY"
-                                    placeholder={"Chọn tháng/năm"}
-                                    onChange={(value) => {
-                                        let day = 0;
-                                        if (value) {
-                                            // value là kiểu dayjs, lấy số ngày của tháng đã chọn
-                                            day = value.daysInMonth()
-                                        } else {
-                                            day = dayjs().daysInMonth();
-                                        }
-                                        setDaysInMonth(day);
-                                        // Cập nhật lại số tiền
-                                        total(soNgayThue, dataService, day, soNguoi);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={6}>
-                            <Form.Item
-                                name="end_date"
-                                label={<><span>Ngày kết thúc</span> {showInfo('Ngày kết thúc hợp đồng')}</>}
-                                rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                            >
-                                <DatePicker className="form-item01"
-                                    style={{ width: "100%" }}
-                                    format="DD/MM/YYYY"
-                                    placeholder={"Chọn tháng/năm"}
-                                    onChange={(value) => {
-                                        let day = 0;
-                                        if (value) {
-                                            // value là kiểu dayjs, lấy số ngày của tháng đã chọn
-                                            day = value.daysInMonth()
-                                        } else {
-                                            day = dayjs().daysInMonth();
-                                        }
-                                        setDaysInMonth(day);
-                                        // Cập nhật lại số tiền
-                                        total(soNgayThue, dataService, day, soNguoi);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={6}>
-                            <Form.Item
-                                name="ngay_hen_dong_tien"
-                                label={<><span>Ngày đóng tiền</span> {showInfo('Ngày hẹn đóng tiền của kỳ thanh toán')}</>}
-                                rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
-                            >
-                                <InputNumber min={1} max={31} className="form-item01" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={6}>
-                            <Form.Item
-                                name="so_nguoi"
-                                label="Số người ở"
-                                rules={[{ required: true, message: 'Vui lòng chọn số người ở' }]}
-                            >
-                                <InputNumber className="form-item01"
-                                    min={1}
-                                    onChange={(value) => {
-                                        const v = value ?? 1;
-                                        setSoNguoi(v);
-                                        total(soNgayThue, dataService, daysInMonth, v);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <table className="table-salary">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <span>Chọn dịch vụ</span>
-                                            <br />
-                                            <a onClick={() => {
-                                                // Clone, không mutate props
-                                                const defaultServices = [...(props.serviceDefault || [])];
-
-                                                // Thêm thang máy cho các tòa 8,7,27 (nếu chưa có)
-                                                if (dataAction.apartment_id && [8, 7, 27].includes(Number(dataAction.apartment_id))) {
-                                                    const hasElevator = defaultServices.some(
-                                                        (s: any) => (s?.code === 'THANG_MAY') || (String(s?.name || '').toLowerCase() === 'thang máy')
-                                                    );
-                                                    if (!hasElevator) {
-                                                        defaultServices.push({
-                                                            ...dataService_thangMay,
-                                                        });
-                                                    }
-                                                }
-
-                                                setDataService(defaultServices);
-                                            }}
-                                            ><InsertRowAboveOutlined /> Mặc định</a>
-                                        </th>
-                                        <th>Giá</th>
-                                        <th>Đơn vị</th>
-                                        <th>Thành tiền</th>
-                                        <th>
-                                            Mô tả thêm
-                                            {showInfo('Mô tả thêm cho dịch vụ, nếu chọn áp dụng tất cả, thì ghi chú này sẽ được áp dụng cho tất cả các dịch vụ')}
-                                            <br />
-                                            <Checkbox checked={note_applyAll}
-                                                onChange={(e) => { setNote_applyAll(e.target.checked) }}
-                                            >
-                                                <a className="text-normal">Áp dụng tất cả</a>
-                                            </Checkbox>
-                                        </th>
-                                        <th>Xóa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    <tr>
-                                        <td>Tiền phòng</td>
-                                        <td>
-                                            <Form.Item
-                                                name="gia_thue"
-                                            >
-                                                <InputNumber
-                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                    onChange={(value) => {
-                                                        setTienPhong(value ?? 0);
-                                                    }}
-                                                />
-                                            </Form.Item>
-                                        </td>
-                                        <td>Tháng</td>
-                                        <td><b>{numberFormat(tienPhong)}</b></td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tiền cọc</td>
-                                        <td>
-                                            <Form.Item
-                                                name="tien_coc"
-                                            >
-                                                <InputNumber
-                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                    onChange={(value) => {
-                                                        setTienCoc(value ?? 0);
-                                                    }}
-                                                />
-                                            </Form.Item>
-                                        </td>
-                                        <td>VNĐ</td>
-                                        <td><b>{numberFormat(tienCoc)}</b></td>
-                                        <td></td>
-                                    </tr>
-
-                                    {showFormDataDetail()}
-
-                                    <tr>
-                                        <td colSpan={6} className="main-result-submitform">
-                                            <ul>
-                                                {/* {result} */}
-                                            </ul>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td colSpan={6} className="text-left">
-                                            <a className="add-item01" onClick={() => addSub()}>
-                                                <span className="icon-b"><PlusCircleOutlined /> Thêm dịch vụ</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan={3} className="text-right">
-                                            <b>Tổng tiền dịch vụ hàng tháng:</b>
-                                        </td>
-                                        <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0))}</b>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan={3} className="text-right">
-                                            <b>Tổng phí cố định hàng tháng</b>:
-                                            <em>(tiền phòng & dịch vụ)</em>
-                                        </td>
-                                        <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong)}</b>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-
-                                    <tr>
-                                        <td colSpan={3} className="text-right">
-                                            <b>Tổng tiền phòng, cọc & dịch vụ dự tính:</b>
-                                        </td>
-                                        <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total > 0 ? item.price_total : 0), 0) + tienPhong + tienCoc)}</b>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-
-                            </table>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
+                dataAction={dataAction}
+                formEdit={formEdit}
+                props={props}
+                dataService={dataService}
+                dataService_thangMay={dataService_thangMay}
+                tienPhong={tienPhong}
+                tienCoc={tienCoc}
+                soNguoi={soNguoi}
+                soNgayThue={soNgayThue}
+                daysInMonth={daysInMonth}
+                note_applyAll={note_applyAll}
+                onCancel={() => setIsOpenFormEdit(false)}
+                onFinish={onFinishFormEdit}
+                onSetDataService={setDataService}
+                onSetTienPhong={setTienPhong}
+                onSetTienCoc={setTienCoc}
+                onSetSoNguoi={setSoNguoi}
+                onSetDaysInMonth={setDaysInMonth}
+                onSetNoteApplyAll={setNote_applyAll}
+                onTotal={total}
+                showFormDataDetail={showFormDataDetail}
+                addSub={addSub}
+                initialsFormatData={initialsFormatData}
+            />
 
             <Modal title="Xác nhận đăng nhập"
                 open={isModalLoginOpen}
