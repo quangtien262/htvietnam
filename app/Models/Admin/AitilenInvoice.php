@@ -47,7 +47,7 @@ class AitilenInvoice extends Model
 
     static function getInvoice($dataFilter = [])
     {
-        // dd($dataFilter);
+        dd($dataFilter);
         $datas = AitilenInvoice::baseQuery();
         // filter
         if (!empty($dataFilter['keyword'])) {
