@@ -157,7 +157,11 @@ const InvoiceList_BDS: React.FC = () => {
                 formSearch.setFieldValue('status', propsTmp.searchData.status);
                 setLoadingTable(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: any) => {
+                console.error(err);
+                message.error("Tải dữ liệu thất bại");
+                setLoadingTable(false);
+            });
 
     }
     useEffect(() => {
@@ -179,7 +183,11 @@ const InvoiceList_BDS: React.FC = () => {
                 });
                 setLoadingTable(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: any) => {
+                console.error(err);
+                message.error("Làm mới dữ liệu thất bại");
+                setLoadingTable(false);
+            });
 
     }
 
