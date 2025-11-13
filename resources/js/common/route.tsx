@@ -14,6 +14,7 @@ export const ROUTE = {
     taskKanban_bds: `${baseRoute}tasks/all/kanban/1/`,
 
     apartment_bds: `${baseRoute}bds/apartments/list`,
+    aitilen_dauTu: `${baseRoute}bds/dau-tu`,
 
     aitilen_soQuy: `${baseRoute}aitilen/so-quy`,
 

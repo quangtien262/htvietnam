@@ -44,7 +44,7 @@ class KTVHoaHong extends Model
     {
         $startDate = sprintf('%04d-%02d-01', $year, $month);
         $endDate = date('Y-m-t', strtotime($startDate));
-        
+
         return $query->whereBetween('thang', [$startDate, $endDate]);
     }
 

@@ -135,8 +135,33 @@ export const MENU = {
         {
             label: <Link to={`${ROUTE.apartment_bds}?p=bds`}>Tòa nhà</Link>,
             key: (key++).toString(),
-            icon: <UserOutlined />,
-            children: [],
+            icon: <ApartmentOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.apartment_bds}?p=bds`}>QL Tòa nhà</Link>,
+                    key: (key++).toString(),
+                    icon: <HomeOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.aitilen_dauTu}?p=bds`}>Đầu tư</Link>,
+                    key: (key++).toString(),
+                    icon: <DollarOutlined />,
+                },
+
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.apartment_bds}?p=bds`}>Cài đặt</Link>,
+            key: (key++).toString(),
+            icon: <ApartmentOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/loai_chi?p=bds`}>Loại chi</Link>,
+                    key: (key++).toString(),
+                    icon: <HomeOutlined />,
+                },
+
+            ],
         },
     ],
     // project

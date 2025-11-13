@@ -17,6 +17,7 @@ import Dashboard from './pages/home/Dashboard';
 
 // Aitilen
 import DashboardAitilen from './pages/aitilen/DashboardAitilen';
+import AitilenDauTu from './pages/aitilen/AitilenDauTu';
 
 // Tasks
 import TaskKanban from './pages/task/TaskKanban';
@@ -143,6 +144,8 @@ import GanttChart_PM from './pages/project/GanttChart';
 import UserGuide from './pages/project/UserGuide';
 import ProjectPermissionsPage from './pages/project/ProjectPermissionsPage';
 
+
+
 const App: React.FC = () => (
     <BrowserRouter basename="/aio">
         <AppLayout>
@@ -151,6 +154,8 @@ const App: React.FC = () => (
 
                 {/* Aitilen */}
                 <Route path={ROUTE.dashboard_aitilen} element={<DashboardAitilen />} />
+
+                <Route path={ROUTE.aitilen_dauTu} element={<AitilenDauTu />} />
                 {/* Apartment */}
                 <Route path={ROUTE.apartment_bds} element={<Apartment />} />
 

@@ -108,6 +108,15 @@ export const API = {
     chiNhanhList: `${BASE_API_URL}aitilen/chi-nhanh/list`,
     adminUsersList: `${BASE_API_URL}aitilen/admin-users/list`,
 
+    // dau tu (investment costs)
+    dauTuList: `${BASE_API_URL}aitilen/dau-tu/list`,
+    dauTuAdd: `${BASE_API_URL}aitilen/dau-tu/add`,
+    dauTuAddBulk: `${BASE_API_URL}aitilen/dau-tu/add-bulk`,
+    dauTuUpdate: `${BASE_API_URL}aitilen/dau-tu/update`,
+    dauTuDelete: `${BASE_API_URL}aitilen/dau-tu/delete`,
+    dauTuUpdateSortOrder: `${BASE_API_URL}aitilen/dau-tu/update-sort-order`,
+    dauTuSelectData: `${BASE_API_URL}aitilen/dau-tu/select-data`,
+
     // users
     userList: `${BASE_API_URL}user/list`,
     userAdd: `${BASE_API_URL}user/add`,

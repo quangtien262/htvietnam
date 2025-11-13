@@ -140,7 +140,7 @@ class KTV extends Model
     {
         $startDate = sprintf('%04d-%02d-01', $year, $month);
         $endDate = date('Y-m-t', strtotime($startDate));
-        
+
         return $this->hoaHongs()
             ->whereBetween('thang', [$startDate, $endDate])
             ->sum('tien_hoa_hong');
@@ -150,7 +150,7 @@ class KTV extends Model
     {
         $startDate = sprintf('%04d-%02d-01', $year, $month);
         $endDate = date('Y-m-t', strtotime($startDate));
-        
+
         return $this->hoaHongs()
             ->whereBetween('thang', [$startDate, $endDate])
             ->sum('gia_tri_goc');
