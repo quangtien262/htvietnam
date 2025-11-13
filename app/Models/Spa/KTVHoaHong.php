@@ -13,22 +13,19 @@ class KTVHoaHong extends Model
         'ktv_id',
         'hoa_don_id',
         'loai',
-        'reference_id',
-        'doanh_thu',
+        'gia_tri_goc',
         'phan_tram',
         'tien_hoa_hong',
-        'ngay_thuc_hien',
-        'trang_thai',
+        'thang',
     ];
 
     protected $casts = [
         'ktv_id' => 'integer',
         'hoa_don_id' => 'integer',
-        'reference_id' => 'integer',
-        'doanh_thu' => 'decimal:0',
+        'gia_tri_goc' => 'decimal:2',
         'phan_tram' => 'decimal:2',
-        'tien_hoa_hong' => 'decimal:0',
-        'ngay_thuc_hien' => 'date',
+        'tien_hoa_hong' => 'decimal:2',
+        'thang' => 'date',
     ];
 
     // Relationships
@@ -43,26 +40,23 @@ class KTVHoaHong extends Model
     }
 
     // Scopes
-    public function scopePending($query)
-    {
-        return $query->where('trang_thai', 'cho_thanh_toan');
-    }
-
-    public function scopePaid($query)
-    {
-        return $query->where('trang_thai', 'da_thanh_toan');
-    }
-
     public function scopeByMonth($query, $month, $year)
     {
-        return $query->whereYear('ngay_thuc_hien', $year)
-            ->whereMonth('ngay_thuc_hien', $month);
+        $startDate = sprintf('%04d-%02d-01', $year, $month);
+        $endDate = date('Y-m-t', strtotime($startDate));
+        
+        return $query->whereBetween('thang', [$startDate, $endDate]);
     }
 
     // Accessors
+    public function getDoanhThuAttribute()
+    {
+        return $this->gia_tri_goc;
+    }
+
     public function getTienHoaHongFormattedAttribute()
     {
-        return number_format($this->tien_hoa_hong, 0, ',', '.');
+        return number_format((float)$this->tien_hoa_hong, 0, ',', '.');
     }
 
     public function getLoaiNameAttribute()

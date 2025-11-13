@@ -18,17 +18,16 @@ return new class extends Migration
         Schema::create('admin_users', function (Blueprint $table) {
             $table->id();
 
-            $table->string('password')->nullable();
-            $table->string('name')->nullable();
-            $table->string('code')->nullable();
-            $table->string('lucky_id')->nullable();
+            $table->string('password')->nullable()->comment('Mật khẩu');
+            $table->string('name')->nullable()->comment('Họ và tên');
+            $table->string('code')->nullable()->comment('Mã nhân viên');
 
-            $table->string('username')->nullable();
-            $table->string('year')->nullable();
-            $table->date('birthday')->nullable();
-            $table->integer('gioi_tinh_id')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
+            $table->string('username')->nullable()->comment('Tên đăng nhập');
+            $table->string('year')->nullable()->comment('Năm sinh');
+            $table->date('birthday')->nullable()->comment('Ngày sinh');
+            $table->integer('gioi_tinh_id')->nullable()->comment('Giới tính');
+            $table->string('phone')->nullable()->comment('Số điện thoại');
+            $table->string('email')->nullable()->comment('Email');
             $table->date('ngay_vao_lam')->nullable();
             $table->integer('tinh_trang_hon_nhan_id')->nullable();
             $table->text('ngan_hang')->nullable();
@@ -48,13 +47,13 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
 
             // luong chinh
-            $table->string('salary')->nullable(); 
+            $table->string('salary')->nullable();
 
             // 1 => 'Theo ca',
             // 2 => 'Theo giờ',
             // 3 => 'Theo ngày công chuẩn',
             // 4 => 'Theo lương cố định',
-            $table->integer('loai_luong')->nullable(); 
+            $table->integer('loai_luong')->nullable();
 
             // cai dat luong nang cao
             $table->integer('is_setting_salary_nang_cao')->default(0)->nullable();
@@ -67,10 +66,10 @@ return new class extends Migration
             $table->integer('is_luong_chinh_cn_persen')->default(0)->nullable();
             $table->integer('is_luong_chinh_ngay_nghi_persen')->default(0)->nullable();
             $table->integer('is_luong_chinh_nghi_le_persen')->default(1)->nullable();
-            
+
             // làm thêm giờ: is_luong_nang_cao == 1 thì mới check kích hoạt làm thêm giờ
             $table->integer('is_setting_salary_lam_them_gio')->default(0)->nullable();
-            
+
             $table->integer('them_gio_ngay_thuong')->default(150)->nullable();
             $table->integer('is_them_gio_ngay_thuong_persen')->default(1)->nullable();
 
@@ -216,7 +215,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'ngay_cap', 'Ngày cấp', 'DATE', 'date', $order_col++, ['require' => 1,'parent_id' => $tt_ca_nhan->id]);
         MigrateService::createColumn02($tableId, 'noi_cap', 'Nơi cấp', 'VARCHAR', 'text', $order_col++, [ 'parent_id' => $tt_ca_nhan->id]);
         $honNhan = Table::where('name', 'tinh_trang_hon_nhan')->first();
-        MigrateService::createColumn02($tableId, 'tinh_trang_hon_nhan_id', 'Tình trạng hôn nhân', 'INT', 'select', $order_col++, 
+        MigrateService::createColumn02($tableId, 'tinh_trang_hon_nhan_id', 'Tình trạng hôn nhân', 'INT', 'select', $order_col++,
         ['select_table_id' => $honNhan->id, 'parent_id' => $tt_ca_nhan->id,'add_express' => 1]);
         MigrateService::createColumn02($tableId, 'nguoi_phu_thuoc', 'Số người phụ thuộc', 'INT', 'number', $order_col++, ['parent_id' => $tt_ca_nhan->id]);
         MigrateService::createColumn02($tableId, 'address', 'Địa chỉ', 'TEXT', 'textarea', $order_col++, ['parent_id' => $tt_ca_nhan->id, 'col'=> 12]);
@@ -232,7 +231,7 @@ return new class extends Migration
         MigrateService::createColumn02($tableId, 'ngan_hang_id', 'Ngân hàng', 'TEXT', 'selects', $order_col++, [
             'select_table_id' => $nganHang->id,
             'parent_id' => $tt_khac->id,
-           
+
         ]);
         $chiNhanh = Table::where('name', 'chi_nhanh')->first();
         MigrateService::createColumn02($tableId, 'chi_nhanh_id', 'Chi nhánh/ phòng ban', 'INT', 'select', $order_col++, ['select_table_id' => $chiNhanh->id, 'require' => 1, 'parent_id' => $tt_khac->id,'add2search' => 1 ]);
@@ -248,7 +247,7 @@ return new class extends Migration
 
         MigrateService::createColumn02($tableId, 'password', 'Mật khẩu', 'VARCHAR', 'encryption', $order_col++, ['parent_id' => $tt_dang_nhap->id]);
         MigrateService::createColumn02($tableId, 'email_verified_at', 'email_verified_at', 'TEXT', 'text', $order_col++, ['edit' => 0]);
-    
+
         MigrateService::createColumn02($tableId, 'parent_id', 'parent_id', 'INT', 'number', $order_col++,['edit' => 0]);
         MigrateService::createColumn02($tableId, 'sort_order', 'sort_order', 'INT', 'number', $order_col++,['edit' => 0]);
         // MigrateService::createColumn02($tableId, 'create_by', 'Người tạo', 'INT', 'select', $order_col++, ['edit' => 0,'select_table_id' => $tbl->id]);
@@ -258,7 +257,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations. 
+     * Reverse the migrations.
      *
      * @return void
      */

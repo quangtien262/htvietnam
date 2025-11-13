@@ -52,11 +52,6 @@ export const MENU = {
     // Bất động sản Aitilen
     bds: [
         {
-            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
-        {
             label: <Link className='normal' to={`${ROUTE.dashboard_aitilen}?p=bds`}>Báo cáo</Link>,
             icon: <BarChartOutlined />,
             key: (key++).toString(),
@@ -112,6 +107,7 @@ export const MENU = {
                 },
             ],
         },
+
         // Đẩy phòng
         {
             label: "Đẩy phòng",
@@ -146,11 +142,6 @@ export const MENU = {
     // project
     pro: [
         {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
-        {
             label: <Link to={`${ROUTE.dashboardProject}?p=pro`}>Báo cáo</Link>,
             icon: <BarChartOutlined />,
             key: (key++).toString(),
@@ -183,11 +174,6 @@ export const MENU = {
     ],
     // website
     web: [
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link to={`${ROUTE.menuManagement}?p=web`}>menu</Link>,
             key: (key++).toString(),
@@ -243,11 +229,6 @@ export const MENU = {
     ],
     // Tài chính
     erp: [
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link to={`${ROUTE.erpDashboard}?p=erp`}>Dashboard</Link>,
             key: (key++).toString(),
@@ -311,11 +292,6 @@ export const MENU = {
     // QL mua hàng / kho, tài sản
     purchase: [
         {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
-        {
             label: <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>Báo cáo</Link>,
             key: (key++).toString(),
             icon: <BarChartOutlined />,
@@ -369,11 +345,6 @@ export const MENU = {
 
     // QL nhân sự
     hr: [
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link to={`${ROUTE.hrBaoCao}?p=hr`}>Dashboard</Link>,
             key: (key++).toString(),
@@ -435,11 +406,6 @@ export const MENU = {
 
     sales: [
         {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
-        {
             label: <Link to={`${ROUTE.salesBaoCao}?p=sales`}>Báo cáo</Link>,
             key: (key++).toString(),
             icon: <BarChartOutlined />,
@@ -485,12 +451,8 @@ export const MENU = {
             ],
         },
     ],
+
     business: [
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: '💼 Quản lý Kinh doanh',
             key: (key++).toString(),
@@ -517,13 +479,9 @@ export const MENU = {
             ],
         },
     ],
-    telesale: [
 
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
+    // telesale
+    telesale: [
         {
             label: <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>📊 Báo cáo & KPI</Link>,
             key: (key++).toString(),
@@ -558,11 +516,6 @@ export const MENU = {
 
     // quản lý tài liệu
     docs: [
-        {
-            label: <Link to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link to={`${ROUTE.documentsExplorer}?p=docs`}>📂 Trình duyệt File</Link>,
             key: (key++).toString(),
@@ -602,25 +555,27 @@ export const MENU = {
         },
     ],
 
-    // Himalaya SPA
+    // SPA
     spa: [
-        {
-            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link className='normal' to={`${ROUTE.spa_dashboard}?p=spa`}>Dashboard</Link>,
             icon: <DashboardOutlined />,
             key: (key++).toString(),
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_analytics}?p=spa`}>Thống kê</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_reports}?p=spa`}>Báo cáo</Link>,
+                    key: (key++).toString(),
+                    icon: <FileTextOutlined />,
+                },
+            ],
         },
         {
-            label: <Link className='normal' to={`${ROUTE.spa_booking_calendar}?p=spa`}>Lịch hẹn</Link>,
-            icon: <CalendarOutlined />,
-            key: (key++).toString(),
-        },
-        {
-            label: <Link className='normal' to={`${ROUTE.spa_pos}?p=spa`}>POS Bán hàng</Link>,
+            label: <Link className='normal' to={`${ROUTE.spa_pos}?p=spa`}>Thu ngân</Link>,
             icon: <ShopOutlined />,
             key: (key++).toString(),
         },
@@ -642,12 +597,17 @@ export const MENU = {
                 },
             ],
         },
-        // Dịch vụ
+        // Sản phẩm
         {
-            label: "Dịch vụ",
+            label: "Sản phẩm & Dịch vụ",
             key: (key++).toString(),
-            icon: <FileTextOutlined />,
+            icon: <InboxOutlined />,
             children: [
+                {
+                    label: <Link to={`${ROUTE.spa_products}?p=spa`}>Sản phẩm</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
                 {
                     label: <Link to={`${ROUTE.spa_services}?p=spa`}>Danh mục DV</Link>,
                     key: (key++).toString(),
@@ -658,19 +618,6 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <FileDoneOutlined />,
                 },
-            ],
-        },
-        // Sản phẩm
-        {
-            label: "Sản phẩm",
-            key: (key++).toString(),
-            icon: <InboxOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.spa_products}?p=spa`}>Danh mục SP</Link>,
-                    key: (key++).toString(),
-                    icon: <UnorderedListOutlined />,
-                },
                 {
                     label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
                     key: (key++).toString(),
@@ -680,7 +627,7 @@ export const MENU = {
         },
         // Nhân viên
         {
-            label: <Link to={`${ROUTE.spa_staff}?p=spa`}>Nhân viên KTV</Link>,
+            label: <Link to={`${ROUTE.spa_staff}?p=spa`}>Nhân viên</Link>,
             icon: <TeamOutlined />,
             key: (key++).toString(),
         },
@@ -700,23 +647,10 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <MessageOutlined />,
                 },
-            ],
-        },
-        // Báo cáo
-        {
-            label: "Báo cáo",
-            key: (key++).toString(),
-            icon: <BarChartOutlined />,
-            children: [
                 {
-                    label: <Link to={`${ROUTE.spa_analytics}?p=spa`}>Thống kê</Link>,
+                    label: <Link className='normal' to={`${ROUTE.spa_booking_calendar}?p=spa`}>Lịch hẹn</Link>,
+                    icon: <CalendarOutlined />,
                     key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_reports}?p=spa`}>Báo cáo</Link>,
-                    key: (key++).toString(),
-                    icon: <FileTextOutlined />,
                 },
             ],
         },
@@ -752,11 +686,6 @@ export const MENU = {
 
     // Project Management System
     projects: [
-        {
-            label: <Link className='normal' to={`${ROUTE.dashboard}?p=home`}>Home</Link>,
-            icon: <HomeOutlined />,
-            key: (key++).toString(),
-        },
         {
             label: <Link className='normal' to={`${ROUTE.project_dashboard}?p=projects`}>Dashboard</Link>,
             icon: <DashboardOutlined />,

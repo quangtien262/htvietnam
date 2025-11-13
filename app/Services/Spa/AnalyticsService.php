@@ -7,23 +7,29 @@ use App\Models\User;
 use App\Models\Spa\Booking;
 use App\Models\Spa\KTV;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AnalyticsService
 {
     public function getDashboard($params = [])
     {
-        $startDate = $params['tu_ngay'] ?? now()->startOfMonth();
-        $endDate = $params['den_ngay'] ?? now()->endOfMonth();
+        $startDate = $params['tu_ngay'] ?? now()->startOfMonth()->format('Y-m-d');
+        $endDate = $params['den_ngay'] ?? now()->endOfMonth()->format('Y-m-d');
         $chiNhanhId = $params['chi_nhanh_id'] ?? null;
 
-        return [
-            'revenue' => $this->getRevenue($startDate, $endDate, $chiNhanhId),
-            'customers' => $this->getCustomerStats($startDate, $endDate),
-            'bookings' => $this->getBookingStats($startDate, $endDate, $chiNhanhId),
-            'top_services' => $this->getTopServices($startDate, $endDate, 5),
-            'top_products' => $this->getTopProducts($startDate, $endDate, 5),
-            'top_staff' => $this->getTopStaff($startDate, $endDate, 5),
-        ];
+        try {
+            return [
+                'revenue' => $this->getRevenue($startDate, $endDate, $chiNhanhId),
+                'customers' => $this->getCustomerStats($startDate, $endDate),
+                'bookings' => $this->getBookingStats($startDate, $endDate, $chiNhanhId),
+                'top_services' => $this->getTopServices($startDate, $endDate, 5),
+                'top_products' => $this->getTopProducts($startDate, $endDate, 5),
+                'top_staff' => $this->getTopStaff($startDate, $endDate, 5),
+            ];
+        } catch (\Exception $e) {
+            Log::error('Dashboard error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getRevenue($startDate, $endDate, $chiNhanhId = null)
@@ -147,14 +153,16 @@ class AnalyticsService
     {
         return DB::table('spa_ktv_hoa_hong')
             ->join('spa_ktv', 'spa_ktv_hoa_hong.ktv_id', '=', 'spa_ktv.id')
-            ->whereBetween('spa_ktv_hoa_hong.ngay_thuc_hien', [$startDate, $endDate])
+            ->join('admin_users', 'spa_ktv.admin_user_id', '=', 'admin_users.id')
+            ->whereBetween('spa_ktv_hoa_hong.thang', [$startDate, $endDate])
             ->select(
-                'spa_ktv.ho_ten',
-                DB::raw('SUM(spa_ktv_hoa_hong.doanh_thu) as total_revenue'),
+                'admin_users.name as ho_ten',
+                'spa_ktv.ma_ktv',
+                DB::raw('SUM(spa_ktv_hoa_hong.gia_tri_goc) as total_revenue'),
                 DB::raw('SUM(spa_ktv_hoa_hong.tien_hoa_hong) as total_commission'),
                 DB::raw('COUNT(DISTINCT spa_ktv_hoa_hong.hoa_don_id) as total_orders')
             )
-            ->groupBy('spa_ktv.id', 'spa_ktv.ho_ten')
+            ->groupBy('spa_ktv.id', 'admin_users.name', 'spa_ktv.ma_ktv')
             ->orderBy('total_revenue', 'desc')
             ->limit($limit)
             ->get();
@@ -221,8 +229,9 @@ class AnalyticsService
     {
         $commissions = DB::table('spa_ktv_hoa_hong')
             ->join('spa_ktv', 'spa_ktv_hoa_hong.ktv_id', '=', 'spa_ktv.id')
-            ->whereBetween('spa_ktv_hoa_hong.ngay_thuc_hien', [$startDate, $endDate])
-            ->select('spa_ktv.*', 'spa_ktv_hoa_hong.*')
+            ->join('admin_users', 'spa_ktv.admin_user_id', '=', 'admin_users.id')
+            ->whereBetween('spa_ktv_hoa_hong.thang', [$startDate, $endDate])
+            ->select('spa_ktv.*', 'spa_ktv_hoa_hong.*', 'admin_users.name as ten_nhan_vien')
             ->get();
 
         // TODO: Generate Excel file

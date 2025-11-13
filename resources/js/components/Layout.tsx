@@ -84,12 +84,14 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 zIndex: 1000,
             }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <img
-                        className="logo-header"
-                        src="/images/logo.png"
-                        style={{ height: '40px', cursor: 'pointer' }}
-                        alt="Logo"
-                    />
+                    <Link to={`${ROUTE.dashboard}?p=home`}>
+                        <img
+                            className="logo-header"
+                            src="/images/logo.png"
+                            style={{ height: '40px', cursor: 'pointer' }}
+                            alt="Logo"
+                        />
+                    </Link>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
