@@ -151,6 +151,7 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('dau-tu/delete', [AitilenDauTuController::class, 'delete'])->name('aitilen.dauTu.delete');
     Route::post('dau-tu/update-sort-order', [AitilenDauTuController::class, 'updateSortOrder'])->name('aitilen.dauTu.updateSortOrder');
     Route::post('dau-tu/select-data', [AitilenDauTuController::class, 'selectData'])->name('aitilen.dauTu.selectData');
+    Route::post('dau-tu/report', [AitilenDauTuController::class, 'report'])->name('aitilen.dauTu.report');
 
 
     // apartment

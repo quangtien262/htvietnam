@@ -53,6 +53,7 @@ import CongNoReport from "./components/CongNoReport";
 import AssetReport from "./components/AssetReport";
 import TienPhongStatisticsReport from "./components/TienPhongStatisticsReport";
 import ContractStatisticsReport from "./components/ContractStatisticsReport";
+import InvestmentReport from "./components/InvestmentReport";
 
 
 const DashboardAitilen: React.FC = () => {
@@ -100,6 +101,12 @@ const DashboardAitilen: React.FC = () => {
             label: 'Báo cáo tài sản',
             icon: <BankOutlined />,
             children: <AssetReport />,
+        },
+        {
+            key: (key++).toString(),
+            label: 'Báo cáo đầu tư',
+            icon: <BankOutlined />,
+            children: <InvestmentReport />,
         },
     ];
 

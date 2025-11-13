@@ -352,4 +352,79 @@ class AitilenDauTuController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Báo cáo chi phí đầu tư theo tòa nhà
+     */
+    public function report(Request $request)
+    {
+        try {
+            $apartmentIds = $request->input('apartment_ids', []);
+
+            // Lấy tổng chi phí theo từng tòa nhà
+            $query = DB::table('aitilen_dau_tu as dt')
+                ->join('apartment as a', 'dt.apartment_id', '=', 'a.id')
+                ->leftJoin('loai_chi as lc', 'dt.loai_chi_id', '=', 'lc.id')
+                ->select(
+                    'a.id as apartment_id',
+                    'a.name as apartment_name',
+                    DB::raw('COUNT(dt.id) as total_items'),
+                    DB::raw('SUM(dt.price) as total_amount')
+                )
+                ->whereNotNull('dt.apartment_id')
+                ->groupBy('a.id', 'a.name');
+
+            // Filter by apartment_ids nếu có
+            if (!empty($apartmentIds)) {
+                $query->whereIn('dt.apartment_id', $apartmentIds);
+            }
+
+            $summaryByApartment = $query->get();
+
+            // Lấy chi tiết tất cả chi phí (để show popup)
+            $detailQuery = DB::table('aitilen_dau_tu as dt')
+                ->leftJoin('apartment as a', 'dt.apartment_id', '=', 'a.id')
+                ->leftJoin('loai_chi as lc', 'dt.loai_chi_id', '=', 'lc.id')
+                ->leftJoin('suppliers as s', 'dt.supplier_id', '=', 's.id')
+                ->select(
+                    'dt.id',
+                    'dt.name',
+                    'dt.price',
+                    'dt.apartment_id',
+                    'a.name as apartment_name',
+                    'dt.loai_chi_id',
+                    'lc.name as loai_chi_name',
+                    's.name as supplier_name',
+                    'dt.created_at'
+                )
+                ->orderBy('a.name')
+                ->orderBy('dt.created_at', 'desc');
+
+            if (!empty($apartmentIds)) {
+                $detailQuery->whereIn('dt.apartment_id', $apartmentIds);
+            }
+
+            $details = $detailQuery->get();
+
+            // Tính tổng
+            $totalAmount = $summaryByApartment->sum('total_amount');
+            $totalItems = $summaryByApartment->sum('total_items');
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Success',
+                'data' => [
+                    'summary' => $summaryByApartment,
+                    'details' => $details,
+                    'total_amount' => $totalAmount,
+                    'total_items' => $totalItems,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

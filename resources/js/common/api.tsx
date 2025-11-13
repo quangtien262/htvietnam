@@ -116,6 +116,7 @@ export const API = {
     dauTuDelete: `${BASE_API_URL}aitilen/dau-tu/delete`,
     dauTuUpdateSortOrder: `${BASE_API_URL}aitilen/dau-tu/update-sort-order`,
     dauTuSelectData: `${BASE_API_URL}aitilen/dau-tu/select-data`,
+    dauTuReport: `${BASE_API_URL}aitilen/dau-tu/report`,
 
     // users
     userList: `${BASE_API_URL}user/list`,
