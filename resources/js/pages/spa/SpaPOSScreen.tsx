@@ -165,22 +165,24 @@ const SpaPOSScreen: React.FC = () => {
         }
     };
 
-    // Fetch customers from users table (API.userList)
+    // Fetch customers from users table using API.userSelect
     const fetchCustomers = async (keyword: string = '') => {
         try {
-            const response = await axios.get(API.userList, {
-                params: {
-                    per_page: 1000,
-                    keyword: keyword || undefined,
-                },
-            });
+            const response = await axios.post(API.userSelect);
+            console.log('Customers response:', response.data);
 
-            // API may return pagination object or array
-            const data = response.data.data?.data || response.data.data || response.data || [];
-            const users = Array.isArray(data) ? data : (data.data || []);
-            setCustomers(users);
+            if (response.data.status_code === 200) {
+                const data = response.data.data || [];
+                setCustomers(Array.isArray(data) ? data : []);
+                console.log('Customers loaded:', data.length);
+            } else {
+                console.error('Failed to fetch customers:', response.data);
+                message.error('Không thể tải danh sách khách hàng');
+                setCustomers([]);
+            }
         } catch (error) {
             console.error('Error fetching customers:', error);
+            message.error('Lỗi khi tải danh sách khách hàng');
             setCustomers([]);
         }
     };
@@ -233,7 +235,7 @@ const SpaPOSScreen: React.FC = () => {
             const values = await form.validateFields();
 
             const invoiceData = {
-                khach_hang_id: selectedCustomer?.id,
+                khach_hang_id: selectedCustomer?.value,
                 chi_nhanh_id: 1, // Default branch
                 chi_tiets: cart.map(item => ({
                     dich_vu_id: item.type === 'service' ? item.id : null,
@@ -494,23 +496,21 @@ const SpaPOSScreen: React.FC = () => {
                             <Select
                                 placeholder="Chọn khách hàng"
                                 style={{ width: '100%' }}
-                                value={selectedCustomer?.id}
+                                value={selectedCustomer?.value}
                                 onChange={(value: any) => {
-                                    const user = customers.find(u => u.id === value);
+                                    const user = customers.find(u => u.value === value);
                                     setSelectedCustomer(user || null);
                                 }}
                                 showSearch
                                 allowClear
                                 filterOption={(input, option: any) => {
-                                    // allow client-side filtering on label
-                                    return (option?.children || '').toLowerCase().includes(input.toLowerCase());
+                                    const label = option?.children?.toString() || '';
+                                    return label.toLowerCase().includes(input.toLowerCase());
                                 }}
-                                onSearch={(val) => fetchCustomers(val)}
                             >
                                 {customers.map(user => (
-                                    <Select.Option key={user.id} value={user.id}>
-                                        {user.name || user.ho_ten || user.username || `${user.email || ''}`}{' '}
-                                        - {user.points ?? user.diem_tich_luy ?? 0} điểm
+                                    <Select.Option key={user.value} value={user.value}>
+                                        {user.code} - {user.label} {user.phone ? `- ${user.phone}` : ''}
                                     </Select.Option>
                                 ))}
                             </Select>
@@ -543,11 +543,12 @@ const SpaPOSScreen: React.FC = () => {
                                     </div>
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span>Dùng điểm ({selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}):</span>
+                                        <span>Dùng điểm ({selectedCustomer?.points ?? 0}):</span>
                                         <InputNumber
                                             value={pointsUsed}
                                             onChange={(value) => setPointsUsed(value || 0)}
-                                            max={selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}
+                                            max={selectedCustomer?.points ?? 0}
+                                            disabled={!selectedCustomer || (selectedCustomer?.points ?? 0) === 0}
                                             style={{ width: 150 }}
                                         />
                                     </div>

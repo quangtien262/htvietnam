@@ -184,8 +184,6 @@ const InvoiceList_BDS: React.FC = () => {
                 // get danh sách users để add vào props, phục vụ cho việc sửa khách hàng, nên để trong fetchData để tránh lỗi không có props.users khi mở form edit
                 axios.post(API.userSelect, {})
                     .then((res: any) => {
-                        console.log('resssss', res.data.data);
-
                         // handle response
                         setProps((prevProps: any) => ({
                             ...prevProps,

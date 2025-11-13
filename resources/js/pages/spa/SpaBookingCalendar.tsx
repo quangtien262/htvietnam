@@ -44,13 +44,20 @@ const SpaBookingCalendar: React.FC = () => {
 
     const fetchCustomers = async () => {
         try {
-            const response = await axios.get(API.userList, {
-                params: { per_page: 1000 }
-            });
-            const data = response.data.data?.data || response.data.data || [];
-            setCustomers(Array.isArray(data) ? data : []);
+            const response = await axios.post(API.userSelect);
+            console.log('Customers response:', response.data);
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data || [];
+                setCustomers(Array.isArray(data) ? data : []);
+                console.log('Customers loaded:', data.length);
+            } else {
+                console.error('Failed to fetch customers:', response.data);
+                message.error('Không thể tải danh sách khách hàng');
+            }
         } catch (error) {
             console.error('Error fetching customers:', error);
+            message.error('Lỗi khi tải danh sách khách hàng');
         }
     };
 
@@ -198,13 +205,14 @@ const SpaBookingCalendar: React.FC = () => {
                         <Select
                             placeholder="Chọn khách hàng"
                             showSearch
-                            filterOption={(input, option: any) =>
-                                (option?.children || '').toLowerCase().includes(input.toLowerCase())
-                            }
+                            filterOption={(input, option: any) => {
+                                const label = option?.children?.toString() || '';
+                                return label.toLowerCase().includes(input.toLowerCase());
+                            }}
                         >
                             {customers.map(customer => (
-                                <Select.Option key={customer.id} value={customer.id}>
-                                    {customer.name || customer.ho_ten || customer.username} - {customer.phone || customer.sdt || customer.email}
+                                <Select.Option key={customer.value} value={customer.value}>
+                                    {customer.code} - {customer.label} {customer.phone ? `- ${customer.phone}` : ''}
                                 </Select.Option>
                             ))}
                         </Select>
