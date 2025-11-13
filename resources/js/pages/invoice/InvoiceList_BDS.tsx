@@ -172,6 +172,7 @@ const InvoiceList_BDS: React.FC = () => {
         setLoadingTable(true);
         axios.post(API.aitilen_searchInvoice, request)
             .then((res: any) => {
+                console.log('Refresh response:', res.data);
                 const response = res.data.data;
                 setDataSource(response.datas);
                 setTableParams({
