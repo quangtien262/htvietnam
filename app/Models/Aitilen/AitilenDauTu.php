@@ -35,6 +35,13 @@ class AitilenDauTu extends Model
         'sort_order' => 'integer',
     ];
 
+    protected $appends = [
+        'supplier_name',
+        'loai_chi_name',
+        'apartment_name',
+        'room_name',
+    ];
+
     // Relationships
     public function supplier()
     {
@@ -54,5 +61,26 @@ class AitilenDauTu extends Model
     public function room()
     {
         return $this->belongsTo(\App\Models\Admin\Room::class, 'room_id');
+    }
+
+    // Accessors
+    public function getSupplierNameAttribute()
+    {
+        return $this->supplier ? $this->supplier->name : null;
+    }
+
+    public function getLoaiChiNameAttribute()
+    {
+        return $this->loaiChi ? $this->loaiChi->name : null;
+    }
+
+    public function getApartmentNameAttribute()
+    {
+        return $this->apartment ? $this->apartment->name : null;
+    }
+
+    public function getRoomNameAttribute()
+    {
+        return $this->room ? $this->room->name : null;
     }
 }

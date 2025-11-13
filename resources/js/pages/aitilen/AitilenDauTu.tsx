@@ -301,43 +301,26 @@ const AitilenDauTu: React.FC = () => {
             title: 'Tên chi phí',
             dataIndex: 'name',
             key: 'name',
-            width: 200,
-            fixed: 'left',
-        },
-        {
-            title: 'Nội dung',
-            dataIndex: 'content',
-            key: 'content',
             width: 250,
-            render: (text: string) => text || '-',
+            render: (text: string, record: any) => {
+                return <>
+                    <span>{text}</span>
+                    {record.content ? <p>{record.content}</p> : null}
+                </>;
+            },
+
         },
         {
             title: 'Tòa nhà',
             dataIndex: 'apartment_name',
             key: 'apartment_name',
             width: 150,
-            render: (text: string) => text || '-',
-        },
-        {
-            title: 'Phòng',
-            dataIndex: 'room_name',
-            key: 'room_name',
-            width: 100,
-            render: (text: string) => text || '-',
-        },
-        {
-            title: 'Nhà cung cấp',
-            dataIndex: 'supplier_name',
-            key: 'supplier_name',
-            width: 150,
-            render: (text: string) => text || '-',
-        },
-        {
-            title: 'Loại chi',
-            dataIndex: 'loai_chi_name',
-            key: 'loai_chi_name',
-            width: 120,
-            render: (text: string) => text || '-',
+            render: (text: string, record: any) => {
+                return <>
+                    <span>{text}</span>
+                    {record.room_name ? <span>{record.room_name}</span> : null}
+                </>;
+            },
         },
         {
             title: 'Giá trị',
@@ -345,10 +328,13 @@ const AitilenDauTu: React.FC = () => {
             key: 'price',
             width: 150,
             align: 'right',
-            render: (value: number) => (
-                <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
-                    {numberFormat(value ?? 0)} ₫
-                </span>
+            render: (value: number, record: any) => (
+                <div>
+                    <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
+                        {numberFormat(value ?? 0)} ₫
+                    </span>
+                    <p>{record.loai_chi_name}</p>
+                </div>
             ),
         },
         {
@@ -386,6 +372,13 @@ const AitilenDauTu: React.FC = () => {
                     {value ? 'Hoạt động' : 'Ngưng'}
                 </Tag>
             ),
+        },
+        {
+            title: 'Nhà cung cấp',
+            dataIndex: 'supplier_name',
+            key: 'supplier_name',
+            width: 150,
+            render: (text: string) => text || '-',
         },
         {
             title: 'Thao tác',
