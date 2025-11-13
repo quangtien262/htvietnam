@@ -100,7 +100,7 @@ class AitilenInvoice extends Model
         } else {
             $datas = $datas->paginate(25);
         }
-        dd($datas);
+        // dd($datas);
         return $datas;
     }
 }
