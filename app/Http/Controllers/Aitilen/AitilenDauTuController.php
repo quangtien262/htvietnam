@@ -277,21 +277,40 @@ class AitilenDauTuController extends Controller
     public function addBulk(Request $request)
     {
         try {
-            $validated = $request->validate([
+            // Validate basic structure
+            $request->validate([
                 'items' => 'required|array|min:1',
-                'items.*.name' => 'required|string',
-                'items.*.price' => 'required|numeric',
+                'items.*.name' => 'nullable|string',
+                'items.*.price' => 'nullable|numeric',
                 'items.*.apartment_id' => 'nullable|integer',
                 'items.*.loai_chi_id' => 'nullable|integer',
             ]);
+
+            // Filter out empty items (items without name)
+            $validItems = collect($request->items)->filter(function($item) {
+                return !empty($item['name']) && trim($item['name']) !== '';
+            })->values()->all();
+
+            if (count($validItems) === 0) {
+                return response()->json([
+                    'status_code' => 400,
+                    'message' => 'Vui lòng nhập ít nhất 1 chi phí có tên',
+                ], 400);
+            }
 
             $created = [];
             $errors = [];
 
             DB::beginTransaction();
 
-            foreach ($request->items as $index => $item) {
+            foreach ($validItems as $index => $item) {
                 try {
+                    // Validate: if name exists, price is required
+                    if (empty($item['price']) || $item['price'] <= 0) {
+                        $errors[] = "Dòng " . ($index + 1) . ": Giá trị phải lớn hơn 0 khi đã có tên chi phí";
+                        continue;
+                    }
+
                     $dauTu = AitilenDauTu::create([
                         'name' => $item['name'],
                         'price' => $item['price'],

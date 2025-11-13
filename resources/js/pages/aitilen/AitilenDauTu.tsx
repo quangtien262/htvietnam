@@ -67,6 +67,12 @@ const AitilenDauTu: React.FC = () => {
 
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
+    // Bulk form states
+    const [applyAllApartment, setApplyAllApartment] = useState(false);
+    const [applyAllLoaiChi, setApplyAllLoaiChi] = useState(false);
+    const [commonApartmentId, setCommonApartmentId] = useState<number | undefined>(undefined);
+    const [commonLoaiChiId, setCommonLoaiChiId] = useState<number | undefined>(undefined);
+
     useEffect(() => {
         loadMasterData();
         fetchData();
@@ -153,6 +159,11 @@ const AitilenDauTu: React.FC = () => {
 
     const handleBulkAdd = () => {
         bulkForm.resetFields();
+        // Reset checkboxes and common values
+        setApplyAllApartment(false);
+        setApplyAllLoaiChi(false);
+        setCommonApartmentId(undefined);
+        setCommonLoaiChiId(undefined);
         // Mặc định 5 items
         bulkForm.setFieldsValue({
             items: Array(5).fill(null).map(() => ({
@@ -231,14 +242,40 @@ const AitilenDauTu: React.FC = () => {
 
     const handleBulkSubmit = async (values: any) => {
         try {
+            // Filter out empty rows (rows without name)
+            const validItems = values.items.filter((item: any) => item?.name && item.name.trim() !== '');
+
+            if (validItems.length === 0) {
+                message.warning('Vui lòng nhập ít nhất 1 chi phí');
+                return;
+            }
+
+            // Validate: If name exists, price must exist
+            const invalidItems = validItems.filter((item: any) => !item.price || item.price <= 0);
+            if (invalidItems.length > 0) {
+                message.error('Các dòng có tên chi phí phải có giá trị hợp lệ');
+                return;
+            }
+
+            // Apply common values if checkboxes are checked
+            const itemsToSubmit = validItems.map((item: any) => ({
+                ...item,
+                apartment_id: applyAllApartment ? commonApartmentId : item.apartment_id,
+                loai_chi_id: applyAllLoaiChi ? commonLoaiChiId : item.loai_chi_id,
+            }));
+
             const res = await axios.post(API.dauTuAddBulk, {
-                items: values.items
+                items: itemsToSubmit
             });
 
             if (res?.data?.status_code === 200) {
                 message.success(res.data.message || 'Thêm nhanh thành công');
                 setIsBulkModalVisible(false);
                 bulkForm.resetFields();
+                setApplyAllApartment(false);
+                setApplyAllLoaiChi(false);
+                setCommonApartmentId(undefined);
+                setCommonLoaiChiId(undefined);
                 fetchData();
             } else {
                 message.error(res?.data?.message || 'Có lỗi xảy ra');
@@ -663,12 +700,11 @@ const AitilenDauTu: React.FC = () => {
                                             render: (_, __, index) => index + 1,
                                         },
                                         {
-                                            title: <span style={{ color: 'red' }}>* Tên chi phí</span>,
+                                            title: 'Tên chi phí',
                                             width: 250,
                                             render: (_, field) => (
                                                 <Form.Item
                                                     name={[field.name, 'name']}
-                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
                                                     style={{ marginBottom: 0 }}
                                                 >
                                                     <Input placeholder="Nhập tên chi phí" />
@@ -676,12 +712,11 @@ const AitilenDauTu: React.FC = () => {
                                             ),
                                         },
                                         {
-                                            title: <span style={{ color: 'red' }}>* Giá trị</span>,
+                                            title: 'Giá trị',
                                             width: 150,
                                             render: (_, field) => (
                                                 <Form.Item
                                                     name={[field.name, 'price']}
-                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
                                                     style={{ marginBottom: 0 }}
                                                 >
                                                     <InputNumber
@@ -694,45 +729,119 @@ const AitilenDauTu: React.FC = () => {
                                             ),
                                         },
                                         {
-                                            title: 'Tòa nhà',
-                                            width: 180,
-                                            render: (_, field) => (
-                                                <Form.Item
-                                                    name={[field.name, 'apartment_id']}
-                                                    style={{ marginBottom: 0 }}
-                                                >
-                                                    <Select
-                                                        placeholder="Chọn tòa nhà"
-                                                        allowClear
-                                                        showSearch
-                                                        optionFilterProp="children"
+                                            title: (
+                                                <div>
+                                                    <div>Tòa nhà</div>
+                                                    <Checkbox
+                                                        checked={applyAllApartment}
+                                                        onChange={(e) => {
+                                                            setApplyAllApartment(e.target.checked);
+                                                            if (!e.target.checked) {
+                                                                setCommonApartmentId(undefined);
+                                                            }
+                                                        }}
+                                                        style={{ fontSize: 12 }}
                                                     >
-                                                        {apartmentList.map(item => (
-                                                            <Option key={item.id} value={item.id}>{item.name}</Option>
-                                                        ))}
-                                                    </Select>
-                                                </Form.Item>
+                                                        Áp dụng tất cả
+                                                    </Checkbox>
+                                                    {applyAllApartment && (
+                                                        <Select
+                                                            placeholder="Chọn tòa nhà chung"
+                                                            allowClear
+                                                            showSearch
+                                                            optionFilterProp="children"
+                                                            style={{ width: '100%', marginTop: 4 }}
+                                                            value={commonApartmentId}
+                                                            onChange={(value) => setCommonApartmentId(value)}
+                                                        >
+                                                            {apartmentList.map(item => (
+                                                                <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                            ))}
+                                                        </Select>
+                                                    )}
+                                                </div>
+                                            ),
+                                            width: 200,
+                                            render: (_, field) => (
+                                                applyAllApartment ? (
+                                                    <div style={{ textAlign: 'center', color: '#999' }}>
+                                                        {commonApartmentId ? apartmentList.find(a => a.id === commonApartmentId)?.name : '-'}
+                                                    </div>
+                                                ) : (
+                                                    <Form.Item
+                                                        name={[field.name, 'apartment_id']}
+                                                        style={{ marginBottom: 0 }}
+                                                    >
+                                                        <Select
+                                                            placeholder="Chọn tòa nhà"
+                                                            allowClear
+                                                            showSearch
+                                                            optionFilterProp="children"
+                                                        >
+                                                            {apartmentList.map(item => (
+                                                                <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                            ))}
+                                                        </Select>
+                                                    </Form.Item>
+                                                )
                                             ),
                                         },
                                         {
-                                            title: 'Loại chi',
-                                            width: 150,
-                                            render: (_, field) => (
-                                                <Form.Item
-                                                    name={[field.name, 'loai_chi_id']}
-                                                    style={{ marginBottom: 0 }}
-                                                >
-                                                    <Select
-                                                        placeholder="Chọn loại chi"
-                                                        allowClear
-                                                        showSearch
-                                                        optionFilterProp="children"
+                                            title: (
+                                                <div>
+                                                    <div>Loại chi</div>
+                                                    <Checkbox
+                                                        checked={applyAllLoaiChi}
+                                                        onChange={(e) => {
+                                                            setApplyAllLoaiChi(e.target.checked);
+                                                            if (!e.target.checked) {
+                                                                setCommonLoaiChiId(undefined);
+                                                            }
+                                                        }}
+                                                        style={{ fontSize: 12 }}
                                                     >
-                                                        {loaiChiList.map(item => (
-                                                            <Option key={item.id} value={item.id}>{item.name}</Option>
-                                                        ))}
-                                                    </Select>
-                                                </Form.Item>
+                                                        Áp dụng tất cả
+                                                    </Checkbox>
+                                                    {applyAllLoaiChi && (
+                                                        <Select
+                                                            placeholder="Chọn loại chi chung"
+                                                            allowClear
+                                                            showSearch
+                                                            optionFilterProp="children"
+                                                            style={{ width: '100%', marginTop: 4 }}
+                                                            value={commonLoaiChiId}
+                                                            onChange={(value) => setCommonLoaiChiId(value)}
+                                                        >
+                                                            {loaiChiList.map(item => (
+                                                                <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                            ))}
+                                                        </Select>
+                                                    )}
+                                                </div>
+                                            ),
+                                            width: 180,
+                                            render: (_, field) => (
+                                                applyAllLoaiChi ? (
+                                                    <div style={{ textAlign: 'center', color: '#999' }}>
+                                                        {commonLoaiChiId ? loaiChiList.find(l => l.id === commonLoaiChiId)?.name : '-'}
+                                                    </div>
+                                                ) : (
+                                                    <Form.Item
+                                                        name={[field.name, 'loai_chi_id']}
+                                                        style={{ marginBottom: 0 }}
+                                                    >
+                                                        <Select
+                                                            placeholder="Chọn loại chi"
+                                                            allowClear
+                                                            showSearch
+                                                            optionFilterProp="children"
+                                                        >
+                                                            {loaiChiList.map(item => (
+                                                                <Option key={item.id} value={item.id}>{item.name}</Option>
+                                                            ))}
+                                                        </Select>
+                                                    </Form.Item>
+                                                )
                                             ),
                                         },
                                         {
