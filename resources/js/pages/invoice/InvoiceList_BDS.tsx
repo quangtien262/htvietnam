@@ -722,7 +722,7 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     const inFinishSearch = (values: any) => {
-        values.p = props.p;
+        // values.p = props.p;
         if (values.date) {
             values.month = values.date.format('MM');
             values.year = values.date.format('YYYY');
