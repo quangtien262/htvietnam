@@ -1681,10 +1681,16 @@ const InvoiceList_BDS: React.FC = () => {
                                             />
                                         </td>
                                         <td>
-                                            <Input.TextArea
-                                                rows={2}
-                                                placeholder="Ghi chú giảm giá"
-                                            />
+                                            <Form.Item
+                                                name="giam_gia_description"
+                                                label={<><span>Kỳ HĐ</span> {showInfo('Thay đổi tháng, sẽ update lại tiền dịch vụ tương ứng với số ngày trên tháng')}</>}
+                                                rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
+                                            >
+                                                <Input.TextArea
+                                                    rows={2}
+                                                    placeholder="Ghi chú giảm giá"
+                                                />
+                                            </Form.Item>
                                         </td>
                                     </tr>
 
