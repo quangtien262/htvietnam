@@ -647,7 +647,7 @@ const InvoiceList_BDS: React.FC = () => {
         dataService_new.forEach((data: any, idx: number) => {
             let total = (data.price_default ?? 0);
 
-            if (['KWH', 'M3'].includes(data.per_default)) {
+            if (['KWH', 'M3', 'KWh', 'm3'].includes(data.per_default)) {
                 console.log('ok');
                 total = (data.end - data.start) * data.price_default;
             } else {
