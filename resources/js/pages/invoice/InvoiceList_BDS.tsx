@@ -650,13 +650,14 @@ const InvoiceList_BDS: React.FC = () => {
             if (['KWH', 'M3', 'KWh', 'm3'].includes(data.per_default)) {
                 console.log('ok');
                 total = (data.end - data.start) * data.price_default;
+                console.log('ok');
             } else {
                 if (data.per_default === 'Người') {
                     total = total * soNguoi_new;
                 }
             }
             // tính số tiền theo ngày tương ứng
-            total = (total * soNgay / tongSoNgay);
+            // total = (total * soNgay / tongSoNgay);
 
             // Làm tròn lên hàng nghìn
             total = Math.ceil(total);
