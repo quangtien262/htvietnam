@@ -275,7 +275,7 @@ const InvestmentReport: React.FC = () => {
 
                 {/* Biểu đồ */}
                 <Row gutter={16}>
-                    <Col xs={24} lg={14}>
+                    <Col xs={24} lg={24}>
                         <Card title="Biểu đồ chi phí đầu tư theo tòa nhà" bordered={false}>
                             <ResponsiveContainer width="100%" height={400}>
                                 <BarChart data={barChartData}>
@@ -291,64 +291,46 @@ const InvestmentReport: React.FC = () => {
                             </ResponsiveContainer>
                         </Card>
                     </Col>
-                    <Col xs={24} lg={10}>
+                    <Col xs={24} lg={24}>
                         <Card title={<span>Tỷ trọng chi phí theo tòa nhà {showInfo(<>
                             <p>🎯 Ý nghĩa của biểu đồ này:</p>
-                            <p>Tỷ trọng (Pie Chart) giúp bạn nhìn thấy:</p>
+                            <p>Tỷ trọng giúp bạn nhìn thấy:</p>
                             <ul>
                                 <li>% phần trăm chi phí của từng tòa nhà so với tổng chi phí đầu tư</li>
                                 <li>So sánh trực quan xem tòa nhà nào chiếm nhiều chi phí nhất</li>
                                 <li>Phân bổ ngân sách - tòa nhà nào "ăn tiền" hơn</li>
                             </ul>
-                            <p>Ví dụ thực tế:</p>
-                            <ul>
-                                <li>Nếu bạn đầu tư 1 tỷ vào 3 tòa nhà: A (600 triệu), B (300 triệu), C (100 triệu)</li>
-                                <li>Biểu đồ sẽ hiển thị: A 60%, B 30%, C 10%</li>
-                                <li>Giúp bạn thấy ngay tòa nhà A chiếm phần lớn chi phí đầu tư</li>
-                                <li>Từ đó bạn có thể đánh giá hiệu quả đầu tư từng tòa nhà</li>
-                            </ul>
-                        </>)}</span>}>
-                            {pieChartData.length > 0 && totalAmount > 0 ? (
-                                <ResponsiveContainer width="100%" height={400}>
-                                    <PieChart>
-                                        <Pie
-                                            data={pieChartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={true}
-                                            label={(entry) => {
-                                                const percent = (((entry.value ?? 0) / totalAmount) * 100).toFixed(1);
-                                                return `${percent}%`;
-                                            }}
-                                            outerRadius={120}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {pieChartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
+                        </>)}</span>} bordered={false}>
+                            {reportData.length > 0 && totalAmount > 0 ? (
+                                <ResponsiveContainer width="100%" height={Math.max(300, reportData.length * 60)}>
+                                    <BarChart
+                                        data={reportData.map(item => ({
+                                            name: item.apartment_name,
+                                            value: item.total_amount,
+                                            percent: ((item.total_amount / totalAmount) * 100).toFixed(1)
+                                        }))}
+                                        layout="vertical"
+                                        margin={{ top: 5, right: 100, left: 120, bottom: 5 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis type="number" tickFormatter={(value) => numberFormat(value)} />
+                                        <YAxis dataKey="name" type="category" width={110} />
                                         <Tooltip
                                             formatter={(value: number, name: string, props: any) => [
-                                                `${numberFormat(value)} ₫ (${(((value ?? 0) / totalAmount) * 100).toFixed(1)}%)`,
-                                                props.payload.name
+                                                `${numberFormat(value)} ₫ (${props.payload.percent}%)`,
+                                                'Chi phí'
                                             ]}
                                         />
-                                        <Legend
-                                            layout="vertical"
-                                            align="right"
-                                            verticalAlign="middle"
-                                            formatter={(value, entry: any) => {
-                                                const data = entry.payload;
-                                                const percent = (((data.value ?? 0) / totalAmount) * 100).toFixed(1);
-                                                return `${data.name} (${percent}%)`;
-                                            }}
-                                        />
-                                    </PieChart>
+                                        <Bar dataKey="value" name="Tổng chi phí" label={{ position: 'right', formatter: (value: any) => numberFormat(Number(value)) + ' ₫' }}>
+                                            {reportData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
                                 </ResponsiveContainer>
                             ) : (
                                 <div style={{
-                                    height: 400,
+                                    height: 300,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',

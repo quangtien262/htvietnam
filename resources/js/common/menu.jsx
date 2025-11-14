@@ -126,12 +126,14 @@ export const MENU = {
                 },
             ],
         },
+        // Khách hàng
         {
             label: <Link to={`${ROUTE.customerList}?p=bds`}>Khách hàng</Link>,
             key: (key++).toString(),
             icon: <UserOutlined />,
             children: [],
         },
+        // Tòa nhà
         {
             label: <Link to={`${ROUTE.apartment_bds}?p=bds`}>Tòa nhà</Link>,
             key: (key++).toString(),
@@ -155,6 +157,11 @@ export const MENU = {
             key: (key++).toString(),
             icon: <ApartmentOutlined />,
             children: [
+                {
+                    label: <Link to={`${ROUTE.baseRoute}setting/note?p=bds`}>Ghi chú</Link>,
+                    key: (key++).toString(),
+                    icon: <HomeOutlined />,
+                },
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/loai_chi?p=bds`}>Loại chi</Link>,
                     key: (key++).toString(),
