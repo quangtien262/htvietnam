@@ -1643,8 +1643,7 @@ const InvoiceList_BDS: React.FC = () => {
                                         <td>
                                             <Form.Item
                                                 name="giam_gia_description"
-                                                label={<><span>Kỳ HĐ</span> {showInfo('Thay đổi tháng, sẽ update lại tiền dịch vụ tương ứng với số ngày trên tháng')}</>}
-                                                rules={[{ required: true, message: 'Vui lòng chọn ngày hẹn đóng tiền' }]}
+                                                label=""
                                             >
                                                 <Input.TextArea
                                                     rows={2}
