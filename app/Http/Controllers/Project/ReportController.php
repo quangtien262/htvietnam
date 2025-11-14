@@ -488,4 +488,98 @@ class ReportController extends Controller
             return sprintf('%ds', $seconds);
         }
     }
+
+    /**
+     * Get user daily report detail (for managers)
+     *
+     * @param int $userId
+     * @param string|null $date
+     * @return JsonResponse
+     */
+    public function getUserDailyReport($userId, $date = null)
+    {
+        $reportDate = $date ? Carbon::parse($date) : Carbon::today();
+
+        try {
+            // 1. Get time logs for the day
+            $timeLogs = TaskTimeLog::where('admin_user_id', $userId)
+                ->whereDate('started_at', $reportDate)
+                ->with(['task.project', 'task.trangThai'])
+                ->get();
+
+            $totalDuration = $timeLogs->sum('duration');
+
+            // 2. Group time logs by project
+            $timeByProject = $timeLogs->groupBy('task.project.ten_du_an')->map(function ($logs) {
+                return [
+                    'project_name' => $logs->first()->task->project->ten_du_an ?? 'N/A',
+                    'project_id' => $logs->first()->task->project_id ?? null,
+                    'hours' => round($logs->sum('duration') / 3600, 2),
+                    'duration_seconds' => $logs->sum('duration'),
+                ];
+            })->values();
+
+            // 3. Get tasks worked on
+            $taskIds = $timeLogs->pluck('task_id')->unique();
+            $tasksWorkedOn = Task::whereIn('id', $taskIds)
+                ->with(['project', 'trangThai', 'uuTien', 'nguoiThucHien'])
+                ->get()
+                ->map(function ($task) use ($timeLogs) {
+                    $taskTimeLogs = $timeLogs->where('task_id', $task->id);
+
+                    return [
+                        'task_id' => $task->id,
+                        'task_code' => $task->ma_nhiem_vu,
+                        'task_title' => $task->tieu_de,
+                        'project_name' => $task->project->ten_du_an ?? 'N/A',
+                        'project_id' => $task->project_id,
+                        'time_spent_seconds' => $taskTimeLogs->sum('duration'),
+                        'time_spent_formatted' => $this->formatDuration($taskTimeLogs->sum('duration')),
+                        'progress' => $task->tien_do ?? 0,
+                        'status' => $task->trangThai->name ?? 'N/A',
+                        'status_color' => $task->trangThai->color ?? '#8c8c8c',
+                        'priority' => $task->uuTien->name ?? 'N/A',
+                        'priority_color' => $task->uuTien->color ?? '#8c8c8c',
+                    ];
+                });
+
+            // 4. Get user info
+            $user = \App\Models\AdminUser::find($userId);
+
+            // 5. Get daily report submission (notes, blockers, plan)
+            $dailyReport = \DB::table('pro___daily_reports')
+                ->where('admin_user_id', $userId)
+                ->where('report_date', $reportDate->format('Y-m-d'))
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                    ],
+                    'date' => $reportDate->format('Y-m-d'),
+                    'date_formatted' => $reportDate->format('d/m/Y'),
+                    'total_hours' => round($totalDuration / 3600, 2),
+                    'total_duration_formatted' => $this->formatDuration($totalDuration),
+                    'time_by_project' => $timeByProject,
+                    'tasks' => $tasksWorkedOn,
+                    'tasks_count' => $tasksWorkedOn->count(),
+                    'report' => $dailyReport ? [
+                        'notes' => $dailyReport->notes,
+                        'blockers' => $dailyReport->blockers,
+                        'plan_tomorrow' => $dailyReport->plan_tomorrow,
+                        'status' => $dailyReport->status,
+                        'submitted_at' => $dailyReport->submitted_at,
+                    ] : null,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

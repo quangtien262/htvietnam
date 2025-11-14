@@ -29,7 +29,9 @@ class TaskService
             'trangThai',
             'uuTien',
             'nguoiThucHien',
-            'project',
+            'nguoiGiaoViec',
+            'supporters',
+            'project.members',
             'parent',
             'checklists' => function ($query) {
                 $query->with('assignedUser')->orderBy('sort_order');
@@ -58,6 +60,24 @@ class TaskService
             'project',
             'parent'
         ]);
+
+        // Filter by user access - only show tasks from projects user has access to
+        $userId = auth('admin_users')->id();
+        if ($userId && $userId !== 1) { // Skip filter for super admin (ID = 1)
+            $query->whereHas('project', function($projectQuery) use ($userId) {
+                $projectQuery->where(function($q) use ($userId) {
+                    // Projects where user is PM
+                    $q->where('quan_ly_du_an_id', $userId)
+                      // Or projects where user is a member
+                      ->orWhereHas('members', function($memberQuery) use ($userId) {
+                          $memberQuery->where('admin_user_id', $userId)
+                                      ->where('is_active', true);
+                      })
+                      // Or projects created by user
+                      ->orWhere('created_by', $userId);
+                });
+            });
+        }
 
         // Filter by project
         if (!empty($params['project_id'])) {
@@ -236,7 +256,7 @@ class TaskService
                 'trangThai',
                 'uuTien',
                 'nguoiThucHien',
-                'project',
+                'project.members',
                 'parent',
                 'checklists' => function ($query) {
                     $query->with('assignedUser')->orderBy('sort_order');

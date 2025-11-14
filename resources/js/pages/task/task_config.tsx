@@ -37,6 +37,7 @@ import { optionEntries, formatGdata_column, onDrop, nl2br, objEntries, showInfo 
 import { DATE_TIME_SHOW, DATE_SHOW, DATE_TIME_FORMAT } from "../../function/constant";
 import { icon } from "../../components/comp_icon";
 import { API } from "../../common/api";
+import { taskApi } from "../../common/api/projectApi";
 
 
 const { TextArea } = Input;
@@ -972,6 +973,64 @@ export function taskInfo(props: any,
                             }
                         </p>
 
+                    </div>,
+
+                    // Người hỗ trợ (supporters)
+                    <div className="item03">
+                        <a><UsergroupAddOutlined /> </a>
+                        <span>Người hỗ trợ: </span>
+                        <Popover placement="bottomLeft"
+                            title="Chọn người hỗ trợ"
+                            trigger="click"
+                            content={
+                                <Select
+                                    showSearch
+                                    mode="multiple"
+                                    style={{ width: "100%" }}
+                                    value={dataAction.supporters ? dataAction.supporters.map(s => s.id) : []}
+                                    placeholder="Chọn người hỗ trợ"
+                                    optionFilterProp="children"
+                                    options={optionEntries(users)}
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? "")
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                    onChange={(supporterIds) => {
+                                        taskApi.updateSupporters(dataAction.id, supporterIds)
+                                            .then((response) => {
+                                                message.success('Cập nhật người hỗ trợ thành công');
+                                                if (typeof onSuccess === 'function') {
+                                                    onSuccess({
+                                                        task: response.data.data.task
+                                                    });
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                console.error('Error updating supporters:', error);
+                                                message.error('Cập nhật người hỗ trợ thất bại');
+                                            });
+                                    }}
+                                />
+                            }
+                        >
+                            <a onClick={(e) => e.preventDefault()} className="_right">
+                                <EditOutlined />
+                            </a>
+                        </Popover>
+                        <p>
+                            {
+                                !dataAction.supporters || dataAction.supporters.length === 0
+                                    ?
+                                    <span className="value-list">Chưa có người hỗ trợ</span>
+                                    :
+                                    <div>
+                                        {dataAction.supporters.map((supporter, key) => (
+                                            <Tag color="blue" key={key}>{supporter.name}</Tag>
+                                        ))}
+                                    </div>
+                            }
+                        </p>
                     </div>,
 
                     // Chọn người Làm cùng hoặc theo dõi

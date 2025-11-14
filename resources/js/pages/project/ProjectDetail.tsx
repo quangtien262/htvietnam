@@ -65,7 +65,7 @@ const ProjectDetail: React.FC = () => {
     const [applyAllStatus, setApplyAllStatus] = useState(true);
     const [applyAllAssignee, setApplyAllAssignee] = useState(true);
     const [applyAllPriority, setApplyAllPriority] = useState(true);
-    const [quickAddLoading, setQuickAddLoading] = useState(true);
+    const [quickAddLoading, setQuickAddLoading] = useState(false);
 
     // Active tab state - to preserve tab after reload
     const [activeTabKey, setActiveTabKey] = useState<string>('tasks');
@@ -91,6 +91,20 @@ const ProjectDetail: React.FC = () => {
             loadReferenceData();
         }
     }, [id]);
+
+    // Handle opening task detail from URL query param (from notification)
+    useEffect(() => {
+        const taskIdParam = searchParams.get('task');
+        if (taskIdParam && project) {
+            const taskId = Number(taskIdParam);
+            if (taskId) {
+                setDetailTaskId(taskId);
+                setDetailVisible(true);
+                // Remove query param after opening
+                navigate(`/project/detail/${id}`, { replace: true });
+            }
+        }
+    }, [searchParams, project, id, navigate]);
 
     useEffect(() => {
         if (id && taskStatuses.length > 0 && taskViewMode === 'kanban') {
@@ -125,14 +139,20 @@ const ProjectDetail: React.FC = () => {
 
         setLoading(true);
         try {
+            console.log('[ProjectDetail] Loading project:', id);
             const response = await projectApi.getById(Number(id));
 
+            console.log('[ProjectDetail] Project response:', response.data);
             if (response.data.success) {
                 setProject(response.data.data);
                 // Set project members for task assignment
                 setProjectMembers(response.data.data.members || []);
+            } else {
+                console.error('[ProjectDetail] API returned success=false:', response.data);
+                message.error(response.data.message || 'Không thể tải thông tin dự án');
             }
         } catch (error: any) {
+            console.error('[ProjectDetail] Error loading project:', error);
             message.error(error.response?.data?.message || 'Không thể tải thông tin dự án');
         } finally {
             setLoading(false);
@@ -180,7 +200,9 @@ const ProjectDetail: React.FC = () => {
 
         setKanbanLoading(true);
         try {
+            console.log('[ProjectDetail] Loading kanban data for project:', id);
             const response = await taskApi.getKanban(Number(id));
+            console.log('[ProjectDetail] Kanban response:', response.data);
             if (response.data.success) {
                 const data = response.data.data;
 
@@ -191,8 +213,12 @@ const ProjectDetail: React.FC = () => {
                 });
 
                 setKanbanData(kanban);
+            } else {
+                console.error('[ProjectDetail] Kanban API returned success=false:', response.data);
+                message.error(response.data.message || 'Không thể tải dữ liệu kanban');
             }
         } catch (error: any) {
+            console.error('[ProjectDetail] Error loading kanban:', error);
             message.error(error.response?.data?.message || 'Không thể tải dữ liệu kanban');
             // Initialize empty arrays on error
             const kanban: { [key: number]: Task[] } = {};
@@ -253,7 +279,8 @@ const ProjectDetail: React.FC = () => {
         try {
             await taskApi.updateStatus(taskId, destStatusId, destination.index);
             message.success('Cập nhật trạng thái thành công');
-            loadProject(); // Reload to update task counts
+            // Don't reload entire project to avoid loading spinner
+            // Task status already updated optimistically in UI
         } catch (error: any) {
             message.error('Không thể cập nhật trạng thái');
             // Revert on error
@@ -896,16 +923,17 @@ const ProjectDetail: React.FC = () => {
                                 }}>
                                     {taskStatuses.map((status) => {
                                         const tasks = kanbanData[status.id] || [];
+
                                         return (
                                             <div
                                                 key={status.id}
                                                 style={{
-                                                    flex: '0 0 320px',
+                                                    flex: '0 0 300px',
                                                     backgroundColor: '#fafafa',
                                                     borderRadius: 12,
-                                                    padding: 16,
+                                                    padding: 0,
                                                     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                                                    border: '1px solid #f0f0f0',
+                                                    // border: '1px solid #f0f0f0',
                                                 }}
                                             >
                                                 <div style={{
@@ -953,7 +981,7 @@ const ProjectDetail: React.FC = () => {
                                                                 minHeight: 200,
                                                                 backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
                                                                 borderRadius: 8,
-                                                                padding: 4,
+                                                                // padding: 4,
                                                                 transition: 'background-color 0.2s ease',
                                                             }}
                                                         >
@@ -990,7 +1018,7 @@ const ProjectDetail: React.FC = () => {
                                                                                     style={{
                                                                                         cursor: 'pointer',
                                                                                         backgroundColor: snapshot.isDragging ? '#fff' : '#fff',
-                                                                                        borderLeft: `4px solid ${task.uu_tien?.color || '#1890ff'}`,
+                                                                                        borderBottom: `1px solid ${task.uu_tien?.color || '#1890ff'}`,
                                                                                         borderRadius: 8,
                                                                                         boxShadow: snapshot.isDragging
                                                                                             ? '0 8px 24px rgba(0,0,0,0.15)'
@@ -1001,54 +1029,28 @@ const ProjectDetail: React.FC = () => {
                                                                                     bodyStyle={{ padding: 12 }}
                                                                                 >
                                                                                     {/* Task Code & Priority */}
-                                                                                    <div style={{
-                                                                                        display: 'flex',
-                                                                                        justifyContent: 'space-between',
-                                                                                        alignItems: 'center',
-                                                                                        marginBottom: 10,
-                                                                                    }}>
-                                                                                        <Tag
-                                                                                            color={task.uu_tien?.color}
-                                                                                            style={{
-                                                                                                margin: 0,
-                                                                                                fontSize: 11,
-                                                                                                fontWeight: 600,
-                                                                                                padding: '2px 8px',
-                                                                                                borderRadius: 10,
-                                                                                            }}
-                                                                                        >
-                                                                                            {task.ma_nhiem_vu}
-                                                                                        </Tag>
-                                                                                        <Tag
-                                                                                            style={{
-                                                                                                margin: 0,
-                                                                                                fontSize: 10,
-                                                                                                padding: '2px 6px',
-                                                                                                borderRadius: 8,
-                                                                                                backgroundColor: '#f0f0f0',
-                                                                                                color: '#595959',
-                                                                                                border: 'none',
-                                                                                            }}
-                                                                                        >
-                                                                                            {task.uu_tien?.name}
-                                                                                        </Tag>
+                                                                                    <div>
+                                                                                        {task.uu_tien && task.uu_tien.name ? (
+                                                                                            <Tag
+                                                                                                color={task.uu_tien?.color}
+                                                                                                style={{
+                                                                                                    margin: 0,
+                                                                                                    fontSize: 11,
+                                                                                                    fontWeight: 600,
+                                                                                                    padding: '2px 8px',
+                                                                                                    borderRadius: 10,
+                                                                                                }}
+                                                                                            >
+                                                                                                {task.uu_tien.name}
+                                                                                            </Tag>
+                                                                                        ) : null}
+
+                                                                                        {/* Tiêu đề task */}
+                                                                                        <span> {task.tieu_de}</span>
                                                                                     </div>
 
                                                                                     {/* Task Title */}
-                                                                                    <div style={{
-                                                                                        marginBottom: 12,
-                                                                                        fontSize: 14,
-                                                                                        fontWeight: 500,
-                                                                                        color: '#262626',
-                                                                                        lineHeight: 1.5,
-                                                                                        overflow: 'hidden',
-                                                                                        textOverflow: 'ellipsis',
-                                                                                        display: '-webkit-box',
-                                                                                        WebkitLineClamp: 2,
-                                                                                        WebkitBoxOrient: 'vertical',
-                                                                                    }}>
-                                                                                        {task.tieu_de}
-                                                                                    </div>
+
 
                                                                                     {/* Progress Bar */}
                                                                                     {task.tien_do !== undefined && task.tien_do !== null && (
@@ -1059,7 +1061,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                 alignItems: 'center',
                                                                                                 marginBottom: 4,
                                                                                             }}>
-                                                                                                <span style={{ fontSize: 11, color: '#8c8c8c' }}>
+                                                                                                {/* <span style={{ fontSize: 11, color: '#8c8c8c' }}>
                                                                                                     Tiến độ
                                                                                                 </span>
                                                                                                 <span style={{
@@ -1068,18 +1070,9 @@ const ProjectDetail: React.FC = () => {
                                                                                                     color: '#262626',
                                                                                                 }}>
                                                                                                     {task.tien_do}%
-                                                                                                </span>
+                                                                                                </span> */}
                                                                                             </div>
-                                                                                            <Progress
-                                                                                                percent={task.tien_do}
-                                                                                                size="small"
-                                                                                                showInfo={false}
-                                                                                                strokeColor={{
-                                                                                                    '0%': '#108ee9',
-                                                                                                    '100%': '#87d068',
-                                                                                                }}
-                                                                                                trailColor="#f0f0f0"
-                                                                                            />
+
                                                                                         </div>
                                                                                     )}
 
@@ -1088,7 +1081,7 @@ const ProjectDetail: React.FC = () => {
                                                                                         display: 'flex',
                                                                                         justifyContent: 'space-between',
                                                                                         alignItems: 'center',
-                                                                                        paddingTop: 8,
+                                                                                        // paddingTop: 8,
                                                                                         borderTop: '1px solid #f0f0f0',
                                                                                     }}>
                                                                                         {task.nguoi_thuc_hien ? (
@@ -1924,7 +1917,7 @@ const ProjectDetail: React.FC = () => {
 
                     <div style={{ padding: '12px', backgroundColor: '#f0f0f0', borderRadius: 4 }}>
                         <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
-                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay, 
+                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay,
                             dự án sẽ được thêm vào meeting đó. Ngược lại, hệ thống sẽ tạo meeting mới.
                         </p>
                     </div>

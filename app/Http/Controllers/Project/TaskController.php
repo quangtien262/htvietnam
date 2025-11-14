@@ -8,6 +8,7 @@ use App\Models\Project\Task;
 use App\Models\Project\Project;
 use App\Services\Project\TaskService;
 use App\Services\Project\PermissionService;
+use App\Services\Project\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,11 +16,17 @@ class TaskController extends Controller
 {
     protected $taskService;
     protected $permissionService;
+    protected $notificationService;
 
-    public function __construct(TaskService $taskService, PermissionService $permissionService)
+    public function __construct(
+        TaskService $taskService,
+        PermissionService $permissionService,
+        NotificationService $notificationService
+    )
     {
         $this->taskService = $taskService;
         $this->permissionService = $permissionService;
+        $this->notificationService = $notificationService;
     }
 
     public function index(Request $request)
@@ -57,11 +64,20 @@ class TaskController extends Controller
     public function kanban($projectId)
     {
         try {
+            // Check project access permission
+            $project = Project::findOrFail($projectId);
+            $this->authorize('view', $project);
+
             $kanbanData = $this->taskService->getKanbanData($projectId);
             return response()->json([
                 'success' => true,
                 'data' => $kanbanData,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xem dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -73,11 +89,20 @@ class TaskController extends Controller
     public function gantt($projectId)
     {
         try {
+            // Check project access permission
+            $project = Project::findOrFail($projectId);
+            $this->authorize('view', $project);
+
             $ganttData = $this->taskService->getGanttData($projectId);
             return response()->json([
                 'success' => true,
                 'data' => $ganttData,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xem dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -102,21 +127,9 @@ class TaskController extends Controller
                 'thoi_gian_uoc_tinh' => 'nullable|integer|min:0',
             ]);
 
-            // Check permission to create task
-            $user = auth('admin_users')->user();
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized',
-                ], 401);
-            }
-
-            if (!$this->permissionService->userHasPermissionInProject($user->id, $validated['project_id'], 'task.create')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền tạo task trong dự án này',
-                ], 403);
-            }
+            // Check permission to create task using Policy
+            $project = Project::with('members')->findOrFail($validated['project_id']);
+            $this->authorize('create', [Task::class, $project]);
 
             $task = $this->taskService->create($validated);
 
@@ -125,6 +138,11 @@ class TaskController extends Controller
                 'message' => 'Tạo nhiệm vụ thành công',
                 'data' => $task,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền tạo task trong dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -136,28 +154,25 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $task = Task::findOrFail($id);
+            \Log::info('TaskController::update START', [
+                'task_id' => $id,
+                'user_id' => auth('admin_users')->id(),
+                'request_data' => $request->all(),
+            ]);
 
-            // Check permission to update task
-            $user = auth('admin_users')->user();
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized',
-                ], 401);
-            }
+            $task = Task::with('project.members')->findOrFail($id);
 
-            // Check if user has task.update OR (task.update_own AND is assignee)
-            $hasUpdatePermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update');
-            $hasUpdateOwnPermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update_own')
-                && $task->nguoi_thuc_hien_id === $user->id;
+            \Log::info('TaskController::update - Task loaded', [
+                'task_id' => $task->id,
+                'has_project' => isset($task->project),
+                'has_members' => isset($task->project->members),
+                'members_count' => $task->project->members->count() ?? 0,
+            ]);
 
-            if (!$hasUpdatePermission && !$hasUpdateOwnPermission) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền sửa task này',
-                ], 403);
-            }
+            // Check permission using Policy
+            $this->authorize('update', $task);
+
+            \Log::info('TaskController::update - Authorization passed');
 
             $validated = $request->validate([
                 'tieu_de' => 'sometimes|required|string|max:255',
@@ -177,14 +192,64 @@ class TaskController extends Controller
                 'checklists.*.sort_order' => 'required|integer',
             ]);
 
+            // Track changes for notifications
+            $oldTask = $task->replicate();
+
             $task = $this->taskService->update($id, $validated);
+
+            \Log::info('TaskController::update - Task updated successfully');
+
+            // Reload task with supporters for notification recipients
+            $task->load('supporters');            // Send notifications based on what changed
+            if (isset($validated['checklists'])) {
+                $this->notificationService->notifyTaskChange($task, 'task_checklist', 'đã cập nhật checklist');
+            }
+            if (isset($validated['trang_thai_id']) && $oldTask->trang_thai_id != $validated['trang_thai_id']) {
+                $this->notificationService->notifyTaskChange($task, 'task_status', 'đã thay đổi trạng thái');
+            }
+            if (isset($validated['uu_tien_id']) && $oldTask->uu_tien_id != $validated['uu_tien_id']) {
+                $this->notificationService->notifyTaskChange($task, 'task_priority', 'đã thay đổi độ ưu tiên');
+            }
+            if ((isset($validated['ngay_bat_dau']) || isset($validated['ngay_ket_thuc_du_kien']))
+                && ($oldTask->ngay_bat_dau != ($validated['ngay_bat_dau'] ?? $oldTask->ngay_bat_dau)
+                    || $oldTask->ngay_ket_thuc_du_kien != ($validated['ngay_ket_thuc_du_kien'] ?? $oldTask->ngay_ket_thuc_du_kien))) {
+                $this->notificationService->notifyTaskChange($task, 'task_date', 'đã cập nhật ngày bắt đầu/kết thúc');
+            }
+            if (isset($validated['nguoi_thuc_hien_id']) && $oldTask->nguoi_thuc_hien_id != $validated['nguoi_thuc_hien_id']) {
+                $this->notificationService->notifyTaskChange($task, 'task_member', 'đã thay đổi người thực hiện');
+            }
+
+            \Log::info('TaskController::update - SUCCESS');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật nhiệm vụ thành công',
                 'data' => $task,
+                'debug' => [
+                    'has_project' => isset($task->project),
+                    'has_members' => isset($task->project->members),
+                    'has_trang_thai' => isset($task->trangThai),
+                    'has_uu_tien' => isset($task->uuTien),
+                    'has_checklists' => isset($task->checklists),
+                ]
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            \Log::error('TaskController::update - Authorization FAILED', [
+                'task_id' => $id,
+                'user_id' => auth('admin_users')->id(),
+                'exception' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền sửa task này',
+            ], 403);
         } catch (\Exception $e) {
+            \Log::error('TaskController::update - Exception', [
+                'task_id' => $id,
+                'user_id' => auth('admin_users')->id(),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -205,6 +270,9 @@ class TaskController extends Controller
                 $validated['trang_thai_id'],
                 $validated['kanban_order'] ?? null
             );
+
+            // Send notification for status change
+            $this->notificationService->notifyTaskChange($task, 'task_status', 'đã thay đổi trạng thái');
 
             return response()->json([
                 'success' => true,
@@ -256,7 +324,7 @@ class TaskController extends Controller
     public function addComment(Request $request, $id)
     {
         try {
-            $task = Task::findOrFail($id);
+            $task = Task::with('project.members')->findOrFail($id);
             $user = auth('admin_users')->user();
 
             if (!$user) {
@@ -266,13 +334,8 @@ class TaskController extends Controller
                 ], 401);
             }
 
-            // Check permission to add comment
-            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'comment.create')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền thêm bình luận',
-                ], 403);
-            }
+            // Check permission using Policy
+            $this->authorize('comment', $task);
 
             $validated = $request->validate([
                 'noi_dung' => 'required|string',
@@ -285,11 +348,19 @@ class TaskController extends Controller
                 $validated['parent_id'] ?? null
             );
 
+            // Send notification
+            $this->notificationService->notifyTaskChange($task, 'task_comment', 'đã thêm bình luận');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Thêm bình luận thành công',
                 'data' => $comment,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền thêm bình luận',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -301,7 +372,7 @@ class TaskController extends Controller
     public function uploadAttachment(Request $request, $id)
     {
         try {
-            $task = Task::findOrFail($id);
+            $task = Task::with('project.members')->findOrFail($id);
             $user = auth('admin_users')->user();
 
             if (!$user) {
@@ -311,13 +382,8 @@ class TaskController extends Controller
                 ], 401);
             }
 
-            // Check permission to upload attachment
-            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'attachment.upload')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền upload file',
-                ], 403);
-            }
+            // Check permission using Policy
+            $this->authorize('uploadAttachment', $task);
 
             $validated = $request->validate([
                 'file' => 'required|file|max:10240', // Max 10MB
@@ -330,11 +396,20 @@ class TaskController extends Controller
                 $validated['mo_ta'] ?? null
             );
 
+            // Send notification
+            $fileName = $validated['file']->getClientOriginalName();
+            $this->notificationService->notifyTaskChange($task, 'task_file', "đã upload file: {$fileName}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tải file thành công',
                 'data' => $attachment,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền upload file',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -421,7 +496,7 @@ class TaskController extends Controller
     public function startTimer($id)
     {
         try {
-            $task = Task::findOrFail($id);
+            $task = Task::with('project.members')->findOrFail($id);
             $user = auth('admin_users')->user();
 
             if (!$user) {
@@ -431,13 +506,8 @@ class TaskController extends Controller
                 ], 401);
             }
 
-            // Check permission to log time
-            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền log thời gian',
-                ], 403);
-            }
+            // Check permission using Policy
+            $this->authorize('logTime', $task);
 
             $timeLog = $this->taskService->startTimer($id);
 
@@ -446,6 +516,11 @@ class TaskController extends Controller
                 'message' => 'Bắt đầu tính giờ',
                 'data' => $timeLog,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền log thời gian',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -475,7 +550,7 @@ class TaskController extends Controller
     public function addManualTimeLog(Request $request, $id)
     {
         try {
-            $task = Task::findOrFail($id);
+            $task = Task::with('project.members')->findOrFail($id);
             $user = auth('admin_users')->user();
 
             if (!$user) {
@@ -485,13 +560,8 @@ class TaskController extends Controller
                 ], 401);
             }
 
-            // Check permission to log time
-            if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền log thời gian',
-                ], 403);
-            }
+            // Check permission using Policy
+            $this->authorize('logTime', $task);
 
             $validated = $request->validate([
                 'started_at' => 'required|date',
@@ -506,6 +576,11 @@ class TaskController extends Controller
                 'message' => 'Thêm log thời gian thành công',
                 'data' => $timeLog,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền log thời gian',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -665,6 +740,76 @@ class TaskController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Add supporters to task
+     */
+    public function addSupporters(Request $request, $taskId)
+    {
+        try {
+            $validated = $request->validate([
+                'supporter_ids' => 'required|array',
+                'supporter_ids.*' => 'exists:admin_users,id',
+            ]);
+
+            $task = Task::findOrFail($taskId);
+
+            // Sync supporters (replace existing)
+            $task->supporters()->sync($validated['supporter_ids']);
+
+            // Notify task change
+            $notificationService = app(NotificationService::class);
+            $supporterNames = \App\Models\AdminUser::whereIn('id', $validated['supporter_ids'])
+                ->pluck('name')->toArray();
+
+            $notificationService->notifyTaskChange(
+                $task,
+                'task_member',
+                'Người hỗ trợ được cập nhật: ' . implode(', ', $supporterNames),
+                ['supporter_ids' => $validated['supporter_ids']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật người hỗ trợ thành công',
+                'data' => $task->load('supporters'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update supporters (alias for addSupporters)
+     */
+    public function updateSupporters(Request $request, $taskId)
+    {
+        return $this->addSupporters($request, $taskId);
+    }
+
+    /**
+     * Remove supporter from task
+     */
+    public function removeSupporter($taskId, $userId)
+    {
+        try {
+            $task = Task::findOrFail($taskId);
+            $task->supporters()->detach($userId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa người hỗ trợ thành công',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage(),
             ], 500);
         }
     }

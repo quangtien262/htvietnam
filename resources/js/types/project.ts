@@ -303,6 +303,7 @@ export interface Task {
     uu_tien?: PriorityType;
     nguoi_thuc_hien?: AdminUser;
     nguoi_giao_viec?: AdminUser;
+    supporters?: AdminUser[];
     checklists?: TaskChecklist[];
     comments?: TaskComment[];
     attachments?: TaskAttachment[];

@@ -32,16 +32,65 @@ class ProjectPolicy
      */
     public function view(AdminUser $user, Project $project)
     {
+        \Log::info('ProjectPolicy::view check', [
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'is_super_admin' => $user->id === 1,
+            'is_pm' => $project->quan_ly_du_an_id === $user->id,
+            'pm_id' => $project->quan_ly_du_an_id,
+            'is_creator' => $project->created_by === $user->id,
+            'creator_id' => $project->created_by,
+        ]);
+
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
+            \Log::info('ProjectPolicy::view - Allowed: Super admin');
             return true;
         }
 
-        return $this->permissionService->userHasPermissionInProject(
+        // User is the project manager (in project table)
+        if ($project->quan_ly_du_an_id === $user->id) {
+            \Log::info('ProjectPolicy::view - Allowed: Project manager');
+            return true;
+        }
+
+        // User created the project
+        if ($project->created_by === $user->id) {
+            \Log::info('ProjectPolicy::view - Allowed: Creator');
+            return true;
+        }
+
+        // Check if user is active member with vai_tro = 'quan_ly'
+        $member = $project->members()->where('admin_user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($member) {
+            // Member với vai_tro = 'quan_ly' có toàn quyền
+            if ($member->vai_tro === 'quan_ly') {
+                \Log::info('ProjectPolicy::view - Allowed: Member with quan_ly role');
+                return true;
+            }
+
+            // Member với vai_tro = 'xem' hoặc 'thanh_vien' có quyền xem project
+            if (in_array($member->vai_tro, ['xem', 'thanh_vien'])) {
+                \Log::info('ProjectPolicy::view - Allowed: Active member (xem/thanh_vien)');
+                return true;
+            }
+        }
+
+        // Fallback: User is a member with view permission via role system
+        $hasPermission = $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
             'project.view'
         );
+
+        \Log::info('ProjectPolicy::view - Permission check result', [
+            'has_permission' => $hasPermission,
+        ]);
+
+        return $hasPermission;
     }
 
     /**
@@ -61,6 +110,25 @@ class ProjectPolicy
     {
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
+            return true;
+        }
+
+        // User is the project manager
+        if ($project->quan_ly_du_an_id === $user->id) {
+            return true;
+        }
+
+        // User created the project
+        if ($project->created_by === $user->id) {
+            return true;
+        }
+
+        // Check if user is active member with vai_tro = 'quan_ly'
+        $member = $project->members()->where('admin_user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($member && $member->vai_tro === 'quan_ly') {
             return true;
         }
 
@@ -95,6 +163,25 @@ class ProjectPolicy
     {
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
+            return true;
+        }
+
+        // User is the project manager
+        if ($project->quan_ly_du_an_id === $user->id) {
+            return true;
+        }
+
+        // User created the project
+        if ($project->created_by === $user->id) {
+            return true;
+        }
+
+        // Check if user is active member with vai_tro = 'quan_ly'
+        $member = $project->members()->where('admin_user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($member && $member->vai_tro === 'quan_ly') {
             return true;
         }
 

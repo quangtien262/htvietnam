@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\App;
 
 abstract class Controller
 {
+    use AuthorizesRequests;
 
     function __construct()
     {

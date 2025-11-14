@@ -285,6 +285,85 @@ export const taskApi = {
     getRunningTimer: () => {
         return axios.get(`${API_BASE}/time/running`);
     },
+
+    // ========================================
+    // SUPPORTERS METHODS
+    // ========================================
+
+    /**
+     * Add supporters to a task
+     * @param taskId - Task ID
+     * @param supporterIds - Array of admin user IDs
+     * @returns Promise with success message
+     */
+    addSupporters: (taskId: number, supporterIds: number[]) => {
+        return axios.post(`${API_BASE}/tasks/${taskId}/supporters`, { supporter_ids: supporterIds });
+    },
+
+    /**
+     * Update supporters for a task (replaces existing)
+     * @param taskId - Task ID
+     * @param supporterIds - Array of admin user IDs
+     * @returns Promise with success message
+     */
+    updateSupporters: (taskId: number, supporterIds: number[]) => {
+        return axios.put(`${API_BASE}/tasks/${taskId}/supporters`, { supporter_ids: supporterIds });
+    },
+
+    /**
+     * Remove a supporter from a task
+     * @param taskId - Task ID
+     * @param userId - Admin user ID to remove
+     * @returns Promise with success message
+     */
+    removeSupporter: (taskId: number, userId: number) => {
+        return axios.delete(`${API_BASE}/tasks/${taskId}/supporters/${userId}`);
+    },
+};
+
+// ============================================
+// NOTIFICATION APIs
+// ============================================
+
+/**
+ * Notification API methods
+ *
+ * Real-time notifications for project/task changes
+ */
+export const notificationApi = {
+    /**
+     * Get notifications for current user
+     * @param type - Filter by type ('unread' or 'all')
+     * @returns Promise with notifications list
+     */
+    getNotifications: (type: 'unread' | 'all' = 'all') => {
+        return axios.get(`${API_BASE}/notifications`, { params: { type } });
+    },
+
+    /**
+     * Get unread notification count
+     * @returns Promise with count
+     */
+    getUnreadCount: () => {
+        return axios.get(`${API_BASE}/notifications/unread-count`);
+    },
+
+    /**
+     * Mark a notification as read
+     * @param id - Notification ID
+     * @returns Promise with success message
+     */
+    markAsRead: (id: number) => {
+        return axios.post(`${API_BASE}/notifications/${id}/read`);
+    },
+
+    /**
+     * Mark all notifications as read
+     * @returns Promise with success message
+     */
+    markAllAsRead: () => {
+        return axios.post(`${API_BASE}/notifications/read-all`);
+    },
 };
 
 // ============================================
@@ -379,6 +458,19 @@ export const reportApi = {
         const url = date ? `${API_BASE}/reports/team-daily/${date}` : `${API_BASE}/reports/team-daily`;
         return axios.get(url);
     },
+
+    /**
+     * Get user daily report detail (for managers)
+     * @param userId - User ID
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with user report detail
+     */
+    getUserDailyReport: (userId: number, date?: string) => {
+        const url = date
+            ? `${API_BASE}/reports/user-daily/${userId}/${date}`
+            : `${API_BASE}/reports/user-daily/${userId}`;
+        return axios.get(url);
+    },
 };
 
 // ============================================
@@ -464,6 +556,7 @@ export const meetingApi = {
 export default {
     projectApi,
     taskApi,
+    notificationApi,
     referenceApi,
     reportApi,
     meetingApi,

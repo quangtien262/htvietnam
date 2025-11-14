@@ -234,8 +234,16 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     const handleQuickEdit = async (field: string) => {
         if (!taskId) return;
 
+        // Prevent duplicate requests
+        if (loading) {
+            console.warn('[TaskDetail] Already updating, ignoring duplicate request');
+            return;
+        }
+
         try {
-            const values = await quickEditForm.validateFields();
+            setLoading(true);
+            // Only validate the field being edited
+            const values = await quickEditForm.validateFields([field]);
             let payload: any = {};
 
             // Format date fields
@@ -245,7 +253,12 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 payload[field] = values[field];
             }
 
+            console.log('[TaskDetail] Quick edit:', { field, payload, taskId });
+
             const response = await taskApi.update(taskId, payload);
+
+            console.log('[TaskDetail] Quick edit response:', response.data);
+            console.log('[TaskDetail] Full response object:', response);
 
             if (response.data.success) {
                 message.success('Cập nhật thành công');
@@ -254,8 +267,10 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
                 // Update task state directly without reloading
                 if (response.data.data) {
+                    console.log('[TaskDetail] Setting task from response.data.data');
                     setTask(response.data.data);
                 } else {
+                    console.log('[TaskDetail] Updating task field manually');
                     // Update only the changed field
                     setTask(prev => {
                         if (!prev) return prev;
@@ -278,7 +293,17 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 // Task state đã được update trực tiếp ở trên
             }
         } catch (error: any) {
-            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+            console.error('[TaskDetail] Quick edit ERROR:', error);
+            console.error('[TaskDetail] Error type:', typeof error);
+            console.error('[TaskDetail] Error constructor:', error?.constructor?.name);
+            console.error('[TaskDetail] Error message:', error?.message);
+            console.error('[TaskDetail] Error response:', error.response?.data);
+            console.error('[TaskDetail] Error response status:', error.response?.status);
+            console.error('[TaskDetail] Error request:', error.request);
+            console.error('[TaskDetail] Axios error code:', error.code);
+            message.error(error.response?.data?.message || error.message || 'Có lỗi xảy ra');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -1709,6 +1734,61 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                             ))}
                         </div>
                     </Descriptions.Item>
+                    <Descriptions.Item label="Người hỗ trợ">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <div style={{ flex: 1 }}>
+                                {task?.supporters && task.supporters.length > 0 ? (
+                                    task.supporters.map((supporter: any) => (
+                                        <Tag key={supporter.id} color="blue" style={{ marginBottom: 4 }}>
+                                            {supporter.name}
+                                        </Tag>
+                                    ))
+                                ) : (
+                                    <span>-</span>
+                                )}
+                            </div>
+                            <Popconfirm
+                                title="Chọn người hỗ trợ"
+                                description={
+                                    <Select
+                                        mode="multiple"
+                                        placeholder="Chọn người hỗ trợ"
+                                        showSearch
+                                        optionFilterProp="label"
+                                        style={{ width: 300 }}
+                                        defaultValue={task?.supporters?.map((s: any) => s.id) || []}
+                                        options={projectMembers.map(member => ({
+                                            value: member.admin_user_id,
+                                            label: member.admin_user?.name || member.user?.name || `User ${member.admin_user_id}`,
+                                        }))}
+                                        onChange={(value) => {
+                                            // Store value for onConfirm
+                                            (window as any).__supportersValue = value;
+                                        }}
+                                    />
+                                }
+                                onConfirm={async () => {
+                                    const supporterIds = (window as any).__supportersValue || [];
+                                    try {
+                                        await taskApi.updateSupporters(task!.id, supporterIds);
+                                        message.success('Cập nhật người hỗ trợ thành công');
+                                        loadTask();
+                                    } catch (error) {
+                                        message.error('Cập nhật người hỗ trợ thất bại');
+                                    }
+                                }}
+                                okText="Lưu"
+                                cancelText="Hủy"
+                            >
+                                <Button
+                                    type="link"
+                                    size="small"
+                                    icon={<EditOutlined />}
+                                    style={{ padding: 0 }}
+                                />
+                            </Popconfirm>
+                        </div>
+                    </Descriptions.Item>
                     <Descriptions.Item label="Tiến độ">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: 8 }}>
                             <div style={{ flex: 1 }}>
@@ -1796,8 +1876,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 onClose={onClose}
                 extra={
                     <Space>
-                        <Button 
-                            icon={<CalendarOutlined />} 
+                        <Button
+                            icon={<CalendarOutlined />}
                             onClick={() => setAddToMeetingModalVisible(true)}
                         >
                             Thêm vào Meeting
@@ -1858,7 +1938,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
                     <div style={{ padding: '12px', backgroundColor: '#f0f0f0', borderRadius: 4 }}>
                         <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
-                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay, 
+                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay,
                             task sẽ được thêm vào meeting đó. Ngược lại, hệ thống sẽ tạo meeting mới.
                         </p>
                     </div>

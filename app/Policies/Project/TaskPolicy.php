@@ -29,6 +29,26 @@ class TaskPolicy
             return true;
         }
 
+        // Check if user is PM in project table
+        if ($project->quan_ly_du_an_id === $user->id) {
+            return true;
+        }
+
+        // Check if user is creator
+        if ($project->created_by === $user->id) {
+            return true;
+        }
+
+        // Check if user is active member - all active members can view tasks
+        $member = $project->members()->where('admin_user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($member) {
+            return true;
+        }
+
+        // Fallback to permission system
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -46,6 +66,30 @@ class TaskPolicy
             return true;
         }
 
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is PM in project table
+            if ($project->quan_ly_du_an_id === $user->id) {
+                return true;
+            }
+
+            // Check if user is creator
+            if ($project->created_by === $user->id) {
+                return true;
+            }
+
+            // Check if user is active member - all active members can view tasks
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member) {
+                return true;
+            }
+        }
+
+        // Fallback to permission system
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $task->project_id,
@@ -63,6 +107,26 @@ class TaskPolicy
             return true;
         }
 
+        // Check if user is PM in project table
+        if ($project->quan_ly_du_an_id === $user->id) {
+            return true;
+        }
+
+        // Check if user is creator
+        if ($project->created_by === $user->id) {
+            return true;
+        }
+
+        // Check if user is active member with vai_tro = 'quan_ly' or 'thanh_vien' - both can create tasks
+        $member = $project->members()->where('admin_user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($member && in_array($member->vai_tro, ['quan_ly', 'thanh_vien'])) {
+            return true;
+        }
+
+        // Fallback to permission system
         return $this->permissionService->userHasPermissionInProject(
             $user->id,
             $project->id,
@@ -78,6 +142,32 @@ class TaskPolicy
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
             return true;
+        }
+
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is PM in project table
+            if ($project->quan_ly_du_an_id === $user->id) {
+                return true;
+            }
+
+            // Check if user is creator
+            if ($project->created_by === $user->id) {
+                return true;
+            }
+
+            // Check if user is active member
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member) {
+                // Member với vai_tro = 'quan_ly' hoặc 'thanh_vien' có toàn quyền update task
+                if (in_array($member->vai_tro, ['quan_ly', 'thanh_vien'])) {
+                    return true;
+                }
+            }
         }
 
         // Check if user has general task.update permission
@@ -109,6 +199,29 @@ class TaskPolicy
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
             return true;
+        }
+
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is PM in project table
+            if ($project->quan_ly_du_an_id === $user->id) {
+                return true;
+            }
+
+            // Check if user is creator
+            if ($project->created_by === $user->id) {
+                return true;
+            }
+
+            // Check if user is active member with vai_tro = 'quan_ly'
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member && $member->vai_tro === 'quan_ly') {
+                return true;
+            }
         }
 
         return $this->permissionService->userHasPermissionInProject(
@@ -143,6 +256,19 @@ class TaskPolicy
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
             return true;
+        }
+
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is active member with vai_tro = 'quan_ly' or 'thanh_vien'
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member && in_array($member->vai_tro, ['quan_ly', 'thanh_vien'])) {
+                return true;
+            }
         }
 
         return $this->permissionService->userHasPermissionInProject(
@@ -191,6 +317,19 @@ class TaskPolicy
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
             return true;
+        }
+
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is active member with vai_tro = 'quan_ly' or 'thanh_vien'
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member && in_array($member->vai_tro, ['quan_ly', 'thanh_vien'])) {
+                return true;
+            }
         }
 
         return $this->permissionService->userHasPermissionInProject(
@@ -242,6 +381,19 @@ class TaskPolicy
         // Super admin (ID = 1) always has full permissions
         if ($user->id === 1) {
             return true;
+        }
+
+        // Get project to check member role
+        $project = $task->project;
+        if ($project) {
+            // Check if user is active member with vai_tro = 'quan_ly' or 'thanh_vien'
+            $member = $project->members()->where('admin_user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($member && in_array($member->vai_tro, ['quan_ly', 'thanh_vien'])) {
+                return true;
+            }
         }
 
         return $this->permissionService->userHasPermissionInProject(

@@ -31,6 +31,22 @@ class ProjectService
     {
         $query = Project::with(['trangThai', 'loaiDuAn', 'uuTien', 'quanLyDuAn']);
 
+        // Filter by user access - only show projects user has access to
+        $userId = auth('admin_users')->id();
+        if ($userId && $userId !== 1) { // Skip filter for super admin (ID = 1)
+            $query->where(function($q) use ($userId) {
+                // Projects where user is PM
+                $q->where('quan_ly_du_an_id', $userId)
+                  // Or projects where user is a member
+                  ->orWhereHas('members', function($memberQuery) use ($userId) {
+                      $memberQuery->where('admin_user_id', $userId)
+                                  ->where('is_active', true);
+                  })
+                  // Or projects created by user
+                  ->orWhere('created_by', $userId);
+            });
+        }
+
         // Search
         if (!empty($params['search'])) {
             $search = $params['search'];

@@ -13,6 +13,10 @@ import {
     Empty,
     message,
     Avatar,
+    Modal,
+    Descriptions,
+    Timeline,
+    Progress,
 } from 'antd';
 import {
     ClockCircleOutlined,
@@ -22,6 +26,9 @@ import {
     TeamOutlined,
     UserOutlined,
     WarningOutlined,
+    EyeOutlined,
+    ProjectOutlined,
+    CheckSquareOutlined,
 } from '@ant-design/icons';
 import { reportApi } from '../../common/api/projectApi';
 import dayjs, { Dayjs } from 'dayjs';
@@ -44,11 +51,50 @@ interface TeamReportData {
     reports: TeamMemberReport[];
 }
 
+interface UserReportDetail {
+    user: {
+        id: number;
+        name: string;
+    };
+    date: string;
+    date_formatted: string;
+    total_hours: number;
+    total_duration_formatted: string;
+    time_by_project: Array<{
+        project_name: string;
+        project_id: number;
+        hours: number;
+    }>;
+    tasks: Array<{
+        task_id: number;
+        task_code: string;
+        task_title: string;
+        project_name: string;
+        time_spent_formatted: string;
+        progress: number;
+        status: string;
+        status_color: string;
+        priority: string;
+        priority_color: string;
+    }>;
+    tasks_count: number;
+    report?: {
+        notes: string | null;
+        blockers: string | null;
+        plan_tomorrow: string | null;
+        status: string;
+        submitted_at: string | null;
+    } | null;
+}
+
 const TeamDailyReport: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [reportDate, setReportDate] = useState<Dayjs>(dayjs());
     const [reportData, setReportData] = useState<TeamReportData | null>(null);
+    const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [detailLoading, setDetailLoading] = useState(false);
+    const [selectedUserReport, setSelectedUserReport] = useState<UserReportDetail | null>(null);
 
     useEffect(() => {
         loadTeamReports();
@@ -71,6 +117,23 @@ const TeamDailyReport: React.FC = () => {
     const handleDateChange = (date: Dayjs | null) => {
         if (date) {
             setReportDate(date);
+        }
+    };
+
+    const handleViewDetail = async (record: TeamMemberReport) => {
+        setDetailModalVisible(true);
+        setDetailLoading(true);
+        setSelectedUserReport(null);
+
+        try {
+            const response = await reportApi.getUserDailyReport(record.user_id, reportDate.format('YYYY-MM-DD'));
+            if (response.data.success) {
+                setSelectedUserReport(response.data.data);
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể tải chi tiết báo cáo');
+        } finally {
+            setDetailLoading(false);
         }
     };
 
@@ -141,7 +204,19 @@ const TeamDailyReport: React.FC = () => {
                 if (value === 'not_submitted') return !record.is_submitted;
                 return record.status === value;
             },
-            render: (_, record) => getStatusTag(record),
+            render: (_, record) => (
+                <div>
+                    {getStatusTag(record)}
+                    <Button
+                        type="link"
+                        size="small"
+                        icon={<EyeOutlined />}
+                        onClick={() => handleViewDetail(record)}
+                    >
+                        Chi tiết
+                    </Button>
+                </div>
+            ),
         },
     ];
 
@@ -272,6 +347,172 @@ const TeamDailyReport: React.FC = () => {
                     <Empty description="Không có dữ liệu báo cáo cho ngày này" />
                 )}
             </Card>
+
+            {/* Detail Modal */}
+            <Modal
+                title={
+                    <Space>
+                        <UserOutlined />
+                        <span>Chi tiết báo cáo - {selectedUserReport?.user.name}</span>
+                    </Space>
+                }
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={[
+                    <Button key="close" onClick={() => setDetailModalVisible(false)}>
+                        Đóng
+                    </Button>,
+                ]}
+                width={900}
+            >
+                {detailLoading ? (
+                    <div style={{ textAlign: 'center', padding: 40 }}>
+                        <Spin />
+                    </div>
+                ) : selectedUserReport ? (
+                    <div>
+                        {/* Summary */}
+                        <Card size="small" style={{ marginBottom: 16 }}>
+                            <Row gutter={16}>
+                                <Col span={8}>
+                                    <Statistic
+                                        title="Ngày báo cáo"
+                                        value={selectedUserReport.date_formatted}
+                                        prefix={<CalendarOutlined />}
+                                    />
+                                </Col>
+                                <Col span={8}>
+                                    <Statistic
+                                        title="Tổng thời gian"
+                                        value={selectedUserReport.total_duration_formatted}
+                                        prefix={<ClockCircleOutlined />}
+                                        valueStyle={{ color: '#1890ff' }}
+                                    />
+                                </Col>
+                                <Col span={8}>
+                                    <Statistic
+                                        title="Số tasks"
+                                        value={selectedUserReport.tasks_count}
+                                        prefix={<CheckSquareOutlined />}
+                                        valueStyle={{ color: '#52c41a' }}
+                                    />
+                                </Col>
+                            </Row>
+                        </Card>
+
+                        {/* Time by Project */}
+                        {selectedUserReport.time_by_project.length > 0 && (
+                            <Card title={<><ProjectOutlined /> Thời gian theo dự án</>} size="small" style={{ marginBottom: 16 }}>
+                                <Timeline
+                                    items={selectedUserReport.time_by_project.map((proj) => ({
+                                        children: (
+                                            <div>
+                                                <strong>{proj.project_name}</strong>
+                                                <div style={{ color: '#1890ff', marginTop: 4 }}>
+                                                    <ClockCircleOutlined /> {proj.hours.toFixed(1)} giờ
+                                                </div>
+                                            </div>
+                                        ),
+                                    }))}
+                                />
+                            </Card>
+                        )}
+
+                        {/* Daily Report Submission */}
+                        {selectedUserReport.report && (
+                            <Card
+                                title="📝 Báo cáo ngày"
+                                size="small"
+                                style={{ marginBottom: 16 }}
+                                extra={
+                                    <Tag color={
+                                        selectedUserReport.report.status === 'approved' ? 'success' :
+                                        selectedUserReport.report.status === 'submitted' ? 'processing' : 'default'
+                                    }>
+                                        {selectedUserReport.report.status === 'approved' ? 'Đã duyệt' :
+                                         selectedUserReport.report.status === 'submitted' ? 'Đã gửi' : 'Nháp'}
+                                    </Tag>
+                                }
+                            >
+                                <Descriptions column={1} size="small" bordered>
+                                    {selectedUserReport.report.notes && (
+                                        <Descriptions.Item label="Công việc đã làm">
+                                            <div style={{ whiteSpace: 'pre-wrap' }}>{selectedUserReport.report.notes}</div>
+                                        </Descriptions.Item>
+                                    )}
+                                    {selectedUserReport.report.blockers && (
+                                        <Descriptions.Item label="Vấn đề gặp phải">
+                                            <div style={{ whiteSpace: 'pre-wrap', color: '#ff4d4f' }}>
+                                                {selectedUserReport.report.blockers}
+                                            </div>
+                                        </Descriptions.Item>
+                                    )}
+                                    {selectedUserReport.report.plan_tomorrow && (
+                                        <Descriptions.Item label="Kế hoạch ngày mai">
+                                            <div style={{ whiteSpace: 'pre-wrap', color: '#52c41a' }}>
+                                                {selectedUserReport.report.plan_tomorrow}
+                                            </div>
+                                        </Descriptions.Item>
+                                    )}
+                                    {selectedUserReport.report.submitted_at && (
+                                        <Descriptions.Item label="Thời gian gửi">
+                                            {dayjs(selectedUserReport.report.submitted_at).format('DD/MM/YYYY HH:mm')}
+                                        </Descriptions.Item>
+                                    )}
+                                </Descriptions>
+                            </Card>
+                        )}
+
+                        {/* Tasks */}
+                        {selectedUserReport.tasks.length > 0 && (
+                            <Card title={<><CheckSquareOutlined /> Chi tiết công việc</>} size="small">
+                                {selectedUserReport.tasks.map((task) => (
+                                    <Card
+                                        key={task.task_id}
+                                        size="small"
+                                        style={{ marginBottom: 12 }}
+                                        bodyStyle={{ padding: 12 }}
+                                    >
+                                        <Row gutter={16} align="middle">
+                                            <Col flex="auto">
+                                                <div style={{ marginBottom: 4 }}>
+                                                    <Tag color="blue">{task.task_code}</Tag>
+                                                    <span style={{ fontWeight: 500 }}>{task.task_title}</span>
+                                                </div>
+                                                <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                                    <ProjectOutlined /> {task.project_name}
+                                                </div>
+                                            </Col>
+                                            <Col>
+                                                <Space direction="vertical" size={4} style={{ textAlign: 'right' }}>
+                                                    <div>
+                                                        <Tag color={task.status_color}>{task.status}</Tag>
+                                                        <Tag color={task.priority_color}>{task.priority}</Tag>
+                                                    </div>
+                                                    <div style={{ color: '#1890ff', fontWeight: 500 }}>
+                                                        <ClockCircleOutlined /> {task.time_spent_formatted}
+                                                    </div>
+                                                </Space>
+                                            </Col>
+                                        </Row>
+                                        <div style={{ marginTop: 8 }}>
+                                            <Progress
+                                                percent={task.progress}
+                                                size="small"
+                                                strokeColor={{ from: '#108ee9', to: '#87d068' }}
+                                            />
+                                        </div>
+                                    </Card>
+                                ))}
+                            </Card>
+                        )}
+
+                        {selectedUserReport.tasks.length === 0 && (
+                            <Empty description="Không có công việc nào được ghi nhận" />
+                        )}
+                    </div>
+                ) : null}
+            </Modal>
         </div>
     );
 };
