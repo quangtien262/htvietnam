@@ -745,20 +745,57 @@ class AitilenController extends Controller
             } elseif ($service->service_per == 'Xe') {
                 $priceCurrentServiceTotal = $service->service_price * $contract->so_luong_xe;
             } elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
+                // dd($aitilenSer);
                 // Tính điện (nếu có dữ liệu điện nước)
-                if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
-                    $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
-                    $priceCurrentServiceTotal = $service->service_price * $soDien;
+                if($aitilenSer->code == 'DIEN') {
+                    if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
+                        $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
+                        $priceCurrentServiceTotal = $service->service_price * $soDien;
 
-                    $start = $dienNuocData->dien_start;
-                    $end = $dienNuocData->dien_end;
-                    $note = 'Giá ' . $service->service_price . '/KWH, Tổng số điện sử dụng'. $soDien . ' ('.$dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end .')';
-                } else {
-                    // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
-                    $priceCurrentServiceTotal = 0;
-                    $note = 'Chưa có dữ liệu điện';
+                        $start = $dienNuocData->dien_start;
+                        $end = $dienNuocData->dien_end;
+                        $note = 'Giá ' . $service->service_price . '/KWH, ' . ' ('.$dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end .' = '. $soDien.')';
+                    } else {
+                        // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
+                        $priceCurrentServiceTotal = 0;
+                        $note = 'Chưa có dữ liệu điện';
+                    }
+                    $serviceItem['per_default'] = 'KWH';
                 }
-                $serviceItem['per_default'] = 'KWH';
+
+                // WC
+                if($aitilenSer->code == 'WC') {
+                    if ($dienNuocData && $dienNuocData->nonglanh_end && $dienNuocData->nonglanh_start) {
+                        $soDien = $dienNuocData->nonglanh_end - $dienNuocData->nonglanh_start;
+                        $priceCurrentServiceTotal = $service->service_price * $soDien;
+
+                        $start = $dienNuocData->nonglanh_start;
+                        $end = $dienNuocData->nonglanh_end;
+                        $note = 'Giá ' . $service->service_price . '/KWH,'. ' ('.$dienNuocData->nonglanh_start . ' -> ' . $dienNuocData->nonglanh_end .' = ' . $soDien .')';
+                    } else {
+                        // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
+                        $priceCurrentServiceTotal = 0;
+                        $note = 'Chưa có dữ liệu điện';
+                    }
+                    $serviceItem['per_default'] = 'KWH';
+                }
+
+                // MAY BOM
+                if($aitilenSer->code == 'MAYBOM') {
+                    if ($dienNuocData && $dienNuocData->maybom_end && $dienNuocData->maybom_start) {
+                        $soDien = $dienNuocData->maybom_end - $dienNuocData->maybom_start;
+                        $priceCurrentServiceTotal = $service->service_price * $soDien;
+
+                        $start = $dienNuocData->maybom_start;
+                        $end = $dienNuocData->maybom_end;
+                        $note = 'Giá ' . $service->service_price . '/KWH,'. ' ('.$dienNuocData->maybom_start . ' -> ' . $dienNuocData->maybom_end .' = ' . $soDien .')';
+                    } else {
+                        // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
+                        $priceCurrentServiceTotal = 0;
+                        $note = 'Chưa có dữ liệu điện';
+                    }
+                    $serviceItem['per_default'] = 'KWH';
+                }
             } elseif ($service->service_per == 'M3') {
                 // Tính nước (nếu có dữ liệu điện nước)
                 if ($dienNuocData && $dienNuocData->nuoc_end && $dienNuocData->nuoc_start) {

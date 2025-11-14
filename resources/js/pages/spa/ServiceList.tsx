@@ -26,10 +26,12 @@ interface Service {
         ten_danh_muc: string;
     };
     gia: number;
+    gia_ban?: number;
     thoi_gian_thuc_hien: number;
     mo_ta?: string;
     hinh_anh?: string;
     trang_thai: string;
+    is_active?: boolean;
     yeu_cau_ky_nang?: string[];
     so_luong_da_su_dung: number;
     doanh_thu: number;
@@ -75,30 +77,44 @@ const ServiceList: React.FC = () => {
     // Load data
     useEffect(() => {
         loadServices();
-        loadCategories();
     }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus]);
+
+    // Load categories once on mount
+    useEffect(() => {
+        loadCategories();
+    }, []);
 
     const loadServices = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/services/list', {
-                page: pagination.current,
-                limit: pagination.pageSize,
-                search: searchText,
-                danh_muc_id: selectedCategory,
-                trang_thai: selectedStatus,
+            const response = await axios.get('/aio/api/spa/services', {
+                params: {
+                    page: pagination.current,
+                    per_page: pagination.pageSize,
+                    search: searchText,
+                    danh_muc_id: selectedCategory,
+                    is_active: selectedStatus,
+                }
             });
 
-            if (response.data.success) {
-                setServices(response.data.data.data || []);
+            console.log('Services response:', response.data); // Debug log
+
+            if (response.data) {
+                // Backend returns: { status_code, message, data: { data: [...], total: X } }
+                const servicesData = response.data.data?.data || response.data.data || [];
+                const total = response.data.data?.total || 0;
+
+                console.log('Services loaded:', servicesData.length, 'items'); // Debug log
+
+                setServices(servicesData);
                 setPagination({
                     ...pagination,
-                    total: response.data.data.total || 0,
+                    total: total,
                 });
             }
         } catch (error) {
+            console.error('Load services error:', error);
             message.error('Không thể tải danh sách dịch vụ');
-            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -107,11 +123,16 @@ const ServiceList: React.FC = () => {
     const loadCategories = async () => {
         try {
             const response = await axios.post('/aio/api/spa/service-categories/list');
-            if (response.data.success) {
-                setCategories(response.data.data.data || []);
+            console.log('Categories response:', response.data); // Debug log
+            if (response.data) {
+                // Response structure: { status_code, message, data: { data: [...] } }
+                const categoriesData = response.data.data?.data || response.data.data || [];
+                console.log('Categories loaded:', categoriesData); // Debug log
+                setCategories(categoriesData);
             }
         } catch (error) {
             console.error('Load categories error:', error);
+            message.error('Không thể tải danh mục dịch vụ');
         }
     };
 
@@ -140,50 +161,74 @@ const ServiceList: React.FC = () => {
 
     const handleSubmit = async () => {
         try {
+            setUploading(true); // Show loading
             const values = await form.validateFields();
             const payload = {
-                id: selectedService?.id,
                 ...values,
                 hinh_anh: imageUrl,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/services/create-or-update', payload);
+            let response;
+            if (selectedService?.id) {
+                // Update existing service
+                response = await axios.put(`/aio/api/spa/services/${selectedService.id}`, payload);
+            } else {
+                // Create new service
+                response = await axios.post('/aio/api/spa/services', payload);
+            }
 
-            if (response.data.success) {
+            // Backend returns: { status_code, message, data }
+            if (response.data && response.data.status_code === 200) {
                 message.success(selectedService ? 'Cập nhật dịch vụ thành công' : 'Tạo dịch vụ mới thành công');
                 setModalVisible(false);
-                loadServices();
+                form.resetFields();
+                setImageUrl('');
+                setSelectedService(null);
+                await loadServices(); // Reload list
+            } else {
+                message.error(response.data?.message || 'Có lỗi xảy ra');
             }
         } catch (error: any) {
+            console.error('Submit error:', error);
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        } finally {
+            setUploading(false); // Hide loading
         }
     };
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/services/delete', { id });
-            if (response.data.success) {
+            setLoading(true);
+            const response = await axios.delete(`/aio/api/spa/services/${id}`);
+            if (response.data && response.data.status_code === 200) {
                 message.success('Xóa dịch vụ thành công');
-                loadServices();
+                await loadServices();
+            } else {
+                message.error(response.data?.message || 'Không thể xóa dịch vụ');
             }
         } catch (error: any) {
+            console.error('Delete error:', error);
             message.error(error.response?.data?.message || 'Không thể xóa dịch vụ');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleStatusToggle = async (record: Service) => {
         try {
-            const newStatus = record.trang_thai === 'hoat_dong' ? 'ngung_hoat_dong' : 'hoat_dong';
-            const response = await axios.post('/aio/api/admin/spa/services/create-or-update', {
-                id: record.id,
-                trang_thai: newStatus,
+            const newStatus = !record.is_active;
+            const response = await axios.put(`/aio/api/spa/services/${record.id}`, {
+                is_active: newStatus,
             });
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success('Cập nhật trạng thái thành công');
-                loadServices();
+                await loadServices();
+            } else {
+                message.error('Không thể cập nhật trạng thái');
             }
         } catch (error) {
+            console.error('Toggle status error:', error);
             message.error('Không thể cập nhật trạng thái');
         }
     };
@@ -276,10 +321,10 @@ const ServiceList: React.FC = () => {
             align: 'right',
             render: (value: number) => (
                 <span style={{ fontWeight: 500, color: '#52c41a' }}>
-                    <DollarOutlined /> {value.toLocaleString()} VNĐ
+                    <DollarOutlined /> {(value || 0).toLocaleString()} VNĐ
                 </span>
             ),
-            sorter: (a, b) => a.gia - b.gia,
+            sorter: (a, b) => (a.gia || 0) - (b.gia || 0),
         },
         {
             title: 'Thời gian',
@@ -288,10 +333,10 @@ const ServiceList: React.FC = () => {
             width: 100,
             render: (value: number) => (
                 <span>
-                    <ClockCircleOutlined /> {value} phút
+                    <ClockCircleOutlined /> {value || 0} phút
                 </span>
             ),
-            sorter: (a, b) => a.thoi_gian_thuc_hien - b.thoi_gian_thuc_hien,
+            sorter: (a, b) => (a.thoi_gian_thuc_hien || 0) - (b.thoi_gian_thuc_hien || 0),
         },
         {
             title: 'Số lần sử dụng',
@@ -299,8 +344,8 @@ const ServiceList: React.FC = () => {
             key: 'so_luong_da_su_dung',
             width: 120,
             align: 'center',
-            render: (value: number) => <Badge count={value} showZero color="blue" />,
-            sorter: (a, b) => a.so_luong_da_su_dung - b.so_luong_da_su_dung,
+            render: (value: number) => <Badge count={value || 0} showZero color="blue" />,
+            sorter: (a, b) => (a.so_luong_da_su_dung || 0) - (b.so_luong_da_su_dung || 0),
         },
         {
             title: 'Doanh thu',
@@ -308,8 +353,8 @@ const ServiceList: React.FC = () => {
             key: 'doanh_thu',
             width: 150,
             align: 'right',
-            render: (value: number) => `${value.toLocaleString()} VNĐ`,
-            sorter: (a, b) => a.doanh_thu - b.doanh_thu,
+            render: (value: number) => `${(value || 0).toLocaleString()} VNĐ`,
+            sorter: (a, b) => (a.doanh_thu || 0) - (b.doanh_thu || 0),
         },
         {
             title: 'Trạng thái',
@@ -535,24 +580,31 @@ const ServiceList: React.FC = () => {
             <Modal
                 title={selectedService ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'}
                 open={modalVisible}
-                onCancel={() => setModalVisible(false)}
+                onCancel={() => {
+                    setModalVisible(false);
+                    form.resetFields();
+                    setImageUrl('');
+                    setSelectedService(null);
+                }}
                 onOk={handleSubmit}
                 width={800}
                 okText={selectedService ? 'Cập nhật' : 'Tạo mới'}
                 cancelText="Hủy"
+                confirmLoading={uploading}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="ma_dich_vu"
-                                label="Mã dịch vụ"
-                                rules={[{ required: true, message: 'Vui lòng nhập mã dịch vụ' }]}
-                            >
-                                <Input placeholder="VD: DV001" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
+                        {selectedService && (
+                            <Col span={12}>
+                                <Form.Item
+                                    name="ma_dich_vu"
+                                    label="Mã dịch vụ"
+                                >
+                                    <Input disabled placeholder="Tự động tạo" />
+                                </Form.Item>
+                            </Col>
+                        )}
+                        <Col span={selectedService ? 12 : 24}>
                             <Form.Item
                                 name="ten_dich_vu"
                                 label="Tên dịch vụ"

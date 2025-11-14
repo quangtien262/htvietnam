@@ -44,7 +44,7 @@ import { HTBankingQR } from "../../function/generateQR";
 import { callApi } from "../../function/api";
 import { formatValueForm } from "../../function/input";
 import { DON_VI_SERVICE } from "../../function/constant";
-import { inArray, parseJson, numberFormat, removeByIndex } from "../../function/common";
+import { inArray, parseJson, numberFormat, removeByIndex, filterSelectOption } from "../../function/common";
 
 import "../../../css/form.css";
 
@@ -325,11 +325,7 @@ const InvoiceList_BDS: React.FC = () => {
                                 placeholder="Chọn trạng thái hóa đơn"
                                 optionFilterProp="children"
                                 options={optionEntries(props.status)}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "")
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
-                                }
+                                filterOption={filterSelectOption}
                                 onChange={(value) => {
                                     // Gọi API đổi trạng thái hóa đơn
                                     axios.post(API.aitilen_changeInvoiceStatus, {
@@ -1125,11 +1121,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 style={{ width: "100%" }}
                                                 placeholder="Chọn sắp xếp"
                                                 optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                                 options={[
                                                     { label: 'Tên phòng', value: 'room' },
                                                     { label: 'Tên khách hàng', value: 'user_name' },
@@ -1169,11 +1161,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 style={{ width: "100%" }}
                                                 placeholder="Chọn phòng"
                                                 optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                                 options={optionEntries(props.status)}
                                             />
                                         </Form.Item>
@@ -1193,11 +1181,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             placeholder="Chọn tòa nhà"
                                             optionFilterProp="children"
                                             options={optionEntries(props.apm)}
-                                            filterOption={(input, option) =>
-                                                (option?.label ?? "")
-                                                    .toLowerCase()
-                                                    .includes(input.toLowerCase())
-                                            }
+                                            filterOption={filterSelectOption}
                                         />
                                     </Form.Item>,
                                 },
@@ -1214,11 +1198,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             optionFilterProp="children"
                                             options={optionEntries(props.room)}
                                             onChange={() => formSearch.submit()}
-                                            filterOption={(input, option) =>
-                                                (option?.label ?? "")
-                                                    .toLowerCase()
-                                                    .includes(input.toLowerCase())
-                                            }
+                                            filterOption={filterSelectOption}
                                         />
                                     </Form.Item>,
                                 },
@@ -1236,11 +1216,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 optionFilterProp="children"
                                                 options={optionEntries(props.contract)}
                                                 onChange={() => formSearch.submit()}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                             />
                                         </Form.Item>
                                     </>,
@@ -1262,11 +1238,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                     { label: 'Unactive', value: '0' },
                                                 ]}
                                                 onChange={() => formSearch.submit()}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                             />
                                         </Form.Item>
                                     </>,
@@ -1443,11 +1415,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     optionFilterProp="children"
                                     allowClear={true}
                                     options={optionEntries(props.contract)}
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     onChange={(value, user: any) => {
                                         formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id.toString() : null);
                                     }}
@@ -1465,11 +1433,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     style={{ width: "100%" }}
                                     placeholder="Chọn phòng"
                                     optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     options={optionEntries(props.room)}
                                 />
                             </Form.Item>
@@ -1486,11 +1450,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     style={{ width: "100%" }}
                                     placeholder="Chọn phòng"
                                     optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     options={optionEntries(props.status)}
                                 />
                             </Form.Item>

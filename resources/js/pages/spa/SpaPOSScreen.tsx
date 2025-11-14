@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty } from 'antd';
+import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox } from 'antd';
 import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
@@ -325,7 +325,7 @@ const SpaPOSScreen: React.FC = () => {
             <h1>POS Bán hàng</h1>
             <Row gutter={16}>
                 {/* Products & Services List */}
-                <Col span={16}>
+                <Col span={12}>
                     <Tabs defaultActiveKey="services">
                         <TabPane tab={<span><Badge count={filteredServices.length} showZero>Dịch vụ</Badge></span>} key="services">
                             <Card
@@ -490,7 +490,7 @@ const SpaPOSScreen: React.FC = () => {
                 </Col>
 
                 {/* Cart & Payment */}
-                <Col span={8}>
+                <Col span={12}>
                     <Card title="Hóa đơn" style={{ marginBottom: 16 }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             <Select
@@ -612,11 +612,13 @@ const SpaPOSScreen: React.FC = () => {
                         label="Phương thức thanh toán"
                         rules={[{ required: true, message: 'Vui lòng chọn phương thức' }]}
                     >
-                        <Select mode="multiple" placeholder="Chọn phương thức">
-                            <Select.Option value="tien_mat">Tiền mặt</Select.Option>
-                            <Select.Option value="chuyen_khoan">Chuyển khoản</Select.Option>
-                            <Select.Option value="the">Thẻ</Select.Option>
-                        </Select>
+                        <Checkbox.Group>
+                            <Space direction="vertical">
+                                <Checkbox value="tien_mat">Tiền mặt</Checkbox>
+                                <Checkbox value="chuyen_khoan">Chuyển khoản</Checkbox>
+                                <Checkbox value="the">Thẻ</Checkbox>
+                            </Space>
+                        </Checkbox.Group>
                     </Form.Item>
                 </Form>
             </Modal>
