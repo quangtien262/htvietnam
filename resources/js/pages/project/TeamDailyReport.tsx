@@ -137,6 +137,34 @@ const TeamDailyReport: React.FC = () => {
         }
     };
 
+    const handleApproveReport = async () => {
+        if (!selectedUserReport) return;
+
+        try {
+            const response = await reportApi.approveDailyReport(
+                selectedUserReport.user.id,
+                selectedUserReport.date
+            );
+
+            if (response.data.success) {
+                message.success('Đã phê duyệt báo cáo');
+                // Reload detail
+                await handleViewDetail({
+                    user_id: selectedUserReport.user.id,
+                    user_name: selectedUserReport.user.name,
+                    total_hours: selectedUserReport.total_hours,
+                    tasks_count: selectedUserReport.tasks_count,
+                    is_submitted: true,
+                    status: 'approved'
+                });
+                // Reload list
+                loadTeamReports();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể phê duyệt báo cáo');
+        }
+    };
+
     const getStatusTag = (record: TeamMemberReport) => {
         if (!record.is_submitted) {
             return <Tag color="error" icon={<WarningOutlined />}>Chưa gửi</Tag>;
@@ -359,6 +387,16 @@ const TeamDailyReport: React.FC = () => {
                 open={detailModalVisible}
                 onCancel={() => setDetailModalVisible(false)}
                 footer={[
+                    selectedUserReport?.report?.status === 'submitted' && (
+                        <Button
+                            key="approve"
+                            type="primary"
+                            icon={<CheckCircleOutlined />}
+                            onClick={handleApproveReport}
+                        >
+                            Phê duyệt
+                        </Button>
+                    ),
                     <Button key="close" onClick={() => setDetailModalVisible(false)}>
                         Đóng
                     </Button>,

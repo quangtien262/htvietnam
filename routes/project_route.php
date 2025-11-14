@@ -142,9 +142,10 @@ Route::prefix('reports')->name('reports.')->group(function () {
 
     // Manager view: Get user daily report detail
     Route::get('user-daily/{userId}/{date?}', [App\Http\Controllers\Project\ReportController::class, 'getUserDailyReport'])->name('user_daily');
-});
 
-// Meeting Routes
+    // Manager: Approve user daily report
+    Route::post('approve-report/{userId}/{date}', [App\Http\Controllers\Project\ReportController::class, 'approveDailyReport'])->name('approve_report');
+});// Meeting Routes
 Route::prefix('meetings')->name('meetings.')->group(function () {
     Route::get('/', [App\Http\Controllers\Project\MeetingController::class, 'index'])->name('index');
     Route::get('/{id}', [App\Http\Controllers\Project\MeetingController::class, 'show'])->name('show');

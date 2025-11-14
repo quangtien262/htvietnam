@@ -582,4 +582,50 @@ class ReportController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Approve user daily report (for managers)
+     *
+     * @param int $userId
+     * @param string $date
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function approveDailyReport($userId, $date)
+    {
+        try {
+            $reportDate = Carbon::parse($date);
+
+            // Check if report exists
+            $report = \DB::table('pro___daily_reports')
+                ->where('admin_user_id', $userId)
+                ->where('report_date', $reportDate->format('Y-m-d'))
+                ->first();
+
+            if (!$report) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy báo cáo',
+                ], 404);
+            }
+
+            // Update status to approved
+            \DB::table('pro___daily_reports')
+                ->where('admin_user_id', $userId)
+                ->where('report_date', $reportDate->format('Y-m-d'))
+                ->update([
+                    'status' => 'approved',
+                    'updated_at' => now(),
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã phê duyệt báo cáo',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

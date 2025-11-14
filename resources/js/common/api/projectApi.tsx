@@ -471,6 +471,16 @@ export const reportApi = {
             : `${API_BASE}/reports/user-daily/${userId}`;
         return axios.get(url);
     },
+
+    /**
+     * Approve user daily report (for managers)
+     * @param userId - User ID
+     * @param date - Date in format YYYY-MM-DD
+     * @returns Promise with approval confirmation
+     */
+    approveDailyReport: (userId: number, date: string) => {
+        return axios.post(`${API_BASE}/reports/approve-report/${userId}/${date}`);
+    },
 };
 
 // ============================================
