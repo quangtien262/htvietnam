@@ -27,6 +27,8 @@ import {
     Row,
     Col,
     Table,
+    Popover,
+    Radio,
 } from 'antd';
 import {
     CloseOutlined,
@@ -48,8 +50,9 @@ import {
     PauseCircleOutlined,
     ClockCircleOutlined,
     FieldTimeOutlined,
+    CalendarOutlined,
 } from '@ant-design/icons';
-import { taskApi, referenceApi, projectApi } from '../../common/api/projectApi';
+import { taskApi, referenceApi, projectApi, meetingApi } from '../../common/api/projectApi';
 import { Task, TaskStatusType, PriorityType, TaskChecklist, TaskComment as TaskCommentType, ProjectMember } from '../../types/project';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -61,7 +64,7 @@ const { TextArea } = Input;
 
 interface TaskDetailProps {
     taskId: number | null;
-    projectId: number;
+    projectId?: number | null;
     visible: boolean;
     onClose: () => void;
     onUpdate?: () => void;
@@ -98,6 +101,10 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     // Comments
     const [replyTo, setReplyTo] = useState<number | null>(null);
 
+    // Quick Edit
+    const [editingField, setEditingField] = useState<string | null>(null);
+    const [quickEditForm] = Form.useForm();
+
     // Attachments
     const [uploading, setUploading] = useState(false);
     const [editingAttachment, setEditingAttachment] = useState<any>(null);
@@ -109,12 +116,17 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     const [addManualTimeModal, setAddManualTimeModal] = useState(false);
     const [manualTimeForm] = Form.useForm();
 
+    // Add to Meeting
+    const [addToMeetingModalVisible, setAddToMeetingModalVisible] = useState(false);
+    const [addToMeetingForm] = Form.useForm();
+    const [addingToMeeting, setAddingToMeeting] = useState(false);
+
     useEffect(() => {
         if (visible) {
             loadReferenceData();
-            loadProjectMembers();
+            if (projectId) loadProjectMembers();
         }
-    }, [visible]);
+    }, [visible, projectId]);
 
     useEffect(() => {
         if (taskId && visible) {
@@ -217,6 +229,128 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
+
+    // Quick Edit single field
+    const handleQuickEdit = async (field: string) => {
+        if (!taskId) return;
+
+        try {
+            const values = await quickEditForm.validateFields();
+            let payload: any = {};
+
+            // Format date fields
+            if (field === 'ngay_bat_dau' || field === 'ngay_ket_thuc_du_kien') {
+                payload[field] = values[field]?.format('YYYY-MM-DD HH:mm:ss');
+            } else {
+                payload[field] = values[field];
+            }
+
+            const response = await taskApi.update(taskId, payload);
+
+            if (response.data.success) {
+                message.success('Cập nhật thành công');
+                setEditingField(null);
+                quickEditForm.resetFields();
+
+                // Update task state directly without reloading
+                if (response.data.data) {
+                    setTask(response.data.data);
+                } else {
+                    // Update only the changed field
+                    setTask(prev => {
+                        if (!prev) return prev;
+                        return {
+                            ...prev,
+                            [field]: field === 'ngay_bat_dau' || field === 'ngay_ket_thuc_du_kien'
+                                ? values[field]?.toISOString()
+                                : values[field],
+                            // Update related objects if needed
+                            ...(field === 'trang_thai_id' && { trang_thai: taskStatuses.find(s => s.id === values[field]) }),
+                            ...(field === 'uu_tien_id' && { uu_tien: priorities.find(p => p.id === values[field]) }),
+                            ...(field === 'nguoi_thuc_hien_id' && {
+                                nguoi_thuc_hien: projectMembers.find(m => m.admin_user_id === values[field])?.admin_user
+                            }),
+                        };
+                    });
+                }
+
+                // Note: Không gọi onUpdate() để tránh reload toàn bộ danh sách tasks
+                // Task state đã được update trực tiếp ở trên
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const openQuickEdit = (field: string, currentValue: any) => {
+        setEditingField(field);
+
+        // Set initial value based on field type
+        if (field === 'ngay_bat_dau' || field === 'ngay_ket_thuc_du_kien') {
+            quickEditForm.setFieldsValue({
+                [field]: currentValue ? dayjs(currentValue) : null,
+            });
+        } else {
+            quickEditForm.setFieldsValue({
+                [field]: currentValue,
+            });
+        }
+    };
+
+    const renderQuickEditPopover = (field: string, label: string, currentValue: any, renderInput: () => React.ReactNode) => (
+        <Popover
+            content={
+                <div style={{ width: 300 }}>
+                    <Form form={quickEditForm} layout="vertical">
+                        <Form.Item
+                            name={field}
+                            label={label}
+                            rules={[{ required: field === 'tieu_de' || field === 'trang_thai_id' || field === 'uu_tien_id', message: 'Trường này là bắt buộc' }]}
+                            style={{ marginBottom: 8 }}
+                        >
+                            {renderInput()}
+                        </Form.Item>
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => handleQuickEdit(field)}
+                            >
+                                Lưu
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    setEditingField(null);
+                                    quickEditForm.resetFields();
+                                }}
+                            >
+                                Hủy
+                            </Button>
+                        </Space>
+                    </Form>
+                </div>
+            }
+            title={`Sửa ${label}`}
+            trigger="click"
+            open={editingField === field}
+            onOpenChange={(open) => {
+                if (open) {
+                    openQuickEdit(field, currentValue);
+                } else {
+                    setEditingField(null);
+                    quickEditForm.resetFields();
+                }
+            }}
+        >
+            <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                style={{ color: '#1890ff' }}
+            />
+        </Popover>
+    );
 
     // Checklist functions
     const handleAddChecklist = async () => {
@@ -636,6 +770,31 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleAddToMeeting = async () => {
+        if (!taskId) return;
+
+        try {
+            setAddingToMeeting(true);
+            const values = await addToMeetingForm.validateFields();
+
+            const response = await meetingApi.addTask(
+                taskId,
+                values.meeting_type,
+                values.note
+            );
+
+            if (response.data.success) {
+                message.success(response.data.message);
+                setAddToMeetingModalVisible(false);
+                addToMeetingForm.resetFields();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể thêm vào meeting');
+        } finally {
+            setAddingToMeeting(false);
         }
     };
 
@@ -1485,32 +1644,106 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                         <strong>{task?.ma_nhiem_vu}</strong>
                     </Descriptions.Item>
                     <Descriptions.Item label="Tiêu đề">
-                        {task?.tieu_de}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <span style={{ flex: 1 }}>{task?.tieu_de}</span>
+                            {renderQuickEditPopover('tieu_de', 'Tiêu đề', task?.tieu_de, () => (
+                                <Input placeholder="Nhập tiêu đề" />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Mô tả">
-                        {task?.mo_ta || '-'}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                            <span style={{ flex: 1 }}>{task?.mo_ta || '-'}</span>
+                            {renderQuickEditPopover('mo_ta', 'Mô tả', task?.mo_ta, () => (
+                                <Input.TextArea rows={4} placeholder="Nhập mô tả" />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Trạng thái">
-                        <Tag color={task?.trang_thai?.color}>
-                            {task?.trang_thai?.name}
-                        </Tag>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <Tag color={task?.trang_thai?.color}>
+                                {task?.trang_thai?.name}
+                            </Tag>
+                            {renderQuickEditPopover('trang_thai_id', 'Trạng thái', task?.trang_thai_id, () => (
+                                <Select placeholder="Chọn trạng thái" style={{ width: '100%' }}>
+                                    {taskStatuses.map(status => (
+                                        <Option key={status.id} value={status.id}>
+                                            <Tag color={status.color}>{status.name}</Tag>
+                                        </Option>
+                                    ))}
+                                </Select>
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Ưu tiên">
-                        <Tag color={task?.uu_tien?.color}>
-                            {task?.uu_tien?.name}
-                        </Tag>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <Tag color={task?.uu_tien?.color}>
+                                {task?.uu_tien?.name}
+                            </Tag>
+                            {renderQuickEditPopover('uu_tien_id', 'Ưu tiên', task?.uu_tien_id, () => (
+                                <Select placeholder="Chọn độ ưu tiên" style={{ width: '100%' }}>
+                                    {priorities.map(priority => (
+                                        <Option key={priority.id} value={priority.id}>
+                                            <Tag color={priority.color}>{priority.name}</Tag>
+                                        </Option>
+                                    ))}
+                                </Select>
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Người thực hiện">
-                        {task?.nguoi_thuc_hien?.name || '-'}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <span style={{ flex: 1 }}>{task?.nguoi_thuc_hien?.name || '-'}</span>
+                            {renderQuickEditPopover('nguoi_thuc_hien_id', 'Người thực hiện', task?.nguoi_thuc_hien_id, () => (
+                                <Select
+                                    placeholder="Chọn người thực hiện"
+                                    allowClear
+                                    showSearch
+                                    optionFilterProp="label"
+                                    style={{ width: '100%' }}
+                                    options={projectMembers.map(member => ({
+                                        value: member.admin_user_id,
+                                        label: member.admin_user?.name || member.user?.name || `User ${member.admin_user_id}`,
+                                    }))}
+                                />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Tiến độ">
-                        <Progress percent={task?.tien_do || 0} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: 8 }}>
+                            <div style={{ flex: 1 }}>
+                                <Progress percent={task?.tien_do || 0} />
+                            </div>
+                            {renderQuickEditPopover('tien_do', 'Tiến độ (%)', task?.tien_do, () => (
+                                <Input type="number" min={0} max={100} placeholder="0-100" />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Ngày bắt đầu">
-                        {task?.ngay_bat_dau ? dayjs(task.ngay_bat_dau).format('DD/MM/YYYY HH:mm') : '-'}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <span style={{ flex: 1 }}>{task?.ngay_bat_dau ? dayjs(task.ngay_bat_dau).format('DD/MM/YYYY HH:mm') : '-'}</span>
+                            {renderQuickEditPopover('ngay_bat_dau', 'Ngày bắt đầu', task?.ngay_bat_dau, () => (
+                                <DatePicker
+                                    showTime
+                                    format="DD/MM/YYYY HH:mm"
+                                    style={{ width: '100%' }}
+                                    placeholder="Chọn ngày bắt đầu"
+                                />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                     <Descriptions.Item label="Deadline">
-                        {task?.ngay_ket_thuc_du_kien ? dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY HH:mm') : '-'}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <span style={{ flex: 1 }}>{task?.ngay_ket_thuc_du_kien ? dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY HH:mm') : '-'}</span>
+                            {renderQuickEditPopover('ngay_ket_thuc_du_kien', 'Deadline', task?.ngay_ket_thuc_du_kien, () => (
+                                <DatePicker
+                                    showTime
+                                    format="DD/MM/YYYY HH:mm"
+                                    style={{ width: '100%' }}
+                                    placeholder="Chọn deadline"
+                                />
+                            ))}
+                        </div>
                     </Descriptions.Item>
                 </Descriptions>
             )}
@@ -1563,6 +1796,12 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 onClose={onClose}
                 extra={
                     <Space>
+                        <Button 
+                            icon={<CalendarOutlined />} 
+                            onClick={() => setAddToMeetingModalVisible(true)}
+                        >
+                            Thêm vào Meeting
+                        </Button>
                         {!editing && (
                             <Button icon={<EditOutlined />} onClick={() => setEditing(true)}>
                                 Sửa
@@ -1578,6 +1817,53 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             </Drawer>
 
             {renderQuickAddChecklistModal()}
+
+            {/* Add to Meeting Modal */}
+            <Modal
+                title="Thêm task vào Meeting"
+                open={addToMeetingModalVisible}
+                onCancel={() => {
+                    setAddToMeetingModalVisible(false);
+                    addToMeetingForm.resetFields();
+                }}
+                onOk={handleAddToMeeting}
+                okText="Thêm"
+                cancelText="Hủy"
+                confirmLoading={addingToMeeting}
+                width={500}
+            >
+                <Form form={addToMeetingForm} layout="vertical">
+                    <Form.Item
+                        name="meeting_type"
+                        label="Loại Meeting"
+                        rules={[{ required: true, message: 'Vui lòng chọn loại meeting' }]}
+                    >
+                        <Radio.Group>
+                            <Radio value="daily">Daily</Radio>
+                            <Radio value="weekly">Weekly</Radio>
+                            <Radio value="monthly">Monthly</Radio>
+                            <Radio value="yearly">Yearly</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="note"
+                        label="Ghi chú"
+                    >
+                        <Input.TextArea
+                            rows={3}
+                            placeholder="Nhập ghi chú cho task trong meeting này..."
+                        />
+                    </Form.Item>
+
+                    <div style={{ padding: '12px', backgroundColor: '#f0f0f0', borderRadius: 4 }}>
+                        <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
+                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay, 
+                            task sẽ được thêm vào meeting đó. Ngược lại, hệ thống sẽ tạo meeting mới.
+                        </p>
+                    </div>
+                </Form>
+            </Modal>
         </>
     );
 };

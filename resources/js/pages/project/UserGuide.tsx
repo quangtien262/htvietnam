@@ -15,6 +15,7 @@ import {
     WarningOutlined,
     RocketOutlined,
     KeyOutlined,
+    HistoryOutlined,
 } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
@@ -415,6 +416,482 @@ const UserGuide: React.FC = () => {
                                     showIcon
                                 />
                             </Space>
+                        </div>
+                    </Tabs.TabPane>
+
+                    {/* Meeting Management Tab - NEW */}
+                    <Tabs.TabPane
+                        tab={
+                            <span style={{ fontSize: isMobile ? '11px' : '14px', display: 'block', padding: isMobile ? '4px 8px' : '8px 12px' }}>
+                                <TeamOutlined style={{ marginRight: isMobile ? 4 : 8 }} />
+                                {isMobile ? 'Meeting' : 'Quản Lý Meeting'}
+                            </span>
+                        }
+                        key="meeting"
+                    >
+                        <div style={{ padding: isMobile ? '8px' : '16px' }}>
+                            <Title level={isMobile ? 4 : 3}>Quản Lý Meeting</Title>
+
+                            <Alert
+                                message="📌 Giới thiệu"
+                                description="Tính năng Meeting giúp bạn tổ chức cuộc họp, ghi chú nội dung, liên kết tasks/projects và theo dõi kết quả."
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                            />
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
+                                1. Tạo Meeting Mới
+                            </Divider>
+                            <Steps
+                                direction="vertical"
+                                current={-1}
+                                items={[
+                                    {
+                                        title: 'Mở Form',
+                                        description: <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>Nhấn <Tag color="blue">+ Tạo Meeting</Tag></Text>,
+                                    },
+                                    {
+                                        title: 'Điền Thông Tin',
+                                        description: (
+                                            <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                <List.Item>• <Text strong>Tiêu đề:</Text> Tên cuộc họp</List.Item>
+                                                <List.Item>• <Text strong>Thời gian:</Text> Ngày giờ diễn ra</List.Item>
+                                                <List.Item>• <Text strong>Địa điểm:</Text> Phòng họp hoặc link online</List.Item>
+                                                <List.Item>• <Text strong>Người tham gia:</Text> Chọn thành viên</List.Item>
+                                                <List.Item>• <Text strong>Nội dung:</Text> Rich text editor (SunEditor)</List.Item>
+                                            </List>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Chọn Trạng Thái & Loại',
+                                        description: <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>Chọn trạng thái (Scheduled/Completed) và loại meeting</Text>,
+                                    },
+                                ]}
+                            />
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                2. Thêm Tasks & Projects
+                            </Divider>
+                            <Card type="inner" size="small" style={{ marginBottom: 16 }}>
+                                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                    <Paragraph style={{ fontSize: isMobile ? '12px' : '14px', marginBottom: 0 }}>
+                                        <Text strong>Trong Meeting Detail:</Text>
+                                    </Paragraph>
+                                    <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        <List.Item>
+                                            • Click nút <Tag color="green">+</Tag> ở header "Tasks trong meeting" → Chọn nhiều tasks → Thêm
+                                        </List.Item>
+                                        <List.Item>
+                                            • Click nút <Tag color="green">+</Tag> ở header "Projects trong meeting" → Chọn nhiều projects → Thêm
+                                        </List.Item>
+                                        <List.Item>
+                                            • Nếu chưa có tasks/projects, click button "Thêm Task"/"Thêm Project" trong Empty state
+                                        </List.Item>
+                                        <List.Item>
+                                            • Xóa items: Click nút <Tag color="red">Xóa</Tag> bên cạnh task/project
+                                        </List.Item>
+                                    </List>
+                                </Space>
+                            </Card>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
+                                3. Sửa Nhanh (Quick Edit)
+                            </Divider>
+                            <Card type="inner" size="small" style={{ marginBottom: 16 }}>
+                                <Paragraph style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                                    <Text strong>Trong Meeting Detail Drawer:</Text>
+                                </Paragraph>
+                                <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                    <List.Item>
+                                        • Click vào <Text strong>Tiêu đề/Địa điểm/Thời gian</Text> → Popconfirm hiện ra → Sửa → Lưu
+                                    </List.Item>
+                                    <List.Item>
+                                        • Click vào <Text strong>Trạng thái/Loại meeting</Text> → Select trong Popconfirm → Lưu
+                                    </List.Item>
+                                    <List.Item>
+                                        • Click vào <Text strong>Nội dung</Text> → Modal SunEditor mở ra → Soạn thảo rich text → Lưu
+                                    </List.Item>
+                                    <List.Item>
+                                        • <Text strong>Trạng thái project:</Text> Click tag trạng thái → Chọn trạng thái mới
+                                    </List.Item>
+                                </List>
+                            </Card>
+
+                            <Alert
+                                message="💡 Mẹo"
+                                description={
+                                    <span style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        • Dùng SunEditor để format nội dung đẹp (bold, list, table, màu sắc...)<br/>
+                                        • Liên kết tasks để theo dõi các nhiệm vụ được bàn trong meeting<br/>
+                                        • Xem chi tiết task/project bằng cách click nút "Chi tiết"
+                                    </span>
+                                }
+                                type="success"
+                                showIcon
+                            />
+                        </div>
+                    </Tabs.TabPane>
+
+                    {/* Daily Report Tab - NEW */}
+                    <Tabs.TabPane
+                        tab={
+                            <span style={{ fontSize: isMobile ? '11px' : '14px', display: 'block', padding: isMobile ? '4px 8px' : '8px 12px' }}>
+                                <FileTextOutlined style={{ marginRight: isMobile ? 4 : 8 }} />
+                                {isMobile ? 'Báo Cáo' : 'Báo Cáo Công Việc'}
+                            </span>
+                        }
+                        key="daily-report"
+                    >
+                        <div style={{ padding: isMobile ? '8px' : '16px' }}>
+                            <Title level={isMobile ? 4 : 3}>Báo Cáo Công Việc Hàng Ngày</Title>
+
+                            <Alert
+                                message="📋 Mục đích"
+                                description="Daily Report tự động tổng hợp hoạt động của bạn trong ngày: tasks đã làm, thời gian, tiến độ. Giúp quản lý theo dõi công việc và đánh giá hiệu suất."
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                            />
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
+                                1. Thông Tin Tự Động Thu Thập
+                            </Divider>
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={12}>
+                                    <Card size="small" type="inner" title="📊 Thống Kê">
+                                        <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            <List.Item>• <Text strong>Tổng thời gian:</Text> Giờ đã log trong ngày</List.Item>
+                                            <List.Item>• <Text strong>Tasks hoàn thành:</Text> Số task chuyển sang Done</List.Item>
+                                            <List.Item>• <Text strong>Hoạt động:</Text> Comments, file uploads</List.Item>
+                                            <List.Item>• <Text strong>Tasks đã làm:</Text> Danh sách task có time log</List.Item>
+                                        </List>
+                                    </Card>
+                                </Col>
+                                <Col xs={24} md={12}>
+                                    <Card size="small" type="inner" title="⏱️ Thời Gian Theo Dự Án">
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            Hệ thống tự động nhóm thời gian theo từng dự án, 
+                                            hiển thị biểu đồ phân bổ thời gian.
+                                        </Paragraph>
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                2. Ghi Chú & Kế Hoạch
+                            </Divider>
+                            <Steps
+                                direction="vertical"
+                                current={-1}
+                                items={[
+                                    {
+                                        title: 'Ghi Chú Công Việc',
+                                        description: <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>Ghi lại những việc đã làm trong ngày, kết quả đạt được</Text>,
+                                    },
+                                    {
+                                        title: 'Vấn Đề / Blockers',
+                                        description: <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>Liệt kê khó khăn gặp phải, cần hỗ trợ gì</Text>,
+                                    },
+                                    {
+                                        title: 'Kế Hoạch Ngày Mai',
+                                        description: <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>Dự kiến công việc sẽ làm vào ngày hôm sau</Text>,
+                                    },
+                                    {
+                                        title: 'Lưu hoặc Gửi',
+                                        description: (
+                                            <div>
+                                                <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                    • <Tag color="blue">Lưu nháp</Tag>: Lưu để sửa sau<br/>
+                                                    • <Tag color="green">Gửi báo cáo</Tag>: Submit chính thức cho quản lý
+                                                </Text>
+                                            </div>
+                                        ),
+                                    },
+                                ]}
+                            />
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                3. Xem Lịch Sử & Thống Kê
+                            </Divider>
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={12}>
+                                    <Card size="small" type="inner" title="📅 Lịch Sử Báo Cáo">
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            Click <Tag icon={<HistoryOutlined />}>Lịch sử</Tag> để xem các báo cáo đã gửi.
+                                            Có thể filter theo tháng, xem chi tiết từng ngày.
+                                        </Paragraph>
+                                    </Card>
+                                </Col>
+                                <Col xs={24} md={12}>
+                                    <Card size="small" type="inner" title="📈 Thống Kê">
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            Click <Tag icon={<BarChartOutlined />}>Thống kê</Tag> để xem:
+                                            Biểu đồ thời gian, tỷ lệ hoàn thành, xu hướng làm việc.
+                                        </Paragraph>
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                4. Trạng Thái Báo Cáo
+                            </Divider>
+                            <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                <Card size="small" type="inner">
+                                    <Tag color="gray">Draft</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Nháp - Chưa gửi, có thể sửa bất cứ lúc nào
+                                    </Paragraph>
+                                </Card>
+                                <Card size="small" type="inner">
+                                    <Tag color="blue">Submitted</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Đã gửi - Quản lý đã nhận, vẫn có thể sửa nếu chưa approved
+                                    </Paragraph>
+                                </Card>
+                                <Card size="small" type="inner">
+                                    <Tag color="green">Approved</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Đã duyệt - Không thể sửa, đã được quản lý xác nhận
+                                    </Paragraph>
+                                </Card>
+                            </Space>
+
+                            <Alert
+                                message="⏰ Best Practice"
+                                description={
+                                    <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        <List.Item>✅ Gửi báo cáo cuối mỗi ngày làm việc (trước 18h)</List.Item>
+                                        <List.Item>✅ Ghi chú cụ thể, tránh viết chung chung</List.Item>
+                                        <List.Item>✅ Nếu blocked, mô tả rõ vấn đề để được hỗ trợ</List.Item>
+                                        <List.Item>✅ Plan ngày mai giúp tổ chức công việc tốt hơn</List.Item>
+                                    </List>
+                                }
+                                type="success"
+                                showIcon
+                                style={{ marginTop: 16 }}
+                            />
+                        </div>
+                    </Tabs.TabPane>
+
+                    {/* My Tasks Tab - NEW */}
+                    <Tabs.TabPane
+                        tab={
+                            <span style={{ fontSize: isMobile ? '11px' : '14px', display: 'block', padding: isMobile ? '4px 8px' : '8px 12px' }}>
+                                <CheckCircleOutlined style={{ marginRight: isMobile ? 4 : 8 }} />
+                                {isMobile ? 'My Tasks' : 'Nhiệm Vụ Của Tôi'}
+                            </span>
+                        }
+                        key="my-tasks"
+                    >
+                        <div style={{ padding: isMobile ? '8px' : '16px' }}>
+                            <Title level={isMobile ? 4 : 3}>My Tasks - Quản Lý Nhiệm Vụ Cá Nhân</Title>
+
+                            <Alert
+                                message="🎯 Mục đích"
+                                description="Trang My Tasks tập trung hiển thị TẤT CẢ nhiệm vụ được giao cho BẠN từ mọi dự án, giúp bạn quản lý công việc hiệu quả hơn."
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                            />
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
+                                1. Tổng Quan
+                            </Divider>
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={8}>
+                                    <Card size="small" type="inner" title="📊 Thống Kê Nhanh">
+                                        <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            <List.Item>• Tổng tasks được giao</List.Item>
+                                            <List.Item>• Tasks đang làm</List.Item>
+                                            <List.Item>• Tasks hoàn thành hôm nay</List.Item>
+                                            <List.Item>• Tasks sắp deadline</List.Item>
+                                        </List>
+                                    </Card>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Card size="small" type="inner" title="⏱️ Time Tracking">
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            Hiển thị timer đang chạy (nếu có),
+                                            tổng thời gian đã log hôm nay.
+                                        </Paragraph>
+                                    </Card>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Card size="small" type="inner" title="🎨 Filter & View">
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            Lọc theo trạng thái, độ ưu tiên,
+                                            dự án. Chuyển đổi giữa List/Kanban view.
+                                        </Paragraph>
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                2. Các Chế Độ Hiển Thị
+                            </Divider>
+                            <Collapse defaultActiveKey={['list']}>
+                                <Panel header="📋 List View (Mặc định)" key="list">
+                                    <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        <List.Item>• Hiển thị dạng danh sách, dễ scan nhanh</List.Item>
+                                        <List.Item>• Mỗi task hiển thị: Tiêu đề, Dự án, Trạng thái, Due date, Độ ưu tiên</List.Item>
+                                        <List.Item>• Icon ⏱️ màu xanh nếu timer đang chạy</List.Item>
+                                        <List.Item>• Click vào task để mở chi tiết</List.Item>
+                                        <List.Item>• Actions: Start/Stop Timer, Mark Done, View Detail</List.Item>
+                                    </List>
+                                </Panel>
+
+                                <Panel header="📊 Kanban View" key="kanban">
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        Hiển thị tasks theo trạng thái (To Do, In Progress, Done, Blocked).
+                                        Kéo thả card để đổi trạng thái nhanh.
+                                    </Paragraph>
+                                </Panel>
+
+                                <Panel header="📅 Calendar View" key="calendar">
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        Xem tasks theo lịch, dễ theo dõi deadline và lên kế hoạch.
+                                        Click vào ngày để xem tasks trong ngày đó.
+                                    </Paragraph>
+                                </Panel>
+                            </Collapse>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                3. Lọc & Tìm Kiếm Nâng Cao
+                            </Divider>
+                            <Card type="inner" size="small" style={{ marginBottom: 16 }}>
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} md={12}>
+                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px' }}>Lọc theo:</Text>
+                                        <List size="small" style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8 }}>
+                                            <List.Item>• <Text strong>Trạng thái:</Text> To Do, In Progress, Done...</List.Item>
+                                            <List.Item>• <Text strong>Độ ưu tiên:</Text> Critical, High, Medium, Low</List.Item>
+                                            <List.Item>• <Text strong>Dự án:</Text> Chọn từ danh sách dự án</List.Item>
+                                            <List.Item>• <Text strong>Due date:</Text> Hôm nay, Tuần này, Tháng này, Quá hạn</List.Item>
+                                        </List>
+                                    </Col>
+                                    <Col xs={24} md={12}>
+                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px' }}>Quick Filters:</Text>
+                                        <Space wrap style={{ marginTop: 8 }}>
+                                            <Tag color="red">Quá hạn</Tag>
+                                            <Tag color="orange">Hôm nay</Tag>
+                                            <Tag color="blue">Tuần này</Tag>
+                                            <Tag color="green">Chưa bắt đầu</Tag>
+                                            <Tag color="purple">Đang làm</Tag>
+                                        </Space>
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 12, marginBottom: 0 }}>
+                                            Click vào tag để lọc nhanh. Click lại để bỏ filter.
+                                        </Paragraph>
+                                    </Col>
+                                </Row>
+                            </Card>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
+                                4. Thao Tác Nhanh
+                            </Divider>
+                            <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                <Card size="small" type="inner">
+                                    <Tag color="green" icon={<ClockCircleOutlined />}>Start Timer</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Bắt đầu đếm thời gian ngay từ danh sách, không cần mở chi tiết
+                                    </Paragraph>
+                                </Card>
+
+                                <Card size="small" type="inner">
+                                    <Tag color="red" icon={<ClockCircleOutlined />}>Stop Timer</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Dừng timer đang chạy. Thời gian tự động lưu vào time log
+                                    </Paragraph>
+                                </Card>
+
+                                <Card size="small" type="inner">
+                                    <Tag color="blue">Mark as Done</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Đánh dấu hoàn thành nhanh. Task chuyển sang trạng thái Done
+                                    </Paragraph>
+                                </Card>
+
+                                <Card size="small" type="inner">
+                                    <Tag color="purple">View Details</Tag>
+                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                        Mở drawer chi tiết task với đầy đủ thông tin, comments, files...
+                                    </Paragraph>
+                                </Card>
+                            </Space>
+
+                            <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
+                                5. Workflow Khuyến Nghị
+                            </Divider>
+                            <Steps
+                                direction="vertical"
+                                current={-1}
+                                items={[
+                                    {
+                                        title: 'Mở đầu ngày (8h)',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Vào My Tasks → Xem tasks "Hôm nay" → Sắp xếp ưu tiên
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Bắt đầu làm việc',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Chọn task → Click "Start Timer" → Bắt đầu làm
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Làm việc tập trung',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Focus vào 1 task, tránh multitasking
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Hoàn thành task',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Stop Timer → Cập nhật % tiến độ → Mark as Done
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Lặp lại',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Chuyển sang task tiếp theo trong danh sách
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Cuối ngày (17h30)',
+                                        description: (
+                                            <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                                Review lại công việc → Gửi Daily Report
+                                            </Text>
+                                        ),
+                                    },
+                                ]}
+                            />
+
+                            <Alert
+                                message="💡 Pro Tips"
+                                description={
+                                    <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        <List.Item>⭐ Dùng Quick Filter "Quá hạn" mỗi sáng để ưu tiên tasks cấp bách</List.Item>
+                                        <List.Item>⭐ Limit WIP: Không nên có quá 2-3 tasks "In Progress" cùng lúc</List.Item>
+                                        <List.Item>⭐ Start timer NGAY khi bắt đầu, để tracking chính xác</List.Item>
+                                        <List.Item>⭐ Bookmark trang My Tasks để truy cập nhanh</List.Item>
+                                        <List.Item>⭐ Dùng Kanban view khi cần overview, List view khi cần detail</List.Item>
+                                    </List>
+                                }
+                                type="success"
+                                showIcon
+                                style={{ marginTop: 16 }}
+                            />
                         </div>
                     </Tabs.TabPane>
 

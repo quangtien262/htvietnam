@@ -137,7 +137,7 @@ class TaskController extends Controller
     {
         try {
             $task = Task::findOrFail($id);
-            
+
             // Check permission to update task
             $user = auth('admin_users')->user();
             if (!$user) {
@@ -149,7 +149,7 @@ class TaskController extends Controller
 
             // Check if user has task.update OR (task.update_own AND is assignee)
             $hasUpdatePermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update');
-            $hasUpdateOwnPermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update_own') 
+            $hasUpdateOwnPermission = $this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'task.update_own')
                 && $task->nguoi_thuc_hien_id === $user->id;
 
             if (!$hasUpdatePermission && !$hasUpdateOwnPermission) {
@@ -158,7 +158,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền sửa task này',
                 ], 403);
             }
-            
+
             $validated = $request->validate([
                 'tieu_de' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -223,7 +223,7 @@ class TaskController extends Controller
     {
         try {
             $task = Task::findOrFail($id);
-            
+
             // Check permission to delete task
             $user = auth('admin_users')->user();
             if (!$user) {
@@ -239,7 +239,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền xóa task này',
                 ], 403);
             }
-            
+
             $this->taskService->delete($id);
             return response()->json([
                 'success' => true,
@@ -258,14 +258,14 @@ class TaskController extends Controller
         try {
             $task = Task::findOrFail($id);
             $user = auth('admin_users')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
-            
+
             // Check permission to add comment
             if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'comment.create')) {
                 return response()->json([
@@ -273,7 +273,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền thêm bình luận',
                 ], 403);
             }
-            
+
             $validated = $request->validate([
                 'noi_dung' => 'required|string',
                 'parent_id' => 'nullable|exists:pro___task_comments,id',
@@ -303,14 +303,14 @@ class TaskController extends Controller
         try {
             $task = Task::findOrFail($id);
             $user = auth('admin_users')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
-            
+
             // Check permission to upload attachment
             if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'attachment.upload')) {
                 return response()->json([
@@ -318,14 +318,14 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền upload file',
                 ], 403);
             }
-            
+
             $validated = $request->validate([
                 'file' => 'required|file|max:10240', // Max 10MB
                 'mo_ta' => 'nullable|string',
             ]);
 
             $attachment = $this->taskService->uploadAttachment(
-                $id, 
+                $id,
                 $validated['file'],
                 $validated['mo_ta'] ?? null
             );
@@ -384,14 +384,14 @@ class TaskController extends Controller
             $attachment = TaskAttachment::findOrFail($id);
             $task = Task::findOrFail($attachment->task_id);
             $user = auth('admin_users')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
-            
+
             // Check permission to delete attachment
             if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'attachment.delete')) {
                 return response()->json([
@@ -399,7 +399,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền xóa file',
                 ], 403);
             }
-            
+
             $this->taskService->deleteAttachment($id);
 
             return response()->json([
@@ -423,14 +423,14 @@ class TaskController extends Controller
         try {
             $task = Task::findOrFail($id);
             $user = auth('admin_users')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
-            
+
             // Check permission to log time
             if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
                 return response()->json([
@@ -438,7 +438,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền log thời gian',
                 ], 403);
             }
-            
+
             $timeLog = $this->taskService->startTimer($id);
 
             return response()->json([
@@ -477,14 +477,14 @@ class TaskController extends Controller
         try {
             $task = Task::findOrFail($id);
             $user = auth('admin_users')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
-            
+
             // Check permission to log time
             if (!$this->permissionService->userHasPermissionInProject($user->id, $task->project_id, 'time.log')) {
                 return response()->json([
@@ -492,7 +492,7 @@ class TaskController extends Controller
                     'message' => 'Bạn không có quyền log thời gian',
                 ], 403);
             }
-            
+
             $validated = $request->validate([
                 'started_at' => 'required|date',
                 'ended_at' => 'required|date|after:started_at',
@@ -556,6 +556,110 @@ class TaskController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $timer,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all tasks assigned to current user across all projects
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMyTasks(Request $request)
+    {
+        try {
+            $userId = auth()->guard('admin_users')->id();
+
+            $query = Task::with([
+                'project:id,ten_du_an,ma_du_an',
+                'trangThai:id,name,color',
+                'uuTien:id,name,color',
+                'nguoiThucHien:id,name',
+                'nguoiGiaoViec:id,name'
+            ])
+            ->where('nguoi_thuc_hien_id', $userId);
+
+            // Filter by project
+            if ($request->has('project_id') && $request->project_id) {
+                $query->where('project_id', $request->project_id);
+            }
+
+            // Filter by status
+            if ($request->has('status_id') && $request->status_id) {
+                $query->where('trang_thai_id', $request->status_id);
+            }
+
+            // Filter by priority
+            if ($request->has('priority_id') && $request->priority_id) {
+                $query->where('uu_tien_id', $request->priority_id);
+            }
+
+            // Search by name
+            if ($request->has('search') && $request->search) {
+                $query->where('tieu_de', 'like', '%' . $request->search . '%');
+            }
+
+            // Filter by date range
+            if ($request->has('start_date') && $request->start_date) {
+                $query->whereDate('ngay_bat_dau', '>=', $request->start_date);
+            }
+            if ($request->has('end_date') && $request->end_date) {
+                $query->whereDate('ngay_ket_thuc_du_kien', '<=', $request->end_date);
+            }
+
+            // Sort
+            $sortBy = $request->get('sort_by', 'ngay_ket_thuc_du_kien');
+            $sortOrder = $request->get('sort_order', 'asc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            $tasks = $query->paginate($request->get('per_page', 20));
+
+            // Transform data
+            $tasks->getCollection()->transform(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'name' => $task->tieu_de,
+                    'description' => $task->mo_ta,
+                    'project' => [
+                        'id' => $task->project->id ?? null,
+                        'name' => $task->project->ten_du_an ?? null,
+                        'code' => $task->project->ma_du_an ?? null,
+                    ],
+                    'status' => [
+                        'id' => $task->trangThai->id ?? null,
+                        'name' => $task->trangThai->name ?? null,
+                        'color' => $task->trangThai->color ?? null,
+                    ],
+                    'priority' => [
+                        'id' => $task->uuTien->id ?? null,
+                        'name' => $task->uuTien->name ?? null,
+                        'color' => $task->uuTien->color ?? null,
+                    ],
+                    'start_date' => $task->ngay_bat_dau,
+                    'end_date' => $task->ngay_ket_thuc_du_kien,
+                    'progress' => $task->tien_do,
+                    'assigned_users' => $task->nguoiThucHien ? [[
+                        'id' => $task->nguoiThucHien->id,
+                        'name' => $task->nguoiThucHien->name,
+                    ]] : [],
+                    'creator' => [
+                        'id' => $task->nguoiGiaoViec->id ?? null,
+                        'name' => $task->nguoiGiaoViec->name ?? null,
+                    ],
+                    'created_at' => $task->created_at,
+                    'updated_at' => $task->updated_at,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $tasks,
             ]);
         } catch (\Exception $e) {
             return response()->json([

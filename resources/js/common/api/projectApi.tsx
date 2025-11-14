@@ -137,6 +137,15 @@ export const taskApi = {
     },
 
     /**
+     * Get all tasks assigned to current user across all projects
+     * @param params - Filter parameters (project_id, status_id, priority_id, search, etc.)
+     * @returns Promise with paginated task list for current user
+     */
+    getMyTasks: (params?: any) => {
+        return axios.get(`${API_BASE}/tasks/my-tasks`, { params });
+    },
+
+    /**
      * Get single task by ID with all relationships
      * @param id - Task ID
      * @returns Promise with task details (checklists, comments, attachments, time logs)
@@ -307,10 +316,155 @@ export const referenceApi = {
     getAdminUsers: () => {
         return axios.get(`${API_BASE}/admin-users`);
     },
+
+    // Get all projects (for filters)
+    getProjects: () => {
+        return axios.get(`${API_BASE}/projects`);
+    },
+};
+
+// ============================================
+// REPORT APIs
+// ============================================
+
+/**
+ * Report API methods
+ *
+ * Daily work reports and statistics
+ */
+export const reportApi = {
+    /**
+     * Get my daily report (auto-generated from time logs, tasks, activities)
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with daily report data
+     */
+    getMyDailyReport: (date?: string) => {
+        const url = date ? `${API_BASE}/reports/daily/${date}` : `${API_BASE}/reports/daily`;
+        return axios.get(url);
+    },
+
+    /**
+     * Submit/update daily report
+     * @param data - Report data (report_date, notes, blockers, plan_tomorrow, status)
+     * @returns Promise with submission confirmation
+     */
+    submitDailyReport: (data: any) => {
+        return axios.post(`${API_BASE}/reports/daily`, data);
+    },
+
+    /**
+     * Get daily report history
+     * @param params - Filter parameters (start_date, end_date)
+     * @returns Promise with report history
+     */
+    getDailyHistory: (params?: any) => {
+        return axios.get(`${API_BASE}/reports/daily-history`, { params });
+    },
+
+    /**
+     * Get my statistics (week/month/year)
+     * @param period - Period filter ('week', 'month', 'year')
+     * @returns Promise with statistics
+     */
+    getMyStats: (period?: string) => {
+        return axios.get(`${API_BASE}/reports/my-stats`, { params: { period } });
+    },
+
+    /**
+     * Get team daily reports (for managers)
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with team reports
+     */
+    getTeamDailyReports: (date?: string) => {
+        const url = date ? `${API_BASE}/reports/team-daily/${date}` : `${API_BASE}/reports/team-daily`;
+        return axios.get(url);
+    },
+};
+
+// ============================================
+// MEETING APIs
+// ============================================
+
+/**
+ * Meeting API methods
+ */
+export const meetingApi = {
+    /**
+     * Get paginated list of meetings with filters
+     */
+    getList: (params?: any) => {
+        return axios.get(`${API_BASE}/meetings`, { params });
+    },
+
+    /**
+     * Get single meeting by ID
+     */
+    getById: (id: number) => {
+        return axios.get(`${API_BASE}/meetings/${id}`);
+    },
+
+    /**
+     * Create new meeting
+     */
+    create: (data: any) => {
+        return axios.post(`${API_BASE}/meetings`, data);
+    },
+
+    /**
+     * Update meeting
+     */
+    update: (id: number, data: any) => {
+        return axios.put(`${API_BASE}/meetings/${id}`, data);
+    },
+
+    /**
+     * Delete meeting
+     */
+    delete: (id: number) => {
+        return axios.delete(`${API_BASE}/meetings/${id}`);
+    },
+
+    /**
+     * Quick update single field
+     */
+    quickUpdate: (id: number, field: string, value: any) => {
+        return axios.post(`${API_BASE}/meetings/${id}/quick-update`, { field, value });
+    },
+
+    /**
+     * Get meeting statuses
+     */
+    getStatuses: () => {
+        return axios.get(`${API_BASE}/meeting-statuses`);
+    },
+
+    /**
+     * Add project to meeting (auto-create or update)
+     */
+    addProject: (projectId: number, meetingType: string, note?: string) => {
+        return axios.post(`${API_BASE}/meetings/add-project`, {
+            project_id: projectId,
+            meeting_type: meetingType,
+            note,
+        });
+    },
+
+    /**
+     * Add task to meeting (auto-create or update)
+     */
+    addTask: (taskId: number, meetingType: string, note?: string) => {
+        return axios.post(`${API_BASE}/meetings/add-task`, {
+            task_id: taskId,
+            meeting_type: meetingType,
+            note,
+        });
+    },
 };
 
 export default {
     projectApi,
     taskApi,
     referenceApi,
+    reportApi,
+    meetingApi,
 };

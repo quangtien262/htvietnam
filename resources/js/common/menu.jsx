@@ -29,6 +29,7 @@ import {
     StarOutlined,
     ClockCircleOutlined,
     DeleteOutlined,
+    CheckSquareOutlined,
     SettingOutlined,
     QuestionCircleOutlined,
     KeyOutlined
@@ -768,10 +769,52 @@ export const MENU = {
             icon: <ApartmentOutlined />,
         },
         {
+            label: <Link to={`${ROUTE.project_my_tasks}?p=projects`}>Công việc của tôi</Link>,
+            key: (key++).toString(),
+            icon: <CheckSquareOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.project_meetings}?p=projects`}>Meeting</Link>,
+            key: (key++).toString(),
+            icon: <TeamOutlined />,
+        },
+        {
+            label: "Báo cáo công việc",
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.daily_report}?p=projects`}>📝 Hôm nay</Link>,
+                    key: (key++).toString(),
+                    icon: <CalendarOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.daily_report_history}?p=projects`}>📋 Lịch sử</Link>,
+                    key: (key++).toString(),
+                    icon: <ClockCircleOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.daily_report_stats}?p=projects`}>📊 Thống kê</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.daily_report_team}?p=projects`}>👥 Báo cáo Team</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
+                },
+            ],
+        },
+        {
             label: "Cài đặt",
             key: (key++).toString(),
             icon: <SettingFilled />,
             children: [
+                {
+                    label: <Link to={`/project/1/permissions?p=projects`}>Quản lý phân quyền</Link>,
+                    key: (key++).toString(),
+                    icon: <KeyOutlined />,
+                },
                 {
                     label: <Link to={`${ROUTE.baseRoute}setting/pro___project_statuses?p=projects`}>Trạng thái dự án</Link>,
                     key: (key++).toString(),
@@ -791,12 +834,6 @@ export const MENU = {
                     label: <Link to={`${ROUTE.baseRoute}setting/pro___task_statuses?p=projects`}>Trạng thái task</Link>,
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
-                },
-
-                {
-                    label: <Link to={`/project/1/permissions?p=projects`}>Quản lý phân quyền</Link>,
-                    key: (key++).toString(),
-                    icon: <KeyOutlined />,
                 },
             ],
         },

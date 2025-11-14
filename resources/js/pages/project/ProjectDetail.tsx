@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge, Checkbox, Dropdown, Popconfirm } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { projectApi, taskApi, referenceApi } from '../../common/api/projectApi';
+import { projectApi, taskApi, referenceApi, meetingApi } from '../../common/api/projectApi';
 import { Project, ActivityLog, Task, ProjectChecklist } from '../../types/project';
 import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
@@ -48,6 +48,11 @@ const ProjectDetail: React.FC = () => {
     const [addMemberModalVisible, setAddMemberModalVisible] = useState(false);
     const [addMemberForm] = Form.useForm();
     const [allAdminUsers, setAllAdminUsers] = useState<any[]>([]);
+
+    // Add to Meeting Modal
+    const [addToMeetingModalVisible, setAddToMeetingModalVisible] = useState(false);
+    const [addToMeetingForm] = Form.useForm();
+    const [addingToMeeting, setAddingToMeeting] = useState(false);
 
     // Quick Add Tasks Modal
     const [quickAddModalVisible, setQuickAddModalVisible] = useState(false);
@@ -309,6 +314,31 @@ const ProjectDetail: React.FC = () => {
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể xóa thành viên');
+        }
+    };
+
+    const handleAddToMeeting = async () => {
+        if (!project) return;
+
+        try {
+            setAddingToMeeting(true);
+            const values = await addToMeetingForm.validateFields();
+
+            const response = await meetingApi.addProject(
+                project.id,
+                values.meeting_type,
+                values.note
+            );
+
+            if (response.data.success) {
+                message.success(response.data.message);
+                setAddToMeetingModalVisible(false);
+                addToMeetingForm.resetFields();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể thêm vào meeting');
+        } finally {
+            setAddingToMeeting(false);
         }
     };
 
@@ -1467,6 +1497,12 @@ const ProjectDetail: React.FC = () => {
                         Gantt Chart
                     </Button>
                     <Button
+                        icon={<CalendarOutlined />}
+                        onClick={() => setAddToMeetingModalVisible(true)}
+                    >
+                        Thêm vào Meeting
+                    </Button>
+                    <Button
                         type="primary"
                         icon={<EditOutlined />}
                         onClick={() => {
@@ -1846,6 +1882,53 @@ const ProjectDetail: React.FC = () => {
                         Thêm dòng mới
                     </Button>
                 </div>
+            </Modal>
+
+            {/* Add to Meeting Modal */}
+            <Modal
+                title="Thêm dự án vào Meeting"
+                open={addToMeetingModalVisible}
+                onCancel={() => {
+                    setAddToMeetingModalVisible(false);
+                    addToMeetingForm.resetFields();
+                }}
+                onOk={handleAddToMeeting}
+                okText="Thêm"
+                cancelText="Hủy"
+                confirmLoading={addingToMeeting}
+                width={500}
+            >
+                <Form form={addToMeetingForm} layout="vertical">
+                    <Form.Item
+                        name="meeting_type"
+                        label="Loại Meeting"
+                        rules={[{ required: true, message: 'Vui lòng chọn loại meeting' }]}
+                    >
+                        <Radio.Group>
+                            <Radio value="daily">Daily</Radio>
+                            <Radio value="weekly">Weekly</Radio>
+                            <Radio value="monthly">Monthly</Radio>
+                            <Radio value="yearly">Yearly</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="note"
+                        label="Ghi chú"
+                    >
+                        <Input.TextArea
+                            rows={3}
+                            placeholder="Nhập ghi chú cho dự án trong meeting này..."
+                        />
+                    </Form.Item>
+
+                    <div style={{ padding: '12px', backgroundColor: '#f0f0f0', borderRadius: 4 }}>
+                        <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
+                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay, 
+                            dự án sẽ được thêm vào meeting đó. Ngược lại, hệ thống sẽ tạo meeting mới.
+                        </p>
+                    </div>
+                </Form>
             </Modal>
         </div>
     );
