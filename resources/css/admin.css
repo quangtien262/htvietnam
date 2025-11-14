@@ -1382,3 +1382,10 @@ ul.ul-info li {
     border: 1px #0162ff solid;
     padding: 3px 15px;
 }
+.btn-warning {
+    background-color: #faad14;
+    color: #ffffff;
+    border-radius: 5px;
+    border: 1px #faad14 solid;
+    padding: 3px 15px;
+}

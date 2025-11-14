@@ -54,6 +54,7 @@ const { RangePicker } = DatePicker;
 
 import { API } from "../../common/api";
 import { act } from './../../../../node_modules/@types/react/index.d';
+import { on } from 'events';
 
 const InvoiceList_BDS: React.FC = () => {
     // gset/set params
@@ -298,7 +299,7 @@ const InvoiceList_BDS: React.FC = () => {
                 return <>
                     <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
                     {record.ten_khach_hang ? <Tag color="green">{record.ten_khach_hang}</Tag> : ''}
-                    {record.contract_code ? <p>Mã Hđồng: <a style={{ cursor: 'pointer', color: '#1890ff' }} onClick={() => {handleOpenContractForm(record.contract_id); setContractIdAction(record.contract_id); }}>{record.contract_code}</a></p> : ''}
+                    {record.contract_code ? <p>Mã Hđồng: <a style={{ cursor: 'pointer', color: '#1890ff' }} onClick={() => { handleOpenContractForm(record.contract_id); setContractIdAction(record.contract_id); }}>{record.contract_code}</a></p> : ''}
                 </>;
             }
         },
@@ -372,7 +373,7 @@ const InvoiceList_BDS: React.FC = () => {
             key: 'dich_vu',
             render: (text: any, record: any) => {
                 return <>
-                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
+                    <Tag color="red">Tổng: {numberFormat(record.total)}</Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
                     {Array.isArray(record.services) && record.services.map((service: any, idx: number) => {
@@ -381,11 +382,51 @@ const InvoiceList_BDS: React.FC = () => {
                         </Tag>
                     })}
 
+                    <Popconfirm title="Xác nhận tính lại tiền phòng này?"
+                        showCancel={true}
+                        okText={<><RedoOutlined /> Xác nhận tính lại</>}
+                        cancelText="Hủy"
+                        description={<div>
+                            <ul>
+                                <li>Toàn bộ chi phí của hóa đơn sẽ bị tính lại</li>
+                                <li>Tiền sẽ được tính lại theo config trong hợp đồng</li>
+                            </ul>
+                        </div>}
+                        onConfirm={() => tinhLaiTienPhong([record.id])}
+                    >
+                        <Button className="btn-warning"><RedoOutlined /></Button>
+                    </Popconfirm>
+
+
                     <Button className="float-btn-option btn-default" onClick={() => setDataEdit(record)}><FormOutlined /></Button>
+
                 </>;
             }
         },
     ];
+
+    function tinhLaiTienPhong(invoiceIds: any[]) {
+        setLoadingActive(true);
+        axios.post(API.aitilen_recalculateInvoice, {
+            ids: invoiceIds,
+        }).then((result: any) => {
+            console.log('   result', result);
+            if (result.status === 200) {
+                message.success("Đã tính lại tiền hóa đơn thành công");
+                setSelectedRowKeys([]);
+                refresh(searchData);
+            } else {
+                message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
+            }
+            setIsModalRecalculateOpen(false);
+            setLoadingActive(false);
+        }).catch((error: any) => {
+            console.log(error);
+            message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+            setIsModalRecalculateOpen(false);
+            setLoadingActive(false);
+        });
+    }
 
     function setDataEdit(record: any) {
         setDataAction(record);
@@ -647,7 +688,7 @@ const InvoiceList_BDS: React.FC = () => {
         dataService_new.forEach((data: any, idx: number) => {
             let total = (data.price_default ?? 0);
 
-            if (['KWH', 'M3', 'KWh', 'm3'].includes(data.per_default)) {
+            if (['KWH', 'M3', 'KWh', 'm3', 'kwh'].includes(data.per_default)) {
                 console.log('ok');
                 total = (data.end - data.start) * data.price_default;
                 console.log('ok');
@@ -1748,36 +1789,20 @@ const InvoiceList_BDS: React.FC = () => {
                 open={isModalRecalculateOpen}
                 loading={loadingCreateDataMonth}
                 onOk={() => {
-                    setLoadingActive(true);
-                    axios.post(API.aitilen_recalculateInvoice, {
-                        ids: selectedRowKeys,
-                    }).then((result: any) => {
-                        console.log('   result', result);
-                        if (result.status === 200) {
-                            message.success("Đã tính lại tiền hóa đơn thành công");
-                            setSelectedRowKeys([]);
-                            refresh(searchData);
-                        } else {
-                            message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
-                        }
-                        setIsModalRecalculateOpen(false);
-                        setLoadingActive(false);
-                    }).catch((error: any) => {
-                        console.log(error);
-                        message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                        setIsModalRecalculateOpen(false);
-                        setLoadingActive(false);
-                    });
+                    tinhLaiTienPhong(selectedRowKeys);
+                    setSelectedRowKeys([]);
                 }}
                 okText="Xác nhận tính lại tiền"
                 cancelText="Hủy"
                 maskClosable={false}
                 onCancel={() => { setIsModalActiveCurrentOpen(false); }}>
                 <ul>
-                    <li>Các thông tin về data này sẽ được <em>public cho khách hàng xem</em></li>
-                    <li>Sau khi active, các thông tin này <em>vẫn có thể chỉnh sửa lại</em></li>
+                    <li>Toàn bộ chi phí của hóa đơn sẽ bị tính lại</li>
+                    <li>Tiền sẽ được tính lại theo config trong hợp đồng</li>
                 </ul>
             </Modal>
+
+
 
             {/* Modal Thống kê */}
             <Modal
