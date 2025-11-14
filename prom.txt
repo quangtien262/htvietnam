@@ -8,6 +8,13 @@ Filter linh hoạt để tập trung vào task quan trọng
 Thống kê nhanh: task quá hạn, deadline hôm nay
 Click vào task để xem chi tiết ngay trong context của dự án
 
+# Thêm nhanh
+Hãy them nút them nhanh sản phẩm để thêm nhanh nhiều sản phẩm 1 lúc, yêu cầu như sau:
+- Các trường cần thêm nhanh gồm có: Tên sản phẩm, Danh mục, Giá nhập, giá bán, Tồn kho, đơn vị
+- Form nhập được kẻ dạng table, có nút thêm item ở bên dưới cùng để thêm hàng, mặc định có sẵn 3 hàng sản phẩm để thêm nhanh
+- ở header của cột tồn kho, Danh mục, đơn vị hãy để checkbox với tiêu đề "áp dụng tất cả" để khi checked vào đó thì khi sửa 1 item là tất cả các item cùng cột đó cũng thay đổi theo
+
+
 # Tạo bang setting
 
 bảng spa_thuong_hieu gồm các trường sau: name(Tên thương hiệu), color (Màu đánh dấu), sort_order (Thứ tự sắp xếp, khi select bảng thương hiệu sẽ order by sort_order asc), note (Ghi chú), created_at, updated_at, created_by (Người tạo)
