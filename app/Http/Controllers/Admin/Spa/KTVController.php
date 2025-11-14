@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Admin\Spa;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class KTVController extends Controller
 {
     public function index(Request $request)
     {
+        Log::info('KTVController index called', [
+            'params' => $request->all()
+        ]);
+
         $query = DB::table('admin_users')
             ->select(
                 'admin_users.id',
@@ -60,6 +65,11 @@ class KTVController extends Controller
             'topPerformer' => 0,
             'totalCommission' => 0,
         ];
+
+        Log::info('KTVController response', [
+            'count' => count($data->items()),
+            'total' => $data->total()
+        ]);
 
         return response()->json([
             'success' => true,
