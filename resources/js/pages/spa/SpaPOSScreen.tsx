@@ -106,6 +106,53 @@ const SpaPOSScreen: React.FC = () => {
         setFilteredProducts(filtered);
     }, [productSearch, productCategory, products]);
 
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Prevent shortcuts when typing in input fields
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+                // Only allow ESC when in input
+                if (event.key !== 'Escape') {
+                    return;
+                }
+            }
+
+            switch (event.key) {
+                case 'F1':
+                    event.preventDefault();
+                    handleSelectCustomer();
+                    break;
+                case 'F2':
+                    event.preventDefault();
+                    handleScanBarcode();
+                    break;
+                case 'F3':
+                    event.preventDefault();
+                    handleHoldInvoice();
+                    break;
+                case 'F4':
+                    event.preventDefault();
+                    handleRecallInvoice();
+                    break;
+                case 'F9':
+                    event.preventDefault();
+                    if (cart.length > 0) {
+                        handlePayment();
+                    }
+                    break;
+                case 'Escape':
+                    event.preventDefault();
+                    handleCancelInvoice();
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [cart]); // Re-bind when cart changes
+
     const fetchServices = async () => {
         setLoadingData(true);
         try {
@@ -228,6 +275,134 @@ const SpaPOSScreen: React.FC = () => {
         }
 
         setPaymentModalVisible(true);
+    };
+
+    // Keyboard shortcut handlers
+    const handleSelectCustomer = () => {
+        const customerSelectElement = document.querySelector('input[placeholder*="khách hàng"]') as HTMLInputElement;
+        if (customerSelectElement) {
+            customerSelectElement.focus();
+            customerSelectElement.click();
+        }
+    };
+
+    const handleScanBarcode = () => {
+        Modal.info({
+            title: 'Quét mã vạch',
+            content: (
+                <div>
+                    <Input
+                        autoFocus
+                        placeholder="Quét hoặc nhập mã vạch sản phẩm"
+                        onPressEnter={(e) => {
+                            const barcode = (e.target as HTMLInputElement).value;
+                            // TODO: Search product/service by barcode
+                            message.info(`Tìm kiếm mã: ${barcode}`);
+                            Modal.destroyAll();
+                        }}
+                    />
+                </div>
+            ),
+        });
+    };
+
+    const handleHoldInvoice = () => {
+        if (cart.length === 0) {
+            message.warning('Giỏ hàng trống, không thể hold');
+            return;
+        }
+
+        const invoiceData = {
+            cart,
+            customer: selectedCustomer,
+            discount,
+            pointsUsed,
+            tip,
+            timestamp: new Date().toISOString(),
+        };
+
+        const heldInvoices = JSON.parse(localStorage.getItem('heldInvoices') || '[]');
+        heldInvoices.push(invoiceData);
+        localStorage.setItem('heldInvoices', JSON.stringify(heldInvoices));
+
+        message.success('Đã hold hóa đơn');
+
+        // Reset cart
+        setCart([]);
+        setSelectedCustomer(null);
+        setDiscount(0);
+        setPointsUsed(0);
+        setTip(0);
+    };
+
+    const handleRecallInvoice = () => {
+        const heldInvoices = JSON.parse(localStorage.getItem('heldInvoices') || '[]');
+
+        if (heldInvoices.length === 0) {
+            message.info('Không có hóa đơn đang hold');
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Chọn hóa đơn cần recall',
+            width: 600,
+            content: (
+                <div style={{ maxHeight: 400, overflow: 'auto' }}>
+                    {heldInvoices.map((invoice: any, index: number) => (
+                        <Card
+                            key={index}
+                            size="small"
+                            style={{ marginBottom: 8, cursor: 'pointer' }}
+                            onClick={() => {
+                                setCart(invoice.cart);
+                                setSelectedCustomer(invoice.customer);
+                                setDiscount(invoice.discount);
+                                setPointsUsed(invoice.pointsUsed);
+                                setTip(invoice.tip);
+
+                                // Remove from held invoices
+                                heldInvoices.splice(index, 1);
+                                localStorage.setItem('heldInvoices', JSON.stringify(heldInvoices));
+
+                                message.success('Đã recall hóa đơn');
+                                Modal.destroyAll();
+                            }}
+                        >
+                            <div>
+                                <strong>Hóa đơn #{index + 1}</strong> - {new Date(invoice.timestamp).toLocaleString()}
+                            </div>
+                            <div>Khách hàng: {invoice.customer?.label || 'Khách lẻ'}</div>
+                            <div>Số lượng: {invoice.cart.length} item</div>
+                        </Card>
+                    ))}
+                </div>
+            ),
+            okButtonProps: { style: { display: 'none' } },
+            cancelText: 'Đóng',
+        });
+    };
+
+    const handleCancelInvoice = () => {
+        if (cart.length === 0) {
+            message.info('Giỏ hàng đã trống');
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Xác nhận hủy hóa đơn',
+            content: 'Bạn có chắc chắn muốn hủy hóa đơn này không?',
+            okText: 'Hủy hóa đơn',
+            okType: 'danger',
+            cancelText: 'Không',
+            onOk: () => {
+                setCart([]);
+                setSelectedCustomer(null);
+                setDiscount(0);
+                setPointsUsed(0);
+                setTip(0);
+                message.success('Đã hủy hóa đơn');
+            },
+        });
     };
 
     const handleConfirmPayment = async () => {
