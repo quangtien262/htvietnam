@@ -23,11 +23,11 @@ return new class extends Migration
             $table->integer('parent_id')->default(0)->nullable();
             $table->integer('sort_order')->default(0)->nullable();
             $table->integer('create_by')->default(0)->nullable();
-            $table->integer('is_recycle_bin')->default(0)->nullable(); 
+            $table->integer('is_recycle_bin')->default(0)->nullable();
             $table->timestamps();
         });
 
-        
+
 
     }
 

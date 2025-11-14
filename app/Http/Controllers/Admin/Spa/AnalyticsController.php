@@ -8,17 +8,11 @@ use Illuminate\Http\Request;
 
 class AnalyticsController extends Controller
 {
-    protected $service;
-
-    public function __construct(AnalyticsService $service)
-    {
-        $this->service = $service;
-    }
-
     public function dashboard(Request $request)
     {
         try {
-            $dashboard = $this->service->getDashboard($request->all());
+            $service = new AnalyticsService();
+            $dashboard = $service->getDashboard($request->all());
             return response()->json([
                 'success' => true,
                 'data' => $dashboard,
@@ -40,7 +34,8 @@ class AnalyticsController extends Controller
         ]);
 
         try {
-            $revenue = $this->service->getRevenue(
+            $service = new AnalyticsService();
+            $revenue = $service->getRevenue(
                 $validated['tu_ngay'],
                 $validated['den_ngay'],
                 $validated['chi_nhanh_id'] ?? null
@@ -60,7 +55,8 @@ class AnalyticsController extends Controller
     public function customerSegmentation()
     {
         try {
-            $segmentation = $this->service->getCustomerSegmentation();
+            $service = new AnalyticsService();
+            $segmentation = $service->getCustomerSegmentation();
             return response()->json([
                 'success' => true,
                 'data' => $segmentation,
@@ -82,7 +78,8 @@ class AnalyticsController extends Controller
         ]);
 
         try {
-            $report = $this->service->exportReport(
+            $service = new AnalyticsService();
+            $report = $service->exportReport(
                 $validated['type'],
                 $validated['tu_ngay'],
                 $validated['den_ngay'],

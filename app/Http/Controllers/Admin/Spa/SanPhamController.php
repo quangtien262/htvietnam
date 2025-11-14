@@ -53,11 +53,13 @@ class SanPhamController extends Controller
             'don_vi_tinh' => 'required|string',
         ]);
 
+        // Create product first to get ID
         $id = DB::table('spa_san_pham')->insertGetId([
-            'ma_san_pham' => 'SP' . time() . rand(100, 999),
+            'ma_san_pham' => 'TEMP_' . time(), // Temporary code
             'ten_san_pham' => $request->ten_san_pham,
             'danh_muc_id' => $request->danh_muc_id,
             'thuong_hieu_id' => $request->thuong_hieu_id,
+            'xuat_xu' => $request->xuat_xu,
             'gia_nhap' => $request->gia_nhap ?? 0,
             'gia_ban' => $request->gia_ban,
             'don_vi_tinh' => $request->don_vi_tinh,
@@ -65,12 +67,25 @@ class SanPhamController extends Controller
             'ton_kho_canh_bao' => $request->ton_kho_toi_thieu ?? 10,
             'mo_ta_ngan' => $request->mo_ta,
             'hinh_anh_ids' => $request->hinh_anh,
+            'ngay_het_han' => $request->han_su_dung,
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return $this->sendSuccessResponse(['id' => $id], 'Tạo sản phẩm thành công');
+        // Generate ma_san_pham based on ID if not provided
+        $maSanPham = $request->ma_san_pham;
+        if (empty($maSanPham)) {
+            $maSanPham = 'SP' . str_pad($id, 5, '0', STR_PAD_LEFT);
+        }
+
+        // Update with proper ma_san_pham
+        DB::table('spa_san_pham')->where('id', $id)->update([
+            'ma_san_pham' => $maSanPham,
+            'updated_at' => now(),
+        ]);
+
+        return $this->sendSuccessResponse(['id' => $id, 'ma_san_pham' => $maSanPham], 'Tạo sản phẩm thành công');
     }
 
     public function update(Request $request, $id)
@@ -84,12 +99,14 @@ class SanPhamController extends Controller
             'ten_san_pham' => $request->ten_san_pham ?? $product->ten_san_pham,
             'danh_muc_id' => $request->danh_muc_id ?? $product->danh_muc_id,
             'thuong_hieu_id' => $request->thuong_hieu_id ?? $product->thuong_hieu_id,
+            'xuat_xu' => $request->xuat_xu ?? $product->xuat_xu,
             'gia_nhap' => $request->gia_nhap ?? $product->gia_nhap,
             'gia_ban' => $request->gia_ban ?? $product->gia_ban,
             'don_vi_tinh' => $request->don_vi_tinh ?? $product->don_vi_tinh,
             'ton_kho_canh_bao' => $request->ton_kho_toi_thieu ?? $product->ton_kho_canh_bao,
             'mo_ta_ngan' => $request->mo_ta ?? $product->mo_ta_ngan,
             'hinh_anh_ids' => $request->hinh_anh ?? $product->hinh_anh_ids,
+            'ngay_het_han' => $request->han_su_dung ?? $product->ngay_het_han,
             'is_active' => $request->is_active ?? $product->is_active,
             'updated_at' => now(),
         ]);

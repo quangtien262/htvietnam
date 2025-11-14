@@ -49,6 +49,7 @@ import TaskDetailInfo from "./TaskDetailInfo";
 import TaskChecklistModal from "./TaskChecklistModal";
 import TaskCommentModal from "./TaskCommentModal";
 import StatusSettingModal from "./StatusSettingModal";
+import TaskListView from "./TaskListView";
 
 // CSS
 import { CSS } from '@dnd-kit/utilities';
@@ -59,7 +60,8 @@ import "../../../css/form.css";
 const TaskKanban: React.FC = () => {
     // get params from url
     const { parent, pid } = useParams<{ parent: string, pid: string }>();
-    const display = 'kanban';
+    const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban'); // Toggle between kanban and list view
+    const display = viewMode;
     // const [searchParams] = useSearchParams();
     const [searchData, setSearchData] = useState({ parent: parent, pid: pid }); // trạng thái lọc hiện tại
     const [status, setStatus] = useState([]);
@@ -620,15 +622,8 @@ const TaskKanban: React.FC = () => {
                         <span> </span>
                         <Select
                             className="_right"
-                            value={display}
-                            onChange={(value) => {
-                                // chuyển hướng
-                                if (value === 'list') {
-                                    window.location.href = ROUTE.taskList_all.replace('all', parent || 'all');
-                                } else {
-                                    window.location.href = ROUTE.taskKanban_all.replace('all', parent || 'all');
-                                }
-                            }}
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value)}
                             style={{ width: 150, marginRight: 8 }}
                         >
                             <Select.Option value="list"><InsertRowAboveOutlined /> Danh sách</Select.Option>
@@ -691,20 +686,41 @@ const TaskKanban: React.FC = () => {
 
                     {/* content DND */}
                     <Row>
-                        <div>
-                            <TaskKanbanBoard
-                                columns={dataSource}
-                                onDragEnd={onDragEnd}
-                                icon={icon}
-                                setOpenDetail={setOpenDetail}
-                                setDataAction={setDataAction}
-                                setChecklist={setChecklist}
-                                setChecklistPercent={setChecklistPercent}
-                                setComments={setComments}
-                                setTaskLog={setTaskLog}
-                                formDesc={formDesc}
-                                setLoading={setLoading}
-                            />
+                        <div style={{ width: '100%' }}>
+                            {viewMode === 'list' ? (
+                                <TaskListView
+                                    dataSource={dataSource}
+                                    columns={[]}
+                                    loading={loading}
+                                    onRowClick={(record) => {
+                                        setOpenDetail(true);
+                                        setDataAction(record);
+                                        setChecklist(record.checklist || []);
+                                        setChecklistPercent(record.checklist_percent || 0);
+                                        setComments(record.comment || []);
+                                        setTaskLog(record.task_log || []);
+                                        formDesc.setFieldsValue({ description: record.description });
+                                        setLoading(false);
+                                    }}
+                                    tableParams={{
+                                        pagination: false
+                                    }}
+                                />
+                            ) : (
+                                <TaskKanbanBoard
+                                    columns={dataSource}
+                                    onDragEnd={onDragEnd}
+                                    icon={icon}
+                                    setOpenDetail={setOpenDetail}
+                                    setDataAction={setDataAction}
+                                    setChecklist={setChecklist}
+                                    setChecklistPercent={setChecklistPercent}
+                                    setComments={setComments}
+                                    setTaskLog={setTaskLog}
+                                    formDesc={formDesc}
+                                    setLoading={setLoading}
+                                />
+                            )}
                         </div>
                     </Row>
 

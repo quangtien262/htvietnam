@@ -40,6 +40,7 @@ import { formatValueForm } from "../../function/input";
 import { DON_VI_SERVICE } from "../../function/constant";
 import { inArray, parseJson, numberFormat, removeByIndex } from "../../function/common";
 import { API } from "../../common/api";
+import { ref } from "process";
 
 const CheckboxGroup = Checkbox.Group;
 const daysInMonth_default = dayjs().daysInMonth();
@@ -730,14 +731,27 @@ const DienNuoc: React.FC = () => {
                 open={isModalXoaOpen}
                 onOk={async () => {
                     const query = (selectedRowKeys || []).map(k => `ids[]=${encodeURIComponent(String(k))}`).join('&');
-                    const url = query ? `${route('aitilen.service.deleteDienNuoc')}?${query}` : route('aitilen.service.deleteDienNuoc');
-                    const result = await callApi(url);
-                    if (result.status === 200) {
-                        message.success("Đã hủy đơn thành công");
-                        location.reload();
-                    } else {
-                        message.error("Đã hủy đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                    }
+
+                    axios.post(API.aitilen_DeleteDienNuoc, {
+                        ids: selectedRowKeys,
+                    })
+                        .then((response) => {
+                            // console.log('re', response);
+                            if (response.data.status_code === 200) {
+                                message.success("Xóa thành công");
+                                search(searchData);
+                            } else {
+                                message.error("Xóa thất bại, vui lòng tải lại trình duyệt và thử lại");
+                            }
+                            setLoadingTable(false);
+                            setIsModalXoaOpen(false);
+                        }).catch((error) => {
+                            message.error("Xóa không thành công, vui lòng tải lại trình duyệt và thử lại")
+                            setLoadingTable(false);
+                            setIsModalXoaOpen(false);
+                        });
+
+
                 }}
                 okText="Xác nhận xóa"
                 cancelText="Hủy"

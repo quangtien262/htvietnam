@@ -1,0 +1,112 @@
+TRUNCATE TABLE  aitilen_invoice_service;
+TRUNCATE TABLE  aitilen_invoice;
+
+ Lợi ích:
+Nhân viên không cần chuyển qua lại giữa các dự án
+Xem tổng quan tất cả task được giao trong 1 màn hình
+Filter linh hoạt để tập trung vào task quan trọng
+Thống kê nhanh: task quá hạn, deadline hôm nay
+Click vào task để xem chi tiết ngay trong context của dự án
+
+# Tạo bang setting
+
+bảng spa_thuong_hieu gồm các trường sau: name(Tên thương hiệu), color (Màu đánh dấu), sort_order (Thứ tự sắp xếp, khi select bảng thương hiệu sẽ order by sort_order asc), note (Ghi chú), created_at, updated_at, created_by (Người tạo)
+
+
+#Giờ chúng ta sẽ tập chung vào rối ưu phần mềm quản lý SPA nhé.
+
+Giờ chúng ta sẽ tập chung vào rối ưu phần mềm quản lý SPA(Spa về chăm sóc sức khỏe, làm đẹp, căt tóc gội đầu.....) nhé.
+Tất cả các bảng liên quan đến spa đều có prefix (Ngoài bảng admin_users là bảng nhân viên của toàn hệ thống là ko có prefix spa_ )
+cụ thể là các bảng sau (Chi tiết hơn hãy xem ở file migrate tương ứng nhé):
+spa_booking_dich_vu
+spa_bookings
+spa_cau_hinh
+spa_chi_nhanh
+spa_chuong_trinh_km
+spa_combo_san_pham
+spa_danh_gia
+spa_danh_muc_dich_vu
+spa_danh_muc_san_pham
+spa_dich_vu
+spa_diem_thuong_lich_su
+spa_doi_qua
+spa_email_campaign
+spa_ho_so_da
+spa_ho_so_suc_khoe
+spa_hoa_don
+spa_hoa_don_chi_tiet
+spa_khach_hang
+spa_khach_hang_lieu_trinh
+spa_khach_hang_the
+spa_ktv
+spa_ktv_hoa_hong
+spa_ktv_lich_lam_viec
+spa_ktv_nghi_phep
+spa_lieu_trinh
+spa_membership_tier
+spa_nhap_kho
+spa_nhap_kho_chi_tiet
+spa_phong
+spa_progress_photos
+spa_qua_tang
+spa_san_pham
+spa_sms_campaign
+spa_thuong_hieu
+spa_voucher
+Bạn hãy study trước rồi tôi giao việc tiếp
+
+
+
+
+
+///// project
+- dự án này ko dùng inertial, nhưng mà vẫn dùng reactjs là 1 page của laravvel,
+
+- dự án có 2 guard đăng nhập là admin_users và web,
+admin_users là guard với tên bang là: admin_users dành cho nhân viên công ty,
+web là guard với tên bang là users, dành cho khách hang đăng nhập
+
+cụ thể page đó đang config ở line 46 trong file routes/web.php là config route cho admin: Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
+
+Tài khoản của khách hang thì được bắt đầu là "user/" ở line 39 trong file routes/web.php là config route cho user, là trang profile của khách hang:
+em hãy xem ở file vite.config.ts đ biêt config của hệ thống nhé
+
+- hệ thống có 2 guard là admin_users (dành cho nhân viên công ty) bảng kết nối là admin_users; guard web là dành cho khách hàng login, table là users (đây cũng là bảng khách hàng )
+- các route được khai báo trong 'resources/common/route.tsx' thông qua biến ROUTE, sau đó truyền vào trong route ở file 'resources/js/app.tsx'
+- các api ở frontend được đăng ký file api.tsx sau đó gọi ra sử dung  ở  những nơi cần.
+- Các link ở frontend hãy đăng ký ở file menu.jsx
+- route api của Laravel được lưu ở file web/project_route.php , lưu ý  prefix là project/api
+
+Các tên bảng trong dự án này được tạo sẽ được đi kèm với prefix là: "pro___"
+
+
+
+
+
+
+
+/////// giai thích đa ngôn ngữ
+Hãy code tính năng quản lý menu cho web đa ngôn ngữ, với các tính năng chính là quản lý danh sách (có thể sắp xếp thứ tự bang cách kéo thả dạng đa cấp, sử dung Drag treeNode của andt) thêm, sửa, xóa.
+migrate của Bảng menu là: 2022_09_23_044221_create_menus_table.php
+bang menu cho các ngôn ngữ tương ứng menu_data: 2023_08_20_142522_create_menus_data_table.php
+- Giải thích ý nghĩa các trường trong bang menu như sau:
++) name: tiêu đề menu
++) images: hình ảnh liên quan đến menu, cho phép upload nhiều hình ảnh, anh định lưu vào database nhiều  đường dẫn của hình anh dạng json, em thấy vậy hợp lý không
++) parent_id: nó chính là id của menu cha, như vậy đối với cấp cao nhất thì menu sẽ là bang 0, và các menu con sẽ là id của menu cha tương ứng .
++) current_link: string
++) icon là chọn từ danh sách icon trong comp_icon.tsx
++) is_active:checkbox
++) is_front: nhập dạng checkbox
++) create_by: là lưu ngầm tên người tạo trên backend
+
+- Giải thích bang menu_data như sau
+name_data: tiêu đề menu theo ngôn ngữ.
+name_data_description: mô tả cho tiêu đề.
+data_id: là id của menu tương ứng,
+languages_id: là id của ngôn ngữ tương ứng, với mỗi ngôn ngữ anh định là sẽ để 1 tab riêng. danh sách ngôn ngữ thì sẽ lấy ở bang languages (2023_10_16_150830_create_languages_table.php)
+description,
+content,
+meta_description, meta_keyword: 2 field này nhập lieu dnagj textarea, mục đich là để tối ưu cho SEO website sau này
+
+
+

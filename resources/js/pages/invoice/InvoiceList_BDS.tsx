@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { cloneDeep, create, set } from 'lodash';
+import ContractFormModal from "../../components/contract/ContractFormModal";
 
 import {
     Button, List,
@@ -43,7 +44,7 @@ import { HTBankingQR } from "../../function/generateQR";
 import { callApi } from "../../function/api";
 import { formatValueForm } from "../../function/input";
 import { DON_VI_SERVICE } from "../../function/constant";
-import { inArray, parseJson, numberFormat, removeByIndex } from "../../function/common";
+import { inArray, parseJson, numberFormat, removeByIndex, filterSelectOption } from "../../function/common";
 
 import "../../../css/form.css";
 
@@ -53,6 +54,7 @@ const { RangePicker } = DatePicker;
 
 import { API } from "../../common/api";
 import { act } from './../../../../node_modules/@types/react/index.d';
+import { on } from 'events';
 
 const InvoiceList_BDS: React.FC = () => {
     // gset/set params
@@ -60,6 +62,7 @@ const InvoiceList_BDS: React.FC = () => {
     const p = searchParams.get("p");
 
     const dataService_empty = {
+        aitilen_service_id: null,
         name: null,
         price_default: 0,
         per_default: 'Người',
@@ -90,6 +93,9 @@ const InvoiceList_BDS: React.FC = () => {
     const [isOpenFormEdit, setIsOpenFormEdit] = useState(false);
     const [isReplaceAllContract, setIsReplaceAllContract] = useState(true);
 
+    // user
+    const [contractIdAction, setContractIdAction] = useState(0);
+
     // modal active
     const [isModalRecalculateOpen, setIsModalRecalculateOpen] = useState(false);
 
@@ -111,11 +117,23 @@ const InvoiceList_BDS: React.FC = () => {
     const [loadingCreateDataMonth, setLoadingCreateDataMonth] = useState(false);
     const [loadingActive, setLoadingActive] = useState(false);
 
-    const [isDraft, setIsDraft] = useState(2);
     const [note_applyAll, setNote_applyAll] = useState(false);
 
     const [props, setProps] = useState([]);
     const [searchData, setSearchData] = useState({});
+
+    // Contract form states
+    const [isOpenContractForm, setIsOpenContractForm] = useState(false);
+    const [formContract] = Form.useForm();
+    const [contractDataAction, setContractDataAction] = useState({ id: 0 });
+    const [contractDataService, setContractDataService] = useState([]);
+    const [contractSoNguoi, setContractSoNguoi] = useState(1);
+    const [contractTienPhong, setContractTienPhong] = useState(0);
+    const [contractTienCoc, setContractTienCoc] = useState(0);
+    const [contractDaysInMonth, setContractDaysInMonth] = useState(30);
+    const [contractSoNgayThue, setContractSoNgayThue] = useState(30);
+    const [contractNoteApplyAll, setContractNoteApplyAll] = useState(false);
+    const dataService_thangMay = { id: '7', price_default: 50000, per_default: 'Người', price_total: 50000, note: '' };
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -152,21 +170,51 @@ const InvoiceList_BDS: React.FC = () => {
                     },
                 });
 
+                // set search data
+                setSearchData({
+                    year: propsTmp.searchData.year,
+                    month: propsTmp.searchData.month,
+                    status: propsTmp.searchData.status,
+                });
+
+                // set search form
                 formSearch.setFieldValue('date', dayjs().year(propsTmp.searchData.year).month(propsTmp.searchData.month - 1));
                 formSearch.setFieldValue('status', propsTmp.searchData.status);
                 setLoadingTable(false);
+
+                // get danh sách users để add vào props, phục vụ cho việc sửa khách hàng, nên để trong fetchData để tránh lỗi không có props.users khi mở form edit
+                axios.post(API.userSelect, {})
+                    .then((res: any) => {
+                        // handle response
+                        setProps((prevProps: any) => ({
+                            ...prevProps,
+                            users: res.data.data,
+                        }));
+                    })
+                    .catch((err: any) => {
+                        console.error(err);
+                        message.error("Lấy danh sách admin users thất bại");
+                    });
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: any) => {
+                console.error(err);
+                message.error("Tải dữ liệu thất bại");
+                setLoadingTable(false);
+            });
 
     }
+
+    //
     useEffect(() => {
         fetchData();
+        // fetchUsers();
     }, []);
 
     function refresh(request = {}) {
         setLoadingTable(true);
         axios.post(API.aitilen_searchInvoice, request)
             .then((res: any) => {
+                console.log('Refresh response:', res.data);
                 const response = res.data.data;
                 setDataSource(response.datas);
                 setTableParams({
@@ -178,7 +226,11 @@ const InvoiceList_BDS: React.FC = () => {
                 });
                 setLoadingTable(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: any) => {
+                console.error(err);
+                message.error("Làm mới dữ liệu thất bại");
+                setLoadingTable(false);
+            });
 
     }
 
@@ -216,7 +268,7 @@ const InvoiceList_BDS: React.FC = () => {
 
         values.services = dataService;
         values.id = dataAction.id;
-        values.total = dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
+        values.total = (Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0);
         values.tien_phong = tienPhong;
         values.tien_coc = tienCoc;
         values.tra_coc = tienTraCoc;
@@ -227,7 +279,8 @@ const InvoiceList_BDS: React.FC = () => {
         axios.post(API.aitilen_updateInvoice, values).then((response) => {
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
-                location.reload();
+                refresh(searchData);
+                setIsOpenFormEdit(false);
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
@@ -246,7 +299,7 @@ const InvoiceList_BDS: React.FC = () => {
                 return <>
                     <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
                     {record.ten_khach_hang ? <Tag color="green">{record.ten_khach_hang}</Tag> : ''}
-                    {record.is_active ? <Tag color="cyan">Active</Tag> : <Tag color="red">Unactive</Tag>}
+                    {record.contract_code ? <p>Mã Hđồng: <a style={{ cursor: 'pointer', color: '#1890ff' }} onClick={() => { handleOpenContractForm(record.contract_id); setContractIdAction(record.contract_id); }}>{record.contract_code}</a></p> : ''}
                 </>;
             }
         },
@@ -272,11 +325,7 @@ const InvoiceList_BDS: React.FC = () => {
                                 placeholder="Chọn trạng thái hóa đơn"
                                 optionFilterProp="children"
                                 options={optionEntries(props.status)}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "")
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
-                                }
+                                filterOption={filterSelectOption}
                                 onChange={(value) => {
                                     // Gọi API đổi trạng thái hóa đơn
                                     axios.post(API.aitilen_changeInvoiceStatus, {
@@ -304,6 +353,9 @@ const InvoiceList_BDS: React.FC = () => {
                         </div>}>
                         <a className="float-btn-option"><FormOutlined /></a>
                     </Popconfirm>
+
+
+                    {record.is_active ? <Tag color="cyan">Active</Tag> : <Tag color="red">Unactive</Tag>}
                 </>;
             }
         },
@@ -317,20 +369,60 @@ const InvoiceList_BDS: React.FC = () => {
             key: 'dich_vu',
             render: (text: any, record: any) => {
                 return <>
-                    <Tag color="red">Tổng: {numberFormat(record.total)} </Tag>
+                    <Tag color="red">Tổng: {numberFormat(record.total)}</Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
                     {record.tien_coc ? <Tag color="warning">tiền cọc: {numberFormat(record.tien_coc)}</Tag> : ''}
-                    {record.services.map((service: any, idx: number) => {
+                    {Array.isArray(record.services) && record.services.map((service: any, idx: number) => {
                         return <Tag color="blue" key={idx}>
                             {service.name}: {numberFormat(service.price_total)}
                         </Tag>
                     })}
 
-                    <Button className="float-btn-option"><FormOutlined /></Button>
+                    <Popconfirm title="Xác nhận tính lại tiền phòng này?"
+                        showCancel={true}
+                        okText={<><RedoOutlined /> Xác nhận tính lại</>}
+                        cancelText="Hủy"
+                        description={<div>
+                            <ul>
+                                <li>Toàn bộ chi phí của hóa đơn sẽ bị tính lại</li>
+                                <li>Tiền sẽ được tính lại theo config trong hợp đồng</li>
+                            </ul>
+                        </div>}
+                        onConfirm={() => tinhLaiTienPhong([record.id])}
+                    >
+                        <Button className="btn-warning"><RedoOutlined /></Button>
+                    </Popconfirm>
+
+
+                    <Button className="float-btn-option btn-default" onClick={() => setDataEdit(record)}><FormOutlined /></Button>
+
                 </>;
             }
         },
     ];
+
+    function tinhLaiTienPhong(invoiceIds: any[]) {
+        setLoadingActive(true);
+        axios.post(API.aitilen_recalculateInvoice, {
+            ids: invoiceIds,
+        }).then((result: any) => {
+            console.log('   result', result);
+            if (result.status === 200) {
+                message.success("Đã tính lại tiền hóa đơn thành công");
+                setSelectedRowKeys([]);
+                refresh(searchData);
+            } else {
+                message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
+            }
+            setIsModalRecalculateOpen(false);
+            setLoadingActive(false);
+        }).catch((error: any) => {
+            console.log(error);
+            message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
+            setIsModalRecalculateOpen(false);
+            setLoadingActive(false);
+        });
+    }
 
     function setDataEdit(record: any) {
         setDataAction(record);
@@ -348,7 +440,7 @@ const InvoiceList_BDS: React.FC = () => {
             tra_coc: record.tra_coc,
             giam_gia: record.giam_gia,
         });
-        setDataService(record.services);
+        setDataService(Array.isArray(record.services) ? record.services : []);
         setSoNguoi(record.so_nguoi);
         setTienPhong(record.tien_phong);
         setTienCoc(record.tien_coc);
@@ -588,18 +680,21 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     function total(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
-        // let dataService_tmp = cloneDeep(dataService);
+        console.log('start', dataService_new);
         dataService_new.forEach((data: any, idx: number) => {
             let total = (data.price_default ?? 0);
-            if (['kWh', 'm3'].includes(data.per_default)) {
-                total = 0;;
+
+            if (['KWH', 'M3', 'KWh', 'm3', 'kwh'].includes(data.per_default)) {
+                console.log('ok');
+                total = (data.end - data.start) * data.price_default;
+                console.log('ok');
             } else {
                 if (data.per_default === 'Người') {
                     total = total * soNguoi_new;
                 }
             }
             // tính số tiền theo ngày tương ứng
-            total = (total * soNgay / tongSoNgay);
+            // total = (total * soNgay / tongSoNgay);
 
             // Làm tròn lên hàng nghìn
             total = Math.ceil(total);
@@ -609,15 +704,17 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     function showFormDataDetail() {
+        if (!dataService || !Array.isArray(dataService)) {
+            return null;
+        }
         return dataService.map((data: any, idx: number) => {
-            console.log('datadatadatadata', data);
             return <tr key={idx}>
                 {/* chon dịch vụ */}
                 <td>
                     <Select className="select03"
                         placeholder="Chọn dich vụ"
                         optionFilterProp="children"
-                        onChange={(value, info) => {
+                        onChange={(value, info: any) => {
                             let isError = false;
 
                             // check duplication
@@ -627,10 +724,18 @@ const InvoiceList_BDS: React.FC = () => {
 
                             let data_tmp = cloneDeep(dataService);
                             data_tmp[idx].aitilen_service_id = value;
-                            setDataService(data_tmp);
+
+                            // Update giá và đơn vị từ service được chọn
+                            if (info && info.info) {
+                                data_tmp[idx].price_default = info.info.price || 0;
+                                data_tmp[idx].per_default = info.info.per || 'Tháng';
+                            }
+
+                            // Tính lại tổng tiền
+                            total(soNgayThue, data_tmp, daysInMonth, soNguoi);
                         }}
                         allowClear={true}
-                        value={data.id}
+                        value={data.aitilen_service_id}
                         options={optionEntries(props.service)}
                     />
 
@@ -664,7 +769,19 @@ const InvoiceList_BDS: React.FC = () => {
 
                 {/* Tổng */}
                 <td className="td-input">
-                    <b>{numberFormat(data.price_total)}</b>
+                    {
+                        data.per_default === 'KWH' || data.per_default === 'm3'
+                            ? <InputNumber min={0}
+                                onChange={(value) => {
+                                    let data_tmp = cloneDeep(dataService);
+                                    data_tmp[idx].price_total = value;
+                                    setDataService(data_tmp);
+                                }}
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                value={data.price_total} />
+                            : <b>{numberFormat(data.price_total)}</b>
+                    }
+
                 </td>
 
                 {/* ghi chú */}
@@ -698,7 +815,7 @@ const InvoiceList_BDS: React.FC = () => {
     }
 
     const inFinishSearch = (values: any) => {
-        values.p = props.p;
+        // values.p = props.p;
         if (values.date) {
             values.month = values.date.format('MM');
             values.year = values.date.format('YYYY');
@@ -718,21 +835,236 @@ const InvoiceList_BDS: React.FC = () => {
         return result;
     }
 
+    // ========== CONTRACT FORM HELPER FUNCTIONS ==========
+    function addSubContract() {
+        let dataDetail_tmp = cloneDeep(contractDataService);
+        dataDetail_tmp.push(dataService_empty);
+        setContractDataService(dataDetail_tmp);
+    }
+
+    function totalContract(soNgay: number, dataService_new: any, tongSoNgay: number, soNguoi_new: number) {
+        dataService_new.forEach((data: any, idx: number) => {
+            let total = (data.price_default ?? 0);
+            if (['KWH', 'M3'].includes(data.per_default)) {
+                total = 0;
+            } else {
+                if (data.per_default === 'Người') {
+                    total = total * soNguoi_new;
+                }
+            }
+            total = (total * soNgay / tongSoNgay);
+            total = Math.ceil(total);
+            dataService_new[idx].price_total = total;
+        });
+        setContractDataService(dataService_new);
+    }
+
+    function showContractFormDataDetail() {
+        return contractDataService.map((data: any, idx: number) => {
+            return <tr key={idx}>
+                <td>
+                    <Select className="select03"
+                        placeholder="Chọn dich vụ"
+                        optionFilterProp="children"
+                        onChange={(value, info) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].id = value;
+                            setContractDataService(data_tmp);
+                        }}
+                        allowClear={true}
+                        value={data.id ? data.id.toString() : null}
+                        options={optionEntries(props.service)}
+                    />
+                </td>
+                <td className="td-input">
+                    <InputNumber min={0}
+                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        value={data.price_default} onChange={(value) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].price_default = value;
+                            totalContract(contractSoNgayThue, data_tmp, contractDaysInMonth, contractSoNguoi);
+                        }} />
+                </td>
+                <td>
+                    <Select className="select03"
+                        placeholder="Đơn vị"
+                        optionFilterProp="children"
+                        onChange={(value) => {
+                            let data_tmp = cloneDeep(contractDataService);
+                            data_tmp[idx].per_default = value;
+                            totalContract(contractSoNgayThue, data_tmp, contractDaysInMonth, contractSoNguoi);
+                        }}
+                        value={data.per_default.toString()}
+                        options={DON_VI_SERVICE}
+                    />
+                </td>
+                <td className="td-input">
+                    <b>{numberFormat(data.price_total)}</b>
+                </td>
+                <td className="td-input">
+                    <Input value={data.note} onChange={(e) => {
+                        let data_tmp = cloneDeep(contractDataService);
+                        data_tmp[idx].note = e.target.value;
+                        if (contractNoteApplyAll) {
+                            data_tmp = data_tmp.map((item: any) => {
+                                item.note = e.target.value;
+                                return item;
+                            });
+                        }
+                        setContractDataService(data_tmp);
+                    }} />
+                </td>
+                <td>
+                    <a className="btn-delete02"
+                        onClick={() => {
+                            let dataDetail_tmp = cloneDeep(contractDataService);
+                            dataDetail_tmp = removeByIndex(dataDetail_tmp, idx);
+                            totalContract(contractSoNgayThue, dataDetail_tmp, contractDaysInMonth, contractSoNguoi);
+                        }}
+                    >
+                        <CloseCircleOutlined />
+                    </a>
+                </td>
+            </tr>
+        });
+    }
+
+    function initialsFormatContractData() {
+        let result: any = {
+            so_nguoi: 1,
+            ngay_hen_dong_tien: 5,
+            so_ngay_thue: contractDaysInMonth,
+        };
+        return result;
+    }
+
+    async function handleOpenContractForm(contractId: number) {
+
+        // get contract data from API
+        try {
+            const response = await axios.post(API.getContractInfo, { id: contractId });
+            if (response.data.status_code === 200) {
+                const record = response.data.data;
+                setContractDataEdit(record);
+            } else {
+                message.error('Không thể tải thông tin hợp đồng');
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải thông tin hợp đồng');
+        }
+    }
+
+    function setContractDataEdit(record: any) {
+        setContractDataAction(record);
+        setIsOpenContractForm(true);
+
+        const toDayjs = (d: any) => (d ? dayjs(d) : null);
+
+        formContract.setFieldsValue({
+            id: record.id?.toString(),
+            room_id: record.room_id?.toString(),
+            contract_status_id: record.contract_status_id?.toString(),
+            start_date: toDayjs(record.start_date),
+            end_date: toDayjs(record.end_date),
+            gia_thue: record.gia_thue,
+            tien_coc: record.tien_coc,
+            ky_thanh_toan: record.ky_thanh_toan,
+            so_nguoi: record.so_nguoi,
+            ngay_hen_dong_tien: record.ngay_hen_dong_tien,
+            total: record.total,
+            user_id: record.user_id?.toString(),
+            ho_ten: record.ho_ten,
+            dob: record.dob ? dayjs(record.dob) : undefined,
+            phone: record.phone,
+            email: record.email,
+            cccd: record.cccd,
+            ngay_cap: record.ngay_cap ? dayjs(record.ngay_cap) : undefined,
+            noi_cap: record.noi_cap,
+            hktt: record.hktt,
+            note: record.note,
+            phi_moi_gioi: record.phi_moi_gioi,
+        });
+
+        setContractSoNguoi(record.so_nguoi);
+        setContractTienPhong(record.gia_thue);
+        setContractTienCoc(record.tien_coc);
+        setContractDataService(record.services ? (Array.isArray(record.services) ? record.services : parseJson(record.services)) : []);
+    }
+
+    function onFinishContractForm(values: any) {
+        values.services = contractDataService;
+
+        // Tính tổng tiền dịch vụ
+        const totalService = Array.isArray(contractDataService)
+            ? contractDataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0)
+            : 0;
+
+        values.total_service = totalService;
+        values.total_phi_co_dinh = contractTienPhong + contractTienCoc;
+        values.total = totalService + contractTienPhong + contractTienCoc;
+
+        // Format dates to MySQL format (YYYY-MM-DD)
+        if (values.start_date) {
+            values.start_date = dayjs(values.start_date).format('YYYY-MM-DD');
+        }
+        if (values.end_date) {
+            values.end_date = dayjs(values.end_date).format('YYYY-MM-DD');
+        }
+        if (values.dob) {
+            values.dob = dayjs(values.dob).format('YYYY-MM-DD');
+        }
+        if (values.ngay_cap) {
+            values.ngay_cap = dayjs(values.ngay_cap).format('YYYY-MM-DD');
+        }
+
+        values.id = contractIdAction;
+        values.tien_phong = values.gia_thue;
+
+        console.log('Contract Update Data:', values);
+
+        axios.post(API.updateContract, values)
+            .then((res) => {
+                if (res.data.status_code === 200) {
+                    message.success('Cập nhật hợp đồng thành công!');
+                    setIsOpenContractForm(false);
+                    formContract.resetFields();
+                    refresh(searchData);
+                } else {
+                    message.error(res.data.message || 'Cập nhật hợp đồng thất bại!');
+                }
+            })
+            .catch((error) => {
+                console.error('Contract Update Error:', error);
+                message.error('Lỗi kết nối server!');
+            });
+    }
+    // ========== END CONTRACT FORM HELPER FUNCTIONS ==========
+
     const items: MenuProps['items'] = [
         {
             label: <a onClick={() => {
                 setIsOpenFormEdit(true);
                 setDataAction({ id: 0 });
+                setDataService([]);
+                formEdit.resetFields();
+                setTienPhong(0);
+                setTienCoc(0);
+                setTienTraCoc(0);
+                setTienGiamGia(0);
+                setSoNguoi(1);
+                setSoNgayThue(daysInMonth_default);
             }}
             >Thêm mới</a>,
             key: '1',
             icon: <EditOutlined />,
         },
+        { type: 'divider' },
         {
             label: <a className="text-success" onClick={() => setIsOpenModalActiveAll(true)}>Active tất cả</a>,
             key: '2',
             icon: <CheckCircleOutlined />,
         },
+        { type: 'divider' },
         {
             label: <a onClick={() => setIsOpenModalCreateDataMonth(true)}>Tạo nhanh hóa đơn tháng</a>,
             key: '3',
@@ -789,11 +1121,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 style={{ width: "100%" }}
                                                 placeholder="Chọn sắp xếp"
                                                 optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                                 options={[
                                                     { label: 'Tên phòng', value: 'room' },
                                                     { label: 'Tên khách hàng', value: 'user_name' },
@@ -833,11 +1161,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 style={{ width: "100%" }}
                                                 placeholder="Chọn phòng"
                                                 optionFilterProp="children"
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                                 options={optionEntries(props.status)}
                                             />
                                         </Form.Item>
@@ -857,11 +1181,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             placeholder="Chọn tòa nhà"
                                             optionFilterProp="children"
                                             options={optionEntries(props.apm)}
-                                            filterOption={(input, option) =>
-                                                (option?.label ?? "")
-                                                    .toLowerCase()
-                                                    .includes(input.toLowerCase())
-                                            }
+                                            filterOption={filterSelectOption}
                                         />
                                     </Form.Item>,
                                 },
@@ -878,11 +1198,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             optionFilterProp="children"
                                             options={optionEntries(props.room)}
                                             onChange={() => formSearch.submit()}
-                                            filterOption={(input, option) =>
-                                                (option?.label ?? "")
-                                                    .toLowerCase()
-                                                    .includes(input.toLowerCase())
-                                            }
+                                            filterOption={filterSelectOption}
                                         />
                                     </Form.Item>,
                                 },
@@ -900,11 +1216,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                 optionFilterProp="children"
                                                 options={optionEntries(props.contract)}
                                                 onChange={() => formSearch.submit()}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                             />
                                         </Form.Item>
                                     </>,
@@ -926,11 +1238,7 @@ const InvoiceList_BDS: React.FC = () => {
                                                     { label: 'Unactive', value: '0' },
                                                 ]}
                                                 onChange={() => formSearch.submit()}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? "")
-                                                        .toLowerCase()
-                                                        .includes(input.toLowerCase())
-                                                }
+                                                filterOption={filterSelectOption}
                                             />
                                         </Form.Item>
                                     </>,
@@ -952,33 +1260,39 @@ const InvoiceList_BDS: React.FC = () => {
                 <Col span={18} className="main-content02">
                     <Row>
                         <Col className="text-left" span={12}>
-                            <Button className="btn-success _left"
-                                icon={<CheckOutlined />}
+                            <Dropdown.Button
+                                type="primary"
+                                className="btn-dropdown _left"
                                 disabled={!hasSelected}
-                                loading={loadingBtnDelete}
                                 onClick={() => setIsModalActiveCurrentOpen(true)}
+                                menu={{
+                                    items: [
+                                        {
+                                            key: '1',
+                                            label: `Active ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <CheckOutlined />,
+                                            onClick: () => setIsModalActiveCurrentOpen(true),
+                                        },
+                                        { type: 'divider' },
+                                        {
+                                            key: '2',
+                                            label: `Tính lại tiền ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <DollarOutlined />,
+                                            onClick: () => setIsModalRecalculateOpen(true),
+                                        },
+                                        { type: 'divider' },
+                                        {
+                                            key: '3',
+                                            label: `Xóa ${hasSelected ? selectedRowKeys.length : ''} hóa đơn`,
+                                            icon: <DeleteOutlined />,
+                                            danger: true,
+                                            onClick: () => setIsModalXoaOpen(true),
+                                        },
+                                    ],
+                                }}
                             >
-                                Active {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
-
-                            <Button className="btn-success _left"
-                                icon={<DollarOutlined />}
-                                disabled={!hasSelected}
-                                loading={loadingBtnDelete}
-                                onClick={() => setIsModalRecalculateOpen(true)}
-                            >
-                                Tính lại tiền {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
-
-                            <span> </span>
-                            <Button type="primary"
-                                icon={<DeleteOutlined />}
-                                disabled={!hasSelected}
-                                loading={loadingBtnDelete}
-                                onClick={() => { setIsModalXoaOpen(true); }}
-                            >
-                                Xóa {hasSelected ? `${selectedRowKeys.length}` : ''}
-                            </Button>
+                                Active {hasSelected ? `(${selectedRowKeys.length})` : ''}
+                            </Dropdown.Button>
                         </Col>
 
                         <Col className="text-right" span={12}>
@@ -989,10 +1303,18 @@ const InvoiceList_BDS: React.FC = () => {
                                 onClick={() => {
                                     setIsOpenFormEdit(true);
                                     setDataAction({ id: 0 });
+                                    setDataService([]);
+                                    formEdit.resetFields();
+                                    setTienPhong(0);
+                                    setTienCoc(0);
+                                    setTienTraCoc(0);
+                                    setTienGiamGia(0);
+                                    setSoNguoi(1);
+                                    setSoNgayThue(daysInMonth_default);
                                 }}
                                 menu={{ items }}
                             >
-                                <PlusCircleOutlined /> Thêm nhanh
+                                <PlusCircleOutlined /> Thêm mới
                             </Dropdown.Button>
 
                             <Button className="btn-primary _right"
@@ -1068,7 +1390,7 @@ const InvoiceList_BDS: React.FC = () => {
                 onOk={() => {
                     formEdit.submit();
                 }}
-                okText="Xác nhận Tạo hóa đơn "
+                okText={dataAction.id === 0 ? "Thêm mới hóa đơn" : "Chỉnh sửa hóa đơn"}
                 cancelText="Hủy"
                 maskClosable={false}
                 width={1000}
@@ -1093,11 +1415,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     optionFilterProp="children"
                                     allowClear={true}
                                     options={optionEntries(props.contract)}
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     onChange={(value, user: any) => {
                                         formEdit.setFieldValue('room_id', user.info.room_id ? user.info.room_id.toString() : null);
                                     }}
@@ -1115,11 +1433,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     style={{ width: "100%" }}
                                     placeholder="Chọn phòng"
                                     optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     options={optionEntries(props.room)}
                                 />
                             </Form.Item>
@@ -1136,11 +1450,7 @@ const InvoiceList_BDS: React.FC = () => {
                                     style={{ width: "100%" }}
                                     placeholder="Chọn phòng"
                                     optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "")
-                                            .toLowerCase()
-                                            .includes(input.toLowerCase())
-                                    }
+                                    filterOption={filterSelectOption}
                                     options={optionEntries(props.status)}
                                 />
                             </Form.Item>
@@ -1296,7 +1606,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             <b>Tổng tiền phòng & dịch vụ:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc)}</b>
+                                            <b className="_red">{numberFormat((Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc)}</b>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -1331,10 +1641,15 @@ const InvoiceList_BDS: React.FC = () => {
                                             />
                                         </td>
                                         <td>
-                                            <Input.TextArea
-                                                rows={2}
-                                                placeholder="Ghi chú giảm giá"
-                                            />
+                                            <Form.Item
+                                                name="giam_gia_description"
+                                                label=""
+                                            >
+                                                <Input.TextArea
+                                                    rows={2}
+                                                    placeholder="Ghi chú giảm giá"
+                                                />
+                                            </Form.Item>
                                         </td>
                                     </tr>
 
@@ -1343,7 +1658,7 @@ const InvoiceList_BDS: React.FC = () => {
                                             <b>Tổng cộng:</b>
                                         </td>
                                         <td className="text-left">
-                                            <b className="_red">{numberFormat(dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0))}</b>
+                                            <b className="_red">{numberFormat((Array.isArray(dataService) ? dataService.reduce((sum: number, item: any) => sum + (item.price_total ?? 0), 0) : 0) + tienPhong + tienCoc - (tienTraCoc ?? 0) - (tienGiamGia ?? 0))}</b>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -1439,36 +1754,20 @@ const InvoiceList_BDS: React.FC = () => {
                 open={isModalRecalculateOpen}
                 loading={loadingCreateDataMonth}
                 onOk={() => {
-                    setLoadingActive(true);
-                    axios.post(API.aitilen_recalculateInvoice, {
-                        ids: selectedRowKeys,
-                    }).then((result: any) => {
-                        console.log('   result', result );
-                        if (result.status === 200) {
-                            message.success("Đã tính lại tiền hóa đơn thành công");
-                            setSelectedRowKeys([]);
-                            // refresh(searchData);
-                        } else {
-                            message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại11");
-                        }
-                        setIsModalRecalculateOpen(false);
-                        setLoadingActive(false);
-                    }).catch((error: any) => {
-                        console.log(error);
-                        message.error("Đã tính lại tiền hóa đơn thất bại, vui lòng tải lại trình duyệt và thử lại");
-                        setIsModalRecalculateOpen(false);
-                        setLoadingActive(false);
-                    });
+                    tinhLaiTienPhong(selectedRowKeys);
+                    setSelectedRowKeys([]);
                 }}
                 okText="Xác nhận tính lại tiền"
                 cancelText="Hủy"
                 maskClosable={false}
                 onCancel={() => { setIsModalActiveCurrentOpen(false); }}>
                 <ul>
-                    <li>Các thông tin về data này sẽ được <em>public cho khách hàng xem</em></li>
-                    <li>Sau khi active, các thông tin này <em>vẫn có thể chỉnh sửa lại</em></li>
+                    <li>Toàn bộ chi phí của hóa đơn sẽ bị tính lại</li>
+                    <li>Tiền sẽ được tính lại theo config trong hợp đồng</li>
                 </ul>
             </Modal>
+
+
 
             {/* Modal Thống kê */}
             <Modal
@@ -1582,6 +1881,39 @@ const InvoiceList_BDS: React.FC = () => {
                     </div>
                 )}
             </Modal>
+
+            {/* Contract Form Modal */}
+            <ContractFormModal
+                open={isOpenContractForm}
+                dataAction={contractDataAction}
+                formEdit={formContract}
+                props={props}
+                dataService={contractDataService}
+                dataService_thangMay={dataService_thangMay}
+                tienPhong={contractTienPhong}
+                tienCoc={contractTienCoc}
+                soNguoi={contractSoNguoi}
+                soNgayThue={contractSoNgayThue}
+                daysInMonth={contractDaysInMonth}
+                note_applyAll={contractNoteApplyAll}
+
+                onCancel={() => {
+                    setIsOpenContractForm(false);
+                    formContract.resetFields();
+                }}
+                onFinish={onFinishContractForm}
+                onSetDataService={setContractDataService}
+                onSetTienPhong={setContractTienPhong}
+                onSetTienCoc={setContractTienCoc}
+                onSetSoNguoi={setContractSoNguoi}
+                onSetDaysInMonth={setContractDaysInMonth}
+                onSetNoteApplyAll={setContractNoteApplyAll}
+                onTotal={totalContract}
+
+                showFormDataDetail={showContractFormDataDetail}
+                addSub={addSubContract}
+                initialsFormatData={initialsFormatContractData}
+            />
 
         </div>
     );

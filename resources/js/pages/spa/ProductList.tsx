@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Card, Table, Button, Space, Input, Select, Tag, Modal, Form, InputNumber,
     message, Popconfirm, Upload, Image, Row, Col, Divider, Drawer, Descriptions,
-    Switch, Badge, Alert, Progress, Tooltip, Statistic
+    Switch, Badge, Alert, Progress, Tooltip, Statistic, DatePicker, Checkbox
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SkinOutlined,
@@ -12,6 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -25,17 +26,23 @@ interface Product {
         id: number;
         ten_danh_muc: string;
     };
+    danh_muc_ten?: string;
     gia_nhap: number;
     gia_ban: number;
     ton_kho: number;
     ton_kho_toi_thieu: number;
+    ton_kho_canh_bao?: number;
     don_vi_tinh: string;
     mo_ta?: string;
+    mo_ta_ngan?: string;
     hinh_anh?: string;
+    hinh_anh_ids?: string;
     trang_thai: string;
+    is_active?: boolean;
     xuat_xu?: string;
-    thuong_hieu?: string;
-    han_su_dung?: string;
+    thuong_hieu_id?: number;
+    ten_thuong_hieu?: string;
+    ngay_het_han?: string;
     so_luong_da_ban: number;
     doanh_thu: number;
     created_at: string;
@@ -47,10 +54,19 @@ interface Category {
     mo_ta?: string;
 }
 
+interface Brand {
+    id: number;
+    ten_thuong_hieu: string;
+    color?: string;
+    sort_order?: number;
+    is_active?: boolean;
+}
+
 const ProductList: React.FC = () => {
     // State
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
@@ -75,6 +91,20 @@ const ProductList: React.FC = () => {
     const [imageUrl, setImageUrl] = useState<string>('');
     const [uploading, setUploading] = useState(false);
 
+    // Bulk Add Modal
+    const [bulkAddModalVisible, setBulkAddModalVisible] = useState(false);
+    const [bulkProducts, setBulkProducts] = useState<any[]>([
+        { key: 1, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        { key: 2, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        { key: 3, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+    ]);
+    const [bulkApplyAll, setBulkApplyAll] = useState({
+        danh_muc_id: false,
+        ton_kho: false,
+        don_vi_tinh: false,
+    });
+    const [bulkSubmitting, setBulkSubmitting] = useState(false);
+
     // Stats
     const [stats, setStats] = useState({
         total: 0,
@@ -87,36 +117,55 @@ const ProductList: React.FC = () => {
     useEffect(() => {
         loadProducts();
         loadCategories();
+        loadBrands();
     }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, stockFilter]);
 
     const loadProducts = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/products/list', {
-                page: pagination.current,
-                limit: pagination.pageSize,
-                search: searchText,
-                danh_muc_id: selectedCategory,
-                trang_thai: selectedStatus,
-                stock_filter: stockFilter,
+            const response = await axios.get(API.spaProductList, {
+                params: {
+                    page: pagination.current,
+                    per_page: pagination.pageSize,
+                    search: searchText || undefined,
+                    danh_muc_id: selectedCategory || undefined,
+                    is_active: selectedStatus === 'con_hang' ? true : selectedStatus === 'het_hang' ? false : undefined,
+                    stock_filter: stockFilter || undefined,
+                }
             });
 
-            if (response.data.success) {
+            console.log('Products response:', response.data);
+
+            if (response.data.status_code === 200) {
                 const data = response.data.data;
-                setProducts(data.data || []);
+                const productsData = data.data || [];
+
+                setProducts(productsData);
                 setPagination({
                     ...pagination,
+                    current: data.current_page || pagination.current,
                     total: data.total || 0,
                 });
 
-                // Calculate stats
-                if (data.stats) {
-                    setStats(data.stats);
-                }
+                // Calculate stats from loaded data
+                const lowStock = productsData.filter((p: Product) => (p.ton_kho ?? 0) > 0 && (p.ton_kho ?? 0) <= (p.ton_kho_toi_thieu ?? 0)).length;
+                const outOfStock = productsData.filter((p: Product) => (p.ton_kho ?? 0) === 0).length;
+                const totalValue = productsData.reduce((sum: number, p: Product) => sum + ((p.ton_kho ?? 0) * (p.gia_nhap ?? 0)), 0);
+
+                setStats({
+                    total: data.total || 0,
+                    lowStock,
+                    outOfStock,
+                    totalValue,
+                });
+
+                console.log('Products loaded:', productsData.length);
+            } else {
+                message.error(response.data.message || 'Không thể tải danh sách sản phẩm');
             }
-        } catch (error) {
-            message.error('Không thể tải danh sách sản phẩm');
-            console.error(error);
+        } catch (error: any) {
+            console.error('Load products error:', error);
+            message.error(error.response?.data?.message || 'Không thể tải danh sách sản phẩm');
         } finally {
             setLoading(false);
         }
@@ -124,12 +173,31 @@ const ProductList: React.FC = () => {
 
     const loadCategories = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/product-categories/list');
-            if (response.data.success) {
-                setCategories(response.data.data.data || []);
+            const response = await axios.get(API.spaProductCategoryList);
+            console.log('Categories response:', response.data);
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data?.data || response.data.data || [];
+                setCategories(Array.isArray(data) ? data : []);
+                console.log('Categories loaded:', data.length);
             }
         } catch (error) {
             console.error('Load categories error:', error);
+        }
+    };
+
+    const loadBrands = async () => {
+        try {
+            const response = await axios.get(API.spaBrandList);
+            console.log('Brands response:', response.data);
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data;
+                setBrands(Array.isArray(data) ? data : []);
+                console.log('Brands loaded:', data.length);
+            }
+        } catch (error) {
+            console.error('Load brands error:', error);
         }
     };
 
@@ -145,7 +213,7 @@ const ProductList: React.FC = () => {
         setSelectedProduct(record);
         form.setFieldsValue({
             ...record,
-            han_su_dung: record.han_su_dung ? dayjs(record.han_su_dung) : null,
+            han_su_dung: record.ngay_het_han ? dayjs(record.ngay_het_han) : null,
         });
         setImageUrl(record.hinh_anh || '');
         setModalVisible(true);
@@ -160,50 +228,68 @@ const ProductList: React.FC = () => {
         try {
             const values = await form.validateFields();
             const payload = {
-                id: selectedProduct?.id,
                 ...values,
                 hinh_anh: imageUrl,
                 han_su_dung: values.han_su_dung ? dayjs(values.han_su_dung).format('YYYY-MM-DD') : null,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/products/create-or-update', payload);
+            let response;
+            if (selectedProduct) {
+                // Update existing product
+                response = await axios.put(API.spaProductUpdate(selectedProduct.id), payload);
+            } else {
+                // Create new product
+                response = await axios.post(API.spaProductCreate, payload);
+            }
 
-            if (response.data.success) {
+            console.log('Submit response:', response.data);
+
+            if (response.data.status_code === 200) {
                 message.success(selectedProduct ? 'Cập nhật sản phẩm thành công' : 'Tạo sản phẩm mới thành công');
                 setModalVisible(false);
                 loadProducts();
+            } else {
+                message.error(response.data.message || 'Có lỗi xảy ra');
             }
         } catch (error: any) {
+            console.error('Submit error:', error);
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/products/delete', { id });
-            if (response.data.success) {
+            const response = await axios.delete(API.spaProductDelete(id));
+            console.log('Delete response:', response.data);
+
+            if (response.data.status_code === 200) {
                 message.success('Xóa sản phẩm thành công');
                 loadProducts();
+            } else {
+                message.error(response.data.message || 'Không thể xóa sản phẩm');
             }
         } catch (error: any) {
+            console.error('Delete error:', error);
             message.error(error.response?.data?.message || 'Không thể xóa sản phẩm');
         }
     };
 
     const handleStatusToggle = async (record: Product) => {
         try {
-            const newStatus = record.trang_thai === 'con_hang' ? 'het_hang' : 'con_hang';
-            const response = await axios.post('/aio/api/admin/spa/products/create-or-update', {
-                id: record.id,
-                trang_thai: newStatus,
+            const newStatus = !record.is_active;
+            const response = await axios.put(API.spaProductUpdate(record.id), {
+                is_active: newStatus,
             });
 
-            if (response.data.success) {
+            if (response.data.status_code === 200) {
                 message.success('Cập nhật trạng thái thành công');
                 loadProducts();
+            } else {
+                message.error(response.data.message || 'Không thể cập nhật trạng thái');
             }
-        } catch (error) {
-            message.error('Không thể cập nhật trạng thái');
+        } catch (error: any) {
+            console.error('Status toggle error:', error);
+            message.error(error.response?.data?.message || 'Không thể cập nhật trạng thái');
         }
     };
 
@@ -226,22 +312,137 @@ const ProductList: React.FC = () => {
         return false;
     };
 
+    // Bulk Add Handlers
+    const handleBulkAdd = () => {
+        setBulkProducts([
+            { key: 1, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+            { key: 2, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+            { key: 3, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        ]);
+        setBulkApplyAll({ danh_muc_id: false, ton_kho: false, don_vi_tinh: false });
+        setBulkAddModalVisible(true);
+    };
+
+    const handleBulkAddRow = () => {
+        const newKey = bulkProducts.length > 0 ? Math.max(...bulkProducts.map(p => p.key)) + 1 : 1;
+        setBulkProducts([...bulkProducts, {
+            key: newKey,
+            ten_san_pham: '',
+            danh_muc_id: null,
+            gia_nhap: 0,
+            gia_ban: 0,
+            ton_kho: 0,
+            don_vi_tinh: 'Chai'
+        }]);
+    };
+
+    const handleBulkRemoveRow = (key: number) => {
+        setBulkProducts(bulkProducts.filter(p => p.key !== key));
+    };
+
+    const handleBulkFieldChange = (key: number, field: string, value: any) => {
+        const updated = bulkProducts.map(p => {
+            if (p.key === key) {
+                return { ...p, [field]: value };
+            }
+            return p;
+        });
+
+        // Apply to all if checkbox is checked
+        if (bulkApplyAll[field as keyof typeof bulkApplyAll]) {
+            setBulkProducts(updated.map(p => ({ ...p, [field]: value })));
+        } else {
+            setBulkProducts(updated);
+        }
+    };
+
+    const handleBulkApplyAllChange = (field: string, checked: boolean) => {
+        setBulkApplyAll({ ...bulkApplyAll, [field]: checked });
+        
+        // If checking, apply first item's value to all
+        if (checked && bulkProducts.length > 0) {
+            const firstValue = bulkProducts[0][field as keyof typeof bulkProducts[0]];
+            setBulkProducts(bulkProducts.map(p => ({ ...p, [field]: firstValue })));
+        }
+    };
+
+    const handleBulkSubmit = async () => {
+        // Validate
+        const validProducts = bulkProducts.filter(p => p.ten_san_pham && p.ten_san_pham.trim());
+        
+        if (validProducts.length === 0) {
+            message.error('Vui lòng nhập ít nhất 1 sản phẩm');
+            return;
+        }
+
+        setBulkSubmitting(true);
+        let successCount = 0;
+        let errorCount = 0;
+
+        try {
+            for (const product of validProducts) {
+                try {
+                    const payload = {
+                        ten_san_pham: product.ten_san_pham,
+                        danh_muc_id: product.danh_muc_id,
+                        gia_nhap: product.gia_nhap || 0,
+                        gia_ban: product.gia_ban || 0,
+                        ton_kho: product.ton_kho || 0,
+                        don_vi_tinh: product.don_vi_tinh || 'Chai',
+                    };
+
+                    const response = await axios.post(API.spaProductCreate, payload);
+                    if (response.data.status_code === 200) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (error) {
+                    errorCount++;
+                    console.error('Error creating product:', error);
+                }
+            }
+
+            if (successCount > 0) {
+                message.success(`Tạo thành công ${successCount} sản phẩm`);
+                setBulkAddModalVisible(false);
+                loadProducts();
+            }
+            
+            if (errorCount > 0) {
+                message.warning(`Có ${errorCount} sản phẩm tạo thất bại`);
+            }
+        } catch (error: any) {
+            console.error('Bulk add error:', error);
+            message.error('Có lỗi xảy ra khi thêm sản phẩm');
+        } finally {
+            setBulkSubmitting(false);
+        }
+    };
+
     const getStockStatus = (product: Product) => {
-        if (product.ton_kho === 0) {
+        const tonKho = product.ton_kho ?? 0;
+        const tonKhoToiThieu = product.ton_kho_toi_thieu ?? 0;
+
+        if (tonKho === 0) {
             return { text: 'Hết hàng', color: 'red', icon: <WarningOutlined /> };
-        } else if (product.ton_kho <= product.ton_kho_toi_thieu) {
+        } else if (tonKho <= tonKhoToiThieu) {
             return { text: 'Sắp hết', color: 'orange', icon: <WarningOutlined /> };
         }
         return { text: 'Còn hàng', color: 'green', icon: <CheckCircleOutlined /> };
     };
 
     const calculateProfit = (product: Product) => {
-        return product.gia_ban - product.gia_nhap;
+        const giaBan = product.gia_ban ?? 0;
+        const giaNhap = product.gia_nhap ?? 0;
+        return giaBan - giaNhap;
     };
 
     const calculateProfitMargin = (product: Product) => {
-        if (product.gia_nhap === 0) return 0;
-        return ((product.gia_ban - product.gia_nhap) / product.gia_nhap) * 100;
+        const giaNhap = product.gia_nhap ?? 0;
+        const giaBan = product.gia_ban ?? 0;
+        if (giaNhap === 0) return 0;
+        return ((giaBan - giaNhap) / giaNhap) * 100;
     };
 
     // Table columns
@@ -277,8 +478,8 @@ const ProductList: React.FC = () => {
                     {record.danh_muc && (
                         <Tag color="blue">{record.danh_muc.ten_danh_muc}</Tag>
                     )}
-                    {record.thuong_hieu && (
-                        <Tag color="purple">{record.thuong_hieu}</Tag>
+                    {record.ten_thuong_hieu && (
+                        <Tag color="purple">{record.ten_thuong_hieu}</Tag>
                     )}
                 </div>
             ),
@@ -289,7 +490,7 @@ const ProductList: React.FC = () => {
             key: 'gia_nhap',
             width: 120,
             align: 'right',
-            render: (value: number) => `${value.toLocaleString()} VNĐ`,
+            render: (value: number) => `${(value ?? 0).toLocaleString()} VNĐ`,
         },
         {
             title: 'Giá bán',
@@ -299,7 +500,7 @@ const ProductList: React.FC = () => {
             align: 'right',
             render: (value: number) => (
                 <span style={{ fontWeight: 500, color: '#52c41a' }}>
-                    {value.toLocaleString()} VNĐ
+                    {(value ?? 0).toLocaleString()} VNĐ
                 </span>
             ),
         },
@@ -329,9 +530,9 @@ const ProductList: React.FC = () => {
             render: (value: number, record: Product) => {
                 const status = getStockStatus(record);
                 return (
-                    <Tooltip title={`Tối thiểu: ${record.ton_kho_toi_thieu}`}>
+                    <Tooltip title={`Tối thiểu: ${record.ton_kho_toi_thieu ?? 0}`}>
                         <Badge
-                            count={value}
+                            count={value ?? 0}
                             showZero
                             color={status.color}
                             style={{ fontSize: 14 }}
@@ -339,7 +540,7 @@ const ProductList: React.FC = () => {
                     </Tooltip>
                 );
             },
-            sorter: (a, b) => a.ton_kho - b.ton_kho,
+            sorter: (a, b) => (a.ton_kho ?? 0) - (b.ton_kho ?? 0),
         },
         {
             title: 'Đã bán',
@@ -347,8 +548,8 @@ const ProductList: React.FC = () => {
             key: 'so_luong_da_ban',
             width: 100,
             align: 'center',
-            render: (value: number) => <Badge count={value} showZero color="blue" />,
-            sorter: (a, b) => a.so_luong_da_ban - b.so_luong_da_ban,
+            render: (value: number) => <Badge count={value ?? 0} showZero color="blue" />,
+            sorter: (a, b) => (a.so_luong_da_ban ?? 0) - (b.so_luong_da_ban ?? 0),
         },
         {
             title: 'Doanh thu',
@@ -356,8 +557,8 @@ const ProductList: React.FC = () => {
             key: 'doanh_thu',
             width: 150,
             align: 'right',
-            render: (value: number) => `${value.toLocaleString()} VNĐ`,
-            sorter: (a, b) => a.doanh_thu - b.doanh_thu,
+            render: (value: number) => `${(value ?? 0).toLocaleString()} VNĐ`,
+            sorter: (a, b) => (a.doanh_thu ?? 0) - (b.doanh_thu ?? 0),
         },
         {
             title: 'Trạng thái',
@@ -463,17 +664,17 @@ const ProductList: React.FC = () => {
                                             )}
                                             <div style={{ marginBottom: 4 }}>
                                                 <strong style={{ color: '#52c41a', fontSize: 16 }}>
-                                                    {product.gia_ban.toLocaleString()} VNĐ
+                                                    {(product.gia_ban ?? 0).toLocaleString()} VNĐ
                                                 </strong>
                                             </div>
                                             <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
-                                                Tồn kho: <strong>{product.ton_kho}</strong> {product.don_vi_tinh}
+                                                Tồn kho: <strong>{product.ton_kho ?? 0}</strong> {product.don_vi_tinh}
                                             </div>
                                             <div style={{ fontSize: 12, color: '#666' }}>
-                                                Đã bán: {product.so_luong_da_ban} {product.don_vi_tinh}
+                                                Đã bán: {product.so_luong_da_ban ?? 0} {product.don_vi_tinh}
                                             </div>
                                             <div style={{ fontSize: 12, color: profit > 0 ? '#52c41a' : '#999', marginTop: 4 }}>
-                                                Lợi nhuận: {profit.toLocaleString()} VNĐ ({margin.toFixed(1)}%)
+                                                Lợi nhuận: {(profit ?? 0).toLocaleString()} VNĐ ({(margin ?? 0).toFixed(1)}%)
                                             </div>
                                         </div>
                                     }
@@ -553,6 +754,12 @@ const ProductList: React.FC = () => {
                             icon={<AppstoreOutlined />}
                             onClick={() => setViewMode('grid')}
                         />
+                        <Button
+                            icon={<PlusOutlined />}
+                            onClick={handleBulkAdd}
+                        >
+                            Thêm nhanh
+                        </Button>
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -667,9 +874,9 @@ const ProductList: React.FC = () => {
                             <Form.Item
                                 name="ma_san_pham"
                                 label="Mã sản phẩm"
-                                rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
+                                tooltip="Để trống để tự động tạo mã (VD: SP00001)"
                             >
-                                <Input placeholder="VD: SP001" />
+                                <Input placeholder="Tự động (SP00001, SP00002...)" />
                             </Form.Item>
                         </Col>
                         <Col span={16}>
@@ -697,8 +904,31 @@ const ProductList: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="thuong_hieu" label="Thương hiệu">
-                                <Input placeholder="VD: L'Oréal" />
+                            <Form.Item name="thuong_hieu_id" label="Thương hiệu">
+                                <Select
+                                    placeholder="Chọn thương hiệu"
+                                    allowClear
+                                    showSearch
+                                    optionFilterProp="label"
+                                >
+                                    {brands.map(brand => (
+                                        <Option key={brand.id} value={brand.id} label={brand.ten_thuong_hieu}>
+                                            {brand.color && (
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: '50%',
+                                                        backgroundColor: brand.color,
+                                                        marginRight: 8
+                                                    }}
+                                                />
+                                            )}
+                                            {brand.ten_thuong_hieu}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -770,7 +1000,11 @@ const ProductList: React.FC = () => {
                         </Col>
                         <Col span={8}>
                             <Form.Item name="han_su_dung" label="Hạn sử dụng">
-                                <Input type="date" />
+                                <DatePicker
+                                    style={{ width: '100%' }}
+                                    format="DD/MM/YYYY"
+                                    placeholder="Chọn ngày hết hạn"
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -827,7 +1061,7 @@ const ProductList: React.FC = () => {
 
                         <Alert
                             message={getStockStatus(selectedProduct).text}
-                            type={selectedProduct.ton_kho === 0 ? 'error' : selectedProduct.ton_kho <= selectedProduct.ton_kho_toi_thieu ? 'warning' : 'success'}
+                            type={(selectedProduct.ton_kho ?? 0) === 0 ? 'error' : (selectedProduct.ton_kho ?? 0) <= (selectedProduct.ton_kho_toi_thieu ?? 0) ? 'warning' : 'success'}
                             showIcon
                             style={{ marginBottom: 16 }}
                         />
@@ -838,37 +1072,37 @@ const ProductList: React.FC = () => {
                             <Descriptions.Item label="Danh mục">
                                 {selectedProduct.danh_muc?.ten_danh_muc || 'N/A'}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Thương hiệu">{selectedProduct.thuong_hieu || 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Thương hiệu">{selectedProduct.ten_thuong_hieu || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="Xuất xứ">{selectedProduct.xuat_xu || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="Giá nhập">
-                                {selectedProduct.gia_nhap.toLocaleString()} VNĐ
+                                {(selectedProduct.gia_nhap ?? 0).toLocaleString()} VNĐ
                             </Descriptions.Item>
                             <Descriptions.Item label="Giá bán">
                                 <strong style={{ color: '#52c41a', fontSize: 16 }}>
-                                    {selectedProduct.gia_ban.toLocaleString()} VNĐ
+                                    {(selectedProduct.gia_ban ?? 0).toLocaleString()} VNĐ
                                 </strong>
                             </Descriptions.Item>
                             <Descriptions.Item label="Lợi nhuận">
                                 <span style={{ color: '#52c41a' }}>
-                                    {calculateProfit(selectedProduct).toLocaleString()} VNĐ
-                                    ({calculateProfitMargin(selectedProduct).toFixed(1)}%)
+                                    {(calculateProfit(selectedProduct) ?? 0).toLocaleString()} VNĐ
+                                    ({(calculateProfitMargin(selectedProduct) ?? 0).toFixed(1)}%)
                                 </span>
                             </Descriptions.Item>
                             <Descriptions.Item label="Tồn kho">
-                                <strong>{selectedProduct.ton_kho}</strong> {selectedProduct.don_vi_tinh}
+                                <strong>{selectedProduct.ton_kho ?? 0}</strong> {selectedProduct.don_vi_tinh}
                             </Descriptions.Item>
                             <Descriptions.Item label="Tồn kho tối thiểu">
-                                {selectedProduct.ton_kho_toi_thieu} {selectedProduct.don_vi_tinh}
+                                {selectedProduct.ton_kho_toi_thieu ?? 0} {selectedProduct.don_vi_tinh}
                             </Descriptions.Item>
                             <Descriptions.Item label="Đã bán">
-                                {selectedProduct.so_luong_da_ban} {selectedProduct.don_vi_tinh}
+                                {selectedProduct.so_luong_da_ban ?? 0} {selectedProduct.don_vi_tinh}
                             </Descriptions.Item>
                             <Descriptions.Item label="Doanh thu">
-                                {selectedProduct.doanh_thu.toLocaleString()} VNĐ
+                                {(selectedProduct.doanh_thu ?? 0).toLocaleString()} VNĐ
                             </Descriptions.Item>
-                            {selectedProduct.han_su_dung && (
+                            {selectedProduct.ngay_het_han && (
                                 <Descriptions.Item label="Hạn sử dụng">
-                                    {dayjs(selectedProduct.han_su_dung).format('DD/MM/YYYY')}
+                                    {dayjs(selectedProduct.ngay_het_han).format('DD/MM/YYYY')}
                                 </Descriptions.Item>
                             )}
                             <Descriptions.Item label="Ngày tạo">
@@ -885,6 +1119,199 @@ const ProductList: React.FC = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Bulk Add Modal */}
+            <Modal
+                title="Thêm nhanh sản phẩm"
+                open={bulkAddModalVisible}
+                onCancel={() => setBulkAddModalVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="cancel" onClick={() => setBulkAddModalVisible(false)}>
+                        Hủy
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        loading={bulkSubmitting}
+                        onClick={handleBulkSubmit}
+                    >
+                        Lưu tất cả
+                    </Button>,
+                ]}
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <Alert
+                        message="Nhập thông tin sản phẩm vào bảng dưới đây. Chỉ cần nhập Tên sản phẩm là bắt buộc."
+                        type="info"
+                        showIcon
+                        closable
+                    />
+                </div>
+
+                <Table
+                    dataSource={bulkProducts}
+                    pagination={false}
+                    size="small"
+                    scroll={{ x: 1000 }}
+                    rowKey="key"
+                >
+                    <Table.Column
+                        title="STT"
+                        width={60}
+                        render={(_, __, index) => index + 1}
+                    />
+                    <Table.Column
+                        title={<span style={{ color: 'red' }}>* Tên sản phẩm</span>}
+                        dataIndex="ten_san_pham"
+                        width={200}
+                        render={(value, record: any) => (
+                            <Input
+                                value={value}
+                                placeholder="Nhập tên sản phẩm"
+                                onChange={(e) => handleBulkFieldChange(record.key, 'ten_san_pham', e.target.value)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.danh_muc_id}
+                                    onChange={(e) => handleBulkApplyAllChange('danh_muc_id', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Danh mục</div>
+                            </div>
+                        }
+                        dataIndex="danh_muc_id"
+                        width={180}
+                        render={(value, record: any) => (
+                            <Select
+                                value={value}
+                                placeholder="Chọn danh mục"
+                                style={{ width: '100%' }}
+                                allowClear
+                                onChange={(val) => handleBulkFieldChange(record.key, 'danh_muc_id', val)}
+                            >
+                                {categories.map(cat => (
+                                    <Option key={cat.id} value={cat.id}>
+                                        {cat.ten_danh_muc}
+                                    </Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Giá nhập"
+                        dataIndex="gia_nhap"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(val) => val!.replace(/\$\s?|(,*)/g, '') as any}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'gia_nhap', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title="Giá bán"
+                        dataIndex="gia_ban"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(val) => val!.replace(/\$\s?|(,*)/g, '') as any}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'gia_ban', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.ton_kho}
+                                    onChange={(e) => handleBulkApplyAllChange('ton_kho', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Tồn kho</div>
+                            </div>
+                        }
+                        dataIndex="ton_kho"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'ton_kho', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.don_vi_tinh}
+                                    onChange={(e) => handleBulkApplyAllChange('don_vi_tinh', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Đơn vị</div>
+                            </div>
+                        }
+                        dataIndex="don_vi_tinh"
+                        width={140}
+                        render={(value, record: any) => (
+                            <Select
+                                value={value}
+                                style={{ width: '100%' }}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'don_vi_tinh', val)}
+                            >
+                                <Option value="Chai">Chai</Option>
+                                <Option value="Hộp">Hộp</Option>
+                                <Option value="Tuýp">Tuýp</Option>
+                                <Option value="Lọ">Lọ</Option>
+                                <Option value="Cái">Cái</Option>
+                                <Option value="Gói">Gói</Option>
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Thao tác"
+                        width={80}
+                        fixed="right"
+                        render={(_, record: any) => (
+                            <Button
+                                type="link"
+                                danger
+                                size="small"
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleBulkRemoveRow(record.key)}
+                                disabled={bulkProducts.length === 1}
+                            />
+                        )}
+                    />
+                </Table>
+
+                <Button
+                    type="dashed"
+                    block
+                    icon={<PlusOutlined />}
+                    onClick={handleBulkAddRow}
+                    style={{ marginTop: 16 }}
+                >
+                    Thêm hàng
+                </Button>
+            </Modal>
         </div>
     );
 };

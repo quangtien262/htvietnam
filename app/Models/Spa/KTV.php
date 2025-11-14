@@ -14,31 +14,42 @@ class KTV extends Model
 
     protected $fillable = [
         'ma_ktv',
-        'ho_ten',
-        'ngay_sinh',
-        'gioi_tinh',
-        'so_dien_thoai',
-        'email',
-        'dia_chi',
-        'avatar',
-        'ngay_vao_lam',
+        'admin_user_id',
+        'chuyen_mon_ids',
         'trinh_do',
-        'chuyen_mon',
-        'bang_cap',
-        'kinh_nghiem',
+        'chung_chi_ids',
+        'so_nam_kinh_nghiem',
+        'rating_tb',
+        'so_luot_danh_gia',
+        'luong_co_ban',
         'phan_tram_hoa_hong',
-        'trang_thai',
+        'target_doanh_thu_thang',
+        'avatar_url',
+        'mo_ta_ngan',
+        'is_active',
+        'ngay_vao_lam',
     ];
 
     protected $casts = [
-        'ngay_sinh' => 'date',
-        'ngay_vao_lam' => 'date',
-        'chuyen_mon' => Json::class,
-        'bang_cap' => Json::class,
+        'admin_user_id' => 'integer',
+        'chuyen_mon_ids' => Json::class,
+        'chung_chi_ids' => Json::class,
+        'so_nam_kinh_nghiem' => 'integer',
+        'rating_tb' => 'decimal:2',
+        'so_luot_danh_gia' => 'integer',
+        'luong_co_ban' => 'decimal:2',
         'phan_tram_hoa_hong' => 'decimal:2',
+        'target_doanh_thu_thang' => 'decimal:2',
+        'is_active' => 'boolean',
+        'ngay_vao_lam' => 'date',
     ];
 
     // Relationships
+    public function adminUser()
+    {
+        return $this->belongsTo(\App\Models\AdminUser::class, 'admin_user_id');
+    }
+
     public function lichLamViecs()
     {
         return $this->hasMany(KTVLichLamViec::class, 'ktv_id');
@@ -62,7 +73,7 @@ class KTV extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('trang_thai', 'dang_lam');
+        return $query->where('is_active', true);
     }
 
     public function scopeByLevel($query, $level)
@@ -72,24 +83,37 @@ class KTV extends Model
 
     public function scopeAvailableAt($query, $date, $time)
     {
-        return $query->where('trang_thai', 'dang_lam')
+        return $query->where('is_active', true)
             ->whereHas('lichLamViecs', function($q) use ($date, $time) {
                 $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
                 $q->where('thu', $dayOfWeek)
-                    ->where('gio_bat_dau', '<=', $time)
-                    ->where('gio_ket_thuc', '>=', $time);
+                    ->where(function($q2) use ($time) {
+                        $q2->where(function($q3) use ($time) {
+                            $q3->where('ca_sang_bat_dau', '<=', $time)
+                                ->where('ca_sang_ket_thuc', '>=', $time);
+                        })
+                        ->orWhere(function($q3) use ($time) {
+                            $q3->where('ca_chieu_bat_dau', '<=', $time)
+                                ->where('ca_chieu_ket_thuc', '>=', $time);
+                        });
+                    });
             })
             ->whereDoesntHave('nghiPheps', function($q) use ($date) {
                 $q->where('ngay_bat_dau', '<=', $date)
                     ->where('ngay_ket_thuc', '>=', $date)
-                    ->where('trang_thai', 'duyet');
+                    ->where('trang_thai', 'da_duyet');
             });
     }
 
     // Accessors
     public function getFullNameAttribute()
     {
-        return $this->ho_ten;
+        return $this->adminUser?->name ?? '';
+    }
+
+    public function getHoTenAttribute()
+    {
+        return $this->adminUser?->name ?? '';
     }
 
     public function getYearsOfExperienceAttribute()
@@ -114,27 +138,34 @@ class KTV extends Model
     // Business Logic
     public function calculateMonthlyCommission($month, $year)
     {
+        $startDate = sprintf('%04d-%02d-01', $year, $month);
+        $endDate = date('Y-m-t', strtotime($startDate));
+
         return $this->hoaHongs()
-            ->whereYear('ngay_thuc_hien', $year)
-            ->whereMonth('ngay_thuc_hien', $month)
+            ->whereBetween('thang', [$startDate, $endDate])
             ->sum('tien_hoa_hong');
     }
 
     public function getMonthlyRevenue($month, $year)
     {
+        $startDate = sprintf('%04d-%02d-01', $year, $month);
+        $endDate = date('Y-m-t', strtotime($startDate));
+
         return $this->hoaHongs()
-            ->whereYear('ngay_thuc_hien', $year)
-            ->whereMonth('ngay_thuc_hien', $month)
-            ->sum('doanh_thu');
+            ->whereBetween('thang', [$startDate, $endDate])
+            ->sum('gia_tri_goc');
     }
 
     public function isAvailable($date, $startTime, $endTime)
     {
+        // Check if active
+        if (!$this->is_active) return false;
+
         // Check if on leave
         $onLeave = $this->nghiPheps()
             ->where('ngay_bat_dau', '<=', $date)
             ->where('ngay_ket_thuc', '>=', $date)
-            ->where('trang_thai', 'duyet')
+            ->where('trang_thai', 'da_duyet')
             ->exists();
 
         if ($onLeave) return false;
@@ -143,8 +174,17 @@ class KTV extends Model
         $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
         $hasSchedule = $this->lichLamViecs()
             ->where('thu', $dayOfWeek)
-            ->where('gio_bat_dau', '<=', $startTime)
-            ->where('gio_ket_thuc', '>=', $endTime)
+            ->where('is_nghi_phep', false)
+            ->where(function($q) use ($startTime, $endTime) {
+                $q->where(function($q2) use ($startTime, $endTime) {
+                    $q2->where('ca_sang_bat_dau', '<=', $startTime)
+                        ->where('ca_sang_ket_thuc', '>=', $endTime);
+                })
+                ->orWhere(function($q2) use ($startTime, $endTime) {
+                    $q2->where('ca_chieu_bat_dau', '<=', $startTime)
+                        ->where('ca_chieu_ket_thuc', '>=', $endTime);
+                });
+            })
             ->exists();
 
         if (!$hasSchedule) return false;

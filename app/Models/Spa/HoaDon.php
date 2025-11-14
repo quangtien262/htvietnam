@@ -119,6 +119,9 @@ class HoaDon extends Model
         // Delete existing commissions
         $this->hoaHongs()->delete();
 
+        // Get month from invoice date (first day of month)
+        $thang = $this->ngay_ban ? $this->ngay_ban->startOfMonth()->format('Y-m-d') : now()->startOfMonth()->format('Y-m-d');
+
         foreach ($this->chiTiets as $chiTiet) {
             if ($chiTiet->ktv_id) {
                 $ktv = KTV::find($chiTiet->ktv_id);
@@ -126,32 +129,30 @@ class HoaDon extends Model
 
                 // Calculate commission based on type
                 if ($chiTiet->dich_vu_id) {
-                    // Service commission: 20%
-                    $commission = $chiTiet->thanh_tien * 0.20;
+                    // Service commission: use KTV's commission rate or default 20%
+                    $phanTram = $ktv->phan_tram_hoa_hong ?? 20;
+                    $commission = $chiTiet->thanh_tien * ($phanTram / 100);
                     KTVHoaHong::create([
                         'ktv_id' => $ktv->id,
                         'hoa_don_id' => $this->id,
                         'loai' => 'dich_vu',
-                        'reference_id' => $chiTiet->dich_vu_id,
-                        'doanh_thu' => $chiTiet->thanh_tien,
-                        'phan_tram' => 20,
+                        'gia_tri_goc' => $chiTiet->thanh_tien,
+                        'phan_tram' => $phanTram,
                         'tien_hoa_hong' => $commission,
-                        'ngay_thuc_hien' => $this->ngay_ban,
-                        'trang_thai' => 'cho_thanh_toan',
+                        'thang' => $thang,
                     ]);
                 } elseif ($chiTiet->san_pham_id) {
-                    // Product commission: 10%
-                    $commission = $chiTiet->thanh_tien * 0.10;
+                    // Product commission: 10% default
+                    $phanTram = 10;
+                    $commission = $chiTiet->thanh_tien * ($phanTram / 100);
                     KTVHoaHong::create([
                         'ktv_id' => $ktv->id,
                         'hoa_don_id' => $this->id,
                         'loai' => 'san_pham',
-                        'reference_id' => $chiTiet->san_pham_id,
-                        'doanh_thu' => $chiTiet->thanh_tien,
-                        'phan_tram' => 10,
+                        'gia_tri_goc' => $chiTiet->thanh_tien,
+                        'phan_tram' => $phanTram,
                         'tien_hoa_hong' => $commission,
-                        'ngay_thuc_hien' => $this->ngay_ban,
-                        'trang_thai' => 'cho_thanh_toan',
+                        'thang' => $thang,
                     ]);
                 }
             }
@@ -165,12 +166,10 @@ class HoaDon extends Model
                     'ktv_id' => $firstDetailWithKTV->ktv_id,
                     'hoa_don_id' => $this->id,
                     'loai' => 'tip',
-                    'reference_id' => null,
-                    'doanh_thu' => $this->tien_tip,
+                    'gia_tri_goc' => $this->tien_tip,
                     'phan_tram' => 100,
                     'tien_hoa_hong' => $this->tien_tip,
-                    'ngay_thuc_hien' => $this->ngay_ban,
-                    'trang_thai' => 'cho_thanh_toan',
+                    'thang' => $thang,
                 ]);
             }
         }

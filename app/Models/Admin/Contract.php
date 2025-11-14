@@ -79,4 +79,6 @@ class Contract extends Model
 
         return $data;
     }
+
+
 }

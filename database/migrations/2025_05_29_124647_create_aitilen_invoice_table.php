@@ -43,7 +43,7 @@ return new class extends Migration
 
 
             $table->integer('giam_gia')->default(0)->nullable();
-            $table->integer('giam_gia_description')->default(0)->nullable();
+            $table->text('giam_gia_description')->default(0)->nullable();
 
             $table->integer('other')->default(0)->nullable();
             $table->text('other_description')->nullable();

@@ -13,8 +13,11 @@ class DichVuController extends Controller
         $query = DB::table('spa_dich_vu')
             ->leftJoin('spa_danh_muc_dich_vu', 'spa_dich_vu.danh_muc_id', '=', 'spa_danh_muc_dich_vu.id')
             ->select(
-                'spa_dich_vu.*', 
-                'spa_danh_muc_dich_vu.ten_danh_muc as danh_muc_ten'
+                'spa_dich_vu.*',
+                'spa_dich_vu.gia_ban as gia',
+                'spa_danh_muc_dich_vu.ten_danh_muc as danh_muc_ten',
+                DB::raw('0 as so_luong_da_su_dung'),
+                DB::raw('0 as doanh_thu')
             );
 
         // Filter by status
@@ -48,8 +51,16 @@ class DichVuController extends Controller
             'gia' => 'required|numeric|min:0',
         ]);
 
+        // Generate unique service code
+        $maDichVu = 'DV' . time() . rand(100, 999);
+
+        // Ensure uniqueness
+        while (DB::table('spa_dich_vu')->where('ma_dich_vu', $maDichVu)->exists()) {
+            $maDichVu = 'DV' . time() . rand(100, 999);
+        }
+
         $id = DB::table('spa_dich_vu')->insertGetId([
-            'ma_dich_vu' => 'DV' . time(),
+            'ma_dich_vu' => $maDichVu,
             'ten_dich_vu' => $request->ten_dich_vu,
             'danh_muc_id' => $request->danh_muc_id,
             'gia_ban' => $request->gia ?? 0,
@@ -66,7 +77,7 @@ class DichVuController extends Controller
     public function update(Request $request, $id)
     {
         $updateData = [];
-        
+
         if ($request->has('ten_dich_vu')) {
             $updateData['ten_dich_vu'] = $request->ten_dich_vu;
         }
@@ -85,7 +96,7 @@ class DichVuController extends Controller
         if ($request->has('is_active')) {
             $updateData['is_active'] = $request->is_active;
         }
-        
+
         $updateData['updated_at'] = now();
 
         DB::table('spa_dich_vu')->where('id', $id)->update($updateData);

@@ -94,13 +94,15 @@ const StaffList: React.FC = () => {
     const loadStaff = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff/list', {
-                page: pagination.current,
-                limit: pagination.pageSize,
-                search: searchText,
-                chi_nhanh_id: selectedBranch,
-                chuc_vu: selectedPosition,
-                trang_thai: selectedStatus,
+            const response = await axios.get('/aio/api/spa/staff', {
+                params: {
+                    page: pagination.current,
+                    limit: pagination.pageSize,
+                    search: searchText,
+                    chi_nhanh_id: selectedBranch,
+                    chuc_vu: selectedPosition,
+                    trang_thai: selectedStatus,
+                }
             });
 
             if (response.data.success) {
@@ -125,7 +127,7 @@ const StaffList: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/branches/list');
+            const response = await axios.get('/aio/api/spa/branches');
             if (response.data.success) {
                 setBranches(response.data.data.data || []);
             }

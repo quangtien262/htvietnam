@@ -10,17 +10,22 @@ class ThuongHieuController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DB::table('spa_thuong_hieu')->select('*');
+        $query = DB::table('spa_thuong_hieu')
+            ->select('id', 'ten_thuong_hieu', 'color', 'sort_order', 'logo', 'xuat_xu', 'mo_ta', 'note', 'is_active', 'created_by', 'created_at', 'updated_at');
 
         if ($request->filled('search')) {
             $search = '%' . $request->search . '%';
-            $query->where(function($q) use ($search) {
-                $q->where('ten_thuong_hieu', 'like', $search)
-                  ->orWhere('ma_thuong_hieu', 'like', $search);
-            });
+            $query->where('ten_thuong_hieu', 'like', $search);
         }
 
-        $brands = $query->orderBy('ten_thuong_hieu')->get();
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        // Order by sort_order asc, then by name
+        $brands = $query->orderBy('sort_order', 'asc')
+                        ->orderBy('ten_thuong_hieu', 'asc')
+                        ->get();
 
         return $this->sendSuccessResponse($brands);
     }
@@ -32,14 +37,15 @@ class ThuongHieuController extends Controller
         ]);
 
         $id = DB::table('spa_thuong_hieu')->insertGetId([
-            'ma_thuong_hieu' => $request->ma_thuong_hieu ?? 'TH' . now()->format('YmdHis'),
             'ten_thuong_hieu' => $request->ten_thuong_hieu,
+            'color' => $request->color,
+            'sort_order' => $request->sort_order ?? 0,
             'mo_ta' => $request->mo_ta,
+            'note' => $request->note,
             'logo' => $request->logo,
-            'website' => $request->website,
-            'email' => $request->email,
-            'sdt' => $request->sdt,
-            'dia_chi' => $request->dia_chi,
+            'xuat_xu' => $request->xuat_xu,
+            'is_active' => $request->is_active ?? true,
+            'created_by' => auth()->id(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -49,15 +55,20 @@ class ThuongHieuController extends Controller
 
     public function update(Request $request, $id)
     {
+        $brand = DB::table('spa_thuong_hieu')->where('id', $id)->first();
+        if (!$brand) {
+            return $this->sendErrorResponse('Không tìm thấy thương hiệu', 404);
+        }
+
         $data = [];
-        if ($request->filled('ma_thuong_hieu')) $data['ma_thuong_hieu'] = $request->ma_thuong_hieu;
         if ($request->filled('ten_thuong_hieu')) $data['ten_thuong_hieu'] = $request->ten_thuong_hieu;
+        if ($request->has('color')) $data['color'] = $request->color;
+        if ($request->has('sort_order')) $data['sort_order'] = $request->sort_order;
         if ($request->has('mo_ta')) $data['mo_ta'] = $request->mo_ta;
+        if ($request->has('note')) $data['note'] = $request->note;
         if ($request->has('logo')) $data['logo'] = $request->logo;
-        if ($request->has('website')) $data['website'] = $request->website;
-        if ($request->has('email')) $data['email'] = $request->email;
-        if ($request->has('sdt')) $data['sdt'] = $request->sdt;
-        if ($request->has('dia_chi')) $data['dia_chi'] = $request->dia_chi;
+        if ($request->has('xuat_xu')) $data['xuat_xu'] = $request->xuat_xu;
+        if ($request->has('is_active')) $data['is_active'] = $request->is_active;
         $data['updated_at'] = now();
 
         DB::table('spa_thuong_hieu')->where('id', $id)->update($data);

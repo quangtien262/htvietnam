@@ -307,3 +307,40 @@ export function objEntries(data: any) {
     });
     return result;
 }
+
+/**
+ * Remove Vietnamese accents from string
+ * @param str - Input string
+ * @returns String without accents
+ */
+export function removeVietnameseAccents(str: string): string {
+    if (!str) return '';
+
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+    str = str.replace(/đ/g, 'd');
+
+    return str;
+}
+
+/**
+ * Filter function for Ant Design Select component
+ * Supports case-insensitive and accent-insensitive search
+ * @param input - User input
+ * @param option - Select option
+ * @returns Boolean indicating if option matches input
+ */
+export function filterSelectOption(input: string, option: any): boolean {
+    if (!input) return true;
+
+    const searchText = removeVietnameseAccents(input.toLowerCase());
+    const optionLabel = option?.label ? removeVietnameseAccents(option.label.toLowerCase()) : '';
+    const optionValue = option?.value ? removeVietnameseAccents(String(option.value).toLowerCase()) : '';
+
+    return optionLabel.includes(searchText) || optionValue.includes(searchText);
+}

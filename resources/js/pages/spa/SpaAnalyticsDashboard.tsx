@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, DatePicker, Select, Space } from 'antd';
+import { Card, Row, Col, Statistic, DatePicker, Select, Space, message } from 'antd';
 import { DollarOutlined, UserOutlined, ShoppingOutlined, RiseOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { RangePicker } = DatePicker;
 
@@ -21,17 +22,20 @@ const SpaAnalyticsDashboard: React.FC = () => {
     const fetchAnalytics = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/admin/spa/analytics/dashboard', {
+            const response = await axios.get(API.spaAnalyticsDashboard, {
                 params: {
                     tu_ngay: dateRange[0].format('YYYY-MM-DD'),
                     den_ngay: dateRange[1].format('YYYY-MM-DD'),
                 },
             });
+            console.log('Analytics response:', response.data);
             if (response.data.success) {
                 setData(response.data.data);
             }
-        } catch (error) {
-            console.error('Error:', error);
+        } catch (error: any) {
+            console.error('Analytics error:', error);
+            console.error('Error response:', error.response?.data);
+            message.error(error.response?.data?.message || 'Không thể tải dữ liệu báo cáo');
         } finally {
             setLoading(false);
         }

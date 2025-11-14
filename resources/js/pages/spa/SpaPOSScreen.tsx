@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty } from 'antd';
+import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox } from 'antd';
 import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
@@ -106,6 +106,53 @@ const SpaPOSScreen: React.FC = () => {
         setFilteredProducts(filtered);
     }, [productSearch, productCategory, products]);
 
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Prevent shortcuts when typing in input fields
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+                // Only allow ESC when in input
+                if (event.key !== 'Escape') {
+                    return;
+                }
+            }
+
+            switch (event.key) {
+                case 'F1':
+                    event.preventDefault();
+                    handleSelectCustomer();
+                    break;
+                case 'F2':
+                    event.preventDefault();
+                    handleScanBarcode();
+                    break;
+                case 'F3':
+                    event.preventDefault();
+                    handleHoldInvoice();
+                    break;
+                case 'F4':
+                    event.preventDefault();
+                    handleRecallInvoice();
+                    break;
+                case 'F9':
+                    event.preventDefault();
+                    if (cart.length > 0) {
+                        handlePayment();
+                    }
+                    break;
+                case 'Escape':
+                    event.preventDefault();
+                    handleCancelInvoice();
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [cart]); // Re-bind when cart changes
+
     const fetchServices = async () => {
         setLoadingData(true);
         try {
@@ -165,22 +212,24 @@ const SpaPOSScreen: React.FC = () => {
         }
     };
 
-    // Fetch customers from users table (API.userList)
+    // Fetch customers from users table using API.userSelect
     const fetchCustomers = async (keyword: string = '') => {
         try {
-            const response = await axios.get(API.userList, {
-                params: {
-                    per_page: 1000,
-                    keyword: keyword || undefined,
-                },
-            });
+            const response = await axios.post(API.userSelect);
+            console.log('Customers response:', response.data);
 
-            // API may return pagination object or array
-            const data = response.data.data?.data || response.data.data || response.data || [];
-            const users = Array.isArray(data) ? data : (data.data || []);
-            setCustomers(users);
+            if (response.data.status_code === 200) {
+                const data = response.data.data || [];
+                setCustomers(Array.isArray(data) ? data : []);
+                console.log('Customers loaded:', data.length);
+            } else {
+                console.error('Failed to fetch customers:', response.data);
+                message.error('Không thể tải danh sách khách hàng');
+                setCustomers([]);
+            }
         } catch (error) {
             console.error('Error fetching customers:', error);
+            message.error('Lỗi khi tải danh sách khách hàng');
             setCustomers([]);
         }
     };
@@ -228,12 +277,140 @@ const SpaPOSScreen: React.FC = () => {
         setPaymentModalVisible(true);
     };
 
+    // Keyboard shortcut handlers
+    const handleSelectCustomer = () => {
+        const customerSelectElement = document.querySelector('input[placeholder*="khách hàng"]') as HTMLInputElement;
+        if (customerSelectElement) {
+            customerSelectElement.focus();
+            customerSelectElement.click();
+        }
+    };
+
+    const handleScanBarcode = () => {
+        Modal.info({
+            title: 'Quét mã vạch',
+            content: (
+                <div>
+                    <Input
+                        autoFocus
+                        placeholder="Quét hoặc nhập mã vạch sản phẩm"
+                        onPressEnter={(e) => {
+                            const barcode = (e.target as HTMLInputElement).value;
+                            // TODO: Search product/service by barcode
+                            message.info(`Tìm kiếm mã: ${barcode}`);
+                            Modal.destroyAll();
+                        }}
+                    />
+                </div>
+            ),
+        });
+    };
+
+    const handleHoldInvoice = () => {
+        if (cart.length === 0) {
+            message.warning('Giỏ hàng trống, không thể hold');
+            return;
+        }
+
+        const invoiceData = {
+            cart,
+            customer: selectedCustomer,
+            discount,
+            pointsUsed,
+            tip,
+            timestamp: new Date().toISOString(),
+        };
+
+        const heldInvoices = JSON.parse(localStorage.getItem('heldInvoices') || '[]');
+        heldInvoices.push(invoiceData);
+        localStorage.setItem('heldInvoices', JSON.stringify(heldInvoices));
+
+        message.success('Đã hold hóa đơn');
+
+        // Reset cart
+        setCart([]);
+        setSelectedCustomer(null);
+        setDiscount(0);
+        setPointsUsed(0);
+        setTip(0);
+    };
+
+    const handleRecallInvoice = () => {
+        const heldInvoices = JSON.parse(localStorage.getItem('heldInvoices') || '[]');
+
+        if (heldInvoices.length === 0) {
+            message.info('Không có hóa đơn đang hold');
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Chọn hóa đơn cần recall',
+            width: 600,
+            content: (
+                <div style={{ maxHeight: 400, overflow: 'auto' }}>
+                    {heldInvoices.map((invoice: any, index: number) => (
+                        <Card
+                            key={index}
+                            size="small"
+                            style={{ marginBottom: 8, cursor: 'pointer' }}
+                            onClick={() => {
+                                setCart(invoice.cart);
+                                setSelectedCustomer(invoice.customer);
+                                setDiscount(invoice.discount);
+                                setPointsUsed(invoice.pointsUsed);
+                                setTip(invoice.tip);
+
+                                // Remove from held invoices
+                                heldInvoices.splice(index, 1);
+                                localStorage.setItem('heldInvoices', JSON.stringify(heldInvoices));
+
+                                message.success('Đã recall hóa đơn');
+                                Modal.destroyAll();
+                            }}
+                        >
+                            <div>
+                                <strong>Hóa đơn #{index + 1}</strong> - {new Date(invoice.timestamp).toLocaleString()}
+                            </div>
+                            <div>Khách hàng: {invoice.customer?.label || 'Khách lẻ'}</div>
+                            <div>Số lượng: {invoice.cart.length} item</div>
+                        </Card>
+                    ))}
+                </div>
+            ),
+            okButtonProps: { style: { display: 'none' } },
+            cancelText: 'Đóng',
+        });
+    };
+
+    const handleCancelInvoice = () => {
+        if (cart.length === 0) {
+            message.info('Giỏ hàng đã trống');
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Xác nhận hủy hóa đơn',
+            content: 'Bạn có chắc chắn muốn hủy hóa đơn này không?',
+            okText: 'Hủy hóa đơn',
+            okType: 'danger',
+            cancelText: 'Không',
+            onOk: () => {
+                setCart([]);
+                setSelectedCustomer(null);
+                setDiscount(0);
+                setPointsUsed(0);
+                setTip(0);
+                message.success('Đã hủy hóa đơn');
+            },
+        });
+    };
+
     const handleConfirmPayment = async () => {
         try {
             const values = await form.validateFields();
 
             const invoiceData = {
-                khach_hang_id: selectedCustomer?.id,
+                khach_hang_id: selectedCustomer?.value,
                 chi_nhanh_id: 1, // Default branch
                 chi_tiets: cart.map(item => ({
                     dich_vu_id: item.type === 'service' ? item.id : null,
@@ -323,7 +500,7 @@ const SpaPOSScreen: React.FC = () => {
             <h1>POS Bán hàng</h1>
             <Row gutter={16}>
                 {/* Products & Services List */}
-                <Col span={16}>
+                <Col span={12}>
                     <Tabs defaultActiveKey="services">
                         <TabPane tab={<span><Badge count={filteredServices.length} showZero>Dịch vụ</Badge></span>} key="services">
                             <Card
@@ -488,29 +665,27 @@ const SpaPOSScreen: React.FC = () => {
                 </Col>
 
                 {/* Cart & Payment */}
-                <Col span={8}>
+                <Col span={12}>
                     <Card title="Hóa đơn" style={{ marginBottom: 16 }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             <Select
                                 placeholder="Chọn khách hàng"
                                 style={{ width: '100%' }}
-                                value={selectedCustomer?.id}
+                                value={selectedCustomer?.value}
                                 onChange={(value: any) => {
-                                    const user = customers.find(u => u.id === value);
+                                    const user = customers.find(u => u.value === value);
                                     setSelectedCustomer(user || null);
                                 }}
                                 showSearch
                                 allowClear
                                 filterOption={(input, option: any) => {
-                                    // allow client-side filtering on label
-                                    return (option?.children || '').toLowerCase().includes(input.toLowerCase());
+                                    const label = option?.children?.toString() || '';
+                                    return label.toLowerCase().includes(input.toLowerCase());
                                 }}
-                                onSearch={(val) => fetchCustomers(val)}
                             >
                                 {customers.map(user => (
-                                    <Select.Option key={user.id} value={user.id}>
-                                        {user.name || user.ho_ten || user.username || `${user.email || ''}`}{' '}
-                                        - {user.points ?? user.diem_tich_luy ?? 0} điểm
+                                    <Select.Option key={user.value} value={user.value}>
+                                        {user.code} - {user.label} {user.phone ? `- ${user.phone}` : ''}
                                     </Select.Option>
                                 ))}
                             </Select>
@@ -543,11 +718,12 @@ const SpaPOSScreen: React.FC = () => {
                                     </div>
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span>Dùng điểm ({selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}):</span>
+                                        <span>Dùng điểm ({selectedCustomer?.points ?? 0}):</span>
                                         <InputNumber
                                             value={pointsUsed}
                                             onChange={(value) => setPointsUsed(value || 0)}
-                                            max={selectedCustomer?.points ?? selectedCustomer?.diem_tich_luy ?? 0}
+                                            max={selectedCustomer?.points ?? 0}
+                                            disabled={!selectedCustomer || (selectedCustomer?.points ?? 0) === 0}
                                             style={{ width: 150 }}
                                         />
                                     </div>
@@ -611,11 +787,13 @@ const SpaPOSScreen: React.FC = () => {
                         label="Phương thức thanh toán"
                         rules={[{ required: true, message: 'Vui lòng chọn phương thức' }]}
                     >
-                        <Select mode="multiple" placeholder="Chọn phương thức">
-                            <Select.Option value="tien_mat">Tiền mặt</Select.Option>
-                            <Select.Option value="chuyen_khoan">Chuyển khoản</Select.Option>
-                            <Select.Option value="the">Thẻ</Select.Option>
-                        </Select>
+                        <Checkbox.Group>
+                            <Space direction="vertical">
+                                <Checkbox value="tien_mat">Tiền mặt</Checkbox>
+                                <Checkbox value="chuyen_khoan">Chuyển khoản</Checkbox>
+                                <Checkbox value="the">Thẻ</Checkbox>
+                            </Space>
+                        </Checkbox.Group>
                     </Form.Item>
                 </Form>
             </Modal>

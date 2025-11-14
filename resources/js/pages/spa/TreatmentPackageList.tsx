@@ -40,6 +40,7 @@ interface TreatmentPackage {
     thoi_han_su_dung: number; // days
     hinh_anh?: string;
     trang_thai: string;
+    is_active?: boolean;
     hot: boolean;
     dich_vu_ids?: number[];
     dich_vu?: Service[];
@@ -93,37 +94,46 @@ const TreatmentPackageList: React.FC = () => {
     // Load data
     useEffect(() => {
         loadPackages();
+    }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, hotFilter]);
+
+    // Load categories and services once on mount
+    useEffect(() => {
         loadCategories();
         loadServices();
-    }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, hotFilter]);
+    }, []);
 
     const loadPackages = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/treatment-packages/list', {
-                page: pagination.current,
-                limit: pagination.pageSize,
-                search: searchText,
-                danh_muc_id: selectedCategory,
-                trang_thai: selectedStatus,
-                hot: hotFilter,
+            const response = await axios.get('/aio/api/spa/treatment-packages', {
+                params: {
+                    page: pagination.current,
+                    per_page: pagination.pageSize,
+                    search: searchText,
+                    danh_muc_id: selectedCategory,
+                    is_active: selectedStatus,
+                    hot: hotFilter,
+                }
             });
 
-            if (response.data.success) {
+            if (response.data) {
                 const data = response.data.data;
-                setPackages(data.data || []);
+                const packagesData = data?.data || data || [];
+                const total = data?.total || 0;
+
+                setPackages(packagesData);
                 setPagination({
                     ...pagination,
-                    total: data.total || 0,
+                    total: total,
                 });
 
-                if (data.stats) {
+                if (data?.stats) {
                     setStats(data.stats);
                 }
             }
         } catch (error) {
+            console.error('Load packages error:', error);
             message.error('Không thể tải danh sách liệu trình');
-            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -131,26 +141,32 @@ const TreatmentPackageList: React.FC = () => {
 
     const loadCategories = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/service-categories/list');
-            if (response.data.success) {
-                setCategories(response.data.data.data || []);
+            const response = await axios.post('/aio/api/spa/service-categories/list');
+            if (response.data) {
+                const categoriesData = response.data.data?.data || response.data.data || [];
+                setCategories(categoriesData);
             }
         } catch (error) {
             console.error('Load categories error:', error);
+            message.error('Không thể tải danh mục');
         }
     };
 
     const loadServices = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/services/list', {
-                limit: 1000,
-                trang_thai: 'hoat_dong',
+            const response = await axios.get('/aio/api/spa/services', {
+                params: {
+                    per_page: 1000,
+                    is_active: 1,
+                }
             });
-            if (response.data.success) {
-                setServices(response.data.data.data || []);
+            if (response.data) {
+                const servicesData = response.data.data?.data || response.data.data || [];
+                setServices(servicesData);
             }
         } catch (error) {
             console.error('Load services error:', error);
+            message.error('Không thể tải dịch vụ');
         }
     };
 
@@ -179,54 +195,74 @@ const TreatmentPackageList: React.FC = () => {
 
     const handleSubmit = async () => {
         try {
+            setUploading(true);
             const values = await form.validateFields();
-  // Calculate discount percentage
+            // Calculate discount percentage
             const giamGia = values.gia_goc > 0
-               ? ((values.gia_goc - values.gia_ban) / values.gia_goc) * 100
-                           : 0;
+                ? ((values.gia_goc - values.gia_ban) / values.gia_goc) * 100
+                : 0;
 
             const payload = {
-                id: selectedPackage?.id,
-                 ...values,
+                ...values,
                 hinh_anh: imageUrl,
                 giam_gia_phan_tram: Math.round(giamGia),
             };
 
-            const response = await axios.post('/aio/api/admin/spa/treatment-packages/create-or-update', payload);
+            let response;
+            if (selectedPackage?.id) {
+                // Update
+                response = await axios.put(`/aio/api/spa/treatment-packages/${selectedPackage.id}`, payload);
+            } else {
+                // Create
+                response = await axios.post('/aio/api/spa/treatment-packages', payload);
+            }
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success(selectedPackage ? 'Cập nhật liệu trình thành công' : 'Tạo liệu trình mới thành công');
                 setModalVisible(false);
-                loadPackages();
+                form.resetFields();
+                setImageUrl('');
+                setSelectedPackage(null);
+                await loadPackages();
+            } else {
+                message.error(response.data?.message || 'Có lỗi xảy ra');
             }
         } catch (error: any) {
+            console.error('Submit error:', error);
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        } finally {
+            setUploading(false);
         }
     };
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/treatment-packages/delete', { id });
-            if (response.data.success) {
+            setLoading(true);
+            const response = await axios.delete(`/aio/api/spa/treatment-packages/${id}`);
+            if (response.data && response.data.status_code === 200) {
                 message.success('Xóa liệu trình thành công');
-                loadPackages();
+                await loadPackages();
+            } else {
+                message.error(response.data?.message || 'Không thể xóa liệu trình');
             }
         } catch (error: any) {
+            console.error('Delete error:', error);
             message.error(error.response?.data?.message || 'Không thể xóa liệu trình');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleStatusToggle = async (record: TreatmentPackage) => {
         try {
-            const newStatus = record.trang_thai === 'hoat_dong' ? 'ngung_hoat_dong' : 'hoat_dong';
-            const response = await axios.post('/aio/api/admin/spa/treatment-packages/create-or-update', {
-                id: record.id,
-                trang_thai: newStatus,
+            const newStatus = !record.is_active;
+            const response = await axios.put(`/aio/api/spa/treatment-packages/${record.id}`, {
+                is_active: newStatus,
             });
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success('Cập nhật trạng thái thành công');
-                loadPackages();
+                await loadPackages();
             }
         } catch (error) {
             message.error('Không thể cập nhật trạng thái');
@@ -235,16 +271,18 @@ const TreatmentPackageList: React.FC = () => {
 
     const handleHotToggle = async (record: TreatmentPackage) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/treatment-packages/create-or-update', {
-                id: record.id,
+            const response = await axios.put(`/aio/api/spa/treatment-packages/${record.id}`, {
                 hot: !record.hot,
             });
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success(record.hot ? 'Đã bỏ đánh dấu HOT' : 'Đã đánh dấu HOT');
-                loadPackages();
+                await loadPackages();
+            } else {
+                message.error('Không thể cập nhật');
             }
         } catch (error) {
+            console.error('Toggle hot error:', error);
             message.error('Không thể cập nhật');
         }
     };

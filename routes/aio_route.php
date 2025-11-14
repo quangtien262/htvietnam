@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\CongNoController;
+use App\Http\Controllers\Aitilen\AitilenDauTuController;
 
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
@@ -142,6 +143,17 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('service/search-dien-nuoc', [AitilenController::class, 'searchDienNuoc'])->name('aitilen.service.dienNuocSearch');
     Route::post('service/create-data-dien-nuoc-thang', [AitilenController::class, 'createDataDienNuocThang'])->name('aitilen.service.createDataDienNuocThang');
 
+     // dau tu (investment costs)
+    Route::post('dau-tu/list', [AitilenDauTuController::class, 'list'])->name('aitilen.dauTu.list');
+    Route::post('dau-tu/add', [AitilenDauTuController::class, 'add'])->name('aitilen.dauTu.add');
+    Route::post('dau-tu/add-bulk', [AitilenDauTuController::class, 'addBulk'])->name('aitilen.dauTu.addBulk');
+    Route::post('dau-tu/update', [AitilenDauTuController::class, 'update'])->name('aitilen.dauTu.update');
+    Route::post('dau-tu/delete', [AitilenDauTuController::class, 'delete'])->name('aitilen.dauTu.delete');
+    Route::post('dau-tu/update-sort-order', [AitilenDauTuController::class, 'updateSortOrder'])->name('aitilen.dauTu.updateSortOrder');
+    Route::post('dau-tu/select-data', [AitilenDauTuController::class, 'selectData'])->name('aitilen.dauTu.selectData');
+    Route::post('dau-tu/report', [AitilenDauTuController::class, 'report'])->name('aitilen.dauTu.report');
+
+
     // apartment
     Route::post('apartment/list', [AitilenController::class, 'apartmentList'])->name('aitilen.apartment.list');
     Route::post('apartment/save', [AitilenController::class, 'saveApartment'])->name('aitilen.apartment.save');
@@ -192,14 +204,11 @@ Route::group(['prefix' => 'aitilen'], function () {
     Route::post('loai-chi/list', [SoQuyController::class, 'getLoaiChi'])->name('aitilen.loaiChi.list');
     Route::post('chi-nhanh/list', [SoQuyController::class, 'getChiNhanh'])->name('aitilen.chiNhanh.list');
     Route::post('admin-users/list', [SoQuyController::class, 'getAdminUsers'])->name('aitilen.adminUsers.list');
-
-
-
-
 });
 
 // contact: api
 Route::group(['prefix' => 'contract'], function () {
+    Route::post('info', [ContractController::class, 'info'])->name('contract.info');
     Route::post('index-api/bds', [ContractController::class, 'indexBds'])->name('contract.index');
     Route::post('update', [ContractController::class, 'update'])->name('contract.update');
     Route::post('fast-edit', [ContractController::class, 'fastEdit'])->name('contract.fastEdit');
@@ -306,4 +315,8 @@ Route::group(['prefix' => 'cong-no'], function () {
     Route::post('statistics', [CongNoController::class, 'apiStatistics'])->name('api.congNo.statistics');
     Route::post('bulk-update-status', [CongNoController::class, 'apiBulkUpdateStatus'])->name('api.congNo.bulkUpdateStatus');
     Route::post('export', [CongNoController::class, 'apiExport'])->name('api.congNo.export');
+});
+
+Route::group(['prefix' => 'user'], function () {
+    Route::post('select-data', [CustomerController::class, 'apiSelectData'])->name('api.user.selectData');
 });

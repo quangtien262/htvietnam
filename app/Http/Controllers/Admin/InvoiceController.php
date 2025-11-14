@@ -147,6 +147,7 @@ class InvoiceController extends Controller
         $invoice->tien_coc = $request->tien_coc;
         $invoice->tra_coc = $request->tra_coc;
         $invoice->giam_gia = $request->giam_gia;
+        $invoice->giam_gia_description = isset($request->giam_gia_description) ? $request->giam_gia_description : '';
 
         if (!empty($request->contract_id)) {
             $contract = Contract::find($request->contract_id);

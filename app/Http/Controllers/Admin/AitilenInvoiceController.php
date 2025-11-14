@@ -518,7 +518,8 @@ class AitilenInvoiceController extends Controller
                 'total_services' => count($serviceList),
                 'serviceList' => $serviceList
             ]);            // Tính tổng cộng
-            $grandTotal = $totalTienPhong + $totalServiceAmount;            $result = [
+            $grandTotal = $totalTienPhong + $totalServiceAmount;
+            $result = [
                 'total_invoices' => $invoices->count(),
                 'total_tien_phong' => $totalTienPhong,
                 'total_service_amount' => $totalServiceAmount,
