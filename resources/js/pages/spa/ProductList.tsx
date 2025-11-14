@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Card, Table, Button, Space, Input, Select, Tag, Modal, Form, InputNumber,
     message, Popconfirm, Upload, Image, Row, Col, Divider, Drawer, Descriptions,
-    Switch, Badge, Alert, Progress, Tooltip, Statistic
+    Switch, Badge, Alert, Progress, Tooltip, Statistic, DatePicker, Checkbox
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SkinOutlined,
@@ -40,10 +40,9 @@ interface Product {
     trang_thai: string;
     is_active?: boolean;
     xuat_xu?: string;
-    thuong_hieu?: string;
     thuong_hieu_id?: number;
     ten_thuong_hieu?: string;
-    han_su_dung?: string;
+    ngay_het_han?: string;
     so_luong_da_ban: number;
     doanh_thu: number;
     created_at: string;
@@ -55,10 +54,19 @@ interface Category {
     mo_ta?: string;
 }
 
+interface Brand {
+    id: number;
+    ten_thuong_hieu: string;
+    color?: string;
+    sort_order?: number;
+    is_active?: boolean;
+}
+
 const ProductList: React.FC = () => {
     // State
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
@@ -83,6 +91,20 @@ const ProductList: React.FC = () => {
     const [imageUrl, setImageUrl] = useState<string>('');
     const [uploading, setUploading] = useState(false);
 
+    // Bulk Add Modal
+    const [bulkAddModalVisible, setBulkAddModalVisible] = useState(false);
+    const [bulkProducts, setBulkProducts] = useState<any[]>([
+        { key: 1, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        { key: 2, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        { key: 3, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+    ]);
+    const [bulkApplyAll, setBulkApplyAll] = useState({
+        danh_muc_id: false,
+        ton_kho: false,
+        don_vi_tinh: false,
+    });
+    const [bulkSubmitting, setBulkSubmitting] = useState(false);
+
     // Stats
     const [stats, setStats] = useState({
         total: 0,
@@ -95,6 +117,7 @@ const ProductList: React.FC = () => {
     useEffect(() => {
         loadProducts();
         loadCategories();
+        loadBrands();
     }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, stockFilter]);
 
     const loadProducts = async () => {
@@ -163,6 +186,21 @@ const ProductList: React.FC = () => {
         }
     };
 
+    const loadBrands = async () => {
+        try {
+            const response = await axios.get(API.spaBrandList);
+            console.log('Brands response:', response.data);
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data;
+                setBrands(Array.isArray(data) ? data : []);
+                console.log('Brands loaded:', data.length);
+            }
+        } catch (error) {
+            console.error('Load brands error:', error);
+        }
+    };
+
     // Handlers
     const handleCreate = () => {
         form.resetFields();
@@ -175,7 +213,7 @@ const ProductList: React.FC = () => {
         setSelectedProduct(record);
         form.setFieldsValue({
             ...record,
-            han_su_dung: record.han_su_dung ? dayjs(record.han_su_dung) : null,
+            han_su_dung: record.ngay_het_han ? dayjs(record.ngay_het_han) : null,
         });
         setImageUrl(record.hinh_anh || '');
         setModalVisible(true);
@@ -274,6 +312,114 @@ const ProductList: React.FC = () => {
         return false;
     };
 
+    // Bulk Add Handlers
+    const handleBulkAdd = () => {
+        setBulkProducts([
+            { key: 1, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+            { key: 2, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+            { key: 3, ten_san_pham: '', danh_muc_id: null, gia_nhap: 0, gia_ban: 0, ton_kho: 0, don_vi_tinh: 'Chai' },
+        ]);
+        setBulkApplyAll({ danh_muc_id: false, ton_kho: false, don_vi_tinh: false });
+        setBulkAddModalVisible(true);
+    };
+
+    const handleBulkAddRow = () => {
+        const newKey = bulkProducts.length > 0 ? Math.max(...bulkProducts.map(p => p.key)) + 1 : 1;
+        setBulkProducts([...bulkProducts, {
+            key: newKey,
+            ten_san_pham: '',
+            danh_muc_id: null,
+            gia_nhap: 0,
+            gia_ban: 0,
+            ton_kho: 0,
+            don_vi_tinh: 'Chai'
+        }]);
+    };
+
+    const handleBulkRemoveRow = (key: number) => {
+        setBulkProducts(bulkProducts.filter(p => p.key !== key));
+    };
+
+    const handleBulkFieldChange = (key: number, field: string, value: any) => {
+        const updated = bulkProducts.map(p => {
+            if (p.key === key) {
+                return { ...p, [field]: value };
+            }
+            return p;
+        });
+
+        // Apply to all if checkbox is checked
+        if (bulkApplyAll[field as keyof typeof bulkApplyAll]) {
+            setBulkProducts(updated.map(p => ({ ...p, [field]: value })));
+        } else {
+            setBulkProducts(updated);
+        }
+    };
+
+    const handleBulkApplyAllChange = (field: string, checked: boolean) => {
+        setBulkApplyAll({ ...bulkApplyAll, [field]: checked });
+        
+        // If checking, apply first item's value to all
+        if (checked && bulkProducts.length > 0) {
+            const firstValue = bulkProducts[0][field as keyof typeof bulkProducts[0]];
+            setBulkProducts(bulkProducts.map(p => ({ ...p, [field]: firstValue })));
+        }
+    };
+
+    const handleBulkSubmit = async () => {
+        // Validate
+        const validProducts = bulkProducts.filter(p => p.ten_san_pham && p.ten_san_pham.trim());
+        
+        if (validProducts.length === 0) {
+            message.error('Vui lòng nhập ít nhất 1 sản phẩm');
+            return;
+        }
+
+        setBulkSubmitting(true);
+        let successCount = 0;
+        let errorCount = 0;
+
+        try {
+            for (const product of validProducts) {
+                try {
+                    const payload = {
+                        ten_san_pham: product.ten_san_pham,
+                        danh_muc_id: product.danh_muc_id,
+                        gia_nhap: product.gia_nhap || 0,
+                        gia_ban: product.gia_ban || 0,
+                        ton_kho: product.ton_kho || 0,
+                        don_vi_tinh: product.don_vi_tinh || 'Chai',
+                    };
+
+                    const response = await axios.post(API.spaProductCreate, payload);
+                    if (response.data.status_code === 200) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (error) {
+                    errorCount++;
+                    console.error('Error creating product:', error);
+                }
+            }
+
+            if (successCount > 0) {
+                message.success(`Tạo thành công ${successCount} sản phẩm`);
+                setBulkAddModalVisible(false);
+                loadProducts();
+            }
+            
+            if (errorCount > 0) {
+                message.warning(`Có ${errorCount} sản phẩm tạo thất bại`);
+            }
+        } catch (error: any) {
+            console.error('Bulk add error:', error);
+            message.error('Có lỗi xảy ra khi thêm sản phẩm');
+        } finally {
+            setBulkSubmitting(false);
+        }
+    };
+
     const getStockStatus = (product: Product) => {
         const tonKho = product.ton_kho ?? 0;
         const tonKhoToiThieu = product.ton_kho_toi_thieu ?? 0;
@@ -332,8 +478,8 @@ const ProductList: React.FC = () => {
                     {record.danh_muc && (
                         <Tag color="blue">{record.danh_muc.ten_danh_muc}</Tag>
                     )}
-                    {record.thuong_hieu && (
-                        <Tag color="purple">{record.thuong_hieu}</Tag>
+                    {record.ten_thuong_hieu && (
+                        <Tag color="purple">{record.ten_thuong_hieu}</Tag>
                     )}
                 </div>
             ),
@@ -609,6 +755,12 @@ const ProductList: React.FC = () => {
                             onClick={() => setViewMode('grid')}
                         />
                         <Button
+                            icon={<PlusOutlined />}
+                            onClick={handleBulkAdd}
+                        >
+                            Thêm nhanh
+                        </Button>
+                        <Button
                             type="primary"
                             icon={<PlusOutlined />}
                             onClick={handleCreate}
@@ -722,9 +874,9 @@ const ProductList: React.FC = () => {
                             <Form.Item
                                 name="ma_san_pham"
                                 label="Mã sản phẩm"
-                                rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
+                                tooltip="Để trống để tự động tạo mã (VD: SP00001)"
                             >
-                                <Input placeholder="VD: SP001" />
+                                <Input placeholder="Tự động (SP00001, SP00002...)" />
                             </Form.Item>
                         </Col>
                         <Col span={16}>
@@ -752,8 +904,31 @@ const ProductList: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="thuong_hieu" label="Thương hiệu">
-                                <Input placeholder="VD: L'Oréal" />
+                            <Form.Item name="thuong_hieu_id" label="Thương hiệu">
+                                <Select
+                                    placeholder="Chọn thương hiệu"
+                                    allowClear
+                                    showSearch
+                                    optionFilterProp="label"
+                                >
+                                    {brands.map(brand => (
+                                        <Option key={brand.id} value={brand.id} label={brand.ten_thuong_hieu}>
+                                            {brand.color && (
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: '50%',
+                                                        backgroundColor: brand.color,
+                                                        marginRight: 8
+                                                    }}
+                                                />
+                                            )}
+                                            {brand.ten_thuong_hieu}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -825,7 +1000,11 @@ const ProductList: React.FC = () => {
                         </Col>
                         <Col span={8}>
                             <Form.Item name="han_su_dung" label="Hạn sử dụng">
-                                <Input type="date" />
+                                <DatePicker
+                                    style={{ width: '100%' }}
+                                    format="DD/MM/YYYY"
+                                    placeholder="Chọn ngày hết hạn"
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -893,7 +1072,7 @@ const ProductList: React.FC = () => {
                             <Descriptions.Item label="Danh mục">
                                 {selectedProduct.danh_muc?.ten_danh_muc || 'N/A'}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Thương hiệu">{selectedProduct.thuong_hieu || 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Thương hiệu">{selectedProduct.ten_thuong_hieu || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="Xuất xứ">{selectedProduct.xuat_xu || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="Giá nhập">
                                 {(selectedProduct.gia_nhap ?? 0).toLocaleString()} VNĐ
@@ -921,9 +1100,9 @@ const ProductList: React.FC = () => {
                             <Descriptions.Item label="Doanh thu">
                                 {(selectedProduct.doanh_thu ?? 0).toLocaleString()} VNĐ
                             </Descriptions.Item>
-                            {selectedProduct.han_su_dung && (
+                            {selectedProduct.ngay_het_han && (
                                 <Descriptions.Item label="Hạn sử dụng">
-                                    {dayjs(selectedProduct.han_su_dung).format('DD/MM/YYYY')}
+                                    {dayjs(selectedProduct.ngay_het_han).format('DD/MM/YYYY')}
                                 </Descriptions.Item>
                             )}
                             <Descriptions.Item label="Ngày tạo">
@@ -940,6 +1119,199 @@ const ProductList: React.FC = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Bulk Add Modal */}
+            <Modal
+                title="Thêm nhanh sản phẩm"
+                open={bulkAddModalVisible}
+                onCancel={() => setBulkAddModalVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="cancel" onClick={() => setBulkAddModalVisible(false)}>
+                        Hủy
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        loading={bulkSubmitting}
+                        onClick={handleBulkSubmit}
+                    >
+                        Lưu tất cả
+                    </Button>,
+                ]}
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <Alert
+                        message="Nhập thông tin sản phẩm vào bảng dưới đây. Chỉ cần nhập Tên sản phẩm là bắt buộc."
+                        type="info"
+                        showIcon
+                        closable
+                    />
+                </div>
+
+                <Table
+                    dataSource={bulkProducts}
+                    pagination={false}
+                    size="small"
+                    scroll={{ x: 1000 }}
+                    rowKey="key"
+                >
+                    <Table.Column
+                        title="STT"
+                        width={60}
+                        render={(_, __, index) => index + 1}
+                    />
+                    <Table.Column
+                        title={<span style={{ color: 'red' }}>* Tên sản phẩm</span>}
+                        dataIndex="ten_san_pham"
+                        width={200}
+                        render={(value, record: any) => (
+                            <Input
+                                value={value}
+                                placeholder="Nhập tên sản phẩm"
+                                onChange={(e) => handleBulkFieldChange(record.key, 'ten_san_pham', e.target.value)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.danh_muc_id}
+                                    onChange={(e) => handleBulkApplyAllChange('danh_muc_id', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Danh mục</div>
+                            </div>
+                        }
+                        dataIndex="danh_muc_id"
+                        width={180}
+                        render={(value, record: any) => (
+                            <Select
+                                value={value}
+                                placeholder="Chọn danh mục"
+                                style={{ width: '100%' }}
+                                allowClear
+                                onChange={(val) => handleBulkFieldChange(record.key, 'danh_muc_id', val)}
+                            >
+                                {categories.map(cat => (
+                                    <Option key={cat.id} value={cat.id}>
+                                        {cat.ten_danh_muc}
+                                    </Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Giá nhập"
+                        dataIndex="gia_nhap"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(val) => val!.replace(/\$\s?|(,*)/g, '') as any}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'gia_nhap', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title="Giá bán"
+                        dataIndex="gia_ban"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(val) => val!.replace(/\$\s?|(,*)/g, '') as any}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'gia_ban', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.ton_kho}
+                                    onChange={(e) => handleBulkApplyAllChange('ton_kho', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Tồn kho</div>
+                            </div>
+                        }
+                        dataIndex="ton_kho"
+                        width={120}
+                        render={(value, record: any) => (
+                            <InputNumber
+                                value={value}
+                                style={{ width: '100%' }}
+                                min={0}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'ton_kho', val || 0)}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <Checkbox
+                                    checked={bulkApplyAll.don_vi_tinh}
+                                    onChange={(e) => handleBulkApplyAllChange('don_vi_tinh', e.target.checked)}
+                                >
+                                    Áp dụng tất cả
+                                </Checkbox>
+                                <div>Đơn vị</div>
+                            </div>
+                        }
+                        dataIndex="don_vi_tinh"
+                        width={140}
+                        render={(value, record: any) => (
+                            <Select
+                                value={value}
+                                style={{ width: '100%' }}
+                                onChange={(val) => handleBulkFieldChange(record.key, 'don_vi_tinh', val)}
+                            >
+                                <Option value="Chai">Chai</Option>
+                                <Option value="Hộp">Hộp</Option>
+                                <Option value="Tuýp">Tuýp</Option>
+                                <Option value="Lọ">Lọ</Option>
+                                <Option value="Cái">Cái</Option>
+                                <Option value="Gói">Gói</Option>
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Thao tác"
+                        width={80}
+                        fixed="right"
+                        render={(_, record: any) => (
+                            <Button
+                                type="link"
+                                danger
+                                size="small"
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleBulkRemoveRow(record.key)}
+                                disabled={bulkProducts.length === 1}
+                            />
+                        )}
+                    />
+                </Table>
+
+                <Button
+                    type="dashed"
+                    block
+                    icon={<PlusOutlined />}
+                    onClick={handleBulkAddRow}
+                    style={{ marginTop: 16 }}
+                >
+                    Thêm hàng
+                </Button>
+            </Modal>
         </div>
     );
 };

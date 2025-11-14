@@ -1389,3 +1389,7 @@ ul.ul-info li {
     border: 1px #faad14 solid;
     padding: 3px 15px;
 }
+
+.ant-table-empty div.ant-table-container {
+    z-index: 1 !important;
+}
