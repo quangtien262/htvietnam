@@ -31,6 +31,13 @@ class CommonSettingController extends Controller
         'loai_hang_hoa',
         'don_vi_hang_hoa',
         'purchase_order_statuses',
+
+        // project
+        'pro___task_statuses',
+        'pro___project_statuses',
+        'pro___priorities',
+        'pro___project_types',
+
     ];
 
     /**

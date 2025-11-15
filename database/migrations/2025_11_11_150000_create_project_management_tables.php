@@ -52,38 +52,38 @@ return new class extends Migration
             $table->unsignedBigInteger('loai_du_an_id')->nullable();
             $table->unsignedBigInteger('trang_thai_id')->default(1);
             $table->unsignedBigInteger('uu_tien_id')->default(2);
-            
+
             // Thông tin khách hàng
             $table->unsignedBigInteger('khach_hang_id')->nullable()->comment('ID từ bảng users');
             $table->string('ten_khach_hang', 255)->nullable();
-            
+
             // Thời gian
             $table->date('ngay_bat_dau')->nullable();
             $table->date('ngay_ket_thuc_du_kien')->nullable();
             $table->date('ngay_ket_thuc_thuc_te')->nullable();
-            
+
             // Ngân sách
             $table->decimal('ngan_sach_du_kien', 15, 2)->default(0);
             $table->decimal('chi_phi_thuc_te', 15, 2)->default(0);
-            
+
             // Tiến độ
             $table->integer('tien_do')->default(0)->comment('% hoàn thành 0-100');
-            
+
             // Người quản lý
             $table->unsignedBigInteger('quan_ly_du_an_id')->nullable()->comment('ID từ bảng admin_users');
-            
+
             // Metadata
             $table->json('tags')->nullable();
             $table->string('mau_sac', 20)->default('#1890ff');
             $table->text('ghi_chu')->nullable();
-            
+
             // Người tạo
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Foreign keys
             $table->foreign('loai_du_an_id')->references('id')->on('pro___project_types')->onDelete('set null');
             $table->foreign('trang_thai_id')->references('id')->on('pro___project_statuses')->onDelete('restrict');
@@ -98,7 +98,7 @@ return new class extends Migration
             $table->enum('vai_tro', ['quan_ly', 'thanh_vien', 'xem'])->default('thanh_vien');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
             $table->unique(['project_id', 'admin_user_id']);
         });
@@ -123,42 +123,42 @@ return new class extends Migration
             $table->string('ma_nhiem_vu', 50)->unique();
             $table->string('tieu_de', 255);
             $table->text('mo_ta')->nullable();
-            
+
             // Phân cấp nhiệm vụ
             $table->unsignedBigInteger('parent_id')->nullable()->comment('Nhiệm vụ cha');
-            
+
             // Trạng thái & Ưu tiên
             $table->unsignedBigInteger('trang_thai_id')->default(1);
             $table->unsignedBigInteger('uu_tien_id')->default(2);
-            
+
             // Phân công
             $table->unsignedBigInteger('nguoi_thuc_hien_id')->nullable()->comment('ID từ admin_users');
             $table->unsignedBigInteger('nguoi_giao_viec_id')->nullable()->comment('ID từ admin_users');
-            
+
             // Thời gian
             $table->dateTime('ngay_bat_dau')->nullable();
             $table->dateTime('ngay_ket_thuc_du_kien')->nullable();
             $table->dateTime('ngay_ket_thuc_thuc_te')->nullable();
             $table->integer('thoi_gian_uoc_tinh')->nullable()->comment('Số giờ ước tính');
             $table->integer('thoi_gian_thuc_te')->nullable()->comment('Số giờ thực tế');
-            
+
             // Tiến độ
             $table->integer('tien_do')->default(0)->comment('% hoàn thành 0-100');
-            
+
             // Metadata
             $table->json('tags')->nullable();
             $table->text('ghi_chu')->nullable();
-            
+
             // Vị trí trong Kanban
             $table->integer('kanban_order')->default(0);
-            
+
             // Người tạo
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Foreign keys
             $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('pro___tasks')->onDelete('set null');
@@ -174,22 +174,38 @@ return new class extends Migration
             $table->enum('loai_phu_thuoc', ['finish_to_start', 'start_to_start', 'finish_to_finish', 'start_to_finish'])
                 ->default('finish_to_start');
             $table->timestamps();
-            
+
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
             $table->foreign('depends_on_task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
             $table->unique(['task_id', 'depends_on_task_id']);
         });
 
-        // Bảng checklist
+        // Bảng checklist cho task
         Schema::create('pro___task_checklists', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
             $table->string('noi_dung', 255);
             $table->boolean('is_completed')->default(false);
+            $table->unsignedBigInteger('assigned_to')->nullable()->comment('ID người được phân công từ admin_users');
+            $table->text('mo_ta')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+        });
+
+        // Bảng checklist cho project
+        Schema::create('pro___project_checklists', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('project_id');
+            $table->string('noi_dung', 255);
+            $table->boolean('is_completed')->default(false);
+            $table->unsignedBigInteger('assigned_to')->nullable()->comment('ID người được phân công từ admin_users');
+            $table->text('mo_ta')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+
+            $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
         });
 
         // Bảng comment
@@ -201,7 +217,7 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable()->comment('Reply to comment');
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('pro___task_comments')->onDelete('cascade');
         });
@@ -216,7 +232,7 @@ return new class extends Migration
             $table->bigInteger('kich_thuoc')->nullable()->comment('Bytes');
             $table->unsignedBigInteger('uploaded_by')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
         });
 
@@ -231,7 +247,7 @@ return new class extends Migration
             $table->json('du_lieu_moi')->nullable();
             $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->timestamps();
-            
+
             $table->index(['loai_doi_tuong', 'doi_tuong_id']);
         });
 
@@ -245,7 +261,7 @@ return new class extends Migration
             $table->integer('so_phut')->nullable()->comment('Tổng số phút làm việc');
             $table->text('ghi_chu')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
         });
     }
@@ -257,6 +273,7 @@ return new class extends Migration
         Schema::dropIfExists('pro___task_attachments');
         Schema::dropIfExists('pro___task_comments');
         Schema::dropIfExists('pro___task_checklists');
+        Schema::dropIfExists('pro___project_checklists');
         Schema::dropIfExists('pro___task_dependencies');
         Schema::dropIfExists('pro___tasks');
         Schema::dropIfExists('pro___task_statuses');

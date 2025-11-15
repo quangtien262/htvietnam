@@ -14,41 +14,28 @@ use App\Http\Controllers\Project\PermissionController;
 
 // Project routes
 Route::prefix('projects')->name('projects.')->group(function () {
-    // Read permissions - Anyone in project can view
-    Route::middleware('project.permission:project.view,id')->group(function () {
-        Route::get('/', [ProjectController::class, 'index'])->name('index')->withoutMiddleware('project.permission');
-        Route::get('/{id}', [ProjectController::class, 'show'])->name('show');
-        Route::get('/dashboard', [ProjectController::class, 'dashboard'])->name('dashboard')->withoutMiddleware('project.permission');
-        Route::get('/{id}/dashboard-stats', [ProjectController::class, 'getDashboardStats'])->name('dashboard_stats');
-    });
+    // Routes that don't require project permission middleware
+    Route::get('/', [ProjectController::class, 'index'])->name('index');
+    Route::post('/', [ProjectController::class, 'store'])->name('store');
+    Route::get('/dashboard', [ProjectController::class, 'dashboard'])->name('dashboard');
+    Route::get('/{id}', [ProjectController::class, 'show'])->name('show');
+    Route::get('/{id}/dashboard-stats', [ProjectController::class, 'getDashboardStats'])->name('dashboard_stats');
 
-    // Create/Update permissions - Only managers and above
-    Route::middleware('project.permission:project.update,id')->group(function () {
-        Route::post('/', [ProjectController::class, 'store'])->name('store')->withoutMiddleware('project.permission');
-        Route::put('/{id}', [ProjectController::class, 'update'])->name('update');
-    });
+    // Update/Delete/Member management - Handled by Policy in Controller
+    Route::put('/{id}', [ProjectController::class, 'update'])->name('update');
+    Route::delete('/{id}', [ProjectController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/members', [ProjectController::class, 'addMember'])->name('add_member');
+    Route::delete('/{id}/members/{memberId}', [ProjectController::class, 'removeMember'])->name('remove_member');
 
-    // Delete permissions - Only admins
-    Route::middleware('project.permission:project.delete,id')->group(function () {
-        Route::delete('/{id}', [ProjectController::class, 'destroy'])->name('destroy');
-    });
-
-    // Member management - Only managers and above
-    Route::middleware('project.permission:project.manage_members,id')->group(function () {
-        Route::post('/{id}/members', [ProjectController::class, 'addMember'])->name('add_member');
-        Route::delete('/{id}/members/{memberId}', [ProjectController::class, 'removeMember'])->name('remove_member');
-    });
-
-    // Project attachments - Members can upload
-    Route::middleware('project.permission:attachment.create,id')->group(function () {
-        Route::post('/{id}/attachments', [ProjectController::class, 'uploadAttachment'])->name('upload_attachment');
-    });
+    // Project attachments
+    Route::post('/{id}/attachments', [ProjectController::class, 'uploadAttachment'])->name('upload_attachment');
 });
 
 // Task routes
 Route::prefix('tasks')->name('tasks.')->group(function () {
     // View tasks
     Route::get('/', [TaskController::class, 'index'])->name('index');
+    Route::get('/my-tasks', [TaskController::class, 'getMyTasks'])->name('my_tasks');
     Route::get('/kanban/{projectId}', [TaskController::class, 'kanban'])->name('kanban');
     Route::get('/gantt/{projectId}', [TaskController::class, 'gantt'])->name('gantt');
     Route::get('/{id}', [TaskController::class, 'show'])->name('show');
@@ -136,3 +123,56 @@ Route::prefix('rbac')->name('rbac.')->group(function () {
     Route::get('projects/{projectId}/user-permissions', [PermissionController::class, 'getUserPermissions'])->name('user_permissions');
 });
 
+// Daily Report Routes
+Route::prefix('reports')->name('reports.')->group(function () {
+    // Get my daily report (auto-generated from time logs, tasks, activities)
+    Route::get('daily/{date?}', [App\Http\Controllers\Project\ReportController::class, 'getMyDailyReport'])->name('my_daily');
+
+    // Submit/update daily report
+    Route::post('daily', [App\Http\Controllers\Project\ReportController::class, 'submitDailyReport'])->name('submit_daily');
+
+    // Get daily report history
+    Route::get('daily-history', [App\Http\Controllers\Project\ReportController::class, 'getDailyHistory'])->name('daily_history');
+
+    // Get my statistics
+    Route::get('my-stats', [App\Http\Controllers\Project\ReportController::class, 'getMyStats'])->name('my_stats');
+
+    // Manager view: Get team daily reports
+    Route::get('team-daily/{date?}', [App\Http\Controllers\Project\ReportController::class, 'getTeamDailyReports'])->name('team_daily');
+
+    // Manager view: Get user daily report detail
+    Route::get('user-daily/{userId}/{date?}', [App\Http\Controllers\Project\ReportController::class, 'getUserDailyReport'])->name('user_daily');
+
+    // Manager: Approve user daily report
+    Route::post('approve-report/{userId}/{date}', [App\Http\Controllers\Project\ReportController::class, 'approveDailyReport'])->name('approve_report');
+});// Meeting Routes
+Route::prefix('meetings')->name('meetings.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Project\MeetingController::class, 'index'])->name('index');
+    Route::get('/{id}', [App\Http\Controllers\Project\MeetingController::class, 'show'])->name('show');
+    Route::post('/', [App\Http\Controllers\Project\MeetingController::class, 'store'])->name('store');
+    Route::put('/{id}', [App\Http\Controllers\Project\MeetingController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Project\MeetingController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/quick-update', [App\Http\Controllers\Project\MeetingController::class, 'quickUpdate'])->name('quick_update');
+});
+
+// Meeting actions - Add project/task to meeting
+Route::post('/meetings/add-project', [App\Http\Controllers\Project\MeetingController::class, 'addProjectToMeeting'])->name('meetings.add_project');
+Route::post('/meetings/add-task', [App\Http\Controllers\Project\MeetingController::class, 'addTaskToMeeting'])->name('meetings.add_task');
+
+// Meeting reference data
+Route::get('/meeting-statuses', [App\Http\Controllers\Project\MeetingController::class, 'getStatuses']);
+
+// Notification Routes
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Project\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [App\Http\Controllers\Project\NotificationController::class, 'getUnreadCount'])->name('unread_count');
+    Route::post('/{id}/read', [App\Http\Controllers\Project\NotificationController::class, 'markAsRead'])->name('mark_read');
+    Route::post('/read-all', [App\Http\Controllers\Project\NotificationController::class, 'markAllAsRead'])->name('mark_all_read');
+});
+
+// Task Supporters Routes
+Route::prefix('tasks/{taskId}/supporters')->name('tasks.supporters.')->group(function () {
+    Route::post('/', [TaskController::class, 'addSupporters'])->name('add');
+    Route::put('/', [TaskController::class, 'updateSupporters'])->name('update');
+    Route::delete('/{userId}', [TaskController::class, 'removeSup porter'])->name('remove');
+});

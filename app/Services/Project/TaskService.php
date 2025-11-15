@@ -29,10 +29,12 @@ class TaskService
             'trangThai',
             'uuTien',
             'nguoiThucHien',
-            'project',
+            'nguoiGiaoViec',
+            'supporters',
+            'project.members',
             'parent',
             'checklists' => function ($query) {
-                $query->orderBy('sort_order');
+                $query->with('assignedUser')->orderBy('sort_order');
             },
             'comments' => function ($query) {
                 $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
@@ -58,6 +60,24 @@ class TaskService
             'project',
             'parent'
         ]);
+
+        // Filter by user access - only show tasks from projects user has access to
+        $userId = auth('admin_users')->id();
+        if ($userId && $userId !== 1) { // Skip filter for super admin (ID = 1)
+            $query->whereHas('project', function($projectQuery) use ($userId) {
+                $projectQuery->where(function($q) use ($userId) {
+                    // Projects where user is PM
+                    $q->where('quan_ly_du_an_id', $userId)
+                      // Or projects where user is a member
+                      ->orWhereHas('members', function($memberQuery) use ($userId) {
+                          $memberQuery->where('admin_user_id', $userId)
+                                      ->where('is_active', true);
+                      })
+                      // Or projects created by user
+                      ->orWhere('created_by', $userId);
+                });
+            });
+        }
 
         // Filter by project
         if (!empty($params['project_id'])) {
@@ -171,6 +191,7 @@ class TaskService
                     TaskChecklist::create([
                         'task_id' => $task->id,
                         'noi_dung' => $checklist['noi_dung'],
+                        'assigned_to' => $checklist['assigned_to'] ?? null,
                         'sort_order' => $index,
                         'is_completed' => false,
                     ]);
@@ -213,6 +234,8 @@ class TaskService
                     $created = TaskChecklist::create([
                         'task_id' => $id,
                         'noi_dung' => $checklist['noi_dung'],
+                        'assigned_to' => $checklist['assigned_to'] ?? null,
+                        'mo_ta' => $checklist['mo_ta'] ?? null,
                         'sort_order' => isset($checklist['sort_order']) ? $checklist['sort_order'] : 0,
                         'is_completed' => $checklist['is_completed'] ?? false,
                     ]);
@@ -228,13 +251,27 @@ class TaskService
 
             DB::commit();
 
-            // Re-query task from DB with all relationships to get updated checklists
+            // Re-query task from DB with all relationships to get updated data
             $updatedTask = Task::with([
                 'trangThai',
                 'uuTien',
                 'nguoiThucHien',
+                'project.members',
+                'parent',
                 'checklists' => function ($query) {
-                    $query->orderBy('sort_order');
+                    $query->with('assignedUser')->orderBy('sort_order');
+                },
+                'comments' => function ($query) {
+                    $query->with('adminUser')->whereNull('parent_id')->orderBy('created_at', 'desc');
+                },
+                'comments.replies' => function ($query) {
+                    $query->with('adminUser')->orderBy('created_at', 'asc');
+                },
+                'attachments' => function ($query) {
+                    $query->with('uploader')->orderBy('created_at', 'desc');
+                },
+                'timeLogs' => function ($query) {
+                    $query->with('user')->orderBy('started_at', 'desc');
                 }
             ])->find($id);
 

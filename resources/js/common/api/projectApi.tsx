@@ -137,6 +137,15 @@ export const taskApi = {
     },
 
     /**
+     * Get all tasks assigned to current user across all projects
+     * @param params - Filter parameters (project_id, status_id, priority_id, search, etc.)
+     * @returns Promise with paginated task list for current user
+     */
+    getMyTasks: (params?: any) => {
+        return axios.get(`${API_BASE}/tasks/my-tasks`, { params });
+    },
+
+    /**
      * Get single task by ID with all relationships
      * @param id - Task ID
      * @returns Promise with task details (checklists, comments, attachments, time logs)
@@ -276,6 +285,85 @@ export const taskApi = {
     getRunningTimer: () => {
         return axios.get(`${API_BASE}/time/running`);
     },
+
+    // ========================================
+    // SUPPORTERS METHODS
+    // ========================================
+
+    /**
+     * Add supporters to a task
+     * @param taskId - Task ID
+     * @param supporterIds - Array of admin user IDs
+     * @returns Promise with success message
+     */
+    addSupporters: (taskId: number, supporterIds: number[]) => {
+        return axios.post(`${API_BASE}/tasks/${taskId}/supporters`, { supporter_ids: supporterIds });
+    },
+
+    /**
+     * Update supporters for a task (replaces existing)
+     * @param taskId - Task ID
+     * @param supporterIds - Array of admin user IDs
+     * @returns Promise with success message
+     */
+    updateSupporters: (taskId: number, supporterIds: number[]) => {
+        return axios.put(`${API_BASE}/tasks/${taskId}/supporters`, { supporter_ids: supporterIds });
+    },
+
+    /**
+     * Remove a supporter from a task
+     * @param taskId - Task ID
+     * @param userId - Admin user ID to remove
+     * @returns Promise with success message
+     */
+    removeSupporter: (taskId: number, userId: number) => {
+        return axios.delete(`${API_BASE}/tasks/${taskId}/supporters/${userId}`);
+    },
+};
+
+// ============================================
+// NOTIFICATION APIs
+// ============================================
+
+/**
+ * Notification API methods
+ *
+ * Real-time notifications for project/task changes
+ */
+export const notificationApi = {
+    /**
+     * Get notifications for current user
+     * @param type - Filter by type ('unread' or 'all')
+     * @returns Promise with notifications list
+     */
+    getNotifications: (type: 'unread' | 'all' = 'all') => {
+        return axios.get(`${API_BASE}/notifications`, { params: { type } });
+    },
+
+    /**
+     * Get unread notification count
+     * @returns Promise with count
+     */
+    getUnreadCount: () => {
+        return axios.get(`${API_BASE}/notifications/unread-count`);
+    },
+
+    /**
+     * Mark a notification as read
+     * @param id - Notification ID
+     * @returns Promise with success message
+     */
+    markAsRead: (id: number) => {
+        return axios.post(`${API_BASE}/notifications/${id}/read`);
+    },
+
+    /**
+     * Mark all notifications as read
+     * @returns Promise with success message
+     */
+    markAllAsRead: () => {
+        return axios.post(`${API_BASE}/notifications/read-all`);
+    },
 };
 
 // ============================================
@@ -307,10 +395,179 @@ export const referenceApi = {
     getAdminUsers: () => {
         return axios.get(`${API_BASE}/admin-users`);
     },
+
+    // Get all projects (for filters)
+    getProjects: () => {
+        return axios.get(`${API_BASE}/projects`);
+    },
+};
+
+// ============================================
+// REPORT APIs
+// ============================================
+
+/**
+ * Report API methods
+ *
+ * Daily work reports and statistics
+ */
+export const reportApi = {
+    /**
+     * Get my daily report (auto-generated from time logs, tasks, activities)
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with daily report data
+     */
+    getMyDailyReport: (date?: string) => {
+        const url = date ? `${API_BASE}/reports/daily/${date}` : `${API_BASE}/reports/daily`;
+        return axios.get(url);
+    },
+
+    /**
+     * Submit/update daily report
+     * @param data - Report data (report_date, notes, blockers, plan_tomorrow, status)
+     * @returns Promise with submission confirmation
+     */
+    submitDailyReport: (data: any) => {
+        return axios.post(`${API_BASE}/reports/daily`, data);
+    },
+
+    /**
+     * Get daily report history
+     * @param params - Filter parameters (start_date, end_date)
+     * @returns Promise with report history
+     */
+    getDailyHistory: (params?: any) => {
+        return axios.get(`${API_BASE}/reports/daily-history`, { params });
+    },
+
+    /**
+     * Get my statistics (week/month/year)
+     * @param period - Period filter ('week', 'month', 'year')
+     * @returns Promise with statistics
+     */
+    getMyStats: (period?: string) => {
+        return axios.get(`${API_BASE}/reports/my-stats`, { params: { period } });
+    },
+
+    /**
+     * Get team daily reports (for managers)
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with team reports
+     */
+    getTeamDailyReports: (date?: string) => {
+        const url = date ? `${API_BASE}/reports/team-daily/${date}` : `${API_BASE}/reports/team-daily`;
+        return axios.get(url);
+    },
+
+    /**
+     * Get user daily report detail (for managers)
+     * @param userId - User ID
+     * @param date - Date in format YYYY-MM-DD (optional, default: today)
+     * @returns Promise with user report detail
+     */
+    getUserDailyReport: (userId: number, date?: string) => {
+        const url = date
+            ? `${API_BASE}/reports/user-daily/${userId}/${date}`
+            : `${API_BASE}/reports/user-daily/${userId}`;
+        return axios.get(url);
+    },
+
+    /**
+     * Approve user daily report (for managers)
+     * @param userId - User ID
+     * @param date - Date in format YYYY-MM-DD
+     * @returns Promise with approval confirmation
+     */
+    approveDailyReport: (userId: number, date: string) => {
+        return axios.post(`${API_BASE}/reports/approve-report/${userId}/${date}`);
+    },
+};
+
+// ============================================
+// MEETING APIs
+// ============================================
+
+/**
+ * Meeting API methods
+ */
+export const meetingApi = {
+    /**
+     * Get paginated list of meetings with filters
+     */
+    getList: (params?: any) => {
+        return axios.get(`${API_BASE}/meetings`, { params });
+    },
+
+    /**
+     * Get single meeting by ID
+     */
+    getById: (id: number) => {
+        return axios.get(`${API_BASE}/meetings/${id}`);
+    },
+
+    /**
+     * Create new meeting
+     */
+    create: (data: any) => {
+        return axios.post(`${API_BASE}/meetings`, data);
+    },
+
+    /**
+     * Update meeting
+     */
+    update: (id: number, data: any) => {
+        return axios.put(`${API_BASE}/meetings/${id}`, data);
+    },
+
+    /**
+     * Delete meeting
+     */
+    delete: (id: number) => {
+        return axios.delete(`${API_BASE}/meetings/${id}`);
+    },
+
+    /**
+     * Quick update single field
+     */
+    quickUpdate: (id: number, field: string, value: any) => {
+        return axios.post(`${API_BASE}/meetings/${id}/quick-update`, { field, value });
+    },
+
+    /**
+     * Get meeting statuses
+     */
+    getStatuses: () => {
+        return axios.get(`${API_BASE}/meeting-statuses`);
+    },
+
+    /**
+     * Add project to meeting (auto-create or update)
+     */
+    addProject: (projectId: number, meetingType: string, note?: string) => {
+        return axios.post(`${API_BASE}/meetings/add-project`, {
+            project_id: projectId,
+            meeting_type: meetingType,
+            note,
+        });
+    },
+
+    /**
+     * Add task to meeting (auto-create or update)
+     */
+    addTask: (taskId: number, meetingType: string, note?: string) => {
+        return axios.post(`${API_BASE}/meetings/add-task`, {
+            task_id: taskId,
+            meeting_type: meetingType,
+            note,
+        });
+    },
 };
 
 export default {
     projectApi,
     taskApi,
+    notificationApi,
     referenceApi,
+    reportApi,
+    meetingApi,
 };

@@ -56,12 +56,17 @@ const ProjectDetailDashboard: React.FC<ProjectDetailDashboardProps> = ({ project
                 params.den_ngay = dateRange[1].format('YYYY-MM-DD');
             }
 
+            console.log('[ProjectDetailDashboard] Loading stats for project:', projectId);
             const response = await projectApi.getDashboardStats(projectId, params);
+            console.log('[ProjectDetailDashboard] Stats response:', response.data);
             if (response.data.success) {
                 setStats(response.data.data);
+            } else {
+                console.error('[ProjectDetailDashboard] API returned success=false:', response.data);
             }
-        } catch (error) {
-            console.error('Error loading dashboard stats:', error);
+        } catch (error: any) {
+            console.error('[ProjectDetailDashboard] Error loading dashboard stats:', error);
+            console.error('[ProjectDetailDashboard] Error response:', error.response?.data);
         } finally {
             setLoading(false);
         }

@@ -1,0 +1,49 @@
+/* Project Task Table Styles */
+.task-row-completed {
+    background-color: #f6ffed !important;
+    opacity: 0.85;
+}
+
+.task-row-completed:hover {
+    background-color: #f0f9ff !important;
+}
+
+.ant-table-tbody > tr:hover {
+    background-color: #fafafa !important;
+    transition: background-color 0.2s ease;
+}
+
+.ant-table-tbody > tr {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ant-table-tbody > tr:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Kanban Card Hover Effect */
+.ant-card-hoverable:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px);
+}
+
+/* Custom Scrollbar for Kanban */
+.ant-card ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.ant-card ::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.ant-card ::-webkit-scrollbar-thumb {
+    background: #bfbfbf;
+    border-radius: 4px;
+}
+
+.ant-card ::-webkit-scrollbar-thumb:hover {
+    background: #8c8c8c;
+}

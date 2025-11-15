@@ -151,9 +151,17 @@ export const ROUTE = {
     project_kanban: `${baseRoute}project/:id/kanban/`,
     project_gantt: `${baseRoute}project/:id/gantt/`,
     project_tasks: `${baseRoute}project/:id/tasks/`,
+    project_my_tasks: `${baseRoute}project/my-tasks/`,
     project_permissions: `${baseRoute}project/:id/permissions/`,
     project_settings: `${baseRoute}project/settings/`,
     project_guide: `${baseRoute}project/guide/`,
+    project_meetings: `${baseRoute}project/meetings/`,
+
+    // Daily Report - Báo cáo công việc hàng ngày
+    daily_report: `${baseRoute}project/daily-report/`,
+    daily_report_history: `${baseRoute}project/daily-report/history/`,
+    daily_report_stats: `${baseRoute}project/daily-report/stats/`,
+    daily_report_team: `${baseRoute}project/daily-report/team/`,
 };
 
 export default ROUTE;

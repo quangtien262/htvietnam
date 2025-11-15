@@ -72,7 +72,10 @@ const ProjectPermissionsPage: React.FC<ProjectPermissionsPageProps> = ({ project
 
             // Fetch available roles
             const rolesRes = await axios.get('/project/api/rbac/roles');
-            setRoles(rolesRes.data.data || []);
+            console.log('🔍 Roles API Response:', rolesRes.data);
+            const rolesData = rolesRes.data.data || [];
+            console.log('📋 Roles Data:', rolesData, 'Length:', rolesData.length);
+            setRoles(rolesData);
 
             // Fetch permissions (for info only)
             const permissionsRes = await axios.get('/project/api/rbac/permissions');
@@ -410,6 +413,7 @@ const ProjectPermissionsPage: React.FC<ProjectPermissionsPageProps> = ({ project
                 onCancel={() => setIsAddMemberModalVisible(false)}
                 okText="Thêm & Phân quyền"
                 cancelText="Hủy"
+                maskClosable={false}
                 confirmLoading={loading}
                 width={600}
             >
@@ -449,35 +453,44 @@ const ProjectPermissionsPage: React.FC<ProjectPermissionsPageProps> = ({ project
                     <div>
                         <p><b className="block mb-3 font-medium">Chọn Role:</b></p>
 
-                        <Radio.Group 
-                            value={selectedRole} 
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                            className="w-full"
-                        >
-                            <Space direction="vertical" className="w-full">
-                                {roles.map((role) => (
-                                    <Radio key={role.id} value={role.id} className="w-full">
-                                        <div className="flex items-start justify-between w-full py-2">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium">{role.display_name}</span>
-                                                    <Tag color={getRolePriorityColor(role.priority)} className="ml-2">
-                                                        Priority: {role.priority}
-                                                    </Tag>
+                        {roles.length === 0 ? (
+                            <div className="p-4 bg-gray-50 rounded text-center">
+                                <Empty
+                                    description="Không có role nào khả dụng. Vui lòng kiểm tra cấu hình RBAC."
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                />
+                            </div>
+                        ) : (
+                            <Radio.Group
+                                value={selectedRole}
+                                onChange={(e) => setSelectedRole(e.target.value)}
+                                className="w-full"
+                            >
+                                <Space direction="vertical" className="w-full">
+                                    {roles.map((role) => (
+                                        <Radio key={role.id} value={role.id} className="w-full">
+                                            <div className="flex items-start justify-between w-full py-2">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium">{role.display_name}</span>
+                                                        <Tag color={getRolePriorityColor(role.priority)} className="ml-2">
+                                                            Priority: {role.priority}
+                                                        </Tag>
 
-                                                    {showInfo(role.description)}
+                                                        {showInfo(role.description)}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Radio>
-                                ))}
-                            </Space>
-                        </Radio.Group>
+                                        </Radio>
+                                    ))}
+                                </Space>
+                            </Radio.Group>
+                        )}
                     </div>
 
                     <div className="p-3 bg-yellow-50 rounded">
                         <p className="text-xs text-yellow-700">
-                            <strong>Lưu ý:</strong> Chỉ có thể phân quyền role có priority thấp hơn role của bạn. 
+                            <strong>Lưu ý:</strong> Chỉ có thể phân quyền role có priority thấp hơn role của bạn.
                             Tất cả thành viên được chọn sẽ nhận cùng một role.
                         </p>
                     </div>

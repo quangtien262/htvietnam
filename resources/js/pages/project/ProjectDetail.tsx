@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined } from '@ant-design/icons';
+import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge, Checkbox, Dropdown, Popconfirm } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { projectApi, taskApi, referenceApi } from '../../common/api/projectApi';
-import { Project, ActivityLog, Task } from '../../types/project';
+import { projectApi, taskApi, referenceApi, meetingApi } from '../../common/api/projectApi';
+import { Project, ActivityLog, Task, ProjectChecklist } from '../../types/project';
 import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
 import ProjectAttachments from '../../components/project/ProjectAttachments';
@@ -49,6 +49,27 @@ const ProjectDetail: React.FC = () => {
     const [addMemberForm] = Form.useForm();
     const [allAdminUsers, setAllAdminUsers] = useState<any[]>([]);
 
+    // Add to Meeting Modal
+    const [addToMeetingModalVisible, setAddToMeetingModalVisible] = useState(false);
+    const [addToMeetingForm] = Form.useForm();
+    const [addingToMeeting, setAddingToMeeting] = useState(false);
+
+    // Quick Add Tasks Modal
+    const [quickAddModalVisible, setQuickAddModalVisible] = useState(false);
+    const [quickAddTasks, setQuickAddTasks] = useState<any[]>([
+        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+    ]);
+    const [applyAllStatus, setApplyAllStatus] = useState(true);
+    const [applyAllAssignee, setApplyAllAssignee] = useState(true);
+    const [applyAllPriority, setApplyAllPriority] = useState(true);
+    const [quickAddLoading, setQuickAddLoading] = useState(false);
+
+    // Active tab state - to preserve tab after reload
+    const [activeTabKey, setActiveTabKey] = useState<string>('tasks');
+
     // Handle window resize for responsive view mode
     useEffect(() => {
         const handleResize = () => {
@@ -70,6 +91,20 @@ const ProjectDetail: React.FC = () => {
             loadReferenceData();
         }
     }, [id]);
+
+    // Handle opening task detail from URL query param (from notification)
+    useEffect(() => {
+        const taskIdParam = searchParams.get('task');
+        if (taskIdParam && project) {
+            const taskId = Number(taskIdParam);
+            if (taskId) {
+                setDetailTaskId(taskId);
+                setDetailVisible(true);
+                // Remove query param after opening
+                navigate(`/project/detail/${id}`, { replace: true });
+            }
+        }
+    }, [searchParams, project, id, navigate]);
 
     useEffect(() => {
         if (id && taskStatuses.length > 0 && taskViewMode === 'kanban') {
@@ -104,14 +139,20 @@ const ProjectDetail: React.FC = () => {
 
         setLoading(true);
         try {
+            console.log('[ProjectDetail] Loading project:', id);
             const response = await projectApi.getById(Number(id));
 
+            console.log('[ProjectDetail] Project response:', response.data);
             if (response.data.success) {
                 setProject(response.data.data);
                 // Set project members for task assignment
                 setProjectMembers(response.data.data.members || []);
+            } else {
+                console.error('[ProjectDetail] API returned success=false:', response.data);
+                message.error(response.data.message || 'Không thể tải thông tin dự án');
             }
         } catch (error: any) {
+            console.error('[ProjectDetail] Error loading project:', error);
             message.error(error.response?.data?.message || 'Không thể tải thông tin dự án');
         } finally {
             setLoading(false);
@@ -159,7 +200,9 @@ const ProjectDetail: React.FC = () => {
 
         setKanbanLoading(true);
         try {
+            console.log('[ProjectDetail] Loading kanban data for project:', id);
             const response = await taskApi.getKanban(Number(id));
+            console.log('[ProjectDetail] Kanban response:', response.data);
             if (response.data.success) {
                 const data = response.data.data;
 
@@ -170,8 +213,12 @@ const ProjectDetail: React.FC = () => {
                 });
 
                 setKanbanData(kanban);
+            } else {
+                console.error('[ProjectDetail] Kanban API returned success=false:', response.data);
+                message.error(response.data.message || 'Không thể tải dữ liệu kanban');
             }
         } catch (error: any) {
+            console.error('[ProjectDetail] Error loading kanban:', error);
             message.error(error.response?.data?.message || 'Không thể tải dữ liệu kanban');
             // Initialize empty arrays on error
             const kanban: { [key: number]: Task[] } = {};
@@ -232,7 +279,8 @@ const ProjectDetail: React.FC = () => {
         try {
             await taskApi.updateStatus(taskId, destStatusId, destination.index);
             message.success('Cập nhật trạng thái thành công');
-            loadProject(); // Reload to update task counts
+            // Don't reload entire project to avoid loading spinner
+            // Task status already updated optimistically in UI
         } catch (error: any) {
             message.error('Không thể cập nhật trạng thái');
             // Revert on error
@@ -249,15 +297,35 @@ const ProjectDetail: React.FC = () => {
     const handleAddMember = async () => {
         try {
             const values = await addMemberForm.validateFields();
+            const { admin_user_ids, vai_tro, ngay_tham_gia } = values;
 
-            const response = await projectApi.addMember(Number(id), values);
+            // Add members sequentially
+            let successCount = 0;
+            let errorCount = 0;
 
-            if (response.data.success) {
-                message.success('Thêm thành viên thành công');
-                setAddMemberModalVisible(false);
-                addMemberForm.resetFields();
-                loadProject(); // Reload to show new member
+            for (const userId of admin_user_ids) {
+                try {
+                    await projectApi.addMember(Number(id), {
+                        admin_user_id: userId,
+                        vai_tro,
+                        ngay_tham_gia,
+                    });
+                    successCount++;
+                } catch (error) {
+                    errorCount++;
+                }
             }
+
+            if (successCount > 0) {
+                message.success(`Đã thêm ${successCount} thành viên thành công`);
+            }
+            if (errorCount > 0) {
+                message.warning(`${errorCount} thành viên không thể thêm (có thể đã tồn tại)`);
+            }
+
+            setAddMemberModalVisible(false);
+            addMemberForm.resetFields();
+            loadProject(); // Reload to show new members
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể thêm thành viên');
         }
@@ -274,6 +342,324 @@ const ProjectDetail: React.FC = () => {
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể xóa thành viên');
         }
+    };
+
+    const handleAddToMeeting = async () => {
+        if (!project) return;
+
+        try {
+            setAddingToMeeting(true);
+            const values = await addToMeetingForm.validateFields();
+
+            const response = await meetingApi.addProject(
+                project.id,
+                values.meeting_type,
+                values.note
+            );
+
+            if (response.data.success) {
+                message.success(response.data.message);
+                setAddToMeetingModalVisible(false);
+                addToMeetingForm.resetFields();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể thêm vào meeting');
+        } finally {
+            setAddingToMeeting(false);
+        }
+    };
+
+    const handleQuickAddTasks = async () => {
+        // Validate: at least one task must have a title
+        const validTasks = quickAddTasks.filter(task => task.tieu_de && task.tieu_de.trim() !== '');
+
+        if (validTasks.length === 0) {
+            message.warning('Vui lòng nhập ít nhất 1 tiêu đề nhiệm vụ');
+            return;
+        }
+
+        // Validate: all valid tasks must have status and priority
+        const invalidTasks = validTasks.filter(task => !task.trang_thai_id || !task.uu_tien_id);
+        if (invalidTasks.length > 0) {
+            message.error('Vui lòng chọn trạng thái và ưu tiên cho tất cả nhiệm vụ');
+            return;
+        }
+
+        setQuickAddLoading(true);
+        try {
+            // Create tasks sequentially
+            for (const task of validTasks) {
+                await taskApi.create({
+                    ...task,
+                    project_id: Number(id),
+                });
+            }
+
+            message.success(`Đã tạo ${validTasks.length} nhiệm vụ thành công`);
+            setQuickAddModalVisible(false);
+            // Reset form
+            setQuickAddTasks([
+                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+            ]);
+            setApplyAllStatus(false);
+            setApplyAllAssignee(false);
+            setApplyAllPriority(false);
+            loadProject();
+            if (taskViewMode === 'kanban') {
+                loadKanbanData();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể tạo nhiệm vụ');
+        } finally {
+            setQuickAddLoading(false);
+        }
+    };
+
+    const updateQuickAddTask = (index: number, field: string, value: any) => {
+        const newTasks = [...quickAddTasks];
+        newTasks[index] = { ...newTasks[index], [field]: value };
+
+        // Apply to all if checkbox is checked
+        if (applyAllStatus && field === 'trang_thai_id') {
+            newTasks.forEach((task, i) => {
+                newTasks[i] = { ...newTasks[i], trang_thai_id: value };
+            });
+        }
+
+        if (applyAllAssignee && field === 'nguoi_thuc_hien_id') {
+            newTasks.forEach((task, i) => {
+                newTasks[i] = { ...newTasks[i], nguoi_thuc_hien_id: value };
+            });
+        }
+
+        if (applyAllPriority && field === 'uu_tien_id') {
+            newTasks.forEach((task, i) => {
+                newTasks[i] = { ...newTasks[i], uu_tien_id: value };
+            });
+        }
+
+        setQuickAddTasks(newTasks);
+    };
+
+    const addQuickAddTaskRow = () => {
+        setQuickAddTasks([
+            ...quickAddTasks,
+            { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' }
+        ]);
+    };
+
+    const removeQuickAddTaskRow = (index: number) => {
+        if (quickAddTasks.length > 1) {
+            setQuickAddTasks(quickAddTasks.filter((_, i) => i !== index));
+        }
+    };
+
+    const renderChecklistTab = () => {
+        const checklists = project?.checklists || [];
+
+        const handleToggleChecklist = async (checklistId: number, isCompleted: boolean) => {
+            try {
+                const updatedChecklists = checklists.map(item =>
+                    item.id === checklistId ? { ...item, is_completed: isCompleted } : item
+                );
+
+                const response = await projectApi.update(project!.id, { checklists: updatedChecklists });
+
+                // Update project state without full reload
+                if (response.data.success && response.data.data) {
+                    setProject(response.data.data);
+                }
+                message.success('Cập nhật checklist thành công');
+            } catch (error) {
+                message.error('Cập nhật checklist thất bại');
+            }
+        };
+
+        const handleUpdateChecklist = async (checklistId: number, field: string, value: any) => {
+            try {
+                const updatedChecklists = checklists.map(item =>
+                    item.id === checklistId ? { ...item, [field]: value } : item
+                );
+
+                const response = await projectApi.update(project!.id, { checklists: updatedChecklists });
+
+                // Update project state without full reload
+                if (response.data.success && response.data.data) {
+                    setProject(response.data.data);
+                }
+                message.success('Cập nhật checklist thành công');
+            } catch (error) {
+                message.error('Cập nhật checklist thất bại');
+            }
+        };
+
+        const handleDeleteChecklist = async (checklistId: number) => {
+            try {
+                const updatedChecklists = checklists.filter(item => item.id !== checklistId);
+                const response = await projectApi.update(project!.id, { checklists: updatedChecklists });
+
+                // Update project state without full reload
+                if (response.data.success && response.data.data) {
+                    setProject(response.data.data);
+                }
+                message.success('Xóa checklist thành công');
+            } catch (error) {
+                message.error('Xóa checklist thất bại');
+            }
+        };
+
+        const handleAddChecklist = async () => {
+            try {
+                const newChecklist = {
+                    noi_dung: 'Checklist mới',
+                    is_completed: false,
+                    assigned_to: null,
+                    mo_ta: '',
+                    sort_order: 0,
+                };
+
+                // Add new checklist at the beginning and update sort_order for existing ones
+                const updatedChecklists = [
+                    newChecklist,
+                    ...checklists.map((item, index) => ({
+                        ...item,
+                        sort_order: index + 1,
+                    })),
+                ];
+
+                const response = await projectApi.update(project!.id, {
+                    checklists: updatedChecklists
+                });
+
+                // Update project state without full reload
+                if (response.data.success && response.data.data) {
+                    setProject(response.data.data);
+                }
+                message.success('Thêm checklist thành công');
+            } catch (error) {
+                message.error('Thêm checklist thất bại');
+            }
+        };
+
+        return (
+            <Card
+                extra={
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddChecklist}>
+                        Thêm checklist
+                    </Button>
+                }
+            >
+                {checklists.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {checklists.map((item: ProjectChecklist) => (
+                            <div
+                                key={item.id}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    padding: '12px',
+                                    border: '1px solid #f0f0f0',
+                                    borderRadius: '8px',
+                                    backgroundColor: item.is_completed ? '#f6ffed' : '#fff',
+                                }}
+                            >
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <Checkbox
+                                            checked={item.is_completed}
+                                            onChange={(e) => handleToggleChecklist(item.id, e.target.checked)}
+                                        />
+                                        <Input
+                                            defaultValue={item.noi_dung}
+                                            onBlur={(e) => {
+                                                if (e.target.value !== item.noi_dung) {
+                                                    handleUpdateChecklist(item.id, 'noi_dung', e.target.value);
+                                                }
+                                            }}
+                                            onPressEnter={(e) => {
+                                                e.currentTarget.blur();
+                                            }}
+                                            style={{
+                                                flex: 1,
+                                                textDecoration: item.is_completed ? 'line-through' : 'none',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: 0,
+                                            }}
+                                        />
+                                        <Select
+                                            value={item.assigned_to}
+                                            onChange={(value) => handleUpdateChecklist(item.id, 'assigned_to', value)}
+                                            placeholder="Chọn người thực hiện"
+                                            style={{ width: 200 }}
+                                            allowClear
+                                            showSearch
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) =>
+                                                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                            }
+                                        >
+                                            {(project?.members || []).map((member: any) => {
+                                                return (<Select.Option
+                                                    key={member.admin_user_id}
+                                                    value={member.admin_user_id}
+                                                    label={member.admin_user?.name || member.admin_user_name}
+                                                >
+                                                    <Space>
+                                                        <Avatar size="small" src={member.admin_user?.avatar}>
+                                                            {member.admin_user?.name?.charAt(0) || member.admin_user_name?.charAt(0)}
+                                                        </Avatar>
+                                                        {member.admin_user?.name || member.admin_user_name}
+                                                    </Space>
+                                                </Select.Option>)
+                                            })}
+                                        </Select>
+                                    </div>
+                                    {item.assigned_to && item.assigned_user && (
+                                        <div style={{ marginLeft: 32, marginTop: 8 }}>
+                                            <Space>
+                                                <Avatar size="small" src={item.assigned_user.avatar}>
+                                                    {item.assigned_user.name?.charAt(0)}
+                                                </Avatar>
+                                            </Space>
+                                        </div>
+                                    )}
+                                    {item.mo_ta && (
+                                        <div
+                                            style={{
+                                                marginTop: 8,
+                                                marginLeft: 32,
+                                                fontSize: 12,
+                                                color: '#8c8c8c',
+                                                fontStyle: 'italic',
+                                            }}
+                                        >
+                                            📝 {item.mo_ta}
+                                        </div>
+                                    )}
+                                </div>
+                                <Popconfirm
+                                    title="Bạn có chắc chắn muốn xóa checklist này?"
+                                    onConfirm={() => handleDeleteChecklist(item.id)}
+                                >
+                                    <Button
+                                        type="text"
+                                        danger
+                                        icon={<DeleteOutlined />}
+                                    />
+                                </Popconfirm>
+
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <Empty description="Chưa có checklist" />
+                )}
+            </Card>
+        );
     };
 
     if (loading) {
@@ -314,100 +700,276 @@ const ProjectDetail: React.FC = () => {
                                     </Radio.Button>
                                 </Radio.Group>
                             )}
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={handleOpenAddTaskModal}
+                            <Dropdown
+                                menu={{
+                                    items: [
+                                        {
+                                            key: 'add-single',
+                                            label: 'Thêm nhiệm vụ',
+                                            icon: <PlusOutlined />,
+                                            onClick: handleOpenAddTaskModal,
+                                        },
+                                        {
+                                            key: 'add-multiple',
+                                            label: 'Thêm nhanh nhiều nhiệm vụ',
+                                            icon: <PlusOutlined />,
+                                            onClick: () => setQuickAddModalVisible(true),
+                                        },
+                                    ],
+                                }}
                             >
-                                {isMobile ? 'Thêm' : 'Thêm nhiệm vụ'}
-                            </Button>
+                                <Button type="primary" icon={<PlusOutlined />}>
+                                    {isMobile ? 'Thêm' : 'Thêm nhiệm vụ'} <DownOutlined />
+                                </Button>
+                            </Dropdown>
                         </Space>
                     }
                 >
                     {taskViewMode === 'table' ? (
-                        // Table View
+                        // Table View - Modern Design
                         project.tasks && project.tasks.length > 0 ? (
                             <Table
                                 dataSource={project.tasks}
                                 rowKey="id"
-                                pagination={false}
+                                pagination={{
+                                    pageSize: 10,
+                                    showSizeChanger: true,
+                                    showTotal: (total) => `Tổng ${total} nhiệm vụ`,
+                                }}
                                 columns={[
                                     {
                                         title: 'Nhiệm vụ',
                                         key: 'task_info',
                                         render: (text: string, record: Task) => (
-                                            <a onClick={() => {
-                                                setDetailTaskId(record.id);
-                                                setDetailVisible(true);
-                                            }}>
-                                                <div>
-                                                    <strong>{record.ma_nhiem_vu}</strong>
+                                            <div
+                                                onClick={() => {
+                                                    setDetailTaskId(record.id);
+                                                    setDetailVisible(true);
+                                                }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    padding: '8px 0',
+                                                }}
+                                            >
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 12,
+                                                    marginBottom: 6,
+                                                }}>
+                                                    <Tag
+                                                        color={record.uu_tien?.color}
+                                                        style={{
+                                                            margin: 0,
+                                                            fontWeight: 500,
+                                                            fontSize: 11,
+                                                        }}
+                                                    >
+                                                        {record.ma_nhiem_vu}
+                                                    </Tag>
+                                                    {record.nguoi_thuc_hien && (
+                                                        <Tooltip title={record.nguoi_thuc_hien.name}>
+                                                            <Avatar
+                                                                size="small"
+                                                                style={{
+                                                                    backgroundColor: '#1890ff',
+                                                                    fontSize: 12,
+                                                                }}
+                                                            >
+                                                                {record.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                            </Avatar>
+                                                        </Tooltip>
+                                                    )}
                                                 </div>
-                                                <div>{record.tieu_de}</div>
-                                            </a>
+                                                <div
+                                                    style={{
+                                                        fontSize: 14,
+                                                        fontWeight: 500,
+                                                        color: '#262626',
+                                                        lineHeight: 1.5,
+                                                    }}
+                                                >
+                                                    {record.tieu_de}
+                                                </div>
+                                            </div>
                                         ),
                                     },
                                     {
                                         title: 'Trạng thái',
                                         dataIndex: 'trang_thai',
                                         key: 'trang_thai',
-                                        width: 130,
+                                        width: 140,
                                         render: (status: any) => (
-                                            <Tag color={status?.color}>{status?.name}</Tag>
+                                            <Tag
+                                                color={status?.color}
+                                                style={{
+                                                    fontSize: 13,
+                                                    padding: '4px 12px',
+                                                    borderRadius: 16,
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                {status?.name}
+                                            </Tag>
                                         ),
                                     },
                                     {
                                         title: 'Ưu tiên',
                                         dataIndex: 'uu_tien',
                                         key: 'uu_tien',
-                                        width: 120,
+                                        width: 130,
                                         render: (priority: any) => (
-                                            <Tag color={priority?.color}>{priority?.name}</Tag>
+                                            <Tag
+                                                color={priority?.color}
+                                                style={{
+                                                    fontSize: 13,
+                                                    padding: '4px 12px',
+                                                    borderRadius: 16,
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                {priority?.name}
+                                            </Tag>
                                         ),
                                     },
                                     {
                                         title: 'Tiến độ',
                                         dataIndex: 'tien_do',
                                         key: 'tien_do',
-                                        width: 150,
+                                        width: 180,
                                         render: (tien_do: number) => (
-                                            <Progress percent={tien_do || 0} size="small" />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <Progress
+                                                    percent={tien_do || 0}
+                                                    size="small"
+                                                    strokeColor={{
+                                                        '0%': '#108ee9',
+                                                        '100%': '#87d068',
+                                                    }}
+                                                    style={{ flex: 1, margin: 0 }}
+                                                />
+                                                <span style={{ fontSize: 13, fontWeight: 500, color: '#595959', minWidth: 40 }}>
+                                                    {tien_do || 0}%
+                                                </span>
+                                            </div>
                                         ),
                                     },
                                     {
                                         title: 'Deadline',
                                         dataIndex: 'ngay_ket_thuc_du_kien',
                                         key: 'ngay_ket_thuc_du_kien',
-                                        width: 120,
-                                        render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
+                                        width: 140,
+                                        render: (date: string) => {
+                                            if (!date) return <span style={{ color: '#bfbfbf' }}>-</span>;
+                                            const isOverdue = dayjs(date).isBefore(dayjs(), 'day');
+                                            const isToday = dayjs(date).isSame(dayjs(), 'day');
+                                            const isTomorrow = dayjs(date).isSame(dayjs().add(1, 'day'), 'day');
+
+                                            let color = '#595959';
+                                            let bgColor = '#f5f5f5';
+                                            if (isOverdue) {
+                                                color = '#ff4d4f';
+                                                bgColor = '#fff1f0';
+                                            } else if (isToday) {
+                                                color = '#fa8c16';
+                                                bgColor = '#fff7e6';
+                                            } else if (isTomorrow) {
+                                                color = '#faad14';
+                                                bgColor = '#fffbe6';
+                                            }
+
+                                            return (
+                                                <div
+                                                    style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: 6,
+                                                        padding: '4px 10px',
+                                                        borderRadius: 12,
+                                                        backgroundColor: bgColor,
+                                                        color: color,
+                                                        fontSize: 12,
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
+                                                    <ClockCircleOutlined />
+                                                    {dayjs(date).format('DD/MM/YYYY')}
+                                                </div>
+                                            );
+                                        },
                                     },
                                 ]}
+                                rowClassName={(record) => {
+                                    const isCompleted = record.trang_thai?.is_done;
+                                    return isCompleted ? 'task-row-completed' : '';
+                                }}
                             />
                         ) : (
-                            <Empty description="Chưa có nhiệm vụ" />
+                            <Empty
+                                description="Chưa có nhiệm vụ nào"
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            />
                         )
                     ) : (
-                        // Kanban View
+                        // Kanban View - Modern Design
                         <Spin spinning={kanbanLoading}>
                             <DragDropContext onDragEnd={handleDragEnd}>
-                                <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: 20,
+                                    overflowX: 'auto',
+                                    paddingBottom: 16,
+                                    paddingTop: 8,
+                                }}>
                                     {taskStatuses.map((status) => {
                                         const tasks = kanbanData[status.id] || [];
+
                                         return (
                                             <div
                                                 key={status.id}
                                                 style={{
                                                     flex: '0 0 300px',
-                                                    backgroundColor: '#f5f5f5',
-                                                    borderRadius: 8,
-                                                    padding: 16,
+                                                    backgroundColor: '#fafafa',
+                                                    borderRadius: 12,
+                                                    padding: 0,
+                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                                    // border: '1px solid #f0f0f0',
                                                 }}
                                             >
-                                                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Space>
-                                                        <Tag color={status.color}>{status.name}</Tag>
-                                                        <Badge count={tasks.length} showZero style={{ backgroundColor: '#999' }} />
-                                                    </Space>
+                                                <div style={{
+                                                    marginBottom: 16,
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    paddingBottom: 12,
+                                                    borderBottom: '2px solid #e8e8e8',
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <div
+                                                            style={{
+                                                                width: 8,
+                                                                height: 8,
+                                                                borderRadius: '50%',
+                                                                backgroundColor: status.color,
+                                                            }}
+                                                        />
+                                                        <span style={{
+                                                            fontSize: 14,
+                                                            fontWeight: 600,
+                                                            color: '#262626',
+                                                        }}>
+                                                            {status.name}
+                                                        </span>
+                                                    </div>
+                                                    <Badge
+                                                        count={tasks.length}
+                                                        showZero
+                                                        style={{
+                                                            backgroundColor: status.color,
+                                                            fontWeight: 600,
+                                                            boxShadow: 'none',
+                                                        }}
+                                                    />
                                                 </div>
 
                                                 <Droppable droppableId={String(status.id)}>
@@ -417,16 +979,21 @@ const ProjectDetail: React.FC = () => {
                                                             {...provided.droppableProps}
                                                             style={{
                                                                 minHeight: 200,
-                                                                backgroundColor: snapshot.isDraggingOver ? '#e6f7ff' : 'transparent',
-                                                                borderRadius: 4,
-                                                                padding: 4,
+                                                                backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
+                                                                borderRadius: 8,
+                                                                // padding: 4,
+                                                                transition: 'background-color 0.2s ease',
                                                             }}
                                                         >
                                                             {tasks.length === 0 ? (
                                                                 <Empty
-                                                                    description="Không có nhiệm vụ"
+                                                                    description={
+                                                                        <span style={{ color: '#bfbfbf', fontSize: 13 }}>
+                                                                            Không có nhiệm vụ
+                                                                        </span>
+                                                                    }
                                                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                                    style={{ margin: '20px 0' }}
+                                                                    style={{ margin: '30px 0' }}
                                                                 />
                                                             ) : (
                                                                 tasks.map((task: Task, index: number) => (
@@ -438,7 +1005,7 @@ const ProjectDetail: React.FC = () => {
                                                                                 {...provided.dragHandleProps}
                                                                                 style={{
                                                                                     ...provided.draggableProps.style,
-                                                                                    marginBottom: 8,
+                                                                                    marginBottom: 12,
                                                                                 }}
                                                                             >
                                                                                 <Card
@@ -450,32 +1017,106 @@ const ProjectDetail: React.FC = () => {
                                                                                     }}
                                                                                     style={{
                                                                                         cursor: 'pointer',
-                                                                                        backgroundColor: snapshot.isDragging ? '#f0f0f0' : '#fff',
-                                                                                        borderLeft: `3px solid ${task.uu_tien?.color || '#1890ff'}`,
+                                                                                        backgroundColor: snapshot.isDragging ? '#fff' : '#fff',
+                                                                                        borderBottom: `1px solid ${task.uu_tien?.color || '#1890ff'}`,
+                                                                                        borderRadius: 8,
+                                                                                        boxShadow: snapshot.isDragging
+                                                                                            ? '0 8px 24px rgba(0,0,0,0.15)'
+                                                                                            : '0 2px 4px rgba(0,0,0,0.08)',
+                                                                                        transition: 'all 0.2s ease',
+                                                                                        transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
                                                                                     }}
+                                                                                    bodyStyle={{ padding: 12 }}
                                                                                 >
-                                                                                    <div style={{ marginBottom: 8 }}>
-                                                                                        <strong>{task.ma_nhiem_vu}</strong>
+                                                                                    {/* Task Code & Priority */}
+                                                                                    <div>
+                                                                                        {task.uu_tien && task.uu_tien.name ? (
+                                                                                            <Tag
+                                                                                                color={task.uu_tien?.color}
+                                                                                                style={{
+                                                                                                    margin: 0,
+                                                                                                    fontSize: 11,
+                                                                                                    fontWeight: 600,
+                                                                                                    padding: '2px 8px',
+                                                                                                    borderRadius: 10,
+                                                                                                }}
+                                                                                            >
+                                                                                                {task.uu_tien.name}
+                                                                                            </Tag>
+                                                                                        ) : null}
+
+                                                                                        {/* Tiêu đề task */}
+                                                                                        <span> {task.tieu_de}</span>
                                                                                     </div>
-                                                                                    <div style={{ marginBottom: 8 }}>{task.tieu_de}</div>
-                                                                                    <Space wrap style={{ marginBottom: 8 }}>
-                                                                                        <Tag color={task.uu_tien?.color} style={{ margin: 0 }}>
-                                                                                            {task.uu_tien?.name}
-                                                                                        </Tag>
-                                                                                        {task.nguoi_thuc_hien && (
-                                                                                            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
-                                                                                                {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                                                            </Avatar>
-                                                                                        )}
-                                                                                    </Space>
+
+                                                                                    {/* Task Title */}
+
+
+                                                                                    {/* Progress Bar */}
                                                                                     {task.tien_do !== undefined && task.tien_do !== null && (
-                                                                                        <Progress percent={task.tien_do} size="small" showInfo={false} />
-                                                                                    )}
-                                                                                    {task.ngay_ket_thuc_du_kien && (
-                                                                                        <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-                                                                                            <ClockCircleOutlined /> {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM/YYYY')}
+                                                                                        <div style={{ marginBottom: 12 }}>
+                                                                                            <div style={{
+                                                                                                display: 'flex',
+                                                                                                justifyContent: 'space-between',
+                                                                                                alignItems: 'center',
+                                                                                                marginBottom: 4,
+                                                                                            }}>
+                                                                                                {/* <span style={{ fontSize: 11, color: '#8c8c8c' }}>
+                                                                                                    Tiến độ
+                                                                                                </span>
+                                                                                                <span style={{
+                                                                                                    fontSize: 12,
+                                                                                                    fontWeight: 600,
+                                                                                                    color: '#262626',
+                                                                                                }}>
+                                                                                                    {task.tien_do}%
+                                                                                                </span> */}
+                                                                                            </div>
+
                                                                                         </div>
                                                                                     )}
+
+                                                                                    {/* Footer: Assignee & Deadline */}
+                                                                                    <div style={{
+                                                                                        display: 'flex',
+                                                                                        justifyContent: 'space-between',
+                                                                                        alignItems: 'center',
+                                                                                        // paddingTop: 8,
+                                                                                        borderTop: '1px solid #f0f0f0',
+                                                                                    }}>
+                                                                                        {task.nguoi_thuc_hien ? (
+                                                                                            <Tooltip title={task.nguoi_thuc_hien.name}>
+                                                                                                <Avatar
+                                                                                                    size={28}
+                                                                                                    style={{
+                                                                                                        backgroundColor: '#1890ff',
+                                                                                                        fontSize: 12,
+                                                                                                        fontWeight: 600,
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                                                                </Avatar>
+                                                                                            </Tooltip>
+                                                                                        ) : (
+                                                                                            <div style={{ width: 28 }} />
+                                                                                        )}
+
+                                                                                        {task.ngay_ket_thuc_du_kien && (
+                                                                                            <div style={{
+                                                                                                fontSize: 11,
+                                                                                                color: dayjs(task.ngay_ket_thuc_du_kien).isBefore(dayjs(), 'day')
+                                                                                                    ? '#ff4d4f'
+                                                                                                    : '#8c8c8c',
+                                                                                                display: 'flex',
+                                                                                                alignItems: 'center',
+                                                                                                gap: 4,
+                                                                                                fontWeight: 500,
+                                                                                            }}>
+                                                                                                <ClockCircleOutlined />
+                                                                                                {dayjs(task.ngay_ket_thuc_du_kien).format('DD/MM')}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </Card>
                                                                             </div>
                                                                         )}
@@ -555,7 +1196,7 @@ const ProjectDetail: React.FC = () => {
                                             </Space>
                                             <Tag color={member.vai_tro === 'quan_ly' ? 'red' : 'blue'}>
                                                 {member.vai_tro === 'quan_ly' ? 'Quản lý' :
-                                                 member.vai_tro === 'thanh_vien' ? 'Thành viên' : 'Xem'}
+                                                    member.vai_tro === 'thanh_vien' ? 'Thành viên' : 'Xem'}
                                             </Tag>
                                             {member.ngay_tham_gia && (
                                                 <div style={{ fontSize: 12, color: '#8c8c8c' }}>
@@ -589,6 +1230,15 @@ const ProjectDetail: React.FC = () => {
                     />
                 </Card>
             ),
+        },
+        {
+            key: 'checklists',
+            label: (
+                <span>
+                    <CheckSquareOutlined /> Checklist ({project.checklists?.filter((c: ProjectChecklist) => c.is_completed).length || 0}/{project.checklists?.length || 0})
+                </span>
+            ),
+            children: renderChecklistTab(),
         },
         {
             key: 'info',
@@ -687,25 +1337,134 @@ const ProjectDetail: React.FC = () => {
                 <Card>
                     {project.activity_logs && project.activity_logs.length > 0 ? (
                         <Timeline
-                            items={project.activity_logs.map((log: ActivityLog) => ({
-                                children: (
-                                    <div>
-                                        <div><strong>{log.user?.name}</strong> {log.hanh_dong}</div>
-                                        {log.du_lieu_cu && log.du_lieu_moi && (
-                                            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
-                                                <div>Cũ: {JSON.stringify(log.du_lieu_cu)}</div>
-                                                <div>Mới: {JSON.stringify(log.du_lieu_moi)}</div>
+                            items={project.activity_logs.map((log: ActivityLog) => {
+                                // Format action with appropriate icon/color
+                                const getActionColor = (action: string) => {
+                                    if (action.includes('Tạo') || action.includes('created')) return 'green';
+                                    if (action.includes('Cập nhật') || action.includes('updated')) return 'blue';
+                                    if (action.includes('Xóa') || action.includes('deleted')) return 'red';
+                                    if (action.includes('Thêm')) return 'cyan';
+                                    return 'gray';
+                                };
+
+                                // Get changed fields with readable names
+                                const getChangedFields = (oldData: any, newData: any) => {
+                                    if (!oldData || !newData) return null;
+
+                                    const fieldLabels: { [key: string]: string } = {
+                                        ten_du_an: 'Tên dự án',
+                                        mo_ta: 'Mô tả',
+                                        trang_thai_id: 'Trạng thái',
+                                        uu_tien_id: 'Ưu tiên',
+                                        loai_du_an_id: 'Loại dự án',
+                                        quan_ly_du_an_id: 'Quản lý dự án',
+                                        ngay_bat_dau: 'Ngày bắt đầu',
+                                        ngay_ket_thuc_du_kien: 'Ngày kết thúc dự kiến',
+                                        ngan_sach_du_kien: 'Ngân sách dự kiến',
+                                        chi_phi_thuc_te: 'Chi phí thực tế',
+                                        tien_do: 'Tiến độ',
+                                        mau_sac: 'Màu sắc',
+                                        ghi_chu: 'Ghi chú',
+                                        ten_khach_hang: 'Tên khách hàng',
+                                    };
+
+                                    const changes: Array<{ field: string; old: any; new: any }> = [];
+
+                                    Object.keys(newData).forEach((key) => {
+                                        // Skip technical fields
+                                        if (['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_at'].includes(key)) {
+                                            return;
+                                        }
+
+                                        const oldValue = oldData[key];
+                                        const newValue = newData[key];
+
+                                        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+                                            changes.push({
+                                                field: fieldLabels[key] || key,
+                                                old: oldValue,
+                                                new: newValue,
+                                            });
+                                        }
+                                    });
+
+                                    return changes.length > 0 ? changes : null;
+                                };
+
+                                const formatValue = (value: any): string => {
+                                    if (value === null || value === undefined) return '(Trống)';
+                                    if (typeof value === 'boolean') return value ? 'Có' : 'Không';
+                                    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                        return dayjs(value).format('DD/MM/YYYY');
+                                    }
+                                    if (typeof value === 'number') return value.toLocaleString('vi-VN');
+                                    return String(value);
+                                };
+
+                                const changedFields = getChangedFields(log.du_lieu_cu, log.du_lieu_moi);
+
+                                return {
+                                    color: getActionColor(log.hanh_dong),
+                                    children: (
+                                        <div>
+                                            <div style={{ marginBottom: 4 }}>
+                                                <Avatar size="small" src={log.user?.avatar} style={{ marginRight: 8 }}>
+                                                    {log.user?.name?.charAt(0)}
+                                                </Avatar>
+                                                <strong>{log.user?.name || 'Hệ thống'}</strong>
+                                                <span style={{ marginLeft: 8, color: '#666' }}>{log.mo_ta || log.hanh_dong}</span>
                                             </div>
-                                        )}
-                                        <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
-                                            {dayjs(log.created_at).format('DD/MM/YYYY HH:mm')}
+                                            {changedFields && changedFields.length > 0 && (
+                                                <div style={{ marginTop: 8, marginLeft: 32 }}>
+                                                    {changedFields.map((change, index) => (
+                                                        <div
+                                                            key={index}
+                                                            style={{
+                                                                fontSize: 12,
+                                                                marginBottom: 6,
+                                                                padding: 8,
+                                                                background: '#f5f5f5',
+                                                                borderRadius: 4,
+                                                                borderLeft: '3px solid #1890ff',
+                                                            }}
+                                                        >
+                                                            <div style={{ fontWeight: 500, marginBottom: 4, color: '#333' }}>
+                                                                {change.field}:
+                                                            </div>
+                                                            <div style={{ display: 'flex', gap: 16 }}>
+                                                                <div style={{ flex: 1 }}>
+                                                                    <span style={{ color: '#999', fontSize: 11 }}>Cũ: </span>
+                                                                    <span
+                                                                        style={{
+                                                                            color: '#ff4d4f',
+                                                                            textDecoration: 'line-through',
+                                                                        }}
+                                                                    >
+                                                                        {formatValue(change.old)}
+                                                                    </span>
+                                                                </div>
+                                                                <div style={{ flex: 1 }}>
+                                                                    <span style={{ color: '#999', fontSize: 11 }}>Mới: </span>
+                                                                    <span style={{ color: '#52c41a', fontWeight: 500 }}>
+                                                                        {formatValue(change.new)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <div style={{ fontSize: 12, color: '#999', marginTop: 4, marginLeft: 32 }}>
+                                                <ClockCircleOutlined style={{ marginRight: 4 }} />
+                                                {dayjs(log.created_at).format('DD/MM/YYYY HH:mm')}
+                                            </div>
                                         </div>
-                                    </div>
-                                ),
-                            }))}
+                                    ),
+                                };
+                            })}
                         />
                     ) : (
-                        <Empty description="Chưa có hoạt động" />
+                        <Empty description="Chưa có hoạt động nào" />
                     )}
                 </Card>
             ),
@@ -720,7 +1479,6 @@ const ProjectDetail: React.FC = () => {
                         Quay lại
                     </Button>
                     <h2 style={{ margin: 0 }}>{project.ten_du_an}</h2>
-                    <Tag color={project.ma_mau}>{project.ma_du_an}</Tag>
                 </Space>
                 <Space>
                     <Button
@@ -730,6 +1488,12 @@ const ProjectDetail: React.FC = () => {
                         }}
                     >
                         Gantt Chart
+                    </Button>
+                    <Button
+                        icon={<CalendarOutlined />}
+                        onClick={() => setAddToMeetingModalVisible(true)}
+                    >
+                        Thêm vào Meeting
                     </Button>
                     <Button
                         type="primary"
@@ -744,7 +1508,11 @@ const ProjectDetail: React.FC = () => {
                 </Space>
             </div>
 
-            <Tabs items={tabItems} />
+            <Tabs
+                items={tabItems}
+                activeKey={activeTabKey}
+                onChange={setActiveTabKey}
+            />
 
             <TaskDetail
                 taskId={detailTaskId}
@@ -846,7 +1614,7 @@ const ProjectDetail: React.FC = () => {
                     </Row>
 
                     <Form.Item
-                        label="Người thực hiện"
+                        label="Người thực hiện111"
                         name="nguoi_thuc_hien_id"
                     >
                         <Select
@@ -869,6 +1637,7 @@ const ProjectDetail: React.FC = () => {
             <Modal
                 title="Thêm thành viên vào dự án"
                 open={addMemberModalVisible}
+                maskClosable={false}
                 onCancel={() => {
                     setAddMemberModalVisible(false);
                     addMemberForm.resetFields();
@@ -883,13 +1652,15 @@ const ProjectDetail: React.FC = () => {
                 >
                     <Form.Item
                         label="Nhân viên"
-                        name="admin_user_id"
-                        rules={[{ required: true, message: 'Vui lòng chọn nhân viên' }]}
+                        name="admin_user_ids"
+                        rules={[{ required: true, message: 'Vui lòng chọn ít nhất một nhân viên' }]}
                     >
                         <Select
-                            placeholder="Chọn nhân viên"
+                            mode="multiple"
+                            placeholder="Chọn nhiều nhân viên"
                             showSearch
                             optionFilterProp="children"
+                            maxTagCount="responsive"
                         >
                             {allAdminUsers
                                 .filter(user => !projectMembers.find(m => m.admin_user_id === user.id))
@@ -907,17 +1678,14 @@ const ProjectDetail: React.FC = () => {
                         rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
                         initialValue="thanh_vien"
                     >
-                        <Select placeholder="Chọn vai trò">
-                            <Select.Option value="quan_ly">
-                                <Tag color="red">Quản lý (PM)</Tag>
-                            </Select.Option>
-                            <Select.Option value="thanh_vien">
-                                <Tag color="blue">Thành viên</Tag>
-                            </Select.Option>
-                            <Select.Option value="xem">
-                                <Tag color="default">Xem</Tag>
-                            </Select.Option>
-                        </Select>
+                        <Select
+                            placeholder="Chọn vai trò"
+                            options={[
+                                { value: 'quan_ly', label: 'Quản lý (PM)' },
+                                { value: 'thanh_vien', label: 'Thành viên' },
+                                { value: 'xem', label: 'Xem' }
+                            ]}
+                        />
                     </Form.Item>
 
                     <Form.Item
@@ -926,6 +1694,233 @@ const ProjectDetail: React.FC = () => {
                     >
                         <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
                     </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Quick Add Tasks Modal */}
+            <Modal
+                title="Thêm nhanh nhiệm vụ"
+                open={quickAddModalVisible}
+                onCancel={() => {
+                    setQuickAddModalVisible(false);
+                    setQuickAddTasks([
+                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                    ]);
+                    setApplyAllStatus(false);
+                    setApplyAllAssignee(false);
+                    setApplyAllPriority(false);
+                }}
+                onOk={handleQuickAddTasks}
+                okText="Tạo tất cả"
+                cancelText="Hủy"
+                confirmLoading={quickAddLoading}
+                width={1000}
+            >
+                <Table
+                    dataSource={quickAddTasks.map((task, index) => ({ ...task, key: index }))}
+                    pagination={false}
+                    bordered
+                    size="small"
+                    scroll={{ x: 'max-content' }}
+                >
+                    <Table.Column
+                        title="Tiêu đề"
+                        dataIndex="tieu_de"
+                        key="tieu_de"
+                        width={200}
+                        render={(text, record: any, index) => (
+                            <Input
+                                value={text}
+                                onChange={(e) => updateQuickAddTask(index, 'tieu_de', e.target.value)}
+                                placeholder={`Tiêu đề nhiệm vụ ${index + 1}`}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <div>Trạng thái</div>
+                                <Checkbox
+                                    checked={applyAllStatus}
+                                    onChange={(e) => setApplyAllStatus(e.target.checked)}
+                                >
+                                    <small>Áp dụng tất cả</small>
+                                </Checkbox>
+                            </div>
+                        }
+                        dataIndex="trang_thai_id"
+                        key="trang_thai_id"
+                        width={180}
+                        render={(value, record: any, index) => (
+                            <Select
+                                value={value}
+                                onChange={(val) => updateQuickAddTask(index, 'trang_thai_id', val)}
+                                placeholder="Chọn trạng thái"
+                                style={{ width: '100%' }}
+                            >
+                                {taskStatuses.map(status => (
+                                    <Select.Option key={status.id} value={status.id}>
+                                        <Tag color={status.color}>{status.name}</Tag>
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <div>Người thực hiện</div>
+                                <Checkbox
+                                    checked={applyAllAssignee}
+                                    onChange={(e) => setApplyAllAssignee(e.target.checked)}
+                                >
+                                    <small>Áp dụng tất cả</small>
+                                </Checkbox>
+                            </div>
+                        }
+                        dataIndex="nguoi_thuc_hien_id"
+                        key="nguoi_thuc_hien_id"
+                        width={180}
+                        render={(value, record: any, index) => (
+                            <Select
+                                value={value}
+                                onChange={(val) => updateQuickAddTask(index, 'nguoi_thuc_hien_id', val)}
+                                placeholder="Chọn người thực hiện"
+                                allowClear
+                                style={{ width: '100%' }}
+                            >
+                                {projectMembers.map(member => (
+                                    <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
+                                        {member.admin_user?.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <div>Ưu tiên</div>
+                                <Checkbox
+                                    checked={applyAllPriority}
+                                    onChange={(e) => setApplyAllPriority(e.target.checked)}
+                                >
+                                    <small>Áp dụng tất cả</small>
+                                </Checkbox>
+                            </div>
+                        }
+                        dataIndex="uu_tien_id"
+                        key="uu_tien_id"
+                        width={150}
+                        render={(value, record: any, index) => (
+                            <Select
+                                value={value}
+                                onChange={(val) => updateQuickAddTask(index, 'uu_tien_id', val)}
+                                placeholder="Chọn ưu tiên"
+                                style={{ width: '100%' }}
+                            >
+                                {priorities.map(priority => (
+                                    <Select.Option key={priority.id} value={priority.id}>
+                                        <Tag color={priority.color}>{priority.name}</Tag>
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Mô tả"
+                        dataIndex="mo_ta"
+                        key="mo_ta"
+                        width={200}
+                        render={(text, record: any, index) => (
+                            <Input.TextArea
+                                value={text}
+                                onChange={(e) => updateQuickAddTask(index, 'mo_ta', e.target.value)}
+                                placeholder="Mô tả ngắn"
+                                rows={1}
+                                autoSize={{ minRows: 1, maxRows: 3 }}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title="Thao tác"
+                        key="action"
+                        width={80}
+                        fixed="right"
+                        render={(text, record: any, index) => (
+                            <Space>
+                                {quickAddTasks.length > 1 && (
+                                    <Button
+                                        type="text"
+                                        danger
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={() => removeQuickAddTaskRow(index)}
+                                    />
+                                )}
+                            </Space>
+                        )}
+                    />
+                </Table>
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={addQuickAddTaskRow}
+                        block
+                    >
+                        Thêm dòng mới
+                    </Button>
+                </div>
+            </Modal>
+
+            {/* Add to Meeting Modal */}
+            <Modal
+                title="Thêm dự án vào Meeting"
+                open={addToMeetingModalVisible}
+                onCancel={() => {
+                    setAddToMeetingModalVisible(false);
+                    addToMeetingForm.resetFields();
+                }}
+                onOk={handleAddToMeeting}
+                okText="Thêm"
+                cancelText="Hủy"
+                confirmLoading={addingToMeeting}
+                width={500}
+            >
+                <Form form={addToMeetingForm} layout="vertical">
+                    <Form.Item
+                        name="meeting_type"
+                        label="Loại Meeting"
+                        rules={[{ required: true, message: 'Vui lòng chọn loại meeting' }]}
+                    >
+                        <Radio.Group>
+                            <Radio value="daily">Daily</Radio>
+                            <Radio value="weekly">Weekly</Radio>
+                            <Radio value="monthly">Monthly</Radio>
+                            <Radio value="yearly">Yearly</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="note"
+                        label="Ghi chú"
+                    >
+                        <Input.TextArea
+                            rows={3}
+                            placeholder="Nhập ghi chú cho dự án trong meeting này..."
+                        />
+                    </Form.Item>
+
+                    <div style={{ padding: '12px', backgroundColor: '#f0f0f0', borderRadius: 4 }}>
+                        <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
+                            📌 <strong>Lưu ý:</strong> Nếu đã có meeting loại này trong ngày hôm nay,
+                            dự án sẽ được thêm vào meeting đó. Ngược lại, hệ thống sẽ tạo meeting mới.
+                        </p>
+                    </div>
                 </Form>
             </Modal>
         </div>

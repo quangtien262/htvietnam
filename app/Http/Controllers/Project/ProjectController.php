@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Project;
 
 use App\Http\Controllers\Controller;
 use App\Services\Project\ProjectService;
+use App\Services\Project\NotificationService;
 use App\Models\Project\Project;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -11,12 +12,14 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class ProjectController extends Controller
 {
     use AuthorizesRequests;
-    
-    protected $projectService;
 
-    public function __construct(ProjectService $projectService)
+    protected $projectService;
+    protected $notificationService;
+
+    public function __construct(ProjectService $projectService, NotificationService $notificationService)
     {
         $this->projectService = $projectService;
+        $this->notificationService = $notificationService;
     }
 
     public function index(Request $request)
@@ -69,21 +72,39 @@ class ProjectController extends Controller
     public function show($id)
     {
         try {
+            \Log::info('ProjectController::show', [
+                'project_id' => $id,
+                'auth_check' => auth()->check(),
+                'guard' => auth()->getDefaultDriver(),
+                'user_id' => auth()->id(),
+                'admin_users_guard' => auth('admin_users')->check(),
+                'admin_users_id' => auth('admin_users')->id(),
+            ]);
+
             $project = $this->projectService->getById($id);
-            
+
             // Check permission
             $this->authorize('view', $project);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $project,
             ]);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            \Log::error('ProjectController::show - Authorization failed', [
+                'project_id' => $id,
+                'user_id' => auth()->id(),
+                'admin_users_id' => auth('admin_users')->id(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Bạn không có quyền xem dự án này',
             ], 403);
         } catch (\Exception $e) {
+            \Log::error('ProjectController::show - Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -94,11 +115,11 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $project = Project::findOrFail($id);
-            
+            $project = Project::with('members')->findOrFail($id);
+
             // Check permission
             $this->authorize('update', $project);
-            
+
             $validated = $request->validate([
                 'ten_du_an' => 'sometimes|required|string|max:255',
                 'mo_ta' => 'nullable|string',
@@ -110,9 +131,37 @@ class ProjectController extends Controller
                 'ngan_sach_du_kien' => 'nullable|numeric|min:0',
                 'quan_ly_du_an_id' => 'nullable|exists:admin_users,id',
                 'tien_do' => 'nullable|integer|min:0|max:100',
+                'checklists' => 'nullable|array',
+                'checklists.*.noi_dung' => 'required|string|max:255',
+                'checklists.*.is_completed' => 'required|boolean',
+                'checklists.*.assigned_to' => 'nullable|exists:admin_users,id',
+                'checklists.*.mo_ta' => 'nullable|string',
+                'checklists.*.sort_order' => 'required|integer',
             ]);
 
+            // Track changes
+            $oldProject = $project->replicate();
+
             $project = $this->projectService->update($id, $validated);
+
+            // Send notifications based on what changed
+            if (isset($validated['checklists'])) {
+                $this->notificationService->notifyProjectChange($project, 'project_checklist', 'đã cập nhật checklist');
+            }
+            if (isset($validated['trang_thai_id']) && $oldProject->trang_thai_id != $validated['trang_thai_id']) {
+                $this->notificationService->notifyProjectChange($project, 'project_status', 'đã thay đổi trạng thái');
+            }
+            if (isset($validated['uu_tien_id']) && $oldProject->uu_tien_id != $validated['uu_tien_id']) {
+                $this->notificationService->notifyProjectChange($project, 'project_priority', 'đã thay đổi độ ưu tiên');
+            }
+            if ((isset($validated['ngay_bat_dau']) || isset($validated['ngay_ket_thuc_du_kien']))
+                && ($oldProject->ngay_bat_dau != ($validated['ngay_bat_dau'] ?? $oldProject->ngay_bat_dau)
+                    || $oldProject->ngay_ket_thuc_du_kien != ($validated['ngay_ket_thuc_du_kien'] ?? $oldProject->ngay_ket_thuc_du_kien))) {
+                $this->notificationService->notifyProjectChange($project, 'project_date', 'đã cập nhật ngày bắt đầu/kết thúc');
+            }
+            if (isset($validated['quan_ly_du_an_id']) && $oldProject->quan_ly_du_an_id != $validated['quan_ly_du_an_id']) {
+                $this->notificationService->notifyProjectChange($project, 'project_member', 'đã thay đổi quản lý dự án');
+            }
 
             return response()->json([
                 'success' => true,
@@ -135,11 +184,11 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         try {
-            $project = Project::findOrFail($id);
-            
+            $project = Project::with('members')->findOrFail($id);
+
             // Check permission
             $this->authorize('delete', $project);
-            
+
             $this->projectService->delete($id);
             return response()->json([
                 'success' => true,
@@ -177,11 +226,11 @@ class ProjectController extends Controller
     public function addMember(Request $request, $id)
     {
         try {
-            $project = Project::findOrFail($id);
-            
+            $project = Project::with('members')->findOrFail($id);
+
             // Check permission
             $this->authorize('manageMembers', $project);
-            
+
             $validated = $request->validate([
                 'admin_user_id' => 'required|exists:admin_users,id',
                 'vai_tro' => 'required|in:quan_ly,thanh_vien,xem',
@@ -211,11 +260,11 @@ class ProjectController extends Controller
     public function removeMember($id, $memberId)
     {
         try {
-            $project = Project::findOrFail($id);
-            
+            $project = Project::with('members')->findOrFail($id);
+
             // Check permission
             $this->authorize('manageMembers', $project);
-            
+
             $this->projectService->removeMember($id, $memberId);
 
             return response()->json([
@@ -238,11 +287,11 @@ class ProjectController extends Controller
     public function uploadAttachment(Request $request, $id)
     {
         try {
-            $project = Project::findOrFail($id);
-            
+            $project = Project::with('members')->findOrFail($id);
+
             // Check permission to upload attachment
             $this->authorize('update', $project);
-            
+
             $validated = $request->validate([
                 'file' => 'required|file|max:10240',
                 'mo_ta' => 'nullable|string',
@@ -253,6 +302,10 @@ class ProjectController extends Controller
                 $validated['file'],
                 $validated['mo_ta'] ?? null
             );
+
+            // Send notification
+            $fileName = $validated['file']->getClientOriginalName();
+            $this->notificationService->notifyProjectChange($project, 'project_file', "đã upload file: {$fileName}");
 
             return response()->json([
                 'success' => true,
@@ -312,10 +365,10 @@ class ProjectController extends Controller
         try {
             $attachment = \App\Models\Project\ProjectAttachment::findOrFail($id);
             $project = Project::findOrFail($attachment->project_id);
-            
+
             // Check permission to delete attachment
             $this->authorize('update', $project);
-            
+
             $this->projectService->deleteAttachment($id);
 
             return response()->json([
@@ -338,12 +391,21 @@ class ProjectController extends Controller
     public function getDashboardStats(Request $request, $id)
     {
         try {
+            // Check project access permission
+            $project = Project::findOrFail($id);
+            $this->authorize('view', $project);
+
             $stats = $this->projectService->getProjectDashboardStats($id, $request->all());
 
             return response()->json([
                 'success' => true,
                 'data' => $stats,
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xem dự án này',
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

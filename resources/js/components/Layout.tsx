@@ -18,6 +18,7 @@ import {
 import API from '../common/api';
 import ROUTE from "../common/route";
 import MENU from "../common/menu";
+import NotificationDropdown from "./NotificationDropdown";
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -96,28 +97,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     {/* Notification Bell */}
-                    <Dropdown
-                        menu={{
-                            items: [
-                                {
-                                    key: '1',
-                                    label: 'Chưa có thông báo mới',
-                                }
-                            ]
-                        }}
-                        trigger={['click']}
-                        placement="bottomRight"
-                    >
-                        <Button
-                            type="text"
-                            icon={<BellOutlined style={{ fontSize: '18px' }} />}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        />
-                    </Dropdown>
+                    <NotificationDropdown />
 
                     {/* Settings */}
                     <Dropdown

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Project\TaskTimeLog;
 
 class Task extends Model
@@ -114,5 +115,15 @@ class Task extends Model
         return $this->hasMany(ActivityLog::class, 'doi_tuong_id')
             ->where('loai_doi_tuong', 'task')
             ->orderBy('created_at', 'desc');
+    }
+
+    public function supporters(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\AdminUser::class,
+            'pro___task_supporters',
+            'task_id',
+            'admin_user_id'
+        )->withTimestamps();
     }
 }

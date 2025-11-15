@@ -143,6 +143,12 @@ import TaskList_PM from './pages/project/TaskList';
 import GanttChart_PM from './pages/project/GanttChart';
 import UserGuide from './pages/project/UserGuide';
 import ProjectPermissionsPage from './pages/project/ProjectPermissionsPage';
+import DailyReport from './pages/project/DailyReport';
+import DailyReportHistory from './pages/project/DailyReportHistory';
+import DailyReportStats from './pages/project/DailyReportStats';
+import TeamDailyReport from './pages/project/TeamDailyReport';
+import MyTasks from './pages/project/MyTasks';
+import MeetingList_PM from './pages/project/MeetingList';
 
 
 
@@ -283,6 +289,18 @@ const App: React.FC = () => (
                 <Route path={ROUTE.project_tasks} element={<TaskList_PM />} />
                 <Route path={ROUTE.project_permissions} element={<ProjectPermissionsPage />} />
                 <Route path={ROUTE.project_guide} element={<UserGuide />} />
+
+                {/* My Tasks */}
+                <Route path={ROUTE.project_my_tasks} element={<MyTasks />} />
+
+                {/* Meetings */}
+                <Route path={ROUTE.project_meetings} element={<MeetingList_PM />} />
+
+                {/* Daily Report System */}
+                <Route path={ROUTE.daily_report} element={<DailyReport />} />
+                <Route path={ROUTE.daily_report_history} element={<DailyReportHistory />} />
+                <Route path={ROUTE.daily_report_stats} element={<DailyReportStats />} />
+                <Route path={ROUTE.daily_report_team} element={<TeamDailyReport />} />
             </Routes>
         </AppLayout>
     </BrowserRouter>
