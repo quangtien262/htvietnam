@@ -719,7 +719,7 @@ class AitilenController extends Controller
 
         $serviceData = [];
         $total = $contract->gia_thue ?? 0; // Tiền thuê cứng
-
+        // dd($services);
         foreach ($services as $service) {
             $note = '';
             $start = 0; // số điên/nước đầu kỳ (nếu có)
