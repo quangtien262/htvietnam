@@ -85,9 +85,9 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
-            $table->foreign('loai_du_an_id')->references('id')->on('pro___project_types')->onDelete('set null');
-            $table->foreign('trang_thai_id')->references('id')->on('pro___project_statuses')->onDelete('restrict');
-            $table->foreign('uu_tien_id')->references('id')->on('pro___priorities')->onDelete('restrict');
+            // $table->foreign('loai_du_an_id')->references('id')->on('pro___project_types')->onDelete('set null');
+            // $table->foreign('trang_thai_id')->references('id')->on('pro___project_statuses')->onDelete('restrict');
+            // $table->foreign('uu_tien_id')->references('id')->on('pro___priorities')->onDelete('restrict');
         });
 
         // Bảng thành viên dự án
@@ -160,10 +160,10 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
-            $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('pro___tasks')->onDelete('set null');
-            $table->foreign('trang_thai_id')->references('id')->on('pro___task_statuses')->onDelete('restrict');
-            $table->foreign('uu_tien_id')->references('id')->on('pro___priorities')->onDelete('restrict');
+            // $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
+            // $table->foreign('parent_id')->references('id')->on('pro___tasks')->onDelete('set null');
+            // $table->foreign('trang_thai_id')->references('id')->on('pro___task_statuses')->onDelete('restrict');
+            // $table->foreign('uu_tien_id')->references('id')->on('pro___priorities')->onDelete('restrict');
         });
 
         // Bảng phụ thuộc nhiệm vụ (Dependencies)
@@ -175,9 +175,9 @@ return new class extends Migration
                 ->default('finish_to_start');
             $table->timestamps();
 
-            $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
-            $table->foreign('depends_on_task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
-            $table->unique(['task_id', 'depends_on_task_id']);
+            // $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->foreign('depends_on_task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->unique(['task_id', 'depends_on_task_id']);
         });
 
         // Bảng checklist cho task
@@ -191,7 +191,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->timestamps();
 
-            $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
         });
 
         // Bảng checklist cho project
@@ -205,7 +205,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->timestamps();
 
-            $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
+            // $table->foreign('project_id')->references('id')->on('pro___projects')->onDelete('cascade');
         });
 
         // Bảng comment
@@ -218,8 +218,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('pro___task_comments')->onDelete('cascade');
+            // $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->foreign('parent_id')->references('id')->on('pro___task_comments')->onDelete('cascade');
         });
 
         // Bảng tệp đính kèm
@@ -233,7 +233,7 @@ return new class extends Migration
             $table->unsignedBigInteger('uploaded_by')->nullable();
             $table->timestamps();
 
-            $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
         });
 
         // Bảng lịch sử hoạt động
@@ -248,7 +248,7 @@ return new class extends Migration
             $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->timestamps();
 
-            $table->index(['loai_doi_tuong', 'doi_tuong_id']);
+            // $table->index(['loai_doi_tuong', 'doi_tuong_id']);
         });
 
         // Bảng time tracking
@@ -262,7 +262,7 @@ return new class extends Migration
             $table->text('ghi_chu')->nullable();
             $table->timestamps();
 
-            $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
+            // $table->foreign('task_id')->references('id')->on('pro___tasks')->onDelete('cascade');
         });
     }
 
