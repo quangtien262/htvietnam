@@ -61,10 +61,14 @@ const InventoryList: React.FC = () => {
                     trang_thai: statusFilter === 'all' ? undefined : statusFilter
                 }
             });
-            setInventoryData(response.data.data || []);
+
+            // Handle both paginated and non-paginated responses
+            const data = response.data?.data?.data || response.data?.data || [];
+            setInventoryData(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching inventory:', error);
             message.error('Không thể tải dữ liệu kho');
+            setInventoryData([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
@@ -101,7 +105,7 @@ const InventoryList: React.FC = () => {
                 ngay_nhap: values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 ghi_chu: values.ghi_chu,
             });
-            
+
             message.success('Cập nhật tồn kho thành công');
             setModalVisible(false);
             form.resetFields();

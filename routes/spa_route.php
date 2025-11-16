@@ -24,6 +24,10 @@ use App\Http\Controllers\Admin\Spa\SMSCampaignController;
 use App\Http\Controllers\Admin\Spa\ChiNhanhController;
 use App\Http\Controllers\Admin\Spa\PhongController;
 use App\Http\Controllers\Admin\Spa\DanhGiaController;
+use App\Http\Controllers\Admin\Spa\XuatXuController;
+use App\Http\Controllers\Admin\Spa\KyNangController;
+use App\Http\Controllers\Admin\Spa\HoaDonController;
+use App\Http\Controllers\Admin\Spa\GoiDichVuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +72,16 @@ Route::prefix('spa')->name('spa.')->group(function () {
         Route::get('/today-sales', [POSController::class, 'todaySales'])->name('today_sales');
     });
 
+    // Invoice Management
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [HoaDonController::class, 'index'])->name('index');
+        Route::get('/{id}', [HoaDonController::class, 'show'])->name('show');
+        Route::put('/{id}', [HoaDonController::class, 'update'])->name('update');
+        Route::delete('/{id}', [HoaDonController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/print', [HoaDonController::class, 'print'])->name('print');
+        Route::post('/export', [HoaDonController::class, 'export'])->name('export');
+    });
+
     // Analytics & Reports
     Route::prefix('analytics')->name('analytics.')->group(function () {
         Route::get('/dashboard', [AnalyticsController::class, 'dashboard'])->name('dashboard');
@@ -82,10 +96,16 @@ Route::prefix('spa')->name('spa.')->group(function () {
     Route::apiResource('service-categories', \App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class);
     Route::apiResource('treatment-packages', \App\Http\Controllers\Admin\Spa\LieuTrinhController::class);
 
+    // Service Packages Management (Gói dịch vụ)
+    Route::apiResource('service-packages', \App\Http\Controllers\Admin\Spa\GoiDichVuController::class);
+    Route::get('schedules/list', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'getSchedules'])->name('schedules.list');
+
     // Products Management (CRUD)
     Route::apiResource('products', \App\Http\Controllers\Admin\Spa\SanPhamController::class);
     Route::apiResource('product-categories', \App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class);
     Route::apiResource('brands', \App\Http\Controllers\Admin\Spa\ThuongHieuController::class);
+    Route::apiResource('origins', \App\Http\Controllers\Admin\Spa\XuatXuController::class);
+    Route::apiResource('skills', \App\Http\Controllers\Admin\Spa\KyNangController::class);
     Route::apiResource('inventory', \App\Http\Controllers\Admin\Spa\NhapKhoController::class);
 
     // Staff Management

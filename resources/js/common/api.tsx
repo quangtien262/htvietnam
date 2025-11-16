@@ -413,6 +413,14 @@ export const API = {
     spaPOSCancelInvoice: (id: number) => `/aio/api/spa/pos/invoices/${id}/cancel`,
     spaPOSTodaySales: '/aio/api/spa/pos/today-sales',
 
+    // Hóa đơn (Invoices Management)
+    spaInvoiceList: '/aio/api/spa/invoices',
+    spaInvoiceDetail: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoiceUpdate: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoiceDelete: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoicePrint: (id: number) => `/aio/api/spa/invoices/${id}/print`,
+    spaInvoiceExport: '/aio/api/spa/invoices/export',
+
     // Dịch vụ (Services)
     spaServiceList: '/aio/api/spa/services',
     spaServiceDetail: (id: number) => `/aio/api/spa/services/${id}`,
@@ -454,6 +462,20 @@ export const API = {
     spaBrandCreate: '/aio/api/spa/brands',
     spaBrandUpdate: (id: number) => `/aio/api/spa/brands/${id}`,
     spaBrandDelete: (id: number) => `/aio/api/spa/brands/${id}`,
+
+    // Xuất xứ (Origins)
+    spaOriginList: '/aio/api/spa/origins',
+    spaOriginDetail: (id: number) => `/aio/api/spa/origins/${id}`,
+    spaOriginCreate: '/aio/api/spa/origins',
+    spaOriginUpdate: (id: number) => `/aio/api/spa/origins/${id}`,
+    spaOriginDelete: (id: number) => `/aio/api/spa/origins/${id}`,
+
+    // Kỹ năng (Skills)
+    spaSkillList: '/aio/api/spa/skills',
+    spaSkillDetail: (id: number) => `/aio/api/spa/skills/${id}`,
+    spaSkillCreate: '/aio/api/spa/skills',
+    spaSkillUpdate: (id: number) => `/aio/api/spa/skills/${id}`,
+    spaSkillDelete: (id: number) => `/aio/api/spa/skills/${id}`,
 
     // Nhập kho (Inventory)
     spaInventoryList: '/aio/api/spa/inventory',

@@ -28,11 +28,11 @@ import {
     FolderOutlined,
     StarOutlined,
     ClockCircleOutlined,
-    DeleteOutlined,
     CheckSquareOutlined,
     SettingOutlined,
     QuestionCircleOutlined,
-    KeyOutlined
+    KeyOutlined,
+    GiftOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -612,6 +612,11 @@ export const MENU = {
             icon: <ShopOutlined />,
             key: (key++).toString(),
         },
+        {
+            label: <Link className='normal' to={`${ROUTE.spa_invoices}?p=spa`}>Hóa đơn</Link>,
+            icon: <FileTextOutlined />,
+            key: (key++).toString(),
+        },
         // Khách hàng
         {
             label: "Khách hàng",
@@ -642,15 +647,33 @@ export const MENU = {
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_services}?p=spa`}>Danh mục DV</Link>,
+                    label: <Link to={`${ROUTE.spa_services}?p=spa`}>Dịch vụ</Link>,
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
+                    label: <Link to={`${ROUTE.spa_service_packages}?p=spa`}>Gói dịch vụ</Link>,
                     key: (key++).toString(),
-                    icon: <FileDoneOutlined />,
+                    icon: <GiftOutlined />,
                 },
+                // {
+                //     label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
+                //     key: (key++).toString(),
+                //     icon: <FileDoneOutlined />,
+                // },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+            ],
+        },
+
+        {
+            label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Kho</Link>,
+            key: (key++).toString(),
+            icon: <InboxOutlined />,
+            children: [
                 {
                     label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
                     key: (key++).toString(),

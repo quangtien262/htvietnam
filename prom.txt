@@ -78,14 +78,20 @@ cụ thể page đó đang config ở line 46 trong file routes/web.php là conf
 Tài khoản của khách hang thì được bắt đầu là "user/" ở line 39 trong file routes/web.php là config route cho user, là trang profile của khách hang:
 em hãy xem ở file vite.config.ts đ biêt config của hệ thống nhé
 
-- hệ thống có 2 guard là admin_users (dành cho nhân viên công ty) bảng kết nối là admin_users; guard web là dành cho khách hàng login, table là users (đây cũng là bảng khách hàng )
-- các route được khai báo trong 'resources/common/route.tsx' thông qua biến ROUTE, sau đó truyền vào trong route ở file 'resources/js/app.tsx'
-- các api ở frontend được đăng ký file api.tsx sau đó gọi ra sử dung  ở  những nơi cần.
-- Các link ở frontend hãy đăng ký ở file menu.jsx
-- route api của Laravel được lưu ở file web/project_route.php , lưu ý  prefix là project/api
++) hệ thống có 2 guard là admin_users (dành cho nhân viên công ty) bảng kết nối là admin_users; guard web là dành cho khách hàng login, table là users (đây cũng là bảng khách hàng )
++) các route được khai báo trong 'resources/common/route.tsx' thông qua biến ROUTE, sau đó truyền vào trong route ở file 'resources/js/app.tsx'
++) các api ở frontend được đăng ký file api.tsx sau đó gọi ra sử dung  ở  những nơi cần.
++) Các link ở frontend hãy đăng ký ở file menu.jsx
++) route api của Laravel được lưu ở file routes/spa_route.php , lưu ý  prefix là aio/api
 
-Các tên bảng trong dự án này được tạo sẽ được đi kèm với prefix là: "pro___"
 
++) frontend của project để ở thư mục pages/spa
++) Các tên bảng trong module spa được tạo sẽ được đi kèm với prefix là: "spa_"
+
+
++) Các tên bảng trong dự án này được tạo sẽ được đi kèm với prefix là: "pro___"
++) frontend của project để ở thư mục pages/project
++) route api của Laravel được lưu ở file routes/project_route.php , lưu ý  prefix là project/api
 
 
 

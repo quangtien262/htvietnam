@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Card, Table, Button, Space, Input, Select, Tag, Modal, Form, InputNumber,
     message, Popconfirm, Upload, Image, Row, Col, Divider, Drawer, Descriptions,
-    Switch, TreeSelect, Badge
+    Switch, TreeSelect, Badge, Statistic
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ScissorOutlined,
@@ -33,9 +33,40 @@ interface Service {
     trang_thai: string;
     is_active?: boolean;
     yeu_cau_ky_nang?: string[];
+    nguyen_lieu?: NguyenLieu[];
     so_luong_da_su_dung: number;
     doanh_thu: number;
     created_at: string;
+}
+
+interface NguyenLieu {
+    id?: number;
+    san_pham_id: number;
+    ma_san_pham?: string;
+    ten_san_pham?: string;
+    so_luong: number;
+    don_vi: string;
+    don_vi_goc?: string;
+    don_vi_quy_doi_id?: number;
+    gia_von: number;
+    gia_von_goc?: number;
+    ty_le_quy_doi: number;
+    thanh_tien: number;
+    ghi_chu?: string;
+}
+
+interface Product {
+    id: number;
+    ma_san_pham: string;
+    ten_san_pham: string;
+    don_vi_tinh: string;
+    gia_von: number;
+    ton_kho: number;
+    don_vi_quy_doi?: Array<{
+        id: number;
+        don_vi: string;
+        ty_le: number;
+    }>;
 }
 
 interface Category {
@@ -45,17 +76,29 @@ interface Category {
     thu_tu: number;
 }
 
+interface Skill {
+    id: number;
+    name: string;
+    color?: string;
+    sort_order?: number;
+}
+
 const ServiceList: React.FC = () => {
     // State
     const [services, setServices] = useState<Service[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [skills, setSkills] = useState<Skill[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [materials, setMaterials] = useState<NguyenLieu[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
     const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+    const [skillModalVisible, setSkillModalVisible] = useState(false);
     const [categoryForm] = Form.useForm();
+    const [skillForm] = Form.useForm();
 
     // Filters
     const [searchText, setSearchText] = useState('');
@@ -82,6 +125,8 @@ const ServiceList: React.FC = () => {
     // Load categories once on mount
     useEffect(() => {
         loadCategories();
+        loadSkills();
+        loadProducts();
     }, []);
 
     const loadServices = async () => {
@@ -136,6 +181,35 @@ const ServiceList: React.FC = () => {
         }
     };
 
+    const loadSkills = async () => {
+        try {
+            const response = await axios.get('/aio/api/spa/skills');
+            console.log('Skills response:', response.data);
+            if (response.data && response.data.status_code === 200) {
+                const skillsData = response.data.data || [];
+                setSkills(skillsData);
+            }
+        } catch (error) {
+            console.error('Load skills error:', error);
+            message.error('Không thể tải danh sách kỹ năng');
+        }
+    };
+
+    const loadProducts = async () => {
+        try {
+            const response = await axios.get('/aio/api/spa/products', {
+                params: { per_page: 1000 } // Load all products
+            });
+            if (response.data && response.data.status_code === 200) {
+                const productsData = response.data.data?.data || response.data.data || [];
+                setProducts(productsData);
+            }
+        } catch (error) {
+            console.error('Load products error:', error);
+            message.error('Không thể tải danh sách sản phẩm');
+        }
+    };
+
     // Handlers
     const handleCreate = () => {
         form.resetFields();
@@ -144,13 +218,30 @@ const ServiceList: React.FC = () => {
         setModalVisible(true);
     };
 
-    const handleEdit = (record: Service) => {
+    const handleEdit = async (record: Service) => {
         setSelectedService(record);
-        form.setFieldsValue({
-            ...record,
-            yeu_cau_ky_nang: record.yeu_cau_ky_nang || [],
-        });
-        setImageUrl(record.hinh_anh || '');
+
+        // Load full service details including materials
+        try {
+            const response = await axios.get(`/aio/api/spa/services/${record.id}`);
+            const serviceData = response.data;
+
+            form.setFieldsValue({
+                ...serviceData,
+                yeu_cau_ky_nang: serviceData.yeu_cau_ky_nang || [],
+                nguyen_lieu: serviceData.nguyen_lieu || [],
+            });
+            setImageUrl(serviceData.hinh_anh || '');
+        } catch (error) {
+            console.error('Failed to load service details:', error);
+            form.setFieldsValue({
+                ...record,
+                yeu_cau_ky_nang: record.yeu_cau_ky_nang || [],
+                nguyen_lieu: [],
+            });
+            setImageUrl(record.hinh_anh || '');
+        }
+
         setModalVisible(true);
     };
 
@@ -163,6 +254,14 @@ const ServiceList: React.FC = () => {
         try {
             setUploading(true); // Show loading
             const values = await form.validateFields();
+
+            // Validate materials required
+            if (!values.nguyen_lieu || values.nguyen_lieu.length === 0) {
+                message.error('Vui lòng chọn ít nhất 1 nguyên liệu tiêu hao');
+                setUploading(false);
+                return;
+            }
+
             const payload = {
                 ...values,
                 hinh_anh: imageUrl,
@@ -271,6 +370,32 @@ const ServiceList: React.FC = () => {
                 // Auto-select the newly created category
                 const newCategoryId = response.data.data.id;
                 form.setFieldsValue({ danh_muc_id: newCategoryId });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    // Handle quick create skill
+    const handleQuickCreateSkill = () => {
+        skillForm.resetFields();
+        setSkillModalVisible(true);
+    };
+
+    const handleSkillSubmit = async () => {
+        try {
+            const values = await skillForm.validateFields();
+            const response = await axios.post('/aio/api/spa/skills', values);
+
+            if (response.data.status_code === 200) {
+                message.success('Tạo kỹ năng mới thành công');
+                setSkillModalVisible(false);
+                await loadSkills();
+
+                // Auto-add the newly created skill to the form
+                const currentSkills = form.getFieldValue('yeu_cau_ky_nang') || [];
+                const newSkillName = response.data.data?.data?.name || values.name;
+                form.setFieldsValue({ yeu_cau_ky_nang: [...currentSkills, newSkillName] });
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
@@ -684,16 +809,223 @@ const ServiceList: React.FC = () => {
                         <Col span={24}>
                             <Form.Item
                                 name="yeu_cau_ky_nang"
-                                label="Yêu cầu kỹ năng"
+                                label={
+                                    <Space>
+                                        <span>Yêu cầu kỹ năng</span>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={handleQuickCreateSkill}
+                                        >
+                                            Thêm nhanh
+                                        </Button>
+                                    </Space>
+                                }
                             >
                                 <Select mode="tags" placeholder="Nhập và Enter để thêm kỹ năng">
-                                    <Option value="Massage">Massage</Option>
-                                    <Option value="Chăm sóc da">Chăm sóc da</Option>
-                                    <Option value="Tắm trắng">Tắm trắng</Option>
-                                    <Option value="Triệt lông">Triệt lông</Option>
+                                    {skills.map(skill => (
+                                        <Option key={skill.id} value={skill.name}>
+                                            {skill.name}
+                                        </Option>
+                                    ))}
                                 </Select>
                             </Form.Item>
                         </Col>
+
+                        {/* Nguyên liệu tiêu hao */}
+                        <Col span={24}>
+                            <Divider orientation="left">Nguyên liệu tiêu hao (Tùy chọn)</Divider>
+                            <Form.List name="nguyen_lieu">
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.length > 0 && (
+                                            <Table
+                                                dataSource={fields}
+                                                pagination={false}
+                                                size="small"
+                                                style={{ marginBottom: 16 }}
+                                                rowKey="key"
+                                            >
+                                                <Table.Column
+                                                    title="Sản phẩm"
+                                                    width="30%"
+                                                    render={(_, field: any) => (
+                                                        <Form.Item
+                                                            {...field}
+                                                            name={[field.name, 'san_pham_id']}
+                                                            rules={[{ required: true, message: 'Chọn SP' }]}
+                                                            style={{ marginBottom: 0 }}
+                                                        >
+                                                            <Select
+                                                                showSearch
+                                                                placeholder="Chọn sản phẩm"
+                                                                optionFilterProp="label"
+                                                                onChange={(value) => {
+                                                                    const product = products.find(p => p.id === value);
+                                                                    if (product) {
+                                                                        const currentValues = form.getFieldValue('nguyen_lieu') || [];
+                                                                        currentValues[field.name] = {
+                                                                            ...currentValues[field.name],
+                                                                            san_pham_id: value,
+                                                                            don_vi: product.don_vi_tinh,
+                                                                            gia_von: product.gia_von || 0,
+                                                                            ty_le_quy_doi: 1,
+                                                                            don_vi_quy_doi_id: null
+                                                                        };
+                                                                        form.setFieldsValue({ nguyen_lieu: currentValues });
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {products.map(p => (
+                                                                    <Option key={p.id} value={p.id} label={`${p.ma_san_pham} - ${p.ten_san_pham}`}>
+                                                                        <div>
+                                                                            <strong>{p.ma_san_pham}</strong> - {p.ten_san_pham}
+                                                                            <br />
+                                                                            <small style={{ color: '#666' }}>
+                                                                                Tồn: {p.ton_kho} {p.don_vi_tinh} | Giá vốn: {p.gia_von?.toLocaleString()}đ
+                                                                            </small>
+                                                                        </div>
+                                                                    </Option>
+                                                                ))}
+                                                            </Select>
+                                                        </Form.Item>
+                                                    )}
+                                                />
+                                                <Table.Column
+                                                    title="SL"
+                                                    width="12%"
+                                                    render={(_, field: any) => (
+                                                        <Form.Item
+                                                            {...field}
+                                                            name={[field.name, 'so_luong']}
+                                                            rules={[{ required: true, message: 'SL' }]}
+                                                            style={{ marginBottom: 0 }}
+                                                        >
+                                                            <InputNumber
+                                                                min={0.0001}
+                                                                step={0.01}
+                                                                style={{ width: '100%' }}
+                                                                onChange={() => {
+                                                                    const values = form.getFieldValue('nguyen_lieu');
+                                                                    const item = values[field.name];
+                                                                    if (item?.so_luong && item?.gia_von) {
+                                                                        item.thanh_tien = item.so_luong * item.gia_von;
+                                                                        form.setFieldsValue({ nguyen_lieu: values });
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </Form.Item>
+                                                    )}
+                                                />
+                                                <Table.Column
+                                                    title="Đơn vị"
+                                                    width="15%"
+                                                    render={(_, field: any) => {
+                                                        const sanPhamId = form.getFieldValue(['nguyen_lieu', field.name, 'san_pham_id']);
+                                                        const product = products.find(p => p.id === sanPhamId);
+                                                        const conversions = product?.don_vi_quy_doi || [];
+
+                                                        return (
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'don_vi']}
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Select
+                                                                    onChange={(value) => {
+                                                                        const values = form.getFieldValue('nguyen_lieu');
+                                                                        const item = values[field.name];
+
+                                                                        if (product) {
+                                                                            if (value === product.don_vi_tinh) {
+                                                                                // Base unit
+                                                                                item.gia_von = product.gia_von || 0;
+                                                                                item.ty_le_quy_doi = 1;
+                                                                                item.don_vi_quy_doi_id = null;
+                                                                            } else {
+                                                                                // Conversion unit
+                                                                                const conv = conversions.find(c => c.don_vi === value);
+                                                                                if (conv) {
+                                                                                    item.gia_von = (product.gia_von || 0) / conv.ty_le;
+                                                                                    item.ty_le_quy_doi = conv.ty_le;
+                                                                                    item.don_vi_quy_doi_id = conv.id;
+                                                                                }
+                                                                            }
+
+                                                                            if (item.so_luong) {
+                                                                                item.thanh_tien = item.so_luong * item.gia_von;
+                                                                            }
+                                                                            form.setFieldsValue({ nguyen_lieu: values });
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {product && <Option value={product.don_vi_tinh}>{product.don_vi_tinh}</Option>}
+                                                                    {conversions.map(c => (
+                                                                        <Option key={c.id} value={c.don_vi}>{c.don_vi}</Option>
+                                                                    ))}
+                                                                </Select>
+                                                            </Form.Item>
+                                                        );
+                                                    }}
+                                                />
+                                                <Table.Column
+                                                    title="Giá vốn"
+                                                    width="15%"
+                                                    render={(_, field: any) => {
+                                                        const giaVon = form.getFieldValue(['nguyen_lieu', field.name, 'gia_von']);
+                                                        return (
+                                                            <>
+                                                                <Form.Item name={[field.name, 'gia_von']} hidden><InputNumber /></Form.Item>
+                                                                <Form.Item name={[field.name, 'ty_le_quy_doi']} hidden><InputNumber /></Form.Item>
+                                                                <Form.Item name={[field.name, 'don_vi_quy_doi_id']} hidden><InputNumber /></Form.Item>
+                                                                <div style={{ textAlign: 'right' }}>
+                                                                    {(giaVon || 0).toLocaleString()}đ
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    }}
+                                                />
+                                                <Table.Column
+                                                    title="Thành tiền"
+                                                    width="18%"
+                                                    render={(_, field: any) => {
+                                                        const thanhTien = form.getFieldValue(['nguyen_lieu', field.name, 'thanh_tien']);
+                                                        return (
+                                                            <>
+                                                                <Form.Item name={[field.name, 'thanh_tien']} hidden><InputNumber /></Form.Item>
+                                                                <div style={{ textAlign: 'right', fontWeight: 500, color: '#52c41a' }}>
+                                                                    {(thanhTien || 0).toLocaleString()}đ
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    }}
+                                                />
+                                                <Table.Column
+                                                    title=""
+                                                    width="5%"
+                                                    render={(_, field: any) => (
+                                                        <DeleteOutlined
+                                                            style={{ color: '#ff4d4f', cursor: 'pointer' }}
+                                                            onClick={() => remove(field.name)}
+                                                        />
+                                                    )}
+                                                />
+                                            </Table>
+                                        )}
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => add()}
+                                            block
+                                            icon={<PlusOutlined />}
+                                        >
+                                            Thêm nguyên liệu
+                                        </Button>
+                                    </>
+                                )}
+                            </Form.List>
+                        </Col>
+
                         <Col span={24}>
                             <Form.Item name="mo_ta" label="Mô tả">
                                 <TextArea rows={4} placeholder="Mô tả chi tiết về dịch vụ..." />
@@ -727,60 +1059,185 @@ const ServiceList: React.FC = () => {
                 placement="right"
                 onClose={() => setDetailDrawerVisible(false)}
                 open={detailDrawerVisible}
-                width={500}
+                width={650}
             >
                 {selectedService && (
-                    <div>
-                        {selectedService.hinh_anh && (
-                            <Image
-                                src={selectedService.hinh_anh}
-                                style={{ width: '100%', marginBottom: 16, borderRadius: 8 }}
-                            />
-                        )}
-                        <Descriptions bordered column={1}>
-                            <Descriptions.Item label="Mã dịch vụ">{selectedService.ma_dich_vu}</Descriptions.Item>
-                            <Descriptions.Item label="Tên dịch vụ">{selectedService.ten_dich_vu}</Descriptions.Item>
-                            <Descriptions.Item label="Danh mục">
-                                {selectedService.danh_muc?.ten_danh_muc || 'N/A'}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Giá">
-                                <strong style={{ color: '#52c41a', fontSize: 16 }}>
-                                    {selectedService.gia.toLocaleString()} VNĐ
-                                </strong>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Thời gian">
-                                {selectedService.thoi_gian_thuc_hien} phút
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Yêu cầu kỹ năng">
-                                {selectedService.yeu_cau_ky_nang && selectedService.yeu_cau_ky_nang.length > 0 ? (
-                                    <Space wrap>
-                                        {selectedService.yeu_cau_ky_nang.map((skill, idx) => (
-                                            <Tag key={idx} color="blue">{skill}</Tag>
-                                        ))}
-                                    </Space>
-                                ) : 'Không có'}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Trạng thái">
-                                <Tag color={selectedService.trang_thai === 'hoat_dong' ? 'green' : 'red'}>
-                                    {selectedService.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Ngừng hoạt động'}
-                                </Tag>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Số lần sử dụng">
-                                {selectedService.so_luong_da_su_dung} lần
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Doanh thu">
-                                {selectedService.doanh_thu.toLocaleString()} VNĐ
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Ngày tạo">
-                                {dayjs(selectedService.created_at).format('DD/MM/YYYY HH:mm')}
-                            </Descriptions.Item>
-                        </Descriptions>
-                        {selectedService.mo_ta && (
-                            <div style={{ marginTop: 16 }}>
-                                <Divider>Mô tả</Divider>
-                                <p>{selectedService.mo_ta}</p>
+                    <div style={{ marginTop: -24, marginLeft: -24, marginRight: -24 }}>
+                        {/* Gradient Header Card */}
+                        <Card
+                            style={{
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                border: 'none',
+                                borderRadius: 0,
+                                marginBottom: 16
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                {selectedService.hinh_anh ? (
+                                    <Image
+                                        src={selectedService.hinh_anh}
+                                        style={{ width: 100, height: 100, borderRadius: 8, objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        width: 100,
+                                        height: 100,
+                                        borderRadius: 8,
+                                        background: 'rgba(255,255,255,0.2)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 40,
+                                        color: 'white'
+                                    }}>
+                                        💆
+                                    </div>
+                                )}
+                                <div style={{ flex: 1 }}>
+                                    <h2 style={{ color: 'white', margin: 0, fontSize: 20 }}>
+                                        {selectedService.ten_dich_vu}
+                                    </h2>
+                                    <p style={{ color: 'rgba(255,255,255,0.9)', margin: '4px 0 0 0' }}>
+                                        {selectedService.ma_dich_vu}
+                                    </p>
+                                    <Tag color={selectedService.trang_thai === 'hoat_dong' ? 'success' : 'error'} style={{ marginTop: 8 }}>
+                                        {selectedService.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Ngừng hoạt động'}
+                                    </Tag>
+                                </div>
                             </div>
-                        )}
+                        </Card>
+
+                        <div style={{ padding: '0 24px' }}>
+                            {/* Price & Performance Cards */}
+                            <Row gutter={16} style={{ marginBottom: 16 }}>
+                                <Col span={12}>
+                                    <Card size="small">
+                                        <Statistic
+                                            title="Giá dịch vụ"
+                                            value={selectedService.gia}
+                                            suffix="VNĐ"
+                                            valueStyle={{ color: '#3f8600', fontSize: 18 }}
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col span={12}>
+                                    <Card size="small">
+                                        <Statistic
+                                            title="Thời gian"
+                                            value={selectedService.thoi_gian_thuc_hien}
+                                            suffix="phút"
+                                            valueStyle={{ color: '#1890ff', fontSize: 18 }}
+                                        />
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            {/* Performance Stats */}
+                            <Card
+                                title="Hiệu suất sử dụng"
+                                size="small"
+                                style={{ marginBottom: 16 }}
+                            >
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Statistic
+                                            title="Số lần sử dụng"
+                                            value={selectedService.so_luong_da_su_dung}
+                                            suffix="lần"
+                                        />
+                                    </Col>
+                                    <Col span={12}>
+                                        <Statistic
+                                            title="Doanh thu"
+                                            value={selectedService.doanh_thu}
+                                            suffix="VNĐ"
+                                            valueStyle={{ color: '#52c41a' }}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Card>
+
+                            {/* Materials Section */}
+                            {selectedService.nguyen_lieu && selectedService.nguyen_lieu.length > 0 && (
+                                <Card
+                                    title="Nguyên liệu tiêu hao"
+                                    size="small"
+                                    style={{ marginBottom: 16 }}
+                                >
+                                    <Table
+                                        dataSource={selectedService.nguyen_lieu}
+                                        pagination={false}
+                                        size="small"
+                                        rowKey={(record, index) => index || 0}
+                                    >
+                                        <Table.Column
+                                            title="Sản phẩm"
+                                            dataIndex="ten_san_pham"
+                                            key="ten_san_pham"
+                                            render={(text, record: any) => (
+                                                <div>
+                                                    <div>{record.ma_san_pham}</div>
+                                                    <div style={{ fontSize: 12, color: '#666' }}>{text}</div>
+                                                </div>
+                                            )}
+                                        />
+                                        <Table.Column
+                                            title="Số lượng"
+                                            dataIndex="so_luong"
+                                            key="so_luong"
+                                            width={100}
+                                            render={(text, record: any) => `${text} ${record.don_vi_su_dung || record.don_vi}`}
+                                        />
+                                        <Table.Column
+                                            title="Giá vốn"
+                                            dataIndex="gia_von"
+                                            key="gia_von"
+                                            width={120}
+                                            render={(text) => `${Number(text || 0).toLocaleString()}đ`}
+                                        />
+                                        <Table.Column
+                                            title="Thành tiền"
+                                            dataIndex="thanh_tien"
+                                            key="thanh_tien"
+                                            width={120}
+                                            render={(text) => (
+                                                <strong style={{ color: '#52c41a' }}>
+                                                    {Number(text || 0).toLocaleString()}đ
+                                                </strong>
+                                            )}
+                                        />
+                                    </Table>
+                                </Card>
+                            )}
+
+                            {/* Service Info */}
+                            <Card title="Thông tin dịch vụ" size="small" style={{ marginBottom: 16 }}>
+                                <Descriptions column={1} size="small">
+                                    <Descriptions.Item label="Danh mục">
+                                        {selectedService.danh_muc?.ten_danh_muc || 'N/A'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Yêu cầu kỹ năng">
+                                        {selectedService.yeu_cau_ky_nang && selectedService.yeu_cau_ky_nang.length > 0 ? (
+                                            <Space wrap>
+                                                {selectedService.yeu_cau_ky_nang.map((skill, idx) => (
+                                                    <Tag key={idx} color="blue">{skill}</Tag>
+                                                ))}
+                                            </Space>
+                                        ) : 'Không có'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Ngày tạo">
+                                        {dayjs(selectedService.created_at).format('DD/MM/YYYY HH:mm')}
+                                    </Descriptions.Item>
+                                </Descriptions>
+                            </Card>
+
+                            {/* Description */}
+                            {selectedService.mo_ta && (
+                                <Card title="Mô tả" size="small">
+                                    <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{selectedService.mo_ta}</p>
+                                </Card>
+                            )}
+                        </div>
                     </div>
                 )}
             </Drawer>
@@ -811,6 +1268,46 @@ const ServiceList: React.FC = () => {
                     </Form.Item>
                     <Form.Item
                         name="thu_tu"
+                        label="Thứ tự"
+                        initialValue={0}
+                    >
+                        <InputNumber style={{ width: '100%' }} min={0} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Quick Create Skill Modal */}
+            <Modal
+                title="Thêm kỹ năng mới"
+                open={skillModalVisible}
+                onCancel={() => setSkillModalVisible(false)}
+                onOk={handleSkillSubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={skillForm} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Tên kỹ năng"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên kỹ năng' }]}
+                    >
+                        <Input placeholder="VD: Massage, Chăm sóc da..." />
+                    </Form.Item>
+                    <Form.Item
+                        name="color"
+                        label="Màu đánh dấu"
+                    >
+                        <Input type="color" />
+                    </Form.Item>
+                    <Form.Item
+                        name="note"
+                        label="Ghi chú"
+                    >
+                        <TextArea rows={3} placeholder="Ghi chú về kỹ năng..." />
+                    </Form.Item>
+                    <Form.Item
+                        name="sort_order"
                         label="Thứ tự"
                         initialValue={0}
                     >

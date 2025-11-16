@@ -7,7 +7,9 @@ import {
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SkinOutlined,
     UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, BarsOutlined,
-    WarningOutlined, CheckCircleOutlined, StockOutlined, BarChartOutlined
+    WarningOutlined, CheckCircleOutlined, StockOutlined, BarChartOutlined,
+    MinusCircleOutlined, SwapOutlined, CalendarOutlined, ClockCircleOutlined,
+    FileTextOutlined, CloseCircleOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
@@ -16,6 +18,13 @@ import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+interface UnitConversion {
+    id: number;
+    don_vi: string;
+    ty_le: number;
+    ghi_chu?: string;
+}
 
 interface Product {
     id: number;
@@ -33,6 +42,7 @@ interface Product {
     ton_kho_toi_thieu: number;
     ton_kho_canh_bao?: number;
     don_vi_tinh: string;
+    don_vi_quy_doi?: UnitConversion[];
     mo_ta?: string;
     mo_ta_ngan?: string;
     hinh_anh?: string;
@@ -62,16 +72,32 @@ interface Brand {
     is_active?: boolean;
 }
 
+interface Origin {
+    id: number;
+    name: string;
+    color?: string;
+    sort_order?: number;
+}
+
 const ProductList: React.FC = () => {
     // State
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
+    const [origins, setOrigins] = useState<Origin[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+
+    // Quick Create Modals
+    const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+    const [brandModalVisible, setBrandModalVisible] = useState(false);
+    const [originModalVisible, setOriginModalVisible] = useState(false);
+    const [categoryForm] = Form.useForm();
+    const [brandForm] = Form.useForm();
+    const [originForm] = Form.useForm();
 
     // Filters
     const [searchText, setSearchText] = useState('');
@@ -118,6 +144,7 @@ const ProductList: React.FC = () => {
         loadProducts();
         loadCategories();
         loadBrands();
+        loadOrigins();
     }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, stockFilter]);
 
     const loadProducts = async () => {
@@ -201,6 +228,21 @@ const ProductList: React.FC = () => {
         }
     };
 
+    const loadOrigins = async () => {
+        try {
+            const response = await axios.get(API.spaOriginList);
+            console.log('Origins response:', response.data);
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data;
+                setOrigins(Array.isArray(data) ? data : []);
+                console.log('Origins loaded:', data.length);
+            }
+        } catch (error) {
+            console.error('Load origins error:', error);
+        }
+    };
+
     // Handlers
     const handleCreate = () => {
         form.resetFields();
@@ -219,9 +261,20 @@ const ProductList: React.FC = () => {
         setModalVisible(true);
     };
 
-    const handleView = (record: Product) => {
-        setSelectedProduct(record);
-        setDetailDrawerVisible(true);
+    const handleView = async (record: Product) => {
+        try {
+            setDetailDrawerVisible(true);
+            setSelectedProduct(record); // Set temporary data first
+
+            // Load full product details including conversion units
+            const response = await axios.get(API.spaProductDetail(record.id));
+            if (response.data.status_code === 200) {
+                setSelectedProduct(response.data.data);
+            }
+        } catch (error) {
+            console.error('Load product detail error:', error);
+            message.error('Không thể tải chi tiết sản phẩm');
+        }
     };
 
     const handleSubmit = async () => {
@@ -358,7 +411,7 @@ const ProductList: React.FC = () => {
 
     const handleBulkApplyAllChange = (field: string, checked: boolean) => {
         setBulkApplyAll({ ...bulkApplyAll, [field]: checked });
-        
+
         // If checking, apply first item's value to all
         if (checked && bulkProducts.length > 0) {
             const firstValue = bulkProducts[0][field as keyof typeof bulkProducts[0]];
@@ -369,7 +422,7 @@ const ProductList: React.FC = () => {
     const handleBulkSubmit = async () => {
         // Validate
         const validProducts = bulkProducts.filter(p => p.ten_san_pham && p.ten_san_pham.trim());
-        
+
         if (validProducts.length === 0) {
             message.error('Vui lòng nhập ít nhất 1 sản phẩm');
             return;
@@ -408,7 +461,7 @@ const ProductList: React.FC = () => {
                 setBulkAddModalVisible(false);
                 loadProducts();
             }
-            
+
             if (errorCount > 0) {
                 message.warning(`Có ${errorCount} sản phẩm tạo thất bại`);
             }
@@ -417,6 +470,78 @@ const ProductList: React.FC = () => {
             message.error('Có lỗi xảy ra khi thêm sản phẩm');
         } finally {
             setBulkSubmitting(false);
+        }
+    };
+
+    // Quick Create handlers
+    const handleQuickCreateCategory = () => {
+        categoryForm.resetFields();
+        setCategoryModalVisible(true);
+    };
+
+    const handleCategorySubmit = async () => {
+        try {
+            const values = await categoryForm.validateFields();
+            // Remove mo_ta field if not in database
+            const payload = {
+                ten_danh_muc: values.ten_danh_muc,
+                thu_tu: values.thu_tu || 0,
+            };
+            const response = await axios.post(API.spaProductCategoryCreate, payload);
+
+            if (response.data.status_code === 200) {
+                message.success('Tạo danh mục mới thành công');
+                setCategoryModalVisible(false);
+                await loadCategories();
+                const newCategoryId = response.data.data.id;
+                form.setFieldsValue({ danh_muc_id: newCategoryId });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleQuickCreateBrand = () => {
+        brandForm.resetFields();
+        setBrandModalVisible(true);
+    };
+
+    const handleBrandSubmit = async () => {
+        try {
+            const values = await brandForm.validateFields();
+            const response = await axios.post(API.spaBrandCreate, values);
+
+            if (response.data.status_code === 200) {
+                message.success('Tạo thương hiệu mới thành công');
+                setBrandModalVisible(false);
+                await loadBrands();
+                const newBrandId = response.data.data.id;
+                form.setFieldsValue({ thuong_hieu_id: newBrandId });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleQuickCreateOrigin = () => {
+        originForm.resetFields();
+        setOriginModalVisible(true);
+    };
+
+    const handleOriginSubmit = async () => {
+        try {
+            const values = await originForm.validateFields();
+            const response = await axios.post(API.spaOriginCreate, values);
+
+            if (response.data.status_code === 200) {
+                message.success('Tạo xuất xứ mới thành công');
+                setOriginModalVisible(false);
+                await loadOrigins();
+                const newOriginName = response.data.data?.data?.name || values.name;
+                form.setFieldsValue({ xuat_xu: newOriginName });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
 
@@ -867,6 +992,7 @@ const ProductList: React.FC = () => {
                 width={900}
                 okText={selectedProduct ? 'Cập nhật' : 'Tạo mới'}
                 cancelText="Hủy"
+                maskClosable={false}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
@@ -891,7 +1017,19 @@ const ProductList: React.FC = () => {
                         <Col span={8}>
                             <Form.Item
                                 name="danh_muc_id"
-                                label="Danh mục"
+                                label={
+                                    <Space>
+                                        <span>Danh mục</span>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={handleQuickCreateCategory}
+                                        >
+                                            Thêm nhanh
+                                        </Button>
+                                    </Space>
+                                }
                                 rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
                             >
                                 <Select placeholder="Chọn danh mục">
@@ -904,7 +1042,22 @@ const ProductList: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="thuong_hieu_id" label="Thương hiệu">
+                            <Form.Item
+                                name="thuong_hieu_id"
+                                label={
+                                    <Space>
+                                        <span>Thương hiệu</span>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={handleQuickCreateBrand}
+                                        >
+                                            Thêm nhanh
+                                        </Button>
+                                    </Space>
+                                }
+                            >
                                 <Select
                                     placeholder="Chọn thương hiệu"
                                     allowClear
@@ -932,11 +1085,49 @@ const ProductList: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="xuat_xu" label="Xuất xứ">
-                                <Input placeholder="VD: Pháp" />
+                            <Form.Item
+                                name="xuat_xu"
+                                label={
+                                    <Space>
+                                        <span>Xuất xứ</span>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={handleQuickCreateOrigin}
+                                        >
+                                            Thêm nhanh
+                                        </Button>
+                                    </Space>
+                                }
+                            >
+                                <Select
+                                    placeholder="Chọn xuất xứ"
+                                    allowClear
+                                    showSearch
+                                    optionFilterProp="label"
+                                >
+                                    {origins.map(origin => (
+                                        <Option key={origin.id} value={origin.name} label={origin.name}>
+                                            {origin.color && (
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: '50%',
+                                                        backgroundColor: origin.color,
+                                                        marginRight: 8
+                                                    }}
+                                                />
+                                            )}
+                                            {origin.name}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col span={8}>
                             <Form.Item
                                 name="gia_nhap"
                                 label="Giá nhập"
@@ -950,7 +1141,7 @@ const ProductList: React.FC = () => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col span={8}>
                             <Form.Item
                                 name="gia_ban"
                                 label="Giá bán"
@@ -964,7 +1155,7 @@ const ProductList: React.FC = () => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col span={8}>
                             <Form.Item
                                 name="ton_kho"
                                 label="Tồn kho"
@@ -973,29 +1164,13 @@ const ProductList: React.FC = () => {
                                 <InputNumber style={{ width: '100%' }} min={0} />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col span={8}>
                             <Form.Item
                                 name="ton_kho_toi_thieu"
                                 label="Tồn kho tối thiểu"
                                 initialValue={10}
                             >
                                 <InputNumber style={{ width: '100%' }} min={0} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="don_vi_tinh"
-                                label="Đơn vị tính"
-                                initialValue="Chai"
-                            >
-                                <Select>
-                                    <Option value="Chai">Chai</Option>
-                                    <Option value="Hộp">Hộp</Option>
-                                    <Option value="Tuýp">Tuýp</Option>
-                                    <Option value="Lọ">Lọ</Option>
-                                    <Option value="Cái">Cái</Option>
-                                    <Option value="Gói">Gói</Option>
-                                </Select>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -1020,6 +1195,106 @@ const ProductList: React.FC = () => {
                                 <TextArea rows={3} placeholder="Mô tả sản phẩm..." />
                             </Form.Item>
                         </Col>
+
+                        <Col span={8}>
+                            <Form.Item
+                                name="don_vi_tinh"
+                                label="Đơn vị tính"
+                                initialValue="Chai"
+                            >
+                                <Select>
+                                    <Option value="Chai">Chai</Option>
+                                    <Option value="Hộp">Hộp</Option>
+                                    <Option value="Tuýp">Tuýp</Option>
+                                    <Option value="Lọ">Lọ</Option>
+                                    <Option value="Cái">Cái</Option>
+                                    <Option value="Gói">Gói</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+
+                        {/* Đơn vị quy đổi */}
+                        <Col span={24}>
+                            <Divider orientation="left">Đơn vị quy đổi (Tùy chọn)</Divider>
+                            <Alert
+                                message="Thêm các đơn vị quy đổi để dễ dàng sử dụng sản phẩm với nhiều đơn vị khác nhau"
+                                description="Ví dụ: 1 Chai = 100ml, 1 Chai = 50 lần sử dụng"
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                            />
+                            <Form.List name="don_vi_quy_doi">
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map((field, index) => (
+                                            <Card
+                                                key={field.key}
+                                                size="small"
+                                                style={{ marginBottom: 8 }}
+                                                title={`Đơn vị ${index + 1}`}
+                                                extra={
+                                                    <MinusCircleOutlined
+                                                        onClick={() => remove(field.name)}
+                                                        style={{ color: '#ff4d4f' }}
+                                                    />
+                                                }
+                                            >
+                                                <Row gutter={16}>
+                                                    <Col span={8}>
+                                                        <Form.Item
+                                                            {...field}
+                                                            name={[field.name, 'don_vi']}
+                                                            label="Đơn vị"
+                                                            rules={[{ required: true, message: 'Vui lòng nhập đơn vị' }]}
+                                                        >
+                                                            <Input placeholder="ml, lít, gram, lần..." />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={8}>
+                                                        <Form.Item
+                                                            {...field}
+                                                            name={[field.name, 'ty_le']}
+                                                            label="Tỷ lệ quy đổi"
+                                                            rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ' }]}
+                                                        >
+                                                            <InputNumber
+                                                                style={{ width: '100%' }}
+                                                                min={0.0001}
+                                                                step={0.01}
+                                                                placeholder="100"
+                                                                addonAfter={
+                                                                    <span style={{ fontSize: 12 }}>
+                                                                        / 1 {form.getFieldValue('don_vi_tinh') || 'đơn vị chính'}
+                                                                    </span>
+                                                                }
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={8}>
+                                                        <Form.Item
+                                                            {...field}
+                                                            name={[field.name, 'ghi_chu']}
+                                                            label="Ghi chú"
+                                                        >
+                                                            <Input placeholder="VD: 1 Chai = 100ml" />
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                        ))}
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => add()}
+                                            block
+                                            icon={<PlusOutlined />}
+                                        >
+                                            Thêm đơn vị quy đổi
+                                        </Button>
+                                    </>
+                                )}
+                            </Form.List>
+                        </Col>
+
                         <Col span={24}>
                             <Form.Item label="Hình ảnh">
                                 <Space direction="vertical" style={{ width: '100%' }}>
@@ -1044,77 +1319,278 @@ const ProductList: React.FC = () => {
 
             {/* Detail Drawer */}
             <Drawer
-                title="Chi tiết sản phẩm"
+                title={
+                    <Space>
+                        <SkinOutlined />
+                        <span>Chi tiết sản phẩm</span>
+                    </Space>
+                }
                 placement="right"
                 onClose={() => setDetailDrawerVisible(false)}
                 open={detailDrawerVisible}
-                width={500}
+                width={650}
+                extra={
+                    <Space>
+                        <Button icon={<EditOutlined />} type="primary" onClick={() => {
+                            setDetailDrawerVisible(false);
+                            handleEdit(selectedProduct!);
+                        }}>
+                            Chỉnh sửa
+                        </Button>
+                    </Space>
+                }
             >
                 {selectedProduct && (
                     <div>
-                        {selectedProduct.hinh_anh && (
-                            <Image
-                                src={selectedProduct.hinh_anh}
-                                style={{ width: '100%', marginBottom: 16, borderRadius: 8 }}
-                            />
-                        )}
+                        {/* Product Image & Title */}
+                        <Card
+                            bordered={false}
+                            style={{
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                marginBottom: 16,
+                                borderRadius: 12
+                            }}
+                            bodyStyle={{ padding: 20 }}
+                        >
+                            <Row gutter={16} align="middle">
+                                <Col span={8}>
+                                    {selectedProduct.hinh_anh ? (
+                                        <Image
+                                            src={selectedProduct.hinh_anh}
+                                            style={{
+                                                width: '100%',
+                                                borderRadius: 8,
+                                                border: '3px solid white'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div style={{
+                                            width: '100%',
+                                            paddingTop: '100%',
+                                            background: 'rgba(255,255,255,0.2)',
+                                            borderRadius: 8,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            position: 'relative'
+                                        }}>
+                                            <SkinOutlined style={{
+                                                position: 'absolute',
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                                fontSize: 40,
+                                                color: 'white'
+                                            }} />
+                                        </div>
+                                    )}
+                                </Col>
+                                <Col span={16}>
+                                    <div style={{ color: 'white' }}>
+                                        <h2 style={{ color: 'white', marginBottom: 8 }}>
+                                            {selectedProduct.ten_san_pham}
+                                        </h2>
+                                        <p style={{ fontSize: 16, opacity: 0.9, marginBottom: 4 }}>
+                                            <Tag color="blue">{selectedProduct.ma_san_pham}</Tag>
+                                        </p>
+                                        <Space>
+                                            {selectedProduct.danh_muc && (
+                                                <Tag color="cyan">{selectedProduct.danh_muc.ten_danh_muc}</Tag>
+                                            )}
+                                            {selectedProduct.ten_thuong_hieu && (
+                                                <Tag color="purple">{selectedProduct.ten_thuong_hieu}</Tag>
+                                            )}
+                                        </Space>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Card>
 
+                        {/* Stock Status Alert */}
                         <Alert
                             message={getStockStatus(selectedProduct).text}
+                            description={
+                                <Space direction="vertical" size={0}>
+                                    <span>Tồn kho: <strong>{selectedProduct.ton_kho ?? 0}</strong> {selectedProduct.don_vi_tinh}</span>
+                                    <span>Tối thiểu: {selectedProduct.ton_kho_toi_thieu ?? 0} {selectedProduct.don_vi_tinh}</span>
+                                </Space>
+                            }
                             type={(selectedProduct.ton_kho ?? 0) === 0 ? 'error' : (selectedProduct.ton_kho ?? 0) <= (selectedProduct.ton_kho_toi_thieu ?? 0) ? 'warning' : 'success'}
                             showIcon
+                            icon={getStockStatus(selectedProduct).icon}
                             style={{ marginBottom: 16 }}
                         />
 
-                        <Descriptions bordered column={1} size="small">
-                            <Descriptions.Item label="Mã sản phẩm">{selectedProduct.ma_san_pham}</Descriptions.Item>
-                            <Descriptions.Item label="Tên sản phẩm">{selectedProduct.ten_san_pham}</Descriptions.Item>
-                            <Descriptions.Item label="Danh mục">
-                                {selectedProduct.danh_muc?.ten_danh_muc || 'N/A'}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Thương hiệu">{selectedProduct.ten_thuong_hieu || 'N/A'}</Descriptions.Item>
-                            <Descriptions.Item label="Xuất xứ">{selectedProduct.xuat_xu || 'N/A'}</Descriptions.Item>
-                            <Descriptions.Item label="Giá nhập">
-                                {(selectedProduct.gia_nhap ?? 0).toLocaleString()} VNĐ
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Giá bán">
-                                <strong style={{ color: '#52c41a', fontSize: 16 }}>
-                                    {(selectedProduct.gia_ban ?? 0).toLocaleString()} VNĐ
-                                </strong>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Lợi nhuận">
-                                <span style={{ color: '#52c41a' }}>
-                                    {(calculateProfit(selectedProduct) ?? 0).toLocaleString()} VNĐ
-                                    ({(calculateProfitMargin(selectedProduct) ?? 0).toFixed(1)}%)
-                                </span>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Tồn kho">
-                                <strong>{selectedProduct.ton_kho ?? 0}</strong> {selectedProduct.don_vi_tinh}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Tồn kho tối thiểu">
-                                {selectedProduct.ton_kho_toi_thieu ?? 0} {selectedProduct.don_vi_tinh}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Đã bán">
-                                {selectedProduct.so_luong_da_ban ?? 0} {selectedProduct.don_vi_tinh}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Doanh thu">
-                                {(selectedProduct.doanh_thu ?? 0).toLocaleString()} VNĐ
-                            </Descriptions.Item>
-                            {selectedProduct.ngay_het_han && (
-                                <Descriptions.Item label="Hạn sử dụng">
-                                    {dayjs(selectedProduct.ngay_het_han).format('DD/MM/YYYY')}
-                                </Descriptions.Item>
-                            )}
-                            <Descriptions.Item label="Ngày tạo">
-                                {dayjs(selectedProduct.created_at).format('DD/MM/YYYY HH:mm')}
-                            </Descriptions.Item>
-                        </Descriptions>
+                        {/* Price Cards */}
+                        <Row gutter={16} style={{ marginBottom: 16 }}>
+                            <Col span={8}>
+                                <Card size="small">
+                                    <Statistic
+                                        title="Giá nhập"
+                                        value={selectedProduct.gia_nhap ?? 0}
+                                        precision={0}
+                                        valueStyle={{ color: '#1890ff', fontSize: 18 }}
+                                        suffix="đ"
+                                    />
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card size="small">
+                                    <Statistic
+                                        title="Giá bán"
+                                        value={selectedProduct.gia_ban ?? 0}
+                                        precision={0}
+                                        valueStyle={{ color: '#52c41a', fontSize: 18 }}
+                                        suffix="đ"
+                                    />
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card size="small">
+                                    <Statistic
+                                        title="Lợi nhuận"
+                                        value={calculateProfit(selectedProduct) ?? 0}
+                                        precision={0}
+                                        valueStyle={{ color: '#faad14', fontSize: 18 }}
+                                        suffix="đ"
+                                        prefix={
+                                            <Tooltip title={`Tỷ suất: ${calculateProfitMargin(selectedProduct).toFixed(1)}%`}>
+                                                <DollarOutlined />
+                                            </Tooltip>
+                                        }
+                                    />
+                                </Card>
+                            </Col>
+                        </Row>
 
+                        {/* Sales Performance */}
+                        <Card
+                            title={<Space><BarChartOutlined /> Hiệu suất bán hàng</Space>}
+                            size="small"
+                            style={{ marginBottom: 16 }}
+                        >
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Statistic
+                                        title="Đã bán"
+                                        value={selectedProduct.so_luong_da_ban ?? 0}
+                                        suffix={selectedProduct.don_vi_tinh}
+                                        valueStyle={{ fontSize: 20 }}
+                                    />
+                                    <Progress
+                                        percent={Math.min(100, ((selectedProduct.so_luong_da_ban ?? 0) / ((selectedProduct.ton_kho ?? 0) + (selectedProduct.so_luong_da_ban ?? 0))) * 100)}
+                                        strokeColor="#52c41a"
+                                        format={(percent) => `${percent?.toFixed(0)}%`}
+                                    />
+                                </Col>
+                                <Col span={12}>
+                                    <Statistic
+                                        title="Doanh thu"
+                                        value={selectedProduct.doanh_thu ?? 0}
+                                        precision={0}
+                                        suffix="đ"
+                                        valueStyle={{ fontSize: 20, color: '#52c41a' }}
+                                    />
+                                </Col>
+                            </Row>
+                        </Card>
+
+                        {/* Unit Conversions */}
+                        {selectedProduct.don_vi_quy_doi && selectedProduct.don_vi_quy_doi.length > 0 && (
+                            <Card
+                                title={<Space><SwapOutlined /> Đơn vị quy đổi</Space>}
+                                size="small"
+                                style={{ marginBottom: 16 }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                    {selectedProduct.don_vi_quy_doi.map((conversion, index) => (
+                                        <Card
+                                            key={index}
+                                            size="small"
+                                            style={{ background: '#f5f5f5' }}
+                                        >
+                                            <Row align="middle" gutter={16}>
+                                                <Col span={12}>
+                                                    <div style={{ fontSize: 16, fontWeight: 500 }}>
+                                                        1 {selectedProduct.don_vi_tinh} = {conversion.ty_le} {conversion.don_vi}
+                                                    </div>
+                                                </Col>
+                                                <Col span={12}>
+                                                    {conversion.ghi_chu && (
+                                                        <div style={{ fontSize: 13, color: '#666' }}>
+                                                            <i>{conversion.ghi_chu}</i>
+                                                        </div>
+                                                    )}
+                                                </Col>
+                                            </Row>
+                                        </Card>
+                                    ))}
+                                </Space>
+                            </Card>
+                        )}
+
+                        {/* Product Info */}
+                        <Card
+                            title={<Space><SkinOutlined /> Thông tin sản phẩm</Space>}
+                            size="small"
+                            style={{ marginBottom: 16 }}
+                        >
+                            <Descriptions column={1} size="small">
+                                <Descriptions.Item label="Đơn vị tính chính">
+                                    <Tag color="blue" style={{ fontSize: 14 }}>
+                                        {selectedProduct.don_vi_tinh}
+                                    </Tag>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Xuất xứ">
+                                    {selectedProduct.xuat_xu || <i style={{ color: '#999' }}>Chưa cập nhật</i>}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Trạng thái">
+                                    {selectedProduct.trang_thai === 'con_hang' ? (
+                                        <Tag color="success" icon={<CheckCircleOutlined />}>Còn hàng</Tag>
+                                    ) : (
+                                        <Tag color="error" icon={<CloseCircleOutlined />}>Hết hàng</Tag>
+                                    )}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Tồn kho tối thiểu">
+                                    <Badge
+                                        count={selectedProduct.ton_kho_toi_thieu ?? 0}
+                                        showZero
+                                        color={(selectedProduct.ton_kho ?? 0) <= (selectedProduct.ton_kho_toi_thieu ?? 0) ? 'red' : 'green'}
+                                    />
+                                    <span style={{ marginLeft: 8 }}>{selectedProduct.don_vi_tinh}</span>
+                                </Descriptions.Item>
+                                {selectedProduct.ngay_het_han && (
+                                    <Descriptions.Item label="Hạn sử dụng">
+                                        <Space>
+                                            <CalendarOutlined />
+                                            {dayjs(selectedProduct.ngay_het_han).format('DD/MM/YYYY')}
+                                            {dayjs(selectedProduct.ngay_het_han).isBefore(dayjs()) && (
+                                                <Tag color="red">Đã hết hạn</Tag>
+                                            )}
+                                            {dayjs(selectedProduct.ngay_het_han).isBefore(dayjs().add(30, 'days')) &&
+                                             dayjs(selectedProduct.ngay_het_han).isAfter(dayjs()) && (
+                                                <Tag color="orange">Sắp hết hạn</Tag>
+                                            )}
+                                        </Space>
+                                    </Descriptions.Item>
+                                )}
+                                <Descriptions.Item label="Ngày tạo">
+                                    <Space>
+                                        <ClockCircleOutlined />
+                                        {dayjs(selectedProduct.created_at).format('DD/MM/YYYY HH:mm')}
+                                    </Space>
+                                </Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+
+                        {/* Description */}
                         {selectedProduct.mo_ta && (
-                            <div style={{ marginTop: 16 }}>
-                                <Divider>Mô tả</Divider>
-                                <p>{selectedProduct.mo_ta}</p>
-                            </div>
+                            <Card
+                                title={<Space><FileTextOutlined /> Mô tả sản phẩm</Space>}
+                                size="small"
+                            >
+                                <p style={{ margin: 0, lineHeight: 1.8 }}>{selectedProduct.mo_ta}</p>
+                            </Card>
                         )}
                     </div>
                 )}
@@ -1311,6 +1787,90 @@ const ProductList: React.FC = () => {
                 >
                     Thêm hàng
                 </Button>
+            </Modal>
+
+            {/* Quick Create Category Modal */}
+            <Modal
+                title="Thêm danh mục mới"
+                open={categoryModalVisible}
+                onCancel={() => setCategoryModalVisible(false)}
+                onOk={handleCategorySubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={categoryForm} layout="vertical">
+                    <Form.Item
+                        name="ten_danh_muc"
+                        label="Tên danh mục"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên danh mục' }]}
+                    >
+                        <Input placeholder="VD: Chăm sóc da mặt" />
+                    </Form.Item>
+                    <Form.Item name="mo_ta" label="Mô tả">
+                        <TextArea rows={3} placeholder="Mô tả về danh mục..." />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Quick Create Brand Modal */}
+            <Modal
+                title="Thêm thương hiệu mới"
+                open={brandModalVisible}
+                onCancel={() => setBrandModalVisible(false)}
+                onOk={handleBrandSubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={brandForm} layout="vertical">
+                    <Form.Item
+                        name="ten_thuong_hieu"
+                        label="Tên thương hiệu"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên thương hiệu' }]}
+                    >
+                        <Input placeholder="VD: L'Oreal, Olay..." />
+                    </Form.Item>
+                    <Form.Item name="color" label="Màu đánh dấu">
+                        <Input type="color" />
+                    </Form.Item>
+                    <Form.Item name="note" label="Ghi chú">
+                        <TextArea rows={3} placeholder="Ghi chú về thương hiệu..." />
+                    </Form.Item>
+                    <Form.Item name="sort_order" label="Thứ tự" initialValue={0}>
+                        <InputNumber style={{ width: '100%' }} min={0} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Quick Create Origin Modal */}
+            <Modal
+                title="Thêm xuất xứ mới"
+                open={originModalVisible}
+                onCancel={() => setOriginModalVisible(false)}
+                onOk={handleOriginSubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={originForm} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Tên xuất xứ"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên xuất xứ' }]}
+                    >
+                        <Input placeholder="VD: Pháp, Hàn Quốc, Nhật Bản..." />
+                    </Form.Item>
+                    <Form.Item name="color" label="Màu đánh dấu">
+                        <Input type="color" />
+                    </Form.Item>
+                    <Form.Item name="note" label="Ghi chú">
+                        <TextArea rows={3} placeholder="Ghi chú về xuất xứ..." />
+                    </Form.Item>
+                    <Form.Item name="sort_order" label="Thứ tự" initialValue={0}>
+                        <InputNumber style={{ width: '100%' }} min={0} />
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
     );

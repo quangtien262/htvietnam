@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Spa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Spa\DichVuNguyenLieu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -71,6 +72,24 @@ class DichVuController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Save materials if provided
+        if ($request->has('nguyen_lieu') && is_array($request->nguyen_lieu)) {
+            foreach ($request->nguyen_lieu as $material) {
+                if (!empty($material['san_pham_id']) && !empty($material['so_luong'])) {
+                    DichVuNguyenLieu::create([
+                        'dich_vu_id' => $id,
+                        'san_pham_id' => $material['san_pham_id'],
+                        'so_luong' => $material['so_luong'],
+                        'don_vi_su_dung' => $material['don_vi_su_dung'] ?? 'Chai',
+                        'gia_von' => $material['gia_von'] ?? 0,
+                        'ty_le_quy_doi' => $material['ty_le_quy_doi'] ?? 1,
+                        'thanh_tien' => $material['thanh_tien'] ?? 0,
+                        'ghi_chu' => $material['ghi_chu'] ?? null,
+                    ]);
+                }
+            }
+        }
+
         return $this->sendSuccessResponse(['id' => $id], 'Tạo dịch vụ thành công');
     }
 
@@ -101,6 +120,30 @@ class DichVuController extends Controller
 
         DB::table('spa_dich_vu')->where('id', $id)->update($updateData);
 
+        // Update materials if provided
+        if ($request->has('nguyen_lieu')) {
+            // Delete old materials
+            DichVuNguyenLieu::where('dich_vu_id', $id)->delete();
+
+            // Create new materials
+            if (is_array($request->nguyen_lieu)) {
+                foreach ($request->nguyen_lieu as $material) {
+                    if (!empty($material['san_pham_id']) && !empty($material['so_luong'])) {
+                        DichVuNguyenLieu::create([
+                            'dich_vu_id' => $id,
+                            'san_pham_id' => $material['san_pham_id'],
+                            'so_luong' => $material['so_luong'],
+                            'don_vi_su_dung' => $material['don_vi_su_dung'] ?? 'Chai',
+                            'gia_von' => $material['gia_von'] ?? 0,
+                            'ty_le_quy_doi' => $material['ty_le_quy_doi'] ?? 1,
+                            'thanh_tien' => $material['thanh_tien'] ?? 0,
+                            'ghi_chu' => $material['ghi_chu'] ?? null,
+                        ]);
+                    }
+                }
+            }
+        }
+
         return $this->sendSuccessResponse(null, 'Cập nhật thành công');
     }
 
@@ -113,6 +156,23 @@ class DichVuController extends Controller
     public function show($id)
     {
         $service = DB::table('spa_dich_vu')->where('id', $id)->first();
+
+        // Load materials with product info
+        if ($service) {
+            $service->nguyen_lieu = DB::table('spa_dich_vu_nguyen_lieu as nl')
+                ->leftJoin('spa_san_pham as sp', 'nl.san_pham_id', '=', 'sp.id')
+                ->where('nl.dich_vu_id', $id)
+                ->select(
+                    'nl.*',
+                    'sp.ma_san_pham',
+                    'sp.ten_san_pham',
+                    'sp.don_vi_tinh as don_vi_goc',
+                    'sp.gia_von as gia_von_goc'
+                )
+                ->get()
+                ->toArray();
+        }
+
         return $this->sendSuccessResponse($service);
     }
 }

@@ -26,20 +26,19 @@ class DanhMucSanPhamController extends Controller
 
         $id = DB::table('spa_danh_muc_san_pham')->insertGetId([
             'ten_danh_muc' => $request->ten_danh_muc,
-            'mo_ta' => $request->mo_ta,
             'thu_tu' => $request->thu_tu ?? 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return $this->sendSuccessResponse(['id' => $id], 'Tạo danh mục thành công');
+        $category = DB::table('spa_danh_muc_san_pham')->where('id', $id)->first();
+        return $this->sendSuccessResponse($category, 'Tạo danh mục thành công');
     }
 
     public function update(Request $request, $id)
     {
         DB::table('spa_danh_muc_san_pham')->where('id', $id)->update([
             'ten_danh_muc' => $request->ten_danh_muc,
-            'mo_ta' => $request->mo_ta,
             'thu_tu' => $request->thu_tu,
             'updated_at' => now(),
         ]);

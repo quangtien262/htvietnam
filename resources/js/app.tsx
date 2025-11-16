@@ -117,11 +117,13 @@ import UserGuidePage from './pages/document/UserGuidePage';
 import SpaDashboard from './pages/spa/SpaDashboard';
 import SpaBookingCalendar from './pages/spa/SpaBookingCalendar';
 import SpaPOSScreen from './pages/spa/SpaPOSScreen';
+import InvoiceList from './pages/spa/InvoiceList';
 import SpaCustomerList from './pages/spa/SpaCustomerList';
 import SpaAnalyticsDashboard from './pages/spa/SpaAnalyticsDashboard';
 import ServiceList from './pages/spa/ServiceList';
 import SpaProductList from './pages/spa/ProductList';
 import TreatmentPackageList from './pages/spa/TreatmentPackageList';
+import ServicePackageList from './pages/spa/ServicePackageList';
 import StaffList from './pages/spa/StaffList';
 import StaffSchedule from './pages/spa/StaffSchedule';
 import MembershipList from './pages/spa/MembershipList';
@@ -263,11 +265,13 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_dashboard} element={<SpaDashboard />} />
                 <Route path={ROUTE.spa_booking_calendar} element={<SpaBookingCalendar />} />
                 <Route path={ROUTE.spa_pos} element={<SpaPOSScreen />} />
+                <Route path={ROUTE.spa_invoices} element={<InvoiceList />} />
                 <Route path={ROUTE.spa_customers} element={<SpaCustomerList />} />
                 <Route path={ROUTE.spa_analytics} element={<SpaAnalyticsDashboard />} />
                 <Route path={ROUTE.spa_services} element={<ServiceList />} />
                 <Route path={ROUTE.spa_products} element={<SpaProductList />} />
                 <Route path={ROUTE.spa_treatment_packages} element={<TreatmentPackageList />} />
+                <Route path={ROUTE.spa_service_packages} element={<ServicePackageList />} />
                 <Route path={ROUTE.spa_staff} element={<StaffList />} />
                 <Route path={ROUTE.spa_staff_schedule} element={<StaffSchedule />} />
                 <Route path={ROUTE.spa_membership} element={<MembershipList />} />

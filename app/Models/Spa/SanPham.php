@@ -73,6 +73,11 @@ class SanPham extends Model
         return $this->hasMany(HoaDonChiTiet::class, 'san_pham_id');
     }
 
+    public function donViQuiDoi()
+    {
+        return $this->hasMany(SanPhamDonViQuiDoi::class, 'san_pham_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

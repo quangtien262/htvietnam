@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Spa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Spa\SanPhamDonViQuiDoi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,14 @@ class SanPhamController extends Controller
 
         $products = $query->orderBy('spa_san_pham.created_at', 'desc')
             ->paginate($request->get('per_page', 20));
+
+        // Load unit conversions for each product
+        foreach ($products as $product) {
+            $product->don_vi_quy_doi = SanPhamDonViQuiDoi::where('san_pham_id', $product->id)
+                ->select('id', 'don_vi', 'ty_le')
+                ->get()
+                ->toArray();
+        }
 
         return $this->sendSuccessResponse($products);
     }
@@ -85,6 +94,21 @@ class SanPhamController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Save conversion units if provided
+        if ($request->has('don_vi_quy_doi') && is_array($request->don_vi_quy_doi)) {
+            foreach ($request->don_vi_quy_doi as $conversion) {
+                if (!empty($conversion['don_vi']) && !empty($conversion['ty_le'])) {
+                    SanPhamDonViQuiDoi::create([
+                        'san_pham_id' => $id,
+                        'don_vi' => $conversion['don_vi'],
+                        'ty_le' => $conversion['ty_le'],
+                        'ghi_chu' => $conversion['ghi_chu'] ?? null,
+                        'is_active' => 1,
+                    ]);
+                }
+            }
+        }
+
         return $this->sendSuccessResponse(['id' => $id, 'ma_san_pham' => $maSanPham], 'Tạo sản phẩm thành công');
     }
 
@@ -111,6 +135,27 @@ class SanPhamController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Update conversion units if provided
+        if ($request->has('don_vi_quy_doi')) {
+            // Delete old conversion units
+            SanPhamDonViQuiDoi::where('san_pham_id', $id)->delete();
+
+            // Create new conversion units
+            if (is_array($request->don_vi_quy_doi)) {
+                foreach ($request->don_vi_quy_doi as $conversion) {
+                    if (!empty($conversion['don_vi']) && !empty($conversion['ty_le'])) {
+                        SanPhamDonViQuiDoi::create([
+                            'san_pham_id' => $id,
+                            'don_vi' => $conversion['don_vi'],
+                            'ty_le' => $conversion['ty_le'],
+                            'ghi_chu' => $conversion['ghi_chu'] ?? null,
+                            'is_active' => 1,
+                        ]);
+                    }
+                }
+            }
+        }
+
         return $this->sendSuccessResponse(null, 'Cập nhật thành công');
     }
 
@@ -132,6 +177,14 @@ class SanPhamController extends Controller
                 'spa_thuong_hieu.ten_thuong_hieu'
             )
             ->first();
+
+        // Load conversion units
+        if ($product) {
+            $product->don_vi_quy_doi = SanPhamDonViQuiDoi::where('san_pham_id', $id)
+                ->where('is_active', 1)
+                ->get()
+                ->toArray();
+        }
 
         return $this->sendSuccessResponse($product);
     }

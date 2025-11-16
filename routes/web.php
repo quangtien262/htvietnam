@@ -46,9 +46,20 @@ Route::middleware('auth:admin_users')->group(function () {
 
     // ✅ API routes MUST come BEFORE SPA fallback route
     Route::group(['prefix' => 'aio/api'], function () {
-        
+
+        // ============================
+        // MODULE SPA MANAGEMENT
+        // ============================
+        require __DIR__ . '/spa_route.php';
+
+        // ============================
+        // MODULE AIO MANAGEMENT
+        // ============================
         require __DIR__ . '/aio_route.php';
 
+        // ============================
+        // MODULE ADMIN MANAGEMENT
+        // ============================
         require __DIR__ . '/admin_route.php';
     });
 

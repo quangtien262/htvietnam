@@ -63,6 +63,11 @@ class DichVu extends Model
         return $this->hasMany(HoaDonChiTiet::class, 'dich_vu_id');
     }
 
+    public function nguyenLieus()
+    {
+        return $this->hasMany(DichVuNguyenLieu::class, 'dich_vu_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

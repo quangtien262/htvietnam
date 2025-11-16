@@ -50,11 +50,7 @@ Route::get('/hr/huong-dan', function() {
     return view('admin.hr.huong-dan');
 })->name('hr.huong-dan');
 
-// ============================
-// MODULE SPA MANAGEMENT
-// ============================
 
-require __DIR__ . '/spa_route.php';
 
 // Chấm công
 Route::get('/hr/cham-cong', [ChamCongController::class, 'index'])->name('hr.cham-cong.index');
@@ -227,7 +223,7 @@ Route::get('/documents/users', function () {
             ->where('da_nghi_lam', 0) // Only active employees
             ->orderBy('name')
             ->get();
-        
+
         return response()->json($users);
     } catch (\Exception $e) {
         \Log::error('Get users error: ' . $e->getMessage());
