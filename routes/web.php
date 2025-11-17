@@ -41,12 +41,20 @@ Route::middleware('auth:web')->group(function () {
 });
 
 Route::middleware('auth:admin_users')->group(function () {
+
+    // ============================
+    // MODULE SPA MANAGEMENT
+    // ============================
+    Route::group(['prefix' => 'spa'], function () {
+        require __DIR__ . '/spa_route.php';
+    });
+
     // Route::get('/', [PagesController::class, 'index'])->name('home');
     // Route::get('/', [AdminController::class, 'index'])->name('home');
 
     // ✅ API routes MUST come BEFORE SPA fallback route
     Route::group(['prefix' => 'aio/api'], function () {
-        
+
         require __DIR__ . '/aio_route.php';
 
         require __DIR__ . '/admin_route.php';

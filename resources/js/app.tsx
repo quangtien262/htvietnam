@@ -134,6 +134,14 @@ import Settings from './pages/spa/Settings';
 import Documentation from './pages/spa/Documentation';
 import InventoryList from './pages/spa/InventoryList';
 
+// SPA Multi-Warehouse Management
+import BranchInventoryView from './pages/spa/inventory/BranchInventoryView';
+import StockTransferList from './pages/spa/inventory/StockTransferList';
+import InventoryCountList from './pages/spa/inventory/InventoryCountList';
+import PurchaseReturnList from './pages/spa/inventory/PurchaseReturnList';
+import DisposalList from './pages/spa/inventory/DisposalList';
+import SupplierManagement from './pages/spa/inventory/SupplierManagement';
+
 // Project Management System
 import ProjectDashboard from './pages/project/ProjectDashboard';
 import ProjectList_PM from './pages/project/ProjectList';
@@ -279,6 +287,14 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_rooms} element={<RoomList />} />
                 <Route path={ROUTE.spa_settings} element={<Settings />} />
                 <Route path={ROUTE.spa_documentation} element={<Documentation />} />
+
+                {/* SPA Multi-Warehouse Management */}
+                <Route path={ROUTE.spa_branch_inventory} element={<BranchInventoryView />} />
+                <Route path={ROUTE.spa_stock_transfer} element={<StockTransferList />} />
+                <Route path={ROUTE.spa_inventory_count} element={<InventoryCountList />} />
+                <Route path={ROUTE.spa_purchase_return} element={<PurchaseReturnList />} />
+                <Route path={ROUTE.spa_disposal} element={<DisposalList />} />
+                <Route path={ROUTE.spa_suppliers} element={<SupplierManagement />} />
 
                 {/* Project Management System */}
                 <Route path={ROUTE.project_dashboard} element={<ProjectDashboard />} />

@@ -43,3 +43,4 @@ Route::group(['prefix' => 'files'], function () {
     Route::post('upload', [FileController::class, 'upload'])->name('file.upload');
     Route::post('editor/upload', [FileController::class, 'editorUpload'])->name('editor.upload');
 });
+

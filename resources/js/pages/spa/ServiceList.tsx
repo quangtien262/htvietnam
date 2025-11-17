@@ -12,6 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -87,7 +88,7 @@ const ServiceList: React.FC = () => {
     const loadServices = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/aio/api/spa/services', {
+            const response = await axios.get(API.spaServiceList, {
                 params: {
                     page: pagination.current,
                     per_page: pagination.pageSize,
@@ -122,11 +123,11 @@ const ServiceList: React.FC = () => {
 
     const loadCategories = async () => {
         try {
-            const response = await axios.post('/aio/api/spa/service-categories/list');
+            const response = await axios.get(API.spaServiceCategoryList);
             console.log('Categories response:', response.data); // Debug log
             if (response.data) {
-                // Response structure: { status_code, message, data: { data: [...] } }
-                const categoriesData = response.data.data?.data || response.data.data || [];
+                // Response structure for paginated data
+                const categoriesData = response.data.data || [];
                 console.log('Categories loaded:', categoriesData); // Debug log
                 setCategories(categoriesData);
             }
@@ -171,10 +172,10 @@ const ServiceList: React.FC = () => {
             let response;
             if (selectedService?.id) {
                 // Update existing service
-                response = await axios.put(`/aio/api/spa/services/${selectedService.id}`, payload);
+                response = await axios.put(API.spaServiceUpdate(selectedService.id), payload);
             } else {
                 // Create new service
-                response = await axios.post('/aio/api/spa/services', payload);
+                response = await axios.post(API.spaServiceCreate, payload);
             }
 
             // Backend returns: { status_code, message, data }
@@ -199,7 +200,7 @@ const ServiceList: React.FC = () => {
     const handleDelete = async (id: number) => {
         try {
             setLoading(true);
-            const response = await axios.delete(`/aio/api/spa/services/${id}`);
+            const response = await axios.delete(API.spaServiceDelete(id));
             if (response.data && response.data.status_code === 200) {
                 message.success('Xóa dịch vụ thành công');
                 await loadServices();
@@ -217,7 +218,7 @@ const ServiceList: React.FC = () => {
     const handleStatusToggle = async (record: Service) => {
         try {
             const newStatus = !record.is_active;
-            const response = await axios.put(`/aio/api/spa/services/${record.id}`, {
+            const response = await axios.put(API.spaServiceUpdate(record.id), {
                 is_active: newStatus,
             });
 
@@ -236,16 +237,25 @@ const ServiceList: React.FC = () => {
     const handleImageUpload = async (file: File) => {
         setUploading(true);
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/upload-image', formData);
-            if (response.data.success) {
-                setImageUrl(response.data.data.url);
+            const response = await axios.post(API.uploadImage, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (response.data && response.data.status_code === 200) {
+                // Backend returns: { status_code, message, data: { filePath, fileName } }
+                // filePath example: "tmp/v5M2_1763337810.jpeg"
+                const filePath = response.data.data?.filePath || response.data.data?.path;
+                const fullUrl = `/files/${filePath}`;
+                setImageUrl(fullUrl);
                 message.success('Upload ảnh thành công');
+            } else {
+                message.error('Upload ảnh thất bại');
             }
-        } catch (error) {
-            message.error('Upload ảnh thất bại');
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            message.error(error.response?.data?.message || 'Upload ảnh thất bại');
         } finally {
             setUploading(false);
         }
@@ -261,11 +271,12 @@ const ServiceList: React.FC = () => {
     const handleCategorySubmit = async () => {
         try {
             const values = await categoryForm.validateFields();
-            const response = await axios.post('/aio/api/spa/service-categories', values);
+            const response = await axios.post(API.spaServiceCategoryCreate, values);
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success('Tạo danh mục mới thành công');
                 setCategoryModalVisible(false);
+                categoryForm.resetFields();
                 await loadCategories();
 
                 // Auto-select the newly created category

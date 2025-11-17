@@ -41,7 +41,11 @@ class SanPhamController extends Controller
         $products = $query->orderBy('spa_san_pham.created_at', 'desc')
             ->paginate($request->get('per_page', 20));
 
-        return $this->sendSuccessResponse($products);
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Lấy danh sách sản phẩm thành công',
+            'data' => $products
+        ]);
     }
 
     public function store(Request $request)
