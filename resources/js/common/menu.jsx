@@ -6,7 +6,7 @@ import SoQuyList from './../pages/aitilen/SoQuyList';
 import {
     UserOutlined,CalendarOutlined,
     GlobalOutlined,
-    CopyOutlined,
+    CopyOutlined,GiftOutlined,
     UnorderedListOutlined,
     BookOutlined,
     DashboardOutlined,
@@ -642,30 +642,30 @@ export const MENU = {
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_services}?p=spa`}>Danh mục DV</Link>,
+                    label: <Link to={`${ROUTE.spa_services}?p=spa`}>Dịch vụ</Link>,
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
+                    label: <Link to={`${ROUTE.spa_service_packages}?p=spa`}>Gói dịch vụ</Link>,
                     key: (key++).toString(),
-                    icon: <FileDoneOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
-                    key: (key++).toString(),
-                    icon: <InboxOutlined />,
+                    icon: <GiftOutlined />,
                 },
             ],
         },
         // Quản lý kho đa chi nhánh
         {
-            label: "Quản lý kho",
+            label: "Kho",
             key: (key++).toString(),
             icon: <ShopOutlined />,
             children: [
                 {
                     label: <Link to={`${ROUTE.spa_branch_inventory}?p=spa`}>Tồn kho chi nhánh</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
                     key: (key++).toString(),
                     icon: <InboxOutlined />,
                 },
