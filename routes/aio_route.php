@@ -26,6 +26,16 @@ use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\CongNoController;
 use App\Http\Controllers\Aitilen\AitilenDauTuController;
 
+// SPA Module Controllers
+use App\Http\Controllers\Admin\Spa\ChiNhanhController;
+use App\Http\Controllers\Admin\Spa\CaLamViecController;
+use App\Http\Controllers\Admin\Spa\DichVuController;
+use App\Http\Controllers\Admin\Spa\DanhMucDichVuController;
+use App\Http\Controllers\Admin\Spa\GoiDichVuController;
+use App\Http\Controllers\Admin\Spa\SanPhamController;
+use App\Http\Controllers\Admin\Spa\DanhMucSanPhamController;
+use App\Http\Controllers\Admin\Spa\POSController;
+
 // aio/api
 Route::post('customer/login', [AuthController::class, 'loginExpress'])->name('aio.customer.loginExpress');
 
@@ -319,4 +329,61 @@ Route::group(['prefix' => 'cong-no'], function () {
 
 Route::group(['prefix' => 'user'], function () {
     Route::post('select-data', [CustomerController::class, 'apiSelectData'])->name('api.user.selectData');
+});
+
+// ============================
+// SPA MODULE API ROUTES
+// ============================
+Route::group(['prefix' => 'spa'], function () {
+    // Branches
+    Route::get('branches', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'index'])->name('api.spa.branches.index');
+    Route::get('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'show'])->name('api.spa.branches.show');
+    Route::post('branches', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'store'])->name('api.spa.branches.store');
+    Route::put('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'update'])->name('api.spa.branches.update');
+    Route::delete('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'destroy'])->name('api.spa.branches.destroy');
+
+    // Ca làm việc (Shifts)
+    Route::get('ca-lam-viec/current', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'getCurrentShift'])->name('api.spa.shifts.current');
+    Route::post('ca-lam-viec/open', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'openShift'])->name('api.spa.shifts.open');
+    Route::post('ca-lam-viec/{id}/close', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'closeShift'])->name('api.spa.shifts.close');
+    Route::get('ca-lam-viec', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'index'])->name('api.spa.shifts.index');
+    Route::get('ca-lam-viec/{id}', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'show'])->name('api.spa.shifts.show');
+    Route::get('ca-lam-viec/{id}/print', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'printHandover'])->name('api.spa.shifts.print');
+
+    // Services
+    Route::get('services', [\App\Http\Controllers\Admin\Spa\DichVuController::class, 'index'])->name('api.spa.services.index');
+    Route::post('service-categories/list', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'list'])->name('api.spa.service-categories.list');
+    Route::get('service-categories', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'index'])->name('api.spa.service-categories.index');
+    Route::get('service-packages', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'index'])->name('api.spa.service-packages.index');
+
+    // Products
+    Route::get('products', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'index'])->name('api.spa.products.index');
+    Route::get('product-categories', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'index'])->name('api.spa.product-categories.index');
+
+    // POS
+    Route::post('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'createInvoice'])->name('api.spa.pos.create-invoice');
+    Route::get('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'index'])->name('api.spa.pos.invoices');
+
+    // Gift Cards (Thẻ Giá Trị)
+    Route::get('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'index'])->name('api.spa.gift-cards.index');
+    Route::get('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'show'])->name('api.spa.gift-cards.show');
+    Route::post('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'store'])->name('api.spa.gift-cards.store');
+    Route::put('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'update'])->name('api.spa.gift-cards.update');
+    Route::delete('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'destroy'])->name('api.spa.gift-cards.destroy');
+    Route::post('gift-cards/validate-code', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'validateCode'])->name('api.spa.gift-cards.validate-code');
+
+    // Wallet (Ví Khách Hàng)
+    Route::get('wallet/{khach_hang_id}', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getWallet'])->name('api.spa.wallet.get');
+    Route::get('wallet/{khach_hang_id}/history', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getHistory'])->name('api.spa.wallet.history');
+    Route::post('wallet/deposit', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'napTien'])->name('api.spa.wallet.deposit');
+    Route::post('wallet/withdraw', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'truTien'])->name('api.spa.wallet.withdraw');
+    Route::post('wallet/refund', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'hoanTien'])->name('api.spa.wallet.refund');
+    Route::post('wallet/apply-code', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'applyCode'])->name('api.spa.wallet.apply-code');
+    Route::post('wallet/{khach_hang_id}/set-limits', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'setLimits'])->name('api.spa.wallet.set-limits');
+    
+    // Wallet Reports
+    Route::get('wallet/reports/stats', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getReportStats'])->name('api.spa.wallet.reports.stats');
+    Route::get('wallet/reports/top-customers', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getTopCustomers'])->name('api.spa.wallet.reports.top-customers');
+    Route::get('wallet/reports/gift-card-revenue', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getGiftCardRevenue'])->name('api.spa.wallet.reports.gift-card-revenue');
+    Route::get('wallet/reports/transactions', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getTransactions'])->name('api.spa.wallet.reports.transactions');
 });

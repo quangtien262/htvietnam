@@ -53,6 +53,7 @@ class POSController extends Controller
         $validated = $request->validate([
             'khach_hang_id' => 'nullable|integer',
             'chi_nhanh_id' => 'nullable|integer', // Changed from required to nullable for testing
+            'nguoi_thu_id' => 'nullable|integer',
             'chi_tiets' => 'required|array|min:1',
             'chi_tiets.*.dich_vu_id' => 'nullable|integer',
             'chi_tiets.*.san_pham_id' => 'nullable|integer',
@@ -72,6 +73,15 @@ class POSController extends Controller
             // Set default chi_nhanh_id if not provided
             if (empty($validated['chi_nhanh_id'])) {
                 $validated['chi_nhanh_id'] = 1; // Default branch
+            }
+
+            // Auto-assign to current open shift
+            $currentShift = \App\Models\Spa\CaLamViec::where('chi_nhanh_id', $validated['chi_nhanh_id'])
+                ->where('trang_thai', 'dang_mo')
+                ->first();
+
+            if ($currentShift) {
+                $validated['ca_lam_viec_id'] = $currentShift->id;
             }
 
             $invoice = $this->service->createInvoice($validated);

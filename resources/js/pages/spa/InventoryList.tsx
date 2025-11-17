@@ -43,6 +43,17 @@ interface BulkImportItem {
     ten_san_pham?: string;
     so_luong: number;
     gia_nhap: number;
+    nha_cung_cap_id?: number;
+}
+
+interface Supplier {
+    id: number;
+    ma_ncc: string;
+    ten_ncc: string;
+    nguoi_lien_he?: string;
+    sdt?: string;
+    email?: string;
+    is_active: boolean;
 }
 
 const InventoryList: React.FC = () => {
@@ -57,21 +68,24 @@ const InventoryList: React.FC = () => {
     const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [categories, setCategories] = useState<any[]>([]);
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [bulkItems, setBulkItems] = useState<BulkImportItem[]>([]);
     const [uploadedFile, setUploadedFile] = useState<UploadFile | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [applySupplierToAll, setApplySupplierToAll] = useState(false);
     const [form] = Form.useForm();
     const [bulkForm] = Form.useForm();
 
     useEffect(() => {
         fetchInventory();
         fetchCategories();
+        fetchSuppliers();
     }, []);
 
     const fetchInventory = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(API.spaProductList, {
+            const response = await axios.get(API.spaInventoryStockList, {
                 params: {
                     per_page: 1000,
                     trang_thai: statusFilter === 'all' ? undefined : statusFilter
@@ -99,9 +113,20 @@ const InventoryList: React.FC = () => {
         }
     };
 
+    const fetchSuppliers = async () => {
+        try {
+            const response = await axios.get('/spa/nha-cung-cap');
+            const suppliersData = response.data.data || [];
+            // Filter only active suppliers
+            setSuppliers(suppliersData.filter((s: Supplier) => s.is_active));
+        } catch (error) {
+            console.error('Error fetching suppliers:', error);
+        }
+    };
+
     const fetchTransactions = async (productId: number) => {
         try {
-            const response = await axios.get(`/aio/api/spa/inventory/${productId}/transactions`);
+            const response = await axios.get(API.spaInventoryTransactions(productId));
             setTransactions(response.data.data || []);
         } catch (error) {
             console.error('Error fetching transactions:', error);
@@ -110,25 +135,34 @@ const InventoryList: React.FC = () => {
 
     const handleStockAdjustment = async (values: any) => {
         try {
-            await axios.post('/aio/api/spa/inventory', {
-                san_pham_id: selectedProduct?.id,
-                loai: values.loai,
-                so_luong: values.so_luong,
-                gia_nhap: values.gia_nhap,
-                nha_cung_cap: values.nha_cung_cap,
-                ly_do: values.ly_do,
-                nguoi_nhap: 'Admin', // TODO: Get from auth
+            const donGia = values.gia_nhap || selectedProduct?.gia_nhap || 0;
+            const soLuongNhap = Math.abs(values.so_luong); // Always positive
+
+            const payload = {
+                chi_nhanh_id: 1, // TODO: Get from branch selection or auth context
+                nha_cung_cap_id: values.nha_cung_cap ? suppliers.find(s => s.ten_ncc === values.nha_cung_cap)?.id : null,
                 ngay_nhap: values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 ghi_chu: values.ghi_chu,
-            });
+                loai_giao_dich: values.loai, // Add transaction type for backend
+                chi_tiets: [
+                    {
+                        san_pham_id: selectedProduct?.id,
+                        so_luong: soLuongNhap, // Always send positive number
+                        don_gia: donGia,
+                        thanh_tien: donGia * soLuongNhap,
+                    }
+                ]
+            };
+
+            await axios.post(API.spaInventoryCreate, payload);
 
             message.success('Cập nhật tồn kho thành công');
             setModalVisible(false);
             form.resetFields();
             fetchInventory();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating inventory:', error);
-            message.error('Lỗi khi cập nhật tồn kho');
+            message.error(error.response?.data?.message || 'Lỗi khi cập nhật tồn kho');
         }
     };
 
@@ -179,6 +213,13 @@ const InventoryList: React.FC = () => {
             }
         }
 
+        // Apply supplier to all if checkbox is checked
+        if (field === 'nha_cung_cap_id' && applySupplierToAll) {
+            newItems.forEach(item => {
+                item.nha_cung_cap_id = value;
+            });
+        }
+
         setBulkItems(newItems);
     };
 
@@ -206,14 +247,16 @@ const InventoryList: React.FC = () => {
                     san_pham_id: item.san_pham_id,
                     so_luong: item.so_luong,
                     gia_nhap: item.gia_nhap,
+                    nha_cung_cap_id: item.nha_cung_cap_id,
                 }))
             };
 
-            await axios.post('/spa/inventory/bulk-import', payload);
+            await axios.post(API.spaInventoryBulkImport, payload);
             message.success(`Nhập kho thành công ${bulkItems.length} sản phẩm`);
             setBulkImportModalVisible(false);
             bulkForm.resetFields();
             setBulkItems([]);
+            setApplySupplierToAll(false);
             fetchInventory();
         } catch (error: any) {
             console.error('Bulk import error:', error);
@@ -246,7 +289,7 @@ const InventoryList: React.FC = () => {
             formData.append('ngay_nhap', values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'));
             formData.append('ghi_chu', values.ghi_chu || '');
 
-            const response = await axios.post('/spa/inventory/import-csv', formData, {
+            const response = await axios.post(API.spaInventoryImportCsv, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -313,7 +356,7 @@ const InventoryList: React.FC = () => {
             key: 'ton_kho_toi_thieu',
             width: 120,
             align: 'right',
-            render: (value, record) => `${value} ${record.don_vi_tinh}`,
+            render: (value, record) => value ? `${value} ${record.don_vi_tinh}` : '-',
         },
         {
             title: 'Giá nhập',
@@ -558,36 +601,67 @@ const InventoryList: React.FC = () => {
                 open={modalVisible}
                 onCancel={() => setModalVisible(false)}
                 footer={null}
-                width={600}
+                width={700}
+                maskClosable={false}
             >
                 <Form form={form} onFinish={handleStockAdjustment} layout="vertical">
-                    <Form.Item name="loai" label="Loại giao dịch" rules={[{ required: true }]}>
-                        <Select>
-                            <Select.Option value="nhap">Nhập kho</Select.Option>
-                            <Select.Option value="xuat">Xuất kho</Select.Option>
-                            <Select.Option value="dieu_chinh">Điều chỉnh</Select.Option>
-                        </Select>
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="loai" label="Loại giao dịch" rules={[{ required: true }]}>
+                                <Select>
+                                    <Select.Option value="nhap">Nhập kho</Select.Option>
+                                    <Select.Option value="xuat">Xuất kho</Select.Option>
+                                    <Select.Option value="dieu_chinh_tang">Điều chỉnh tăng</Select.Option>
+                                    <Select.Option value="dieu_chinh_giam">Điều chỉnh giảm</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="so_luong" label="Số lượng" rules={[{ required: true }]}>
+                                <InputNumber min={1} style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
-                    <Form.Item name="so_luong" label="Số lượng" rules={[{ required: true }]}>
-                        <InputNumber min={1} style={{ width: '100%' }} />
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="gia_nhap" label="Giá nhập (cho nhập kho)">
+                                <InputNumber min={0} style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="nha_cung_cap" label="Nhà cung cấp">
+                                <Select
+                                    placeholder="Chọn nhà cung cấp"
+                                    showSearch
+                                    filterOption={(input, option) =>
+                                        (option?.children as string)
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                >
+                                    {suppliers.map(supplier => (
+                                        <Select.Option key={supplier.id} value={supplier.ten_ncc}>
+                                            {supplier.ten_ncc}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
-                    <Form.Item name="gia_nhap" label="Giá nhập (cho nhập kho)">
-                        <InputNumber min={0} style={{ width: '100%' }} />
-                    </Form.Item>
-
-                    <Form.Item name="nha_cung_cap" label="Nhà cung cấp">
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item name="ngay_nhap" label="Ngày" rules={[{ required: true }]}>
-                        <DatePicker showTime style={{ width: '100%' }} />
-                    </Form.Item>
-
-                    <Form.Item name="ly_do" label="Lý do">
-                        <Input />
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="ngay_nhap" label="Ngày" rules={[{ required: true }]}>
+                                <DatePicker showTime style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
+                            <Form.Item name="ly_do" label="Lý do">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
                     <Form.Item name="ghi_chu" label="Ghi chú">
                         <Input.TextArea rows={3} />
@@ -640,12 +714,7 @@ const InventoryList: React.FC = () => {
                     <TabPane tab="📝 Nhập thủ công" key="manual">
                         <Form form={bulkForm} layout="vertical">
                             <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="nha_cung_cap" label="Nhà cung cấp">
-                                        <Input placeholder="Tên nhà cung cấp" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
+                                <Col span={24}>
                                     <Form.Item
                                         name="ngay_nhap"
                                         label="Ngày nhập"
@@ -661,7 +730,11 @@ const InventoryList: React.FC = () => {
                                 <Input.TextArea rows={2} placeholder="Ghi chú chung cho đợt nhập kho..." />
                             </Form.Item>
 
-                            <Form.Item label="Danh sách sản phẩm">
+                            <Form.Item label={
+                                <Space>
+                                    <span>Danh sách sản phẩm</span>
+                                </Space>
+                            }>
                                 <Table
                                     dataSource={bulkItems}
                                     pagination={false}
@@ -682,7 +755,7 @@ const InventoryList: React.FC = () => {
                                     <Table.Column
                                         title="Sản phẩm"
                                         key="san_pham_id"
-                                        width="40%"
+                                        width="1000"
                                         render={(_, record: any, index: number) => (
                                             <Select
                                                 showSearch
@@ -704,9 +777,42 @@ const InventoryList: React.FC = () => {
                                         )}
                                     />
                                     <Table.Column
+                                        title={<div>
+                                            <span>Nhà cung cấp</span>
+                                            <br />
+                                            <label style={{ fontWeight: 'normal', marginLeft: 16 }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={applySupplierToAll}
+                                                    onChange={(e) => setApplySupplierToAll(e.target.checked)}
+                                                    style={{ marginRight: 4 }}
+                                                />
+                                                Áp dụng tất cả
+                                            </label>
+                                        </div>}
+                                        key="nha_cung_cap_id"
+                                        width="25%"
+                                        render={(_, record: any, index: number) => (
+                                            <Select
+                                                showSearch
+                                                placeholder="Chọn NCC"
+                                                style={{ width: '100%' }}
+                                                value={record.nha_cung_cap_id}
+                                                onChange={(value) => handleBulkItemChange(index, 'nha_cung_cap_id', value)}
+                                                allowClear
+                                            >
+                                                {suppliers.map(supplier => (
+                                                    <Select.Option key={supplier.id} value={supplier.id}>
+                                                        {supplier.ten_ncc}
+                                                    </Select.Option>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    />
+                                    <Table.Column
                                         title="Số lượng"
                                         key="so_luong"
-                                        width="20%"
+                                        width="15%"
                                         render={(_, record: any, index: number) => (
                                             <InputNumber
                                                 min={1}
@@ -766,7 +872,21 @@ const InventoryList: React.FC = () => {
                             <Row gutter={16}>
                                 <Col span={12}>
                                     <Form.Item name="nha_cung_cap" label="Nhà cung cấp">
-                                        <Input placeholder="Tên nhà cung cấp" />
+                                        <Select
+                                            placeholder="Chọn nhà cung cấp"
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                (option?.children as string)
+                                                    .toLowerCase()
+                                                    .includes(input.toLowerCase())
+                                            }
+                                        >
+                                            {suppliers.map(supplier => (
+                                                <Select.Option key={supplier.id} value={supplier.ten_ncc}>
+                                                    {supplier.ten_ncc}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>

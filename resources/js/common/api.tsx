@@ -495,11 +495,14 @@ export const API = {
 
     // Nhập kho (Inventory)
     spaInventoryList: '/aio/api/spa/inventory',
+    spaInventoryStockList: '/spa/inventory-stock/list',
     spaInventoryDetail: (id: number) => `/aio/api/spa/inventory/${id}`,
-    spaInventoryCreate: '/aio/api/spa/inventory',
+    spaInventoryCreate: '/spa/inventory',
     spaInventoryUpdate: (id: number) => `/aio/api/spa/inventory/${id}`,
     spaInventoryDelete: (id: number) => `/aio/api/spa/inventory/${id}`,
-    spaInventoryTransactions: (id: number) => `/aio/api/spa/inventory/${id}/transactions`,
+    spaInventoryTransactions: (id: number) => `/spa/inventory/${id}/transactions`,
+    spaInventoryBulkImport: '/spa/inventory/bulk-import',
+    spaInventoryImportCsv: '/spa/inventory/import-csv',
 
     // Nhân viên/KTV (Staff)
     spaStaffList: '/aio/api/spa/staff',
@@ -522,6 +525,14 @@ export const API = {
     // Thẻ thành viên (Memberships)
     spaMembershipRenew: (id: number) => `/spa/memberships/${id}/renew`,
     spaMembershipUpgrade: (id: number) => `/spa/memberships/${id}/upgrade`,
+
+    // Ca làm việc (Shifts)
+    spaShiftCurrent: '/spa/shifts/current',
+    spaShiftOpen: '/spa/shifts/open',
+    spaShiftClose: (id: number) => `/spa/shifts/${id}/close`,
+    spaShiftList: '/spa/shifts',
+    spaShiftDetail: (id: number) => `/spa/shifts/${id}`,
+    spaShiftPrint: (id: number) => `/spa/shifts/${id}/print`,
 
     // Chương trình khuyến mãi (Promotions)
     spaPromotionList: '/aio/api/spa/promotions',

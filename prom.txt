@@ -1,12 +1,5 @@
-TRUNCATE TABLE  aitilen_invoice_service;
-TRUNCATE TABLE  aitilen_invoice;
 
- Lợi ích:
-Nhân viên không cần chuyển qua lại giữa các dự án
-Xem tổng quan tất cả task được giao trong 1 màn hình
-Filter linh hoạt để tập trung vào task quan trọng
-Thống kê nhanh: task quá hạn, deadline hôm nay
-Click vào task để xem chi tiết ngay trong context của dự án
+xử lý để tính năng search ở các ô select đều không phân biệt chữ hoa, chữ thường. có dấu,ko dấu
 
 # Thêm nhanh
 Hãy them nút them nhanh sản phẩm để thêm nhanh nhiều sản phẩm 1 lúc, yêu cầu như sau:

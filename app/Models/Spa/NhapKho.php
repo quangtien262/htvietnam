@@ -3,22 +3,19 @@
 namespace App\Models\Spa;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NhapKho extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'spa_nhap_kho';
 
     protected $fillable = [
-        'ma_phieu_nhap',
-        'nha_cung_cap',
+        'ma_phieu',
+        'chi_nhanh_id',
+        'nha_cung_cap_id',
         'ngay_nhap',
-        'nguoi_nhap',
+        'nguoi_nhap_id',
         'tong_tien',
         'ghi_chu',
-        'trang_thai',
     ];
 
     protected $casts = [
@@ -29,18 +26,17 @@ class NhapKho extends Model
     // Relationships
     public function chiTiets()
     {
-        return $this->hasMany(NhapKhoChiTiet::class, 'nhap_kho_id');
+        return $this->hasMany(NhapKhoChiTiet::class, 'phieu_nhap_id');
     }
 
-    // Scopes
-    public function scopeCompleted($query)
+    public function chiNhanh()
     {
-        return $query->where('trang_thai', 'hoan_thanh');
+        return $this->belongsTo(ChiNhanh::class, 'chi_nhanh_id');
     }
 
-    public function scopePending($query)
+    public function nhaCungCap()
     {
-        return $query->where('trang_thai', 'cho_duyet');
+        return $this->belongsTo(NhaCungCap::class, 'nha_cung_cap_id');
     }
 
     // Accessors

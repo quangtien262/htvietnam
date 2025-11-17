@@ -13,26 +13,26 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Color } from 'antd/es/color-picker';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface MembershipTier {
     id: number;
-    ten_hang: string;
-    ma_hang: string;
-    mau_sac?: string;
+    ten_cap: string;
     chi_tieu_toi_thieu: number;
-    chi_tieu_toi_da?: number;
-    ty_le_giam_gia: number;
-    ty_le_tich_diem: number;
+    phan_tram_giam_dich_vu: number;
+    phan_tram_giam_san_pham: number;
+    he_so_tich_diem: number;
     uu_dai_dac_biet?: string;
-    mo_ta?: string;
+    mau_the?: string;
+    icon?: string;
     thu_tu: number;
-    trang_thai: string;
-    so_thanh_vien: number;
-    tong_chi_tieu: number;
+    is_active: number;
+    member_count?: number;
     created_at: string;
+    updated_at: string;
 }
 
 const MembershipList: React.FC = () => {
@@ -74,7 +74,7 @@ const MembershipList: React.FC = () => {
     const loadTiers = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/aio/api/spa/membership-tiers', {
+            const response = await axios.get(API.spaMembershipTierList, {
                 params: {
                     page: pagination.current,
                     limit: pagination.pageSize,
@@ -84,15 +84,18 @@ const MembershipList: React.FC = () => {
             });
 
             if (response.data.success) {
-                const data = response.data.data;
-                setTiers(data.data || []);
+                // Handle both paginated and direct array response
+                const responseData = response.data.data;
+                const tiersData = Array.isArray(responseData) ? responseData : (responseData?.data || []);
+
+                setTiers(tiersData);
                 setPagination({
                     ...pagination,
-                    total: data.total || 0,
+                    total: responseData?.total || tiersData.length,
                 });
 
-                if (data.stats) {
-                    setStats(data.stats);
+                if (responseData?.stats) {
+                    setStats(responseData.stats);
                 }
             }
         } catch (error) {
@@ -114,7 +117,7 @@ const MembershipList: React.FC = () => {
     const handleEdit = (record: MembershipTier) => {
         setSelectedTier(record);
         form.setFieldsValue(record);
-        setSelectedColor(record.mau_sac || '#1890ff');
+        setSelectedColor(record.mau_the || '#1890ff');
         setModalVisible(true);
     };
 
@@ -134,10 +137,10 @@ const MembershipList: React.FC = () => {
             let response;
             if (selectedTier?.id) {
                 // Update existing tier
-                response = await axios.put(`/aio/api/spa/membership-tiers/${selectedTier.id}`, payload);
+                response = await axios.put(API.spaMembershipTierUpdate(selectedTier.id), payload);
             } else {
                 // Create new tier
-                response = await axios.post('/aio/api/spa/membership-tiers', payload);
+                response = await axios.post(API.spaMembershipTierCreate, payload);
             }
 
             if (response.data.success) {
@@ -152,7 +155,7 @@ const MembershipList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.delete(`/aio/api/spa/membership-tiers/${id}`);
+            const response = await axios.delete(API.spaMembershipTierDelete(id));
             if (response.data.success) {
                 message.success('Xóa hạng thành viên thành công');
                 loadTiers();
@@ -164,9 +167,9 @@ const MembershipList: React.FC = () => {
 
     const handleStatusToggle = async (record: MembershipTier) => {
         try {
-            const newStatus = record.trang_thai === 'hoat_dong' ? 'tam_dung' : 'hoat_dong';
-            const response = await axios.put(`/aio/api/spa/membership-tiers/${record.id}`, {
-                trang_thai: newStatus,
+            const newStatus = record.is_active === 1 ? 0 : 1;
+            const response = await axios.put(API.spaMembershipTierUpdate(record.id), {
+                is_active: newStatus,
             });
 
             if (response.data.success) {
@@ -179,7 +182,7 @@ const MembershipList: React.FC = () => {
     };
 
     const formatCurrency = (value: number) => {
-        return `${value.toLocaleString()} VNĐ`;
+        return `${Math.round(value).toLocaleString('vi-VN')} VNĐ`;
     };
 
     const getTierIcon = (tier: MembershipTier) => {
@@ -212,7 +215,7 @@ const MembershipList: React.FC = () => {
                             width: 40,
                             height: 40,
                             borderRadius: 20,
-                            background: record.mau_sac || '#1890ff',
+                            background: record.mau_the || '#1890ff',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -224,9 +227,8 @@ const MembershipList: React.FC = () => {
                     </div>
                     <div>
                         <div style={{ fontWeight: 500, fontSize: 15 }}>
-                            {record.ten_hang}
+                            {record.ten_cap}
                         </div>
-                        <Tag color="blue">{record.ma_hang}</Tag>
                     </div>
                 </Space>
             ),
@@ -245,62 +247,54 @@ const MembershipList: React.FC = () => {
             sorter: (a, b) => a.chi_tieu_toi_thieu - b.chi_tieu_toi_thieu,
         },
         {
-            title: 'Chi tiêu tối đa',
-            dataIndex: 'chi_tieu_toi_da',
-            key: 'chi_tieu_toi_da',
-            width: 150,
-            align: 'right',
-            render: (value?: number) => value ? formatCurrency(value) : 'Không giới hạn',
-        },
-        {
-            title: 'Giảm giá',
-            dataIndex: 'ty_le_giam_gia',
-            key: 'ty_le_giam_gia',
-            width: 100,
+            title: 'Giảm dịch vụ',
+            dataIndex: 'phan_tram_giam_dich_vu',
+            key: 'phan_tram_giam_dich_vu',
+            width: 120,
             align: 'center',
             render: (value: number) => (
                 <Tag color="green" icon={<PercentageOutlined />} style={{ fontSize: 13 }}>
                     {value}%
                 </Tag>
             ),
-            sorter: (a, b) => a.ty_le_giam_gia - b.ty_le_giam_gia,
+            sorter: (a, b) => a.phan_tram_giam_dich_vu - b.phan_tram_giam_dich_vu,
         },
         {
-            title: 'Tích điểm',
-            dataIndex: 'ty_le_tich_diem',
-            key: 'ty_le_tich_diem',
-            width: 100,
-            align: 'center',
-            render: (value: number) => (
-                <Tag color="orange" icon={<GiftOutlined />} style={{ fontSize: 13 }}>
-                    {value}%
-                </Tag>
-            ),
-            sorter: (a, b) => a.ty_le_tich_diem - b.ty_le_tich_diem,
-        },
-        {
-            title: 'Số thành viên',
-            dataIndex: 'so_thanh_vien',
-            key: 'so_thanh_vien',
+            title: 'Giảm sản phẩm',
+            dataIndex: 'phan_tram_giam_san_pham',
+            key: 'phan_tram_giam_san_pham',
             width: 120,
             align: 'center',
             render: (value: number) => (
-                <Badge count={value} showZero color="blue" overflowCount={9999} />
+                <Tag color="cyan" icon={<PercentageOutlined />} style={{ fontSize: 13 }}>
+                    {value}%
+                </Tag>
             ),
-            sorter: (a, b) => a.so_thanh_vien - b.so_thanh_vien,
+            sorter: (a, b) => a.phan_tram_giam_san_pham - b.phan_tram_giam_san_pham,
         },
         {
-            title: 'Tổng chi tiêu',
-            dataIndex: 'tong_chi_tieu',
-            key: 'tong_chi_tieu',
-            width: 180,
-            align: 'right',
+            title: 'Hệ số tích điểm',
+            dataIndex: 'he_so_tich_diem',
+            key: 'he_so_tich_diem',
+            width: 120,
+            align: 'center',
             render: (value: number) => (
-                <span style={{ fontWeight: 500, color: '#52c41a' }}>
-                    {formatCurrency(value)}
-                </span>
+                <Tag color="orange" icon={<GiftOutlined />} style={{ fontSize: 13 }}>
+                    {value}x
+                </Tag>
             ),
-            sorter: (a, b) => a.tong_chi_tieu - b.tong_chi_tieu,
+            sorter: (a, b) => a.he_so_tich_diem - b.he_so_tich_diem,
+        },
+        {
+            title: 'Số thành viên',
+            dataIndex: 'member_count',
+            key: 'member_count',
+            width: 120,
+            align: 'center',
+            render: (value: number) => (
+                <Badge count={value || 0} showZero color="blue" overflowCount={9999} />
+            ),
+            sorter: (a, b) => (a.member_count || 0) - (b.member_count || 0),
         },
         {
             title: 'Trạng thái',
@@ -309,7 +303,7 @@ const MembershipList: React.FC = () => {
             align: 'center',
             render: (_, record: MembershipTier) => (
                 <Switch
-                    checked={record.trang_thai === 'hoat_dong'}
+                    checked={record.is_active === 1}
                     onChange={() => handleStatusToggle(record)}
                     checkedChildren="Hoạt động"
                     unCheckedChildren="Tạm dừng"
@@ -486,21 +480,21 @@ const MembershipList: React.FC = () => {
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
-                                name="cap_do"
-                                label="Cấp độ"
-                                rules={[{ required: true, message: 'Vui lòng nhập cấp độ' }]}
+                                name="thu_tu"
+                                label="Thứ tự"
+                                rules={[{ required: true, message: 'Vui lòng nhập thứ tự' }]}
                                 tooltip="Số thứ tự cấp bậc (1, 2, 3...)"
                             >
-                                <InputNumber placeholder="VD: 1" min={1} style={{ width: '100%' }} />
+                                <InputNumber placeholder="VD: 1" min={0} style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
                         <Col span={16}>
                             <Form.Item
-                                name="ten_cap_bac"
-                                label="Tên cấp bậc"
+                                name="ten_cap"
+                                label="Tên hạng"
                                 rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                             >
-                                <Input placeholder="VD: Hạng Kim cương" />
+                                <Input placeholder="VD: Kim cương, Bạc, Vàng..." />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -514,9 +508,9 @@ const MembershipList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="chi_tieu_yeu_cau"
-                                label="Chi tiêu yêu cầu (VNĐ)"
-                                rules={[{ required: true, message: 'Vui lòng nhập chi tiêu yêu cầu' }]}
+                                name="chi_tieu_toi_thieu"
+                                label="Chi tiêu tối thiểu (VNĐ)"
+                                rules={[{ required: true, message: 'Vui lòng nhập chi tiêu tối thiểu' }]}
                                 tooltip="Tổng chi tiêu tối thiểu để đạt hạng này"
                             >
                                 <InputNumber
@@ -529,9 +523,8 @@ const MembershipList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="ti_le_giam_gia"
-                                label="Tỷ lệ giảm giá (%)"
-                                rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ giảm giá' }]}
+                                name="phan_tram_giam_dich_vu"
+                                label="% Giảm dịch vụ"
                                 initialValue={0}
                             >
                                 <InputNumber
@@ -544,11 +537,9 @@ const MembershipList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="ti_le_tich_diem"
-                                label="Tỷ lệ tích điểm (%)"
-                                rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ tích điểm' }]}
-                                initialValue={1}
-                                tooltip="% giá trị đơn hàng được quy đổi thành điểm"
+                                name="phan_tram_giam_san_pham"
+                                label="% Giảm sản phẩm"
+                                initialValue={0}
                             >
                                 <InputNumber
                                     style={{ width: '100%' }}
@@ -558,8 +549,24 @@ const MembershipList: React.FC = () => {
                                 />
                             </Form.Item>
                         </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="he_so_tich_diem"
+                                label="Hệ số tích điểm"
+                                initialValue={1}
+                                tooltip="Hệ số nhân điểm (1x, 1.5x, 2x...)"
+                            >
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={10}
+                                    step={0.1}
+                                    addonAfter="x"
+                                />
+                            </Form.Item>
+                        </Col>
                         <Col span={24}>
-                            <Form.Item name="uu_dai_khac" label="Ưu đãi khác">
+                            <Form.Item name="uu_dai_dac_biet" label="Ưu đãi đặc biệt">
                                 <TextArea
                                     rows={3}
                                     placeholder="VD: Miễn phí 1 dịch vụ spa hàng tháng, Tặng quà sinh nhật, Ưu tiên đặt lịch..."
@@ -587,7 +594,7 @@ const MembershipList: React.FC = () => {
                                     width: 100,
                                     height: 100,
                                     borderRadius: 50,
-                                    background: selectedTier.mau_sac || '#1890ff',
+                                    background: selectedTier.mau_the || '#1890ff',
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -598,35 +605,23 @@ const MembershipList: React.FC = () => {
                             >
                                 {getTierIcon(selectedTier)}
                             </div>
-                            <h2 style={{ marginBottom: 8 }}>{selectedTier.ten_hang}</h2>
-                            <Tag color="blue" style={{ fontSize: 14 }}>{selectedTier.ma_hang}</Tag>
+                            <h2 style={{ marginBottom: 8 }}>{selectedTier.ten_cap}</h2>
                             <div style={{ marginTop: 8 }}>
-                                <Tag color={selectedTier.trang_thai === 'hoat_dong' ? 'green' : 'red'}>
-                                    {selectedTier.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Tạm dừng'}
+                                <Tag color={selectedTier.is_active === 1 ? 'green' : 'red'}>
+                                    {selectedTier.is_active === 1 ? 'Hoạt động' : 'Tạm dừng'}
                                 </Tag>
                             </div>
                         </div>
 
                         {/* Member Stats */}
                         <Row gutter={16} style={{ marginBottom: 16 }}>
-                            <Col span={12}>
+                            <Col span={24}>
                                 <Card size="small">
                                     <Statistic
                                         title="Số thành viên"
-                                        value={selectedTier.so_thanh_vien}
+                                        value={selectedTier.member_count || 0}
                                         prefix={<UserOutlined />}
                                         valueStyle={{ fontSize: 24 }}
-                                    />
-                                </Card>
-                            </Col>
-                            <Col span={12}>
-                                <Card size="small">
-                                    <Statistic
-                                        title="Tổng chi tiêu"
-                                        value={selectedTier.tong_chi_tieu}
-                                        prefix={<RiseOutlined />}
-                                        suffix="VNĐ"
-                                        valueStyle={{ fontSize: 20 }}
                                     />
                                 </Card>
                             </Col>
@@ -635,21 +630,20 @@ const MembershipList: React.FC = () => {
                         <Divider>Thông tin hạng</Divider>
 
                         <Descriptions bordered column={1} size="small">
-                            <Descriptions.Item label="Mã hạng">{selectedTier.ma_hang}</Descriptions.Item>
-                            <Descriptions.Item label="Tên hạng">{selectedTier.ten_hang}</Descriptions.Item>
+                            <Descriptions.Item label="Tên hạng">{selectedTier.ten_cap}</Descriptions.Item>
                             <Descriptions.Item label="Thứ tự">{selectedTier.thu_tu}</Descriptions.Item>
-                            <Descriptions.Item label="Màu sắc">
+                            <Descriptions.Item label="Màu thẻ">
                                 <Space>
                                     <div
                                         style={{
                                             width: 24,
                                             height: 24,
                                             borderRadius: 4,
-                                            background: selectedTier.mau_sac || '#1890ff',
+                                            background: selectedTier.mau_the || '#1890ff',
                                             border: '1px solid #d9d9d9',
                                         }}
                                     />
-                                    <span>{selectedTier.mau_sac || '#1890ff'}</span>
+                                    <span>{selectedTier.mau_the || '#1890ff'}</span>
                                 </Space>
                             </Descriptions.Item>
                         </Descriptions>
@@ -662,17 +656,19 @@ const MembershipList: React.FC = () => {
                                     {formatCurrency(selectedTier.chi_tieu_toi_thieu)}
                                 </strong>
                             </Descriptions.Item>
-                            <Descriptions.Item label="Chi tiêu tối đa">
-                                {selectedTier.chi_tieu_toi_da ? formatCurrency(selectedTier.chi_tieu_toi_da) : 'Không giới hạn'}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Giảm giá">
-                                <Tag color="green" icon={<PercentageOutlined />} style={{ fontSize: 14 }}>
-                                    {selectedTier.ty_le_giam_gia}%
+                            <Descriptions.Item label="Giảm giá dịch vụ">
+                                <Tag color="green" style={{ fontSize: 14 }}>
+                                    {selectedTier.phan_tram_giam_dich_vu}%
                                 </Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label="Tỷ lệ tích điểm">
+                            <Descriptions.Item label="Giảm giá sản phẩm">
+                                <Tag color="cyan" style={{ fontSize: 14 }}>
+                                    {selectedTier.phan_tram_giam_san_pham}%
+                                </Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Hệ số tích điểm">
                                 <Tag color="orange" icon={<GiftOutlined />} style={{ fontSize: 14 }}>
-                                    {selectedTier.ty_le_tich_diem}%
+                                    {selectedTier.he_so_tich_diem}x
                                 </Tag>
                             </Descriptions.Item>
                         </Descriptions>
@@ -683,13 +679,6 @@ const MembershipList: React.FC = () => {
                                 <p style={{ whiteSpace: 'pre-line', background: '#f0f5ff', padding: 12, borderRadius: 4 }}>
                                     {selectedTier.uu_dai_dac_biet}
                                 </p>
-                            </div>
-                        )}
-
-                        {selectedTier.mo_ta && (
-                            <div style={{ marginTop: 16 }}>
-                                <Divider>Mô tả</Divider>
-                                <p>{selectedTier.mo_ta}</p>
                             </div>
                         )}
 

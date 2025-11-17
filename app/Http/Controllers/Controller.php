@@ -20,9 +20,10 @@ abstract class Controller
         // }
     }
 
-    protected function sendErrorResponse($message, $errors = null, $code = 400)
+    protected function sendErrorResponse($message, $code = 400, $errors = [])
     {
         return response()->json([
+            'success' => false,
             'status_code' => $code,
             'message' => $message,
             'errors' => $errors,
@@ -32,6 +33,7 @@ abstract class Controller
     protected function sendSuccessResponse($data, $message = '', $code = 200)
     {
         return response()->json([
+            'success' => true,
             'status_code' => $code,
             'message' => $message,
             'data' => $data,

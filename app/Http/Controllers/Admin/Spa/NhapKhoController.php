@@ -58,6 +58,9 @@ class NhapKhoController extends Controller
                 // Generate ma_phieu if not provided
                 $maPhieu = $request->ma_phieu ?? $this->generateMaPhieu();
 
+                // Determine transaction type (nhap/xuat/dieu_chinh_tang/dieu_chinh_giam)
+                $loaiGiaoDich = $request->loai_giao_dich ?? 'nhap';
+
                 // Create receipt
                 $nhapKho = NhapKho::create([
                     'ma_phieu' => $maPhieu,
@@ -84,12 +87,19 @@ class NhapKhoController extends Controller
                         'han_su_dung' => $item['han_su_dung'] ?? null,
                     ]);
 
+                    // Determine stock action based on transaction type
+                    if ($loaiGiaoDich === 'xuat' || $loaiGiaoDich === 'dieu_chinh_giam') {
+                        $stockAction = 'decrease';
+                    } else {
+                        $stockAction = 'increase'; // nhap, dieu_chinh_tang
+                    }
+
                     // Update branch stock with AVCO
                     TonKhoChiNhanh::updateStock(
                         $request->chi_nhanh_id,
                         $item['san_pham_id'],
                         $item['so_luong'],
-                        'increase',
+                        $stockAction,
                         $item['don_gia']
                     );
 
@@ -310,6 +320,69 @@ class NhapKhoController extends Controller
 
         } catch (\Exception $e) {
             return $this->sendErrorResponse('Lỗi khi import CSV: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get inventory stock list with product details
+     */
+    public function stockList(Request $request)
+    {
+        try {
+            $chiNhanhId = $request->chi_nhanh_id ?? 1; // Default branch ID = 1
+
+            $query = TonKhoChiNhanh::with(['sanPham.danhMuc'])
+                ->where('chi_nhanh_id', $chiNhanhId);
+
+            // Filter by status
+            if ($request->filled('trang_thai')) {
+                $isActive = $request->trang_thai === 'active' ? 1 : 0;
+                $query->whereHas('sanPham', function ($q) use ($isActive) {
+                    $q->where('is_active', $isActive);
+                });
+            }
+
+            // Search
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->whereHas('sanPham', function ($q) use ($search) {
+                    $q->where('ten_san_pham', 'like', "%{$search}%")
+                      ->orWhere('ma_san_pham', 'like', "%{$search}%");
+                });
+            }
+
+            $stocks = $query->orderBy('san_pham_id')
+                ->paginate($request->per_page ?? 1000);
+
+            // Transform data to include product info
+            $data = $stocks->getCollection()->map(function ($stock) {
+                return [
+                    'id' => $stock->sanPham->id,
+                    'ma_san_pham' => $stock->sanPham->ma_san_pham,
+                    'ten_san_pham' => $stock->sanPham->ten_san_pham,
+                    'danh_muc_id' => $stock->sanPham->danh_muc_id,
+                    'danh_muc_ten' => $stock->sanPham->danhMuc->ten_danh_muc ?? null,
+                    'don_vi_tinh' => $stock->sanPham->don_vi_tinh,
+                    'ton_kho' => $stock->so_luong_ton, // Correct column name
+                    'ton_kho_toi_thieu' => $stock->sanPham->ton_kho_canh_bao ?? 0, // From spa_san_pham
+                    'gia_nhap' => $stock->gia_von_binh_quan, // Correct column name
+                    'gia_ban' => $stock->sanPham->gia_ban,
+                    'trang_thai' => $stock->sanPham->is_active == 1 ? 'active' : 'inactive',
+                ];
+            });
+
+            return response()->json([
+                'data' => [
+                    'data' => $data,
+                    'current_page' => $stocks->currentPage(),
+                    'total' => $stocks->total(),
+                    'per_page' => $stocks->perPage(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi khi lấy danh sách tồn kho: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

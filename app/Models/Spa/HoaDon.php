@@ -16,6 +16,7 @@ class HoaDon extends Model
         'ma_hoa_don',
         'khach_hang_id',
         'chi_nhanh_id',
+        'nguoi_thu_id',
         'ngay_ban',
         'tong_tien_dich_vu',
         'tong_tien_san_pham',
@@ -29,6 +30,7 @@ class HoaDon extends Model
         'trang_thai',
         'nguoi_ban',
         'ghi_chu',
+        'ca_lam_viec_id',
     ];
 
     protected $casts = [
@@ -52,9 +54,19 @@ class HoaDon extends Model
         return $this->belongsTo(\App\Models\User::class, 'khach_hang_id');
     }
 
+    public function nguoiThu()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'nguoi_thu_id');
+    }
+
     public function chiNhanh()
     {
         return $this->belongsTo(ChiNhanh::class, 'chi_nhanh_id');
+    }
+
+    public function caLamViec()
+    {
+        return $this->belongsTo(CaLamViec::class, 'ca_lam_viec_id');
     }
 
     public function chiTiets()

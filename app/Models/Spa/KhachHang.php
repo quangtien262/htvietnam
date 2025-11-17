@@ -89,6 +89,16 @@ class KhachHang extends Model
         return $this->hasMany(DanhGia::class, 'khach_hang_id');
     }
 
+    public function vi()
+    {
+        return $this->hasOne(KhachHangVi::class, 'khach_hang_id');
+    }
+
+    public function giaoDichVi()
+    {
+        return $this->hasMany(GiaoDichVi::class, 'khach_hang_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

@@ -192,34 +192,34 @@ const Dashboard: React.FC = () => {
 
         {/* BÁO CÁO - THỐNG KÊ */ }
         if (item.name === 'parent_thong_ke') {
-            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-                <Card variant="borderless" className='item-dashboard'>
+            // return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+            //     <Card variant="borderless" className='item-dashboard'>
 
-                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-                        <div className="ant-statistic-title">
-                            <Link to="/">
-                                <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
-                            </Link>
-                        </div>
-                        <div className="ant-statistic-content" >
-                            <div className="ant-statistic-content-prefix">
-                                <PieChartFilled />
-                            </div>
-                            <div className="ant-statistic-content-value">
-                                <div>
-                                    <ul className="dashboard-list-item">
-                                        <li><GlobalOutlined /> Báo cáo tổng hợp</li>
-                                        <li><UserSwitchOutlined /> Báo cáo nhân sự</li>
-                                        <li><PayCircleOutlined /> Báo cáo bán hàng</li>
-                                        <li><DeleteColumnOutlined /> Báo cáo công nợ</li>
-                                        <li><FileSearchOutlined /> ..........</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Card>
-            </Col>
+            //         <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+            //             <div className="ant-statistic-title">
+            //                 <Link to="/">
+            //                     <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
+            //                 </Link>
+            //             </div>
+            //             <div className="ant-statistic-content" >
+            //                 <div className="ant-statistic-content-prefix">
+            //                     <PieChartFilled />
+            //                 </div>
+            //                 <div className="ant-statistic-content-value">
+            //                     <div>
+            //                         <ul className="dashboard-list-item">
+            //                             <li><GlobalOutlined /> Báo cáo tổng hợp</li>
+            //                             <li><UserSwitchOutlined /> Báo cáo nhân sự</li>
+            //                             <li><PayCircleOutlined /> Báo cáo bán hàng</li>
+            //                             <li><DeleteColumnOutlined /> Báo cáo công nợ</li>
+            //                             <li><FileSearchOutlined /> ..........</li>
+            //                         </ul>
+            //                     </div>
+            //                 </div>
+            //             </div>
+            //         </div>
+            //     </Card>
+            // </Col>
         }
 
         {/* QUẢN LÝ DỰ ÁN */ }

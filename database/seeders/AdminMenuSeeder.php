@@ -20,20 +20,20 @@ class AdminMenuSeeder extends Seeder
         //route
         $order = 1;
 
-        DB::table('admin_menu')->truncate();
+        // DB::table('admin_menu')->truncate();
 
-        $aitilen = DB::table('admin_menu')->insertGetId(
-            [
-                'name' => 'parent_aitilen',
-                'display_name' => 'BĐS AITILEN',
-                'icon' => 'ShopFilled',
-                'route' => 'aitilen.dashboard',
-                'link' => '',
-                'parent_id' => 0,
-                'is_active' => 1,
-                'sort_order' => $order++
-            ]
-        );
+        // $aitilen = DB::table('admin_menu')->insertGetId(
+        //     [
+        //         'name' => 'parent_aitilen',
+        //         'display_name' => 'BĐS AITILEN',
+        //         'icon' => 'ShopFilled',
+        //         'route' => 'aitilen.dashboard',
+        //         'link' => '',
+        //         'parent_id' => 0,
+        //         'is_active' => 1,
+        //         'sort_order' => $order++
+        //     ]
+        // );
 
         // web
         $web = DB::table('admin_menu')->insertGetId(

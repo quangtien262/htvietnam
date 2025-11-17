@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\Spa\DonViSanPhamController;
 use App\Http\Controllers\Admin\Spa\XuatXuController;
 use App\Http\Controllers\Admin\Spa\NhapKhoController;
 use App\Http\Controllers\Admin\Spa\MembershipTierController;
+use App\Http\Controllers\Admin\Spa\CaLamViecController;
 use App\Http\Controllers\Admin\Spa\ChuongTrinhKhuyenMaiController;
 use App\Http\Controllers\Admin\Spa\VoucherController;
 use App\Http\Controllers\Admin\Spa\EmailCampaignController;
@@ -99,6 +100,7 @@ Route::apiResource('brands', \App\Http\Controllers\Admin\Spa\ThuongHieuControlle
 Route::apiResource('product-units', \App\Http\Controllers\Admin\Spa\DonViSanPhamController::class);
 Route::apiResource('origins', \App\Http\Controllers\Admin\Spa\XuatXuController::class);
 Route::apiResource('inventory', \App\Http\Controllers\Admin\Spa\NhapKhoController::class);
+Route::get('inventory-stock/list', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'stockList'])->name('inventory-stock.list');
 Route::post('inventory/bulk-import', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'bulkImport'])->name('inventory.bulk-import');
 Route::post('inventory/import-csv', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'importCsv'])->name('inventory.import-csv');
 
@@ -207,4 +209,14 @@ Route::prefix('nha-cung-cap')->name('nha-cung-cap.')->group(function () {
     Route::delete('/{id}', [NhaCungCapController::class, 'destroy'])->name('destroy');
     Route::post('/{id}/toggle-status', [NhaCungCapController::class, 'toggleStatus'])->name('toggle-status');
     Route::get('/statistics', [NhaCungCapController::class, 'statistics'])->name('statistics');
+});
+
+// Ca làm việc (Shift Management)
+Route::prefix('shifts')->name('shifts.')->group(function () {
+    Route::get('/current', [CaLamViecController::class, 'getCurrentShift'])->name('current');
+    Route::post('/open', [CaLamViecController::class, 'openShift'])->name('open');
+    Route::post('/{id}/close', [CaLamViecController::class, 'closeShift'])->name('close');
+    Route::get('/', [CaLamViecController::class, 'index'])->name('index');
+    Route::get('/{id}', [CaLamViecController::class, 'show'])->name('show');
+    Route::get('/{id}/print', [CaLamViecController::class, 'printHandover'])->name('print');
 });

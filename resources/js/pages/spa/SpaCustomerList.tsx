@@ -31,6 +31,24 @@ interface Customer {
     ghi_chu?: string;
     note?: string;
     created_at?: string;
+    wallet?: {
+        so_du: number;
+        tong_nap: number;
+        tong_rut: number;
+    };
+}
+
+interface WalletTransaction {
+    id: number;
+    ma_giao_dich: string;
+    loai_giao_dich: 'NAP' | 'RUT' | 'HOAN';
+    so_tien: number;
+    so_du_truoc: number;
+    so_du_sau: number;
+    the_gia_tri?: any;
+    hoa_don?: any;
+    ghi_chu?: string;
+    created_at: string;
 }
 
 const SpaCustomerList: React.FC = () => {
@@ -43,6 +61,12 @@ const SpaCustomerList: React.FC = () => {
     const [isDetailDrawerVisible, setIsDetailDrawerVisible] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [form] = Form.useForm();
+    const [walletHistoryModalVisible, setWalletHistoryModalVisible] = useState(false);
+    const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
+    const [loadingWalletHistory, setLoadingWalletHistory] = useState(false);
+    const [promoCodeModalVisible, setPromoCodeModalVisible] = useState(false);
+    const [selectedCustomerForPromo, setSelectedCustomerForPromo] = useState<Customer | null>(null);
+    const [promoCodeForm] = Form.useForm();
 
     useEffect(() => {
         fetchCustomers();
@@ -64,7 +88,24 @@ const SpaCustomerList: React.FC = () => {
             if (response.data.success) {
                 // Backend trả về: { success: true, data: {pagination data} }
                 const customerData = response.data.data;
-                setCustomers(customerData.data || []);
+                const customersData = customerData.data || [];
+                
+                // Fetch wallet for each customer
+                const customersWithWallet = await Promise.all(
+                    customersData.map(async (customer: Customer) => {
+                        try {
+                            const walletRes = await axios.get(`/aio/api/spa/wallet/${customer.id}`);
+                            if (walletRes.data.success) {
+                                return { ...customer, wallet: walletRes.data.data };
+                            }
+                        } catch (err) {
+                            console.log('No wallet for customer', customer.id);
+                        }
+                        return customer;
+                    })
+                );
+                
+                setCustomers(customersWithWallet);
                 setPagination({
                     ...pagination,
                     total: customerData.total || 0,
@@ -76,6 +117,53 @@ const SpaCustomerList: React.FC = () => {
             message.error('Lỗi khi tải danh sách khách hàng');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchWalletHistory = async (customerId: number) => {
+        setLoadingWalletHistory(true);
+        try {
+            const response = await axios.get(`/aio/api/spa/wallet/${customerId}/history`);
+            if (response.data.success) {
+                setWalletTransactions(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching wallet history:', error);
+            message.error('Lỗi khi tải lịch sử giao dịch');
+        } finally {
+            setLoadingWalletHistory(false);
+        }
+    };
+
+    const showWalletHistory = (customer: Customer) => {
+        setSelectedCustomer(customer);
+        fetchWalletHistory(customer.id);
+        setWalletHistoryModalVisible(true);
+    };
+
+    const showPromoCodeModal = (customer: Customer) => {
+        setSelectedCustomerForPromo(customer);
+        setPromoCodeModalVisible(true);
+    };
+
+    const handleApplyPromoCode = async () => {
+        try {
+            const values = await promoCodeForm.validateFields();
+            if (!selectedCustomerForPromo) return;
+
+            const response = await axios.post('/aio/api/spa/wallet/apply-code', {
+                khach_hang_id: selectedCustomerForPromo.id,
+                ma_code: values.promo_code.toUpperCase(),
+            });
+
+            if (response.data.success) {
+                message.success(response.data.message || 'Nạp thẻ thành công!');
+                setPromoCodeModalVisible(false);
+                promoCodeForm.resetFields();
+                fetchCustomers(); // Refresh to show updated wallet
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Lỗi khi áp dụng mã thẻ');
         }
     };
 
@@ -248,6 +336,28 @@ const SpaCustomerList: React.FC = () => {
             width: 120,
             render: (value: number) => (
                 <Tag color="purple">{value || 0} điểm</Tag>
+            ),
+        },
+        {
+            title: 'Số dư ví',
+            dataIndex: 'wallet',
+            key: 'wallet',
+            width: 180,
+            render: (wallet: any, record: Customer) => (
+                <Space direction="vertical" size={0}>
+                    <Tag color="green" style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                        {formatCurrency(wallet?.so_du || 0)}
+                    </Tag>
+                    <div style={{ fontSize: '11px', color: '#888' }}>
+                        <Button type="link" size="small" style={{ padding: 0, height: 'auto' }} onClick={() => showWalletHistory(record)}>
+                            Xem lịch sử
+                        </Button>
+                        {' | '}
+                        <Button type="link" size="small" style={{ padding: 0, height: 'auto' }} onClick={() => showPromoCodeModal(record)}>
+                            Nạp code
+                        </Button>
+                    </div>
+                </Space>
             ),
         },
         {
@@ -638,6 +748,118 @@ const SpaCustomerList: React.FC = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Wallet History Modal */}
+            <Modal
+                title={`Lịch sử giao dịch ví - ${selectedCustomer?.ho_ten || selectedCustomer?.name || ''}`}
+                visible={walletHistoryModalVisible}
+                onCancel={() => setWalletHistoryModalVisible(false)}
+                footer={null}
+                width={900}
+            >
+                <Table
+                    dataSource={walletTransactions}
+                    loading={loadingWalletHistory}
+                    pagination={{ pageSize: 10 }}
+                    rowKey="id"
+                    columns={[
+                        {
+                            title: 'Mã GD',
+                            dataIndex: 'ma_giao_dich',
+                            key: 'ma_giao_dich',
+                            width: 160,
+                        },
+                        {
+                            title: 'Loại',
+                            dataIndex: 'loai_giao_dich',
+                            key: 'loai_giao_dich',
+                            width: 100,
+                            render: (type: string) => {
+                                const config: any = {
+                                    NAP: { color: 'green', text: 'Nạp tiền' },
+                                    RUT: { color: 'red', text: 'Rút tiền' },
+                                    HOAN: { color: 'blue', text: 'Hoàn tiền' },
+                                };
+                                const c = config[type] || { color: 'default', text: type };
+                                return <Tag color={c.color}>{c.text}</Tag>;
+                            },
+                        },
+                        {
+                            title: 'Số tiền',
+                            dataIndex: 'so_tien',
+                            key: 'so_tien',
+                            width: 130,
+                            render: (amount: number, record: WalletTransaction) => (
+                                <span style={{ color: record.loai_giao_dich === 'NAP' || record.loai_giao_dich === 'HOAN' ? 'green' : 'red', fontWeight: 'bold' }}>
+                                    {record.loai_giao_dich === 'NAP' || record.loai_giao_dich === 'HOAN' ? '+' : '-'}{formatCurrency(amount)}
+                                </span>
+                            ),
+                        },
+                        {
+                            title: 'Số dư trước',
+                            dataIndex: 'so_du_truoc',
+                            key: 'so_du_truoc',
+                            width: 130,
+                            render: (val: number) => formatCurrency(val),
+                        },
+                        {
+                            title: 'Số dư sau',
+                            dataIndex: 'so_du_sau',
+                            key: 'so_du_sau',
+                            width: 130,
+                            render: (val: number) => formatCurrency(val),
+                        },
+                        {
+                            title: 'Ghi chú',
+                            dataIndex: 'ghi_chu',
+                            key: 'ghi_chu',
+                            ellipsis: true,
+                        },
+                        {
+                            title: 'Ngày tạo',
+                            dataIndex: 'created_at',
+                            key: 'created_at',
+                            width: 150,
+                            render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+                        },
+                    ]}
+                />
+            </Modal>
+
+            {/* Promo Code Modal */}
+            <Modal
+                title="Nạp thẻ tặng bằng mã code"
+                visible={promoCodeModalVisible}
+                onOk={handleApplyPromoCode}
+                onCancel={() => {
+                    setPromoCodeModalVisible(false);
+                    promoCodeForm.resetFields();
+                }}
+                okText="Áp dụng"
+                cancelText="Hủy"
+            >
+                <Form form={promoCodeForm} layout="vertical">
+                    <div style={{ marginBottom: 16, padding: '12px', background: '#f0f5ff', borderRadius: '4px' }}>
+                        <strong>Khách hàng:</strong> {selectedCustomerForPromo?.ho_ten || selectedCustomerForPromo?.name}
+                        <br />
+                        <strong>Số dư hiện tại:</strong> {formatCurrency(selectedCustomerForPromo?.wallet?.so_du || 0)}
+                    </div>
+                    <Form.Item
+                        name="promo_code"
+                        label="Mã thẻ tặng"
+                        rules={[{ required: true, message: 'Vui lòng nhập mã thẻ' }]}
+                    >
+                        <Input
+                            placeholder="VD: NEWCUSTOMER, SALE50"
+                            autoFocus
+                            style={{ textTransform: 'uppercase' }}
+                        />
+                    </Form.Item>
+                    <div style={{ fontSize: '13px', color: '#888' }}>
+                        Nhập mã thẻ tặng để nạp tiền vào ví khách hàng. Mã sẽ được kiểm tra tính hợp lệ và số dư sẽ được cập nhật ngay lập tức.
+                    </div>
+                </Form>
+            </Modal>
         </div>
     );
 };
