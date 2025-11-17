@@ -657,35 +657,18 @@ export const MENU = {
                 },
             ],
         },
+
         // Quản lý kho đa chi nhánh
         {
-            label: "Kho",
+            label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Kho</Link>,
             key: (key++).toString(),
-            icon: <ShopOutlined />,
+            icon: <InboxOutlined />,
             children: [
                 {
                     label: <Link to={`${ROUTE.spa_branch_inventory}?p=spa`}>Tồn kho chi nhánh</Link>,
                     key: (key++).toString(),
                     icon: <InboxOutlined />,
                 },
-                // {
-                //     label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
-                //     key: (key++).toString(),
-                //     icon: <FileDoneOutlined />,
-                // },
-                {
-                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
-                    key: (key++).toString(),
-                    icon: <InboxOutlined />,
-                },
-            ],
-        },
-
-        {
-            label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Kho</Link>,
-            key: (key++).toString(),
-            icon: <InboxOutlined />,
-            children: [
                 {
                     label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
                     key: (key++).toString(),

@@ -56,6 +56,7 @@ class GoiDichVuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'ten_goi' => 'required|string|max:255',
             'gia_ban' => 'required|numeric|min:0',
             'so_luong' => 'required|numeric|min:0',
         ]);
@@ -63,6 +64,7 @@ class GoiDichVuController extends Controller
         // Create package first to get ID
         $id = DB::table('spa_goi_dich_vu')->insertGetId([
             'ma_goi' => 'TEMP_' . time(), // Temporary code
+            'ten_goi' => $request->ten_goi,
             'nhom_hang_id' => $request->nhom_hang_id,
             'gia_ban' => $request->gia_ban,
             'so_luong' => $request->so_luong,
@@ -139,12 +141,14 @@ class GoiDichVuController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'ten_goi' => 'required|string|max:255',
             'gia_ban' => 'required|numeric|min:0',
             'so_luong' => 'required|numeric|min:0',
         ]);
 
         DB::table('spa_goi_dich_vu')->where('id', $id)->update([
             'ma_goi' => $request->ma_goi ?? 'GOI' . str_pad($id, 5, '0', STR_PAD_LEFT),
+            'ten_goi' => $request->ten_goi,
             'nhom_hang_id' => $request->nhom_hang_id,
             'gia_ban' => $request->gia_ban,
             'so_luong' => $request->so_luong,

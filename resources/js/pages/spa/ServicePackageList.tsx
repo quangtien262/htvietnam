@@ -669,8 +669,11 @@ const ServicePackageList: React.FC = () => {
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <h2 style={{ color: 'white', margin: 0, fontSize: 20 }}>
-                                        {selectedPackage.ma_goi}
+                                        {selectedPackage.ten_goi || selectedPackage.ma_goi}
                                     </h2>
+                                    <p style={{ color: 'rgba(255,255,255,0.9)', margin: '4px 0 0 0', fontSize: 14 }}>
+                                        {selectedPackage.ma_goi}
+                                    </p>
                                     {selectedPackage.lich_trinh_ten && (
                                         <Tag color={selectedPackage.lich_trinh_color} style={{ marginTop: 8 }}>
                                             <CalendarOutlined /> {selectedPackage.lich_trinh_ten}

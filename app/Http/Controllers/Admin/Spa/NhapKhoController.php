@@ -186,4 +186,130 @@ class NhapKhoController extends Controller
         $number = $latest ? (int)substr($latest->ma_phieu, 2) + 1 : 1;
         return 'PN' . str_pad($number, 5, '0', STR_PAD_LEFT);
     }
+
+    public function bulkImport(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.san_pham_id' => 'required|exists:spa_san_pham,id',
+            'items.*.so_luong' => 'required|integer|min:1',
+            'items.*.gia_nhap' => 'required|numeric|min:0',
+            'nha_cung_cap' => 'nullable|string',
+            'ngay_nhap' => 'required|date',
+            'ghi_chu' => 'nullable|string',
+        ]);
+
+        try {
+            $successCount = 0;
+
+            DB::transaction(function () use ($request, &$successCount) {
+                foreach ($request->items as $item) {
+                    // Update product stock
+                    DB::table('spa_san_pham')
+                        ->where('id', $item['san_pham_id'])
+                        ->increment('ton_kho', $item['so_luong']);
+
+                    // Update product purchase price
+                    DB::table('spa_san_pham')
+                        ->where('id', $item['san_pham_id'])
+                        ->update(['gia_nhap' => $item['gia_nhap']]);
+
+                    // Create transaction record (if you have transaction table)
+                    // This is optional based on your schema
+
+                    $successCount++;
+                }
+            });
+
+            return $this->sendSuccessResponse([
+                'count' => $successCount,
+                'message' => "Nhập kho thành công {$successCount} sản phẩm"
+            ], "Nhập kho thành công {$successCount} sản phẩm", 200);
+
+        } catch (\Exception $e) {
+            return $this->sendErrorResponse('Lỗi khi nhập kho: ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt,xlsx,xls',
+            'nha_cung_cap' => 'nullable|string',
+            'ngay_nhap' => 'required|date',
+            'ghi_chu' => 'nullable|string',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $path = $file->getRealPath();
+
+            // Read CSV
+            $csv = array_map('str_getcsv', file($path));
+            $header = array_shift($csv); // Remove header row
+
+            $items = [];
+            $errors = [];
+
+            foreach ($csv as $index => $row) {
+                if (count($row) < 4) {
+                    $errors[] = "Dòng " . ($index + 2) . ": Thiếu dữ liệu";
+                    continue;
+                }
+
+                $maSanPham = trim($row[0]);
+                $soLuong = (int)$row[2];
+                $giaNhap = (float)$row[3];
+
+                // Find product by code
+                $product = DB::table('spa_san_pham')
+                    ->where('ma_san_pham', $maSanPham)
+                    ->first();
+
+                if (!$product) {
+                    $errors[] = "Dòng " . ($index + 2) . ": Không tìm thấy sản phẩm {$maSanPham}";
+                    continue;
+                }
+
+                $items[] = [
+                    'san_pham_id' => $product->id,
+                    'so_luong' => $soLuong,
+                    'gia_nhap' => $giaNhap,
+                ];
+            }
+
+            if (empty($items)) {
+                return $this->sendErrorResponse('Không có dữ liệu hợp lệ để import. Lỗi: ' . implode(', ', $errors), 400);
+            }
+
+            $successCount = 0;
+
+            DB::transaction(function () use ($items, &$successCount) {
+                foreach ($items as $item) {
+                    DB::table('spa_san_pham')
+                        ->where('id', $item['san_pham_id'])
+                        ->increment('ton_kho', $item['so_luong']);
+
+                    DB::table('spa_san_pham')
+                        ->where('id', $item['san_pham_id'])
+                        ->update(['gia_nhap' => $item['gia_nhap']]);
+
+                    $successCount++;
+                }
+            });
+
+            $message = "Import thành công {$successCount} sản phẩm";
+            if (!empty($errors)) {
+                $message .= ". Lỗi: " . count($errors) . " dòng";
+            }
+
+            return $this->sendSuccessResponse([
+                'count' => $successCount,
+                'errors' => $errors,
+            ], $message, 200);
+
+        } catch (\Exception $e) {
+            return $this->sendErrorResponse('Lỗi khi import CSV: ' . $e->getMessage(), 500);
+        }
+    }
 }

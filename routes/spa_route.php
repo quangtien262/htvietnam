@@ -99,6 +99,8 @@ Route::apiResource('brands', \App\Http\Controllers\Admin\Spa\ThuongHieuControlle
 Route::apiResource('product-units', \App\Http\Controllers\Admin\Spa\DonViSanPhamController::class);
 Route::apiResource('origins', \App\Http\Controllers\Admin\Spa\XuatXuController::class);
 Route::apiResource('inventory', \App\Http\Controllers\Admin\Spa\NhapKhoController::class);
+Route::post('inventory/bulk-import', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'bulkImport'])->name('inventory.bulk-import');
+Route::post('inventory/import-csv', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'importCsv'])->name('inventory.import-csv');
 
 // Staff Management
 Route::apiResource('staff', \App\Http\Controllers\Admin\Spa\KTVController::class);
