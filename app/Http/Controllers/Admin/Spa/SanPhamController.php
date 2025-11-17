@@ -42,15 +42,20 @@ class SanPhamController extends Controller
         $products = $query->orderBy('spa_san_pham.created_at', 'desc')
             ->paginate($request->get('per_page', 20));
 
-        // Load unit conversions for each product
-        foreach ($products as $product) {
+        // Load conversion units for each product
+        $products->getCollection()->transform(function($product) {
             $product->don_vi_quy_doi = SanPhamDonViQuiDoi::where('san_pham_id', $product->id)
-                ->select('id', 'don_vi', 'ty_le')
+                ->where('is_active', 1)
                 ->get()
                 ->toArray();
-        }
+            return $product;
+        });
 
-        return $this->sendSuccessResponse($products);
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Lấy danh sách sản phẩm thành công',
+            'data' => $products
+        ]);
     }
 
     public function store(Request $request)

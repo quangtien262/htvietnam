@@ -38,6 +38,9 @@ class CommonSettingController extends Controller
         'pro___priorities',
         'pro___project_types',
 
+        // spa
+        'spa_lich_trinh_su_dung',
+
     ];
 
     /**

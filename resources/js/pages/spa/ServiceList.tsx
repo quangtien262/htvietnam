@@ -12,6 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -61,6 +62,7 @@ interface Product {
     ten_san_pham: string;
     don_vi_tinh: string;
     gia_von: number;
+    gia_nhap: number;
     ton_kho: number;
     don_vi_quy_doi?: Array<{
         id: number;
@@ -132,7 +134,7 @@ const ServiceList: React.FC = () => {
     const loadServices = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/aio/api/spa/services', {
+            const response = await axios.get(API.spaServiceList, {
                 params: {
                     page: pagination.current,
                     per_page: pagination.pageSize,
@@ -167,11 +169,11 @@ const ServiceList: React.FC = () => {
 
     const loadCategories = async () => {
         try {
-            const response = await axios.post('/aio/api/spa/service-categories/list');
+            const response = await axios.get(API.spaServiceCategoryList);
             console.log('Categories response:', response.data); // Debug log
             if (response.data) {
-                // Response structure: { status_code, message, data: { data: [...] } }
-                const categoriesData = response.data.data?.data || response.data.data || [];
+                // Response structure for paginated data
+                const categoriesData = response.data.data || [];
                 console.log('Categories loaded:', categoriesData); // Debug log
                 setCategories(categoriesData);
             }
@@ -197,11 +199,15 @@ const ServiceList: React.FC = () => {
 
     const loadProducts = async () => {
         try {
-            const response = await axios.get('/aio/api/spa/products', {
+            const response = await axios.get(API.spaProductList, {
                 params: { per_page: 1000 } // Load all products
             });
+
+            console.log('Products response:', response.data);
+
             if (response.data && response.data.status_code === 200) {
                 const productsData = response.data.data?.data || response.data.data || [];
+                console.log('Products loaded:', productsData);
                 setProducts(productsData);
             }
         } catch (error) {
@@ -223,7 +229,7 @@ const ServiceList: React.FC = () => {
 
         // Load full service details including materials
         try {
-            const response = await axios.get(`/aio/api/spa/services/${record.id}`);
+            const response = await axios.get(API.spaServiceDetail(record.id));
             const serviceData = response.data;
 
             form.setFieldsValue({
@@ -270,10 +276,10 @@ const ServiceList: React.FC = () => {
             let response;
             if (selectedService?.id) {
                 // Update existing service
-                response = await axios.put(`/aio/api/spa/services/${selectedService.id}`, payload);
+                response = await axios.put(API.spaServiceUpdate(selectedService.id), payload);
             } else {
                 // Create new service
-                response = await axios.post('/aio/api/spa/services', payload);
+                response = await axios.post(API.spaServiceCreate, payload);
             }
 
             // Backend returns: { status_code, message, data }
@@ -298,7 +304,7 @@ const ServiceList: React.FC = () => {
     const handleDelete = async (id: number) => {
         try {
             setLoading(true);
-            const response = await axios.delete(`/aio/api/spa/services/${id}`);
+            const response = await axios.delete(API.spaServiceDelete(id));
             if (response.data && response.data.status_code === 200) {
                 message.success('Xóa dịch vụ thành công');
                 await loadServices();
@@ -316,7 +322,7 @@ const ServiceList: React.FC = () => {
     const handleStatusToggle = async (record: Service) => {
         try {
             const newStatus = !record.is_active;
-            const response = await axios.put(`/aio/api/spa/services/${record.id}`, {
+            const response = await axios.put(API.spaServiceUpdate(record.id), {
                 is_active: newStatus,
             });
 
@@ -335,16 +341,25 @@ const ServiceList: React.FC = () => {
     const handleImageUpload = async (file: File) => {
         setUploading(true);
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/upload-image', formData);
-            if (response.data.success) {
-                setImageUrl(response.data.data.url);
+            const response = await axios.post(API.uploadImage, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (response.data && response.data.status_code === 200) {
+                // Backend returns: { status_code, message, data: { filePath, fileName } }
+                // filePath example: "tmp/v5M2_1763337810.jpeg"
+                const filePath = response.data.data?.filePath || response.data.data?.path;
+                const fullUrl = `/files/${filePath}`;
+                setImageUrl(fullUrl);
                 message.success('Upload ảnh thành công');
+            } else {
+                message.error('Upload ảnh thất bại');
             }
-        } catch (error) {
-            message.error('Upload ảnh thất bại');
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            message.error(error.response?.data?.message || 'Upload ảnh thất bại');
         } finally {
             setUploading(false);
         }
@@ -360,11 +375,12 @@ const ServiceList: React.FC = () => {
     const handleCategorySubmit = async () => {
         try {
             const values = await categoryForm.validateFields();
-            const response = await axios.post('/aio/api/spa/service-categories', values);
+            const response = await axios.post(API.spaServiceCategoryCreate, values);
 
-            if (response.data.success) {
+            if (response.data && response.data.status_code === 200) {
                 message.success('Tạo danh mục mới thành công');
                 setCategoryModalVisible(false);
+                categoryForm.resetFields();
                 await loadCategories();
 
                 // Auto-select the newly created category
@@ -385,7 +401,7 @@ const ServiceList: React.FC = () => {
     const handleSkillSubmit = async () => {
         try {
             const values = await skillForm.validateFields();
-            const response = await axios.post('/aio/api/spa/skills', values);
+            const response = await axios.post(API.spaSkillCreate, values);
 
             if (response.data.status_code === 200) {
                 message.success('Tạo kỹ năng mới thành công');
@@ -865,13 +881,16 @@ const ServiceList: React.FC = () => {
                                                                     const product = products.find(p => p.id === value);
                                                                     if (product) {
                                                                         const currentValues = form.getFieldValue('nguyen_lieu') || [];
+                                                                        // Sử dụng giá nhập làm giá vốn, nếu không có thì dùng gia_von
+                                                                        const giaVonGoc = product.gia_nhap || product.gia_von || 0;
                                                                         currentValues[field.name] = {
                                                                             ...currentValues[field.name],
                                                                             san_pham_id: value,
                                                                             don_vi: product.don_vi_tinh,
-                                                                            gia_von: product.gia_von || 0,
+                                                                            gia_von: giaVonGoc,
                                                                             ty_le_quy_doi: 1,
-                                                                            don_vi_quy_doi_id: null
+                                                                            don_vi_quy_doi_id: null,
+                                                                            thanh_tien: (currentValues[field.name]?.so_luong || 0) * giaVonGoc
                                                                         };
                                                                         form.setFieldsValue({ nguyen_lieu: currentValues });
                                                                     }
@@ -883,7 +902,10 @@ const ServiceList: React.FC = () => {
                                                                             <strong>{p.ma_san_pham}</strong> - {p.ten_san_pham}
                                                                             <br />
                                                                             <small style={{ color: '#666' }}>
-                                                                                Tồn: {p.ton_kho} {p.don_vi_tinh} | Giá vốn: {p.gia_von?.toLocaleString()}đ
+                                                                                ĐV gốc: {p.don_vi_tinh}
+                                                                                {p.don_vi_quy_doi && p.don_vi_quy_doi.length > 0 && (
+                                                                                    <span> | Quy đổi: {p.don_vi_quy_doi.map((dv: any) => `${dv.don_vi} (1:${dv.ty_le})`).join(', ')}</span>
+                                                                                )}
                                                                             </small>
                                                                         </div>
                                                                     </Option>
@@ -938,16 +960,19 @@ const ServiceList: React.FC = () => {
                                                                         const item = values[field.name];
 
                                                                         if (product) {
+                                                                            const giaVonGoc = product.gia_nhap || product.gia_von || 0;
                                                                             if (value === product.don_vi_tinh) {
-                                                                                // Base unit
-                                                                                item.gia_von = product.gia_von || 0;
+                                                                                // Base unit - Đơn vị gốc
+                                                                                item.gia_von = giaVonGoc;
                                                                                 item.ty_le_quy_doi = 1;
                                                                                 item.don_vi_quy_doi_id = null;
                                                                             } else {
-                                                                                // Conversion unit
+                                                                                // Conversion unit - Đơn vị quy đổi
                                                                                 const conv = conversions.find(c => c.don_vi === value);
                                                                                 if (conv) {
-                                                                                    item.gia_von = (product.gia_von || 0) / conv.ty_le;
+                                                                                    // Công thức: 1 đơn vị gốc = ty_le đơn vị quy đổi
+                                                                                    // Ví dụ: 1 Chai (10,000đ) = 500 ml => 1ml = 10,000 / 500 = 20đ
+                                                                                    item.gia_von = giaVonGoc / conv.ty_le;
                                                                                     item.ty_le_quy_doi = conv.ty_le;
                                                                                     item.don_vi_quy_doi_id = conv.id;
                                                                                 }
@@ -960,9 +985,15 @@ const ServiceList: React.FC = () => {
                                                                         }
                                                                     }}
                                                                 >
-                                                                    {product && <Option value={product.don_vi_tinh}>{product.don_vi_tinh}</Option>}
+                                                                    {product && (
+                                                                        <Option value={product.don_vi_tinh}>
+                                                                            {product.don_vi_tinh} (Đơn vị gốc)
+                                                                        </Option>
+                                                                    )}
                                                                     {conversions.map(c => (
-                                                                        <Option key={c.id} value={c.don_vi}>{c.don_vi}</Option>
+                                                                        <Option key={c.id} value={c.don_vi}>
+                                                                            {c.don_vi} (1 {product?.don_vi_tinh} = {c.ty_le} {c.don_vi})
+                                                                        </Option>
                                                                     ))}
                                                                 </Select>
                                                             </Form.Item>

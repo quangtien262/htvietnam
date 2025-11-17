@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('spa_san_pham_don_vi_quy_doi', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('san_pham_id');
-            $table->string('don_vi', 50);
-            $table->decimal('ty_le', 10, 4);
+            $table->string('don_vi', 50)->comment('Đơn vị quy đổi');
+            $table->unsignedInteger('ty_le')->comment('Số lượng: 1 đơn vị gốc = ty_le đơn vị này');
             $table->string('ghi_chu')->nullable();
             $table->tinyInteger('is_active')->default(1);
             $table->timestamps();

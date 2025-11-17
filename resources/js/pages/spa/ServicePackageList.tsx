@@ -10,6 +10,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -17,6 +18,7 @@ const { Option } = Select;
 interface ServicePackage {
     id: number;
     ma_goi: string;
+    ten_goi?: string;
     nhom_hang_id?: number;
     gia_ban: number;
     so_luong: number;
@@ -66,7 +68,9 @@ const ServicePackageList: React.FC = () => {
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState<ServicePackage | null>(null);
     const [searchText, setSearchText] = useState('');
+    const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
     const [form] = Form.useForm();
+    const [scheduleForm] = Form.useForm();
 
     useEffect(() => {
         loadPackages();
@@ -77,7 +81,7 @@ const ServicePackageList: React.FC = () => {
     const loadPackages = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('/aio/api/spa/service-packages', {
+            const response = await axios.get(API.spaServicePackageList, {
                 params: { search: searchText }
             });
             if (response.data && response.data.status_code === 200) {
@@ -94,7 +98,7 @@ const ServicePackageList: React.FC = () => {
 
     const loadServices = async () => {
         try {
-            const response = await axios.get('/aio/api/spa/services', {
+            const response = await axios.get(API.spaServiceList, {
                 params: { per_page: 1000 }
             });
             if (response.data && response.data.status_code === 200) {
@@ -109,7 +113,7 @@ const ServicePackageList: React.FC = () => {
 
     const loadSchedules = async () => {
         try {
-            const response = await axios.get('/aio/api/spa/schedules/list');
+            const response = await axios.get(API.spaSchedulesList);
             if (response.data && response.data.status_code === 200) {
                 const schedulesData = response.data.data || [];
                 setSchedules(schedulesData);
@@ -129,7 +133,7 @@ const ServicePackageList: React.FC = () => {
         setSelectedPackage(record);
 
         try {
-            const response = await axios.get(`/aio/api/spa/service-packages/${record.id}`);
+            const response = await axios.get(API.spaServicePackageDetail(record.id));
             const packageData = response.data;
 
             form.setFieldsValue({
@@ -168,9 +172,9 @@ const ServicePackageList: React.FC = () => {
 
             let response;
             if (selectedPackage?.id) {
-                response = await axios.put(`/aio/api/spa/service-packages/${selectedPackage.id}`, payload);
+                response = await axios.put(API.spaServicePackageUpdate(selectedPackage.id), payload);
             } else {
-                response = await axios.post('/aio/api/spa/service-packages', payload);
+                response = await axios.post(API.spaServicePackageCreate, payload);
             }
 
             if (response.data && response.data.status_code === 200) {
@@ -197,7 +201,7 @@ const ServicePackageList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.delete(`/aio/api/spa/service-packages/${id}`);
+            const response = await axios.delete(API.spaServicePackageDelete(id));
             if (response.data && response.data.status_code === 200) {
                 message.success('Xóa gói dịch vụ thành công');
                 await loadPackages();
@@ -205,6 +209,24 @@ const ServicePackageList: React.FC = () => {
         } catch (error) {
             console.error('Delete error:', error);
             message.error('Không thể xóa gói dịch vụ');
+        }
+    };
+
+    const handleCreateSchedule = async () => {
+        try {
+            const values = await scheduleForm.validateFields();
+            const response = await axios.post('/spa/schedules', values);
+            if (response.data && response.data.status_code === 200) {
+                message.success('Thêm lịch trình thành công');
+                setScheduleModalVisible(false);
+                scheduleForm.resetFields();
+                await loadSchedules();
+                // Set giá trị mới vào form chính
+                form.setFieldValue('lich_trinh_su_dung_id', response.data.data.id);
+            }
+        } catch (error) {
+            console.error('Create schedule error:', error);
+            message.error('Không thể thêm lịch trình');
         }
     };
 
@@ -348,6 +370,50 @@ const ServicePackageList: React.FC = () => {
                 </Space>
             </Card>
 
+            {/* Quick Add Schedule Modal */}
+            <Modal
+                title="Thêm lịch trình sử dụng"
+                open={scheduleModalVisible}
+                onCancel={() => {
+                    setScheduleModalVisible(false);
+                    scheduleForm.resetFields();
+                }}
+                onOk={handleCreateSchedule}
+                okText="Thêm"
+                cancelText="Hủy"
+            >
+                <Form form={scheduleForm} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Tên lịch trình"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên lịch trình' }]}
+                    >
+                        <Input placeholder="VD: Theo ngày, Theo tuần, Theo tháng..." />
+                    </Form.Item>
+                    <Form.Item
+                        name="color"
+                        label="Màu đánh dấu"
+                        initialValue="blue"
+                    >
+                        <Select>
+                            <Option value="blue"><Tag color="blue">Xanh dương</Tag></Option>
+                            <Option value="green"><Tag color="green">Xanh lá</Tag></Option>
+                            <Option value="red"><Tag color="red">Đỏ</Tag></Option>
+                            <Option value="orange"><Tag color="orange">Cam</Tag></Option>
+                            <Option value="purple"><Tag color="purple">Tím</Tag></Option>
+                            <Option value="cyan"><Tag color="cyan">Xanh ngọc</Tag></Option>
+                            <Option value="magenta"><Tag color="magenta">Hồng</Tag></Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        name="note"
+                        label="Ghi chú"
+                    >
+                        <TextArea rows={2} placeholder="Ghi chú thêm về lịch trình..." />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
             {/* Create/Edit Modal */}
             <Modal
                 title={selectedPackage ? 'Cập nhật gói dịch vụ' : 'Tạo gói dịch vụ mới'}
@@ -361,6 +427,7 @@ const ServicePackageList: React.FC = () => {
                 width={900}
                 okText={selectedPackage ? 'Cập nhật' : 'Tạo mới'}
                 cancelText="Hủy"
+                maskClosable={false}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
@@ -375,8 +442,33 @@ const ServicePackageList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
+                                name="ten_goi"
+                                label="Tên gói"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên gói' }]}
+                            >
+                                <Input placeholder="Nhập tên gói dịch vụ" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
                                 name="lich_trinh_su_dung_id"
-                                label="Lịch trình sử dụng"
+                                label={
+                                    <Space>
+                                        Lịch trình sử dụng
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setScheduleModalVisible(true)}
+                                            style={{ padding: 0, height: 'auto' }}
+                                        >
+                                            Thêm nhanh
+                                        </Button>
+                                    </Space>
+                                }
                             >
                                 <Select placeholder="Chọn lịch trình" allowClear>
                                     {schedules.map((schedule) => (
@@ -385,6 +477,15 @@ const ServicePackageList: React.FC = () => {
                                         </Option>
                                     ))}
                                 </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="so_luong"
+                                label="Số lượng"
+                                rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
+                            >
+                                <InputNumber style={{ width: '100%' }} min={0} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -403,15 +504,6 @@ const ServicePackageList: React.FC = () => {
                                     parser={value => value!.replace(/\$\s?|(,*)/g, '')}
                                     addonAfter="VNĐ"
                                 />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="so_luong"
-                                label="Số lượng"
-                                rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
-                            >
-                                <InputNumber style={{ width: '100%' }} min={0} />
                             </Form.Item>
                         </Col>
                     </Row>

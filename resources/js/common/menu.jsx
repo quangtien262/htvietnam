@@ -5,8 +5,8 @@ import ROUTE from './route';
 import SoQuyList from './../pages/aitilen/SoQuyList';
 import {
     UserOutlined,CalendarOutlined,
-    GlobalOutlined,
-    CopyOutlined,
+    GlobalOutlined,DeleteOutlined ,
+    CopyOutlined,GiftOutlined,
     UnorderedListOutlined,
     BookOutlined,
     DashboardOutlined,
@@ -31,8 +31,7 @@ import {
     CheckSquareOutlined,
     SettingOutlined,
     QuestionCircleOutlined,
-    KeyOutlined,
-    GiftOutlined
+    KeyOutlined
 } from "@ant-design/icons";
 /**
  * @typedef {Object} MenuItem
@@ -656,6 +655,19 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <GiftOutlined />,
                 },
+            ],
+        },
+        // Quản lý kho đa chi nhánh
+        {
+            label: "Kho",
+            key: (key++).toString(),
+            icon: <ShopOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_branch_inventory}?p=spa`}>Tồn kho chi nhánh</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
                 // {
                 //     label: <Link to={`${ROUTE.spa_treatment_packages}?p=spa`}>Liệu trình</Link>,
                 //     key: (key++).toString(),
@@ -678,6 +690,31 @@ export const MENU = {
                     label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
                     key: (key++).toString(),
                     icon: <InboxOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_stock_transfer}?p=spa`}>Chuyển kho</Link>,
+                    key: (key++).toString(),
+                    icon: <ApartmentOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory_count}?p=spa`}>Kiểm kê</Link>,
+                    key: (key++).toString(),
+                    icon: <FileTextOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_purchase_return}?p=spa`}>Trả hàng nhập</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_disposal}?p=spa`}>Xuất hủy</Link>,
+                    key: (key++).toString(),
+                    icon: <DeleteOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_suppliers}?p=spa`}>Nhà cung cấp</Link>,
+                    key: (key++).toString(),
+                    icon: <TeamOutlined />,
                 },
             ],
         },
@@ -717,6 +754,16 @@ export const MENU = {
             icon: <SettingOutlined />,
             children: [
                 {
+                    label: <Link to={`${ROUTE.spa_settings}?p=spa`}>Cấu hình</Link>,
+                    key: (key++).toString(),
+                    icon: <SettingFilled />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_documentation}?p=spa`}>Hướng dẫn sử dụng</Link>,
+                    icon: <QuestionCircleOutlined />,
+                    key: (key++).toString(),
+                },
+                {
                     label: <Link to={`${ROUTE.spa_branches}?p=spa`}>Chi nhánh</Link>,
                     key: (key++).toString(),
                     icon: <ShopOutlined />,
@@ -732,9 +779,9 @@ export const MENU = {
                     icon: <SettingFilled />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_documentation}?p=spa`}>Hướng dẫn sử dụng</Link>,
-                    icon: <QuestionCircleOutlined />,
+                    label: <Link to={`${ROUTE.baseRoute}setting/spa_lich_trinh_su_dung?p=spa`}>Loại chi</Link>,
                     key: (key++).toString(),
+                    icon: <HomeOutlined />,
                 },
             ],
         },

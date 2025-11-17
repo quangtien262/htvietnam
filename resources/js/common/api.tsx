@@ -13,6 +13,7 @@ export const API = {
     addData: `${BASE_API_URL}data/add`,
     updateData: `${BASE_API_URL}data/update`,
     fastEditData: `${BASE_API_URL}data/fast-edit`,
+    uploadImage: `${BASE_API_URL}data/upload-image`,
     uploadImages: `${BASE_API_URL}data/upload-images`,
     uploadFiles: `${BASE_API_URL}data/upload-files`,
     deleteImageTmp: `${BASE_API_URL}data/delete-image-tmp`,
@@ -382,16 +383,16 @@ export const API = {
     // ===== MODULE SPA MANAGEMENT =====
 
     // Khách hàng (Customers)
-    spaCustomerList: '/aio/api/spa/customers',
-    spaCustomerCreate: '/aio/api/spa/customers',
-    spaCustomerUpdate: (id: number) => `/aio/api/spa/customers/${id}`,
-    spaCustomerDelete: (id: number) => `/aio/api/spa/customers/${id}`,
-    spaCustomerDetail: '/aio/api/spa/customers/detail',
-    spaCustomerSearch: '/aio/api/spa/customers/search',
-    spaCustomerCreateOrUpdate: '/aio/api/spa/customers/create-or-update',
-    spaCustomerLichSuMuaHang: (id: number) => `/aio/api/spa/customers/${id}/lich-su-mua-hang`,
-    spaCustomerGoiDichVu: '/aio/api/spa/customers/goi-dich-vu',
-    spaCustomerCardGT: '/aio/api/spa/customers/card-gt',
+    spaCustomerList: '/spa/customers',
+    spaCustomerCreate: '/spa/customers',
+    spaCustomerUpdate: (id: number) => `/spa/customers/${id}`,
+    spaCustomerDelete: (id: number) => `/spa/customers/${id}`,
+    spaCustomerDetail: (id: number) => `/spa/customers/${id}`,
+    spaCustomerSearch: '/spa/customers/search',
+    spaCustomerCreateOrUpdate: '/spa/customers/create-or-update',
+    spaCustomerLichSuMuaHang: (id: number) => `/spa/customers/${id}/lich-su-mua-hang`,
+    spaCustomerStatistics: (id: number) => `/spa/customers/${id}/statistics`,
+    spaCustomerSegment: '/spa/customers/segment',
 
     // Đặt lịch (Bookings)
     spaBookingList: '/aio/api/spa/bookings',
@@ -422,53 +423,68 @@ export const API = {
     spaInvoiceExport: '/aio/api/spa/invoices/export',
 
     // Dịch vụ (Services)
-    spaServiceList: '/aio/api/spa/services',
-    spaServiceDetail: (id: number) => `/aio/api/spa/services/${id}`,
-    spaServiceCreate: '/aio/api/spa/services',
-    spaServiceUpdate: (id: number) => `/aio/api/spa/services/${id}`,
-    spaServiceDelete: (id: number) => `/aio/api/spa/services/${id}`,
+    spaServiceList: '/spa/services',
+    spaServiceDetail: (id: number) => `/spa/services/${id}`,
+    spaServiceCreate: '/spa/services',
+    spaServiceUpdate: (id: number) => `/spa/services/${id}`,
+    spaServiceDelete: (id: number) => `/spa/services/${id}`,
 
     // Danh mục dịch vụ (Service Categories)
-    spaServiceCategoryList: '/aio/api/spa/service-categories',
-    spaServiceCategoryDetail: (id: number) => `/aio/api/spa/service-categories/${id}`,
-    spaServiceCategoryCreate: '/aio/api/spa/service-categories',
-    spaServiceCategoryUpdate: (id: number) => `/aio/api/spa/service-categories/${id}`,
-    spaServiceCategoryDelete: (id: number) => `/aio/api/spa/service-categories/${id}`,
+    spaServiceCategoryList: '/spa/service-categories',
+    spaServiceCategoryDetail: (id: number) => `/spa/service-categories/${id}`,
+    spaServiceCategoryCreate: '/spa/service-categories',
+    spaServiceCategoryUpdate: (id: number) => `/spa/service-categories/${id}`,
+    spaServiceCategoryDelete: (id: number) => `/spa/service-categories/${id}`,
+
+    // Gói dịch vụ (Service Packages)
+    spaServicePackageList: '/spa/service-packages',
+    spaServicePackageDetail: (id: number) => `/spa/service-packages/${id}`,
+    spaServicePackageCreate: '/spa/service-packages',
+    spaServicePackageUpdate: (id: number) => `/spa/service-packages/${id}`,
+    spaServicePackageDelete: (id: number) => `/spa/service-packages/${id}`,
+    spaSchedulesList: '/spa/schedules/list',
 
     // Liệu trình (Treatment Packages)
-    spaTreatmentPackageList: '/aio/api/spa/treatment-packages',
-    spaTreatmentPackageDetail: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
-    spaTreatmentPackageCreate: '/aio/api/spa/treatment-packages',
-    spaTreatmentPackageUpdate: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
-    spaTreatmentPackageDelete: (id: number) => `/aio/api/spa/treatment-packages/${id}`,
+    spaTreatmentPackageList: '/spa/treatment-packages',
+    spaTreatmentPackageDetail: (id: number) => `/spa/treatment-packages/${id}`,
+    spaTreatmentPackageCreate: '/spa/treatment-packages',
+    spaTreatmentPackageUpdate: (id: number) => `/spa/treatment-packages/${id}`,
+    spaTreatmentPackageDelete: (id: number) => `/spa/treatment-packages/${id}`,
 
     // Sản phẩm (Products)
-    spaProductList: '/aio/api/spa/products',
-    spaProductDetail: (id: number) => `/aio/api/spa/products/${id}`,
-    spaProductCreate: '/aio/api/spa/products',
-    spaProductUpdate: (id: number) => `/aio/api/spa/products/${id}`,
-    spaProductDelete: (id: number) => `/aio/api/spa/products/${id}`,
+    spaProductList: '/spa/products',
+    spaProductDetail: (id: number) => `/spa/products/${id}`,
+    spaProductCreate: '/spa/products',
+    spaProductUpdate: (id: number) => `/spa/products/${id}`,
+    spaProductDelete: (id: number) => `/spa/products/${id}`,
 
     // Danh mục sản phẩm (Product Categories)
-    spaProductCategoryList: '/aio/api/spa/product-categories',
-    spaProductCategoryDetail: (id: number) => `/aio/api/spa/product-categories/${id}`,
-    spaProductCategoryCreate: '/aio/api/spa/product-categories',
-    spaProductCategoryUpdate: (id: number) => `/aio/api/spa/product-categories/${id}`,
-    spaProductCategoryDelete: (id: number) => `/aio/api/spa/product-categories/${id}`,
+    spaProductCategoryList: '/spa/product-categories',
+    spaProductCategoryDetail: (id: number) => `/spa/product-categories/${id}`,
+    spaProductCategoryCreate: '/spa/product-categories',
+    spaProductCategoryUpdate: (id: number) => `/spa/product-categories/${id}`,
+    spaProductCategoryDelete: (id: number) => `/spa/product-categories/${id}`,
 
     // Thương hiệu (Brands)
-    spaBrandList: '/aio/api/spa/brands',
-    spaBrandDetail: (id: number) => `/aio/api/spa/brands/${id}`,
-    spaBrandCreate: '/aio/api/spa/brands',
-    spaBrandUpdate: (id: number) => `/aio/api/spa/brands/${id}`,
+    spaBrandList: '/spa/brands',
+    spaBrandDetail: (id: number) => `/spa/brands/${id}`,
+    spaBrandCreate: '/spa/brands',
+    spaBrandUpdate: (id: number) => `/spa/brands/${id}`,
     spaBrandDelete: (id: number) => `/aio/api/spa/brands/${id}`,
 
+    // Đơn vị sản phẩm (Product Units)
+    spaProductUnitList: '/spa/product-units',
+    spaProductUnitDetail: (id: number) => `/spa/product-units/${id}`,
+    spaProductUnitCreate: '/spa/product-units',
+    spaProductUnitUpdate: (id: number) => `/spa/product-units/${id}`,
+    spaProductUnitDelete: (id: number) => `/spa/product-units/${id}`,
+
     // Xuất xứ (Origins)
-    spaOriginList: '/aio/api/spa/origins',
-    spaOriginDetail: (id: number) => `/aio/api/spa/origins/${id}`,
-    spaOriginCreate: '/aio/api/spa/origins',
-    spaOriginUpdate: (id: number) => `/aio/api/spa/origins/${id}`,
-    spaOriginDelete: (id: number) => `/aio/api/spa/origins/${id}`,
+    spaOriginList: '/spa/origins',
+    spaOriginDetail: (id: number) => `/spa/origins/${id}`,
+    spaOriginCreate: '/spa/origins',
+    spaOriginUpdate: (id: number) => `/spa/origins/${id}`,
+    spaOriginDelete: (id: number) => `/spa/origins/${id}`,
 
     // Kỹ năng (Skills)
     spaSkillList: '/aio/api/spa/skills',
@@ -497,15 +513,15 @@ export const API = {
     spaStaffLeaveRequests: (id: number) => `/aio/api/spa/staff/${id}/leave-requests`,
 
     // Hạng thành viên (Membership Tiers)
-    spaMembershipTierList: '/aio/api/spa/membership-tiers',
-    spaMembershipTierDetail: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
-    spaMembershipTierCreate: '/aio/api/spa/membership-tiers',
-    spaMembershipTierUpdate: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
-    spaMembershipTierDelete: (id: number) => `/aio/api/spa/membership-tiers/${id}`,
+    spaMembershipTierList: '/spa/membership-tiers',
+    spaMembershipTierDetail: (id: number) => `/spa/membership-tiers/${id}`,
+    spaMembershipTierCreate: '/spa/membership-tiers',
+    spaMembershipTierUpdate: (id: number) => `/spa/membership-tiers/${id}`,
+    spaMembershipTierDelete: (id: number) => `/spa/membership-tiers/${id}`,
 
     // Thẻ thành viên (Memberships)
-    spaMembershipRenew: (id: number) => `/aio/api/spa/memberships/${id}/renew`,
-    spaMembershipUpgrade: (id: number) => `/aio/api/spa/memberships/${id}/upgrade`,
+    spaMembershipRenew: (id: number) => `/spa/memberships/${id}/renew`,
+    spaMembershipUpgrade: (id: number) => `/spa/memberships/${id}/upgrade`,
 
     // Chương trình khuyến mãi (Promotions)
     spaPromotionList: '/aio/api/spa/promotions',
@@ -565,6 +581,73 @@ export const API = {
     spaAnalyticsRevenue: '/aio/api/spa/analytics/revenue',
     spaAnalyticsCustomerSegmentation: '/aio/api/spa/analytics/customer-segmentation',
     spaAnalyticsExportReport: '/aio/api/spa/analytics/export-report',
+
+    // ===== QUẢN LÝ KHO ĐA CHI NHÁNH =====
+
+    // Tồn kho chi nhánh (Branch Inventory)
+    tonKhoChiNhanhList: '/spa/ton-kho-chi-nhanh',
+    tonKhoChiNhanhByBranch: (branchId: number) => `/spa/ton-kho-chi-nhanh/by-branch/${branchId}`,
+    tonKhoChiNhanhStatistics: '/spa/ton-kho-chi-nhanh/statistics',
+    tonKhoChiNhanhBranches: '/spa/ton-kho-chi-nhanh/branches',
+    tonKhoChiNhanhProducts: (branchId: number) => `/spa/ton-kho-chi-nhanh/branches/${branchId}/products`,
+    tonKhoChiNhanhDetail: (id: number) => `/spa/ton-kho-chi-nhanh/${id}`,
+    tonKhoChiNhanhUpdate: (id: number) => `/spa/ton-kho-chi-nhanh/${id}`,
+    tonKhoChiNhanhSync: '/spa/ton-kho-chi-nhanh/sync',
+    tonKhoChiNhanhUpdateReserved: (id: number) => `/spa/ton-kho-chi-nhanh/${id}/update-reserved`,
+
+    // Chuyển kho (Stock Transfer)
+    chuyenKhoList: '/spa/chuyen-kho',
+    chuyenKhoByBranch: (branchId: number) => `/spa/chuyen-kho/by-branch/${branchId}`,
+    chuyenKhoDetail: (id: number) => `/spa/chuyen-kho/${id}`,
+    chuyenKhoCreate: '/spa/chuyen-kho',
+    chuyenKhoUpdate: (id: number) => `/spa/chuyen-kho/${id}`,
+    chuyenKhoDelete: (id: number) => `/spa/chuyen-kho/${id}`,
+    chuyenKhoApprove: (id: number) => `/spa/chuyen-kho/${id}/approve`,
+    chuyenKhoReceive: (id: number) => `/spa/chuyen-kho/${id}/receive`,
+    chuyenKhoCancel: (id: number) => `/spa/chuyen-kho/${id}/cancel`,
+    chuyenKhoBranches: '/spa/chuyen-kho/branches',
+
+    // Kiểm kê (Inventory Count)
+    kiemKhoList: '/spa/kiem-kho',
+    kiemKhoByBranch: (branchId: number) => `/spa/kiem-kho/by-branch/${branchId}`,
+    kiemKhoProducts: (branchId: number) => `/spa/kiem-kho/branches/${branchId}/products`,
+    kiemKhoDetail: (id: number) => `/spa/kiem-kho/${id}`,
+    kiemKhoCreate: '/spa/kiem-kho',
+    kiemKhoUpdate: (id: number) => `/spa/kiem-kho/${id}`,
+    kiemKhoDelete: (id: number) => `/spa/kiem-kho/${id}`,
+    kiemKhoSubmit: (id: number) => `/spa/kiem-kho/${id}/submit`,
+    kiemKhoApprove: (id: number) => `/spa/kiem-kho/${id}/approve`,
+    kiemKhoBranches: '/spa/kiem-kho/branches',
+
+    // Trả hàng nhập (Purchase Return)
+    traHangNhapList: '/spa/tra-hang-nhap',
+    traHangNhapDetail: (id: number) => `/spa/tra-hang-nhap/${id}`,
+    traHangNhapCreate: '/spa/tra-hang-nhap',
+    traHangNhapUpdate: (id: number) => `/spa/tra-hang-nhap/${id}`,
+    traHangNhapDelete: (id: number) => `/spa/tra-hang-nhap/${id}`,
+    traHangNhapApprove: (id: number) => `/spa/tra-hang-nhap/${id}/approve`,
+    traHangNhapSuppliers: '/spa/tra-hang-nhap/suppliers',
+    traHangNhapReceipts: (supplierId: number) => `/spa/tra-hang-nhap/suppliers/${supplierId}/receipts`,
+    traHangNhapProducts: (receiptId: number) => `/spa/tra-hang-nhap/receipts/${receiptId}/products`,
+
+    // Xuất hủy (Disposal)
+    xuatHuyList: '/spa/xuat-huy',
+    xuatHuyByBranch: (branchId: number) => `/spa/xuat-huy/by-branch/${branchId}`,
+    xuatHuyStatistics: '/spa/xuat-huy/statistics',
+    xuatHuyDetail: (id: number) => `/spa/xuat-huy/${id}`,
+    xuatHuyCreate: '/spa/xuat-huy',
+    xuatHuyUpdate: (id: number) => `/spa/xuat-huy/${id}`,
+    xuatHuyDelete: (id: number) => `/spa/xuat-huy/${id}`,
+    xuatHuyApprove: (id: number) => `/spa/xuat-huy/${id}/approve`,
+    xuatHuyBranches: '/spa/xuat-huy/branches',
+
+    // Nhà cung cấp (Multi-Warehouse Supplier)
+    nhaCungCapList: '/spa/nha-cung-cap',
+    nhaCungCapDetail: (id: number) => `/spa/nha-cung-cap/${id}`,
+    nhaCungCapCreate: '/spa/nha-cung-cap',
+    nhaCungCapUpdate: (id: number) => `/spa/nha-cung-cap/${id}`,
+    nhaCungCapDelete: (id: number) => `/spa/nha-cung-cap/${id}`,
+    nhaCungCapToggleStatus: (id: number) => `/spa/nha-cung-cap/${id}/toggle-status`,
 
 };
 

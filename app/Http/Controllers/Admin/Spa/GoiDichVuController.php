@@ -192,4 +192,25 @@ class GoiDichVuController extends Controller
 
         return $this->sendSuccessResponse($schedules);
     }
+
+    public function createSchedule(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'color' => 'nullable|string|max:50',
+        ]);
+
+        $id = DB::table('spa_lich_trinh_su_dung')->insertGetId([
+            'name' => $request->name,
+            'color' => $request->color ?? 'blue',
+            'sort_order' => $request->sort_order ?? 0,
+            'note' => $request->note,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $schedule = DB::table('spa_lich_trinh_su_dung')->where('id', $id)->first();
+
+        return $this->sendSuccessResponse($schedule, 'Tạo lịch trình thành công', 200);
+    }
 }

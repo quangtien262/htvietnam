@@ -146,6 +146,14 @@ export const ROUTE = {
     spa_rooms: `${baseRoute}spa/rooms/`,
     spa_settings: `${baseRoute}spa/settings/`,
 
+    // SPA Multi-Warehouse Management - Quản lý kho đa chi nhánh
+    spa_branch_inventory: `${baseRoute}spa/inventory/branch/`,
+    spa_stock_transfer: `${baseRoute}spa/inventory/transfer/`,
+    spa_inventory_count: `${baseRoute}spa/inventory/count/`,
+    spa_purchase_return: `${baseRoute}spa/inventory/return/`,
+    spa_disposal: `${baseRoute}spa/inventory/disposal/`,
+    spa_suppliers: `${baseRoute}spa/inventory/suppliers/`,
+
     // Project Management - Quản lý dự án
     project_dashboard: `${baseRoute}project/dashboard/`,
     project_list: `${baseRoute}project/list/`,

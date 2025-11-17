@@ -79,12 +79,21 @@ interface Origin {
     sort_order?: number;
 }
 
+interface ProductUnit {
+    id: number;
+    name: string;
+    color?: string;
+    sort_order?: number;
+    note?: string;
+}
+
 const ProductList: React.FC = () => {
     // State
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [origins, setOrigins] = useState<Origin[]>([]);
+    const [units, setUnits] = useState<ProductUnit[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
@@ -95,9 +104,11 @@ const ProductList: React.FC = () => {
     const [categoryModalVisible, setCategoryModalVisible] = useState(false);
     const [brandModalVisible, setBrandModalVisible] = useState(false);
     const [originModalVisible, setOriginModalVisible] = useState(false);
+    const [unitModalVisible, setUnitModalVisible] = useState(false);
     const [categoryForm] = Form.useForm();
     const [brandForm] = Form.useForm();
     const [originForm] = Form.useForm();
+    const [unitForm] = Form.useForm();
 
     // Filters
     const [searchText, setSearchText] = useState('');
@@ -145,6 +156,7 @@ const ProductList: React.FC = () => {
         loadCategories();
         loadBrands();
         loadOrigins();
+        loadUnits();
     }, [pagination.current, pagination.pageSize, searchText, selectedCategory, selectedStatus, stockFilter]);
 
     const loadProducts = async () => {
@@ -160,8 +172,6 @@ const ProductList: React.FC = () => {
                     stock_filter: stockFilter || undefined,
                 }
             });
-
-            console.log('Products response:', response.data);
 
             if (response.data.status_code === 200) {
                 const data = response.data.data;
@@ -186,12 +196,10 @@ const ProductList: React.FC = () => {
                     totalValue,
                 });
 
-                console.log('Products loaded:', productsData.length);
             } else {
                 message.error(response.data.message || 'Không thể tải danh sách sản phẩm');
             }
         } catch (error: any) {
-            console.error('Load products error:', error);
             message.error(error.response?.data?.message || 'Không thể tải danh sách sản phẩm');
         } finally {
             setLoading(false);
@@ -201,12 +209,10 @@ const ProductList: React.FC = () => {
     const loadCategories = async () => {
         try {
             const response = await axios.get(API.spaProductCategoryList);
-            console.log('Categories response:', response.data);
 
             if (response.data.status_code === 200) {
                 const data = response.data.data?.data || response.data.data || [];
                 setCategories(Array.isArray(data) ? data : []);
-                console.log('Categories loaded:', data.length);
             }
         } catch (error) {
             console.error('Load categories error:', error);
@@ -216,27 +222,36 @@ const ProductList: React.FC = () => {
     const loadBrands = async () => {
         try {
             const response = await axios.get(API.spaBrandList);
-            console.log('Brands response:', response.data);
 
             if (response.data.status_code === 200) {
                 const data = response.data.data;
                 setBrands(Array.isArray(data) ? data : []);
-                console.log('Brands loaded:', data.length);
             }
         } catch (error) {
             console.error('Load brands error:', error);
         }
     };
 
+    const loadUnits = async () => {
+        try {
+            const response = await axios.get(API.spaProductUnitList, { params: { all: 'true' } });
+
+            if (response.data.status_code === 200) {
+                const data = response.data.data;
+                setUnits(Array.isArray(data) ? data : []);
+            }
+        } catch (error) {
+            console.error('Load units error:', error);
+        }
+    };
+
     const loadOrigins = async () => {
         try {
             const response = await axios.get(API.spaOriginList);
-            console.log('Origins response:', response.data);
 
             if (response.data.status_code === 200) {
                 const data = response.data.data;
                 setOrigins(Array.isArray(data) ? data : []);
-                console.log('Origins loaded:', data.length);
             }
         } catch (error) {
             console.error('Load origins error:', error);
@@ -251,14 +266,31 @@ const ProductList: React.FC = () => {
         setModalVisible(true);
     };
 
-    const handleEdit = (record: Product) => {
+    const handleEdit = async (record: Product) => {
         setSelectedProduct(record);
-        form.setFieldsValue({
-            ...record,
-            han_su_dung: record.ngay_het_han ? dayjs(record.ngay_het_han) : null,
-        });
-        setImageUrl(record.hinh_anh || '');
         setModalVisible(true);
+
+        try {
+            // Load full product details including conversion units
+            const response = await axios.get(API.spaProductDetail(record.id));
+            if (response.data.status_code === 200) {
+                const productData = response.data.data;
+                setSelectedProduct(productData);
+                form.setFieldsValue({
+                    ...productData,
+                    han_su_dung: productData.ngay_het_han ? dayjs(productData.ngay_het_han) : null,
+                });
+                setImageUrl(productData.hinh_anh || '');
+            }
+        } catch (error) {
+            console.error('Load product detail error:', error);
+            // Fallback to record data if API fails
+            form.setFieldsValue({
+                ...record,
+                han_su_dung: record.ngay_het_han ? dayjs(record.ngay_het_han) : null,
+            });
+            setImageUrl(record.hinh_anh || '');
+        }
     };
 
     const handleView = async (record: Product) => {
@@ -295,8 +327,6 @@ const ProductList: React.FC = () => {
                 response = await axios.post(API.spaProductCreate, payload);
             }
 
-            console.log('Submit response:', response.data);
-
             if (response.data.status_code === 200) {
                 message.success(selectedProduct ? 'Cập nhật sản phẩm thành công' : 'Tạo sản phẩm mới thành công');
                 setModalVisible(false);
@@ -313,7 +343,6 @@ const ProductList: React.FC = () => {
     const handleDelete = async (id: number) => {
         try {
             const response = await axios.delete(API.spaProductDelete(id));
-            console.log('Delete response:', response.data);
 
             if (response.data.status_code === 200) {
                 message.success('Xóa sản phẩm thành công');
@@ -349,16 +378,23 @@ const ProductList: React.FC = () => {
     const handleImageUpload = async (file: File) => {
         setUploading(true);
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/upload-image', formData);
-            if (response.data.success) {
-                setImageUrl(response.data.data.url);
+            const response = await axios.post(API.uploadImage, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (response.data && response.data.status_code === 200) {
+                const filePath = response.data.data?.filePath || response.data.data?.path;
+                const fullUrl = `/files/${filePath}`;
+                setImageUrl(fullUrl);
                 message.success('Upload ảnh thành công');
+            } else {
+                message.error('Upload ảnh thất bại');
             }
-        } catch (error) {
-            message.error('Upload ảnh thất bại');
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            message.error(error.response?.data?.message || 'Upload ảnh thất bại');
         } finally {
             setUploading(false);
         }
@@ -539,6 +575,29 @@ const ProductList: React.FC = () => {
                 await loadOrigins();
                 const newOriginName = response.data.data?.data?.name || values.name;
                 form.setFieldsValue({ xuat_xu: newOriginName });
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleQuickCreateUnit = () => {
+        unitForm.resetFields();
+        setUnitModalVisible(true);
+    };
+
+    const handleUnitSubmit = async () => {
+        try {
+            const values = await unitForm.validateFields();
+            const response = await axios.post(API.spaProductUnitCreate, values);
+
+            if (response.data.status_code === 200) {
+                message.success('Tạo đơn vị mới thành công');
+                unitForm.resetFields();
+                setUnitModalVisible(false);
+                await loadUnits();
+                const newUnitName = response.data.data?.name || values.name;
+                form.setFieldsValue({ don_vi_tinh: newUnitName });
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
@@ -1196,105 +1255,6 @@ const ProductList: React.FC = () => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={8}>
-                            <Form.Item
-                                name="don_vi_tinh"
-                                label="Đơn vị tính"
-                                initialValue="Chai"
-                            >
-                                <Select>
-                                    <Option value="Chai">Chai</Option>
-                                    <Option value="Hộp">Hộp</Option>
-                                    <Option value="Tuýp">Tuýp</Option>
-                                    <Option value="Lọ">Lọ</Option>
-                                    <Option value="Cái">Cái</Option>
-                                    <Option value="Gói">Gói</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-
-                        {/* Đơn vị quy đổi */}
-                        <Col span={24}>
-                            <Divider orientation="left">Đơn vị quy đổi (Tùy chọn)</Divider>
-                            <Alert
-                                message="Thêm các đơn vị quy đổi để dễ dàng sử dụng sản phẩm với nhiều đơn vị khác nhau"
-                                description="Ví dụ: 1 Chai = 100ml, 1 Chai = 50 lần sử dụng"
-                                type="info"
-                                showIcon
-                                style={{ marginBottom: 16 }}
-                            />
-                            <Form.List name="don_vi_quy_doi">
-                                {(fields, { add, remove }) => (
-                                    <>
-                                        {fields.map((field, index) => (
-                                            <Card
-                                                key={field.key}
-                                                size="small"
-                                                style={{ marginBottom: 8 }}
-                                                title={`Đơn vị ${index + 1}`}
-                                                extra={
-                                                    <MinusCircleOutlined
-                                                        onClick={() => remove(field.name)}
-                                                        style={{ color: '#ff4d4f' }}
-                                                    />
-                                                }
-                                            >
-                                                <Row gutter={16}>
-                                                    <Col span={8}>
-                                                        <Form.Item
-                                                            {...field}
-                                                            name={[field.name, 'don_vi']}
-                                                            label="Đơn vị"
-                                                            rules={[{ required: true, message: 'Vui lòng nhập đơn vị' }]}
-                                                        >
-                                                            <Input placeholder="ml, lít, gram, lần..." />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col span={8}>
-                                                        <Form.Item
-                                                            {...field}
-                                                            name={[field.name, 'ty_le']}
-                                                            label="Tỷ lệ quy đổi"
-                                                            rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ' }]}
-                                                        >
-                                                            <InputNumber
-                                                                style={{ width: '100%' }}
-                                                                min={0.0001}
-                                                                step={0.01}
-                                                                placeholder="100"
-                                                                addonAfter={
-                                                                    <span style={{ fontSize: 12 }}>
-                                                                        / 1 {form.getFieldValue('don_vi_tinh') || 'đơn vị chính'}
-                                                                    </span>
-                                                                }
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col span={8}>
-                                                        <Form.Item
-                                                            {...field}
-                                                            name={[field.name, 'ghi_chu']}
-                                                            label="Ghi chú"
-                                                        >
-                                                            <Input placeholder="VD: 1 Chai = 100ml" />
-                                                        </Form.Item>
-                                                    </Col>
-                                                </Row>
-                                            </Card>
-                                        ))}
-                                        <Button
-                                            type="dashed"
-                                            onClick={() => add()}
-                                            block
-                                            icon={<PlusOutlined />}
-                                        >
-                                            Thêm đơn vị quy đổi
-                                        </Button>
-                                    </>
-                                )}
-                            </Form.List>
-                        </Col>
-
                         <Col span={24}>
                             <Form.Item label="Hình ảnh">
                                 <Space direction="vertical" style={{ width: '100%' }}>
@@ -1313,6 +1273,144 @@ const ProductList: React.FC = () => {
                                 </Space>
                             </Form.Item>
                         </Col>
+
+                        <Col span={8}>
+                            <Form.Item
+                                name="don_vi_tinh"
+                                label="Đơn vị tính"
+                                initialValue="Chai"
+                            >
+                                <Select
+                                    placeholder="Chọn đơn vị"
+                                    dropdownRender={(menu) => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                style={{ width: '100%' }}
+                                                onClick={handleQuickCreateUnit}
+                                            >
+                                                Thêm đơn vị mới
+                                            </Button>
+                                        </>
+                                    )}
+                                >
+                                    {units.map((unit) => (
+                                        <Option key={unit.id} value={unit.name}>
+                                            {unit.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+
+                        {/* Đơn vị quy đổi */}
+                        <Col span={24}>
+                            <Divider orientation="left">Đơn vị quy đổi (Tùy chọn)</Divider>
+                            <Alert
+                                message="Thêm các đơn vị quy đổi để dễ dàng sử dụng sản phẩm với nhiều đơn vị khác nhau"
+                                description="Ví dụ: 1 Chai = 500 ml (nhập 500 ml), 1 Chai = 10 Lần (nhập 10 lần)"
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                            />
+                            <Form.List name="don_vi_quy_doi">
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map((field, index) => {
+                                            const { key, ...restField } = field;
+                                            return (
+                                                <Card
+                                                    key={key}
+                                                    size="small"
+                                                    style={{ marginBottom: 8 }}
+                                                    title={`Đơn vị ${index + 1}`}
+                                                    extra={
+                                                        <MinusCircleOutlined
+                                                            onClick={() => remove(field.name)}
+                                                            style={{ color: '#ff4d4f' }}
+                                                        />
+                                                    }
+                                                >
+                                                    <Row gutter={16}>
+                                                        <Col span={8}>
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[field.name, 'don_vi']}
+                                                                label="Đơn vị"
+                                                                rules={[
+                                                                    { required: true, message: 'Vui lòng chọn đơn vị' },
+                                                                    {
+                                                                        validator: (_, value) => {
+                                                                            const donViGoc = form.getFieldValue('don_vi_tinh');
+                                                                            if (value && value === donViGoc) {
+                                                                                return Promise.reject('Đơn vị quy đổi phải khác đơn vị gốc');
+                                                                            }
+                                                                            return Promise.resolve();
+                                                                        }
+                                                                    }
+                                                                ]}
+                                                            >
+                                                                <Select placeholder="Chọn đơn vị">
+                                                                    {units.map((unit) => (
+                                                                        <Option key={unit.id} value={unit.name}>
+                                                                            {unit.name}
+                                                                        </Option>
+                                                                    ))}
+                                                                </Select>
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={8}>
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[field.name, 'ty_le']}
+                                                                label="Số lượng"
+                                                                rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
+                                                                tooltip="1 đơn vị gốc = bao nhiêu đơn vị này"
+                                                            >
+                                                                <InputNumber
+                                                                    style={{ width: '100%' }}
+                                                                    min={1}
+                                                                    step={1}
+                                                                    precision={0}
+                                                                    placeholder="500"
+                                                                    addonBefore={
+                                                                        <span style={{ fontSize: 12 }}>
+                                                                            1 {form.getFieldValue('don_vi_tinh') || 'đơn vị gốc'} =
+                                                                        </span>
+                                                                    }
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={8}>
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[field.name, 'ghi_chu']}
+                                                                label="Ghi chú"
+                                                            >
+                                                                <Input placeholder="VD: Chai 500ml" />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
+                                            );
+                                        })}
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => add()}
+                                            block
+                                            icon={<PlusOutlined />}
+                                        >
+                                            Thêm đơn vị quy đổi
+                                        </Button>
+                                    </>
+                                )}
+                            </Form.List>
+                        </Col>
+
+
                     </Row>
                 </Form>
             </Modal>
@@ -1866,6 +1964,36 @@ const ProductList: React.FC = () => {
                     </Form.Item>
                     <Form.Item name="note" label="Ghi chú">
                         <TextArea rows={3} placeholder="Ghi chú về xuất xứ..." />
+                    </Form.Item>
+                    <Form.Item name="sort_order" label="Thứ tự" initialValue={0}>
+                        <InputNumber style={{ width: '100%' }} min={0} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Quick Create Unit Modal */}
+            <Modal
+                title="Thêm đơn vị mới"
+                open={unitModalVisible}
+                onCancel={() => setUnitModalVisible(false)}
+                onOk={handleUnitSubmit}
+                width={500}
+                okText="Tạo mới"
+                cancelText="Hủy"
+            >
+                <Form form={unitForm} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Tên đơn vị"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên đơn vị' }]}
+                    >
+                        <Input placeholder="VD: Chai, Hộp, ml, Lít..." />
+                    </Form.Item>
+                    <Form.Item name="color" label="Màu đánh dấu">
+                        <Input type="color" defaultValue="#1890ff" />
+                    </Form.Item>
+                    <Form.Item name="note" label="Ghi chú">
+                        <TextArea rows={3} placeholder="Ghi chú về đơn vị..." />
                     </Form.Item>
                     <Form.Item name="sort_order" label="Thứ tự" initialValue={0}>
                         <InputNumber style={{ width: '100%' }} min={0} />

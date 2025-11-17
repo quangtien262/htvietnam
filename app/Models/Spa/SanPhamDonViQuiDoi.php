@@ -18,7 +18,7 @@ class SanPhamDonViQuiDoi extends Model
 
     protected $casts = [
         'san_pham_id' => 'integer',
-        'ty_le' => 'decimal:4',
+        'ty_le' => 'integer',
         'is_active' => 'integer',
     ];
 

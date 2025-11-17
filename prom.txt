@@ -17,7 +17,7 @@ Hãy them nút them nhanh sản phẩm để thêm nhanh nhiều sản phẩm 1 
 
 # Tạo bang setting
 
-bảng spa_thuong_hieu gồm các trường sau: name(Tên thương hiệu), color (Màu đánh dấu), sort_order (Thứ tự sắp xếp, khi select bảng thương hiệu sẽ order by sort_order asc), note (Ghi chú), created_at, updated_at, created_by (Người tạo)
+bảng spa_thuong_hieu gồm các trường sau: name(Tên), color (Màu đánh dấu), sort_order (Thứ tự sắp xếp, khi select bảng thương hiệu sẽ order by sort_order asc), note (Ghi chú), created_at, updated_at, created_by (Người tạo)
 
 
 #Giờ chúng ta sẽ tập chung vào rối ưu phần mềm quản lý SPA nhé.
@@ -62,6 +62,12 @@ spa_thuong_hieu
 spa_voucher
 Bạn hãy study trước rồi tôi giao việc tiếp
 
+# prop gói dịch vụ
+ hãy tạo 1 page để quản lý các "gói dịch vụ". "gói dịch vụ" là 1 gói combo gồm có nhiều dịch vụ con, form nhập liệu cho gói dịch vụ sẽ gồm các item sau: Mã gói (ko bắt buộc, nếu ko nhập thì tự động sinh theo format sau: GOI000<ID>). Nhóm hàng, Giá bán, số lượng, lịch trình sử dụng (select trong bảng spa_lich_trinh_su_dung), Mô tả, dịch vụ trong gói.
+- Bảng spa_lich_trinh_su_dung gồm các trường sau: name(Tên thương hiệu), color (Màu đánh dấu), sort_order (Thứ tự sắp xếp, khi select bảng thương hiệu sẽ order by sort_order asc), note (Ghi chú), created_at, updated_at, created_by (Người tạo)
+- tao seeder cho bảng spa_lich_trinh_su_dung: Theo ngày, theo tháng, theo năm, tự do
+- Trường "dịch vụ trong gói" là chọn từ danh sách dịch vụ có sẵn (xử lý Tương tự với phần "Vật liệu tiêu hao" mà bạn vừa làm). hãy kẻ bảng và có thể thêm được nhiều item, các input gồm có: Mã/Tên dịch vụ (Kiểu select từ bảng dịch vụ), Giá bán lẻ (Get giá trong bảng dịch vụ).
+
 
 
 
@@ -82,12 +88,10 @@ em hãy xem ở file vite.config.ts đ biêt config của hệ thống nhé
 +) các route được khai báo trong 'resources/common/route.tsx' thông qua biến ROUTE, sau đó truyền vào trong route ở file 'resources/js/app.tsx'
 +) các api ở frontend được đăng ký file api.tsx sau đó gọi ra sử dung  ở  những nơi cần.
 +) Các link ở frontend hãy đăng ký ở file menu.jsx
+
 +) route api của Laravel được lưu ở file routes/spa_route.php , lưu ý  prefix là aio/api
-
-
 +) frontend của project để ở thư mục pages/spa
 +) Các tên bảng trong module spa được tạo sẽ được đi kèm với prefix là: "spa_"
-
 
 +) Các tên bảng trong dự án này được tạo sẽ được đi kèm với prefix là: "pro___"
 +) frontend của project để ở thư mục pages/project
