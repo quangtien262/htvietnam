@@ -59,6 +59,7 @@ interface Supplier {
 const InventoryList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
+    const [products, setProducts] = useState<InventoryItem[]>([]);
     const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<InventoryItem | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -67,8 +68,10 @@ const InventoryList: React.FC = () => {
     const [searchText, setSearchText] = useState('');
     const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [branches, setBranches] = useState<any[]>([]);
     const [bulkItems, setBulkItems] = useState<BulkImportItem[]>([]);
     const [uploadedFile, setUploadedFile] = useState<UploadFile | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -80,20 +83,34 @@ const InventoryList: React.FC = () => {
         fetchInventory();
         fetchCategories();
         fetchSuppliers();
+        fetchProducts();
+        fetchBranches();
     }, []);
+
+    useEffect(() => {
+        fetchInventory();
+    }, [selectedBranch, statusFilter]);
 
     const fetchInventory = async () => {
         setLoading(true);
         try {
+            console.log('Fetching inventory with params:', {
+                per_page: 1000,
+                trang_thai: statusFilter === 'all' ? undefined : statusFilter,
+                chi_nhanh_id: selectedBranch || undefined
+            });
             const response = await axios.get(API.spaInventoryStockList, {
                 params: {
                     per_page: 1000,
-                    trang_thai: statusFilter === 'all' ? undefined : statusFilter
+                    trang_thai: statusFilter === 'all' ? undefined : statusFilter,
+                    chi_nhanh_id: selectedBranch || undefined
                 }
             });
 
+            console.log('Inventory response:', response.data);
             // Handle both paginated and non-paginated responses
             const data = response.data?.data?.data || response.data?.data || [];
+            console.log('Parsed inventory data:', data);
             setInventoryData(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching inventory:', error);
@@ -107,20 +124,51 @@ const InventoryList: React.FC = () => {
     const fetchCategories = async () => {
         try {
             const response = await axios.get(API.spaProductCategoryList);
-            setCategories(response.data.data || []);
+            // Handle both response structures: wrapped in data.data or direct data
+            const data = response.data?.data?.data || response.data?.data || [];
+            setCategories(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching categories:', error);
+            setCategories([]);
+        }
+    };
+
+    const fetchProducts = async () => {
+        try {
+            const response = await axios.get(API.spaProductList, {
+                params: { per_page: 1000 }
+            });
+            const data = response.data?.data?.data || response.data?.data || [];
+            setProducts(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setProducts([]);
         }
     };
 
     const fetchSuppliers = async () => {
         try {
-            const response = await axios.get('/spa/nha-cung-cap');
-            const suppliersData = response.data.data || [];
+            const response = await axios.get(API.nhaCungCapList);
+            const suppliersData = response.data.data || response.data || [];
             // Filter only active suppliers
-            setSuppliers(suppliersData.filter((s: Supplier) => s.is_active));
+            setSuppliers(Array.isArray(suppliersData) ? suppliersData.filter((s: Supplier) => s.is_active) : []);
         } catch (error) {
             console.error('Error fetching suppliers:', error);
+            setSuppliers([]);
+        }
+    };
+
+    const fetchBranches = async () => {
+        try {
+            const response = await axios.get(API.spaBranchList);
+            if (response.data.success) {
+                const data = response.data.data;
+                const branchList = data.data || data || [];
+                setBranches(Array.isArray(branchList) ? branchList.filter((b: any) => b.trang_thai === 'active') : []);
+            }
+        } catch (error) {
+            console.error('Error fetching branches:', error);
+            setBranches([]);
         }
     };
 
@@ -139,7 +187,7 @@ const InventoryList: React.FC = () => {
             const soLuongNhap = Math.abs(values.so_luong); // Always positive
 
             const payload = {
-                chi_nhanh_id: 1, // TODO: Get from branch selection or auth context
+                chi_nhanh_id: values.chi_nhanh_id || 1,
                 nha_cung_cap_id: values.nha_cung_cap ? suppliers.find(s => s.ten_ncc === values.nha_cung_cap)?.id : null,
                 ngay_nhap: values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 ghi_chu: values.ghi_chu,
@@ -205,7 +253,7 @@ const InventoryList: React.FC = () => {
 
         // Auto-fill product info when selecting
         if (field === 'san_pham_id') {
-            const product = inventoryData.find(p => p.id === value);
+            const product = products.find(p => p.id === value);
             if (product) {
                 newItems[index].ma_san_pham = product.ma_san_pham;
                 newItems[index].ten_san_pham = product.ten_san_pham;
@@ -240,6 +288,7 @@ const InventoryList: React.FC = () => {
             }
 
             const payload = {
+                chi_nhanh_id: values.chi_nhanh_id || 1,
                 nha_cung_cap: values.nha_cung_cap,
                 ngay_nhap: values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 ghi_chu: values.ghi_chu,
@@ -285,6 +334,7 @@ const InventoryList: React.FC = () => {
 
             const formData = new FormData();
             formData.append('file', file as any);
+            formData.append('chi_nhanh_id', values.chi_nhanh_id || '1');
             formData.append('nha_cung_cap', values.nha_cung_cap || '');
             formData.append('ngay_nhap', values.ngay_nhap?.format('YYYY-MM-DD HH:mm:ss') || dayjs().format('YYYY-MM-DD HH:mm:ss'));
             formData.append('ghi_chu', values.ghi_chu || '');
@@ -549,6 +599,19 @@ const InventoryList: React.FC = () => {
                             onChange={(e) => setSearchText(e.target.value)}
                         />
                         <Select
+                            placeholder="Chi nhánh"
+                            allowClear
+                            style={{ width: 200 }}
+                            value={selectedBranch}
+                            onChange={setSelectedBranch}
+                        >
+                            {branches.map(branch => (
+                                <Select.Option key={branch.id} value={branch.id}>
+                                    {branch.ten_chi_nhanh}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                        <Select
                             placeholder="Danh mục"
                             allowClear
                             style={{ width: 200 }}
@@ -565,10 +628,7 @@ const InventoryList: React.FC = () => {
                             placeholder="Trạng thái"
                             style={{ width: 150 }}
                             value={statusFilter}
-                            onChange={(value) => {
-                                setStatusFilter(value);
-                                fetchInventory();
-                            }}
+                            onChange={setStatusFilter}
                         >
                             <Select.Option value="all">Tất cả</Select.Option>
                             <Select.Option value="active">Đang bán</Select.Option>
@@ -607,6 +667,22 @@ const InventoryList: React.FC = () => {
                 <Form form={form} onFinish={handleStockAdjustment} layout="vertical">
                     <Row gutter={16}>
                         <Col xs={24} sm={12}>
+                            <Form.Item
+                                name="chi_nhanh_id"
+                                label="Chi nhánh"
+                                rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
+                                initialValue={branches.length > 0 ? branches[0].id : undefined}
+                            >
+                                <Select placeholder="Chọn chi nhánh">
+                                    {branches.map(branch => (
+                                        <Select.Option key={branch.id} value={branch.id}>
+                                            {branch.ten_chi_nhanh}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="loai" label="Loại giao dịch" rules={[{ required: true }]}>
                                 <Select>
                                     <Select.Option value="nhap">Nhập kho</Select.Option>
@@ -616,14 +692,14 @@ const InventoryList: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
+                    </Row>
+
+                    <Row gutter={16}>
                         <Col xs={24} sm={12}>
                             <Form.Item name="so_luong" label="Số lượng" rules={[{ required: true }]}>
                                 <InputNumber min={1} style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
-                    </Row>
-
-                    <Row gutter={16}>
                         <Col xs={24} sm={12}>
                             <Form.Item name="gia_nhap" label="Giá nhập (cho nhập kho)">
                                 <InputNumber min={0} style={{ width: '100%' }} />
@@ -714,7 +790,23 @@ const InventoryList: React.FC = () => {
                     <TabPane tab="📝 Nhập thủ công" key="manual">
                         <Form form={bulkForm} layout="vertical">
                             <Row gutter={16}>
-                                <Col span={24}>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="chi_nhanh_id"
+                                        label="Chi nhánh"
+                                        rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
+                                        initialValue={branches.length > 0 ? branches[0].id : undefined}
+                                    >
+                                        <Select placeholder="Chọn chi nhánh">
+                                            {branches.map(branch => (
+                                                <Select.Option key={branch.id} value={branch.id}>
+                                                    {branch.ten_chi_nhanh}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
                                     <Form.Item
                                         name="ngay_nhap"
                                         label="Ngày nhập"
@@ -768,7 +860,7 @@ const InventoryList: React.FC = () => {
                                                     option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
                                             >
-                                                {inventoryData.map(product => (
+                                                {products.map(product => (
                                                     <Select.Option key={product.id} value={product.id}>
                                                         {product.ma_san_pham} - {product.ten_san_pham}
                                                     </Select.Option>
@@ -870,7 +962,23 @@ const InventoryList: React.FC = () => {
                     <TabPane tab="📄 Import từ file" key="file">
                         <Form form={bulkForm} layout="vertical">
                             <Row gutter={16}>
-                                <Col span={12}>
+                                <Col span={8}>
+                                    <Form.Item
+                                        name="chi_nhanh_id"
+                                        label="Chi nhánh"
+                                        rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
+                                        initialValue={branches.length > 0 ? branches[0].id : undefined}
+                                    >
+                                        <Select placeholder="Chọn chi nhánh">
+                                            {branches.map(branch => (
+                                                <Select.Option key={branch.id} value={branch.id}>
+                                                    {branch.ten_chi_nhanh}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={8}>
                                     <Form.Item name="nha_cung_cap" label="Nhà cung cấp">
                                         <Select
                                             placeholder="Chọn nhà cung cấp"
@@ -889,7 +997,7 @@ const InventoryList: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
+                                <Col span={8}>
                                     <Form.Item
                                         name="ngay_nhap"
                                         label="Ngày nhập"

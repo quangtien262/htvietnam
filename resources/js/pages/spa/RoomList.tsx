@@ -11,6 +11,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API from '@/common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -75,9 +76,10 @@ const RoomList: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/branches/list', { limit: 100 });
+            const response = await axios.get(API.spaBranchList, { params: { limit: 100 } });
             if (response.data.success) {
-                setBranches(response.data.data.data || []);
+                const branches = response.data.data?.data || response.data.data || [];
+                setBranches(branches);
             }
         } catch (error) {
             console.error(error);
@@ -87,14 +89,16 @@ const RoomList: React.FC = () => {
     const loadRooms = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/rooms/list', {
+            const params: any = {
                 page: pagination.current,
                 limit: pagination.pageSize,
-                search: searchText,
-                chi_nhanh_id: selectedBranch,
-                loai_phong: selectedType,
-                trang_thai: selectedStatus,
-            });
+            };
+            if (searchText) params.search = searchText;
+            if (selectedBranch) params.chi_nhanh_id = selectedBranch;
+            if (selectedType) params.loai_phong = selectedType;
+            if (selectedStatus) params.trang_thai = selectedStatus;
+
+            const response = await axios.get(API.spaRoomList, { params });
 
             if (response.data.success) {
                 const data = response.data.data;
@@ -137,11 +141,17 @@ const RoomList: React.FC = () => {
         try {
             const values = await form.validateFields();
             const payload = {
-                id: selectedRoom?.id,
                 ...values,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/rooms/create-or-update', payload);
+            let response;
+            if (selectedRoom?.id) {
+                // Update
+                response = await axios.put(API.spaRoomUpdate(selectedRoom.id), payload);
+            } else {
+                // Create
+                response = await axios.post(API.spaRoomCreate, payload);
+            }
 
             if (response.data.success) {
                 message.success(selectedRoom ? 'Cập nhật phòng thành công' : 'Tạo phòng mới thành công');
@@ -155,7 +165,7 @@ const RoomList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/rooms/delete', { id });
+            const response = await axios.delete(API.spaRoomDelete(id));
             if (response.data.success) {
                 message.success('Xóa phòng thành công');
                 loadRooms();
@@ -167,8 +177,7 @@ const RoomList: React.FC = () => {
 
     const handleStatusChange = async (record: Room, newStatus: string) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/rooms/create-or-update', {
-                id: record.id,
+            const response = await axios.put(API.spaRoomUpdate(record.id), {
                 trang_thai: newStatus,
             });
 
@@ -282,7 +291,7 @@ const RoomList: React.FC = () => {
             render: (value: number) => (
                 <div>
                     <div style={{ fontWeight: 500, color: '#f5222d', fontSize: 14 }}>
-                        {value.toLocaleString()}
+                        {(value || 0).toLocaleString()}
                     </div>
                     <div style={{ fontSize: 12, color: '#666' }}>VNĐ</div>
                 </div>

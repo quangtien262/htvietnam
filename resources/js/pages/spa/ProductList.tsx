@@ -674,7 +674,7 @@ const ProductList: React.FC = () => {
             key: 'gia_nhap',
             width: 120,
             align: 'right',
-            render: (value: number) => `${(value ?? 0).toLocaleString()} VNĐ`,
+            render: (value: number) => `${Math.round(value ?? 0).toLocaleString('vi-VN')} VNĐ`,
         },
         {
             title: 'Giá bán',
@@ -684,7 +684,7 @@ const ProductList: React.FC = () => {
             align: 'right',
             render: (value: number) => (
                 <span style={{ fontWeight: 500, color: '#52c41a' }}>
-                    {(value ?? 0).toLocaleString()} VNĐ
+                    {Math.round(value ?? 0).toLocaleString('vi-VN')} VNĐ
                 </span>
             ),
         },

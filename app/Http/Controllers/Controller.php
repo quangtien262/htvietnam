@@ -27,7 +27,7 @@ abstract class Controller
             'status_code' => $code,
             'message' => $message,
             'errors' => $errors,
-        ]);
+        ], $code);
     }
 
     protected function sendSuccessResponse($data, $message = '', $code = 200)

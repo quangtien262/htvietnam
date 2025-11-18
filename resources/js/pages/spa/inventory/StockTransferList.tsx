@@ -3,6 +3,7 @@ import { Card, Table, Button, Modal, Form, Input, Select, DatePicker, InputNumbe
 import { PlusOutlined, CheckOutlined, CloseOutlined, EyeOutlined, SendOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../../common/api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -60,10 +61,13 @@ const StockTransferList: React.FC = () => {
     const loadTransfers = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/spa/chuyen-kho');
-            setTransfers(response.data.data || response.data);
+            const response = await axios.get(API.chuyenKhoList);
+            const data = response.data?.data || response.data || [];
+            setTransfers(Array.isArray(data) ? data : []);
         } catch (error) {
+            console.error('Error loading transfers:', error);
             message.error('Không thể tải danh sách phiếu chuyển kho');
+            setTransfers([]);
         } finally {
             setLoading(false);
         }
@@ -71,19 +75,24 @@ const StockTransferList: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh/branches');
-            setBranches(response.data);
+            const response = await axios.get(API.spaBranchList);
+            const data = response.data?.data?.data || response.data?.data || [];
+            setBranches(Array.isArray(data) ? data.filter((b: any) => b.trang_thai === 'active') : []);
         } catch (error) {
-            console.error('Không thể tải chi nhánh');
+            console.error('Error loading branches:', error);
+            setBranches([]);
         }
     };
 
     const loadProducts = async (branchId: number) => {
         try {
-            const response = await axios.get(`/spa/ton-kho-chi-nhanh/branch/${branchId}`);
-            setProducts(response.data.data || response.data);
+            const response = await axios.get(API.tonKhoChiNhanhByBranch(branchId));
+            const data = response.data?.data || response.data || [];
+            setProducts(Array.isArray(data) ? data.filter((p: any) => p.so_luong_ton > 0) : []);
         } catch (error) {
-            console.error('Không thể tải sản phẩm');
+            console.error('Error loading products:', error);
+            message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
         }
     };
 
@@ -95,7 +104,7 @@ const StockTransferList: React.FC = () => {
                 return;
             }
 
-            await axios.post('/spa/chuyen-kho', {
+            await axios.post(API.chuyenKhoCreate, {
                 ...values,
                 ngay_xuat: values.ngay_xuat.format('YYYY-MM-DD'),
                 ngay_du_kien_nhan: values.ngay_du_kien_nhan?.format('YYYY-MM-DD')
@@ -118,7 +127,7 @@ const StockTransferList: React.FC = () => {
             content: 'Bạn có chắc muốn duyệt phiếu chuyển kho này? Hàng sẽ được trừ khỏi kho xuất.',
             onOk: async () => {
                 try {
-                    await axios.post(`/spa/chuyen-kho/${id}/approve`);
+                    await axios.post(API.chuyenKhoApprove(id));
                     message.success('Duyệt phiếu thành công');
                     loadTransfers();
                 } catch (error: any) {
@@ -130,7 +139,7 @@ const StockTransferList: React.FC = () => {
 
     const handleReceive = async (values: any) => {
         try {
-            await axios.post(`/spa/chuyen-kho/${selectedTransfer?.id}/receive`, {
+            await axios.post(API.chuyenKhoReceive(selectedTransfer?.id!), {
                 chi_tiets: values.chi_tiets
             });
             message.success('Nhận hàng thành công');
@@ -148,7 +157,7 @@ const StockTransferList: React.FC = () => {
             content: 'Bạn có chắc muốn hủy phiếu chuyển kho này?',
             onOk: async () => {
                 try {
-                    await axios.post(`/spa/chuyen-kho/${id}/cancel`);
+                    await axios.post(API.chuyenKhoCancel(id));
                     message.success('Hủy phiếu thành công');
                     loadTransfers();
                 } catch (error: any) {

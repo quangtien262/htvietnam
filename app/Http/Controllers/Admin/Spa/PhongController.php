@@ -14,14 +14,48 @@ class PhongController extends Controller
             ->leftJoin('spa_chi_nhanh as cn', 'p.chi_nhanh_id', '=', 'cn.id')
             ->select('p.*', 'cn.ten_chi_nhanh');
 
+        // Search
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('p.ten_phong', 'like', "%{$search}%")
+                  ->orWhere('p.ma_phong', 'like', "%{$search}%")
+                  ->orWhere('cn.ten_chi_nhanh', 'like', "%{$search}%");
+            });
+        }
+
+        // Filters
         if ($request->filled('chi_nhanh_id')) {
             $query->where('p.chi_nhanh_id', $request->chi_nhanh_id);
+        }
+        if ($request->filled('loai_phong')) {
+            $query->where('p.loai_phong', $request->loai_phong);
         }
         if ($request->filled('trang_thai')) {
             $query->where('p.trang_thai', $request->trang_thai);
         }
 
-        $rooms = $query->orderBy('p.ten_phong')->get();
+        $query->orderBy('p.ten_phong');
+
+        // Pagination
+        if ($request->has('limit')) {
+            $limit = $request->limit;
+            $page = $request->page ?? 1;
+            $offset = ($page - 1) * $limit;
+
+            $total = $query->count();
+            $rooms = $query->offset($offset)->limit($limit)->get();
+
+            return $this->sendSuccessResponse([
+                'data' => $rooms,
+                'total' => $total,
+                'current_page' => (int)$page,
+                'per_page' => (int)$limit,
+            ]);
+        }
+
+        // Without pagination
+        $rooms = $query->get();
 
         return $this->sendSuccessResponse($rooms);
     }

@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
+import API from '@/common/api';
 
 const { Step } = Steps;
 const { TextArea } = Input;
@@ -118,7 +119,7 @@ const BookingForm: React.FC = () => {
                     }
                 }),
                 axios.post('/aio/api/admin/spa/services/list'),
-                axios.post('/aio/api/admin/spa/branches/list'),
+                axios.get(API.spaBranchList),
             ]);
 
             console.log('Customers response:', customersRes.data);

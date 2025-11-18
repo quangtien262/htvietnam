@@ -766,11 +766,6 @@ export const MENU = {
                     icon: <ApartmentOutlined />,
                 },
                 {
-                    label: <Link to={`${ROUTE.spa_settings}?p=spa`}>Cấu hình</Link>,
-                    key: (key++).toString(),
-                    icon: <SettingFilled />,
-                },
-                {
                     label: <Link to={`${ROUTE.baseRoute}setting/spa_lich_trinh_su_dung?p=spa`}>Loại chi</Link>,
                     key: (key++).toString(),
                     icon: <HomeOutlined />,

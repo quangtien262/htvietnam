@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, InputNumber, DatePicker, Select, Spa
 import { PlusOutlined, EditOutlined, DeleteOutlined, GiftOutlined, TagOutlined, DollarOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import API from '@/common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -39,11 +40,14 @@ const GiftCardManagement: React.FC = () => {
     const fetchGiftCards = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/aio/api/spa/gift-cards');
-            setGiftCards(response.data);
+            const response = await axios.get(API.spaGiftCardList);
+            // Ensure response.data is always an array
+            const data = Array.isArray(response.data) ? response.data : [];
+            setGiftCards(data);
         } catch (error) {
             message.error('Không thể tải danh sách thẻ giá trị');
             console.error(error);
+            setGiftCards([]); // Reset to empty array on error
         } finally {
             setLoading(false);
         }
@@ -67,7 +71,7 @@ const GiftCardManagement: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            await axios.delete(`/aio/api/spa/gift-cards/${id}`);
+            await axios.delete(API.spaGiftCardDelete(id));
             message.success('Xóa thẻ giá trị thành công');
             fetchGiftCards();
         } catch (error: any) {
@@ -84,10 +88,10 @@ const GiftCardManagement: React.FC = () => {
             };
 
             if (editingCard) {
-                await axios.put(`/aio/api/spa/gift-cards/${editingCard.id}`, data);
+                await axios.put(API.spaGiftCardUpdate(editingCard.id), data);
                 message.success('Cập nhật thẻ giá trị thành công');
             } else {
-                await axios.post('/aio/api/spa/gift-cards', data);
+                await axios.post(API.spaGiftCardCreate, data);
                 message.success('Tạo thẻ giá trị thành công');
             }
 

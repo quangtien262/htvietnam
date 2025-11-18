@@ -384,7 +384,7 @@ const MarketingCampaign: React.FC = () => {
             render: (value: number) => (
                 <div>
                     <div style={{ fontWeight: 500, color: '#f5222d', fontSize: 15 }}>
-                        {value.toLocaleString()}
+                        {(value || 0).toLocaleString()}
                     </div>
                     <div style={{ fontSize: 12, color: '#666' }}>VNĐ</div>
                 </div>

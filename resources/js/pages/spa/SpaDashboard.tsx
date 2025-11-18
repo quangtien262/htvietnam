@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { Column } from '@ant-design/plots';
 import axios from 'axios';
+import API from '@/common/api';
 
 const SpaDashboard: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ const SpaDashboard: React.FC = () => {
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/admin/spa/analytics/dashboard', {
+            const response = await axios.get(API.spaAnalyticsDashboard, {
                 params: {
                     tu_ngay: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
                     den_ngay: new Date().toISOString().split('T')[0],
@@ -86,7 +87,7 @@ const SpaDashboard: React.FC = () => {
     return (
         <div className="spa-dashboard" style={{ padding: '24px' }}>
             <h1>Dashboard SPA</h1>
-            
+
             {/* Overview Statistics */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={12} lg={6}>
@@ -136,8 +137,12 @@ const SpaDashboard: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} lg={16}>
                     <Card title="Biểu đồ doanh thu" loading={loading}>
-                        {dashboardData?.revenue?.daily_revenue && (
+                        {dashboardData?.revenue?.daily_revenue && dashboardData.revenue.daily_revenue.length > 0 ? (
                             <Column {...chartConfig} />
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                                Chưa có dữ liệu doanh thu trong khoảng thời gian này
+                            </div>
                         )}
                     </Card>
                 </Col>
@@ -173,6 +178,7 @@ const SpaDashboard: React.FC = () => {
                             columns={serviceColumns}
                             pagination={false}
                             size="small"
+                            locale={{ emptyText: 'Chưa có dữ liệu dịch vụ' }}
                         />
                     </Card>
                 </Col>
@@ -192,6 +198,7 @@ const SpaDashboard: React.FC = () => {
                             ]}
                             pagination={false}
                             size="small"
+                            locale={{ emptyText: 'Chưa có dữ liệu nhân viên' }}
                         />
                     </Card>
                 </Col>

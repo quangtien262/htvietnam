@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Input, Select, Button, Tag, Space, Modal, message, Statistic, Row, Col } from 'antd';
 import { SearchOutlined, SyncOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { API } from '../../../common/api';
 
 const { Option } = Select;
 
@@ -55,9 +56,16 @@ const BranchInventoryView: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh/branches');
-            setBranches(response.data);
+            const response = await axios.get(API.spaBranchList);
+            console.log('Branches response:', response.data);
+            if (response.data.success) {
+                const data = response.data.data;
+                const branchList = data.data || data || [];
+                const activeBranches = Array.isArray(branchList) ? branchList.filter((b: any) => b.trang_thai === 'active') : [];
+                setBranches(activeBranches.map((b: any) => ({ id: b.id, name: b.ten_chi_nhanh, code: b.ma_chi_nhanh || '' })));
+            }
         } catch (error) {
+            console.error('Load branches error:', error);
             message.error('Không thể tải danh sách chi nhánh');
         }
     };
@@ -65,10 +73,14 @@ const BranchInventoryView: React.FC = () => {
     const loadInventory = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh');
-            setInventoryData(response.data.data || response.data);
+            const response = await axios.get(API.tonKhoChiNhanhList);
+            console.log('Inventory response:', response.data);
+            const data = response.data?.data || response.data || [];
+            setInventoryData(Array.isArray(data) ? data : []);
         } catch (error) {
+            console.error('Load inventory error:', error);
             message.error('Không thể tải dữ liệu tồn kho');
+            setInventoryData([]);
         } finally {
             setLoading(false);
         }
@@ -77,10 +89,14 @@ const BranchInventoryView: React.FC = () => {
     const loadInventoryByBranch = async (branchId: number) => {
         setLoading(true);
         try {
-            const response = await axios.get(`/spa/ton-kho-chi-nhanh/branch/${branchId}`);
-            setInventoryData(response.data.data || response.data);
+            const response = await axios.get(API.tonKhoChiNhanhByBranch(branchId));
+            console.log('Inventory by branch response:', response.data);
+            const data = response.data?.data || response.data || [];
+            setInventoryData(Array.isArray(data) ? data : []);
         } catch (error) {
+            console.error('Load inventory by branch error:', error);
             message.error('Không thể tải dữ liệu tồn kho chi nhánh');
+            setInventoryData([]);
         } finally {
             setLoading(false);
         }
@@ -88,10 +104,11 @@ const BranchInventoryView: React.FC = () => {
 
     const loadStatistics = async () => {
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh/statistics');
+            const response = await axios.get(API.tonKhoChiNhanhStatistics);
+            console.log('Statistics response:', response.data);
             setStatistics(response.data);
         } catch (error) {
-            console.error('Không thể tải thống kê');
+            console.error('Load statistics error:', error);
         }
     };
 

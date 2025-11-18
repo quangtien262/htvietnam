@@ -541,9 +541,9 @@ const VoucherList: React.FC = () => {
                             <Form.Item
                                 name="ma_voucher"
                                 label="Mã Voucher"
-                                rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
+                                tooltip="Bỏ trống để tự động tạo mã (VOUCHER0001, VOUCHER0002...)"
                             >
-                                <Input placeholder="VD: SUMMER2024" style={{ textTransform: 'uppercase' }} />
+                                <Input placeholder="Bỏ trống để tự động tạo" style={{ textTransform: 'uppercase' }} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>

@@ -12,6 +12,7 @@ import {
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API from '@/common/api';
 
 const { Option } = Select;
 
@@ -98,7 +99,7 @@ const StaffSchedule: React.FC = () => {
 
             if (response.data.success) {
                 const data = response.data.data;
-                
+
                 // Group shifts by date
                 const grouped: Record<string, Shift[]> = {};
                 (data.data || []).forEach((shift: Shift) => {
@@ -139,7 +140,7 @@ const StaffSchedule: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/branches/list');
+            const response = await axios.get(API.spaBranchList);
             if (response.data.success) {
                 setBranches(response.data.data.data || []);
             }

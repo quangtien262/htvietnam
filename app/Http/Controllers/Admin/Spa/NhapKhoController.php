@@ -204,6 +204,8 @@ class NhapKhoController extends Controller
             'items.*.san_pham_id' => 'required|exists:spa_san_pham,id',
             'items.*.so_luong' => 'required|integer|min:1',
             'items.*.gia_nhap' => 'required|numeric|min:0',
+            'items.*.nha_cung_cap_id' => 'nullable|exists:spa_nha_cung_cap,id',
+            'chi_nhanh_id' => 'nullable|exists:spa_chi_nhanh,id',
             'nha_cung_cap' => 'nullable|string',
             'ngay_nhap' => 'required|date',
             'ghi_chu' => 'nullable|string',
@@ -211,21 +213,21 @@ class NhapKhoController extends Controller
 
         try {
             $successCount = 0;
+            $chiNhanhId = $request->chi_nhanh_id ?? 1; // Default to branch 1 if not specified
 
-            DB::transaction(function () use ($request, &$successCount) {
+            DB::transaction(function () use ($request, $chiNhanhId, &$successCount) {
                 foreach ($request->items as $item) {
-                    // Update product stock
-                    DB::table('spa_san_pham')
-                        ->where('id', $item['san_pham_id'])
-                        ->increment('ton_kho', $item['so_luong']);
+                    // Update branch stock using the same method as regular import
+                    TonKhoChiNhanh::updateStock(
+                        $chiNhanhId,
+                        $item['san_pham_id'],
+                        $item['so_luong'],
+                        'increase',
+                        $item['gia_nhap']
+                    );
 
-                    // Update product purchase price
-                    DB::table('spa_san_pham')
-                        ->where('id', $item['san_pham_id'])
-                        ->update(['gia_nhap' => $item['gia_nhap']]);
-
-                    // Create transaction record (if you have transaction table)
-                    // This is optional based on your schema
+                    // Sync product total stock
+                    TonKhoChiNhanh::syncWithProductTable($item['san_pham_id']);
 
                     $successCount++;
                 }
@@ -245,6 +247,7 @@ class NhapKhoController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt,xlsx,xls',
+            'chi_nhanh_id' => 'nullable|exists:spa_chi_nhanh,id',
             'nha_cung_cap' => 'nullable|string',
             'ngay_nhap' => 'required|date',
             'ghi_chu' => 'nullable|string',
@@ -293,16 +296,21 @@ class NhapKhoController extends Controller
             }
 
             $successCount = 0;
+            $chiNhanhId = $request->chi_nhanh_id ?? 1; // Default to branch 1 if not specified
 
-            DB::transaction(function () use ($items, &$successCount) {
+            DB::transaction(function () use ($items, $chiNhanhId, &$successCount) {
                 foreach ($items as $item) {
-                    DB::table('spa_san_pham')
-                        ->where('id', $item['san_pham_id'])
-                        ->increment('ton_kho', $item['so_luong']);
+                    // Update branch stock using the same method as regular import
+                    TonKhoChiNhanh::updateStock(
+                        $chiNhanhId,
+                        $item['san_pham_id'],
+                        $item['so_luong'],
+                        'increase',
+                        $item['gia_nhap']
+                    );
 
-                    DB::table('spa_san_pham')
-                        ->where('id', $item['san_pham_id'])
-                        ->update(['gia_nhap' => $item['gia_nhap']]);
+                    // Sync product total stock
+                    TonKhoChiNhanh::syncWithProductTable($item['san_pham_id']);
 
                     $successCount++;
                 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox, Tooltip, DatePicker, Alert } from 'antd';
-import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined, GiftOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
 import ShiftWidget from '../../components/spa/ShiftWidget';
@@ -19,6 +19,8 @@ interface CartItem {
     quantity: number;
     ktv_id?: number;
     ktv_name?: string;
+    su_dung_goi?: number; // ID của customer package nếu dùng từ gói
+    customer_package_name?: string; // Tên gói để hiển thị
 }
 
 interface Order {
@@ -198,11 +200,21 @@ const SpaPOSScreen: React.FC = () => {
     const [promoCodeModalVisible, setPromoCodeModalVisible] = useState(false);
     const [promoCodeForm] = Form.useForm();
 
+    // Voucher states
+    const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
+    const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
+
+    // Customer Package states
+    const [customerPackages, setCustomerPackages] = useState<any[]>([]);
+    const [loadingPackages, setLoadingPackages] = useState(false);
+
     // Customer modal states
     const [addCustomerModalVisible, setAddCustomerModalVisible] = useState(false);
     const [viewCustomerModalVisible, setViewCustomerModalVisible] = useState(false);
     const [customerForm] = Form.useForm();
     const [viewingCustomer, setViewingCustomer] = useState<any>(null);
+    const [selectedPackageForService, setSelectedPackageForService] = useState<any>(null);
+    const [packageServiceModalVisible, setPackageServiceModalVisible] = useState(false);
 
     // Fetch services and products on mount
     useEffect(() => {
@@ -225,10 +237,15 @@ const SpaPOSScreen: React.FC = () => {
 
     // Load wallet when customer changes
     useEffect(() => {
-        if (selectedCustomer?.id) {
-            fetchCustomerWallet(selectedCustomer.id);
+        console.log('=== Customer changed, selectedCustomer:', selectedCustomer);
+        if (selectedCustomer?.value) {
+            console.log('=== Fetching data for customer ID:', selectedCustomer.value);
+            fetchCustomerWallet(selectedCustomer.value);
+            fetchCustomerPackages(selectedCustomer.value);
         } else {
+            console.log('=== No customer selected, clearing data');
             setCustomerWallet(null);
+            setCustomerPackages([]);
         }
     }, [selectedCustomer]);
 
@@ -573,22 +590,31 @@ const SpaPOSScreen: React.FC = () => {
 
     const fetchBranches = async () => {
         try {
-            console.log('POS: Fetching branches...');
+            console.log('POS: Fetching branches from:', API.spaBranchList);
             const response = await axios.get(API.spaBranchList);
-            console.log('POS: Branches response:', response.data);
+            console.log('POS: Branches raw response:', response);
+            console.log('POS: Branches data:', response.data);
+
             if (response.data.success) {
                 const data = response.data.data;
+                console.log('POS: Branches success data:', data);
                 const branchList = Array.isArray(data) ? data : (data.data || []);
                 console.log('POS: Branch list extracted:', branchList);
                 setBranches(branchList);
                 // Set default branch if available
                 if (branchList.length > 0 && !selectedBranch) {
+                    console.log('POS: Setting default branch:', branchList[0].id);
                     setSelectedBranch(branchList[0].id);
                 }
+            } else {
+                console.warn('POS: Branches API returned success=false');
+                message.warning('Không thể tải danh sách chi nhánh');
+                setBranches([]);
             }
-        } catch (error) {
-            console.error('Error fetching branches:', error);
-            message.error('Lỗi khi tải danh sách chi nhánh');
+        } catch (error: any) {
+            console.error('POS: Error fetching branches:', error);
+            console.error('POS: Error response:', error.response);
+            message.error('Lỗi khi tải danh sách chi nhánh: ' + (error.message || 'Unknown error'));
             setBranches([]);
         }
     };
@@ -599,8 +625,16 @@ const SpaPOSScreen: React.FC = () => {
             const response = await axios.get('/aio/api/spa/gift-cards', {
                 params: { available: true }
             });
-            setGiftCards(response.data || []);
-            setFilteredGiftCards(response.data || []);
+
+            // Handle different response structures
+            let data = response.data;
+            if (data && data.data) {
+                data = data.data;
+            }
+            const giftCardsArray = Array.isArray(data) ? data : [];
+
+            setGiftCards(giftCardsArray);
+            setFilteredGiftCards(giftCardsArray);
         } catch (error) {
             console.error('Error fetching gift cards:', error);
             message.error('Không thể tải danh sách thẻ giá trị');
@@ -628,6 +662,32 @@ const SpaPOSScreen: React.FC = () => {
             setCustomerWallet(null);
         } finally {
             setLoadingWallet(false);
+        }
+    };
+
+    // Fetch customer packages
+    const fetchCustomerPackages = async (customerId: number) => {
+        console.log('fetchCustomerPackages called with customerId:', customerId);
+        if (!customerId) {
+            setCustomerPackages([]);
+            return;
+        }
+
+        setLoadingPackages(true);
+        try {
+            const response = await axios.post('/aio/api/admin/spa/customer-packages/list', {
+                khach_hang_id: customerId
+            });
+            console.log('Customer packages response:', response.data);
+            if (response.data.success) {
+                setCustomerPackages(response.data.data || []);
+                console.log('Customer packages set:', response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching customer packages:', error);
+            setCustomerPackages([]);
+        } finally {
+            setLoadingPackages(false);
         }
     };
 
@@ -689,10 +749,85 @@ const SpaPOSScreen: React.FC = () => {
         ));
     };
 
-    const addToCart = (item: ServiceProduct, type: 'service' | 'product') => {
-        const name = type === 'service' ? item.ten_dich_vu : item.ten_san_pham;
+    const addToCart = (item: ServiceProduct, type: 'service' | 'product' | 'package') => {
+        const name = type === 'service' ? item.ten_dich_vu :
+                     type === 'product' ? item.ten_san_pham :
+                     type === 'package' ? item.ten_dich_vu : // Package uses ten_dich_vu (same field as ten_goi)
+                     'Unknown';
         const price = selectedCustomer && item.gia_thanh_vien ? item.gia_thanh_vien : item.gia_ban;
 
+        // Check if customer has an active package for this service
+        if (type === 'service' && selectedCustomer && customerPackages.length > 0) {
+            console.log('Checking packages for service:', item.id);
+            console.log('Available customer packages:', customerPackages);
+
+            const availablePackages = customerPackages.filter((pkg: any) =>
+                pkg.dich_vu_list?.some((dv: any) => dv.id === item.id) &&
+                pkg.so_luong_con_lai > 0
+            );
+
+            console.log('Available packages for this service:', availablePackages);
+
+            if (availablePackages.length > 0) {
+                // Show modal to ask if user wants to use from package
+                Modal.confirm({
+                    title: 'Sử dụng từ gói dịch vụ?',
+                    icon: <GiftOutlined style={{ color: '#52c41a' }} />,
+                    content: (
+                        <div>
+                            <p>Khách hàng có gói dịch vụ khả dụng cho dịch vụ này:</p>
+                            {availablePackages.map((pkg: any) => (
+                                <div key={pkg.id} style={{
+                                    padding: '8px 12px',
+                                    background: '#f6ffed',
+                                    border: '1px solid #b7eb8f',
+                                    borderRadius: 4,
+                                    marginBottom: 8
+                                }}>
+                                    <div style={{ fontWeight: 'bold', color: '#52c41a' }}>{pkg.ten_goi}</div>
+                                    <div>Còn lại: {pkg.so_luong_con_lai}/{pkg.so_luong_tong} lần</div>
+                                </div>
+                            ))}
+                            <p style={{ marginTop: 12 }}>Bạn có muốn sử dụng từ gói dịch vụ không?</p>
+                        </div>
+                    ),
+                    okText: 'Sử dụng từ gói',
+                    cancelText: 'Thanh toán thường',
+                    onOk: () => {
+                        // Use the first available package
+                        const selectedPackage = availablePackages[0];
+                        const newItem: CartItem = {
+                            key: `${type}-${item.id}-${Date.now()}`,
+                            type: type,
+                            id: item.id,
+                            name: name || 'Unknown',
+                            price: 0, // Free when using from package
+                            quantity: 1,
+                            su_dung_goi: selectedPackage.id,
+                            customer_package_name: selectedPackage.ten_goi
+                        };
+                        setCart([...cart, newItem]);
+                        message.success(`Đã thêm "${name}" sử dụng từ gói "${selectedPackage.ten_goi}"`);
+                    },
+                    onCancel: () => {
+                        // Normal payment
+                        const newItem: CartItem = {
+                            key: `${type}-${item.id}-${Date.now()}`,
+                            type: type,
+                            id: item.id,
+                            name: name || 'Unknown',
+                            price: price,
+                            quantity: 1,
+                        };
+                        setCart([...cart, newItem]);
+                        message.success(`Đã thêm ${name} vào giỏ hàng`);
+                    }
+                });
+                return; // Exit early, modal will handle the add
+            }
+        }
+
+        // Normal add to cart (no package available or not a service)
         const newItem: CartItem = {
             key: `${type}-${item.id}-${Date.now()}`,
             type: type,
@@ -744,7 +879,7 @@ const SpaPOSScreen: React.FC = () => {
     const calculateTotal = () => {
         const subtotal = calculateSubtotal();
         const pointDiscount = pointsUsed * 10000; // 1 point = 10,000 VND
-        return subtotal - discount - pointDiscount + tip;
+        return subtotal - discount - pointDiscount - voucherDiscount + tip;
     };
 
     const handlePayment = async () => {
@@ -782,30 +917,112 @@ const SpaPOSScreen: React.FC = () => {
 
     // Handle promo code apply
     const handleApplyPromoCode = async () => {
+        console.log('=== handleApplyPromoCode START ===');
+        console.log('selectedCustomer:', selectedCustomer);
+
         if (!selectedCustomer) {
             message.error('Vui lòng chọn khách hàng trước');
             return;
         }
 
         try {
+            console.log('Validating form...');
             const values = await promoCodeForm.validateFields();
-            const response = await axios.post('/aio/api/spa/wallet/apply-code', {
-                khach_hang_id: selectedCustomer.value,
-                ma_code: values.promo_code.toUpperCase(),
-            });
+            console.log('Form values:', values);
+            const maCode = values.promo_code.toUpperCase();
+            console.log('Ma code:', maCode);
 
-            if (response.data.success) {
-                message.success(response.data.message);
-                promoCodeForm.resetFields();
-                setPromoCodeModalVisible(false);
-                // Refresh wallet
-                await fetchCustomerWallet(selectedCustomer.value);
-            } else {
-                message.error(response.data.message);
+            // Try voucher first
+            try {
+                const totalAmount = calculateTotal();
+                console.log('Total amount:', totalAmount);
+                console.log('Calling voucher verify API...');
+
+                const voucherResponse = await axios.post('/aio/api/admin/spa/vouchers/verify', {
+                    ma_voucher: maCode,
+                    gia_tri_don_hang: totalAmount
+                });
+
+                console.log('Voucher response:', voucherResponse);
+                console.log('Voucher response.data:', voucherResponse.data);
+                console.log('Voucher response.data.success:', voucherResponse.data.success);
+
+                if (voucherResponse.data.success === true) {
+                    console.log('Success = true, processing voucher...');
+                    const voucher = voucherResponse.data.data;
+                    console.log('Voucher data:', voucher);
+                    setAppliedVoucher(voucher);
+                    setVoucherDiscount(voucher.so_tien_giam);
+                    message.success(`Áp dụng voucher thành công! Giảm ${formatCurrency(voucher.so_tien_giam)}`);
+                    promoCodeForm.resetFields();
+                    setPromoCodeModalVisible(false);
+                    return;
+                } else if (voucherResponse.data.success === false) {
+                    // Backend returned error with HTTP 200 but success=false
+                    console.log('Success = false, showing error:', voucherResponse.data.message);
+                    message.error(voucherResponse.data.message || 'Voucher không hợp lệ');
+                    return;
+                } else {
+                    console.log('Success = undefined');
+                    console.log('Full response data:', JSON.stringify(voucherResponse.data));
+                }
+            } catch (voucherError: any) {
+                console.log('=== Voucher error caught ===');
+                console.log('Error object:', voucherError);
+                console.log('Error response:', voucherError.response);
+
+                // Check if response exists
+                if (voucherError.response) {
+                    const errorMsg = voucherError.response.data?.message;
+                    const status = voucherError.response.status;
+
+                    console.log('Status:', status);
+                    console.log('Error message:', errorMsg);
+
+                    // If voucher exists but has error (400), show the error
+                    if (status === 400 && errorMsg) {
+                        console.log('Showing 400 error:', errorMsg);
+                        message.error(errorMsg);
+                        return;
+                    }
+
+                    // If voucher not found (404), try gift card
+                    if (status === 404) {
+                        console.log('Voucher not found (404), trying gift card...');
+                        try {
+                            const response = await axios.post('/aio/api/admin/spa/wallet/apply-code', {
+                                khach_hang_id: selectedCustomer.value,
+                                ma_code: maCode,
+                            });
+
+                            console.log('Gift card response:', response);
+
+                            if (response.data.success) {
+                                message.success(response.data.message);
+                                promoCodeForm.resetFields();
+                                setPromoCodeModalVisible(false);
+                                await fetchCustomerWallet(selectedCustomer.value);
+                                return;
+                            }
+                        } catch (giftCardError: any) {
+                            console.log('Gift card error:', giftCardError);
+                            message.error(giftCardError.response?.data?.message || 'Mã không hợp lệ');
+                            return;
+                        }
+                    }
+                }
+
+                // Generic error
+                console.log('Generic voucher error - showing message');
+                message.error(voucherError.response?.data?.message || 'Lỗi khi kiểm tra mã');
             }
         } catch (error: any) {
-            message.error(error.response?.data?.message || 'Mã code không hợp lệ');
+            console.error('=== Outer catch - Apply code error ===');
+            console.error('Error:', error);
+            message.error(error.response?.data?.message || 'Mã không hợp lệ');
         }
+
+        console.log('=== handleApplyPromoCode END ===');
     };
 
     // Handle add new customer
@@ -1082,6 +1299,7 @@ const SpaPOSScreen: React.FC = () => {
                     ktv_id: item.ktv_id,
                     so_luong: item.quantity,
                     don_gia: item.price,
+                    su_dung_goi: item.su_dung_goi || null, // ID của customer package nếu sử dụng từ gói
                 })),
                 thanh_toan: remaining < 0.01, // Đã thanh toán đủ
                 thanh_toan_vi: walletAmount,
@@ -1126,6 +1344,59 @@ const SpaPOSScreen: React.FC = () => {
                     }
                 }
 
+                // Apply voucher if used
+                if (appliedVoucher && selectedCustomer) {
+                    try {
+                        await axios.post('/aio/api/admin/spa/vouchers/apply', {
+                            ma_voucher: appliedVoucher.ma_voucher,
+                            khach_hang_id: selectedCustomer.value,
+                            hoa_don_id: hoaDonId,
+                            so_tien_giam: voucherDiscount,
+                        });
+                    } catch (voucherError) {
+                        console.error('Error applying voucher:', voucherError);
+                        // Don't block payment on voucher error
+                    }
+                }
+
+                // Process purchased service packages (create customer package records)
+                const purchasedPackages = regularItems.filter(item => item.type === 'package');
+                for (const pkgItem of purchasedPackages) {
+                    if (selectedCustomer) {
+                        try {
+                            await axios.post('/aio/api/admin/spa/customer-packages/purchase', {
+                                khach_hang_id: selectedCustomer.value,
+                                goi_dich_vu_id: pkgItem.id,
+                                hoa_don_id: hoaDonId,
+                            });
+                        } catch (pkgError) {
+                            console.error('Error creating customer package:', pkgError);
+                            message.warning(`Không thể tạo gói "${pkgItem.name}" cho khách hàng`);
+                        }
+                    }
+                }
+
+                // Process package usage for items that used packages
+                const packageItems = regularItems.filter(item => item.su_dung_goi);
+                for (const packageItem of packageItems) {
+                    try {
+                        await axios.post('/aio/api/admin/spa/customer-packages/use', {
+                            customer_package_id: packageItem.su_dung_goi,
+                            dich_vu_id: packageItem.id,
+                            hoa_don_id: hoaDonId,
+                        });
+                    } catch (packageError) {
+                        console.error('Error using package:', packageError);
+                        message.warning(`Không thể sử dụng gói cho dịch vụ "${packageItem.name}"`);
+                        // Don't block payment on package error
+                    }
+                }
+
+                // Refresh customer packages after payment
+                if (selectedCustomer && (packageItems.length > 0 || purchasedPackages.length > 0)) {
+                    fetchCustomerPackages(selectedCustomer.value);
+                }
+
                 message.success(remaining > 0.01 ? 'Thanh toán thành công! Đã lưu công nợ.' : 'Thanh toán thành công!');
                 setPaymentModalVisible(false);
                 form.resetFields();
@@ -1140,6 +1411,8 @@ const SpaPOSScreen: React.FC = () => {
                 setShowDebtForm(false);
                 setDebtAmount(0);
                 setDebtDueDate(null);
+                setAppliedVoucher(null);
+                setVoucherDiscount(0);
 
                 // Reload shift and wallet
                 loadCurrentShift();
@@ -1173,12 +1446,26 @@ const SpaPOSScreen: React.FC = () => {
             title: 'Tên',
             dataIndex: 'name',
             key: 'name',
+            render: (name: string, record: CartItem) => (
+                <div>
+                    <div>{name}</div>
+                    {record.su_dung_goi && (
+                        <div style={{ fontSize: '11px', color: '#52c41a', marginTop: 2 }}>
+                            <GiftOutlined /> {record.customer_package_name}
+                        </div>
+                    )}
+                </div>
+            ),
         },
         {
             title: 'Giá',
             dataIndex: 'price',
             key: 'price',
-            render: (price: number) => new Intl.NumberFormat('vi-VN').format(price) + ' đ',
+            render: (price: number, record: CartItem) => (
+                <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
+                    {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(price) + ' đ'}
+                </span>
+            ),
         },
         {
             title: 'SL',
@@ -1190,14 +1477,18 @@ const SpaPOSScreen: React.FC = () => {
                     value={qty}
                     onChange={(value) => updateQuantity(record.key, value || 1)}
                     style={{ width: 60 }}
+                    disabled={!!record.su_dung_goi} // Disable quantity change for package items
                 />
             ),
         },
         {
             title: 'Thành tiền',
             key: 'total',
-            render: (_: any, record: CartItem) =>
-                new Intl.NumberFormat('vi-VN').format(record.price * record.quantity) + ' đ',
+            render: (_: any, record: CartItem) => (
+                <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
+                    {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(record.price * record.quantity) + ' đ'}
+                </span>
+            ),
         },
         {
             title: '',
@@ -1603,6 +1894,14 @@ const SpaPOSScreen: React.FC = () => {
                                                 value={order.customer?.value}
                                                 onChange={(value: any) => {
                                                     const user = customers.find(u => u.value === value);
+
+                                                    // Remove package items from cart when changing customer
+                                                    const updatedCart = cart.filter(item => !item.su_dung_goi);
+                                                    if (updatedCart.length !== cart.length) {
+                                                        setCart(updatedCart);
+                                                        message.info('Đã xóa các dịch vụ sử dụng từ gói của khách hàng trước');
+                                                    }
+
                                                     setSelectedCustomer(user || null);
                                                 }}
                                                 showSearch
@@ -1656,6 +1955,90 @@ const SpaPOSScreen: React.FC = () => {
                                                             <div>Đã tiêu: {formatCurrency(customerWallet.tong_tieu || 0)}</div>
                                                         </div>
                                                     )}
+
+                                                    {/* Package Info */}
+                                                    {loadingPackages ? (
+                                                        <div style={{ fontSize: '13px', color: '#1890ff', marginTop: 8 }}>
+                                                            <GiftOutlined style={{ marginRight: 4 }} />
+                                                            Đang tải gói dịch vụ...
+                                                        </div>
+                                                    ) : customerPackages.length > 0 ? (
+                                                        <div style={{ borderTop: '1px dashed #d9d9d9', paddingTop: 8, marginTop: 8 }}>
+                                                            <div style={{ fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>
+                                                                <GiftOutlined style={{ marginRight: 4, color: '#52c41a' }} />
+                                                                <span style={{ color: '#52c41a' }}>Gói dịch vụ đã mua ({customerPackages.length})</span>
+                                                            </div>
+                                                            {customerPackages.map((pkg: any) => (
+                                                                <div
+                                                                    key={pkg.id}
+                                                                    style={{
+                                                                        fontSize: '11px',
+                                                                        padding: '8px',
+                                                                        background: '#f6ffed',
+                                                                        borderRadius: 4,
+                                                                        marginBottom: 6,
+                                                                        border: '1px solid #b7eb8f',
+                                                                        cursor: 'pointer',
+                                                                        transition: 'all 0.2s'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        setSelectedPackageForService(pkg);
+                                                                        setPackageServiceModalVisible(true);
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        e.currentTarget.style.background = '#d9f7be';
+                                                                        e.currentTarget.style.borderColor = '#52c41a';
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.background = '#f6ffed';
+                                                                        e.currentTarget.style.borderColor = '#b7eb8f';
+                                                                    }}
+                                                                >
+                                                                    <div style={{ fontWeight: 'bold', color: '#52c41a', marginBottom: 4 }}>
+                                                                        🎁 {pkg.ten_goi}
+                                                                    </div>
+                                                                    <div style={{ color: '#389e0d', fontWeight: 'bold' }}>
+                                                                        ✓ Còn lại: {pkg.so_luong_con_lai}/{pkg.so_luong_tong} lần
+                                                                    </div>
+                                                                    {pkg.ngay_het_han && (
+                                                                        <div style={{ color: '#8c8c8c', fontSize: '10px', marginTop: 2 }}>
+                                                                            HSD: {new Date(pkg.ngay_het_han).toLocaleDateString('vi-VN')}
+                                                                        </div>
+                                                                    )}
+                                                                    {pkg.dich_vu_list && pkg.dich_vu_list.length > 0 && (
+                                                                        <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #d9f7be' }}>
+                                                                            <div style={{ color: '#595959', marginBottom: 4, fontWeight: 'bold' }}>
+                                                                                Dịch vụ khả dụng:
+                                                                            </div>
+                                                                            {pkg.dich_vu_list.slice(0, 3).map((dv: any, index: number) => (
+                                                                                <div key={index} style={{ color: '#595959', fontSize: '10px', paddingLeft: 8 }}>
+                                                                                    • {dv.ten_dich_vu}
+                                                                                </div>
+                                                                            ))}
+                                                                            {pkg.dich_vu_list.length > 3 && (
+                                                                                <div style={{ color: '#8c8c8c', fontSize: '10px', paddingLeft: 8, fontStyle: 'italic' }}>
+                                                                                    ... và {pkg.dich_vu_list.length - 3} dịch vụ khác
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    <div style={{
+                                                                        marginTop: 6,
+                                                                        padding: '4px 6px',
+                                                                        background: '#e6f7ff',
+                                                                        borderRadius: 3,
+                                                                        fontSize: '10px',
+                                                                        color: '#0050b3',
+                                                                        textAlign: 'center',
+                                                                        fontWeight: 'bold'
+                                                                    }}>
+                                                                        👆 Click để chọn dịch vụ sử dụng
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : null}
+
                                                     <Button
                                                         type="link"
                                                         size="small"
@@ -1694,6 +2077,41 @@ const SpaPOSScreen: React.FC = () => {
                                                         style={{ width: 150 }}
                                                     />
                                                 </div>
+
+                                                {appliedVoucher && (
+                                                    <div style={{
+                                                        padding: '8px 12px',
+                                                        background: '#f6ffed',
+                                                        border: '1px solid #b7eb8f',
+                                                        borderRadius: 4,
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <div>
+                                                            <Tag color="green">{appliedVoucher.ma_voucher}</Tag>
+                                                            <span style={{ fontSize: '12px', color: '#52c41a' }}>
+                                                                {appliedVoucher.ten_voucher}
+                                                            </span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
+                                                                -{formatCurrency(voucherDiscount)}
+                                                            </span>
+                                                            <Button
+                                                                type="text"
+                                                                size="small"
+                                                                danger
+                                                                icon={<CloseOutlined />}
+                                                                onClick={() => {
+                                                                    setAppliedVoucher(null);
+                                                                    setVoucherDiscount(0);
+                                                                    message.info('Đã hủy voucher');
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
 
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <span>Dùng điểm ({order.customer?.points ?? 0}):</span>
@@ -1747,8 +2165,20 @@ const SpaPOSScreen: React.FC = () => {
                 </Col>
             </Row>
 
+            {/* Payment Modal - Redesigned */}
             <Modal
-                title="Xác nhận thanh toán"
+                title={
+                    <div style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        margin: '-20px -24px 20px',
+                        padding: '20px 24px',
+                        color: 'white',
+                        borderRadius: '8px 8px 0 0'
+                    }}>
+                        <DollarOutlined style={{ fontSize: '20px', marginRight: '8px' }} />
+                        <span style={{ fontSize: '18px', fontWeight: 600 }}>Xác nhận thanh toán</span>
+                    </div>
+                }
                 visible={paymentModalVisible}
                 onOk={handleConfirmPayment}
                 onCancel={() => {
@@ -1765,144 +2195,246 @@ const SpaPOSScreen: React.FC = () => {
                     setDebtAmount(0);
                     setDebtDueDate(null);
                 }}
-                width={700}
+                width={750}
                 okText="Xác nhận thanh toán"
                 cancelText="Hủy"
                 confirmLoading={loading}
+                okButtonProps={{
+                    size: 'large',
+                    style: { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none', height: '45px', fontSize: '16px' }
+                }}
+                cancelButtonProps={{
+                    size: 'large',
+                    style: { height: '45px', fontSize: '16px' }
+                }}
             >
                 <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    <Statistic
-                        title="Tổng tiền thanh toán"
-                        value={calculateTotal()}
-                        valueStyle={{ color: '#3f8600', fontSize: 28 }}
-                        formatter={(value) => formatCurrency(Number(value))}
-                    />
-
-                    <Divider>Chọn hình thức thanh toán</Divider>
-
-                    {/* Wallet Payment */}
-                    {selectedCustomer && customerWallet && (
-                        <Card size="small" style={{ background: '#f0f5ff' }}>
-                            <Space direction="vertical" style={{ width: '100%' }} size="small">
-                                <Checkbox
-                                    checked={useWallet}
-                                    onChange={(e) => setUseWallet(e.target.checked)}
-                                >
-                                    <span>
-                                        <DollarOutlined style={{ marginRight: 4 }} />
-                                        Thanh toán từ ví
-                                    </span>
-                                    <span style={{ fontSize: '13px', color: '#888', marginLeft: 8 }}>
-                                        (Số dư: {formatCurrency(customerWallet.so_du)})
-                                    </span>
-                                </Checkbox>
-                                {useWallet && (
-                                    <>
-                                        <InputNumber
-                                            style={{ width: '100%' }}
-                                            value={walletAmount}
-                                            onChange={(value) => setWalletAmount(value || 0)}
-                                            max={Math.min(calculateTotal(), customerWallet.so_du)}
-                                            min={0}
-                                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                            addonBefore="₫"
-                                        />
-                                        <Button
-                                            size="small"
-                                            type="link"
-                                            onClick={() => setWalletAmount(Math.min(calculateTotal(), customerWallet.so_du))}
-                                            style={{ padding: 0 }}
-                                        >
-                                            Dùng hết ví
-                                        </Button>
-                                    </>
-                                )}
-                            </Space>
-                        </Card>
-                    )}
-
-                    {/* Cash Payment */}
-                    <div>
-                        <Checkbox
-                            checked={useCash}
-                            onChange={(e) => setUseCash(e.target.checked)}
-                            style={{ marginBottom: 8 }}
-                        >
-                            Tiền mặt
-                        </Checkbox>
-                        {useCash && (
-                            <InputNumber
-                                style={{ width: '100%' }}
-                                value={cashAmount}
-                                onChange={(value) => setCashAmount(value || 0)}
-                                min={0}
-                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                addonBefore="₫"
-                            />
-                        )}
-                    </div>
-
-                    {/* Transfer Payment */}
-                    <div>
-                        <Checkbox
-                            checked={useTransfer}
-                            onChange={(e) => setUseTransfer(e.target.checked)}
-                            style={{ marginBottom: 8 }}
-                        >
-                            Chuyển khoản
-                        </Checkbox>
-                        {useTransfer && (
-                            <InputNumber
-                                style={{ width: '100%' }}
-                                value={transferAmount}
-                                onChange={(value) => setTransferAmount(value || 0)}
-                                min={0}
-                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                addonBefore="₫"
-                            />
-                        )}
-                    </div>
-
-                    {/* Card Payment */}
-                    <div>
-                        <Checkbox
-                            checked={useCard}
-                            onChange={(e) => setUseCard(e.target.checked)}
-                            style={{ marginBottom: 8 }}
-                        >
-                            Quẹt thẻ
-                        </Checkbox>
-                        {useCard && (
-                            <InputNumber
-                                style={{ width: '100%' }}
-                                value={cardAmount}
-                                onChange={(value) => setCardAmount(value || 0)}
-                                min={0}
-                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                addonBefore="₫"
-                            />
-                        )}
-                    </div>
-
-                    <Divider />
-
-                    {/* Total Paid Summary */}
-                    <Card size="small">
-                        <Space direction="vertical" style={{ width: '100%' }} size={4}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Tổng đã thanh toán:</span>
-                                <strong style={{ fontSize: '16px', color: walletAmount + cashAmount + transferAmount + cardAmount >= calculateTotal() ? '#52c41a' : '#ff4d4f' }}>
-                                    {formatCurrency(walletAmount + cashAmount + transferAmount + cardAmount)}
-                                </strong>
+                    {/* Total Amount Card */}
+                    <Card
+                        style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            border: 'none',
+                            borderRadius: '12px'
+                        }}
+                        bodyStyle={{ padding: '24px' }}
+                    >
+                        <div style={{ textAlign: 'center', color: 'white' }}>
+                            <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+                                Tổng tiền thanh toán
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#888' }}>
-                                <span>Còn thiếu:</span>
-                                <span style={{ color: calculateTotal() - (walletAmount + cashAmount + transferAmount + cardAmount) > 0 ? '#ff4d4f' : '#52c41a' }}>
-                                    {formatCurrency(Math.max(0, calculateTotal() - (walletAmount + cashAmount + transferAmount + cardAmount)))}
+                            <div style={{ fontSize: '36px', fontWeight: 'bold', letterSpacing: '1px' }}>
+                                {formatCurrency(calculateTotal())}
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Payment Methods */}
+                    <div style={{ background: '#fafafa', padding: '16px', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: '#333' }}>
+                            💳 Chọn hình thức thanh toán
+                        </div>
+
+                        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                            {/* Wallet Payment */}
+                            {selectedCustomer && customerWallet && (
+                                <Card
+                                    size="small"
+                                    style={{
+                                        background: useWallet ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : 'white',
+                                        border: useWallet ? 'none' : '1px solid #d9d9d9',
+                                        borderRadius: '8px',
+                                        transition: 'all 0.3s'
+                                    }}
+                                    bodyStyle={{ padding: '16px' }}
+                                >
+                                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                        <Checkbox
+                                            checked={useWallet}
+                                            onChange={(e) => setUseWallet(e.target.checked)}
+                                            style={{ color: useWallet ? 'white' : 'inherit' }}
+                                        >
+                                            <span style={{ fontSize: '15px', fontWeight: 500, color: useWallet ? 'white' : '#333' }}>
+                                                💰 Thanh toán từ ví
+                                            </span>
+                                            <Tag color={useWallet ? 'white' : 'blue'} style={{ marginLeft: 8, color: useWallet ? '#667eea' : undefined }}>
+                                                Số dư: {formatCurrency(customerWallet.so_du)}
+                                            </Tag>
+                                        </Checkbox>
+                                        {useWallet && (
+                                            <div style={{ paddingLeft: '24px' }}>
+                                                <InputNumber
+                                                    style={{ width: '100%' }}
+                                                    size="large"
+                                                    value={walletAmount}
+                                                    onChange={(value) => setWalletAmount(value || 0)}
+                                                    max={Math.min(calculateTotal(), customerWallet.so_du)}
+                                                    min={0}
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                                    addonBefore={<span style={{ color: 'white' }}>₫</span>}
+                                                />
+                                                <Button
+                                                    size="small"
+                                                    type="link"
+                                                    onClick={() => setWalletAmount(Math.min(calculateTotal(), customerWallet.so_du))}
+                                                    style={{ padding: '4px 0', color: 'white', textDecoration: 'underline' }}
+                                                >
+                                                    Dùng hết ví
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </Space>
+                                </Card>
+                            )}
+
+                            {/* Cash Payment */}
+                            <Card
+                                size="small"
+                                style={{
+                                    background: useCash ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' : 'white',
+                                    border: useCash ? 'none' : '1px solid #d9d9d9',
+                                    borderRadius: '8px',
+                                    transition: 'all 0.3s'
+                                }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                    <Checkbox
+                                        checked={useCash}
+                                        onChange={(e) => setUseCash(e.target.checked)}
+                                        style={{ color: useCash ? 'white' : 'inherit' }}
+                                    >
+                                        <span style={{ fontSize: '15px', fontWeight: 500, color: useCash ? 'white' : '#333' }}>
+                                            💵 Tiền mặt
+                                        </span>
+                                    </Checkbox>
+                                    {useCash && (
+                                        <div style={{ paddingLeft: '24px' }}>
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                size="large"
+                                                value={cashAmount}
+                                                onChange={(value) => setCashAmount(value || 0)}
+                                                min={0}
+                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                                addonBefore={<span style={{ color: 'white' }}>₫</span>}
+                                            />
+                                        </div>
+                                    )}
+                                </Space>
+                            </Card>
+
+                            {/* Transfer Payment */}
+                            <Card
+                                size="small"
+                                style={{
+                                    background: useTransfer ? 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' : 'white',
+                                    border: useTransfer ? 'none' : '1px solid #d9d9d9',
+                                    borderRadius: '8px',
+                                    transition: 'all 0.3s'
+                                }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                    <Checkbox
+                                        checked={useTransfer}
+                                        onChange={(e) => setUseTransfer(e.target.checked)}
+                                        style={{ color: useTransfer ? 'white' : 'inherit' }}
+                                    >
+                                        <span style={{ fontSize: '15px', fontWeight: 500, color: useTransfer ? 'white' : '#333' }}>
+                                            🏦 Chuyển khoản
+                                        </span>
+                                    </Checkbox>
+                                    {useTransfer && (
+                                        <div style={{ paddingLeft: '24px' }}>
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                size="large"
+                                                value={transferAmount}
+                                                onChange={(value) => setTransferAmount(value || 0)}
+                                                min={0}
+                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                                addonBefore={<span style={{ color: 'white' }}>₫</span>}
+                                            />
+                                        </div>
+                                    )}
+                                </Space>
+                            </Card>
+
+                            {/* Card Payment */}
+                            <Card
+                                size="small"
+                                style={{
+                                    background: useCard ? 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' : 'white',
+                                    border: useCard ? 'none' : '1px solid #d9d9d9',
+                                    borderRadius: '8px',
+                                    transition: 'all 0.3s'
+                                }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                    <Checkbox
+                                        checked={useCard}
+                                        onChange={(e) => setUseCard(e.target.checked)}
+                                        style={{ color: useCard ? '#333' : 'inherit' }}
+                                    >
+                                        <span style={{ fontSize: '15px', fontWeight: 500, color: useCard ? '#333' : '#333' }}>
+                                            💳 Quẹt thẻ
+                                        </span>
+                                    </Checkbox>
+                                    {useCard && (
+                                        <div style={{ paddingLeft: '24px' }}>
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                size="large"
+                                                value={cardAmount}
+                                                onChange={(value) => setCardAmount(value || 0)}
+                                                min={0}
+                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                                addonBefore="₫"
+                                            />
+                                        </div>
+                                    )}
+                                </Space>
+                            </Card>
+                        </Space>
+                    </div>
+
+                    {/* Payment Summary */}
+                    <Card
+                        style={{
+                            background: walletAmount + cashAmount + transferAmount + cardAmount >= calculateTotal()
+                                ? 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)'
+                                : 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                            border: 'none',
+                            borderRadius: '12px'
+                        }}
+                        bodyStyle={{ padding: '20px' }}
+                    >
+                        <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '15px', fontWeight: 500 }}>📊 Tổng đã thanh toán:</span>
+                                <span style={{
+                                    fontSize: '22px',
+                                    fontWeight: 'bold',
+                                    color: walletAmount + cashAmount + transferAmount + cardAmount >= calculateTotal() ? '#2d8659' : '#d84315'
+                                }}>
+                                    {formatCurrency(walletAmount + cashAmount + transferAmount + cardAmount)}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '2px dashed rgba(0,0,0,0.1)' }}>
+                                <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                                    {calculateTotal() - (walletAmount + cashAmount + transferAmount + cardAmount) > 0 ? '⚠️ Còn thiếu:' : '✅ Thừa:'}
+                                </span>
+                                <span style={{
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    color: calculateTotal() - (walletAmount + cashAmount + transferAmount + cardAmount) > 0 ? '#d84315' : '#2d8659'
+                                }}>
+                                    {formatCurrency(Math.abs(calculateTotal() - (walletAmount + cashAmount + transferAmount + cardAmount)))}
                                 </span>
                             </div>
                         </Space>
@@ -1912,23 +2444,36 @@ const SpaPOSScreen: React.FC = () => {
                     {showDebtForm && (
                         <>
                             <Alert
-                                message="Thanh toán thiếu - Ghi công nợ"
+                                message={
+                                    <div style={{ fontSize: '15px', fontWeight: 600 }}>
+                                        ⚠️ Thanh toán thiếu - Ghi công nợ
+                                    </div>
+                                }
                                 description={
-                                    <div>
-                                        <p>Số tiền công nợ: <strong style={{ color: '#ff4d4f' }}>{formatCurrency(debtAmount)}</strong></p>
-                                        <p style={{ fontSize: '12px', color: '#666', marginBottom: 0 }}>
-                                            Hệ thống sẽ tự động lưu công nợ cho khách hàng này
-                                        </p>
+                                    <div style={{ marginTop: '8px' }}>
+                                        <div style={{ fontSize: '16px', marginBottom: '8px' }}>
+                                            Số tiền công nợ: <strong style={{ color: '#ff4d4f', fontSize: '18px' }}>{formatCurrency(debtAmount)}</strong>
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#666' }}>
+                                            💡 Hệ thống sẽ tự động lưu công nợ cho khách hàng này
+                                        </div>
                                     </div>
                                 }
                                 type="warning"
-                                showIcon
-                                icon={<ExclamationCircleOutlined />}
+                                showIcon={false}
+                                style={{
+                                    background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
+                                    border: '2px solid #ff9800',
+                                    borderRadius: '8px'
+                                }}
                             />
                             <div>
-                                <div style={{ marginBottom: 8 }}>Thời hạn thanh toán công nợ: <span style={{ color: 'red' }}>*</span></div>
+                                <div style={{ marginBottom: 8, fontSize: '15px', fontWeight: 500 }}>
+                                    📅 Thời hạn thanh toán công nợ: <span style={{ color: 'red' }}>*</span>
+                                </div>
                                 <DatePicker
                                     style={{ width: '100%' }}
+                                    size="large"
                                     value={debtDueDate}
                                     onChange={(date) => setDebtDueDate(date)}
                                     placeholder="Chọn ngày hạn thanh toán"
@@ -1943,7 +2488,7 @@ const SpaPOSScreen: React.FC = () => {
 
             {/* Promo Code Modal */}
             <Modal
-                title="Nhập mã thẻ tặng"
+                title="Nhập mã Voucher / Thẻ tặng"
                 visible={promoCodeModalVisible}
                 onOk={handleApplyPromoCode}
                 onCancel={() => {
@@ -1956,18 +2501,27 @@ const SpaPOSScreen: React.FC = () => {
                 <Form form={promoCodeForm} layout="vertical">
                     <Form.Item
                         name="promo_code"
-                        label="Mã thẻ tặng"
-                        rules={[{ required: true, message: 'Vui lòng nhập mã thẻ' }]}
+                        label="Mã Voucher hoặc Thẻ tặng"
+                        rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
                     >
                         <Input
-                            placeholder="VD: NEWCUSTOMER, SALE50"
+                            placeholder="VD: VOUCHER0001, NEWCUSTOMER, SALE50"
                             autoFocus
                             style={{ textTransform: 'uppercase' }}
                         />
                     </Form.Item>
-                    <div style={{ fontSize: '13px', color: '#888' }}>
-                        Nhập mã thẻ tặng để nạp tiền vào ví khách hàng
-                    </div>
+                    <Alert
+                        message="Hỗ trợ 2 loại mã"
+                        description={
+                            <div>
+                                <div>• <strong>Voucher:</strong> Giảm giá trực tiếp trên hóa đơn</div>
+                                <div>• <strong>Thẻ tặng:</strong> Nạp tiền vào ví khách hàng</div>
+                            </div>
+                        }
+                        type="info"
+                        showIcon
+                        style={{ fontSize: '12px' }}
+                    />
                 </Form>
             </Modal>
 
@@ -2113,6 +2667,139 @@ const SpaPOSScreen: React.FC = () => {
                             </Row>
                         </Card>
                     </Space>
+                )}
+            </Modal>
+
+            {/* Package Service Selection Modal */}
+            <Modal
+                title={
+                    <div>
+                        <GiftOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                        Chọn dịch vụ từ gói: {selectedPackageForService?.ten_goi}
+                    </div>
+                }
+                open={packageServiceModalVisible}
+                onCancel={() => {
+                    setPackageServiceModalVisible(false);
+                    setSelectedPackageForService(null);
+                }}
+                footer={null}
+                width={600}
+            >
+                {selectedPackageForService && (
+                    <div>
+                        {(() => {
+                            const packageUsageInCart = cart.filter(item =>
+                                item.su_dung_goi === selectedPackageForService.id
+                            ).length;
+                            const remainingUses = selectedPackageForService.so_luong_con_lai - packageUsageInCart;
+
+                            return (
+                                <>
+                                    <div style={{ marginBottom: 16, padding: 12, background: '#f6ffed', borderRadius: 4, border: '1px solid #b7eb8f' }}>
+                                        <div style={{ fontSize: '13px', color: '#52c41a', fontWeight: 'bold', marginBottom: 4 }}>
+                                            Thông tin gói
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#666' }}>
+                                            Còn lại: <strong style={{ color: '#52c41a' }}>{selectedPackageForService.so_luong_con_lai}/{selectedPackageForService.so_luong_tong}</strong> lần
+                                        </div>
+                                        {packageUsageInCart > 0 && (
+                                            <div style={{ fontSize: '12px', color: '#ff4d4f', fontWeight: 'bold', marginTop: 4 }}>
+                                                ⚠️ Đang chọn: {packageUsageInCart} dịch vụ từ gói này trong giỏ hàng
+                                            </div>
+                                        )}
+                                        {remainingUses <= 0 && (
+                                            <div style={{ fontSize: '12px', color: '#ff4d4f', fontWeight: 'bold', marginTop: 4 }}>
+                                                ✗ Đã hết lượt sử dụng trong giỏ hàng hiện tại
+                                            </div>
+                                        )}
+                                        {selectedPackageForService.ngay_het_han && (
+                                            <div style={{ fontSize: '12px', color: '#666', marginTop: 4 }}>
+                                                Hạn sử dụng: <strong>{new Date(selectedPackageForService.ngay_het_han).toLocaleDateString('vi-VN')}</strong>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div style={{ marginBottom: 8, fontSize: '13px', fontWeight: 'bold' }}>
+                                        Chọn dịch vụ để thêm vào giỏ hàng:
+                                        {remainingUses > 0 && (
+                                            <span style={{ color: '#52c41a', marginLeft: 8, fontSize: '12px' }}>
+                                                (Còn {remainingUses} lần)
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            );
+                        })()}
+
+                        {selectedPackageForService.dich_vu_list && selectedPackageForService.dich_vu_list.length > 0 ? (
+                            <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                                {selectedPackageForService.dich_vu_list.map((dv: any) => {
+                                    // Count how many times this package has been used in current cart
+                                    const packageUsageInCart = cart.filter(item =>
+                                        item.su_dung_goi === selectedPackageForService.id
+                                    ).length;
+
+                                    // Check if package has remaining uses
+                                    const canUsePackage = packageUsageInCart < selectedPackageForService.so_luong_con_lai;
+
+                                    return (
+                                        <Card
+                                            key={dv.id}
+                                            hoverable={canUsePackage}
+                                            size="small"
+                                            style={{
+                                                marginBottom: 8,
+                                                cursor: canUsePackage ? 'pointer' : 'not-allowed',
+                                                opacity: canUsePackage ? 1 : 0.5
+                                            }}
+                                            onClick={() => {
+                                                if (!canUsePackage) {
+                                                    message.warning(`Gói chỉ còn ${selectedPackageForService.so_luong_con_lai} lần sử dụng. Bạn đã thêm ${packageUsageInCart} dịch vụ từ gói này vào giỏ hàng.`);
+                                                    return;
+                                                }
+
+                                                // Add service to cart with package usage
+                                                const newItem: CartItem = {
+                                                    key: `service-${dv.id}-${Date.now()}`,
+                                                    type: 'service',
+                                                    id: dv.id,
+                                                    name: dv.ten_dich_vu || 'Unknown',
+                                                    price: 0, // Free when using from package
+                                                    quantity: 1,
+                                                    su_dung_goi: selectedPackageForService.id,
+                                                    customer_package_name: selectedPackageForService.ten_goi
+                                                };
+                                                setCart([...cart, newItem]);
+                                                message.success(`Đã thêm "${dv.ten_dich_vu}" sử dụng từ gói "${selectedPackageForService.ten_goi}"`);
+
+                                                // Auto close if reached limit
+                                                if (packageUsageInCart + 1 >= selectedPackageForService.so_luong_con_lai) {
+                                                    message.info(`Đã sử dụng hết ${selectedPackageForService.so_luong_con_lai} lần của gói`);
+                                                    setPackageServiceModalVisible(false);
+                                                    setSelectedPackageForService(null);
+                                                }
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{dv.ten_dich_vu}</div>
+                                                    <div style={{ fontSize: '12px', color: canUsePackage ? '#52c41a' : '#999' }}>
+                                                        {canUsePackage ? '✓ Miễn phí (sử dụng từ gói)' : '✗ Gói đã hết lượt'}
+                                                    </div>
+                                                </div>
+                                                <div style={{ fontSize: '12px', color: '#999', textDecoration: 'line-through' }}>
+                                                    {new Intl.NumberFormat('vi-VN').format(dv.gia_ban)} đ
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <Empty description="Không có dịch vụ trong gói" />
+                        )}
+                    </div>
                 )}
             </Modal>
         </div>

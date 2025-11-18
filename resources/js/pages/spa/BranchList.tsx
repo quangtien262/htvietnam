@@ -12,6 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API from '@/common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -68,11 +69,12 @@ const BranchList: React.FC = () => {
     const loadBranches = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/branches/list', {
+            const params = {
                 page: pagination.current,
                 limit: pagination.pageSize,
                 search: searchText,
-            });
+            };
+            const response = await axios.get(API.spaBranchList, { params });
 
             if (response.data.success) {
                 const data = response.data.data;
@@ -119,13 +121,19 @@ const BranchList: React.FC = () => {
         try {
             const values = await form.validateFields();
             const payload = {
-                id: selectedBranch?.id,
                 ...values,
                 gio_mo_cua: values.gio_mo_cua.format('HH:mm'),
                 gio_dong_cua: values.gio_dong_cua.format('HH:mm'),
             };
 
-            const response = await axios.post('/aio/api/admin/spa/branches/create-or-update', payload);
+            let response;
+            if (selectedBranch?.id) {
+                // Update
+                response = await axios.put(API.spaBranchUpdate(selectedBranch.id), payload);
+            } else {
+                // Create
+                response = await axios.post(API.spaBranchCreate, payload);
+            }
 
             if (response.data.success) {
                 message.success(selectedBranch ? 'Cập nhật chi nhánh thành công' : 'Tạo chi nhánh mới thành công');
@@ -139,7 +147,7 @@ const BranchList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/branches/delete', { id });
+            const response = await axios.delete(API.spaBranchDelete(id));
             if (response.data.success) {
                 message.success('Xóa chi nhánh thành công');
                 loadBranches();
@@ -151,9 +159,8 @@ const BranchList: React.FC = () => {
 
     const handleStatusToggle = async (record: Branch) => {
         try {
-            const newStatus = record.trang_thai === 'hoat_dong' ? 'tam_ngung' : 'hoat_dong';
-            const response = await axios.post('/aio/api/admin/spa/branches/create-or-update', {
-                id: record.id,
+            const newStatus = record.trang_thai === 'active' ? 'inactive' : 'active';
+            const response = await axios.put(API.spaBranchUpdate(record.id), {
                 trang_thai: newStatus,
             });
 
@@ -178,8 +185,8 @@ const BranchList: React.FC = () => {
                     <div style={{ fontWeight: 500, marginBottom: 4 }}>
                         <ShopOutlined /> {text}
                     </div>
-                    <Tag color={record.trang_thai === 'hoat_dong' ? 'green' : 'red'}>
-                        {record.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Tạm ngừng'}
+                    <Tag color={record.trang_thai === 'active' ? 'green' : 'red'}>
+                        {record.trang_thai === 'active' ? 'Hoạt động' : 'Tạm ngừng'}
                     </Tag>
                 </div>
             ),
@@ -254,7 +261,7 @@ const BranchList: React.FC = () => {
             render: (value: number) => (
                 <div>
                     <div style={{ fontWeight: 500, color: '#f5222d', fontSize: 14 }}>
-                        {value.toLocaleString()}
+                        {(value || 0).toLocaleString()}
                     </div>
                     <div style={{ fontSize: 12, color: '#666' }}>VNĐ</div>
                 </div>
@@ -267,7 +274,7 @@ const BranchList: React.FC = () => {
             align: 'center',
             render: (_, record) => (
                 <Switch
-                    checked={record.trang_thai === 'hoat_dong'}
+                    checked={record.trang_thai === 'active'}
                     onChange={() => handleStatusToggle(record)}
                 />
             ),
@@ -492,11 +499,11 @@ const BranchList: React.FC = () => {
                             <Form.Item
                                 name="trang_thai"
                                 label="Trạng thái"
-                                initialValue="hoat_dong"
+                                initialValue="active"
                             >
                                 <Select>
-                                    <Option value="hoat_dong">Hoạt động</Option>
-                                    <Option value="tam_ngung">Tạm ngừng</Option>
+                                    <Option value="active">Hoạt động</Option>
+                                    <Option value="inactive">Tạm ngừng</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -534,8 +541,8 @@ const BranchList: React.FC = () => {
                                 <ClockCircleOutlined /> {selectedBranch.gio_mo_cua} - {selectedBranch.gio_dong_cua}
                             </Descriptions.Item>
                             <Descriptions.Item label="Trạng thái">
-                                <Tag color={selectedBranch.trang_thai === 'hoat_dong' ? 'green' : 'red'}>
-                                    {selectedBranch.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Tạm ngừng'}
+                                <Tag color={selectedBranch.trang_thai === 'active' ? 'green' : 'red'}>
+                                    {selectedBranch.trang_thai === 'active' ? 'Hoạt động' : 'Tạm ngừng'}
                                 </Tag>
                             </Descriptions.Item>
                         </Descriptions>
