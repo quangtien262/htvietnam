@@ -21,8 +21,42 @@ class AdminUser extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'username',
+        'name', 'email', 'password', 'username', 'code',
+        'phone', 'cmnd', 'ngay_cap', 'noi_cap', 'birthday',
+        'gioi_tinh_id', 'address', 'description', 'image',
+        'chi_nhanh_id', 'admin_user_status_id', 'chuc_vu_id',
+        'ngay_vao_lam', 'permission_group_id', 'tinh_trang_hon_nhan_id',
+        'nguoi_phu_thuoc', 'ngan_hang', 'chi_nhanh_ngan_hang', 'so_tai_khoan',
+        'is_recycle_bin', 'da_nghi_lam',
+        'salary', 'loai_luong', 'thuong_setting', 'hoa_hong_setting',
+        'phu_cap_setting', 'giam_tru_setting',
     ];
+
+    // Relationships
+    public function chiNhanh()
+    {
+        return $this->belongsTo(\App\Models\Admin\ChiNhanh::class, 'chi_nhanh_id');
+    }
+
+    public function chucVu()
+    {
+        return $this->belongsTo(\App\Models\Admin\ChucVu::class, 'chuc_vu_id');
+    }
+
+    public function adminUserStatus()
+    {
+        return $this->belongsTo(\App\Models\Admin\AdminUserStatus::class, 'admin_user_status_id');
+    }
+
+    public function permissionGroup()
+    {
+        return $this->belongsTo(\App\Models\Admin\PermissionGroup::class, 'permission_group_id');
+    }
+
+    public function gioiTinh()
+    {
+        return $this->belongsTo(\App\Models\Admin\GioiTinh::class, 'gioi_tinh_id');
+    }
 
     /**
      * The attributes that should be hidden for arrays.
@@ -56,7 +90,7 @@ class AdminUser extends Authenticatable
         ->leftJoin('gioi_tinh', 'gioi_tinh.id', 'admin_users.gioi_tinh_id')
         ->leftJoin('chi_nhanh', 'chi_nhanh.id', 'admin_users.chi_nhanh_id')
         ->leftJoin('permission_group', 'permission_group.id', 'admin_users.permission_group_id');
-        
+
         // keyword
         if(!empty($rq['keyword']) ) {
             $searchData['keyword'] = $rq['keyword'];
@@ -68,7 +102,7 @@ class AdminUser extends Authenticatable
                 $query->orWhere('admin_users.username', 'like', '%' . $rq['keyword'] . '%');
             });
         }
-        
+
         //gioi_tinh_id
         if(!empty($rq->gioi_tinh_id)) {
             $users = $users->where('gioi_tinh_id', $rq->gioi_tinh_id);
@@ -91,7 +125,7 @@ class AdminUser extends Authenticatable
             $users = $users->where('admin_user_status_id', 1);
         }
 
-        
+
 
         $users = $users->paginate(20);
 

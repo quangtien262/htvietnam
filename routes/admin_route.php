@@ -295,3 +295,12 @@ Route::post('/documents/comments/delete/{id}', [BinhLuanController::class, 'dest
 Route::post('/documents/comments/toggle-resolve/{id}', [BinhLuanController::class, 'toggleResolve']);
 Route::get('/documents/comments/unresolved-count', [BinhLuanController::class, 'unresolvedCount']);
 
+// Admin Users Management
+// Admin Users CRUD
+Route::post('/api/setting/admin_users/list', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersList'])->name('api.admin_users.list');
+Route::get('/api/setting/admin_users/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUserDetail'])->name('api.admin_users.detail');
+Route::post('/api/setting/admin_users/create', [\App\Http\Controllers\Admin\AdminController::class, 'createAdminUser'])->name('api.admin_users.create');
+Route::post('/api/setting/admin_users/update/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'updateAdminUser'])->name('api.admin_users.update');
+Route::post('/api/setting/admin_users/delete', [\App\Http\Controllers\Admin\AdminController::class, 'deleteAdminUsers'])->name('api.admin_users.delete');
+Route::post('/api/setting/admin_users/select-options', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersSelectOptions'])->name('api.admin_users.select_options');
+

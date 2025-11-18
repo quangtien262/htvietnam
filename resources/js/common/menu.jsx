@@ -398,7 +398,7 @@ export const MENU = {
             icon: <FileTextOutlined />,
         },
         {
-            label: <Link to={`${ROUTE.baseRoute}setting/admin_users?p=hr`}>Nhân viên</Link>,
+            label: <Link to={`${ROUTE.spa_admin_users}?p=hr`}>Nhân viên</Link>,
             key: (key++).toString(),
             icon: <TeamOutlined />,
         },

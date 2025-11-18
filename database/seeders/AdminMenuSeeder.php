@@ -25,7 +25,7 @@ class AdminMenuSeeder extends Seeder
         $aitilen = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_aitilen',
-                'display_name' => 'BĐS AITILEN',
+                'note' => 'BĐS AITILEN',
                 'icon' => 'ShopFilled',
                 'color' => 1,
                 'sort_order' => $order++

@@ -33,10 +33,10 @@ const Dashboard: React.FC = () => {
     }, []);
 
     function showDataDashboard(item: any) {
-
-        if(item.color !== 1) {
-            return null;
-        }
+        console.log('item', item);
+        // if(item.color !== 1) {
+        //     return null;
+        // }
 
         if (item.name === 'parent_website') {
 
@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.newsManagement}?p=web`}>
-                                <DribbbleSquareOutlined /> {item.display_name}
+                                <DribbbleSquareOutlined /> {item.note}
                             </Link>
                         </div>
 
@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
-                                <HomeOutlined /> BĐS AITILEN
+                                <HomeOutlined /> {item.note}
                             </Link>
                         </div>
 
@@ -108,7 +108,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.documentsExplorer}?p=docs`}>
-                                <CopyOutlined /> QUẢN LÝ TÀI LIỆU
+                                <CopyOutlined /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content">
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.hrBaoCao}?p=hr`}>
-                                <IdcardFilled /> QUẢN LÝ NHÂN SỰ
+                                <IdcardFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -170,7 +170,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to="/">
-                                <SlidersFilled /> QUẢN LÝ HÀNG HÓA & DỊCH VỤ
+                                <SlidersFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content">
@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to="/">
-                                <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
+                                <PieChartFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.project_dashboard}?p=projects`}>
-                                <CalendarFilled /> DỰ ÁN & CÔNG VIỆC
+                                <CalendarFilled /> {item.note}
                             </Link>
                             {/* <Link to={`${ROUTE.dashboardProject}?p=pro`}>
                                 <CalendarFilled /> DỰ ÁN & CÔNG VIỆC
@@ -298,7 +298,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.erpDashboard}?p=erp`}>
-                                <AccountBookOutlined /> QUẢN LÝ TÀI CHÍNH
+                                <AccountBookOutlined /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -330,7 +330,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.salesBaoCao}?p=sales`}>
-                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
+                                <ShopFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -361,7 +361,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>
-                                <ShopFilled /> TELESALE
+                                <ShopFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -393,7 +393,7 @@ const Dashboard: React.FC = () => {
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.businessCoHoi}?p=business`}>
-                                <ShopFilled /> QUẢN LÝ KINH DOANH
+                                <ShopFilled /> {item.note}
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >

@@ -19,6 +19,8 @@ class CommonSettingController extends Controller
      * Danh sách các bảng settings được phép quản lý
      */
     private static $allowedTables = [
+        'admin_menu',
+
         'so_quy_type',
         'so_quy_status',
         'loai_thu',

@@ -138,6 +138,7 @@ import InventoryList from './pages/spa/InventoryList';
 import GiftCardManagement from './pages/spa/GiftCardManagement';
 import WalletReportPage from './pages/spa/WalletReportPage';
 import ShiftManagement from './pages/spa/ShiftManagement';
+import AdminUsersList from './pages/spa/AdminUsersList';
 
 // SPA Multi-Warehouse Management
 import BranchInventoryView from './pages/spa/inventory/BranchInventoryView';
@@ -297,6 +298,7 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_gift_cards} element={<GiftCardManagement />} />
                 <Route path={ROUTE.spa_wallet_reports} element={<WalletReportPage />} />
                 <Route path={ROUTE.spa_shifts} element={<ShiftManagement />} />
+                <Route path={ROUTE.spa_admin_users} element={<AdminUsersList />} />
 
                 {/* SPA Multi-Warehouse Management */}
                 <Route path={ROUTE.spa_branch_inventory} element={<BranchInventoryView />} />

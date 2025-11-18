@@ -139,6 +139,7 @@ export const ROUTE = {
     spa_inventory: `${baseRoute}spa/inventory/`,
     spa_staff: `${baseRoute}spa/staff/`,
     spa_staff_schedule: `${baseRoute}spa/staff/:id/schedule/`,
+    spa_admin_users: `${baseRoute}spa/admin-users/`,
     spa_vouchers: `${baseRoute}spa/vouchers/`,
     spa_campaigns: `${baseRoute}spa/campaigns/`,
     spa_analytics: `${baseRoute}spa/analytics/`,
