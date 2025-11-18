@@ -3,6 +3,7 @@ import { Card, Table, Button, Modal, Form, Input, Select, DatePicker, InputNumbe
 import { PlusOutlined, CheckOutlined, EyeOutlined, WarningOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../../common/api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,8 +12,8 @@ interface InventoryCount {
     id: number;
     ma_phieu: string;
     chi_nhanh_id: number;
-    loai_kiem_ke: string;
-    ngay_kiem_ke: string;
+    loai_kiem_kho: string;
+    ngay_kiem: string;
     trang_thai: string;
     ghi_chu?: string;
     chi_nhanh?: any;
@@ -39,10 +40,13 @@ const InventoryCountList: React.FC = () => {
     const loadCounts = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/spa/kiem-kho');
-            setCounts(response.data.data || response.data);
+            const response = await axios.get(API.kiemKhoList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setCounts(data);
         } catch (error) {
-            message.error('Không thể tải danh sách phiếu kiểm kê');
+            console.error('Không thể tải danh sách kiểm kê', error);
+            message.error('Không thể tải danh sách kiểm kê');
+            setCounts([]);
         } finally {
             setLoading(false);
         }
@@ -50,25 +54,46 @@ const InventoryCountList: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh/branches');
-            setBranches(response.data);
+            const response = await axios.get(API.spaBranchList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setBranches(data.filter((b: any) => b.is_active));
         } catch (error) {
-            console.error('Không thể tải chi nhánh');
+            console.error('Không thể tải chi nhánh', error);
+            message.error('Không thể tải danh sách chi nhánh');
+            setBranches([]);
         }
     };
 
     const loadProducts = async (branchId: number) => {
         try {
-            const response = await axios.get(`/spa/kiem-kho/branch/${branchId}/products`);
-            setProducts(response.data);
+            const response = await axios.get(API.tonKhoChiNhanhByBranch(branchId));
+            console.log('API response:', response.data);
+            // API returns { data: [], statistics: {} }
+            const tonKhoList = response.data?.data || [];
+            console.log('TonKho list:', tonKhoList);
+
+            // Map TonKhoChiNhanh to product format expected by form
+            const mappedProducts = tonKhoList.map((tk: any) => ({
+                id: tk.san_pham_id,
+                san_pham_id: tk.san_pham_id,
+                ten_san_pham: tk.san_pham?.ten_san_pham || tk.ten_san_pham,
+                ma_san_pham: tk.san_pham?.ma_san_pham || tk.ma_san_pham,
+                ton_kho: tk.so_luong_ton,
+                so_luong_ton: tk.so_luong_ton,
+                don_vi_tinh: tk.san_pham?.don_vi_tinh,
+            }));
+            console.log('Mapped products:', mappedProducts);
+            setProducts(mappedProducts);
         } catch (error) {
-            console.error('Không thể tải sản phẩm');
+            console.error('Không thể tải sản phẩm', error);
+            message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
         }
     };
 
     const handleCreate = async (values: any) => {
         try {
-            await axios.post('/spa/kiem-kho', {
+            await axios.post(API.kiemKhoCreate, {
                 ...values,
                 ngay_kiem: values.ngay_kiem.format('YYYY-MM-DD')
             });
@@ -77,6 +102,7 @@ const InventoryCountList: React.FC = () => {
             form.resetFields();
             loadCounts();
         } catch (error: any) {
+            console.error('Lỗi tạo phiếu kiểm kê:', error);
             message.error(error.response?.data?.message || 'Tạo phiếu thất bại');
         }
     };
@@ -87,10 +113,11 @@ const InventoryCountList: React.FC = () => {
             content: 'Bạn có chắc muốn trình duyệt phiếu kiểm kê này?',
             onOk: async () => {
                 try {
-                    await axios.post(`/spa/kiem-kho/${id}/submit`);
-                    message.success('Trình duyệt thành công');
+                    await axios.post(API.kiemKhoSubmit(id));
+                    message.success('Trình duyệt phiếu thành công');
                     loadCounts();
                 } catch (error: any) {
+                    console.error('Lỗi trình duyệt phiếu:', error);
                     message.error(error.response?.data?.message || 'Trình duyệt thất bại');
                 }
             }
@@ -153,14 +180,14 @@ const InventoryCountList: React.FC = () => {
         },
         {
             title: 'Chi nhánh',
-            dataIndex: ['chi_nhanh', 'name'],
+            dataIndex: ['chi_nhanh', 'ten_chi_nhanh'],
             key: 'chi_nhanh',
             width: 150,
         },
         {
             title: 'Loại kiểm kê',
-            dataIndex: 'loai_kiem_ke',
-            key: 'loai_kiem_ke',
+            dataIndex: 'loai_kiem_kho',
+            key: 'loai_kiem_kho',
             width: 130,
             render: (type: string) => getTypeTag(type)
         },
@@ -318,7 +345,7 @@ const InventoryCountList: React.FC = () => {
                                     onChange={(value) => loadProducts(value)}
                                 >
                                     {branches.map(b => (
-                                        <Option key={b.id} value={b.id}>{b.name}</Option>
+                                        <Option key={b.id} value={b.id}>{b.ten_chi_nhanh}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
@@ -436,7 +463,7 @@ const InventoryCountList: React.FC = () => {
                 {selectedCount && (
                     <>
                         <div style={{ marginBottom: 16 }}>
-                            <p><strong>Chi nhánh:</strong> {selectedCount.chi_nhanh?.name}</p>
+                            <p><strong>Chi nhánh:</strong> {selectedCount.chi_nhanh?.ten_chi_nhanh}</p>
                             <p><strong>Loại:</strong> {getTypeTag(selectedCount.loai_kiem_kho)}</p>
                             <p><strong>Ngày kiểm:</strong> {dayjs(selectedCount.ngay_kiem).format('DD/MM/YYYY')}</p>
                             <p><strong>Trạng thái:</strong> {getStatusTag(selectedCount.trang_thai)}</p>

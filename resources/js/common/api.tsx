@@ -569,7 +569,7 @@ export const API = {
 
     // Tồn kho chi nhánh (Branch Inventory)
     tonKhoChiNhanhList: '/spa/ton-kho-chi-nhanh',
-    tonKhoChiNhanhByBranch: (branchId: number) => `/spa/ton-kho-chi-nhanh/by-branch/${branchId}`,
+    tonKhoChiNhanhByBranch: (branchId: number) => `/spa/ton-kho-chi-nhanh/branch/${branchId}`,
     tonKhoChiNhanhStatistics: '/spa/ton-kho-chi-nhanh/statistics',
     tonKhoChiNhanhBranches: '/spa/ton-kho-chi-nhanh/branches',
     tonKhoChiNhanhProducts: (branchId: number) => `/spa/ton-kho-chi-nhanh/branches/${branchId}/products`,

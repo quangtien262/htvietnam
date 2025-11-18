@@ -39,6 +39,11 @@ class NhapKho extends Model
         return $this->belongsTo(NhaCungCap::class, 'nha_cung_cap_id');
     }
 
+    public function nguoiNhap()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'nguoi_nhap_id');
+    }
+
     // Accessors
     public function getTongTienFormattedAttribute()
     {

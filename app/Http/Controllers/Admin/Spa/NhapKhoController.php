@@ -8,6 +8,7 @@ use App\Models\Spa\NhapKhoChiTiet;
 use App\Models\Spa\TonKhoChiNhanh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class NhapKhoController extends Controller
 {
@@ -67,7 +68,7 @@ class NhapKhoController extends Controller
                     'chi_nhanh_id' => $request->chi_nhanh_id,
                     'nha_cung_cap_id' => $request->nha_cung_cap_id,
                     'ngay_nhap' => $request->ngay_nhap,
-                    'nguoi_nhap_id' => auth()->id(),
+                    'nguoi_nhap_id' => Auth::check() ? Auth::id() : 1,
                     'ghi_chu' => $request->ghi_chu,
                 ]);
 
@@ -212,12 +213,40 @@ class NhapKhoController extends Controller
         ]);
 
         try {
-            $successCount = 0;
-            $chiNhanhId = $request->chi_nhanh_id ?? 1; // Default to branch 1 if not specified
+            $chiNhanhId = $request->chi_nhanh_id ?? 1;
+            $nhapKho = null;
 
-            DB::transaction(function () use ($request, $chiNhanhId, &$successCount) {
+            DB::transaction(function () use ($request, $chiNhanhId, &$nhapKho) {
+                // Generate ma_phieu
+                $maPhieu = $this->generateMaPhieu();
+
+                // Create NhapKho record
+                $nhapKho = NhapKho::create([
+                    'ma_phieu' => $maPhieu,
+                    'chi_nhanh_id' => $chiNhanhId,
+                    'nha_cung_cap_id' => $request->items[0]['nha_cung_cap_id'] ?? null,
+                    'ngay_nhap' => $request->ngay_nhap,
+                    'nguoi_nhap_id' => Auth::check() ? Auth::id() : 1,
+                    'ghi_chu' => $request->ghi_chu,
+                    'tong_tien' => 0,
+                ]);
+
+                $tongTien = 0;
+
+                // Create details and update stock for each item
                 foreach ($request->items as $item) {
-                    // Update branch stock using the same method as regular import
+                    $thanhTien = $item['so_luong'] * $item['gia_nhap'];
+
+                    // Create NhapKhoChiTiet
+                    NhapKhoChiTiet::create([
+                        'phieu_nhap_id' => $nhapKho->id,
+                        'san_pham_id' => $item['san_pham_id'],
+                        'so_luong' => $item['so_luong'],
+                        'don_gia' => $item['gia_nhap'],
+                        'thanh_tien' => $thanhTien,
+                    ]);
+
+                    // Update branch stock with AVCO
                     TonKhoChiNhanh::updateStock(
                         $chiNhanhId,
                         $item['san_pham_id'],
@@ -229,17 +258,29 @@ class NhapKhoController extends Controller
                     // Sync product total stock
                     TonKhoChiNhanh::syncWithProductTable($item['san_pham_id']);
 
-                    $successCount++;
+                    $tongTien += $thanhTien;
                 }
+
+                // Update total
+                $nhapKho->update(['tong_tien' => $tongTien]);
             });
 
-            return $this->sendSuccessResponse([
-                'count' => $successCount,
-                'message' => "Nhập kho thành công {$successCount} sản phẩm"
-            ], "Nhập kho thành công {$successCount} sản phẩm", 200);
+            $nhapKhoWithRelations = $nhapKho ? $nhapKho->load(['chiTiets.sanPham', 'chiNhanh']) : null;
+
+            return response()->json([
+                'success' => true,
+                'message' => "Nhập kho thành công " . count($request->items) . " sản phẩm",
+                'data' => [
+                    'count' => count($request->items),
+                    'phieu_nhap' => $nhapKhoWithRelations
+                ]
+            ], 200);
 
         } catch (\Exception $e) {
-            return $this->sendErrorResponse('Lỗi khi nhập kho: ' . $e->getMessage(), 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi nhập kho: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -337,59 +378,158 @@ class NhapKhoController extends Controller
     public function stockList(Request $request)
     {
         try {
-            $chiNhanhId = $request->chi_nhanh_id ?? 1; // Default branch ID = 1
+            // If chi_nhanh_id is provided, filter by that branch
+            // Otherwise, aggregate stock across all branches
+            $chiNhanhId = $request->chi_nhanh_id;
 
-            $query = TonKhoChiNhanh::with(['sanPham.danhMuc'])
-                ->where('chi_nhanh_id', $chiNhanhId);
+            if ($chiNhanhId) {
+                // Query for specific branch
+                $query = TonKhoChiNhanh::with(['sanPham.danhMuc'])
+                    ->where('chi_nhanh_id', $chiNhanhId);
+            } else {
+                // Aggregate across all branches - group by san_pham_id
+                $aggregatedStocks = TonKhoChiNhanh::selectRaw('
+                    san_pham_id,
+                    SUM(so_luong_ton) as total_ton_kho,
+                    AVG(gia_von_binh_quan) as avg_gia_von
+                ')
+                ->groupBy('san_pham_id')
+                ->get()
+                ->keyBy('san_pham_id');
+
+                // Get all products with aggregated stock
+                $query = \App\Models\Spa\SanPham::with(['danhMuc'])
+                    ->whereIn('id', $aggregatedStocks->pluck('san_pham_id'));
+            }
 
             // Filter by status
             if ($request->filled('trang_thai')) {
                 $isActive = $request->trang_thai === 'active' ? 1 : 0;
-                $query->whereHas('sanPham', function ($q) use ($isActive) {
-                    $q->where('is_active', $isActive);
-                });
+                if ($chiNhanhId) {
+                    $query->whereHas('sanPham', function ($q) use ($isActive) {
+                        $q->where('is_active', $isActive);
+                    });
+                } else {
+                    $query->where('is_active', $isActive);
+                }
             }
 
             // Search
             if ($request->filled('search')) {
                 $search = $request->search;
-                $query->whereHas('sanPham', function ($q) use ($search) {
-                    $q->where('ten_san_pham', 'like', "%{$search}%")
-                      ->orWhere('ma_san_pham', 'like', "%{$search}%");
-                });
+                if ($chiNhanhId) {
+                    $query->whereHas('sanPham', function ($q) use ($search) {
+                        $q->where('ten_san_pham', 'like', "%{$search}%")
+                          ->orWhere('ma_san_pham', 'like', "%{$search}%");
+                    });
+                } else {
+                    $query->where('ten_san_pham', 'like', "%{$search}%")
+                          ->orWhere('ma_san_pham', 'like', "%{$search}%");
+                }
             }
 
-            $stocks = $query->orderBy('san_pham_id')
-                ->paginate($request->per_page ?? 1000);
+            if ($chiNhanhId) {
+                $stocks = $query->orderBy('san_pham_id')
+                    ->paginate($request->per_page ?? 1000);
 
-            // Transform data to include product info
-            $data = $stocks->getCollection()->map(function ($stock) {
+                // Transform data to include product info
+                $data = $stocks->getCollection()->map(function ($stock) {
+                    return [
+                        'id' => $stock->sanPham->id,
+                        'ma_san_pham' => $stock->sanPham->ma_san_pham,
+                        'ten_san_pham' => $stock->sanPham->ten_san_pham,
+                        'danh_muc_id' => $stock->sanPham->danh_muc_id,
+                        'danh_muc_ten' => $stock->sanPham->danhMuc->ten_danh_muc ?? null,
+                        'don_vi_tinh' => $stock->sanPham->don_vi_tinh,
+                        'ton_kho' => $stock->so_luong_ton,
+                        'ton_kho_toi_thieu' => $stock->sanPham->ton_kho_canh_bao ?? 0,
+                        'gia_nhap' => $stock->gia_von_binh_quan,
+                        'gia_ban' => $stock->sanPham->gia_ban,
+                        'trang_thai' => $stock->sanPham->is_active == 1 ? 'active' : 'inactive',
+                    ];
+                });
+
+                return response()->json([
+                    'data' => [
+                        'data' => $data,
+                        'current_page' => $stocks->currentPage(),
+                        'total' => $stocks->total(),
+                        'per_page' => $stocks->perPage(),
+                    ]
+                ]);
+            } else {
+                // Aggregate view
+                $products = $query->orderBy('id')
+                    ->paginate($request->per_page ?? 1000);
+
+                $data = $products->getCollection()->map(function ($product) use ($aggregatedStocks) {
+                    $stockData = $aggregatedStocks->get($product->id);
+                    return [
+                        'id' => $product->id,
+                        'ma_san_pham' => $product->ma_san_pham,
+                        'ten_san_pham' => $product->ten_san_pham,
+                        'danh_muc_id' => $product->danh_muc_id,
+                        'danh_muc_ten' => $product->danhMuc->ten_danh_muc ?? null,
+                        'don_vi_tinh' => $product->don_vi_tinh,
+                        'ton_kho' => $stockData ? $stockData->total_ton_kho : 0,
+                        'ton_kho_toi_thieu' => $product->ton_kho_canh_bao ?? 0,
+                        'gia_nhap' => $stockData ? $stockData->avg_gia_von : 0,
+                        'gia_ban' => $product->gia_ban,
+                        'trang_thai' => $product->is_active == 1 ? 'active' : 'inactive',
+                    ];
+                });
+
+                return response()->json([
+                    'data' => [
+                        'data' => $data,
+                        'current_page' => $products->currentPage(),
+                        'total' => $products->total(),
+                        'per_page' => $products->perPage(),
+                    ]
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi khi lấy danh sách tồn kho: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get transaction history for a product
+     */
+    public function transactions(Request $request, $productId)
+    {
+        try {
+            // Get all inventory receipts containing this product
+            $nhapKhoChiTiets = NhapKhoChiTiet::with(['nhapKho.chiNhanh', 'nhapKho.nguoiNhap', 'nhapKho.nhaCungCap'])
+                ->where('san_pham_id', $productId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $transactions = $nhapKhoChiTiets->map(function ($chiTiet) {
                 return [
-                    'id' => $stock->sanPham->id,
-                    'ma_san_pham' => $stock->sanPham->ma_san_pham,
-                    'ten_san_pham' => $stock->sanPham->ten_san_pham,
-                    'danh_muc_id' => $stock->sanPham->danh_muc_id,
-                    'danh_muc_ten' => $stock->sanPham->danhMuc->ten_danh_muc ?? null,
-                    'don_vi_tinh' => $stock->sanPham->don_vi_tinh,
-                    'ton_kho' => $stock->so_luong_ton, // Correct column name
-                    'ton_kho_toi_thieu' => $stock->sanPham->ton_kho_canh_bao ?? 0, // From spa_san_pham
-                    'gia_nhap' => $stock->gia_von_binh_quan, // Correct column name
-                    'gia_ban' => $stock->sanPham->gia_ban,
-                    'trang_thai' => $stock->sanPham->is_active == 1 ? 'active' : 'inactive',
+                    'id' => $chiTiet->id,
+                    'ma_phieu' => $chiTiet->nhapKho->ma_phieu ?? 'N/A',
+                    'loai_giao_dich' => $chiTiet->nhapKho->loai_giao_dich ?? 'nhap',
+                    'chi_nhanh' => $chiTiet->nhapKho->chiNhanh->ten_chi_nhanh ?? 'N/A',
+                    'nguoi_nhap' => $chiTiet->nhapKho->nguoiNhap->name ?? 'N/A',
+                    'nha_cung_cap' => $chiTiet->nhapKho->nhaCungCap->ten_ncc ?? 'N/A',
+                    'ngay_nhap' => $chiTiet->nhapKho->ngay_nhap ?? null,
+                    'so_luong' => $chiTiet->so_luong,
+                    'don_gia' => $chiTiet->don_gia,
+                    'thanh_tien' => $chiTiet->thanh_tien,
+                    'ghi_chu' => $chiTiet->nhapKho->ghi_chu ?? '',
+                    'created_at' => $chiTiet->created_at,
                 ];
             });
 
             return response()->json([
-                'data' => [
-                    'data' => $data,
-                    'current_page' => $stocks->currentPage(),
-                    'total' => $stocks->total(),
-                    'per_page' => $stocks->perPage(),
-                ]
+                'data' => $transactions
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Lỗi khi lấy danh sách tồn kho: ' . $e->getMessage()
+                'message' => 'Lỗi khi lấy lịch sử giao dịch: ' . $e->getMessage()
             ], 500);
         }
     }

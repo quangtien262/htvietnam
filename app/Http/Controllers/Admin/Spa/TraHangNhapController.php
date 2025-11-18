@@ -188,4 +188,40 @@ class TraHangNhapController extends Controller
 
         return response()->json($stats);
     }
+
+    /**
+     * Get suppliers list for dropdown
+     */
+    public function getSuppliers()
+    {
+        $suppliers = \App\Models\Spa\NhaCungCap::where('is_active', 1)
+            ->orderBy('ten_ncc')
+            ->get(['id', 'ma_ncc', 'ten_ncc', 'sdt', 'email']);
+
+        return response()->json($suppliers);
+    }
+
+    /**
+     * Get receipts by supplier
+     */
+    public function getReceiptsBySupplier($supplierId)
+    {
+        $receipts = NhapKho::where('nha_cung_cap_id', $supplierId)
+            ->orderBy('ngay_nhap', 'desc')
+            ->get(['id', 'ma_phieu', 'ngay_nhap', 'chi_nhanh_id', 'tong_tien', 'ghi_chu']);
+
+        return response()->json($receipts);
+    }
+
+    /**
+     * Get products from a receipt
+     */
+    public function getProductsByReceipt($receiptId)
+    {
+        $chiTiets = \App\Models\Spa\NhapKhoChiTiet::with('sanPham.danhMuc')
+            ->where('phieu_nhap_id', $receiptId)
+            ->get();
+
+        return response()->json($chiTiets);
+    }
 }

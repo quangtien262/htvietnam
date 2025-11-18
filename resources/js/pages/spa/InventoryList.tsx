@@ -300,8 +300,14 @@ const InventoryList: React.FC = () => {
                 }))
             };
 
-            await axios.post(API.spaInventoryBulkImport, payload);
-            message.success(`Nhập kho thành công ${bulkItems.length} sản phẩm`);
+            console.log('=== BULK IMPORT PAYLOAD ===', payload);
+            console.log('API URL:', API.spaInventoryBulkImport);
+
+            const response = await axios.post(API.spaInventoryBulkImport, payload);
+
+            console.log('=== BULK IMPORT RESPONSE ===', response.data);
+
+            message.success(`Nhập kho thành công ${bulkItems.length} sản phẩm - Phiếu: ${response.data?.data?.phieu_nhap?.ma_phieu || 'N/A'}`);
             setBulkImportModalVisible(false);
             bulkForm.resetFields();
             setBulkItems([]);
@@ -309,6 +315,7 @@ const InventoryList: React.FC = () => {
             fetchInventory();
         } catch (error: any) {
             console.error('Bulk import error:', error);
+            console.error('Error response:', error.response?.data);
             message.error(error.response?.data?.message || 'Lỗi khi nhập kho hàng loạt');
         }
     };

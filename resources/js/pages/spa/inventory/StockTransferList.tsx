@@ -20,8 +20,8 @@ interface StockTransfer {
     tong_so_luong_xuat: number;
     tong_gia_tri: number;
     ghi_chu?: string;
-    chi_nhanh_xuat?: any;
-    chi_nhanh_nhap?: any;
+    chiNhanhXuat?: any;
+    chiNhanhNhap?: any;
     chi_tiets?: any[];
 }
 
@@ -194,13 +194,13 @@ const StockTransferList: React.FC = () => {
         },
         {
             title: 'Chi nhánh xuất',
-            dataIndex: ['chi_nhanh_xuat', 'name'],
+            dataIndex: ['chiNhanhXuat', 'ten_chi_nhanh'],
             key: 'chi_nhanh_xuat',
             width: 150,
         },
         {
             title: 'Chi nhánh nhập',
-            dataIndex: ['chi_nhanh_nhap', 'name'],
+            dataIndex: ['chiNhanhNhap', 'ten_chi_nhanh'],
             key: 'chi_nhanh_nhap',
             width: 150,
         },
@@ -348,7 +348,7 @@ const StockTransferList: React.FC = () => {
                                     }}
                                 >
                                     {branches.map(b => (
-                                        <Option key={b.id} value={b.id}>{b.name}</Option>
+                                        <Option key={b.id} value={b.id}>{b.ten_chi_nhanh}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
@@ -372,7 +372,7 @@ const StockTransferList: React.FC = () => {
                             >
                                 <Select placeholder="Chọn chi nhánh nhập">
                                     {branches.map(b => (
-                                        <Option key={b.id} value={b.id}>{b.name}</Option>
+                                        <Option key={b.id} value={b.id}>{b.ten_chi_nhanh}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>

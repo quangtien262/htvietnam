@@ -99,6 +99,7 @@ Route::apiResource('product-categories', \App\Http\Controllers\Admin\Spa\DanhMuc
 Route::apiResource('brands', \App\Http\Controllers\Admin\Spa\ThuongHieuController::class);
 Route::apiResource('product-units', \App\Http\Controllers\Admin\Spa\DonViSanPhamController::class);
 Route::apiResource('origins', \App\Http\Controllers\Admin\Spa\XuatXuController::class);
+Route::get('inventory/{productId}/transactions', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'transactions'])->name('inventory.transactions');
 Route::apiResource('inventory', \App\Http\Controllers\Admin\Spa\NhapKhoController::class);
 Route::get('inventory-stock/list', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'stockList'])->name('inventory-stock.list');
 Route::post('inventory/bulk-import', [\App\Http\Controllers\Admin\Spa\NhapKhoController::class, 'bulkImport'])->name('inventory.bulk-import');
@@ -188,6 +189,9 @@ Route::prefix('tra-hang-nhap')->name('tra-hang-nhap.')->group(function () {
     Route::post('/{id}/approve', [TraHangNhapController::class, 'approve'])->name('approve');
     Route::post('/{id}/cancel', [TraHangNhapController::class, 'cancel'])->name('cancel');
     Route::get('/statistics', [TraHangNhapController::class, 'statistics'])->name('statistics');
+    Route::get('/suppliers', [TraHangNhapController::class, 'getSuppliers'])->name('suppliers');
+    Route::get('/suppliers/{supplierId}/receipts', [TraHangNhapController::class, 'getReceiptsBySupplier'])->name('supplier-receipts');
+    Route::get('/receipts/{receiptId}/products', [TraHangNhapController::class, 'getProductsByReceipt'])->name('receipt-products');
 });
 
 // Disposal (Xuất hủy)

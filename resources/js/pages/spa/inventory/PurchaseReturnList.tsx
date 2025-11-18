@@ -4,6 +4,7 @@ import { PlusOutlined, CheckOutlined, EyeOutlined, UploadOutlined } from '@ant-d
 import type { UploadFile } from 'antd/es/upload/interface';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../../common/api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -32,6 +33,7 @@ const PurchaseReturnList: React.FC = () => {
     const [selectedReturn, setSelectedReturn] = useState<PurchaseReturn | null>(null);
     const [receipts, setReceipts] = useState<any[]>([]);
     const [suppliers, setSuppliers] = useState<any[]>([]);
+    const [branches, setBranches] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [form] = Form.useForm();
@@ -39,15 +41,19 @@ const PurchaseReturnList: React.FC = () => {
     useEffect(() => {
         loadReturns();
         loadSuppliers();
+        loadBranches();
     }, []);
 
     const loadReturns = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/spa/tra-hang-nhap');
-            setReturns(response.data.data || response.data);
+            const response = await axios.get(API.traHangNhapList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setReturns(data);
         } catch (error) {
-            message.error('Không thể tải danh sách phiếu trả hàng');
+            console.error('Không thể tải danh sách trả hàng', error);
+            message.error('Không thể tải danh sách trả hàng');
+            setReturns([]);
         } finally {
             setLoading(false);
         }
@@ -55,48 +61,120 @@ const PurchaseReturnList: React.FC = () => {
 
     const loadSuppliers = async () => {
         try {
-            const response = await axios.get('/spa/nha-cung-cap');
-            setSuppliers(response.data.data || response.data);
+            const response = await axios.get(API.nhaCungCapList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setSuppliers(data);
         } catch (error) {
-            console.error('Không thể tải nhà cung cấp');
+            console.error('Không thể tải nhà cung cấp', error);
+            message.error('Không thể tải danh sách nhà cung cấp');
+            setSuppliers([]);
+        }
+    };
+
+    const loadBranches = async () => {
+        try {
+            const response = await axios.get(API.chiNhanhList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setBranches(data);
+        } catch (error) {
+            console.error('Không thể tải chi nhánh', error);
+            message.error('Không thể tải danh sách chi nhánh');
+            setBranches([]);
         }
     };
 
     const loadReceipts = async (supplierId: number) => {
         try {
-            const response = await axios.get(`/spa/tra-hang-nhap/supplier/${supplierId}/receipts`);
-            setReceipts(response.data);
+            const response = await axios.get(API.traHangNhapReceipts(supplierId));
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setReceipts(data);
         } catch (error) {
-            console.error('Không thể tải phiếu nhập');
+            console.error('Không thể tải phiếu nhập', error);
+            message.error('Không thể tải danh sách phiếu nhập');
+            setReceipts([]);
         }
     };
 
     const loadReceiptProducts = async (receiptId: number) => {
         try {
-            const response = await axios.get(`/spa/tra-hang-nhap/receipt/${receiptId}/products`);
-            setProducts(response.data);
+            const response = await axios.get(API.traHangNhapProducts(receiptId));
+            console.log('Receipt products response:', response.data);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            console.log('Receipt products:', data);
+            setProducts(data);
         } catch (error) {
-            console.error('Không thể tải sản phẩm');
+            console.error('Không thể tải sản phẩm', error);
+            message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
+        }
+    };
+
+    const loadBranchProducts = async (branchId: number) => {
+        try {
+            const response = await axios.get(API.tonKhoChiNhanhByBranch(branchId));
+            console.log('Branch products response:', response.data);
+            const tonKhoList = response.data?.data || [];
+            console.log('Branch products:', tonKhoList);
+
+            // Map tồn kho thành format phù hợp
+            const mappedProducts = tonKhoList
+                .filter((tk: any) => tk.so_luong_ton > 0)
+                .map((tk: any) => ({
+                    id: tk.san_pham_id,
+                    san_pham_id: tk.san_pham_id,
+                    ten_san_pham: tk.san_pham?.ten_san_pham,
+                    ma_san_pham: tk.san_pham?.ma_san_pham,
+                    so_luong_ton: tk.so_luong_ton,
+                    gia_nhap: tk.san_pham?.gia_nhap,
+                    don_vi_tinh: tk.san_pham?.don_vi_tinh,
+                    san_pham: tk.san_pham
+                }));
+
+            setProducts(mappedProducts);
+        } catch (error) {
+            console.error('Không thể tải sản phẩm', error);
+            message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
         }
     };
 
     const handleCreate = async (values: any) => {
         try {
-            const formData = new FormData();
-            formData.append('phieu_nhap_id', values.phieu_nhap_id);
-            formData.append('nha_cung_cap_id', values.nha_cung_cap_id);
-            formData.append('ngay_tra', values.ngay_tra.format('YYYY-MM-DD'));
-            formData.append('ly_do', values.ly_do);
-            formData.append('ghi_chu', values.ghi_chu || '');
-            formData.append('chi_tiets', JSON.stringify(values.chi_tiets || []));
+            // Get chi_nhanh_id from selected receipt
+            const selectedReceipt = receipts.find(r => r.id === values.phieu_nhap_id);
+            const chiNhanhId = selectedReceipt?.chi_nhanh_id;
 
-            if (fileList.length > 0 && fileList[0].originFileObj) {
-                formData.append('hinh_anh_minh_chung', fileList[0].originFileObj);
+            if (!chiNhanhId) {
+                message.error('Không tìm thấy chi nhánh của phiếu nhập');
+                return;
             }
 
-            await axios.post('/spa/tra-hang-nhap', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            // Map chi_tiets with don_gia and thanh_tien
+            const chiTiets = (values.chi_tiets || []).map((item: any) => {
+                const product = products.find(p => (p.san_pham_id || p.id) === item.san_pham_id);
+                const donGia = product?.don_gia || product?.gia_nhap || product?.san_pham?.gia_nhap || 0;
+                const soLuong = item.so_luong_tra || 0;
+
+                return {
+                    san_pham_id: item.san_pham_id,
+                    so_luong_tra: soLuong,
+                    don_gia: donGia,
+                    thanh_tien: donGia * soLuong,
+                    ghi_chu: item.ghi_chu || ''
+                };
             });
+
+            const payload = {
+                phieu_nhap_id: values.phieu_nhap_id,
+                nha_cung_cap_id: values.nha_cung_cap_id,
+                chi_nhanh_id: chiNhanhId,
+                ngay_tra: values.ngay_tra.format('YYYY-MM-DD'),
+                ly_do_tra: values.ly_do,
+                ghi_chu: values.ghi_chu || '',
+                chi_tiets: chiTiets
+            };
+
+            await axios.post(API.traHangNhapCreate, payload);
 
             message.success('Tạo phiếu trả hàng thành công');
             setModalVisible(false);
@@ -114,10 +192,11 @@ const PurchaseReturnList: React.FC = () => {
             content: 'Bạn có chắc muốn duyệt phiếu trả hàng này? Hàng sẽ được trừ khỏi kho.',
             onOk: async () => {
                 try {
-                    await axios.post(`/spa/tra-hang-nhap/${id}/approve`);
+                    await axios.post(API.traHangNhapApprove(id));
                     message.success('Duyệt phiếu thành công');
                     loadReturns();
                 } catch (error: any) {
+                    console.error('Lỗi duyệt phiếu:', error);
                     message.error(error.response?.data?.message || 'Duyệt phiếu thất bại');
                 }
             }
@@ -297,7 +376,6 @@ const PurchaseReturnList: React.FC = () => {
                             <Form.Item
                                 name="phieu_nhap_id"
                                 label="Phiếu nhập gốc"
-                                rules={[{ required: true, message: 'Vui lòng chọn phiếu nhập' }]}
                             >
                                 <Select
                                     placeholder="Chọn phiếu nhập cần trả"
@@ -382,10 +460,11 @@ const PurchaseReturnList: React.FC = () => {
                                             name={[field.name, 'san_pham_id']}
                                             rules={[{ required: true, message: 'Chọn SP' }]}
                                         >
-                                            <Select placeholder="Sản phẩm" style={{ width: 300 }}>
+                                            <Select placeholder="Sản phẩm" style={{ width: 300 }} showSearch optionFilterProp="children">
                                                 {products.map(p => (
-                                                    <Option key={p.san_pham_id} value={p.san_pham_id}>
-                                                        {p.san_pham?.ten_san_pham} (Đã nhập: {p.so_luong})
+                                                    <Option key={p.san_pham_id || p.id} value={p.san_pham_id || p.id}>
+                                                        {p.san_pham?.ten_san_pham || p.ten_san_pham}
+                                                        {p.so_luong ? ` (Đã nhập: ${p.so_luong})` : (p.so_luong_ton ? ` (Tồn: ${p.so_luong_ton})` : '')}
                                                     </Option>
                                                 ))}
                                             </Select>

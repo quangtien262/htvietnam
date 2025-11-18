@@ -4,6 +4,7 @@ import { PlusOutlined, CheckOutlined, EyeOutlined, UploadOutlined, PieChartOutli
 import type { UploadFile } from 'antd/es/upload/interface';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API } from '../../../common/api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -44,10 +45,13 @@ const DisposalList: React.FC = () => {
     const loadDisposals = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/spa/xuat-huy');
-            setDisposals(response.data.data || response.data);
+            const response = await axios.get(API.xuatHuyList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setDisposals(data);
         } catch (error) {
-            message.error('Không thể tải danh sách phiếu xuất hủy');
+            console.error('Không thể tải danh sách xuất hủy', error);
+            message.error('Không thể tải danh sách xuất hủy');
+            setDisposals([]);
         } finally {
             setLoading(false);
         }
@@ -55,32 +59,42 @@ const DisposalList: React.FC = () => {
 
     const loadBranches = async () => {
         try {
-            const response = await axios.get('/spa/ton-kho-chi-nhanh/branches');
-            setBranches(response.data);
+            const response = await axios.get(API.spaBranchList);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setBranches(data.filter((b: any) => b.is_active));
         } catch (error) {
-            console.error('Không thể tải chi nhánh');
+            console.error('Không thể tải chi nhánh', error);
+            message.error('Không thể tải danh sách chi nhánh');
+            setBranches([]);
         }
     };
 
     const loadProducts = async (branchId: number) => {
         try {
-            const response = await axios.get(`/spa/ton-kho-chi-nhanh/branch/${branchId}`);
+            const response = await axios.get(API.tonKhoChiNhanhByBranch(branchId));
             console.log('Products response:', response.data);
-            const productList = response.data.data || response.data;
-            console.log('Products list:', productList);
-            setProducts(productList);
+            // API returns { data: [], statistics: {} }
+            const tonKhoList = response.data?.data || [];
+            console.log('TonKho list:', tonKhoList);
+
+            // Filter only products with stock > 0
+            const productsWithStock = tonKhoList.filter((tk: any) => tk.so_luong_ton > 0);
+            console.log('Products with stock:', productsWithStock);
+            setProducts(productsWithStock);
         } catch (error) {
             console.error('Không thể tải sản phẩm', error);
             message.error('Không thể tải danh sách sản phẩm');
+            setProducts([]);
         }
     };
 
     const loadStatistics = async () => {
         try {
-            const response = await axios.get('/spa/xuat-huy/statistics');
-            setStatistics(response.data);
+            const response = await axios.get(API.xuatHuyStatistics);
+            setStatistics(response.data?.data || response.data);
         } catch (error) {
-            console.error('Không thể tải thống kê');
+            console.error('Không thể tải thống kê', error);
+            message.error('Không thể tải thống kê');
         }
     };
 
@@ -111,7 +125,7 @@ const DisposalList: React.FC = () => {
                 formData.append('hinh_anh_minh_chung', fileList[0].originFileObj);
             }
 
-            await axios.post('/spa/xuat-huy', formData, {
+            await axios.post(API.xuatHuyCreate, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -133,11 +147,12 @@ const DisposalList: React.FC = () => {
             okType: 'danger',
             onOk: async () => {
                 try {
-                    await axios.post(`/spa/xuat-huy/${id}/approve`);
+                    await axios.post(API.xuatHuyApprove(id));
                     message.success('Duyệt phiếu thành công');
                     loadDisposals();
                     loadStatistics();
                 } catch (error: any) {
+                    console.error('Lỗi duyệt phiếu:', error);
                     message.error(error.response?.data?.message || 'Duyệt phiếu thất bại');
                 }
             }
