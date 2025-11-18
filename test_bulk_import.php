@@ -37,7 +37,7 @@ echo "Stock BEFORE: " . ($stockBefore ? $stockBefore->so_luong_ton : 0) . " unit
 // Simulate bulk import by calling the model method directly
 try {
     echo "\nSimulating bulk import: +50 units at 100,000 VND...\n";
-    
+
     TonKhoChiNhanh::updateStock(
         1, // chi_nhanh_id
         $product->id, // san_pham_id
@@ -45,10 +45,10 @@ try {
         'increase', // action
         100000 // gia_nhap
     );
-    
+
     // Sync with product table
     TonKhoChiNhanh::syncWithProductTable($product->id);
-    
+
     echo "✓ Import successful!\n";
 } catch (\Exception $e) {
     echo "ERROR: " . $e->getMessage() . "\n";
