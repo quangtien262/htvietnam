@@ -235,9 +235,9 @@ Route::group(['prefix' => 'customer'], function () {
     Route::post('search', [CustomerController::class, 'search'])->name('customer.search');
     Route::post('detail', [CustomerController::class, 'detail'])->name('customer.detail');
     Route::post('update', [CustomerController::class, 'update'])->name('customer.update');
-    Route::post('fast-  ', [CustomerController::class, 'fastEdit'])->name('customer.fastEdit');
+    Route::post('fast-edit', [CustomerController::class, 'fastEdit'])->name('customer.fastEdit');
     Route::post('edit', [CustomerController::class, 'createOrUpdate'])->name('customer.edit');
-    Route::post('search', [CustomerController::class, 'search'])->name('customer.search');
+    Route::post('add', [CustomerController::class, 'createOrUpdate'])->name('customer.add');
 });
 
 Route::group(['prefix' => 'meeting'], function () {
@@ -329,6 +329,9 @@ Route::group(['prefix' => 'cong-no'], function () {
 
 Route::group(['prefix' => 'user'], function () {
     Route::post('select-data', [CustomerController::class, 'apiSelectData'])->name('api.user.selectData');
+    Route::get('list', [CustomerController::class, 'indexApi'])->name('api.user.list');
+    Route::get('{id}', [CustomerController::class, 'detail'])->name('api.user.detail');
+    Route::post('add', [CustomerController::class, 'createOrUpdate'])->name('api.user.add');
 });
 
 // ============================
@@ -364,6 +367,15 @@ Route::group(['prefix' => 'spa'], function () {
     Route::post('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'createInvoice'])->name('api.spa.pos.create-invoice');
     Route::get('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'index'])->name('api.spa.pos.invoices');
 
+    // Invoices (Hóa đơn)
+    Route::get('invoices', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'index'])->name('api.spa.invoices.index');
+    Route::get('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'show'])->name('api.spa.invoices.show');
+    Route::put('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'update'])->name('api.spa.invoices.update');
+    Route::delete('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'destroy'])->name('api.spa.invoices.destroy');
+    Route::get('invoices/{id}/print', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'print'])->name('api.spa.invoices.print');
+    Route::post('invoices/export', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'export'])->name('api.spa.invoices.export');
+    Route::post('invoices/{id}/pay-debt', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'payDebt'])->name('api.spa.invoices.pay-debt');
+
     // Gift Cards (Thẻ Giá Trị)
     Route::get('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'index'])->name('api.spa.gift-cards.index');
     Route::get('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'show'])->name('api.spa.gift-cards.show');
@@ -380,7 +392,7 @@ Route::group(['prefix' => 'spa'], function () {
     Route::post('wallet/refund', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'hoanTien'])->name('api.spa.wallet.refund');
     Route::post('wallet/apply-code', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'applyCode'])->name('api.spa.wallet.apply-code');
     Route::post('wallet/{khach_hang_id}/set-limits', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'setLimits'])->name('api.spa.wallet.set-limits');
-    
+
     // Wallet Reports
     Route::get('wallet/reports/stats', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getReportStats'])->name('api.spa.wallet.reports.stats');
     Route::get('wallet/reports/top-customers', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getTopCustomers'])->name('api.spa.wallet.reports.top-customers');

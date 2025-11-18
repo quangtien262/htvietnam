@@ -20,6 +20,8 @@ export const ROUTE = {
 
     invoice_bds: `${baseRoute}bds/invoices/list`,
 
+    qlKho: `${baseRoute}spa/inventory/branch`,
+
     // tasks
     taskList_all: `${baseRoute}tasks/aitilen/list/2/`,
     taskKanban_all: `${baseUrl}tasks/aitilen/kanban/2/`,
@@ -145,6 +147,7 @@ export const ROUTE = {
     spa_branches: `${baseRoute}spa/branches/`,
     spa_rooms: `${baseRoute}spa/rooms/`,
     spa_settings: `${baseRoute}spa/settings/`,
+    spa_shifts: `${baseRoute}spa/shifts/`,
 
     // SPA Multi-Warehouse Management - Quản lý kho đa chi nhánh
     spa_branch_inventory: `${baseRoute}spa/inventory/branch/`,
@@ -153,6 +156,8 @@ export const ROUTE = {
     spa_purchase_return: `${baseRoute}spa/inventory/return/`,
     spa_disposal: `${baseRoute}spa/inventory/disposal/`,
     spa_suppliers: `${baseRoute}spa/inventory/suppliers/`,
+    spa_gift_cards: `${baseRoute}spa/gift-cards/`,
+    spa_wallet_reports: `${baseRoute}spa/wallet-reports/`,
 
     // Project Management - Quản lý dự án
     project_dashboard: `${baseRoute}project/dashboard/`,

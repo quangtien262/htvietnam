@@ -29,7 +29,7 @@ class AdminMenuSeeder extends Seeder
         //         'icon' => 'ShopFilled',
         //         'route' => 'aitilen.dashboard',
         //         'link' => '',
-        //         'parent_id' => 0,
+        //
         //         'is_active' => 1,
         //         'sort_order' => $order++
         //     ]
@@ -43,7 +43,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'ShopFilled',
                 'route' => 'web.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'is_active' => 1,
                 'sort_order' => $order++
             ]
@@ -57,7 +57,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'ShopFilled',
                 'route' => 'sale.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -70,7 +70,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'SlidersFilled',
                 'route' => 'khoHang.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -83,7 +83,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'CalendarFilled',
                 'route' => 'task.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -95,7 +95,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'HddFilled',
                 'route' => 'taiSan.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -107,7 +107,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'IdcardFilled',
                 'route' => 'nhanSu.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -119,7 +119,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'IdcardFilled',
                 'route' => 'banHang.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -131,7 +131,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'IdcardFilled',
                 'route' => 'telesale.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -143,7 +143,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'AccountBookOutlined',
                 'route' => 'taiChinh.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -155,7 +155,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'PieChartFilled',
                 'route' => 'report.dashboard',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -168,7 +168,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'CopyOutlined',
                 'route' => 'file.index',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );
@@ -183,7 +183,7 @@ class AdminMenuSeeder extends Seeder
                 'icon' => 'SettingFilled',
                 'route' => 'setting.index',
                 'link' => '',
-                'parent_id' => 0,
+
                 'sort_order' => $order++
             ]
         );

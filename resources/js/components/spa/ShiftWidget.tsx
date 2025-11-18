@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Form, InputNumber, Input, Statistic, Space, Tag, message, Descriptions, Alert, Select } from 'antd';
-import { ClockCircleOutlined, DollarOutlined, FileTextOutlined, CheckCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { Card, Button, Modal, Form, InputNumber, Input, Statistic, Space, Tag, message, Descriptions, Alert, Select, Row, Col } from 'antd';
+import { ClockCircleOutlined, DollarOutlined, FileTextOutlined, CheckCircleOutlined, WarningOutlined, UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
 import dayjs from 'dayjs';
@@ -27,6 +27,7 @@ interface Shift {
         doanh_thu_tien_mat: number;
         doanh_thu_chuyen_khoan: number;
         doanh_thu_the: number;
+        doanh_thu_vi: number;
         tong_doanh_thu: number;
     };
 }
@@ -45,6 +46,7 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
     const [openModalVisible, setOpenModalVisible] = useState(false);
     const [closeModalVisible, setCloseModalVisible] = useState(false);
     const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [hasTriedToOpen, setHasTriedToOpen] = useState(false); // Track if user has attempted to open shift
     const [openForm] = Form.useForm();
     const [closeForm] = Form.useForm();
 
@@ -62,12 +64,12 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
         return () => clearInterval(interval);
     }, [chiNhanhId]);
 
-    // Auto-show modal if no shift
+    // Auto-show modal if no shift (only on first load, not after failed attempts)
     useEffect(() => {
-        if (!isLoadingShift && !currentShift) {
+        if (!isLoadingShift && !currentShift && !hasTriedToOpen) {
             setOpenModalVisible(true);
         }
-    }, [isLoadingShift, currentShift]);
+    }, [isLoadingShift, currentShift, hasTriedToOpen]);
 
     const loadCurrentShift = async () => {
         try {
@@ -93,19 +95,27 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
         try {
             const values = await openForm.validateFields();
             setLoading(true);
+            setHasTriedToOpen(true); // Mark that user has tried to open
 
             // Send data from form (includes chi_nhanh_id, nguoi_thu_id)
             const response = await axios.post(API.spaShiftOpen, values);
 
             if (response.data.success) {
                 message.success('Mở ca thành công');
-                setOpenModalVisible(false);
                 openForm.resetFields();
-                loadCurrentShift();
+
+                // Reload shift and wait for it to complete
+                await loadCurrentShift();
+
+                // Close modal after shift is loaded
+                setOpenModalVisible(false);
+                setHasTriedToOpen(false); // Reset for next time
                 onShiftChange?.();
             }
         } catch (error: any) {
+            console.error('Error opening shift:', error);
             message.error(error.response?.data?.message || 'Không thể mở ca');
+            // Don't reset hasTriedToOpen on error, let user try again
         } finally {
             setLoading(false);
         }
@@ -194,18 +204,14 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
                     title="Mở ca mới"
                     open={openModalVisible}
                     onCancel={() => {
-                        // Không cho đóng nếu chưa có ca
-                        if (currentShift) {
-                            setOpenModalVisible(false);
-                        } else {
-                            message.warning('Bạn phải mở ca trước khi tiếp tục');
-                        }
+                        // Allow closing modal but set flag to prevent auto-reopen
+                        setOpenModalVisible(false);
+                        setHasTriedToOpen(true);
                     }}
                     onOk={handleOpenShift}
                     okText="Xác nhận mở ca"
-                    cancelText={currentShift ? "Hủy" : undefined}
-                    cancelButtonProps={currentShift ? undefined : { style: { display: 'none' } }}
-                    closable={!!currentShift}
+                    cancelText="Hủy"
+                    closable={true}
                     maskClosable={false}
                     confirmLoading={loading}
                 >
@@ -276,53 +282,199 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
         <>
             <Card
                 size="small"
-                style={{ marginBottom: 16 }}
-                title={
-                    <Space>
-                        <Tag color="green">CA ĐANG MỞ</Tag>
-                        <span>{currentShift.ma_ca}</span>
-                    </Space>
-                }
+                style={{
+                    marginBottom: 16,
+                    background: 'linear-gradient(135deg, #8b9dc3 0%, #9e8fb2 100%)',
+                    border: 'none',
+                    boxShadow: '0 2px 8px 0 rgba(139, 157, 195, 0.15)'
+                }}
+                bodyStyle={{ padding: '16px' }}
             >
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                    <div>
-                        <small>Thu ngân:</small>
-                        <div style={{ fontWeight: 500 }}>{currentShift.nhan_vien_mo_ca?.name || 'N/A'}</div>
+                {/* Header */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 16,
+                    paddingBottom: 12,
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                    <Space>
+                        <div style={{
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <ClockCircleOutlined style={{ color: '#fff', fontSize: 16, marginRight: 6 }} />
+                            <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
+                                {currentShift.ma_ca}
+                            </span>
+                        </div>
+                        <Tag
+                            color="success"
+                            style={{
+                                borderRadius: 12,
+                                padding: '2px 10px',
+                                border: 'none',
+                                background: 'rgba(135, 208, 104, 0.85)',
+                                color: '#fff',
+                                fontWeight: 500
+                            }}
+                        >
+                            Đang mở
+                        </Tag>
+                    </Space>
+                    <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 12 }}>
+                        {dayjs(currentShift.thoi_gian_bat_dau).format('HH:mm')}
                     </div>
-                    <div>
-                        <small>Mở ca:</small>
-                        <div>{dayjs(currentShift.thoi_gian_bat_dau).format('HH:mm - DD/MM/YYYY')}</div>
-                    </div>
-                    <Statistic
-                        title="Doanh thu ca"
-                        value={currentShift.doanh_thu_realtime?.tong_doanh_thu || 0}
-                        suffix="đ"
-                        valueStyle={{ fontSize: 18, color: '#3f8600' }}
-                        formatter={(value) => formatCurrency(Number(value))}
-                    />
-                    <div>
-                        <small>Số đơn: </small>
-                        <Tag color="blue">{currentShift.doanh_thu_realtime?.so_hoa_don || 0}</Tag>
+                </div>
+
+                {/* Info Section */}
+                <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                    {/* Cashier Info */}
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.15)',
+                        borderRadius: 8,
+                        padding: '10px 12px',
+                        backdropFilter: 'blur(10px)'
+                    }}>
+                        <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 11, marginBottom: 4 }}>
+                            THU NGÂN
+                        </div>
+                        <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
+                            <UserOutlined style={{ marginRight: 6 }} />
+                            {currentShift.nhan_vien_mo_ca?.name || 'N/A'}
+                        </div>
                     </div>
 
-                    <Space style={{ width: '100%', marginTop: 8 }}>
-                        <Button
-                            size="small"
-                            icon={<FileTextOutlined />}
-                            onClick={() => setDetailModalVisible(true)}
-                        >
-                            Chi tiết
-                        </Button>
-                        <Button
-                            size="small"
-                            danger
-                            type="primary"
-                            icon={<CheckCircleOutlined />}
-                            onClick={() => setCloseModalVisible(true)}
-                        >
-                            Đóng ca
-                        </Button>
-                    </Space>
+                    {/* Revenue Section */}
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        borderRadius: 12,
+                        padding: '16px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <Row gutter={16}>
+                            <Col span={14}>
+                                <div style={{ marginBottom: 8 }}>
+                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 4 }}>
+                                        DOANH THU CA
+                                    </div>
+                                    <div style={{
+                                        fontSize: 24,
+                                        fontWeight: 700,
+                                        color: '#73d13d',
+                                        lineHeight: 1.2
+                                    }}>
+                                        {formatCurrency(currentShift.doanh_thu_realtime?.tong_doanh_thu || 0)}
+                                        <span style={{ fontSize: 14, marginLeft: 4 }}>₫</span>
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={10} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderLeft: '1px solid #f0f0f0'
+                            }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 4 }}>
+                                        SỐ ĐơN
+                                    </div>
+                                    <div style={{
+                                        fontSize: 28,
+                                        fontWeight: 700,
+                                        color: '#40a9ff',
+                                        lineHeight: 1
+                                    }}>
+                                        {currentShift.doanh_thu_realtime?.so_hoa_don || 0}
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        {/* Revenue Breakdown */}
+                        <div style={{
+                            marginTop: 12,
+                            paddingTop: 12,
+                            borderTop: '1px solid #f0f0f0'
+                        }}>
+                            <Row gutter={[8, 8]}>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Tiền mặt</div>
+                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
+                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_tien_mat || 0)}
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>C.Khoản</div>
+                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
+                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_chuyen_khoan || 0)}
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Thẻ</div>
+                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
+                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_the || 0)}
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Ví</div>
+                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
+                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_vi || 0)}
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <Row gutter={8}>
+                        <Col span={12}>
+                            <Button
+                                block
+                                icon={<FileTextOutlined />}
+                                onClick={() => setDetailModalVisible(true)}
+                                style={{
+                                    borderRadius: 8,
+                                    height: 36,
+                                    background: 'rgba(255, 255, 255, 0.25)',
+                                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                                    color: '#fff',
+                                    fontWeight: 500,
+                                    backdropFilter: 'blur(10px)'
+                                }}
+                            >
+                                Chi tiết
+                            </Button>
+                        </Col>
+                        <Col span={12}>
+                            <Button
+                                block
+                                danger
+                                type="primary"
+                                icon={<CheckCircleOutlined />}
+                                onClick={() => setCloseModalVisible(true)}
+                                style={{
+                                    borderRadius: 8,
+                                    height: 36,
+                                    fontWeight: 500,
+                                    boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                                }}
+                            >
+                                Đóng ca
+                            </Button>
+                        </Col>
+                    </Row>
                 </Space>
             </Card>
 
@@ -352,6 +504,9 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
                     </Descriptions.Item>
                     <Descriptions.Item label="Thẻ">
                         {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_the || 0)} đ
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Ví">
+                        {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_vi || 0)} đ
                     </Descriptions.Item>
                     <Descriptions.Item label="Tổng doanh thu">
                         <strong style={{ color: '#3f8600', fontSize: 16 }}>
@@ -409,6 +564,9 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
                     </Descriptions.Item>
                     <Descriptions.Item label="Thẻ">
                         {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_the || 0)} đ
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Ví" span={2}>
+                        {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_vi || 0)} đ
                     </Descriptions.Item>
                     <Descriptions.Item label="Tổng doanh thu" span={2}>
                         <strong style={{ color: '#52c41a', fontSize: 16 }}>

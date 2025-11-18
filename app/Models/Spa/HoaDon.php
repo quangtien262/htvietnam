@@ -27,6 +27,10 @@ class HoaDon extends Model
         'tien_tip',
         'tong_thanh_toan',
         'phuong_thuc_thanh_toan',
+        'thanh_toan_tien_mat',
+        'thanh_toan_chuyen_khoan',
+        'thanh_toan_the',
+        'thanh_toan_vi',
         'trang_thai',
         'nguoi_ban',
         'ghi_chu',
@@ -79,6 +83,12 @@ class HoaDon extends Model
         return $this->hasMany(KTVHoaHong::class, 'hoa_don_id');
     }
 
+    public function congNo()
+    {
+        return $this->hasOne(\App\Models\Admin\CongNo::class, 'chung_tu_id')
+            ->where('loai_chung_tu', 'spa_hoa_don');
+    }
+
     // Scopes
     public function scopePaid($query)
     {
@@ -103,6 +113,11 @@ class HoaDon extends Model
     public function scopeDateRange($query, $from, $to)
     {
         return $query->whereBetween('ngay_ban', [$from, $to]);
+    }
+
+    public function scopeHasDebt($query)
+    {
+        return $query->where('trang_thai', 'con_cong_no');
     }
 
     // Accessors

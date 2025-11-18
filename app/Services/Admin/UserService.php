@@ -7,6 +7,7 @@ use App\Models\Admin\Column;
 use App\Models\Admin\CongNo;
 use App\Models\Admin\HoaDon;
 use App\Models\Admin\HoaDonChiTiet;
+use App\Models\Spa\HoaDon as SpaHoaDon;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
@@ -31,77 +32,34 @@ class UserService
             ->find($khachHangId);
 
         //  lich su mua hang: chỉ nhưng đơn hàng mua, ko bao gồm sử dụng
-        $hoaDon = HoaDon::where('users_id', $khachHangId)->get();
+        $hoaDon = SpaHoaDon::where('khach_hang_id', $khachHangId)->get();
         // gói dv
 
          // lịch sử sử dụng thẻ
-        $history = HoaDon::select(
-                'hoa_don.code',
-                'hoa_don.id as hoa_don_id',
-
-                'hoa_don.TongTienHang as TongTienHang',
-                'hoa_don.TongChietKhau as TongChietKhau',
-                'hoa_don.TongTienThue as TongTienThue',
-                'hoa_don.giam_gia as giam_gia',
-                'hoa_don.cong_no as cong_no',
-                'hoa_don.thanh_toan as thanh_toan',
-                'hoa_don.created_at as created_at',
+        $history = SpaHoaDon::select(
+                'spa_hoa_don.ma_hoa_don',
+                'spa_hoa_don.id as hoa_don_id',
+                'spa_hoa_don.tong_tien_dich_vu',
+                'spa_hoa_don.tong_tien_san_pham',
+                'spa_hoa_don.tong_tien',
+                'spa_hoa_don.giam_gia as giam_gia',
+                'spa_hoa_don.tong_thanh_toan as thanh_toan',
+                'spa_hoa_don.created_at as created_at',
             )
-            ->where('hoa_don.users_id',$khachHang->id)
-            ->where('hoa_don.is_draft',0)
-            ->where('hoa_don.is_recycle_bin',0)
+            ->where('spa_hoa_don.khach_hang_id',$khachHang->id)
+            ->whereNull('spa_hoa_don.deleted_at')
             ->get();
 
-        $tongGiaoDich = HoaDon::select(
-                'hoa_don.code',
-                'hoa_don.id as hoa_don_id',
+        $tongGiaoDich = SpaHoaDon::where('khach_hang_id',$khachHang->id)
+            ->whereNull('deleted_at')
+            ->sum('tong_thanh_toan');
 
-                'hoa_don.TongTienHang as TongTienHang',
-                'hoa_don.TongChietKhau as TongChietKhau',
-                'hoa_don.TongTienThue as TongTienThue',
-                'hoa_don.giam_gia as giam_gia',
-                'hoa_don.cong_no as cong_no',
-                'hoa_don.thanh_toan as thanh_toan',
-                'hoa_don.created_at as created_at',
-            )
-            ->where('hoa_don.users_id',$khachHang->id)
-            ->where('hoa_don.is_draft',0)
-            ->where('hoa_don.is_recycle_bin',0)
-            ->sum('thanh_toan');
-
-        $tongGiamGia = HoaDon::select(
-                'hoa_don.code',
-                'hoa_don.id as hoa_don_id',
-
-                'hoa_don.TongTienHang as TongTienHang',
-                'hoa_don.TongChietKhau as TongChietKhau',
-                'hoa_don.TongTienThue as TongTienThue',
-                'hoa_don.giam_gia as giam_gia',
-                'hoa_don.cong_no as cong_no',
-                'hoa_don.thanh_toan as thanh_toan',
-                'hoa_don.created_at as created_at',
-            )
-            ->where('hoa_don.users_id',$khachHang->id)
-            ->where('hoa_don.is_draft',0)
-            ->where('hoa_don.is_recycle_bin',0)
+        $tongGiamGia = SpaHoaDon::where('khach_hang_id',$khachHang->id)
+            ->whereNull('deleted_at')
             ->sum('giam_gia');
 
-        $tongVAT = HoaDon::select(
-                'hoa_don.code',
-                'hoa_don.id as hoa_don_id',
-
-                'hoa_don.TongTienHang as TongTienHang',
-                'hoa_don.TongChietKhau as TongChietKhau',
-                'hoa_don.TongTienThue as TongTienThue',
-                'hoa_don.giam_gia as giam_gia',
-                'hoa_don.cong_no as cong_no',
-                'hoa_don.thanh_toan as thanh_toan',
-                'hoa_don.created_at as created_at',
-            )
-            ->where('hoa_don.users_id',$khachHang->id)
-            ->where('hoa_don.is_draft',0)
-            ->where('hoa_don.is_recycle_bin',0)
-            ->sum('TongTienThue');
+        // Spa không có thuế VAT
+        $tongVAT = 0;
 
         // công nợ
         $congNo = CongNo::select(
@@ -128,9 +86,9 @@ class UserService
             'theGT' => $theGT,
             'goiDichVu' => $goiDV,
             'history' => $history,
-            'tongGiaoDich' => $tongGiaoDich,
-            'tongVAT' => $tongVAT,
-            'tongGiamGia' => $tongGiamGia,
+            'tongGiaoDich' => $tongGiaoDich ?? 0,
+            'tongVAT' => $tongVAT ?? 0,
+            'tongGiamGia' => $tongGiamGia ?? 0,
         ];
     }
 

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             // Foreign keys
-            $table->foreign('khach_hang_id')->references('id')->on('spa_khach_hang')->onDelete('cascade');
+            $table->foreign('khach_hang_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('the_gia_tri_id')->references('id')->on('spa_the_gia_tri')->onDelete('set null');
             $table->foreign('hoa_don_id')->references('id')->on('spa_hoa_don')->onDelete('set null');
             $table->foreign('nhan_vien_id')->references('id')->on('users')->onDelete('set null');

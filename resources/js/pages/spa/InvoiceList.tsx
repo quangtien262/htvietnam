@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     Card, Table, Button, Space, Input, Select, Tag, Modal, Drawer, Descriptions,
-    Row, Col, Statistic, DatePicker, Badge, message, Popconfirm, Divider, Timeline
+    Row, Col, Statistic, DatePicker, Badge, message, Popconfirm, Divider, Timeline, InputNumber
 } from 'antd';
 import {
     FileTextOutlined, EyeOutlined, PrinterOutlined, DeleteOutlined,
     DollarOutlined, CalendarOutlined, UserOutlined, ShopOutlined,
     ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined,
-    ExportOutlined, SearchOutlined, FilterOutlined
+    ExportOutlined, SearchOutlined, FilterOutlined, CreditCardOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
@@ -47,7 +47,16 @@ interface Invoice {
     created_at: string;
 }
 
+interface DebtInfo {
+    id: number;
+    so_tien_no: number;
+    so_tien_da_thanh_toan: number;
+    tong_tien_hoa_don: number;
+    ngay_hen_tat_toan?: string;
+}
+
 interface InvoiceDetail extends Invoice {
+    cong_no?: DebtInfo;
     chi_tiets: Array<{
         id: number;
         dich_vu_id?: number;
@@ -92,6 +101,12 @@ const InvoiceList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDetail | null>(null);
+
+    // Debt payment modal
+    const [payDebtModalVisible, setPayDebtModalVisible] = useState(false);
+    const [debtInvoice, setDebtInvoice] = useState<Invoice | null>(null);
+    const [paymentAmount, setPaymentAmount] = useState(0);
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     // Filters
     const [searchText, setSearchText] = useState('');
@@ -169,13 +184,323 @@ const InvoiceList: React.FC = () => {
         try {
             const response = await axios.get(API.spaInvoicePrint(record.id));
             if (response.data.status_code === 200) {
-                // TODO: Implement print logic
-                message.success('Chuẩn bị in hóa đơn...');
-                console.log('Print invoice:', response.data.data);
+                const invoice = response.data.data;
+
+                // Create print window
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                if (!printWindow) {
+                    message.error('Vui lòng cho phép cửa sổ popup để in');
+                    return;
+                }
+
+                // Generate print HTML
+                const printContent = generatePrintHTML(invoice);
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+
+                // Print after content is loaded
+                printWindow.onload = () => {
+                    printWindow.print();
+                };
             }
         } catch (error) {
             message.error('Không thể in hóa đơn');
         }
+    };
+
+    const generatePrintHTML = (invoice: InvoiceDetail) => {
+        const now = dayjs().format('DD/MM/YYYY HH:mm');
+        const ngayBan = dayjs(invoice.ngay_ban).format('DD/MM/YYYY HH:mm');
+
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Hóa đơn ${invoice.ma_hoa_don}</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 20px;
+                        font-size: 14px;
+                        line-height: 1.6;
+                    }
+                    .invoice-container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        border: 1px solid #ddd;
+                        padding: 30px;
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #333;
+                        padding-bottom: 20px;
+                    }
+                    .header h1 {
+                        font-size: 28px;
+                        color: #1890ff;
+                        margin-bottom: 10px;
+                    }
+                    .header p {
+                        color: #666;
+                        margin: 5px 0;
+                    }
+                    .info-section {
+                        margin: 20px 0;
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                    }
+                    .info-box {
+                        padding: 15px;
+                        background: #f5f5f5;
+                        border-radius: 5px;
+                    }
+                    .info-box h3 {
+                        font-size: 14px;
+                        color: #666;
+                        margin-bottom: 10px;
+                        text-transform: uppercase;
+                    }
+                    .info-box p {
+                        margin: 5px 0;
+                        color: #333;
+                    }
+                    .info-box strong {
+                        display: inline-block;
+                        min-width: 100px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
+                    }
+                    th, td {
+                        padding: 12px;
+                        text-align: left;
+                        border-bottom: 1px solid #ddd;
+                    }
+                    th {
+                        background: #f0f0f0;
+                        font-weight: 600;
+                        color: #333;
+                    }
+                    td.number {
+                        text-align: right;
+                    }
+                    td.center {
+                        text-align: center;
+                    }
+                    .total-section {
+                        margin-top: 30px;
+                        padding-top: 20px;
+                        border-top: 2px solid #333;
+                    }
+                    .total-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 8px 0;
+                        font-size: 15px;
+                    }
+                    .total-row.grand-total {
+                        font-size: 20px;
+                        font-weight: bold;
+                        color: #1890ff;
+                        border-top: 2px solid #1890ff;
+                        margin-top: 10px;
+                        padding-top: 15px;
+                    }
+                    .payment-methods {
+                        margin-top: 20px;
+                        padding: 15px;
+                        background: #e6f7ff;
+                        border-radius: 5px;
+                    }
+                    .payment-methods h4 {
+                        margin-bottom: 10px;
+                        color: #1890ff;
+                    }
+                    .footer {
+                        margin-top: 40px;
+                        text-align: center;
+                        color: #666;
+                        font-size: 12px;
+                        border-top: 1px solid #ddd;
+                        padding-top: 20px;
+                    }
+                    .signature-section {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 40px;
+                        margin-top: 50px;
+                        text-align: center;
+                    }
+                    .signature-box {
+                        padding: 20px;
+                    }
+                    .signature-box h4 {
+                        margin-bottom: 60px;
+                        font-weight: normal;
+                    }
+                    .note {
+                        margin-top: 20px;
+                        padding: 15px;
+                        background: #fff7e6;
+                        border-left: 4px solid #faad14;
+                    }
+                    @media print {
+                        body { padding: 0; }
+                        .invoice-container { border: none; }
+                        @page { margin: 1cm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="invoice-container">
+                    <div class="header">
+                        <h1>HÓA ĐƠN BÁN HÀNG</h1>
+                        <p><strong>${invoice.ma_hoa_don}</strong></p>
+                        <p>${invoice.chi_nhanh?.ten_chi_nhanh || 'N/A'}</p>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="info-box">
+                            <h3>Thông tin khách hàng</h3>
+                            <p><strong>Tên:</strong> ${invoice.khach_hang?.name || invoice.khach_hang?.ho_ten || 'Khách lẻ'}</p>
+                            ${invoice.khach_hang?.phone || invoice.khach_hang?.sdt
+                                ? `<p><strong>SĐT:</strong> ${invoice.khach_hang.phone || invoice.khach_hang.sdt}</p>`
+                                : ''
+                            }
+                        </div>
+                        <div class="info-box">
+                            <h3>Thông tin hóa đơn</h3>
+                            <p><strong>Ngày bán:</strong> ${ngayBan}</p>
+                            <p><strong>Người bán:</strong> ${invoice.nguoi_ban || 'N/A'}</p>
+                            <p><strong>In lúc:</strong> ${now}</p>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">STT</th>
+                                <th>Tên sản phẩm/dịch vụ</th>
+                                <th style="width: 80px;" class="center">SL</th>
+                                <th style="width: 120px;" class="number">Đơn giá</th>
+                                <th style="width: 140px;" class="number">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${invoice.chi_tiets.map((item, index) => `
+                                <tr>
+                                    <td class="center">${index + 1}</td>
+                                    <td>
+                                        ${item.dich_vu?.ten_dich_vu || item.san_pham?.ten_san_pham}
+                                        ${item.ktv ? `<br><small style="color: #666;">KTV: ${item.ktv.admin_user?.name || 'N/A'}</small>` : ''}
+                                        ${item.ghi_chu ? `<br><small style="color: #999; font-style: italic;">${item.ghi_chu}</small>` : ''}
+                                    </td>
+                                    <td class="center">${item.so_luong}</td>
+                                    <td class="number">${item.don_gia.toLocaleString('vi-VN')}</td>
+                                    <td class="number"><strong>${item.thanh_tien.toLocaleString('vi-VN')}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <div class="total-row">
+                            <span>Tổng tiền dịch vụ:</span>
+                            <span>${invoice.tong_tien_dich_vu.toLocaleString('vi-VN')} ₫</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tổng tiền sản phẩm:</span>
+                            <span>${invoice.tong_tien_san_pham.toLocaleString('vi-VN')} ₫</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tổng cộng:</span>
+                            <span><strong>${invoice.tong_tien.toLocaleString('vi-VN')} ₫</strong></span>
+                        </div>
+                        ${invoice.giam_gia > 0 ? `
+                            <div class="total-row" style="color: #ff4d4f;">
+                                <span>Giảm giá:</span>
+                                <span>-${invoice.giam_gia.toLocaleString('vi-VN')} ₫</span>
+                            </div>
+                        ` : ''}
+                        ${invoice.tien_tip > 0 ? `
+                            <div class="total-row" style="color: #52c41a;">
+                                <span>Tiền tip:</span>
+                                <span>+${invoice.tien_tip.toLocaleString('vi-VN')} ₫</span>
+                            </div>
+                        ` : ''}
+                        <div class="total-row grand-total">
+                            <span>TỔNG THANH TOÁN:</span>
+                            <span>${invoice.tong_thanh_toan.toLocaleString('vi-VN')} ₫</span>
+                        </div>
+                    </div>
+
+                    ${invoice.phuong_thuc_thanh_toan ? `
+                        <div class="payment-methods">
+                            <h4>Phương thức thanh toán:</h4>
+                            ${Object.entries(invoice.phuong_thuc_thanh_toan).map(([method, amount]: [string, any]) => `
+                                <p><strong>${method}:</strong> ${amount.toLocaleString('vi-VN')} ₫</p>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${invoice.ghi_chu ? `
+                        <div class="note">
+                            <strong>Ghi chú:</strong><br>
+                            ${invoice.ghi_chu}
+                        </div>
+                    ` : ''}
+
+                    ${invoice.hoa_hongs && invoice.hoa_hongs.length > 0 ? `
+                        <div style="margin-top: 30px;">
+                            <h3 style="margin-bottom: 15px; color: #52c41a;">Hoa hồng KTV</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>KTV</th>
+                                        <th class="number">Giá trị gốc</th>
+                                        <th class="center">Tỷ lệ</th>
+                                        <th class="number">Hoa hồng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${invoice.hoa_hongs.map(hh => `
+                                        <tr>
+                                            <td>${hh.ktv?.admin_user?.name || 'N/A'}</td>
+                                            <td class="number">${hh.gia_tri_goc.toLocaleString('vi-VN')} ₫</td>
+                                            <td class="center">${hh.ti_le_hoa_hong}%</td>
+                                            <td class="number"><strong style="color: #52c41a;">${hh.tien_hoa_hong.toLocaleString('vi-VN')} ₫</strong></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : ''}
+
+                    <div class="signature-section">
+                        <div class="signature-box">
+                            <h4>Người mua hàng</h4>
+                            <p>(Ký, ghi rõ họ tên)</p>
+                        </div>
+                        <div class="signature-box">
+                            <h4>Người bán hàng</h4>
+                            <p>(Ký, ghi rõ họ tên)</p>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <p>Cảm ơn quý khách! Hẹn gặp lại!</p>
+                        <p style="margin-top: 10px;">In lúc: ${now}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
     };
 
     const handleDelete = async (id: number) => {
@@ -187,6 +512,57 @@ const InvoiceList: React.FC = () => {
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể xóa hóa đơn');
+        }
+    };
+
+    // Handle debt payment
+    const handleOpenPayDebt = async (invoice: Invoice) => {
+        setPaymentLoading(true);
+        try {
+            // Fetch full invoice detail to get debt info
+            const response = await axios.get(API.spaInvoiceDetail(invoice.id));
+            if (response.data.status_code === 200) {
+                const fullInvoice = response.data.data;
+                setDebtInvoice(invoice);
+                // Set default payment amount = remaining debt
+                const debtAmount = fullInvoice.cong_no?.so_tien_no || 0;
+                setPaymentAmount(debtAmount);
+                setPayDebtModalVisible(true);
+            }
+        } catch (error: any) {
+            message.error('Không thể tải thông tin công nợ');
+        } finally {
+            setPaymentLoading(false);
+        }
+    };
+
+    const handlePayDebt = async () => {
+        if (!debtInvoice) return;
+
+        if (paymentAmount <= 0) {
+            message.error('Số tiền thanh toán phải lớn hơn 0');
+            return;
+        }
+
+        setPaymentLoading(true);
+        try {
+            const response = await axios.post(`/aio/api/spa/invoices/${debtInvoice.id}/pay-debt`, {
+                so_tien_thanh_toan: paymentAmount,
+            });
+
+            if (response.data.success) {
+                message.success(response.data.message || 'Thanh toán công nợ thành công');
+                setPayDebtModalVisible(false);
+                setDebtInvoice(null);
+                setPaymentAmount(0);
+                loadInvoices();
+            } else {
+                message.error(response.data.message || 'Thanh toán thất bại');
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Lỗi khi thanh toán công nợ');
+        } finally {
+            setPaymentLoading(false);
         }
     };
 
@@ -211,6 +587,7 @@ const InvoiceList: React.FC = () => {
         const statusConfig: Record<string, { color: string; text: string; icon: any }> = {
             'cho_thanh_toan': { color: 'orange', text: 'Chờ thanh toán', icon: <ClockCircleOutlined /> },
             'da_thanh_toan': { color: 'green', text: 'Đã thanh toán', icon: <CheckCircleOutlined /> },
+            'con_cong_no': { color: 'volcano', text: 'Còn công nợ', icon: <DollarOutlined /> },
             'da_huy': { color: 'red', text: 'Đã hủy', icon: <CloseCircleOutlined /> },
         };
 
@@ -322,16 +699,17 @@ const InvoiceList: React.FC = () => {
             filters: [
                 { text: 'Chờ thanh toán', value: 'cho_thanh_toan' },
                 { text: 'Đã thanh toán', value: 'da_thanh_toan' },
+                { text: 'Còn công nợ', value: 'con_cong_no' },
                 { text: 'Đã hủy', value: 'da_huy' },
             ],
         },
         {
             title: 'Thao tác',
             key: 'action',
-            width: 150,
+            width: 200,
             fixed: 'right',
             render: (_, record) => (
-                <Space>
+                <Space size="small">
                     <Button
                         type="link"
                         size="small"
@@ -346,6 +724,17 @@ const InvoiceList: React.FC = () => {
                         icon={<PrinterOutlined />}
                         onClick={() => handlePrint(record)}
                     />
+                    {record.trang_thai === 'con_cong_no' && (
+                        <Button
+                            type="link"
+                            size="small"
+                            icon={<CreditCardOutlined />}
+                            onClick={() => handleOpenPayDebt(record)}
+                            style={{ color: '#ff4d4f' }}
+                        >
+                            Trả nợ
+                        </Button>
+                    )}
                     {record.trang_thai !== 'da_thanh_toan' && (
                         <Popconfirm
                             title="Xác nhận xóa hóa đơn?"
@@ -453,6 +842,7 @@ const InvoiceList: React.FC = () => {
                             >
                                 <Option value="cho_thanh_toan">Chờ thanh toán</Option>
                                 <Option value="da_thanh_toan">Đã thanh toán</Option>
+                                <Option value="con_cong_no">Còn công nợ</Option>
                                 <Option value="da_huy">Đã hủy</Option>
                             </Select>
                         </Col>
@@ -665,6 +1055,72 @@ const InvoiceList: React.FC = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Debt Payment Modal */}
+            <Modal
+                title={<Space><CreditCardOutlined style={{ color: '#ff4d4f' }} /> Thanh toán công nợ</Space>}
+                open={payDebtModalVisible}
+                onOk={handlePayDebt}
+                onCancel={() => {
+                    setPayDebtModalVisible(false);
+                    setDebtInvoice(null);
+                    setPaymentAmount(0);
+                }}
+                okText="Xác nhận thanh toán"
+                cancelText="Hủy"
+                confirmLoading={paymentLoading}
+                width={600}
+            >
+                {debtInvoice && (
+                    <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        <Card size="small" style={{ background: '#fff7e6', borderColor: '#ffa940' }}>
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <div>
+                                    <strong>Mã hóa đơn:</strong> {debtInvoice.ma_hoa_don}
+                                </div>
+                                <div>
+                                    <strong>Khách hàng:</strong> {debtInvoice.khach_hang?.name || debtInvoice.khach_hang?.ho_ten || 'Khách lẻ'}
+                                </div>
+                                <div>
+                                    <strong>Tổng hóa đơn:</strong>{' '}
+                                    <span style={{ color: '#1890ff', fontSize: 16, fontWeight: 'bold' }}>
+                                        {debtInvoice.tong_thanh_toan.toLocaleString()} ₫
+                                    </span>
+                                </div>
+                            </Space>
+                        </Card>
+
+                        <div>
+                            <div style={{ marginBottom: 8, fontSize: 15, fontWeight: 500 }}>
+                                Số tiền thanh toán: <span style={{ color: 'red' }}>*</span>
+                            </div>
+                            <InputNumber
+                                size="large"
+                                value={paymentAmount}
+                                onChange={(value) => setPaymentAmount(value || 0)}
+                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                addonAfter="₫"
+                                placeholder="Nhập số tiền thanh toán"
+                                min={0}
+                                style={{ width: '100%', fontSize: 16 }}
+                            />
+                            <div style={{ marginTop: 8, fontSize: 13, color: '#666' }}>
+                                Nhập số tiền khách hàng thanh toán cho công nợ này
+                            </div>
+                        </div>
+
+                        <Card size="small" style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
+                            <div style={{ fontSize: 13, color: '#52c41a' }}>
+                                <CheckCircleOutlined style={{ marginRight: 8 }} />
+                                {paymentAmount >= debtInvoice.tong_thanh_toan
+                                    ? 'Thanh toán đủ - Hóa đơn sẽ được đóng và công nợ sẽ được xóa'
+                                    : 'Thanh toán một phần - Công nợ sẽ được cập nhật số tiền còn lại'}
+                            </div>
+                        </Card>
+                    </Space>
+                )}
+            </Modal>
         </div>
     );
 };

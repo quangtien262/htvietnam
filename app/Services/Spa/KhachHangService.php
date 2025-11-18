@@ -61,8 +61,9 @@ class KhachHangService
                 'sdt' => $data['so_dien_thoai'] ?? null,
                 'email' => $data['email'] ?? null,
                 'ngay_sinh' => $data['ngay_sinh'] ?? null,
-                'gioi_tinh' => $data['gioi_tinh'] ?? null,
+                'gioi_tinh_id' => $data['gioi_tinh'] ?? null,
                 'dia_chi' => $data['dia_chi'] ?? null,
+                'loai_khach' => $data['loai_khach'] ?? null,
                 'nguon_khach' => $data['nguon_khach'] ?? null,
                 'ghi_chu' => $data['ghi_chu'] ?? null,
                 'password' => bcrypt('123456'), // Default password
@@ -105,8 +106,10 @@ class KhachHangService
             }
             if (isset($data['email'])) $userData['email'] = $data['email'];
             if (isset($data['ngay_sinh'])) $userData['ngay_sinh'] = $data['ngay_sinh'];
-            if (isset($data['gioi_tinh'])) $userData['gioi_tinh'] = $data['gioi_tinh'];
+            if (isset($data['gioi_tinh'])) $userData['gioi_tinh_id'] = $data['gioi_tinh'];
             if (isset($data['dia_chi'])) $userData['dia_chi'] = $data['dia_chi'];
+            if (isset($data['loai_khach'])) $userData['loai_khach'] = $data['loai_khach'];
+            if (isset($data['nguon_khach'])) $userData['nguon_khach'] = $data['nguon_khach'];
             if (isset($data['ghi_chu'])) $userData['ghi_chu'] = $data['ghi_chu'];
 
             $user->update($userData);

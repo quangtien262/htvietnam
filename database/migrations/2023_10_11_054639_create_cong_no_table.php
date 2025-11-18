@@ -18,14 +18,14 @@
                 $table->id();
 
                 $table->string('name')->nullable();
-                $table->string('code')->nullable();
+                $table->string('code')->nullable()->comment('Mã công nợ, CN000ID');
 
-                $table->integer('users_id')->nullable();
+                $table->integer('users_id')->nullable()->comment('id Khách hàng nợ, bảng users');
                 $table->integer('nha_cung_cap_id')->default(0)->nullable();
 
                 // receivable: nợ cần thu (khách hàng nợ ta)
                 // payable: nợ phải trả (ta nợ nhà cung cấp)
-                $table->string('loai_cong_no')->nullable()->comment('receivable hoặc payable');
+                $table->string('loai_cong_no')->nullable()->comment('1: receivable hoặc 2: payable');
 
                 // product_tra_hang_ncc, product_nhap_hang,
                 // hoa_don, product_khach_tra_hang

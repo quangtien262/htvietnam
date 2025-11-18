@@ -612,6 +612,11 @@ export const MENU = {
             key: (key++).toString(),
         },
         {
+            label: <Link className='normal' to={`${ROUTE.spa_shifts}?p=spa`}>QL Ca Làm</Link>,
+            icon: <ShopOutlined />,
+            key: (key++).toString(),
+        },
+        {
             label: <Link className='normal' to={`${ROUTE.spa_invoices}?p=spa`}>Hóa đơn</Link>,
             icon: <FileTextOutlined />,
             key: (key++).toString(),
@@ -631,6 +636,16 @@ export const MENU = {
                     label: <Link to={`${ROUTE.spa_membership}?p=spa`}>Thẻ thành viên</Link>,
                     key: (key++).toString(),
                     icon: <StarOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_gift_cards}?p=spa`}>🎁 Thẻ Giá Trị & Ví</Link>,
+                    key: (key++).toString(),
+                    icon: <GiftOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_wallet_reports}?p=spa`}>📊 Báo cáo Ví</Link>,
+                    key: (key++).toString(),
+                    icon: <BarChartOutlined />,
                 },
             ],
         },
@@ -659,54 +674,48 @@ export const MENU = {
         },
 
         // Quản lý kho đa chi nhánh
-        {
-            label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Kho</Link>,
-            key: (key++).toString(),
-            icon: <InboxOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.spa_branch_inventory}?p=spa`}>Tồn kho chi nhánh</Link>,
-                    key: (key++).toString(),
-                    icon: <InboxOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
-                    key: (key++).toString(),
-                    icon: <InboxOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_stock_transfer}?p=spa`}>Chuyển kho</Link>,
-                    key: (key++).toString(),
-                    icon: <ApartmentOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_inventory_count}?p=spa`}>Kiểm kê</Link>,
-                    key: (key++).toString(),
-                    icon: <FileTextOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_purchase_return}?p=spa`}>Trả hàng nhập</Link>,
-                    key: (key++).toString(),
-                    icon: <UnorderedListOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_disposal}?p=spa`}>Xuất hủy</Link>,
-                    key: (key++).toString(),
-                    icon: <DeleteOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_suppliers}?p=spa`}>Nhà cung cấp</Link>,
-                    key: (key++).toString(),
-                    icon: <TeamOutlined />,
-                },
-            ],
-        },
-        // Nhân viên
-        {
-            label: <Link to={`${ROUTE.spa_staff}?p=spa`}>Nhân viên</Link>,
-            icon: <TeamOutlined />,
-            key: (key++).toString(),
-        },
+        // {
+        //     label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Kho</Link>,
+        //     key: (key++).toString(),
+        //     icon: <InboxOutlined />,
+        //     children: [
+        //         {
+        //             label: <Link to={`${ROUTE.spa_branch_inventory}?p=spa`}>Tồn kho chi nhánh</Link>,
+        //             key: (key++).toString(),
+        //             icon: <InboxOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_inventory}?p=spa`}>Nhập kho</Link>,
+        //             key: (key++).toString(),
+        //             icon: <InboxOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_stock_transfer}?p=spa`}>Chuyển kho</Link>,
+        //             key: (key++).toString(),
+        //             icon: <ApartmentOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_inventory_count}?p=spa`}>Kiểm kê</Link>,
+        //             key: (key++).toString(),
+        //             icon: <FileTextOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_purchase_return}?p=spa`}>Trả hàng nhập</Link>,
+        //             key: (key++).toString(),
+        //             icon: <UnorderedListOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_disposal}?p=spa`}>Xuất hủy</Link>,
+        //             key: (key++).toString(),
+        //             icon: <DeleteOutlined />,
+        //         },
+        //         {
+        //             label: <Link to={`${ROUTE.spa_suppliers}?p=spa`}>Nhà cung cấp</Link>,
+        //             key: (key++).toString(),
+        //             icon: <TeamOutlined />,
+        //         },
+        //     ],
+        // },
         // Marketing
         {
             label: "Marketing",
@@ -857,6 +866,56 @@ export const MENU = {
             icon: <QuestionCircleOutlined />,
         },
     ],
+
+    kho: [
+        {
+            label: <Link to={`${ROUTE.spa_products}?p=kho`}>Sản phẩm</Link>,
+            key: (key++).toString(),
+            icon: <UnorderedListOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.spa_inventory}?p=kho`}>Quản lý Kho</Link>,
+            key: (key++).toString(),
+            icon: <InboxOutlined />,
+            children: [
+                {
+                    label: <Link to={`${ROUTE.spa_branch_inventory}?p=kho`}>Tồn kho chi nhánh</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory}?p=kho`}>Nhập kho</Link>,
+                    key: (key++).toString(),
+                    icon: <InboxOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_stock_transfer}?p=kho`}>Chuyển kho</Link>,
+                    key: (key++).toString(),
+                    icon: <ApartmentOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_inventory_count}?p=kho`}>Kiểm kê</Link>,
+                    key: (key++).toString(),
+                    icon: <FileTextOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_purchase_return}?p=kho`}>Trả hàng nhập</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_disposal}?p=kho`}>Xuất hủy</Link>,
+                    key: (key++).toString(),
+                    icon: <DeleteOutlined />,
+                },
+            ],
+        },
+        {
+            label: <Link to={`${ROUTE.spa_suppliers}?p=kho`}>Nhà cung cấp</Link>,
+            key: (key++).toString(),
+            icon: <TeamOutlined />,
+        },
+    ]
 }
 
 

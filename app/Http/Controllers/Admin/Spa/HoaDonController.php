@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin\Spa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Spa\HoaDon;
+use App\Models\Admin\CongNo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class HoaDonController extends Controller
 {
@@ -80,6 +83,7 @@ class HoaDonController extends Controller
                 'chiTiets.sanPham',
                 'chiTiets.ktv.adminUser',
                 'hoaHongs.ktv.adminUser',
+                'congNo',
             ])->findOrFail($id);
 
             return $this->sendSuccessResponse($invoice);
@@ -168,6 +172,90 @@ class HoaDonController extends Controller
 
             return $this->sendSuccessResponse($invoices);
         } catch (\Exception $e) {
+            return $this->sendErrorResponse($e->getMessage(), 500);
+        }
+    }
+
+    public function payDebt(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'so_tien_thanh_toan' => 'required|numeric|min:0.01',
+            ]);
+
+            DB::beginTransaction();
+
+            // Find invoice with debt record
+            $invoice = HoaDon::with('congNo')->findOrFail($id);
+
+            // Check if invoice has debt
+            if ($invoice->trang_thai !== 'con_cong_no') {
+                DB::rollBack();
+                return $this->sendErrorResponse('Hóa đơn này không có công nợ', 400);
+            }
+
+            $congNo = $invoice->congNo;
+            if (!$congNo) {
+                DB::rollBack();
+                return $this->sendErrorResponse('Không tìm thấy bản ghi công nợ', 404);
+            }
+
+            $soTienThanhToan = $validated['so_tien_thanh_toan'];
+
+            // Validate payment amount
+            if ($soTienThanhToan > $congNo->so_tien_no) {
+                DB::rollBack();
+                return $this->sendErrorResponse('Số tiền thanh toán không được lớn hơn số tiền nợ', 400);
+            }
+
+            // Update debt record
+            $congNo->so_tien_da_thanh_toan += $soTienThanhToan;
+            $congNo->so_tien_no -= $soTienThanhToan;
+
+            // Check if debt is fully paid
+            if ($congNo->so_tien_no <= 0) {
+                $congNo->so_tien_no = 0;
+                $congNo->cong_no_status_id = 1; // Status: Paid
+                $congNo->setAttribute('ngay_tat_toan', Carbon::now());
+
+                // Update invoice status
+                $invoice->trang_thai = 'da_thanh_toan';
+                $invoice->save();
+
+                Log::info('Debt fully paid', [
+                    'invoice_id' => $invoice->id,
+                    'ma_hoa_don' => $invoice->ma_hoa_don,
+                    'payment_amount' => $soTienThanhToan,
+                ]);
+            } else {
+                Log::info('Partial debt payment', [
+                    'invoice_id' => $invoice->id,
+                    'ma_hoa_don' => $invoice->ma_hoa_don,
+                    'payment_amount' => $soTienThanhToan,
+                    'remaining_debt' => $congNo->so_tien_no,
+                ]);
+            }
+
+            $congNo->save();
+
+            DB::commit();
+
+            return $this->sendSuccessResponse([
+                'invoice' => $invoice->fresh(['congNo']),
+                'congNo' => $congNo,
+                'message' => $congNo->so_tien_no <= 0 ? 'Đã thanh toán đủ công nợ' : 'Đã thanh toán một phần công nợ',
+            ], 'Thanh toán công nợ thành công');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return $this->sendErrorResponse($e->errors(), 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Pay debt error', [
+                'invoice_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->sendErrorResponse($e->getMessage(), 500);
         }
     }

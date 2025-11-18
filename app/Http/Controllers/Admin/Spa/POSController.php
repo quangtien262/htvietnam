@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Spa;
 use App\Http\Controllers\Controller;
 use App\Services\Spa\POSService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class POSController extends Controller
 {
@@ -48,7 +49,7 @@ class POSController extends Controller
     public function createInvoice(Request $request)
     {
         // Log request data for debugging
-        \Log::info('POS Invoice Request:', $request->all());
+        Log::info('POS Invoice Request:', $request->all());
 
         $validated = $request->validate([
             'khach_hang_id' => 'nullable|integer',
@@ -62,9 +63,19 @@ class POSController extends Controller
             'chi_tiets.*.don_gia' => 'nullable|numeric|min:0',
             'thanh_toan' => 'nullable|boolean',
             'phuong_thuc_thanh_toan' => 'nullable|array',
+            // Payment methods
+            'thanh_toan_vi' => 'nullable|numeric|min:0',
+            'thanh_toan_tien_mat' => 'nullable|numeric|min:0',
+            'thanh_toan_chuyen_khoan' => 'nullable|numeric|min:0',
+            'thanh_toan_the' => 'nullable|numeric|min:0',
+            // Discounts and tips
             'giam_gia' => 'nullable|numeric|min:0',
             'diem_su_dung' => 'nullable|integer|min:0',
             'tien_tip' => 'nullable|numeric|min:0',
+            // Debt (Công nợ)
+            'cong_no' => 'nullable|numeric|min:0',
+            'ngay_han_thanh_toan' => 'nullable|date',
+            // Other
             'nguoi_ban' => 'nullable|string',
             'ghi_chu' => 'nullable|string',
         ]);
@@ -91,7 +102,7 @@ class POSController extends Controller
                 'message' => 'Tạo hóa đơn thành công',
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('POS Invoice Error:', [
+            Log::error('POS Invoice Error:', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox, Tooltip } from 'antd';
-import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox, Tooltip, DatePicker, Alert } from 'antd';
+import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
 import ShiftWidget from '../../components/spa/ShiftWidget';
@@ -144,6 +144,17 @@ const SpaPOSScreen: React.FC = () => {
     const [transferAmount, setTransferAmount] = useState(0);
     const [cardAmount, setCardAmount] = useState(0);
 
+    // Payment method selection
+    const [useWallet, setUseWallet] = useState(false);
+    const [useCash, setUseCash] = useState(false);
+    const [useTransfer, setUseTransfer] = useState(false);
+    const [useCard, setUseCard] = useState(false);
+
+    // Debt (công nợ) state
+    const [showDebtForm, setShowDebtForm] = useState(false);
+    const [debtAmount, setDebtAmount] = useState(0);
+    const [debtDueDate, setDebtDueDate] = useState<any>(null);
+
     // New states for product/service listing
     const [services, setServices] = useState<ServiceProduct[]>([]);
     const [products, setProducts] = useState<ServiceProduct[]>([]);
@@ -186,6 +197,12 @@ const SpaPOSScreen: React.FC = () => {
     // Promo code modal
     const [promoCodeModalVisible, setPromoCodeModalVisible] = useState(false);
     const [promoCodeForm] = Form.useForm();
+
+    // Customer modal states
+    const [addCustomerModalVisible, setAddCustomerModalVisible] = useState(false);
+    const [viewCustomerModalVisible, setViewCustomerModalVisible] = useState(false);
+    const [customerForm] = Form.useForm();
+    const [viewingCustomer, setViewingCustomer] = useState<any>(null);
 
     // Fetch services and products on mount
     useEffect(() => {
@@ -330,6 +347,67 @@ const SpaPOSScreen: React.FC = () => {
 
         setFilteredGiftCards(filtered);
     }, [giftCardSearch, giftCards]);
+
+    // Auto-calculate payment amounts based on checkbox selection
+    useEffect(() => {
+        const totalAmount = calculateTotal();
+        const checkedCount = [useWallet, useCash, useTransfer, useCard].filter(Boolean).length;
+
+        if (checkedCount === 0) {
+            // No checkbox selected - reset all
+            setWalletAmount(0);
+            setCashAmount(0);
+            setTransferAmount(0);
+            setCardAmount(0);
+        } else if (checkedCount === 1) {
+            // Only 1 checkbox - auto-fill with full amount
+            if (useWallet) {
+                const maxWallet = Math.min(totalAmount, customerWallet?.so_du || 0);
+                setWalletAmount(maxWallet);
+            } else {
+                setWalletAmount(0);
+            }
+
+            if (useCash) {
+                setCashAmount(totalAmount - walletAmount);
+            } else {
+                setCashAmount(0);
+            }
+
+            if (useTransfer) {
+                setTransferAmount(totalAmount - walletAmount);
+            } else {
+                setTransferAmount(0);
+            }
+
+            if (useCard) {
+                setCardAmount(totalAmount - walletAmount);
+            } else {
+                setCardAmount(0);
+            }
+        } else {
+            // Multiple checkboxes - set to 0 for manual input
+            if (!useWallet) setWalletAmount(0);
+            if (!useCash) setCashAmount(0);
+            if (!useTransfer) setTransferAmount(0);
+            if (!useCard) setCardAmount(0);
+        }
+    }, [useWallet, useCash, useTransfer, useCard]);
+
+    // Check if payment is insufficient (công nợ)
+    useEffect(() => {
+        const totalAmount = calculateTotal();
+        const totalPaid = walletAmount + cashAmount + transferAmount + cardAmount;
+        const remaining = totalAmount - totalPaid;
+
+        if (remaining > 0 && (useWallet || useCash || useTransfer || useCard)) {
+            setShowDebtForm(true);
+            setDebtAmount(remaining);
+        } else {
+            setShowDebtForm(false);
+            setDebtAmount(0);
+        }
+    }, [walletAmount, cashAmount, transferAmount, cardAmount]);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -686,6 +764,19 @@ const SpaPOSScreen: React.FC = () => {
             return;
         }
 
+        // Reset payment states
+        setUseWallet(false);
+        setUseCash(false);
+        setUseTransfer(false);
+        setUseCard(false);
+        setWalletAmount(0);
+        setCashAmount(0);
+        setTransferAmount(0);
+        setCardAmount(0);
+        setShowDebtForm(false);
+        setDebtAmount(0);
+        setDebtDueDate(null);
+
         setPaymentModalVisible(true);
     };
 
@@ -714,6 +805,73 @@ const SpaPOSScreen: React.FC = () => {
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Mã code không hợp lệ');
+        }
+    };
+
+    // Handle add new customer
+    const handleAddCustomer = async () => {
+        try {
+            const values = await customerForm.validateFields();
+            setLoading(true);
+
+            const response = await axios.post('/aio/api/customer/add', {
+                name: values.name,
+                email: values.email,
+                phone: values.phone,
+                address: values.address,
+                ngay_sinh: values.ngay_sinh?.format('YYYY-MM-DD'),
+            });
+
+            if (response.data.status_code === 200 || response.data.success) {
+                message.success('Thêm khách hàng thành công');
+                customerForm.resetFields();
+                setAddCustomerModalVisible(false);
+                // Refresh customer list
+                await fetchCustomers();
+                // Auto select new customer
+                const newCustomer = response.data.data;
+                if (newCustomer) {
+                    setSelectedCustomer({
+                        value: newCustomer.id,
+                        label: newCustomer.name || newCustomer.ho_ten,
+                        code: newCustomer.code || newCustomer.ma_khach_hang,
+                        phone: newCustomer.phone || newCustomer.sdt,
+                        points: newCustomer.points || 0
+                    });
+                }
+            } else {
+                message.error(response.data.message || 'Không thể thêm khách hàng');
+            }
+        } catch (error: any) {
+            console.error('Error adding customer:', error);
+            message.error(error.response?.data?.message || 'Lỗi khi thêm khách hàng');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle view customer info
+    const handleViewCustomer = async () => {
+        if (!selectedCustomer) {
+            message.warning('Vui lòng chọn khách hàng');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await axios.get(`/aio/api/user/${selectedCustomer.value}`);
+            if (response.data.status_code === 200 || response.data.success) {
+                const customerData = response.data.data;
+                setViewingCustomer(customerData);
+                setViewCustomerModalVisible(true);
+            } else {
+                message.error('Không thể tải thông tin khách hàng');
+            }
+        } catch (error: any) {
+            console.error('Error fetching customer info:', error);
+            message.error('Lỗi khi tải thông tin khách hàng');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -847,12 +1005,46 @@ const SpaPOSScreen: React.FC = () => {
 
     const handleConfirmPayment = async () => {
         try {
-            // Validate total payment equals total amount
+            // Validate total payment
             const totalAmount = calculateTotal();
             const totalPaid = walletAmount + cashAmount + transferAmount + cardAmount;
+            const remaining = totalAmount - totalPaid;
 
-            if (Math.abs(totalPaid - totalAmount) > 0.01) {
-                message.error(`Tổng thanh toán (${formatCurrency(totalPaid)}) phải bằng tổng tiền (${formatCurrency(totalAmount)})`);
+            // If payment is less than total, confirm debt
+            if (remaining > 0.01) {
+                if (!selectedCustomer) {
+                    message.error('Cần chọn khách hàng để ghi công nợ');
+                    return;
+                }
+
+                if (!debtDueDate) {
+                    message.error('Vui lòng chọn thời hạn thanh toán công nợ');
+                    return;
+                }
+
+                const confirmed = await new Promise<boolean>((resolve) => {
+                    Modal.confirm({
+                        title: 'Xác nhận thanh toán và lưu công nợ',
+                        content: (
+                            <div>
+                                <p>Tổng hóa đơn: <strong>{formatCurrency(totalAmount)}</strong></p>
+                                <p>Đã thanh toán: <strong>{formatCurrency(totalPaid)}</strong></p>
+                                <p style={{ color: '#ff4d4f' }}>Công nợ: <strong>{formatCurrency(remaining)}</strong></p>
+                                <p>Hạn thanh toán: <strong>{debtDueDate?.format('DD/MM/YYYY')}</strong></p>
+                            </div>
+                        ),
+                        okText: 'Xác nhận',
+                        cancelText: 'Hủy',
+                        onOk: () => resolve(true),
+                        onCancel: () => resolve(false),
+                    });
+                });
+
+                if (!confirmed) {
+                    return;
+                }
+            } else if (Math.abs(remaining) > 0.01) {
+                message.error(`Tổng thanh toán (${formatCurrency(totalPaid)}) vượt quá tổng tiền (${formatCurrency(totalAmount)})`);
                 return;
             }
 
@@ -891,7 +1083,7 @@ const SpaPOSScreen: React.FC = () => {
                     so_luong: item.quantity,
                     don_gia: item.price,
                 })),
-                thanh_toan: true,
+                thanh_toan: remaining < 0.01, // Đã thanh toán đủ
                 thanh_toan_vi: walletAmount,
                 thanh_toan_tien_mat: cashAmount,
                 thanh_toan_chuyen_khoan: transferAmount,
@@ -900,6 +1092,9 @@ const SpaPOSScreen: React.FC = () => {
                 diem_su_dung: pointsUsed,
                 tien_tip: tip,
                 nguoi_ban: 'Admin',
+                // Debt info
+                cong_no: remaining > 0.01 ? remaining : 0,
+                ngay_han_thanh_toan: remaining > 0.01 ? debtDueDate?.format('YYYY-MM-DD') : null,
             };
 
             // Create invoice
@@ -931,13 +1126,20 @@ const SpaPOSScreen: React.FC = () => {
                     }
                 }
 
-                message.success('Thanh toán thành công!');
+                message.success(remaining > 0.01 ? 'Thanh toán thành công! Đã lưu công nợ.' : 'Thanh toán thành công!');
                 setPaymentModalVisible(false);
                 form.resetFields();
                 setWalletAmount(0);
                 setCashAmount(0);
                 setTransferAmount(0);
                 setCardAmount(0);
+                setUseWallet(false);
+                setUseCash(false);
+                setUseTransfer(false);
+                setUseCard(false);
+                setShowDebtForm(false);
+                setDebtAmount(0);
+                setDebtDueDate(null);
 
                 // Reload shift and wallet
                 loadCurrentShift();
@@ -1394,24 +1596,41 @@ const SpaPOSScreen: React.FC = () => {
                                 ),
                                 children: (
                                     <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                                        <Select
-                                            placeholder="Chọn khách hàng"
-                                            style={{ width: '100%' }}
-                                            value={order.customer?.value}
-                                            onChange={(value: any) => {
-                                                const user = customers.find(u => u.value === value);
-                                                setSelectedCustomer(user || null);
-                                            }}
-                                            showSearch
-                                            allowClear
-                                            filterOption={filterSelectOption}
-                                        >
-                                            {customers.map(user => (
-                                                <Select.Option key={user.value} value={user.value}>
-                                                    {user.code} - {user.label} {user.phone ? `- ${user.phone}` : ''}
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
+                                        <Space.Compact style={{ width: '100%' }}>
+                                            <Select
+                                                placeholder="Chọn khách hàng"
+                                                style={{ flex: 1 }}
+                                                value={order.customer?.value}
+                                                onChange={(value: any) => {
+                                                    const user = customers.find(u => u.value === value);
+                                                    setSelectedCustomer(user || null);
+                                                }}
+                                                showSearch
+                                                allowClear
+                                                filterOption={filterSelectOption}
+                                            >
+                                                {customers.map(user => (
+                                                    <Select.Option key={user.value} value={user.value}>
+                                                        {user.code} - {user.label} {user.phone ? `- ${user.phone}` : ''}
+                                                    </Select.Option>
+                                                ))}
+                                            </Select>
+                                            <Tooltip title="Thêm khách hàng mới">
+                                                <Button
+                                                    type="primary"
+                                                    icon={<UserAddOutlined />}
+                                                    onClick={() => setAddCustomerModalVisible(true)}
+                                                />
+                                            </Tooltip>
+                                            <Tooltip title="Xem thông tin khách hàng">
+                                                <Button
+                                                    type="default"
+                                                    icon={<InfoCircleOutlined />}
+                                                    onClick={handleViewCustomer}
+                                                    disabled={!order.customer}
+                                                />
+                                            </Tooltip>
+                                        </Space.Compact>
 
                                         {order.customer && (
                                             <Card size="small" style={{ background: '#f0f5ff', borderColor: '#1890ff' }}>
@@ -1538,8 +1757,15 @@ const SpaPOSScreen: React.FC = () => {
                     setCashAmount(0);
                     setTransferAmount(0);
                     setCardAmount(0);
+                    setUseWallet(false);
+                    setUseCash(false);
+                    setUseTransfer(false);
+                    setUseCard(false);
+                    setShowDebtForm(false);
+                    setDebtAmount(0);
+                    setDebtDueDate(null);
                 }}
-                width={600}
+                width={700}
                 okText="Xác nhận thanh toán"
                 cancelText="Hủy"
                 confirmLoading={loading}
@@ -1552,83 +1778,114 @@ const SpaPOSScreen: React.FC = () => {
                         formatter={(value) => formatCurrency(Number(value))}
                     />
 
-                    <Divider />
+                    <Divider>Chọn hình thức thanh toán</Divider>
 
                     {/* Wallet Payment */}
                     {selectedCustomer && customerWallet && (
                         <Card size="small" style={{ background: '#f0f5ff' }}>
                             <Space direction="vertical" style={{ width: '100%' }} size="small">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Checkbox
+                                    checked={useWallet}
+                                    onChange={(e) => setUseWallet(e.target.checked)}
+                                >
                                     <span>
                                         <DollarOutlined style={{ marginRight: 4 }} />
                                         Thanh toán từ ví
                                     </span>
-                                    <span style={{ fontSize: '13px', color: '#888' }}>
-                                        Số dư: {formatCurrency(customerWallet.so_du)}
+                                    <span style={{ fontSize: '13px', color: '#888', marginLeft: 8 }}>
+                                        (Số dư: {formatCurrency(customerWallet.so_du)})
                                     </span>
-                                </div>
-                                <InputNumber
-                                    style={{ width: '100%' }}
-                                    value={walletAmount}
-                                    onChange={(value) => setWalletAmount(value || 0)}
-                                    max={Math.min(calculateTotal(), customerWallet.so_du)}
-                                    min={0}
-                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                    parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                    addonBefore="₫"
-                                />
-                                <Button
-                                    size="small"
-                                    type="link"
-                                    onClick={() => setWalletAmount(Math.min(calculateTotal(), customerWallet.so_du))}
-                                    style={{ padding: 0 }}
-                                >
-                                    Dùng hết ví
-                                </Button>
+                                </Checkbox>
+                                {useWallet && (
+                                    <>
+                                        <InputNumber
+                                            style={{ width: '100%' }}
+                                            value={walletAmount}
+                                            onChange={(value) => setWalletAmount(value || 0)}
+                                            max={Math.min(calculateTotal(), customerWallet.so_du)}
+                                            min={0}
+                                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                            addonBefore="₫"
+                                        />
+                                        <Button
+                                            size="small"
+                                            type="link"
+                                            onClick={() => setWalletAmount(Math.min(calculateTotal(), customerWallet.so_du))}
+                                            style={{ padding: 0 }}
+                                        >
+                                            Dùng hết ví
+                                        </Button>
+                                    </>
+                                )}
                             </Space>
                         </Card>
                     )}
 
                     {/* Cash Payment */}
                     <div>
-                        <div style={{ marginBottom: 8 }}>Tiền mặt:</div>
-                        <InputNumber
-                            style={{ width: '100%' }}
-                            value={cashAmount}
-                            onChange={(value) => setCashAmount(value || 0)}
-                            min={0}
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                            addonBefore="₫"
-                        />
+                        <Checkbox
+                            checked={useCash}
+                            onChange={(e) => setUseCash(e.target.checked)}
+                            style={{ marginBottom: 8 }}
+                        >
+                            Tiền mặt
+                        </Checkbox>
+                        {useCash && (
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                value={cashAmount}
+                                onChange={(value) => setCashAmount(value || 0)}
+                                min={0}
+                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                addonBefore="₫"
+                            />
+                        )}
                     </div>
 
                     {/* Transfer Payment */}
                     <div>
-                        <div style={{ marginBottom: 8 }}>Chuyển khoản:</div>
-                        <InputNumber
-                            style={{ width: '100%' }}
-                            value={transferAmount}
-                            onChange={(value) => setTransferAmount(value || 0)}
-                            min={0}
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                            addonBefore="₫"
-                        />
+                        <Checkbox
+                            checked={useTransfer}
+                            onChange={(e) => setUseTransfer(e.target.checked)}
+                            style={{ marginBottom: 8 }}
+                        >
+                            Chuyển khoản
+                        </Checkbox>
+                        {useTransfer && (
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                value={transferAmount}
+                                onChange={(value) => setTransferAmount(value || 0)}
+                                min={0}
+                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                addonBefore="₫"
+                            />
+                        )}
                     </div>
 
                     {/* Card Payment */}
                     <div>
-                        <div style={{ marginBottom: 8 }}>Quẹt thẻ:</div>
-                        <InputNumber
-                            style={{ width: '100%' }}
-                            value={cardAmount}
-                            onChange={(value) => setCardAmount(value || 0)}
-                            min={0}
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                            addonBefore="₫"
-                        />
+                        <Checkbox
+                            checked={useCard}
+                            onChange={(e) => setUseCard(e.target.checked)}
+                            style={{ marginBottom: 8 }}
+                        >
+                            Quẹt thẻ
+                        </Checkbox>
+                        {useCard && (
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                value={cardAmount}
+                                onChange={(value) => setCardAmount(value || 0)}
+                                min={0}
+                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                addonBefore="₫"
+                            />
+                        )}
                     </div>
 
                     <Divider />
@@ -1638,7 +1895,7 @@ const SpaPOSScreen: React.FC = () => {
                         <Space direction="vertical" style={{ width: '100%' }} size={4}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Tổng đã thanh toán:</span>
-                                <strong style={{ fontSize: '16px', color: walletAmount + cashAmount + transferAmount + cardAmount === calculateTotal() ? '#52c41a' : '#ff4d4f' }}>
+                                <strong style={{ fontSize: '16px', color: walletAmount + cashAmount + transferAmount + cardAmount >= calculateTotal() ? '#52c41a' : '#ff4d4f' }}>
                                     {formatCurrency(walletAmount + cashAmount + transferAmount + cardAmount)}
                                 </strong>
                             </div>
@@ -1650,6 +1907,37 @@ const SpaPOSScreen: React.FC = () => {
                             </div>
                         </Space>
                     </Card>
+
+                    {/* Debt Form */}
+                    {showDebtForm && (
+                        <>
+                            <Alert
+                                message="Thanh toán thiếu - Ghi công nợ"
+                                description={
+                                    <div>
+                                        <p>Số tiền công nợ: <strong style={{ color: '#ff4d4f' }}>{formatCurrency(debtAmount)}</strong></p>
+                                        <p style={{ fontSize: '12px', color: '#666', marginBottom: 0 }}>
+                                            Hệ thống sẽ tự động lưu công nợ cho khách hàng này
+                                        </p>
+                                    </div>
+                                }
+                                type="warning"
+                                showIcon
+                                icon={<ExclamationCircleOutlined />}
+                            />
+                            <div>
+                                <div style={{ marginBottom: 8 }}>Thời hạn thanh toán công nợ: <span style={{ color: 'red' }}>*</span></div>
+                                <DatePicker
+                                    style={{ width: '100%' }}
+                                    value={debtDueDate}
+                                    onChange={(date) => setDebtDueDate(date)}
+                                    placeholder="Chọn ngày hạn thanh toán"
+                                    format="DD/MM/YYYY"
+                                    disabledDate={(current) => current && current.isBefore(new Date(), 'day')}
+                                />
+                            </div>
+                        </>
+                    )}
                 </Space>
             </Modal>
 
@@ -1681,6 +1969,151 @@ const SpaPOSScreen: React.FC = () => {
                         Nhập mã thẻ tặng để nạp tiền vào ví khách hàng
                     </div>
                 </Form>
+            </Modal>
+
+            {/* Add Customer Modal */}
+            <Modal
+                title={<Space><UserAddOutlined /> Thêm khách hàng mới</Space>}
+                visible={addCustomerModalVisible}
+                onOk={handleAddCustomer}
+                onCancel={() => {
+                    setAddCustomerModalVisible(false);
+                    customerForm.resetFields();
+                }}
+                okText="Thêm khách hàng"
+                cancelText="Hủy"
+                confirmLoading={loading}
+                width={600}
+            >
+                <Form form={customerForm} layout="vertical">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="name"
+                                label="Tên khách hàng"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
+                            >
+                                <Input placeholder="Nguyễn Văn A" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="phone"
+                                label="Số điện thoại"
+                                rules={[
+                                    { required: true, message: 'Vui lòng nhập SĐT' },
+                                    { pattern: /^[0-9]{10,11}$/, message: 'SĐT không hợp lệ' }
+                                ]}
+                            >
+                                <Input placeholder="0987654321" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    { type: 'email', message: 'Email không hợp lệ' }
+                                ]}
+                            >
+                                <Input placeholder="email@example.com" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="ngay_sinh"
+                                label="Ngày sinh"
+                            >
+                                <DatePicker
+                                    style={{ width: '100%' }}
+                                    placeholder="Chọn ngày sinh"
+                                    format="DD/MM/YYYY"
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Form.Item
+                        name="address"
+                        label="Địa chỉ"
+                    >
+                        <Input.TextArea rows={2} placeholder="Địa chỉ khách hàng" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* View Customer Info Modal */}
+            <Modal
+                title={<Space><InfoCircleOutlined /> Thông tin khách hàng</Space>}
+                visible={viewCustomerModalVisible}
+                onCancel={() => {
+                    setViewCustomerModalVisible(false);
+                    setViewingCustomer(null);
+                }}
+                footer={[
+                    <Button key="close" onClick={() => setViewCustomerModalVisible(false)}>
+                        Đóng
+                    </Button>
+                ]}
+                width={600}
+            >
+                {viewingCustomer && (
+                    <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                        <Card size="small" title="Thông tin cơ bản">
+                            <Row gutter={[16, 12]}>
+                                <Col span={8}><strong>Mã KH:</strong></Col>
+                                <Col span={16}>{viewingCustomer.code || viewingCustomer.ma_khach_hang || 'N/A'}</Col>
+
+                                <Col span={8}><strong>Họ tên:</strong></Col>
+                                <Col span={16}>{viewingCustomer.name}</Col>
+
+                                <Col span={8}><strong>SĐT:</strong></Col>
+                                <Col span={16}>{viewingCustomer.phone || 'N/A'}</Col>
+
+                                <Col span={8}><strong>Email:</strong></Col>
+                                <Col span={16}>{viewingCustomer.email || 'N/A'}</Col>
+
+                                <Col span={8}><strong>Ngày sinh:</strong></Col>
+                                <Col span={16}>{viewingCustomer.ngay_sinh || 'N/A'}</Col>
+
+                                <Col span={8}><strong>Địa chỉ:</strong></Col>
+                                <Col span={16}>{viewingCustomer.address || 'N/A'}</Col>
+                            </Row>
+                        </Card>
+
+                        <Card size="small" title="Ví & Điểm tích lũy">
+                            <Row gutter={[16, 12]}>
+                                <Col span={12}>
+                                    <Statistic
+                                        title="Số dư ví"
+                                        value={customerWallet?.so_du || 0}
+                                        suffix="₫"
+                                        valueStyle={{ color: '#52c41a' }}
+                                        formatter={(value) => formatCurrency(Number(value))}
+                                    />
+                                </Col>
+                                <Col span={12}>
+                                    <Statistic
+                                        title="Điểm tích lũy"
+                                        value={viewingCustomer.points || 0}
+                                        valueStyle={{ color: '#1890ff' }}
+                                    />
+                                </Col>
+                                <Col span={12}>
+                                    <div style={{ fontSize: '12px', color: '#666' }}>
+                                        <div>Tổng nạp: {formatCurrency(customerWallet?.tong_nap || 0)} ₫</div>
+                                    </div>
+                                </Col>
+                                <Col span={12}>
+                                    <div style={{ fontSize: '12px', color: '#666' }}>
+                                        <div>Đã tiêu: {formatCurrency(customerWallet?.tong_tieu || 0)} ₫</div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Space>
+                )}
             </Modal>
         </div>
     );

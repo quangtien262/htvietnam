@@ -400,4 +400,132 @@ class WalletService
             'wallet' => $wallet,
         ];
     }
+
+    /**
+     * Get report statistics
+     */
+    public function getReportStats(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = GiaoDichVi::query();
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Total gift card revenue (from deposits with gift cards)
+        $totalGiftCardRevenue = GiaoDichVi::where('loai_giao_dich', 'NAP')
+            ->whereNotNull('the_gia_tri_id')
+            ->when($startDate, fn($q) => $q->whereDate('created_at', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('created_at', '<=', $endDate))
+            ->sum('so_tien');
+
+        // Total deposits
+        $totalDeposits = (clone $query)->where('loai_giao_dich', 'NAP')->sum('so_tien');
+
+        // Total withdrawals
+        $totalWithdrawals = (clone $query)->where('loai_giao_dich', 'RUT')->sum('so_tien');
+
+        // Total refunds
+        $totalRefunds = (clone $query)->where('loai_giao_dich', 'HOAN')->sum('so_tien');
+
+        // Net wallet balance (sum of all wallets)
+        $netWalletBalance = KhachHangVi::sum('so_du');
+
+        // Gift card count (from deposits)
+        $giftCardCount = GiaoDichVi::where('loai_giao_dich', 'NAP')
+            ->whereNotNull('the_gia_tri_id')
+            ->when($startDate, fn($q) => $q->whereDate('created_at', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('created_at', '<=', $endDate))
+            ->count();
+
+        // Active wallet count (wallets with balance > 0)
+        $activeWalletCount = KhachHangVi::where('so_du', '>', 0)->count();
+
+        return [
+            'total_gift_card_revenue' => $totalGiftCardRevenue,
+            'total_deposits' => $totalDeposits,
+            'total_withdrawals' => $totalWithdrawals,
+            'total_refunds' => $totalRefunds,
+            'net_wallet_balance' => $netWalletBalance,
+            'gift_card_count' => $giftCardCount,
+            'active_wallet_count' => $activeWalletCount,
+        ];
+    }
+
+    /**
+     * Get top customers by wallet usage
+     */
+    public function getTopCustomers(?string $startDate = null, ?string $endDate = null, int $limit = 10): array
+    {
+        $wallets = KhachHangVi::with('khachHang')
+            ->orderByDesc('tong_nap')
+            ->limit($limit)
+            ->get();
+
+        return $wallets->map(function ($wallet) {
+            return [
+                'id' => $wallet->khach_hang_id,
+                'ho_ten' => $wallet->khachHang->ho_ten ?? 'N/A',
+                'sdt' => $wallet->khachHang->sdt ?? 'N/A',
+                'so_du' => $wallet->so_du,
+                'tong_nap' => $wallet->tong_nap,
+                'tong_rut' => $wallet->tong_tieu,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get gift card revenue by card type
+     */
+    public function getGiftCardRevenue(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = GiaoDichVi::where('loai_giao_dich', 'NAP')
+            ->whereNotNull('the_gia_tri_id')
+            ->with('theGiaTri');
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $transactions = $query->get();
+
+        // Group by gift card
+        $revenue = $transactions->groupBy('the_gia_tri_id')->map(function ($group) {
+            $giftCard = $group->first()->theGiaTri;
+            return [
+                'id' => $giftCard->id,
+                'ten_the' => $giftCard->ten_the,
+                'gia_ban' => $giftCard->gia_ban,
+                'menh_gia' => $giftCard->menh_gia,
+                'ti_le_thuong' => $giftCard->ti_le_thuong,
+                'so_luong_ban' => $group->count(),
+                'doanh_thu' => $group->sum(fn($t) => $giftCard->gia_ban),
+            ];
+        })->values()->toArray();
+
+        return $revenue;
+    }
+
+    /**
+     * Get transactions for report
+     */
+    public function getTransactionsForReport(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = GiaoDichVi::with(['khachHang', 'theGiaTri', 'hoaDon', 'nhanVien']);
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        return $query->orderByDesc('created_at')->get()->toArray();
+    }
 }

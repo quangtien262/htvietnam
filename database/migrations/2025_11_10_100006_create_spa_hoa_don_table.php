@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('phuong_thuc_thanh_toan', 50)->nullable()->comment('tien_mat, chuyen_khoan, the, vi');
             $table->integer('diem_tich_luy')->default(0);
             $table->string('nguoi_ban', 100)->nullable();
-            $table->enum('trang_thai', ['cho_thanh_toan', 'da_thanh_toan', 'da_huy'])->default('cho_thanh_toan');
+            $table->enum('trang_thai', ['cho_thanh_toan', 'da_thanh_toan', 'con_cong_no', 'da_huy'])->default('cho_thanh_toan');
             $table->text('ghi_chu')->nullable();
             $table->timestamps();
             $table->softDeletes();

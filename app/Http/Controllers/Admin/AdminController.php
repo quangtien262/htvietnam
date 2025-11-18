@@ -22,8 +22,7 @@ class AdminController extends Controller
 
     function getMenusDashboard(Request $request)
     {
-        $menus = AdminMenu::where('parent_id', 0)
-            ->where('is_active', 1)
+        $menus = AdminMenu::where('is_active', 1)
             ->orderBy('sort_order', 'asc')
             ->get();
         return $this->sendSuccessResponse($menus);

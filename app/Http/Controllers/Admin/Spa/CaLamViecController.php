@@ -7,26 +7,29 @@ use App\Models\Spa\CaLamViec;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CaLamViecController extends Controller
 {
     /**
-     * Lấy ca đang mở của chi nhánh hoặc của user hiện tại
+     * Lấy ca đang mở của chi nhánh
      */
     public function getCurrentShift(Request $request)
     {
-        // Ưu tiên lấy ca theo user đang login
-        $userId = Auth::id();
+        $query = CaLamViec::with(['nhanVienMoCa', 'chiNhanh'])
+            ->where('trang_thai', 'dang_mo');
 
-        $ca = CaLamViec::with(['nhanVienMoCa', 'chiNhanh'])
-            ->where('trang_thai', 'dang_mo')
-            ->when($userId, function($query) use ($userId) {
-                $query->where('nhan_vien_mo_ca_id', $userId);
-            })
-            ->when($request->filled('chi_nhanh_id'), function($query) use ($request) {
-                $query->where('chi_nhanh_id', $request->chi_nhanh_id);
-            })
-            ->first();
+        // Filter by branch if provided
+        if ($request->filled('chi_nhanh_id')) {
+            $query->where('chi_nhanh_id', $request->chi_nhanh_id);
+        } else {
+            // If no branch specified, get the first open shift
+            // (In case user manages multiple branches)
+            $query->orderBy('thoi_gian_bat_dau', 'desc');
+        }
+
+        $ca = $query->first();
 
         if (!$ca) {
             return $this->sendSuccessResponse(null, 'Chưa có ca nào đang mở');
@@ -201,7 +204,7 @@ class CaLamViecController extends Controller
             return $this->sendErrorResponse('Ca chưa đóng, không thể in biên bản', 400);
         }
 
-        $pdf = \PDF::loadView('spa.shift-handover', ['ca' => $ca]);
+        $pdf = Pdf::loadView('spa.shift-handover', ['ca' => $ca]);
         return $pdf->download("Bien_ban_ban_giao_{$ca->ma_ca}.pdf");
     }
 
@@ -210,23 +213,38 @@ class CaLamViecController extends Controller
      */
     private function calculateShiftStats($caId)
     {
+        // Tính doanh thu từ các hóa đơn đã thanh toán (đủ hoặc có công nợ)
+        // Bao gồm cả 'da_thanh_toan' và 'con_cong_no'
         $stats = DB::table('spa_hoa_don')
             ->where('ca_lam_viec_id', $caId)
-            ->where('trang_thai', 'da_thanh_toan')
+            ->whereIn('trang_thai', ['da_thanh_toan', 'con_cong_no'])
             ->selectRaw('
                 COUNT(*) as so_hoa_don,
-                SUM(CASE WHEN phuong_thuc_thanh_toan = "tien_mat" THEN tong_tien ELSE 0 END) as doanh_thu_tien_mat,
-                SUM(CASE WHEN phuong_thuc_thanh_toan = "chuyen_khoan" THEN tong_tien ELSE 0 END) as doanh_thu_chuyen_khoan,
-                SUM(CASE WHEN phuong_thuc_thanh_toan = "the" THEN tong_tien ELSE 0 END) as doanh_thu_the,
-                SUM(tong_tien) as tong_doanh_thu
+                COALESCE(SUM(COALESCE(thanh_toan_tien_mat, 0)), 0) as doanh_thu_tien_mat,
+                COALESCE(SUM(COALESCE(thanh_toan_chuyen_khoan, 0)), 0) as doanh_thu_chuyen_khoan,
+                COALESCE(SUM(COALESCE(thanh_toan_the, 0)), 0) as doanh_thu_the,
+                COALESCE(SUM(COALESCE(thanh_toan_vi, 0)), 0) as doanh_thu_vi,
+                COALESCE(SUM(
+                    COALESCE(thanh_toan_tien_mat, 0) +
+                    COALESCE(thanh_toan_chuyen_khoan, 0) +
+                    COALESCE(thanh_toan_the, 0) +
+                    COALESCE(thanh_toan_vi, 0)
+                ), 0) as tong_doanh_thu
             ')
             ->first();
+
+        // Log để debug
+        Log::info('Shift Stats Calculation', [
+            'ca_id' => $caId,
+            'stats' => $stats,
+        ]);
 
         return [
             'so_hoa_don' => $stats->so_hoa_don ?? 0,
             'doanh_thu_tien_mat' => $stats->doanh_thu_tien_mat ?? 0,
             'doanh_thu_chuyen_khoan' => $stats->doanh_thu_chuyen_khoan ?? 0,
             'doanh_thu_the' => $stats->doanh_thu_the ?? 0,
+            'doanh_thu_vi' => $stats->doanh_thu_vi ?? 0,
             'tong_doanh_thu' => $stats->tong_doanh_thu ?? 0,
         ];
     }

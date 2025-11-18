@@ -64,7 +64,7 @@ class ViKhachHangController extends Controller
     public function napTien(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'khach_hang_id' => 'required|exists:spa_khach_hang,id',
+            'khach_hang_id' => 'required|exists:users,id',
             'the_gia_tri_id' => 'required|exists:spa_the_gia_tri,id',
             'ghi_chu' => 'nullable|string',
         ]);
@@ -113,7 +113,7 @@ class ViKhachHangController extends Controller
     public function truTien(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'khach_hang_id' => 'required|exists:spa_khach_hang,id',
+            'khach_hang_id' => 'required|exists:users,id',
             'so_tien' => 'required|numeric|min:0',
             'hoa_don_id' => 'nullable|exists:spa_hoa_don,id',
             'ghi_chu' => 'nullable|string',
@@ -154,7 +154,7 @@ class ViKhachHangController extends Controller
     public function hoanTien(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'khach_hang_id' => 'required|exists:spa_khach_hang,id',
+            'khach_hang_id' => 'required|exists:users,id',
             'so_tien' => 'required|numeric|min:0',
             'hoa_don_id' => 'nullable|exists:spa_hoa_don,id',
             'ghi_chu' => 'nullable|string',
@@ -195,7 +195,7 @@ class ViKhachHangController extends Controller
     public function applyCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'khach_hang_id' => 'required|exists:spa_khach_hang,id',
+            'khach_hang_id' => 'required|exists:users,id',
             'ma_code' => 'required|string',
         ]);
 

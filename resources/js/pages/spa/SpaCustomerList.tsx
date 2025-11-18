@@ -89,7 +89,7 @@ const SpaCustomerList: React.FC = () => {
                 // Backend trả về: { success: true, data: {pagination data} }
                 const customerData = response.data.data;
                 const customersData = customerData.data || [];
-                
+
                 // Fetch wallet for each customer
                 const customersWithWallet = await Promise.all(
                     customersData.map(async (customer: Customer) => {
@@ -104,7 +104,7 @@ const SpaCustomerList: React.FC = () => {
                         return customer;
                     })
                 );
-                
+
                 setCustomers(customersWithWallet);
                 setPagination({
                     ...pagination,
@@ -195,15 +195,19 @@ const SpaCustomerList: React.FC = () => {
         if (customer) {
             setEditingCustomer(customer);
             // Map dữ liệu từ backend sang form
+            const gioiTinhValue = customer.gioi_tinh_id || customer.gioi_tinh;
+            const loaiKhachValue = customer.loai_khach?.toLowerCase();
+
             form.setFieldsValue({
-                ho_ten: customer.ho_ten,
-                so_dien_thoai: customer.so_dien_thoai,
+                ho_ten: customer.ho_ten || customer.name,
+                so_dien_thoai: customer.so_dien_thoai || customer.sdt || customer.phone,
                 email: customer.email,
                 ngay_sinh: customer.ngay_sinh ? dayjs(customer.ngay_sinh) : undefined,
-                gioi_tinh: customer.gioi_tinh,
-                dia_chi: customer.dia_chi,
+                gioi_tinh: gioiTinhValue,
+                dia_chi: customer.dia_chi || customer.address,
+                loai_khach: loaiKhachValue,
                 nguon_khach: customer.nguon_khach,
-                ghi_chu: customer.ghi_chu,
+                ghi_chu: customer.ghi_chu || customer.note,
             });
         } else {
             setEditingCustomer(null);
@@ -221,6 +225,11 @@ const SpaCustomerList: React.FC = () => {
                 ...values,
                 ngay_sinh: values.ngay_sinh ? values.ngay_sinh.format('YYYY-MM-DD') : null,
             };
+
+            // Nếu đang edit, thêm id để backend loại trừ unique check
+            if (editingCustomer) {
+                formData.id = editingCustomer.id;
+            }
 
             const url = editingCustomer
                 ? API.spaCustomerUpdate(editingCustomer.id)
@@ -483,9 +492,9 @@ const SpaCustomerList: React.FC = () => {
                     }}>
                         <Form.Item name="gioi_tinh" label="Giới tính">
                             <Select placeholder="Chọn giới tính">
-                                <Select.Option value="Nam">Nam</Select.Option>
-                                <Select.Option value="Nữ">Nữ</Select.Option>
-                                <Select.Option value="Khác">Khác</Select.Option>
+                                <Select.Option value={1}>Nam</Select.Option>
+                                <Select.Option value={2}>Nữ</Select.Option>
+                                <Select.Option value={3}>Khác</Select.Option>
                             </Select>
                         </Form.Item>
                         <Form.Item name="loai_khach" label="Loại khách hàng">
@@ -566,7 +575,7 @@ const SpaCustomerList: React.FC = () => {
                         {/* Header Stats Cards */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
                             gap: '12px',
                             marginBottom: '24px'
                         }}>
@@ -592,6 +601,18 @@ const SpaCustomerList: React.FC = () => {
                                 <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Điểm tích lũy</div>
                                 <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
                                     {selectedCustomer.diem_tich_luy || selectedCustomer.points || 0} điểm
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                boxShadow: '0 4px 12px rgba(56, 239, 125, 0.3)'
+                            }}>
+                                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>💰 Số dư ví</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                    {(selectedCustomer.wallet?.so_du || 0).toLocaleString('vi-VN')} đ
                                 </div>
                             </div>
                             <div style={{
@@ -700,6 +721,107 @@ const SpaCustomerList: React.FC = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Thông tin ví */}
+                        {selectedCustomer.wallet && (
+                            <div style={{
+                                marginBottom: '20px',
+                                padding: '20px',
+                                background: 'linear-gradient(135deg, #f0fff4 0%, #e6f7ff 100%)',
+                                borderRadius: '8px',
+                                border: '2px solid #52c41a'
+                            }}>
+                                <h3 style={{
+                                    marginBottom: '16px',
+                                    fontSize: '15px',
+                                    fontWeight: 600,
+                                    color: '#262626',
+                                    borderLeft: '3px solid #52c41a',
+                                    paddingLeft: '12px'
+                                }}>
+                                    💰 Thông tin ví
+                                </h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+                                    <div style={{
+                                        padding: '12px',
+                                        background: '#fff',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9f7be'
+                                    }}>
+                                        <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Số dư hiện tại</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#52c41a' }}>
+                                            {(selectedCustomer.wallet.so_du || 0).toLocaleString('vi-VN')} đ
+                                        </div>
+                                    </div>
+                                    <div style={{
+                                        padding: '12px',
+                                        background: '#fff',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9f7be'
+                                    }}>
+                                        <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Tổng đã nạp</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1890ff' }}>
+                                            {(selectedCustomer.wallet.tong_nap || 0).toLocaleString('vi-VN')} đ
+                                        </div>
+                                    </div>
+                                    <div style={{
+                                        padding: '12px',
+                                        background: '#fff',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9f7be'
+                                    }}>
+                                        <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Tổng đã tiêu</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ff4d4f' }}>
+                                            {(selectedCustomer.wallet.tong_tieu || 0).toLocaleString('vi-VN')} đ
+                                        </div>
+                                    </div>
+                                    <div style={{
+                                        padding: '12px',
+                                        background: '#fff',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9f7be'
+                                    }}>
+                                        <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Tổng đã hoàn</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#faad14' }}>
+                                            {(selectedCustomer.wallet.tong_hoan || 0).toLocaleString('vi-VN')} đ
+                                        </div>
+                                    </div>
+                                </div>
+                                {selectedCustomer.wallet.han_muc_nap_ngay || selectedCustomer.wallet.han_muc_rut_ngay ? (
+                                    <div style={{ marginTop: '12px', padding: '12px', background: '#fff', borderRadius: '6px', border: '1px solid #d9f7be' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: 500, marginBottom: '8px', color: '#595959' }}>Hạn mức giao dịch:</div>
+                                        <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
+                                            {selectedCustomer.wallet.han_muc_nap_ngay && (
+                                                <div>
+                                                    <span style={{ color: '#8c8c8c' }}>Nạp/ngày: </span>
+                                                    <strong style={{ color: '#52c41a' }}>
+                                                        {(selectedCustomer.wallet.han_muc_nap_ngay || 0).toLocaleString('vi-VN')} đ
+                                                    </strong>
+                                                </div>
+                                            )}
+                                            {selectedCustomer.wallet.han_muc_rut_ngay && (
+                                                <div>
+                                                    <span style={{ color: '#8c8c8c' }}>Rút/ngày: </span>
+                                                    <strong style={{ color: '#ff4d4f' }}>
+                                                        {(selectedCustomer.wallet.han_muc_rut_ngay || 0).toLocaleString('vi-VN')} đ
+                                                    </strong>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : null}
+                                <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                                    <Space>
+                                        <Button type="primary" size="small" onClick={() => showWalletHistory(selectedCustomer)}>
+                                            Xem lịch sử giao dịch
+                                        </Button>
+                                        <Button size="small" onClick={() => showPromoCodeModal(selectedCustomer)}>
+                                            Nạp thẻ code
+                                        </Button>
+                                    </Space>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Ghi chú */}
                         {(selectedCustomer.ghi_chu || selectedCustomer.note) && (

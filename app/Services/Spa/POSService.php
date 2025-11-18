@@ -5,7 +5,10 @@ namespace App\Services\Spa;
 use App\Models\Spa\HoaDon;
 use App\Models\Spa\HoaDonChiTiet;
 use App\Models\Spa\SanPham;
+use App\Models\Admin\CongNo;
+use App\Services\TblService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class POSService
 {
@@ -118,9 +121,37 @@ class POSService
             // Calculate totals
             $hoaDon->calculateTotals();
 
+            // Set payment method amounts (even if not paid yet, for partial payments)
+            $hoaDon->thanh_toan_tien_mat = $data['thanh_toan_tien_mat'] ?? 0;
+            $hoaDon->thanh_toan_chuyen_khoan = $data['thanh_toan_chuyen_khoan'] ?? 0;
+            $hoaDon->thanh_toan_the = $data['thanh_toan_the'] ?? 0;
+            $hoaDon->thanh_toan_vi = $data['thanh_toan_vi'] ?? 0;
+            $hoaDon->save();
+
+            // Calculate total paid from payment methods
+            $totalPaid = ($data['thanh_toan_vi'] ?? 0)
+                + ($data['thanh_toan_tien_mat'] ?? 0)
+                + ($data['thanh_toan_chuyen_khoan'] ?? 0)
+                + ($data['thanh_toan_the'] ?? 0);
+
+            $remaining = $hoaDon->tong_thanh_toan - $totalPaid;
+
+            Log::info('Invoice payment check', [
+                'hoa_don_id' => $hoaDon->id,
+                'tong_thanh_toan' => $hoaDon->tong_thanh_toan,
+                'total_paid' => $totalPaid,
+                'remaining' => $remaining,
+                'has_ngay_han' => !empty($data['ngay_han_thanh_toan']),
+                'ngay_han' => $data['ngay_han_thanh_toan'] ?? null,
+            ]);
+
             // Process payment if provided
             if (!empty($data['thanh_toan']) && $data['thanh_toan'] === true) {
                 $this->processPayment($hoaDon->id, $data);
+            } elseif ($remaining > 0.01) {
+                // Create debt record (công nợ) - ngày hạn có thể null
+                $dueDate = $data['ngay_han_thanh_toan'] ?? null;
+                $this->createDebtRecord($hoaDon, $remaining, $totalPaid, $dueDate);
             }
 
             return $hoaDon->load('chiTiets.dichVu', 'chiTiets.sanPham', 'chiTiets.ktv');
@@ -133,7 +164,6 @@ class POSService
             $hoaDon = HoaDon::findOrFail($invoiceId);
 
             // Update payment information
-            $hoaDon->trang_thai = 'da_thanh_toan';
             $hoaDon->phuong_thuc_thanh_toan = $paymentData['phuong_thuc_thanh_toan'] ?? [];
             $hoaDon->giam_gia = $paymentData['giam_gia'] ?? 0;
             $hoaDon->diem_su_dung = $paymentData['diem_su_dung'] ?? 0;
@@ -145,6 +175,25 @@ class POSService
 
             // Recalculate totals
             $hoaDon->tong_thanh_toan = $hoaDon->tong_tien - $hoaDon->giam_gia - $hoaDon->tien_giam_tu_diem;
+
+            // Update individual payment method columns
+            $hoaDon->thanh_toan_tien_mat = $paymentData['thanh_toan_tien_mat'] ?? 0;
+            $hoaDon->thanh_toan_chuyen_khoan = $paymentData['thanh_toan_chuyen_khoan'] ?? 0;
+            $hoaDon->thanh_toan_the = $paymentData['thanh_toan_the'] ?? 0;
+            $hoaDon->thanh_toan_vi = $paymentData['thanh_toan_vi'] ?? 0;
+
+            // Calculate total paid
+            $totalPaid = $hoaDon->thanh_toan_tien_mat + $hoaDon->thanh_toan_chuyen_khoan + $hoaDon->thanh_toan_the + $hoaDon->thanh_toan_vi;
+
+            // Determine status based on payment
+            if ($totalPaid >= $hoaDon->tong_thanh_toan) {
+                $hoaDon->trang_thai = 'da_thanh_toan';
+            } elseif ($totalPaid > 0) {
+                $hoaDon->trang_thai = 'con_cong_no';
+            } else {
+                $hoaDon->trang_thai = 'cho_thanh_toan';
+            }
+
             $hoaDon->save();
 
             // Deduct loyalty points if used
@@ -264,5 +313,60 @@ class POSService
 
             return $hoaDon;
         });
+    }
+
+    /**
+     * Create debt record (công nợ) when payment is insufficient
+     */
+    private function createDebtRecord($hoaDon, $debtAmount, $paidAmount, $dueDate)
+    {
+        Log::info('Creating debt record', [
+            'hoa_don_id' => $hoaDon->id,
+            'ma_hoa_don' => $hoaDon->ma_hoa_don,
+            'debt_amount' => $debtAmount,
+            'paid_amount' => $paidAmount,
+            'due_date' => $dueDate,
+            'khach_hang_id' => $hoaDon->khach_hang_id,
+        ]);
+
+        // Update invoice status to 'con_cong_no'
+        $hoaDon->trang_thai = 'con_cong_no';
+
+        // Note: Payment method columns should already be set in createInvoice()
+        // but we ensure they are saved
+        $hoaDon->save();
+
+        // Create debt record in cong_no table
+        $congNo = CongNo::create([
+            'name' => 'Công nợ hóa đơn spa - ' . $hoaDon->ma_hoa_don,
+            'users_id' => $hoaDon->khach_hang_id,
+            'loai_cong_no' => 1, // receivable - khách hàng nợ ta
+            'loai_chung_tu' => 'spa_hoa_don',
+            'chung_tu_id' => $hoaDon->id,
+            'ma_chung_tu' => $hoaDon->ma_hoa_don,
+            'tong_tien_hoa_don' => $hoaDon->tong_thanh_toan,
+            'so_tien_da_thanh_toan' => $paidAmount,
+            'so_tien_no' => $debtAmount, // Số tiền còn nợ = tổng HĐ - đã thanh toán
+            'cong_no_status_id' => $paidAmount > 0 ? 2 : 3, // 2: Còn công nợ, 3: Chưa thanh toán
+            'ngay_hen_tat_toan' => $dueDate,
+        ]);
+
+        Log::info('CongNo data being saved', [
+            'tong_tien_hoa_don' => $hoaDon->tong_thanh_toan,
+            'so_tien_da_thanh_toan' => $paidAmount,
+            'so_tien_no' => $debtAmount,
+            'calculation' => $hoaDon->tong_thanh_toan . ' - ' . $paidAmount . ' = ' . $debtAmount,
+        ]);
+
+        // Generate code
+        $congNo->code = 'CN' . str_pad($congNo->id, 5, '0', STR_PAD_LEFT);
+        $congNo->save();
+
+        Log::info('Debt record created', [
+            'cong_no_id' => $congNo->id,
+            'code' => $congNo->code,
+        ]);
+
+        return $congNo;
     }
 }

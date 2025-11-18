@@ -29,7 +29,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign key
-            $table->foreign('khach_hang_id')->references('id')->on('spa_khach_hang')->onDelete('cascade');
+            $table->foreign('khach_hang_id')->references('id')->on('users')->onDelete('cascade');
 
             // Indexes
             $table->index('so_du');
