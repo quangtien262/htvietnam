@@ -17,19 +17,11 @@ return new class extends Migration
     {
         Schema::create('admin_menu', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable(); // tên bảng, dùng để tạo database
-            $table->string('display_name')->nullable(); // tên hiển thị, dùng để hiển thị ở table list, form add/edit
-            $table->string('parameter')->nullable(); // parameter truyền vào if exists
-            // Phần này dành cho web
-            $table->string('icon')->nullable();
-            $table->string('route')->nullable(); // tên route
-            $table->string('table_name')->nullable();
-            $table->string('link')->nullable(); // liên kết nếu có
-            $table->string('is_active')->default(1)->nullable(); // trạng thái hoạt động, 1: active, 0: inactive
-            $table->integer('sort_order')->default(0)->nullable();
-
-            $table->integer('is_draft')->default(0)->nullable();
-            $table->integer('is_recycle_bin')->default(0)->nullable();
+            $table->string('name')->nullable();
+            $table->integer('color')->nullable(); // is_active
+            $table->string('icon')->nullable(); // icon
+            $table->string('note')->nullable(); // tên hiển thị
+            $table->integer('sort_order')->nullable();
 
             $table->timestamps();
         });

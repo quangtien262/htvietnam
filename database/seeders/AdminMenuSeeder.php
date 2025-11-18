@@ -22,29 +22,23 @@ class AdminMenuSeeder extends Seeder
 
         // DB::table('admin_menu')->truncate();
 
-        // $aitilen = DB::table('admin_menu')->insertGetId(
-        //     [
-        //         'name' => 'parent_aitilen',
-        //         'display_name' => 'BĐS AITILEN',
-        //         'icon' => 'ShopFilled',
-        //         'route' => 'aitilen.dashboard',
-        //         'link' => '',
-        //
-        //         'is_active' => 1,
-        //         'sort_order' => $order++
-        //     ]
-        // );
+        $aitilen = DB::table('admin_menu')->insertGetId(
+            [
+                'name' => 'parent_aitilen',
+                'display_name' => 'BĐS AITILEN',
+                'icon' => 'ShopFilled',
+                'color' => 1,
+                'sort_order' => $order++
+            ]
+        );
 
         // web
         $web = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_website',
-                'display_name' => 'QUẢN LÝ WEBSITE',
+                'note' => 'QUẢN LÝ WEBSITE',
                 'icon' => 'ShopFilled',
-                'route' => 'web.dashboard',
-                'link' => '',
-
-                'is_active' => 1,
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -53,11 +47,9 @@ class AdminMenuSeeder extends Seeder
         $banHang = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_ban_hang',
-                'display_name' => 'QUẢN LÝ BÁN HÀNG',
+                'note' => 'QUẢN LÝ BÁN HÀNG',
                 'icon' => 'ShopFilled',
-                'route' => 'sale.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -66,11 +58,9 @@ class AdminMenuSeeder extends Seeder
         $khoHang = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_kho_hang',
-                'display_name' => 'QUẢN LÝ KHO HÀNG',
+                'note' => 'QUẢN LÝ KHO HÀNG',
                 'icon' => 'SlidersFilled',
-                'route' => 'khoHang.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -79,11 +69,9 @@ class AdminMenuSeeder extends Seeder
         $congViec = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_cong_viec',
-                'display_name' => 'QUẢN LÝ CÔNG VIỆC',
+                'note' => 'QUẢN LÝ CÔNG VIỆC',
                 'icon' => 'CalendarFilled',
-                'route' => 'task.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -91,11 +79,9 @@ class AdminMenuSeeder extends Seeder
         $taiSan = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_tai_san',
-                'display_name' => 'QUẢN LÝ TÀI SẢN',
+                'note' => 'QUẢN LÝ TÀI SẢN',
                 'icon' => 'HddFilled',
-                'route' => 'taiSan.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -103,11 +89,9 @@ class AdminMenuSeeder extends Seeder
         $nhanSu = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_nhan_su',
-                'display_name' => 'QUẢN LÝ NHÂN SỰ',
+                'note' => 'QUẢN LÝ NHÂN SỰ',
                 'icon' => 'IdcardFilled',
-                'route' => 'nhanSu.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -115,23 +99,18 @@ class AdminMenuSeeder extends Seeder
         $business = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_business',
-                'display_name' => 'QUẢN LÝ KINH DOANH',
+                'note' => 'QUẢN LÝ KINH DOANH',
                 'icon' => 'IdcardFilled',
-                'route' => 'banHang.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
-
         $telesale = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_telesale',
-                'display_name' => 'QUẢN LÝ TELESALe',
+                'note' => 'QUẢN LÝ TELESALe',
                 'icon' => 'IdcardFilled',
-                'route' => 'telesale.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -139,11 +118,9 @@ class AdminMenuSeeder extends Seeder
         $taiChinh = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_tai_chinh',
-                'display_name' => 'QUẢN LÝ TÀI CHÍNH',
+                'note' => 'QUẢN LÝ TÀI CHÍNH',
                 'icon' => 'AccountBookOutlined',
-                'route' => 'taiChinh.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -151,11 +128,9 @@ class AdminMenuSeeder extends Seeder
         $thongKe = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_thong_ke',
-                'display_name' => 'BÁO CÁO THỐNG KÊ',
+                'note' => 'BÁO CÁO THỐNG KÊ',
                 'icon' => 'PieChartFilled',
-                'route' => 'report.dashboard',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -164,11 +139,9 @@ class AdminMenuSeeder extends Seeder
         $taiLieu = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_tai_lieu',
-                'display_name' => 'QUẢN LÝ TÀI LIỆU',
+                'note' => 'QUẢN LÝ TÀI LIỆU',
                 'icon' => 'CopyOutlined',
-                'route' => 'file.index',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );
@@ -179,11 +152,9 @@ class AdminMenuSeeder extends Seeder
         $setting = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_setting',
-                'display_name' => 'CÀI ĐẶT - PHÂN QUYỀN',
+                'note' => 'CÀI ĐẶT - PHÂN QUYỀN',
                 'icon' => 'SettingFilled',
-                'route' => 'setting.index',
-                'link' => '',
-
+                'color' => 1,
                 'sort_order' => $order++
             ]
         );

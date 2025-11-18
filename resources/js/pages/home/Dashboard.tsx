@@ -34,6 +34,10 @@ const Dashboard: React.FC = () => {
 
     function showDataDashboard(item: any) {
 
+        if(item.color !== 1) {
+            return null;
+        }
+
         if (item.name === 'parent_website') {
 
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
@@ -66,37 +70,36 @@ const Dashboard: React.FC = () => {
             </Col>
         }
 
-        // aitilen
-        // if (item.name === 'parent_aitilen') {
-        //     return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-        //         <Card variant="borderless" className='item-dashboard'>
-        //             <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-        //                 <div className="ant-statistic-title">
-        //                     <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
-        //                         <HomeOutlined /> BĐS AITILEN
-        //                     </Link>
-        //                 </div>
+        if (item.name === 'parent_aitilen') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
+                                <HomeOutlined /> BĐS AITILEN
+                            </Link>
+                        </div>
 
-        //                 <div className="ant-statistic-content" >
-        //                     <div className="ant-statistic-content-prefix">
-        //                         <HomeOutlined />
-        //                     </div>
-        //                     <div className="ant-statistic-content-value">
-        //                         <div>
-        //                             <ul className="dashboard-list-item">
-        //                                 <li><HomeOutlined /> Căn hộ</li>
-        //                                 <li><BookOutlined /> Phòng cho thuê</li>
-        //                                 <li><IdcardOutlined /> Hợp đồng</li>
-        //                                 <li><ProfileOutlined /> Hóa đơn</li>
-        //                                 <li><WalletOutlined /> Công việc</li>
-        //                             </ul>
-        //                         </div>
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //         </Card>
-        //     </Col>
-        // }
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <HomeOutlined />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><HomeOutlined /> Căn hộ</li>
+                                        <li><BookOutlined /> Phòng cho thuê</li>
+                                        <li><IdcardOutlined /> Hợp đồng</li>
+                                        <li><ProfileOutlined /> Hóa đơn</li>
+                                        <li><WalletOutlined /> Công việc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
 
         if (item.name === 'parent_tai_lieu') {
             {/* QUẢN LÝ TÀI LIỆU */ }
@@ -166,7 +169,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.qlKho}?p=kho`}>
+                            <Link to="/">
                                 <SlidersFilled /> QUẢN LÝ HÀNG HÓA & DỊCH VỤ
                             </Link>
                         </div>
@@ -193,34 +196,34 @@ const Dashboard: React.FC = () => {
 
         {/* BÁO CÁO - THỐNG KÊ */ }
         if (item.name === 'parent_thong_ke') {
-            // return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-            //     <Card variant="borderless" className='item-dashboard'>
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
 
-            //         <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-            //             <div className="ant-statistic-title">
-            //                 <Link to="/">
-            //                     <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
-            //                 </Link>
-            //             </div>
-            //             <div className="ant-statistic-content" >
-            //                 <div className="ant-statistic-content-prefix">
-            //                     <PieChartFilled />
-            //                 </div>
-            //                 <div className="ant-statistic-content-value">
-            //                     <div>
-            //                         <ul className="dashboard-list-item">
-            //                             <li><GlobalOutlined /> Báo cáo tổng hợp</li>
-            //                             <li><UserSwitchOutlined /> Báo cáo nhân sự</li>
-            //                             <li><PayCircleOutlined /> Báo cáo bán hàng</li>
-            //                             <li><DeleteColumnOutlined /> Báo cáo công nợ</li>
-            //                             <li><FileSearchOutlined /> ..........</li>
-            //                         </ul>
-            //                     </div>
-            //                 </div>
-            //             </div>
-            //         </div>
-            //     </Card>
-            // </Col>
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link to="/">
+                                <PieChartFilled /> BÁO CÁO - PHÂN TÍCH
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <PieChartFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GlobalOutlined /> Báo cáo tổng hợp</li>
+                                        <li><UserSwitchOutlined /> Báo cáo nhân sự</li>
+                                        <li><PayCircleOutlined /> Báo cáo bán hàng</li>
+                                        <li><DeleteColumnOutlined /> Báo cáo công nợ</li>
+                                        <li><FileSearchOutlined /> ..........</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
         }
 
         {/* QUẢN LÝ DỰ ÁN */ }
@@ -320,36 +323,36 @@ const Dashboard: React.FC = () => {
         }
 
         //parent_ban_hang
-        // if (item.name === 'parent_ban_hang') {
-        //     return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
-        //         <Card variant="borderless" className='item-dashboard'>
+        if (item.name === 'parent_ban_hang') {
+            return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
+                <Card variant="borderless" className='item-dashboard'>
 
-        //             <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
-        //                 <div className="ant-statistic-title">
-        //                     <Link to={`${ROUTE.salesBaoCao}?p=sales`}>
-        //                         <ShopFilled /> QUẢN LÝ BÁN HÀNG
-        //                     </Link>
-        //                 </div>
-        //                 <div className="ant-statistic-content" >
-        //                     <div className="ant-statistic-content-prefix">
-        //                         <ShopFilled />
-        //                     </div>
-        //                     <div className="ant-statistic-content-value">
-        //                         <div>
-        //                             <ul className="dashboard-list-item">
-        //                                 <li><GoldFilled /> Thu ngân</li>
-        //                                 <li><ReadFilled /> Quản lý Hóa đơn</li>
-        //                                 <li><TeamOutlined /> Quản lý khách hàng</li>
-        //                                 <li><UngroupOutlined /> Data telesale</li>
-        //                                 <li><CalendarOutlined /> Quy trình CSKH</li>
-        //                             </ul>
-        //                         </div>
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //         </Card>
-        //     </Col>
-        // }
+                    <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
+                        <div className="ant-statistic-title">
+                            <Link to={`${ROUTE.salesBaoCao}?p=sales`}>
+                                <ShopFilled /> QUẢN LÝ BÁN HÀNG
+                            </Link>
+                        </div>
+                        <div className="ant-statistic-content" >
+                            <div className="ant-statistic-content-prefix">
+                                <ShopFilled />
+                            </div>
+                            <div className="ant-statistic-content-value">
+                                <div>
+                                    <ul className="dashboard-list-item">
+                                        <li><GoldFilled /> Thu ngân</li>
+                                        <li><ReadFilled /> Quản lý Hóa đơn</li>
+                                        <li><TeamOutlined /> Quản lý khách hàng</li>
+                                        <li><UngroupOutlined /> Data telesale</li>
+                                        <li><CalendarOutlined /> Quy trình CSKH</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
+        }
         // telesale
         if (item.name === 'parent_telesale') {
             return <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
@@ -417,13 +420,19 @@ const Dashboard: React.FC = () => {
 
     return <>
         <Row gutter={[24, 24]}>
+            {
+                datas && datas.length > 0 && datas.map((item: any, index: number) => {
+                    return showDataDashboard(item);
+                })
+            }
+
             <Col className='item-home' xs={24} sm={12} md={12} lg={8} xl={6} xxl={6}>
                 <Card variant="borderless" className='item-dashboard'>
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
                             <Link to={`${ROUTE.spa_analytics}?p=spa`}>
-                                <ShopFilled /> QUẢN LÝ SPA
+                                <ShopFilled /> HIMALAYA SPA
                             </Link>
                         </div>
                         <div className="ant-statistic-content" >
@@ -436,8 +445,8 @@ const Dashboard: React.FC = () => {
                                         <li><GoldFilled /> Thu ngân</li>
                                         <li><ReadFilled /> Quản lý Hóa đơn</li>
                                         <li><TeamOutlined /> Quản lý khách hàng</li>
-                                        <li><UngroupOutlined /> Voucher</li>
-                                        <li><CalendarOutlined /> Thẻ / Ví / nạp tiền</li>
+                                        <li><UngroupOutlined /> Data telesale</li>
+                                        <li><CalendarOutlined /> Quy trình CSKH</li>
                                     </ul>
                                 </div>
                             </div>
@@ -445,11 +454,6 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Card>
             </Col>
-            {
-                datas && datas.length > 0 && datas.map((item: any, index: number) => {
-                    return showDataDashboard(item);
-                })
-            }
         </Row>
     </>
 }
