@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('color', 20)->default('#1890ff');
             $table->integer('sort_order')->default(0);
             $table->text('note')->nullable();
+            $table->text('icon')->nullable();
             $table->timestamps();
         });
 

@@ -11,6 +11,7 @@ import ProjectAttachments from '../../components/project/ProjectAttachments';
 import ProjectDetailDashboard from './ProjectDetailDashboard';
 import { icon } from '../../components/comp_icon';
 import dayjs from 'dayjs';
+import { log } from 'console';
 
 type TaskViewMode = 'table' | 'kanban';
 
@@ -744,6 +745,7 @@ const ProjectDetail: React.FC = () => {
                                                 onClick={() => {
                                                     setDetailTaskId(record.id);
                                                     setDetailVisible(true);
+                                                    console.log('recorfd', record);
                                                 }}
                                                 style={{
                                                     cursor: 'pointer',
@@ -764,7 +766,7 @@ const ProjectDetail: React.FC = () => {
                                                             fontSize: 11,
                                                         }}
                                                     >
-                                                        {record.uu_tien?.name}
+                                                         {icon[record.uu_tien?.icon]} {record.uu_tien?.name}
                                                     </Tag>
                                                     <b>{record.tieu_de}</b>
                                                     <b>{record.mo_ta}</b>
