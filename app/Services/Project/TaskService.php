@@ -595,15 +595,15 @@ class TaskService
     {
         $project = \App\Models\Project\Project::findOrFail($projectId);
         $projectCode = $project->ma_du_an;
-        
+
         // Count tasks in this project (including soft deleted) to generate next number
         $taskCount = Task::withTrashed()->where('project_id', $projectId)->count();
         $number = $taskCount + 1;
-        
+
         // Generate code with project prefix: {PROJECT_CODE}-T{NUMBER}
         // Example: PRJ001-T001, PRJ001-T002, etc.
         $taskCode = $projectCode . '-T' . str_pad($number, 3, '0', STR_PAD_LEFT);
-        
+
         // Ensure uniqueness across all projects
         $attempt = 0;
         while (Task::withTrashed()->where('ma_nhiem_vu', $taskCode)->exists() && $attempt < 100) {
@@ -611,7 +611,7 @@ class TaskService
             $taskCode = $projectCode . '-T' . str_pad($number, 3, '0', STR_PAD_LEFT);
             $attempt++;
         }
-        
+
         return $taskCode;
     }
 
