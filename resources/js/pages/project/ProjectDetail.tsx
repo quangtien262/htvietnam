@@ -764,32 +764,26 @@ const ProjectDetail: React.FC = () => {
                                                             fontSize: 11,
                                                         }}
                                                     >
-                                                        {record.ma_nhiem_vu}
+                                                        {record.uu_tien?.name}
                                                     </Tag>
-                                                    {record.nguoi_thuc_hien && (
-                                                        <Tooltip title={record.nguoi_thuc_hien.name}>
-                                                            <Avatar
-                                                                size="small"
-                                                                style={{
-                                                                    backgroundColor: '#1890ff',
-                                                                    fontSize: 12,
-                                                                }}
-                                                            >
-                                                                {record.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                            </Avatar>
-                                                        </Tooltip>
-                                                    )}
+                                                    <b>{record.tieu_de}</b>
+                                                    <b>{record.mo_ta}</b>
                                                 </div>
-                                                <div
-                                                    style={{
-                                                        fontSize: 14,
-                                                        fontWeight: 500,
-                                                        color: '#262626',
-                                                        lineHeight: 1.5,
-                                                    }}
-                                                >
-                                                    {record.tieu_de}
-                                                </div>
+
+
+                                                {record.nguoi_thuc_hien && (
+                                                    <Tooltip title={record.nguoi_thuc_hien.name}>
+                                                        <Avatar
+                                                            size="small"
+                                                            style={{
+                                                                backgroundColor: '#1890ff',
+                                                                fontSize: 12,
+                                                            }}
+                                                        >
+                                                            {record.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                        </Avatar>
+                                                    </Tooltip>
+                                                )}
                                             </div>
                                         ),
                                     },
@@ -809,25 +803,6 @@ const ProjectDetail: React.FC = () => {
                                                 }}
                                             >
                                                 {status?.name}
-                                            </Tag>
-                                        ),
-                                    },
-                                    {
-                                        title: 'Ưu tiên',
-                                        dataIndex: 'uu_tien',
-                                        key: 'uu_tien',
-                                        width: 130,
-                                        render: (priority: any) => (
-                                            <Tag
-                                                color={priority?.color}
-                                                style={{
-                                                    fontSize: 13,
-                                                    padding: '4px 12px',
-                                                    borderRadius: 16,
-                                                    fontWeight: 500,
-                                                }}
-                                            >
-                                                {priority?.name}
                                             </Tag>
                                         ),
                                     },
