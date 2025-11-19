@@ -14,6 +14,8 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { icon } from '../../components/comp_icon';
+
 const { Option } = Select;
 
 interface AdminMenu {
@@ -234,33 +236,24 @@ const AdminMenuList: React.FC = () => {
             dataIndex: 'display_name',
             key: 'display_name',
             render: (text, record) => (
-                <Space>
-                    {record.icon && <span>{record.icon}</span>}
+                <div>
+                    {record.icon && <span>{icon[record.icon]}</span>}
                     <span style={{ fontWeight: 500 }}>{text}</span>
-                </Space>
+                    {
+                        record.link ? (
+                            <p><a href={record.link} target="_blank" rel="noopener noreferrer" style={{ color: '#1890ff' }}>
+                                {record.link.length > 30 ? record.link.substring(0, 30) + '...' : record.link}
+                            </a></p>
+                        ) : ''
+                    }
+                </div>
             ),
         },
         {
-            title: 'Tên bảng',
+            title: 'Mã',
             dataIndex: 'name',
             key: 'name',
             render: (text) => text || '-',
-        },
-        {
-            title: 'Icon',
-            dataIndex: 'icon',
-            key: 'icon',
-            render: (text) => text || '-',
-        },
-        {
-            title: 'Link',
-            dataIndex: 'link',
-            key: 'link',
-            render: (text) => text ? (
-                <a href={text} target="_blank" rel="noopener noreferrer" style={{ color: '#1890ff' }}>
-                    {text.length > 30 ? text.substring(0, 30) + '...' : text}
-                </a>
-            ) : '-',
         },
         {
             title: 'Trạng thái',

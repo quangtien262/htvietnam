@@ -84,7 +84,7 @@ Route::middleware('auth:admin_users')->group(function () {
     })->name('test.document.api');
 
     // ⚠️ SPA fallback route MUST be LAST (catches all remaining /aio/* routes)
-    Route::get('aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
+    Route::get('w-aio/{any?}', [AIOController::class, 'dashboard'])->name('dashboard')->where('any', '.*');
 });
 
 // user_route

@@ -168,10 +168,11 @@ import MeetingList_PM from './pages/project/MeetingList';
 
 
 const App: React.FC = () => (
-    <BrowserRouter basename="/aio">
+    <BrowserRouter basename="/w-aio">
         <AppLayout>
             <Routes>
                 <Route path={ROUTE.dashboard} element={<Dashboard />} />
+                <Route path={ROUTE.admin_menu} element={<AdminMenuList />} />
 
                 {/* Aitilen */}
                 <Route path={ROUTE.dashboard_aitilen} element={<DashboardAitilen />} />
@@ -300,7 +301,6 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_wallet_reports} element={<WalletReportPage />} />
                 <Route path={ROUTE.spa_shifts} element={<ShiftManagement />} />
                 <Route path={ROUTE.spa_admin_users} element={<AdminUsersList />} />
-                <Route path={ROUTE.spa_admin_menu} element={<AdminMenuList />} />
 
                 {/* SPA Multi-Warehouse Management */}
                 <Route path={ROUTE.spa_branch_inventory} element={<BranchInventoryView />} />

@@ -3,10 +3,12 @@ import Dashboard from "../pages/home/Dashboard";
 import TaskKanban from "../pages/task/TaskKanban";
 
 const baseRoute = "/";
-const baseUrl = "/aio/";
+const baseUrl = "/w-aio/";
 export const ROUTE = {
     baseRoute: baseRoute,
     dashboard: `${baseRoute}`,
+
+    admin_menu: `${baseRoute}admin-menu`,
 
     // Aitilen
     dashboard_aitilen: `${baseRoute}bds/dashboard/`,
@@ -140,7 +142,6 @@ export const ROUTE = {
     spa_staff: `${baseRoute}spa/staff/`,
     spa_staff_schedule: `${baseRoute}spa/staff/:id/schedule/`,
     spa_admin_users: `${baseRoute}spa/admin-users/`,
-    spa_admin_menu: `${baseRoute}admin-menu/`,
     spa_vouchers: `${baseRoute}spa/vouchers/`,
     spa_campaigns: `${baseRoute}spa/campaigns/`,
     spa_analytics: `${baseRoute}spa/analytics/`,
