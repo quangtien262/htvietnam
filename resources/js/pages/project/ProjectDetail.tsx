@@ -1088,7 +1088,7 @@ const ProjectDetail: React.FC = () => {
                                                                                         display: 'flex',
                                                                                         justifyContent: 'space-between',
                                                                                         alignItems: 'center',
-                                                                                        // paddingTop: 8,
+                                                                                        paddingTop: 8,
                                                                                         borderTop: '1px solid #f0f0f0',
                                                                                     }}>
                                                                                         {task.nguoi_thuc_hien ? (
@@ -1096,7 +1096,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                 <Avatar
                                                                                                     size={28}
                                                                                                     style={{
-                                                                                                        backgroundColor: '#1890ff',
+                                                                                                        backgroundColor: '#8500ff',
                                                                                                         fontSize: 12,
                                                                                                         fontWeight: 600,
                                                                                                     }}
