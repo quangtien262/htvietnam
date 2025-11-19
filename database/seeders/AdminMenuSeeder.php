@@ -156,7 +156,6 @@ class AdminMenuSeeder extends Seeder
             ]
         );
 
-
         $setting = DB::table('admin_menu')->insertGetId(
             [
                 'name' => 'parent_setting',

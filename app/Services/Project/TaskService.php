@@ -593,10 +593,26 @@ class TaskService
 
     private function generateTaskCode($projectId)
     {
-        // Include soft deleted tasks to avoid duplicate codes
-        $lastTask = Task::withTrashed()->where('project_id', $projectId)->orderBy('id', 'desc')->first();
-        $number = $lastTask ? (int)substr($lastTask->ma_nhiem_vu, -3) + 1 : 1;
-        return 'TASK-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        $project = \App\Models\Project\Project::findOrFail($projectId);
+        $projectCode = $project->ma_du_an;
+        
+        // Count tasks in this project (including soft deleted) to generate next number
+        $taskCount = Task::withTrashed()->where('project_id', $projectId)->count();
+        $number = $taskCount + 1;
+        
+        // Generate code with project prefix: {PROJECT_CODE}-T{NUMBER}
+        // Example: PRJ001-T001, PRJ001-T002, etc.
+        $taskCode = $projectCode . '-T' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        
+        // Ensure uniqueness across all projects
+        $attempt = 0;
+        while (Task::withTrashed()->where('ma_nhiem_vu', $taskCode)->exists() && $attempt < 100) {
+            $number++;
+            $taskCode = $projectCode . '-T' . str_pad($number, 3, '0', STR_PAD_LEFT);
+            $attempt++;
+        }
+        
+        return $taskCode;
     }
 
     private function logActivity($taskId, $action, $description, $oldData = null, $newData = null)
