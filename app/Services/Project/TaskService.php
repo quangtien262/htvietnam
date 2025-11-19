@@ -294,19 +294,52 @@ class TaskService
         try {
             $task = Task::findOrFail($id);
             $oldStatus = $task->trang_thai_id;
+            $projectId = $task->project_id;
 
-            $updateData = ['trang_thai_id' => $statusId];
+            // Update task status
+            $task->trang_thai_id = $statusId;
+            $task->save();
+
+            // If kanbanOrder is provided, reorder all tasks in the destination status
             if ($kanbanOrder !== null) {
-                $updateData['kanban_order'] = $kanbanOrder;
-            }
+                // Get all tasks in the new status (including the moved task)
+                $tasksInNewStatus = Task::where('project_id', $projectId)
+                    ->where('trang_thai_id', $statusId)
+                    ->orderBy('kanban_order')
+                    ->get();
 
-            $task->update($updateData);
+                // Remove the moved task from its current position
+                $movedTask = $tasksInNewStatus->firstWhere('id', $id);
+                $tasksInNewStatus = $tasksInNewStatus->reject(function($t) use ($id) {
+                    return $t->id == $id;
+                });
+
+                // Insert the moved task at the new position
+                $tasksInNewStatus->splice($kanbanOrder, 0, [$movedTask]);
+
+                // Update kanban_order for all tasks in the new status
+                foreach ($tasksInNewStatus as $index => $t) {
+                    Task::where('id', $t->id)->update(['kanban_order' => $index]);
+                }
+
+                // If moved to a different status, reorder tasks in the old status
+                if ($oldStatus != $statusId) {
+                    $tasksInOldStatus = Task::where('project_id', $projectId)
+                        ->where('trang_thai_id', $oldStatus)
+                        ->orderBy('kanban_order')
+                        ->get();
+
+                    foreach ($tasksInOldStatus as $index => $t) {
+                        Task::where('id', $t->id)->update(['kanban_order' => $index]);
+                    }
+                }
+            }
 
             // Log activity
             $this->logActivity($id, 'status_changed', "Thay đổi trạng thái từ {$oldStatus} sang {$statusId}");
 
             // Update project progress
-            app(ProjectService::class)->updateProgress($task->project_id);
+            app(ProjectService::class)->updateProgress($projectId);
 
             DB::commit();
             return $task->load(['trangThai']);

@@ -571,7 +571,7 @@ const UserGuide: React.FC = () => {
                                 <Col xs={24} md={12}>
                                     <Card size="small" type="inner" title="⏱️ Thời Gian Theo Dự Án">
                                         <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                            Hệ thống tự động nhóm thời gian theo từng dự án, 
+                                            Hệ thống tự động nhóm thời gian theo từng dự án,
                                             hiển thị biểu đồ phân bổ thời gian.
                                         </Paragraph>
                                     </Card>
@@ -689,7 +689,7 @@ const UserGuide: React.FC = () => {
 
                             <Alert
                                 message="🎯 Mục đích"
-                                description="Trang My Tasks tập trung hiển thị TẤT CẢ nhiệm vụ được giao cho BẠN từ mọi dự án, giúp bạn quản lý công việc hiệu quả hơn."
+                                description="Trang My Tasks cho phép bạn xem TẤT CẢ nhiệm vụ trong hệ thống, với khả năng lọc theo người thực hiện. Mặc định hiển thị nhiệm vụ của bạn, nhưng bạn có thể xem nhiệm vụ của đồng nghiệp để theo dõi tiến độ team."
                                 type="info"
                                 showIcon
                                 style={{ marginBottom: 16 }}
@@ -702,26 +702,28 @@ const UserGuide: React.FC = () => {
                                 <Col xs={24} md={8}>
                                     <Card size="small" type="inner" title="📊 Thống Kê Nhanh">
                                         <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                            <List.Item>• Tổng tasks được giao</List.Item>
-                                            <List.Item>• Tasks đang làm</List.Item>
-                                            <List.Item>• Tasks hoàn thành hôm nay</List.Item>
-                                            <List.Item>• Tasks sắp deadline</List.Item>
+                                            <List.Item>• Tổng số task</List.Item>
+                                            <List.Item>• Tasks đang thực hiện</List.Item>
+                                            <List.Item>• Tasks deadline hôm nay</List.Item>
+                                            <List.Item>• Tasks quá hạn</List.Item>
                                         </List>
                                     </Card>
                                 </Col>
                                 <Col xs={24} md={8}>
-                                    <Card size="small" type="inner" title="⏱️ Time Tracking">
+                                    <Card size="small" type="inner" title="🎨 Chế Độ Xem">
                                         <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                            Hiển thị timer đang chạy (nếu có),
-                                            tổng thời gian đã log hôm nay.
+                                            <Text strong>Table View:</Text> Hiển thị danh sách chi tiết
+                                        </Paragraph>
+                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginBottom: 0 }}>
+                                            <Text strong>Kanban View:</Text> Quản lý theo trạng thái, kéo thả để thay đổi
                                         </Paragraph>
                                     </Card>
                                 </Col>
                                 <Col xs={24} md={8}>
-                                    <Card size="small" type="inner" title="🎨 Filter & View">
+                                    <Card size="small" type="inner" title="🔍 Filter Nâng Cao">
                                         <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                            Lọc theo trạng thái, độ ưu tiên,
-                                            dự án. Chuyển đổi giữa List/Kanban view.
+                                            Lọc theo người thực hiện, dự án, trạng thái,
+                                            độ ưu tiên, khoảng thời gian. Tìm kiếm nhanh theo tên task.
                                         </Paragraph>
                                     </Card>
                                 </Col>
@@ -730,94 +732,150 @@ const UserGuide: React.FC = () => {
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
                                 2. Các Chế Độ Hiển Thị
                             </Divider>
-                            <Collapse defaultActiveKey={['list']}>
-                                <Panel header="📋 List View (Mặc định)" key="list">
+                            <Collapse defaultActiveKey={['table']}>
+                                <Panel header="📋 Table View (Bảng)" key="table">
                                     <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                        <List.Item>• Hiển thị dạng danh sách, dễ scan nhanh</List.Item>
-                                        <List.Item>• Mỗi task hiển thị: Tiêu đề, Dự án, Trạng thái, Due date, Độ ưu tiên</List.Item>
-                                        <List.Item>• Icon ⏱️ màu xanh nếu timer đang chạy</List.Item>
-                                        <List.Item>• Click vào task để mở chi tiết</List.Item>
-                                        <List.Item>• Actions: Start/Stop Timer, Mark Done, View Detail</List.Item>
+                                        <List.Item>
+                                            <Text strong>Hiển thị:</Text> Danh sách tasks dạng bảng với đầy đủ thông tin
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Thông tin task:</Text> Tiêu đề, Dự án (tên + mã), Trạng thái, Độ ưu tiên, Tiến độ (%), Deadline, Người giao việc
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Click vào task:</Text> Mở drawer chi tiết với đầy đủ thông tin, comments, files, checklist, time logs
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Sắp xếp:</Text> Click vào header cột "Deadline" để sắp xếp theo ngày
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Phân trang:</Text> Mặc định 20 tasks/trang, có thể điều chỉnh
+                                        </List.Item>
                                     </List>
+                                    <Alert
+                                        message="💡 Mẹo"
+                                        description="Deadline hiển thị màu đỏ nếu quá hạn, màu cam nếu là hôm nay"
+                                        type="info"
+                                        showIcon
+                                        style={{ marginTop: 12 }}
+                                    />
                                 </Panel>
 
                                 <Panel header="📊 Kanban View" key="kanban">
                                     <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                        Hiển thị tasks theo trạng thái (To Do, In Progress, Done, Blocked).
-                                        Kéo thả card để đổi trạng thái nhanh.
+                                        <Text strong>Cách sử dụng:</Text>
                                     </Paragraph>
-                                </Panel>
-
-                                <Panel header="📅 Calendar View" key="calendar">
-                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                        Xem tasks theo lịch, dễ theo dõi deadline và lên kế hoạch.
-                                        Click vào ngày để xem tasks trong ngày đó.
-                                    </Paragraph>
+                                    <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                        <List.Item>
+                                            <Text strong>Hiển thị:</Text> Tasks được nhóm theo trạng thái (To Do, In Progress, Testing, Done...)
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Kéo thả:</Text> Drag & drop task từ cột này sang cột khác để thay đổi trạng thái
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Thông tin card:</Text> Hiển thị độ ưu tiên (tag màu), tên task, dự án, tiến độ (progress bar), deadline
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Click vào card:</Text> Mở drawer chi tiết task
+                                        </List.Item>
+                                        <List.Item>
+                                            <Text strong>Badge số:</Text> Mỗi cột hiển thị số lượng tasks
+                                        </List.Item>
+                                    </List>
+                                    <Alert
+                                        message="🎨 Giao diện đẹp"
+                                        description="Kanban board với màu sắc rõ ràng, hiệu ứng drag & drop mượt mà, thích hợp cho việc quản lý trực quan"
+                                        type="success"
+                                        showIcon
+                                        style={{ marginTop: 12 }}
+                                    />
                                 </Panel>
                             </Collapse>
 
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
-                                3. Lọc & Tìm Kiếm Nâng Cao
+                                3. Bộ Lọc & Tìm Kiếm
                             </Divider>
                             <Card type="inner" size="small" style={{ marginBottom: 16 }}>
                                 <Row gutter={[16, 16]}>
                                     <Col xs={24} md={12}>
-                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px' }}>Lọc theo:</Text>
-                                        <List size="small" style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8 }}>
-                                            <List.Item>• <Text strong>Trạng thái:</Text> To Do, In Progress, Done...</List.Item>
-                                            <List.Item>• <Text strong>Độ ưu tiên:</Text> Critical, High, Medium, Low</List.Item>
-                                            <List.Item>• <Text strong>Dự án:</Text> Chọn từ danh sách dự án</List.Item>
-                                            <List.Item>• <Text strong>Due date:</Text> Hôm nay, Tuần này, Tháng này, Quá hạn</List.Item>
+                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px', display: 'block', marginBottom: 8 }}>
+                                            Các bộ lọc:
+                                        </Text>
+                                        <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                            <List.Item>
+                                                🔹 <Text strong>Tìm kiếm:</Text> Gõ tên task để tìm nhanh
+                                            </List.Item>
+                                            <List.Item>
+                                                👤 <Text strong>Người thực hiện:</Text> Lọc theo nhân viên (mặc định là bạn)
+                                            </List.Item>
+                                            <List.Item>
+                                                📁 <Text strong>Dự án:</Text> Chọn dự án cụ thể
+                                            </List.Item>
+                                            <List.Item>
+                                                🏷️ <Text strong>Trạng thái:</Text> To Do, In Progress, Done...
+                                            </List.Item>
+                                            <List.Item>
+                                                🚩 <Text strong>Độ ưu tiên:</Text> Critical, High, Medium, Low
+                                            </List.Item>
+                                            <List.Item>
+                                                📅 <Text strong>Khoảng thời gian:</Text> Từ ngày - Đến ngày
+                                            </List.Item>
                                         </List>
                                     </Col>
                                     <Col xs={24} md={12}>
-                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px' }}>Quick Filters:</Text>
-                                        <Space wrap style={{ marginTop: 8 }}>
-                                            <Tag color="red">Quá hạn</Tag>
-                                            <Tag color="orange">Hôm nay</Tag>
-                                            <Tag color="blue">Tuần này</Tag>
-                                            <Tag color="green">Chưa bắt đầu</Tag>
-                                            <Tag color="purple">Đang làm</Tag>
+                                        <Text strong style={{ fontSize: isMobile ? '11px' : '13px', display: 'block', marginBottom: 8 }}>
+                                            Thao tác:
+                                        </Text>
+                                        <Space direction="vertical" style={{ width: '100%' }}>
+                                            <Card size="small">
+                                                <Tag color="blue">Tìm kiếm</Tag>
+                                                <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                                    Áp dụng các filter đã chọn
+                                                </Paragraph>
+                                            </Card>
+                                            <Card size="small">
+                                                <Tag color="default">Làm mới</Tag>
+                                                <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                                    Reset về filter mặc định (tasks của bạn)
+                                                </Paragraph>
+                                            </Card>
+                                            <Card size="small">
+                                                <Tag color="geekblue">Bảng</Tag> / <Tag color="purple">Kanban</Tag>
+                                                <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
+                                                    Chuyển đổi chế độ hiển thị
+                                                </Paragraph>
+                                            </Card>
                                         </Space>
-                                        <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 12, marginBottom: 0 }}>
-                                            Click vào tag để lọc nhanh. Click lại để bỏ filter.
-                                        </Paragraph>
                                     </Col>
                                 </Row>
                             </Card>
 
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
-                                4. Thao Tác Nhanh
+                                4. Xem Chi Tiết Task
                             </Divider>
-                            <Space direction="vertical" style={{ width: '100%' }} size="small">
-                                <Card size="small" type="inner">
-                                    <Tag color="green" icon={<ClockCircleOutlined />}>Start Timer</Tag>
-                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
-                                        Bắt đầu đếm thời gian ngay từ danh sách, không cần mở chi tiết
-                                    </Paragraph>
-                                </Card>
-
-                                <Card size="small" type="inner">
-                                    <Tag color="red" icon={<ClockCircleOutlined />}>Stop Timer</Tag>
-                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
-                                        Dừng timer đang chạy. Thời gian tự động lưu vào time log
-                                    </Paragraph>
-                                </Card>
-
-                                <Card size="small" type="inner">
-                                    <Tag color="blue">Mark as Done</Tag>
-                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
-                                        Đánh dấu hoàn thành nhanh. Task chuyển sang trạng thái Done
-                                    </Paragraph>
-                                </Card>
-
-                                <Card size="small" type="inner">
-                                    <Tag color="purple">View Details</Tag>
-                                    <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginTop: 8, marginBottom: 0 }}>
-                                        Mở drawer chi tiết task với đầy đủ thông tin, comments, files...
-                                    </Paragraph>
-                                </Card>
-                            </Space>
+                            <Card type="inner" size="small">
+                                <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                    <Text strong>Cách mở:</Text> Click vào task (cả ở Table view và Kanban view)
+                                </Paragraph>
+                                <Paragraph style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                    <Text strong>Drawer hiển thị:</Text>
+                                </Paragraph>
+                                <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
+                                    <List.Item>• Thông tin đầy đủ: Tiêu đề, Mô tả, Dự án, Trạng thái, Độ ưu tiên, Người thực hiện, Người giao việc</List.Item>
+                                    <List.Item>• Ngày bắt đầu, Deadline, Tiến độ (%)</List.Item>
+                                    <List.Item>• Tab Checklist: Danh sách công việc con</List.Item>
+                                    <List.Item>• Tab Comments: Thảo luận, trao đổi</List.Item>
+                                    <List.Item>• Tab Files: Tài liệu đính kèm</List.Item>
+                                    <List.Item>• Tab Time Logs: Lịch sử tracking thời gian</List.Item>
+                                    <List.Item>• Tab Activity: Lịch sử thay đổi</List.Item>
+                                </List>
+                                <Alert
+                                    message="✨ Tính năng mới"
+                                    description="Drawer mở trực tiếp tại trang My Tasks, không cần chuyển sang trang khác"
+                                    type="success"
+                                    showIcon
+                                    style={{ marginTop: 12 }}
+                                />
+                            </Card>
 
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
                                 5. Workflow Khuyến Nghị
@@ -830,47 +888,47 @@ const UserGuide: React.FC = () => {
                                         title: 'Mở đầu ngày (8h)',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Vào My Tasks → Xem tasks "Hôm nay" → Sắp xếp ưu tiên
+                                                Vào My Tasks → Xem tasks của bạn → Kiểm tra tasks quá hạn (màu đỏ)
                                             </Text>
                                         ),
                                     },
                                     {
-                                        title: 'Bắt đầu làm việc',
+                                        title: 'Lọc & Sắp xếp',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Chọn task → Click "Start Timer" → Bắt đầu làm
+                                                Lọc theo "Hôm nay" hoặc "Tuần này" → Sắp xếp theo độ ưu tiên
                                             </Text>
                                         ),
                                     },
                                     {
-                                        title: 'Làm việc tập trung',
+                                        title: 'Chọn chế độ xem phù hợp',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Focus vào 1 task, tránh multitasking
+                                                Kanban view để có overview → Table view để xem chi tiết
                                             </Text>
                                         ),
                                     },
                                     {
-                                        title: 'Hoàn thành task',
+                                        title: 'Làm việc với task',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Stop Timer → Cập nhật % tiến độ → Mark as Done
+                                                Click vào task → Xem chi tiết → Start Timer (nếu có) → Bắt đầu làm
                                             </Text>
                                         ),
                                     },
                                     {
-                                        title: 'Lặp lại',
+                                        title: 'Cập nhật tiến độ',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Chuyển sang task tiếp theo trong danh sách
+                                                Kéo thả sang cột khác (Kanban) hoặc cập nhật % tiến độ trong drawer
                                             </Text>
                                         ),
                                     },
                                     {
-                                        title: 'Cuối ngày (17h30)',
+                                        title: 'Theo dõi team (nếu cần)',
                                         description: (
                                             <Text style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                                Review lại công việc → Gửi Daily Report
+                                                Chọn "Người thực hiện" → Xem tasks của đồng nghiệp để nắm tiến độ team
                                             </Text>
                                         ),
                                     },
@@ -881,11 +939,12 @@ const UserGuide: React.FC = () => {
                                 message="💡 Pro Tips"
                                 description={
                                     <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
-                                        <List.Item>⭐ Dùng Quick Filter "Quá hạn" mỗi sáng để ưu tiên tasks cấp bách</List.Item>
-                                        <List.Item>⭐ Limit WIP: Không nên có quá 2-3 tasks "In Progress" cùng lúc</List.Item>
-                                        <List.Item>⭐ Start timer NGAY khi bắt đầu, để tracking chính xác</List.Item>
-                                        <List.Item>⭐ Bookmark trang My Tasks để truy cập nhanh</List.Item>
-                                        <List.Item>⭐ Dùng Kanban view khi cần overview, List view khi cần detail</List.Item>
+                                        <List.Item>⭐ Dùng filter "Người thực hiện" để xem tasks của đồng nghiệp khi cần phối hợp</List.Item>
+                                        <List.Item>⭐ Kanban view giúp thao tác nhanh, Table view phù hợp xem chi tiết</List.Item>
+                                        <List.Item>⭐ Click vào task để mở drawer ngay tại trang, không cần chuyển trang</List.Item>
+                                        <List.Item>⭐ Sử dụng kéo thả trong Kanban để cập nhật trạng thái nhanh chóng</List.Item>
+                                        <List.Item>⭐ Bookmark trang My Tasks để truy cập nhanh hàng ngày</List.Item>
+                                        <List.Item>⭐ Kiểm tra tasks quá hạn (màu đỏ) mỗi sáng để ưu tiên xử lý</List.Item>
                                     </List>
                                 }
                                 type="success"
@@ -989,7 +1048,7 @@ const UserGuide: React.FC = () => {
                     >
                         <div style={{ padding: isMobile ? '8px' : '16px' }}>
                             <Title level={isMobile ? 4 : 3}>Hệ Thống Phân Quyền (RBAC)</Title>
-                            
+
                             <Alert
                                 message="🔐 Bảo mật"
                                 description="Hệ thống sử dụng Role-Based Access Control (RBAC) để quản lý quyền truy cập chi tiết cho từng dự án."
@@ -1001,7 +1060,7 @@ const UserGuide: React.FC = () => {
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px' }}>
                                 Ma Trận Quyền Hạn
                             </Divider>
-                            
+
                             <div style={{ overflowX: 'auto' }}>
                                 <Table
                                     size="small"
@@ -1042,7 +1101,7 @@ const UserGuide: React.FC = () => {
                             <Divider orientation="left" style={{ fontSize: isMobile ? '13px' : '14px', marginTop: 24 }}>
                                 Cơ Chế Phân Quyền
                             </Divider>
-                            
+
                             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                                 <Card size="small" type="inner" title="1️⃣ Super Admin Protection">
                                     <Paragraph style={{ fontSize: isMobile ? '11px' : '13px', marginBottom: 0 }}>
@@ -1419,7 +1478,7 @@ const UserGuide: React.FC = () => {
                                 <Card type="inner" title="✅ Tạo Task Hiệu Quả">
                                     <List size="small" style={{ fontSize: isMobile ? '11px' : '13px' }}>
                                         <List.Item>
-                                            <Text strong>1. Tiêu đề rõ ràng:</Text> Dùng động từ + đối tượng. 
+                                            <Text strong>1. Tiêu đề rõ ràng:</Text> Dùng động từ + đối tượng.
                                             VD: "Thiết kế màn hình login" thay vì "Login"
                                         </List.Item>
                                         <List.Item>
