@@ -797,12 +797,12 @@ const ProjectDetail: React.FC = () => {
                                                 color={status?.color}
                                                 style={{
                                                     fontSize: 13,
-                                                    padding: '4px 12px',
+                                                    // padding: '4px 12px',
                                                     borderRadius: 16,
                                                     fontWeight: 500,
                                                 }}
                                             >
-                                                {status?.name}
+                                                {icon[status?.icon]} {status?.name}
                                             </Tag>
                                         ),
                                     },
