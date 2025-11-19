@@ -1096,7 +1096,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                 <Avatar
                                                                                                     size={28}
                                                                                                     style={{
-                                                                                                        backgroundColor: '#8500ff',
+                                                                                                        backgroundColor: '#23793b',
                                                                                                         fontSize: 12,
                                                                                                         fontWeight: 600,
                                                                                                     }}
