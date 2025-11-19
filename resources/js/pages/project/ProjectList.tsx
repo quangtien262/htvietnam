@@ -218,9 +218,13 @@ const ProjectList: React.FC = () => {
             width: 300,
             fixed: 'left' as const,
             render: (text: string, record: Project) => (
-                <a onClick={() => handleViewDetail(record)}>
-                    <div><strong>{record.ten_du_an}</strong></div>
-                </a>
+                <div>
+                    <a onClick={() => handleViewDetail(record)}>
+                        <strong>{record.ten_du_an}</strong>
+                    </a>
+                    <br />
+                    <em>{record.mo_ta}</em>
+                </div>
             ),
         },
         {

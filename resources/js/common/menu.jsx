@@ -56,34 +56,6 @@ export const MENU = {
             icon: <BarChartOutlined />,
             key: (key++).toString(),
         },
-        // Công việc
-        {
-            label: "Công việc",
-            key: (key++).toString(),
-            icon: <UnorderedListOutlined />,
-            children: [
-                {
-                    label: <a href={`${ROUTE.taskKanban_all}?p=bds`}>Task</a>, // check mobile, show dang list
-                    key: (key++).toString(),
-                    icon: <UnorderedListOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.meeting}?p=bds`}>Meeting</Link>,
-                    key: (key++).toString(),
-                    icon: <TeamOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.projectList}?p=bds`}>Project</Link>,
-                    key: (key++).toString(),
-                    icon: <TeamOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.taskKanban_all}?p=bds`}>Lịch</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
-            ],
-        },
         // Quản lý phòng
         {
             label: "Phòng",
