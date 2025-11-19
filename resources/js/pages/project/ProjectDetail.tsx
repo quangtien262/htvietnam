@@ -1021,7 +1021,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                     margin: 0,
                                                                                                     fontSize: 11,
                                                                                                     fontWeight: 600,
-                                                                                                    padding: '2px 8px',
+                                                                                                    // padding: '2px 8px',
                                                                                                     borderRadius: 10,
                                                                                                 }}
                                                                                             >
