@@ -632,6 +632,23 @@ export const API = {
     nhaCungCapDelete: (id: number) => `/spa/nha-cung-cap/${id}`,
     nhaCungCapToggleStatus: (id: number) => `/spa/nha-cung-cap/${id}/toggle-status`,
 
+    // ===== QUẢN LÝ NHÂN VIÊN (HR Module) =====
+    // Admin Users/Employees Management
+    nhanVienList: '/aio/api/nhan-vien/list',
+    nhanVienCreate: '/aio/api/nhan-vien/create',
+    nhanVienUpdate: (id: number) => `/aio/api/nhan-vien/update/${id}`,
+    nhanVienDelete: '/aio/api/nhan-vien/delete',
+    nhanVienSelectOptions: '/aio/api/nhan-vien/select-options',
+
+    // ===== QUẢN LÝ MENU ADMIN =====
+    // Admin Menu Management
+    adminMenuList: '/aio/api/admin-menu/list',
+    adminMenuDetail: (id: number) => `/aio/api/admin-menu/${id}`,
+    adminMenuCreate: '/aio/api/admin-menu/create',
+    adminMenuUpdate: (id: number) => `/aio/api/admin-menu/update/${id}`,
+    adminMenuDelete: '/aio/api/admin-menu/delete',
+    adminMenuUpdateSortOrder: '/aio/api/admin-menu/update-sort-order',
+
 };
 
 export default API;

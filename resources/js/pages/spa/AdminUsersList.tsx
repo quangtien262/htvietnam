@@ -79,7 +79,7 @@ const AdminUsersList: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await axios.post('/aio/api/api/setting/admin_users/list', {
+            const res = await axios.post(API.nhanVienList, {
                 searchData: {
                     ...searchParams,
                     page: pagination.current,
@@ -105,11 +105,11 @@ const AdminUsersList: React.FC = () => {
     const fetchSelectOptions = async () => {
         try {
             const [chiNhanhRes, chucVuRes, statusRes, gioiTinhRes, permissionRes] = await Promise.all([
-                axios.post('/aio/api/api/setting/admin_users/select-options', { type: 'chi_nhanh' }),
-                axios.post('/aio/api/api/setting/admin_users/select-options', { type: 'chuc_vu' }),
-                axios.post('/aio/api/api/setting/admin_users/select-options', { type: 'admin_user_status' }),
-                axios.post('/aio/api/api/setting/admin_users/select-options', { type: 'gioi_tinh' }),
-                axios.post('/aio/api/api/setting/admin_users/select-options', { type: 'permission_group' }),
+                axios.post(API.nhanVienSelectOptions, { type: 'chi_nhanh' }),
+                axios.post(API.nhanVienSelectOptions, { type: 'chuc_vu' }),
+                axios.post(API.nhanVienSelectOptions, { type: 'admin_user_status' }),
+                axios.post(API.nhanVienSelectOptions, { type: 'gioi_tinh' }),
+                axios.post(API.nhanVienSelectOptions, { type: 'permission_group' }),
             ]);
 
             setChiNhanhList(chiNhanhRes.data.data || []);
@@ -143,7 +143,7 @@ const AdminUsersList: React.FC = () => {
 
     const handleDelete = async (ids: number[]) => {
         try {
-            const res = await axios.post('/aio/api/api/setting/admin_users/delete', { ids });
+            const res = await axios.post(API.nhanVienDelete, { ids });
 
             if (res?.data?.status_code === 200) {
                 message.success('Xóa thành công');
@@ -168,8 +168,8 @@ const AdminUsersList: React.FC = () => {
             };
 
             const endpoint = modalMode === 'add'
-                ? '/aio/api/api/setting/admin_users/create'
-                : `/aio/api/api/setting/admin_users/update/${editingRecord?.id}`;
+                ? API.nhanVienCreate
+                : API.nhanVienUpdate(editingRecord?.id!);
 
             const res = await axios.post(endpoint, data);
 
@@ -479,7 +479,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="cmnd"
                                                 label="Số CCCD/CMND"
-                                                rules={[{ required: true, message: 'Vui lòng nhập CCCD' }]}
                                             >
                                                 <Input placeholder="Nhập số CCCD" prefix={<IdcardOutlined />} />
                                             </Form.Item>
@@ -488,7 +487,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="ngay_cap"
                                                 label="Ngày cấp"
-                                                rules={[{ required: true, message: 'Vui lòng chọn ngày cấp' }]}
                                             >
                                                 <DatePicker
                                                     placeholder="Chọn ngày cấp"
@@ -524,7 +522,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="chi_nhanh_id"
                                                 label="Chi nhánh"
-                                                rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
                                             >
                                                 <Select placeholder="Chọn chi nhánh">
                                                     {chiNhanhList.map(item => (
@@ -537,7 +534,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="chuc_vu_id"
                                                 label="Chức vụ"
-                                                rules={[{ required: true, message: 'Vui lòng chọn chức vụ' }]}
                                             >
                                                 <Select placeholder="Chọn chức vụ">
                                                     {chucVuList.map(item => (
@@ -550,7 +546,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="admin_user_status_id"
                                                 label="Trạng thái"
-                                                rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
                                             >
                                                 <Select placeholder="Chọn trạng thái">
                                                     {statusList.map(item => (
@@ -563,7 +558,6 @@ const AdminUsersList: React.FC = () => {
                                             <Form.Item
                                                 name="ngay_vao_lam"
                                                 label="Ngày vào làm"
-                                                rules={[{ required: true, message: 'Vui lòng chọn ngày vào làm' }]}
                                             >
                                                 <DatePicker
                                                     placeholder="Chọn ngày vào làm"

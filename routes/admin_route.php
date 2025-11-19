@@ -297,10 +297,19 @@ Route::get('/documents/comments/unresolved-count', [BinhLuanController::class, '
 
 // Admin Users Management
 // Admin Users CRUD
-Route::post('/api/setting/admin_users/list', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersList'])->name('api.admin_users.list');
-Route::get('/api/setting/admin_users/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUserDetail'])->name('api.admin_users.detail');
-Route::post('/api/setting/admin_users/create', [\App\Http\Controllers\Admin\AdminController::class, 'createAdminUser'])->name('api.admin_users.create');
-Route::post('/api/setting/admin_users/update/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'updateAdminUser'])->name('api.admin_users.update');
-Route::post('/api/setting/admin_users/delete', [\App\Http\Controllers\Admin\AdminController::class, 'deleteAdminUsers'])->name('api.admin_users.delete');
-Route::post('/api/setting/admin_users/select-options', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersSelectOptions'])->name('api.admin_users.select_options');
+Route::post('nhan-vien/list', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersList'])->name('api.admin_users.list');
+Route::get('nhan-vien/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUserDetail'])->name('api.admin_users.detail');
+Route::post('nhan-vien/create', [\App\Http\Controllers\Admin\AdminController::class, 'createAdminUser'])->name('api.admin_users.create');
+Route::post('nhan-vien/update/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'updateAdminUser'])->name('api.admin_users.update');
+Route::post('nhan-vien/delete', [\App\Http\Controllers\Admin\AdminController::class, 'deleteAdminUsers'])->name('api.admin_users.delete');
+Route::post('nhan-vien/select-options', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminUsersSelectOptions'])->name('api.admin_users.select_options');
+
+// Admin Menu Management
+Route::post('admin-menu/list', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminMenuList'])->name('api.admin_menu.list');
+Route::get('admin-menu/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'getAdminMenuDetail'])->name('api.admin_menu.detail');
+Route::post('admin-menu/create', [\App\Http\Controllers\Admin\AdminController::class, 'createAdminMenu'])->name('api.admin_menu.create');
+Route::post('admin-menu/update/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'updateAdminMenu'])->name('api.admin_menu.update');
+Route::post('admin-menu/delete', [\App\Http\Controllers\Admin\AdminController::class, 'deleteAdminMenus'])->name('api.admin_menu.delete');
+Route::post('admin-menu/update-sort-order', [\App\Http\Controllers\Admin\AdminController::class, 'updateAdminMenuSortOrder'])->name('api.admin_menu.update_sort_order');
+
 

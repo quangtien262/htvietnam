@@ -456,12 +456,8 @@ class AdminController extends Controller
                 'email' => 'nullable|email|max:255|unique:admin_users,email,' . $id,
                 'username' => 'nullable|string|max:255|unique:admin_users,username,' . $id,
                 'password' => 'nullable|string|min:6',
-                'cmnd' => 'required|string|max:50',
-                'ngay_cap' => 'required|date',
-                'chi_nhanh_id' => 'required|integer',
-                'admin_user_status_id' => 'required|integer',
-                'ngay_vao_lam' => 'required|date',
-                'chuc_vu_id' => 'required|integer',
+                'cmnd' => 'nullable|string|max:50',
+                'ngay_vao_lam' => 'nullable|date',
             ]);
 
             // Only update password if provided
@@ -590,6 +586,217 @@ class AdminController extends Controller
             return response()->json([
                 'status_code' => 500,
                 'message' => 'Lỗi khi lấy dữ liệu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get admin menu list with pagination and search
+     */
+    public function getAdminMenuList(Request $request)
+    {
+        try {
+            $searchData = $request->input('searchData', []);
+            $page = $searchData['page'] ?? 1;
+            $perPage = $searchData['per_page'] ?? 20;
+
+            $query = AdminMenu::query();
+
+            // Search
+            if (!empty($searchData['search'])) {
+                $search = $searchData['search'];
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('display_name', 'like', "%{$search}%")
+                      ->orWhere('link', 'like', "%{$search}%");
+                });
+            }
+
+            // Filter by status
+            if (isset($searchData['is_active']) && $searchData['is_active'] !== '') {
+                $query->where('is_active', $searchData['is_active']);
+            }
+
+            // Exclude recycle bin
+            $query->where('is_recycle_bin', '!=', 1);
+
+            // Order by sort_order
+            $query->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
+
+            // Pagination
+            $menus = $query->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'status_code' => 200,
+                'data' => [
+                    'datas' => $menus->items(),
+                    'total' => $menus->total(),
+                    'current_page' => $menus->currentPage(),
+                    'per_page' => $menus->perPage(),
+                    'last_page' => $menus->lastPage(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Lỗi khi lấy danh sách menu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get admin menu detail by ID
+     */
+    public function getAdminMenuDetail($id)
+    {
+        try {
+            $menu = AdminMenu::findOrFail($id);
+
+            return response()->json([
+                'status_code' => 200,
+                'data' => $menu
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 404,
+                'message' => 'Không tìm thấy menu'
+            ], 404);
+        }
+    }
+
+    /**
+     * Create new admin menu
+     */
+    public function createAdminMenu(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'name' => 'nullable|string|max:255',
+                'display_name' => 'required|string|max:255',
+                'icon' => 'nullable|string|max:255',
+                'link' => 'nullable|string|max:255',
+                'is_active' => 'nullable|integer',
+                'sort_order' => 'nullable|integer',
+            ]);
+
+            // Auto set sort_order if not provided
+            if (!isset($data['sort_order'])) {
+                $maxSortOrder = AdminMenu::max('sort_order') ?? 0;
+                $data['sort_order'] = $maxSortOrder + 1;
+            }
+
+            $data['create_by'] = auth('admin_users')->id() ?? 0;
+            $data['is_recycle_bin'] = 0;
+
+            $menu = AdminMenu::create($data);
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Thêm menu thành công',
+                'data' => $menu
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Lỗi khi thêm menu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update admin menu
+     */
+    public function updateAdminMenu(Request $request, $id)
+    {
+        try {
+            $menu = AdminMenu::findOrFail($id);
+
+            $data = $request->validate([
+                'name' => 'nullable|string|max:255',
+                'display_name' => 'required|string|max:255',
+                'icon' => 'nullable|string|max:255',
+                'link' => 'nullable|string|max:255',
+                'is_active' => 'nullable|integer',
+                'sort_order' => 'nullable|integer',
+            ]);
+
+            $menu->update($data);
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Cập nhật menu thành công',
+                'data' => $menu
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Lỗi khi cập nhật menu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete admin menus (soft delete)
+     */
+    public function deleteAdminMenus(Request $request)
+    {
+        try {
+            $ids = $request->input('ids', []);
+
+            if (empty($ids)) {
+                return response()->json([
+                    'status_code' => 422,
+                    'message' => 'Không có menu nào được chọn'
+                ], 422);
+            }
+
+            AdminMenu::whereIn('id', $ids)->update(['is_recycle_bin' => 1]);
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Xóa menu thành công'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Lỗi khi xóa menu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update sort order for admin menus (drag & drop)
+     */
+    public function updateAdminMenuSortOrder(Request $request)
+    {
+        try {
+            $items = $request->input('items', []);
+
+            if (empty($items)) {
+                return response()->json([
+                    'status_code' => 422,
+                    'message' => 'Không có dữ liệu để cập nhật'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            foreach ($items as $index => $item) {
+                AdminMenu::where('id', $item['id'])
+                    ->update(['sort_order' => $index + 1]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Cập nhật thứ tự thành công'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Lỗi khi cập nhật thứ tự: ' . $e->getMessage()
             ], 500);
         }
     }

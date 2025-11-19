@@ -17,13 +17,18 @@ return new class extends Migration
     {
         Schema::create('admin_menu', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->integer('color')->nullable(); // is_active
-            $table->string('icon')->nullable(); // icon
-            $table->string('note')->nullable(); // tên hiển thị
-            $table->integer('sort_order')->nullable();
+            $table->string('name')->nullable(); // tên bảng, dùng để tạo database
+            $table->string('display_name')->nullable(); // tên hiển thị, dùng để hiển thị ở table list, form add/edit
+            $table->string('icon')->nullable();
+            $table->string('link')->nullable(); // liên kết nếu có
+            $table->string('is_active')->default(1)->nullable(); // trạng thái hoạt động
+            $table->integer('sort_order')->default(0)->nullable();
+            $table->integer('create_by')->default(0)->nullable(); // nguoi tao
+            $table->integer('is_recycle_bin')->default(0)->nullable();
 
             $table->timestamps();
+
+
         });
     }
 
