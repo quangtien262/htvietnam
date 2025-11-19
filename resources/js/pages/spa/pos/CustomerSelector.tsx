@@ -8,6 +8,7 @@ import {
     StarOutlined, PlusOutlined, CloseOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
+import API_SPA from '../../../common/api_spa';
 
 const { TextArea } = Input;
 
@@ -62,7 +63,7 @@ const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     const loadCustomers = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/customers/list', {
+            const response = await axios.post(API_SPA.spaCustomersListPost, {
                 limit: 100,
                 trang_thai: 'active',
             });
@@ -78,7 +79,7 @@ const CustomerSelector: React.FC<CustomerSelectorProps> = ({
 
     const handleCreateCustomer = async (values: any) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/customers/create-or-update', values);
+            const response = await axios.post(API_SPA.spaCustomerCreateOrUpdate, values);
             if (response.data.success) {
                 const newCustomer = response.data.data;
                 setCustomers([newCustomer, ...customers]);

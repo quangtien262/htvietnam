@@ -219,9 +219,6 @@ const ProjectList: React.FC = () => {
             fixed: 'left' as const,
             render: (text: string, record: Project) => (
                 <a onClick={() => handleViewDetail(record)}>
-                    <div>
-                        <Tag color={record.ma_mau}>{record.ma_du_an}</Tag>
-                    </div>
                     <div><strong>{record.ten_du_an}</strong></div>
                 </a>
             ),
@@ -279,7 +276,7 @@ const ProjectList: React.FC = () => {
             render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
         },
         {
-            title: 'Ngày hoàn thành DK',
+            title: 'Ngày hoàn thành',
             dataIndex: 'ngay_ket_thuc_du_kien',
             key: 'ngay_ket_thuc_du_kien',
             width: 150,
@@ -377,6 +374,7 @@ const ProjectList: React.FC = () => {
                             <Option key={type.id} value={type.id}>{type.name}</Option>
                         ))}
                     </Select>
+
                     <Button icon={<ReloadOutlined />} onClick={handleResetFilters}>
                         Reset
                     </Button>

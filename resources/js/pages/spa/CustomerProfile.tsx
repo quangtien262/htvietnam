@@ -100,7 +100,7 @@ const CustomerProfile: React.FC = () => {
     const loadCustomerProfile = async () => {
         setLoading(true);
         try {
-            const response = await axios.post(`/aio/api/admin/spa/customers/${id}/profile`);
+            const response = await axios.post(API_SPA.spaCustomerProfile(id));
             if (response.data.success) {
                 const data = response.data.data;
                 setCustomer(data.customer);
@@ -122,7 +122,7 @@ const CustomerProfile: React.FC = () => {
 
     const handleUpdateCustomer = async (values: any) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/customers/create-or-update', {
+            const response = await axios.post(API_SPA.spaCustomerCreateOrUpdate, {
                 id: customer?.id,
                 ...values,
                 ngay_sinh: values.ngay_sinh ? dayjs(values.ngay_sinh).format('YYYY-MM-DD') : null,
@@ -140,7 +140,7 @@ const CustomerProfile: React.FC = () => {
 
     const handleUpdateHealthProfile = async (values: any) => {
         try {
-            const response = await axios.post(`/aio/api/admin/spa/customers/${id}/health-profile`, values);
+            const response = await axios.post(API_SPA.spaCustomerHealthProfile(id), values);
             if (response.data.success) {
                 message.success('Cập nhật hồ sơ sức khỏe thành công');
                 setEditHealthModalVisible(false);
@@ -153,7 +153,7 @@ const CustomerProfile: React.FC = () => {
 
     const handleUpdateSkinProfile = async (values: any) => {
         try {
-            const response = await axios.post(`/aio/api/admin/spa/customers/${id}/skin-profile`, values);
+            const response = await axios.post(API_SPA.spaCustomerSkinProfile(id), values);
             if (response.data.success) {
                 message.success('Cập nhật hồ sơ da thành công');
                 setEditSkinModalVisible(false);
@@ -171,7 +171,7 @@ const CustomerProfile: React.FC = () => {
         formData.append('khach_hang_id', id!);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/customers/upload-photo', formData);
+            const response = await axios.post(API_SPA.spaCustomerUploadPhoto, formData);
             if (response.data.success) {
                 message.success('Upload ảnh thành công');
                 loadCustomerProfile();

@@ -224,3 +224,146 @@ Route::prefix('shifts')->name('shifts.')->group(function () {
     Route::get('/{id}', [CaLamViecController::class, 'show'])->name('show');
     Route::get('/{id}/print', [CaLamViecController::class, 'printHandover'])->name('print');
 });
+
+
+
+// Branches
+Route::get('branches', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'index'])->name('api.spa.branches.index');
+Route::get('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'show'])->name('api.spa.branches.show');
+Route::post('branches', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'store'])->name('api.spa.branches.store');
+Route::put('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'update'])->name('api.spa.branches.update');
+Route::delete('branches/{id}', [\App\Http\Controllers\Admin\Spa\ChiNhanhController::class, 'destroy'])->name('api.spa.branches.destroy');
+
+// Analytics / Dashboard
+Route::get('analytics/dashboard', [\App\Http\Controllers\Admin\Spa\AnalyticsController::class, 'dashboard'])->name('api.spa.analytics.dashboard');
+Route::get('analytics/revenue', [\App\Http\Controllers\Admin\Spa\AnalyticsController::class, 'revenue'])->name('api.spa.analytics.revenue');
+Route::get('analytics/services', [\App\Http\Controllers\Admin\Spa\AnalyticsController::class, 'services'])->name('api.spa.analytics.services');
+
+// Phòng (Rooms)
+Route::get('rooms', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'index'])->name('api.spa.rooms.index');
+Route::get('rooms/{id}', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'show'])->name('api.spa.rooms.show');
+Route::post('rooms', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'store'])->name('api.spa.rooms.store');
+Route::put('rooms/{id}', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'update'])->name('api.spa.rooms.update');
+Route::delete('rooms/{id}', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'destroy'])->name('api.spa.rooms.destroy');
+Route::get('rooms/available', [\App\Http\Controllers\Admin\Spa\PhongController::class, 'available'])->name('api.spa.rooms.available');
+
+// Ca làm việc (Shifts)
+Route::get('ca-lam-viec/current', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'getCurrentShift'])->name('api.spa.shifts.current');
+Route::post('ca-lam-viec/open', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'openShift'])->name('api.spa.shifts.open');
+Route::post('ca-lam-viec/{id}/close', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'closeShift'])->name('api.spa.shifts.close');
+Route::get('ca-lam-viec', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'index'])->name('api.spa.shifts.index');
+Route::get('ca-lam-viec/{id}', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'show'])->name('api.spa.shifts.show');
+Route::get('ca-lam-viec/{id}/print', [\App\Http\Controllers\Admin\Spa\CaLamViecController::class, 'printHandover'])->name('api.spa.shifts.print');
+
+// Services
+Route::get('services', [\App\Http\Controllers\Admin\Spa\DichVuController::class, 'index'])->name('api.spa.services.index');
+Route::post('service-categories/list', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'list'])->name('api.spa.service-categories.list');
+Route::get('service-categories', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'index'])->name('api.spa.service-categories.index');
+Route::get('service-packages', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'index'])->name('api.spa.service-packages.index');
+
+// Products
+Route::get('products', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'index'])->name('api.spa.products.index');
+Route::get('products/{id}', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'show'])->name('api.spa.products.show');
+Route::post('products', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'store'])->name('api.spa.products.store');
+Route::put('products/{id}', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'update'])->name('api.spa.products.update');
+Route::delete('products/{id}', [\App\Http\Controllers\Admin\Spa\SanPhamController::class, 'destroy'])->name('api.spa.products.destroy');
+
+// Product Categories
+Route::get('product-categories', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'index'])->name('api.spa.product-categories.index');
+Route::post('product-categories', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'store'])->name('api.spa.product-categories.store');
+Route::get('product-categories/{id}', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'show'])->name('api.spa.product-categories.show');
+Route::put('product-categories/{id}', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'update'])->name('api.spa.product-categories.update');
+Route::delete('product-categories/{id}', [\App\Http\Controllers\Admin\Spa\DanhMucSanPhamController::class, 'destroy'])->name('api.spa.product-categories.destroy');
+
+// Brands (Thương hiệu)
+Route::get('brands', [\App\Http\Controllers\Admin\Spa\ThuongHieuController::class, 'index'])->name('api.spa.brands.index');
+Route::post('brands', [\App\Http\Controllers\Admin\Spa\ThuongHieuController::class, 'store'])->name('api.spa.brands.store');
+Route::get('brands/{id}', [\App\Http\Controllers\Admin\Spa\ThuongHieuController::class, 'show'])->name('api.spa.brands.show');
+Route::put('brands/{id}', [\App\Http\Controllers\Admin\Spa\ThuongHieuController::class, 'update'])->name('api.spa.brands.update');
+Route::delete('brands/{id}', [\App\Http\Controllers\Admin\Spa\ThuongHieuController::class, 'destroy'])->name('api.spa.brands.destroy');
+
+// Origins (Xuất xứ)
+Route::get('origins', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'index'])->name('api.spa.origins.index');
+Route::post('origins', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'store'])->name('api.spa.origins.store');
+Route::get('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'show'])->name('api.spa.origins.show');
+Route::put('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'update'])->name('api.spa.origins.update');
+Route::delete('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'destroy'])->name('api.spa.origins.destroy');
+
+// POS
+Route::post('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'createInvoice'])->name('api.spa.pos.create-invoice');
+Route::get('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'index'])->name('api.spa.pos.invoices');
+
+// Invoices (Hóa đơn)
+Route::get('invoices', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'index'])->name('api.spa.invoices.index');
+Route::get('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'show'])->name('api.spa.invoices.show');
+Route::put('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'update'])->name('api.spa.invoices.update');
+Route::delete('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'destroy'])->name('api.spa.invoices.destroy');
+Route::get('invoices/{id}/print', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'print'])->name('api.spa.invoices.print');
+Route::post('invoices/export', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'export'])->name('api.spa.invoices.export');
+Route::post('invoices/{id}/pay-debt', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'payDebt'])->name('api.spa.invoices.pay-debt');
+
+// Gift Cards (Thẻ Giá Trị)
+Route::get('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'index'])->name('api.spa.gift-cards.index');
+Route::get('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'show'])->name('api.spa.gift-cards.show');
+Route::post('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'store'])->name('api.spa.gift-cards.store');
+Route::put('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'update'])->name('api.spa.gift-cards.update');
+Route::delete('gift-cards/{id}', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'destroy'])->name('api.spa.gift-cards.destroy');
+Route::post('gift-cards/validate-code', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'validateCode'])->name('api.spa.gift-cards.validate-code');
+
+// Wallet (Ví Khách Hàng)
+Route::get('wallet/{khach_hang_id}', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getWallet'])->name('api.spa.wallet.get');
+Route::get('wallet/{khach_hang_id}/history', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getHistory'])->name('api.spa.wallet.history');
+Route::post('wallet/deposit', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'napTien'])->name('api.spa.wallet.deposit');
+Route::post('wallet/withdraw', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'truTien'])->name('api.spa.wallet.withdraw');
+Route::post('wallet/refund', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'hoanTien'])->name('api.spa.wallet.refund');
+Route::post('wallet/apply-code', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'applyCode'])->name('api.spa.wallet.apply-code');
+Route::post('wallet/{khach_hang_id}/set-limits', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'setLimits'])->name('api.spa.wallet.set-limits');
+
+// Wallet Reports
+Route::get('wallet/reports/stats', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getReportStats'])->name('api.spa.wallet.reports.stats');
+Route::get('wallet/reports/top-customers', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getTopCustomers'])->name('api.spa.wallet.reports.top-customers');
+Route::get('wallet/reports/gift-card-revenue', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getGiftCardRevenue'])->name('api.spa.wallet.reports.gift-card-revenue');
+Route::get('wallet/reports/transactions', [\App\Http\Controllers\Admin\Spa\ViKhachHangController::class, 'getTransactions'])->name('api.spa.wallet.reports.transactions');
+
+// Vouchers
+Route::post('vouchers/list', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'index'])->name('api.spa.vouchers.list');
+Route::post('vouchers/create-or-update', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'createOrUpdate'])->name('api.spa.vouchers.createOrUpdate');
+Route::post('vouchers/delete', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'delete'])->name('api.spa.vouchers.delete');
+Route::post('vouchers/verify', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'verify'])->name('api.spa.vouchers.verify');
+Route::post('vouchers/apply', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'apply'])->name('api.spa.vouchers.apply');
+Route::get('vouchers', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'index'])->name('api.spa.vouchers.index');
+Route::post('vouchers', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'store'])->name('api.spa.vouchers.store');
+Route::get('vouchers/{id}', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'show'])->name('api.spa.vouchers.show');
+
+// Customer Packages (Gói dịch vụ của khách hàng)
+Route::post('customer-packages/list', [\App\Http\Controllers\Admin\Spa\CustomerPackageController::class, 'getCustomerPackages'])->name('api.spa.customer-packages.list');
+Route::post('customer-packages/use', [\App\Http\Controllers\Admin\Spa\CustomerPackageController::class, 'usePackage'])->name('api.spa.customer-packages.use');
+Route::post('customer-packages/purchase', [\App\Http\Controllers\Admin\Spa\CustomerPackageController::class, 'purchasePackage'])->name('api.spa.customer-packages.purchase');
+
+// Settings (Cấu hình)
+Route::get('settings/get', [\App\Http\Controllers\Admin\Spa\SettingController::class, 'get'])->name('api.spa.settings.get');
+Route::post('settings/update', [\App\Http\Controllers\Admin\Spa\SettingController::class, 'update'])->name('api.spa.settings.update');
+Route::post('upload-image', [\App\Http\Controllers\Admin\Spa\SettingController::class, 'uploadImage'])->name('api.spa.upload-image');
+Route::post('customer-packages/history', [\App\Http\Controllers\Admin\Spa\CustomerPackageController::class, 'getPackageHistory'])->name('api.spa.customer-packages.history');
+Route::put('vouchers/{id}', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'update'])->name('api.spa.vouchers.update');
+Route::delete('vouchers/{id}', [\App\Http\Controllers\Admin\Spa\VoucherController::class, 'destroy'])->name('api.spa.vouchers.destroy');
+
+// Marketing Campaigns
+Route::post('campaigns/list', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'index'])->name('api.spa.campaigns.list');
+Route::post('campaigns/create-or-update', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'createOrUpdate'])->name('api.spa.campaigns.createOrUpdate');
+Route::post('campaigns/delete', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'delete'])->name('api.spa.campaigns.delete');
+Route::post('campaigns/send', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'send'])->name('api.spa.campaigns.send');
+Route::post('campaigns/count-target', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'countTarget'])->name('api.spa.campaigns.countTarget');
+Route::get('campaigns', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'index'])->name('api.spa.campaigns.index');
+Route::post('campaigns', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'store'])->name('api.spa.campaigns.store');
+Route::get('campaigns/{id}', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'show'])->name('api.spa.campaigns.show');
+Route::put('campaigns/{id}', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'update'])->name('api.spa.campaigns.update');
+Route::delete('campaigns/{id}', [\App\Http\Controllers\Admin\Spa\EmailCampaignController::class, 'destroy'])->name('api.spa.campaigns.destroy');
+
+// Bookings
+Route::post('bookings/list', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'index'])->name('api.spa.bookings.list');
+Route::get('bookings', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'index'])->name('api.spa.bookings.index');
+Route::post('bookings', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'store'])->name('api.spa.bookings.store');
+Route::get('bookings/{id}', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'show'])->name('api.spa.bookings.show');
+Route::put('bookings/{id}', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'update'])->name('api.spa.bookings.update');
+Route::delete('bookings/{id}', [\App\Http\Controllers\Admin\Spa\BookingController::class, 'destroy'])->name('api.spa.bookings.destroy');

@@ -3,6 +3,7 @@ import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Sta
 import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined, GiftOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API } from '../../common/api';
+import API_SPA from '../../common/api_spa';
 import ShiftWidget from '../../components/spa/ShiftWidget';
 import { filterSelectOption } from '../../utils/stringUtils';
 import { safeSetItem, logStorageInfo, getLocalStorageSizeFormatted } from '../../utils/storageUtils';
@@ -274,7 +275,7 @@ const SpaPOSScreen: React.FC = () => {
     const loadCurrentShift = async () => {
         try {
             console.log('POS: Loading current shift...');
-            const response = await axios.get(API.spaShiftCurrent);
+            const response = await axios.get(API_SPA.spaShiftCurrent);
             console.log('POS: Shift response:', response.data);
             if (response.data.success && response.data.data) {
                 setCurrentShift(response.data.data);
@@ -476,7 +477,7 @@ const SpaPOSScreen: React.FC = () => {
     const fetchServices = async () => {
         setLoadingData(true);
         try {
-            const response = await axios.get(API.spaServiceList, {
+            const response = await axios.get(API_SPA.spaServiceList, {
                 params: { per_page: 1000, trang_thai: 'active' }
             });
 
@@ -497,7 +498,7 @@ const SpaPOSScreen: React.FC = () => {
     const fetchProducts = async () => {
         setLoadingData(true);
         try {
-            const response = await axios.get(API.spaProductList, {
+            const response = await axios.get(API_SPA.spaProductList, {
                 params: { per_page: 1000, trang_thai: 'active' }
             });
 
@@ -522,7 +523,7 @@ const SpaPOSScreen: React.FC = () => {
     const fetchServicePackages = async () => {
         setLoadingData(true);
         try {
-            const response = await axios.get(API.spaServicePackageList, {
+            const response = await axios.get(API_SPA.spaServicePackageList, {
                 params: { per_page: 1000 }
             });
 
@@ -542,8 +543,8 @@ const SpaPOSScreen: React.FC = () => {
     const fetchCategories = async () => {
         try {
             const [serviceRes, productRes] = await Promise.all([
-                axios.get(API.spaServiceCategoryList),
-                axios.get(API.spaProductCategoryList)
+                axios.get(API_SPA.spaServiceCategoryList),
+                axios.get(API_SPA.spaProductCategoryList)
             ]);
             setServiceCategories(serviceRes.data.data || []);
             setProductCategories(productRes.data.data || []);
@@ -555,7 +556,7 @@ const SpaPOSScreen: React.FC = () => {
     // Fetch customers from users table using API.userSelect
     const fetchCustomers = async (keyword: string = '') => {
         try {
-            const response = await axios.post(API.userSelect);
+            const response = await axios.post(API_SPA.userSelect);
             console.log('Customers response:', response.data);
 
             if (response.data.status_code === 200) {
@@ -576,7 +577,7 @@ const SpaPOSScreen: React.FC = () => {
 
     const fetchStaff = async () => {
         try {
-            const response = await axios.post(API.userSelect);
+            const response = await axios.post(API_SPA.userSelect);
             if (response.data.status_code === 200) {
                 const data = response.data.data || [];
                 setStaff(Array.isArray(data) ? data : []);
@@ -590,8 +591,8 @@ const SpaPOSScreen: React.FC = () => {
 
     const fetchBranches = async () => {
         try {
-            console.log('POS: Fetching branches from:', API.spaBranchList);
-            const response = await axios.get(API.spaBranchList);
+            console.log('POS: Fetching branches from:', API_SPA.spaBranchList);
+            const response = await axios.get(API_SPA.spaBranchList);
             console.log('POS: Branches raw response:', response);
             console.log('POS: Branches data:', response.data);
 
@@ -622,7 +623,7 @@ const SpaPOSScreen: React.FC = () => {
     const fetchGiftCards = async () => {
         setLoadingData(true);
         try {
-            const response = await axios.get('/aio/api/spa/gift-cards', {
+            const response = await axios.get(API_SPA.spaGiftCardList, {
                 params: { available: true }
             });
 
@@ -653,7 +654,7 @@ const SpaPOSScreen: React.FC = () => {
 
         setLoadingWallet(true);
         try {
-            const response = await axios.get(`/aio/api/spa/wallet/${customerId}`);
+            const response = await axios.get(API_SPA.spaWalletGet(customerId));
             if (response.data.success) {
                 setCustomerWallet(response.data.data);
             }
@@ -675,7 +676,7 @@ const SpaPOSScreen: React.FC = () => {
 
         setLoadingPackages(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/customer-packages/list', {
+            const response = await axios.post(API_SPA.spaCustomerPackageList, {
                 khach_hang_id: customerId
             });
             console.log('Customer packages response:', response.data);
@@ -938,7 +939,7 @@ const SpaPOSScreen: React.FC = () => {
                 console.log('Total amount:', totalAmount);
                 console.log('Calling voucher verify API...');
 
-                const voucherResponse = await axios.post('/aio/api/admin/spa/vouchers/verify', {
+                const voucherResponse = await axios.post(API_SPA.spaVoucherVerify, {
                     ma_voucher: maCode,
                     gia_tri_don_hang: totalAmount
                 });
@@ -990,7 +991,7 @@ const SpaPOSScreen: React.FC = () => {
                     if (status === 404) {
                         console.log('Voucher not found (404), trying gift card...');
                         try {
-                            const response = await axios.post('/aio/api/admin/spa/wallet/apply-code', {
+                            const response = await axios.post(API_SPA.spaWalletApplyCode, {
                                 khach_hang_id: selectedCustomer.value,
                                 ma_code: maCode,
                             });
@@ -1031,7 +1032,7 @@ const SpaPOSScreen: React.FC = () => {
             const values = await customerForm.validateFields();
             setLoading(true);
 
-            const response = await axios.post('/aio/api/customer/add', {
+            const response = await axios.post(API_SPA.userAdd, {
                 name: values.name,
                 email: values.email,
                 phone: values.phone,
@@ -1076,7 +1077,7 @@ const SpaPOSScreen: React.FC = () => {
 
         try {
             setLoading(true);
-            const response = await axios.get(`/aio/api/user/${selectedCustomer.value}`);
+            const response = await axios.get(API_SPA.userGet(selectedCustomer.value));
             if (response.data.status_code === 200 || response.data.success) {
                 const customerData = response.data.data;
                 setViewingCustomer(customerData);
@@ -1316,14 +1317,14 @@ const SpaPOSScreen: React.FC = () => {
             };
 
             // Create invoice
-            const response = await axios.post(API.spaPOSCreateInvoice, invoiceData);
+            const response = await axios.post(API_SPA.spaPOSCreateInvoice, invoiceData);
 
             if (response.data.success) {
                 const hoaDonId = response.data.data.id;
 
                 // Process wallet payment if any
                 if (walletAmount > 0 && selectedCustomer) {
-                    await axios.post('/aio/api/spa/wallet/withdraw', {
+                    await axios.post(API_SPA.spaWalletWithdraw, {
                         khach_hang_id: selectedCustomer.value,
                         so_tien: walletAmount,
                         hoa_don_id: hoaDonId,
@@ -1335,7 +1336,7 @@ const SpaPOSScreen: React.FC = () => {
                 for (const giftCardItem of giftCardItems) {
                     if (selectedCustomer) {
                         for (let i = 0; i < giftCardItem.quantity; i++) {
-                            await axios.post('/aio/api/spa/wallet/deposit', {
+                            await axios.post(API_SPA.spaWalletDeposit, {
                                 khach_hang_id: selectedCustomer.value,
                                 the_gia_tri_id: giftCardItem.id,
                                 ghi_chu: `Mua thẻ giá trị từ hóa đơn #${hoaDonId}`,
@@ -1347,7 +1348,7 @@ const SpaPOSScreen: React.FC = () => {
                 // Apply voucher if used
                 if (appliedVoucher && selectedCustomer) {
                     try {
-                        await axios.post('/aio/api/admin/spa/vouchers/apply', {
+                        await axios.post(API_SPA.spaVoucherApply, {
                             ma_voucher: appliedVoucher.ma_voucher,
                             khach_hang_id: selectedCustomer.value,
                             hoa_don_id: hoaDonId,
@@ -1364,7 +1365,7 @@ const SpaPOSScreen: React.FC = () => {
                 for (const pkgItem of purchasedPackages) {
                     if (selectedCustomer) {
                         try {
-                            await axios.post('/aio/api/admin/spa/customer-packages/purchase', {
+                            await axios.post(API_SPA.spaCustomerPackagePurchase, {
                                 khach_hang_id: selectedCustomer.value,
                                 goi_dich_vu_id: pkgItem.id,
                                 hoa_don_id: hoaDonId,
@@ -1380,7 +1381,7 @@ const SpaPOSScreen: React.FC = () => {
                 const packageItems = regularItems.filter(item => item.su_dung_goi);
                 for (const packageItem of packageItems) {
                     try {
-                        await axios.post('/aio/api/admin/spa/customer-packages/use', {
+                        await axios.post(API_SPA.spaCustomerPackageUse, {
                             customer_package_id: packageItem.su_dung_goi,
                             dich_vu_id: packageItem.id,
                             hoa_don_id: hoaDonId,
@@ -1852,7 +1853,7 @@ const SpaPOSScreen: React.FC = () => {
                             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                                 <span>Đơn hàng</span>
                                 <Tooltip title="Thêm đơn hàng mới">
-                                    <Button
+                                    <Button className="btn-default"
                                         type="dashed"
                                         size="small"
                                         icon={<PlusOutlined />}
@@ -2051,7 +2052,7 @@ const SpaPOSScreen: React.FC = () => {
                                             </Card>
                                         )}
 
-                                        <Table
+                                        <Table className='table-card'
                                             dataSource={order.cart}
                                             columns={cartColumns}
                                             pagination={false}

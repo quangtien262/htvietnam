@@ -90,7 +90,7 @@ const StaffSchedule: React.FC = () => {
             const startDate = selectedDate.startOf('month').format('YYYY-MM-DD');
             const endDate = selectedDate.endOf('month').format('YYYY-MM-DD');
 
-            const response = await axios.post('/aio/api/admin/spa/staff-schedules/list', {
+            const response = await axios.post(API_SPA.spaStaffScheduleList, {
                 start_date: startDate,
                 end_date: endDate,
                 chi_nhanh_id: selectedBranch,
@@ -126,7 +126,7 @@ const StaffSchedule: React.FC = () => {
 
     const loadStaff = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff/list', {
+            const response = await axios.post(API_SPA.spaStaffList, {
                 limit: 1000,
                 trang_thai: 'dang_lam_viec',
             });
@@ -184,7 +184,7 @@ const StaffSchedule: React.FC = () => {
                 gio_ket_thuc: values.gio_ket_thuc.format('HH:mm'),
             };
 
-            const response = await axios.post('/aio/api/admin/spa/staff-schedules/create-or-update', payload);
+            const response = await axios.post(API_SPA.spaStaffScheduleCreateOrUpdate, payload);
 
             if (response.data.success) {
                 message.success(selectedShift ? 'Cập nhật ca làm việc thành công' : 'Tạo ca làm việc mới thành công');
@@ -198,7 +198,7 @@ const StaffSchedule: React.FC = () => {
 
     const handleDeleteShift = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff-schedules/delete', { id });
+            const response = await axios.post(API_SPA.spaStaffScheduleDelete, { id });
             if (response.data.success) {
                 message.success('Xóa ca làm việc thành công');
                 loadSchedules();
@@ -210,7 +210,7 @@ const StaffSchedule: React.FC = () => {
 
     const handleConfirmShift = async (shift: Shift) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff-schedules/create-or-update', {
+            const response = await axios.post('/spa/staff-schedules/create-or-update', {
                 id: shift.id,
                 trang_thai: 'xac_nhan',
             });
@@ -226,7 +226,7 @@ const StaffSchedule: React.FC = () => {
 
     const handleCancelShift = async (shift: Shift) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff-schedules/create-or-update', {
+            const response = await axios.post('/spa/staff-schedules/create-or-update', {
                 id: shift.id,
                 trang_thai: 'huy',
             });

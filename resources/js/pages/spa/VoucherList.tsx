@@ -14,6 +14,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API_SPA from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -77,7 +78,7 @@ const VoucherList: React.FC = () => {
     const loadVouchers = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/vouchers/list', {
+            const response = await axios.post(API_SPA.spaVoucherList, {
                 page: pagination.current,
                 limit: pagination.pageSize,
                 search: searchText,
@@ -137,7 +138,7 @@ const VoucherList: React.FC = () => {
                 ngay_ket_thuc: values.ngay_ket_thuc.format('YYYY-MM-DD'),
             };
 
-            const response = await axios.post('/aio/api/admin/spa/vouchers/create-or-update', payload);
+            const response = await axios.post(API_SPA.spaVoucherCreateOrUpdate, payload);
 
             if (response.data.success) {
                 message.success(selectedVoucher ? 'Cập nhật voucher thành công' : 'Tạo voucher mới thành công');
@@ -151,7 +152,7 @@ const VoucherList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/vouchers/delete', { id });
+            const response = await axios.post(API_SPA.spaVoucherDelete, { id });
             if (response.data.success) {
                 message.success('Xóa voucher thành công');
                 loadVouchers();
@@ -164,7 +165,7 @@ const VoucherList: React.FC = () => {
     const handleStatusToggle = async (record: Voucher) => {
         try {
             const newStatus = record.trang_thai === 'hoat_dong' ? 'tam_dung' : 'hoat_dong';
-            const response = await axios.post('/aio/api/admin/spa/vouchers/create-or-update', {
+            const response = await axios.post(API_SPA.spaVoucherCreateOrUpdate, {
                 id: record.id,
                 trang_thai: newStatus,
             });

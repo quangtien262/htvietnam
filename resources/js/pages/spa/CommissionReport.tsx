@@ -13,6 +13,7 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import API from '@/common/api';
+import API_SPA from '../../common/api_spa';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -99,7 +100,7 @@ const CommissionReport: React.FC = () => {
     const loadRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/commissions/list', {
+            const response = await axios.post(API_SPA.spaCommissionList, {
                 page: pagination.current,
                 limit: pagination.pageSize,
                 start_date: dateRange[0].format('YYYY-MM-DD'),
@@ -131,7 +132,7 @@ const CommissionReport: React.FC = () => {
 
     const loadStaff = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff/list', {
+            const response = await axios.post(API_SPA.spaStaffList, {
                 limit: 1000,
             });
             if (response.data.success) {
@@ -161,7 +162,7 @@ const CommissionReport: React.FC = () => {
 
     const handleMarkAsPaid = async (record: CommissionRecord) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/commissions/update-status', {
+            const response = await axios.post(API_SPA.spaCommissionUpdateStatus, {
                 id: record.id,
                 trang_thai: 'da_tra',
                 ngay_tra: dayjs().format('YYYY-MM-DD'),
@@ -178,7 +179,7 @@ const CommissionReport: React.FC = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/commissions/export', {
+            const response = await axios.post(API_SPA.spaCommissionExport, {
                 start_date: dateRange[0].format('YYYY-MM-DD'),
                 end_date: dateRange[1].format('YYYY-MM-DD'),
                 chi_nhanh_id: selectedBranch,

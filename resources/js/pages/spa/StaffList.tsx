@@ -12,6 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import API_SPA from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -169,7 +170,7 @@ const StaffList: React.FC = () => {
                 ngay_sinh: values.ngay_sinh ? dayjs(values.ngay_sinh).format('YYYY-MM-DD') : null,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/staff/create-or-update', payload);
+            const response = await axios.post(API_SPA.spaStaffCreateOrUpdate, payload);
 
             if (response.data.success) {
                 message.success(selectedStaff ? 'Cập nhật nhân viên thành công' : 'Tạo nhân viên mới thành công');
@@ -183,7 +184,7 @@ const StaffList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/staff/delete', { id });
+            const response = await axios.post(API_SPA.spaStaffDelete, { id });
             if (response.data.success) {
                 message.success('Xóa nhân viên thành công');
                 loadStaff();
@@ -196,7 +197,7 @@ const StaffList: React.FC = () => {
     const handleStatusToggle = async (record: Staff) => {
         try {
             const newStatus = record.trang_thai === 'dang_lam_viec' ? 'nghi_viec' : 'dang_lam_viec';
-            const response = await axios.post('/aio/api/admin/spa/staff/create-or-update', {
+            const response = await axios.post(API_SPA.spaStaffCreateOrUpdate, {
                 id: record.id,
                 trang_thai: newStatus,
             });
@@ -216,7 +217,7 @@ const StaffList: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/upload-image', formData);
+            const response = await axios.post(API_SPA.spaUploadImage, formData);
             if (response.data.success) {
                 setImageUrl(response.data.data.url);
                 message.success('Upload ảnh thành công');

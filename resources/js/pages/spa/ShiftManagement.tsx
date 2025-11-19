@@ -125,7 +125,7 @@ const ShiftManagement: React.FC = () => {
 
     const fetchBranches = async () => {
         try {
-            const response = await axios.get(`/aio/api/admin/spa/branches`);
+            const response = await axios.get(API_SPA.spaBranchList);
             const data = response.data.data || response.data || [];
             setBranches(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -147,7 +147,7 @@ const ShiftManagement: React.FC = () => {
 
     const fetchCurrentShift = async () => {
         try {
-            const response = await axios.get(`/aio/api/admin/spa/ca-lam-viec/current`);
+            const response = await axios.get(API_SPA.spaShiftCurrentGet);
             if (response.data.success && response.data.data) {
                 setCurrentShift(response.data.data);
             }
@@ -167,7 +167,7 @@ const ShiftManagement: React.FC = () => {
                 params.to_date = filterDateRange[1].format('YYYY-MM-DD');
             }
 
-            const response = await axios.get(`/aio/api/admin/spa/ca-lam-viec`, { params });
+            const response = await axios.get(API_SPA.spaShiftList, { params });
             console.log('Shifts response:', response.data);
 
             // Handle both paginated and non-paginated responses
@@ -199,7 +199,7 @@ const ShiftManagement: React.FC = () => {
 
     const handleOpenShift = async (values: any) => {
         try {
-            const response = await axios.post(`/aio/api/admin/spa/ca-lam-viec/open`, values);
+            const response = await axios.post(API_SPA.spaShiftOpen, values);
             if (response.data.success) {
                 message.success('Mở ca thành công');
                 setOpenShiftModalVisible(false);
@@ -216,7 +216,7 @@ const ShiftManagement: React.FC = () => {
         if (!selectedShift) return;
 
         try {
-            const response = await axios.post(`/aio/api/admin/spa/ca-lam-viec/${selectedShift.id}/close`, values);
+            const response = await axios.post(API_SPA.spaShiftClose(selectedShift.id), values);
             if (response.data.success) {
                 message.success('Đóng ca thành công');
                 setCloseShiftModalVisible(false);
@@ -237,7 +237,7 @@ const ShiftManagement: React.FC = () => {
         // Fetch shift stats if shift is open
         if (shift.trang_thai === 'dang_mo') {
             try {
-                const response = await axios.get(`/aio/api/admin/spa/ca-lam-viec/current`, {
+                const response = await axios.get(API_SPA.spaShiftCurrentGet, {
                     params: { chi_nhanh_id: shift.chi_nhanh_id }
                 });
                 if (response.data.success && response.data.data?.doanh_thu_realtime) {
@@ -251,7 +251,7 @@ const ShiftManagement: React.FC = () => {
 
     const handlePrintHandover = async (shiftId: number) => {
         try {
-            const response = await axios.get(`/aio/api/admin/spa/ca-lam-viec/${shiftId}/print`, {
+            const response = await axios.get(API_SPA.spaShiftPrint(shiftId), {
                 responseType: 'blob'
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));

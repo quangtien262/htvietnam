@@ -12,6 +12,7 @@ import { Line, Column, Pie, DualAxes } from '@ant-design/plots';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API_SPA from '../../common/api_spa';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -103,7 +104,7 @@ const AnalyticsDashboard: React.FC = () => {
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/analytics/dashboard', {
+            const response = await axios.post(API_SPA.spaAnalyticsDashboard, {
                 start_date: dateRange[0].format('YYYY-MM-DD'),
                 end_date: dateRange[1].format('YYYY-MM-DD'),
                 compare_type: compareType,
@@ -132,7 +133,7 @@ const AnalyticsDashboard: React.FC = () => {
     const handleExport = async () => {
         try {
             message.loading('Đang xuất báo cáo...', 0);
-            const response = await axios.post('/aio/api/admin/spa/analytics/export', {
+            const response = await axios.post(API_SPA.spaAnalyticsExport, {
                 start_date: dateRange[0].format('YYYY-MM-DD'),
                 end_date: dateRange[1].format('YYYY-MM-DD'),
                 branch_id: branchId,

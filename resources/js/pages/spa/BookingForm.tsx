@@ -15,6 +15,7 @@ import {
 import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 import API from '@/common/api';
+import API_SPA from '../../common/api_spa';
 
 const { Step } = Steps;
 const { TextArea } = Input;
@@ -113,13 +114,13 @@ const BookingForm: React.FC = () => {
         setLoading(true);
         try {
             const [customersRes, servicesRes, branchesRes] = await Promise.all([
-                axios.get('/aio/api/spa/customers', {
+                axios.get(API_SPA.spaCustomerList, {
                     params: {
                         per_page: 1000, // Load nhiều để có đủ danh sách
                     }
                 }),
-                axios.post('/aio/api/admin/spa/services/list'),
-                axios.get(API.spaBranchList),
+                axios.post(API_SPA.spaServicesList),
+                axios.get(API_SPA.spaBranchList),
             ]);
 
             console.log('Customers response:', customersRes.data);
@@ -158,7 +159,7 @@ const BookingForm: React.FC = () => {
 
     const loadBookingData = async (bookingId: string) => {
         try {
-            const response = await axios.post(`/aio/api/admin/spa/bookings/${bookingId}/show`);
+            const response = await axios.post(API_SPA.spaBookingShow(bookingId));
             if (response.data.success) {
                 const booking = response.data.data;
                 // Populate form with existing booking data
@@ -229,7 +230,7 @@ const BookingForm: React.FC = () => {
 
     const loadTimeSlots = async (date: Dayjs, services: Service[], branchId: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/bookings/available-slots', {
+            const response = await axios.post(API_SPA.spaBookingAvailableSlots, {
                 ngay: date.format('YYYY-MM-DD'),
                 dich_vu_ids: services.map(s => s.id),
                 chi_nhanh_id: branchId,
@@ -254,7 +255,7 @@ const BookingForm: React.FC = () => {
 
     const loadAvailableStaff = async (date: Dayjs, time: string, services: Service[], branchId: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/bookings/available-staff', {
+            const response = await axios.post(API_SPA.spaBookingAvailableStaff, {
                 ngay: date.format('YYYY-MM-DD'),
                 gio: time,
                 dich_vu_ids: services.map(s => s.id),
@@ -271,7 +272,7 @@ const BookingForm: React.FC = () => {
 
     const loadRooms = async (branchId: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/rooms/list', {
+            const response = await axios.post(API_SPA.spaRoomList, {
                 chi_nhanh_id: branchId,
                 trang_thai: 'hoat_dong',
             });
@@ -311,7 +312,7 @@ const BookingForm: React.FC = () => {
 
     const handleCreateNewCustomer = async (values: any) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/customers/create-or-update', values);
+            const response = await axios.post(API_SPA.spaCustomerCreateOrUpdate, values);
             if (response.data.success) {
                 message.success('Tạo khách hàng mới thành công');
                 const newCustomer = response.data.data;
@@ -360,11 +361,11 @@ const BookingForm: React.FC = () => {
                 trang_thai: values.trang_thai || 'cho_xac_nhan',
             };
 
-            const response = await axios.post('/aio/api/admin/spa/bookings/create-or-update', payload);
+            const response = await axios.post(API_SPA.spaBookingCreateOrUpdate, payload);
 
             if (response.data.success) {
                 message.success(id ? 'Cập nhật lịch hẹn thành công' : 'Tạo lịch hẹn thành công');
-                navigate('/admin/spa/booking-calendar');
+                navigate('/spa/booking-calendar');
             }
         } catch (error: any) {
             if (error.response?.data?.message) {
@@ -989,7 +990,7 @@ const BookingForm: React.FC = () => {
 
                 <div style={{ textAlign: 'center' }}>
                     <Space size="large">
-                        <Button size="large" onClick={() => navigate('/admin/spa/booking-calendar')}>
+                        <Button size="large" onClick={() => navigate('/spa/booking-calendar')}>
                             Hủy
                         </Button>
                         {currentStep > 0 && (

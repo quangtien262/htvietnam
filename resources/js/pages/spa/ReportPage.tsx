@@ -92,16 +92,16 @@ const ReportPage: React.FC = () => {
             let endpoint = '';
             switch (activeTab) {
                 case 'revenue':
-                    endpoint = '/aio/api/admin/spa/reports/revenue';
+                    endpoint = API_SPA.spaReportRevenue;
                     break;
                 case 'transactions':
-                    endpoint = '/aio/api/admin/spa/reports/transactions';
+                    endpoint = API_SPA.spaReportTransactions;
                     break;
                 case 'staff':
-                    endpoint = '/aio/api/admin/spa/reports/staff';
+                    endpoint = API_SPA.spaReportStaff;
                     break;
                 case 'inventory':
-                    endpoint = '/aio/api/admin/spa/reports/inventory';
+                    endpoint = API_SPA.spaReportInventory;
                     break;
             }
 
@@ -144,7 +144,7 @@ const ReportPage: React.FC = () => {
         try {
             message.loading(`Đang xuất báo cáo ${exportFormat.toUpperCase()}...`, 0);
 
-            const response = await axios.post('/aio/api/admin/spa/reports/export', {
+            const response = await axios.post(API_SPA.spaReportExport, {
                 type: activeTab,
                 format: exportFormat,
                 start_date: dateRange[0].format('YYYY-MM-DD'),

@@ -12,6 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import API_SPA from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -117,7 +118,7 @@ const LoyaltyProgram: React.FC = () => {
     const loadRules = async () => {
         setRulesLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rules/list', {
+            const response = await axios.post(API_SPA.spaLoyaltyRuleList, {
                 page: rulesPagination.current,
                 limit: rulesPagination.pageSize,
                 loai_quy_tac: ruleTypeFilter,
@@ -140,7 +141,7 @@ const LoyaltyProgram: React.FC = () => {
     const loadTransactions = async () => {
         setTransactionsLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/loyalty-transactions/list', {
+            const response = await axios.post(API_SPA.spaLoyaltyTransactionList, {
                 page: transactionsPagination.current,
                 limit: transactionsPagination.pageSize,
                 loai_giao_dich: transactionTypeFilter,
@@ -163,7 +164,7 @@ const LoyaltyProgram: React.FC = () => {
     const loadRewards = async () => {
         setRewardsLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rewards/list', {
+            const response = await axios.post(API_SPA.spaLoyaltyRewardList, {
                 page: rewardsPagination.current,
                 limit: rewardsPagination.pageSize,
             });
@@ -196,7 +197,7 @@ const LoyaltyProgram: React.FC = () => {
     const handleSubmitRule = async () => {
         try {
             const values = await ruleForm.validateFields();
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rules/create-or-update', {
+            const response = await axios.post(API_SPA.spaLoyaltyRuleCreateOrUpdate, {
                 id: selectedRule?.id,
                 ...values,
             });
@@ -213,7 +214,7 @@ const LoyaltyProgram: React.FC = () => {
 
     const handleDeleteRule = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rules/delete', { id });
+            const response = await axios.post(API_SPA.spaLoyaltyRuleDelete, { id });
             if (response.data.success) {
                 message.success('Xóa quy tắc thành công');
                 loadRules();
@@ -239,7 +240,7 @@ const LoyaltyProgram: React.FC = () => {
     const handleSubmitReward = async () => {
         try {
             const values = await rewardForm.validateFields();
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rewards/create-or-update', {
+            const response = await axios.post(API_SPA.spaLoyaltyRewardCreateOrUpdate, {
                 id: selectedReward?.id,
                 ...values,
             });
@@ -256,7 +257,7 @@ const LoyaltyProgram: React.FC = () => {
 
     const handleDeleteReward = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/loyalty-rewards/delete', { id });
+            const response = await axios.post(API_SPA.spaLoyaltyRewardDelete, { id });
             if (response.data.success) {
                 message.success('Xóa quà tặng thành công');
                 loadRewards();

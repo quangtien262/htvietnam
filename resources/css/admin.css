@@ -1393,3 +1393,12 @@ ul.ul-info li {
 .ant-table-empty div.ant-table-container {
     z-index: 1 !important;
 }
+
+.table-card table tr th {
+    padding: 10px 8px !important;
+    background-color: #f0f0f0 !important;
+}
+.table-card table tr td {
+    border-bottom: 1px #a6a4a4 dashed !important;
+
+}

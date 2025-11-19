@@ -3,6 +3,7 @@ import { Card, Table, Button, Modal, Form, Input, Select, DatePicker, InputNumbe
 import { PlusOutlined, CheckOutlined, EyeOutlined, WarningOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import API_SPA from '../../../common/api_spa';
 import { API } from '../../../common/api';
 
 const { Option } = Select;
@@ -126,7 +127,7 @@ const InventoryCountList: React.FC = () => {
 
     const handleApprove = async (values: any) => {
         try {
-            await axios.post(`/spa/kiem-kho/${selectedCount?.id}/approve`, {
+            await axios.post(API_SPA.spaInventoryCountApprove(selectedCount?.id), {
                 chi_tiets: selectedCount?.chi_tiets?.map(item => ({
                     id: item.id,
                     so_luong_thuc_te: item.so_luong_thuc_te,

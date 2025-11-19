@@ -215,7 +215,7 @@ const ServicePackageList: React.FC = () => {
     const handleCreateSchedule = async () => {
         try {
             const values = await scheduleForm.validateFields();
-            const response = await axios.post('/spa/schedules', values);
+            const response = await axios.post(API_SPA.spaSchedules, values);
             if (response.data && response.data.status_code === 200) {
                 message.success('Thêm lịch trình thành công');
                 setScheduleModalVisible(false);

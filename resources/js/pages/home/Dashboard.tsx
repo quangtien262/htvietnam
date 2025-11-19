@@ -388,7 +388,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.businessCoHoi}?p=business`}>
+                            <Link to={`${ROUTE.spa_analytics}?p=spa`}>
                                 <ShopFilled /> {item.display_name}
                             </Link>
                         </div>

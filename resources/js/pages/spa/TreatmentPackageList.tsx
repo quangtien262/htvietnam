@@ -13,6 +13,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import API_SPA from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -293,7 +294,7 @@ const TreatmentPackageList: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/upload-image', formData);
+            const response = await axios.post(API_SPA.spaUploadImage, formData);
             if (response.data.success) {
                 setImageUrl(response.data.data.url);
                 message.success('Upload ảnh thành công');

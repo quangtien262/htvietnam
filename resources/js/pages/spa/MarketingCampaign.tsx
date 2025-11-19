@@ -14,6 +14,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API_SPA from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -86,7 +87,7 @@ const MarketingCampaign: React.FC = () => {
     const loadCampaigns = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('/aio/api/admin/spa/campaigns/list', {
+            const response = await axios.post(API_SPA.spaCampaignList, {
                 page: pagination.current,
                 limit: pagination.pageSize,
                 search: searchText,
@@ -147,7 +148,7 @@ const MarketingCampaign: React.FC = () => {
                 danh_sach_muc_tieu: values.doi_tuong_muc_tieu === 'custom' ? selectedCustomers : null,
             };
 
-            const response = await axios.post('/aio/api/admin/spa/campaigns/create-or-update', payload);
+            const response = await axios.post(API_SPA.spaCampaignCreateOrUpdate, payload);
 
             if (response.data.success) {
                 message.success(selectedCampaign ? 'Cập nhật chiến dịch thành công' : 'Tạo chiến dịch mới thành công');
@@ -161,7 +162,7 @@ const MarketingCampaign: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.post('/aio/api/admin/spa/campaigns/delete', { id });
+            const response = await axios.post(API_SPA.spaCampaignDelete, { id });
             if (response.data.success) {
                 message.success('Xóa chiến dịch thành công');
                 loadCampaigns();
@@ -179,7 +180,7 @@ const MarketingCampaign: React.FC = () => {
             cancelText: 'Hủy',
             onOk: async () => {
                 try {
-                    const response = await axios.post('/aio/api/admin/spa/campaigns/send', { id: record.id });
+                    const response = await axios.post(API_SPA.spaCampaignSend, { id: record.id });
                     if (response.data.success) {
                         message.success('Chiến dịch đã được gửi thành công');
                         loadCampaigns();
@@ -197,7 +198,7 @@ const MarketingCampaign: React.FC = () => {
         }
 
         try {
-            const response = await axios.post('/aio/api/admin/spa/campaigns/count-target', {
+            const response = await axios.post(API_SPA.spaCampaignCountTarget, {
                 doi_tuong_muc_tieu: target,
             });
 
