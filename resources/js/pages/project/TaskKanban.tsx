@@ -250,7 +250,6 @@ const TaskKanban: React.FC = () => {
                         />
                     }
                     style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                    bodyStyle={{ flex: 1, overflow: 'auto', padding: 8 }}
                 >
                     <Droppable droppableId={String(status.id)}>
                         {(provided, snapshot) => (

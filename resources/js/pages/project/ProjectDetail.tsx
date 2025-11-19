@@ -9,8 +9,7 @@ import ROUTE from '../../common/route';
 import TaskDetail from './TaskDetail';
 import ProjectAttachments from '../../components/project/ProjectAttachments';
 import ProjectDetailDashboard from './ProjectDetailDashboard';
-import { Can } from '../../components/rbac';
-import { PermissionProvider } from '../../contexts/PermissionContext';
+import { icon } from '../../components/comp_icon';
 import dayjs from 'dayjs';
 
 type TaskViewMode = 'table' | 'kanban';
@@ -941,10 +940,17 @@ const ProjectDetail: React.FC = () => {
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
-                                                    paddingBottom: 12,
+                                                    paddingBottom: 10,
+                                                    paddingTop: 10,
                                                     borderBottom: '2px solid #e8e8e8',
+                                                    backgroundColor: status.color,
                                                 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 8,
+
+                                                    }}>
                                                         <div
                                                             style={{
                                                                 width: 8,
@@ -956,9 +962,10 @@ const ProjectDetail: React.FC = () => {
                                                         <span style={{
                                                             fontSize: 14,
                                                             fontWeight: 600,
-                                                            color: '#262626',
+                                                            color: '#fff',
+                                                            textTransform: 'uppercase',
                                                         }}>
-                                                            {status.name}
+                                                            <span>{icon[status.icon]} {status.name}</span>
                                                         </span>
                                                     </div>
                                                     <Badge
