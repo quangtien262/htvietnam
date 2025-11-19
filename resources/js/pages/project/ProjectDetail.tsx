@@ -1025,7 +1025,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                     borderRadius: 10,
                                                                                                 }}
                                                                                             >
-                                                                                                {task.uu_tien.name}
+                                                                                                 {icon[task.uu_tien?.icon]} {task.uu_tien.name}
                                                                                             </Tag>
                                                                                         ) : null}
 
