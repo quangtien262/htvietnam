@@ -776,7 +776,7 @@ const ProjectDetail: React.FC = () => {
                                                         <Avatar
                                                             size="small"
                                                             style={{
-                                                                backgroundColor: '#1890ff',
+                                                                backgroundColor: '#23793b',
                                                                 fontSize: 12,
                                                             }}
                                                         >
