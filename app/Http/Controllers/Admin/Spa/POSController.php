@@ -51,10 +51,18 @@ class POSController extends Controller
         // Log request data for debugging
         Log::info('POS Invoice Request:', $request->all());
 
+        // Validate chi_tiets first
+        if (!$request->has('chi_tiets') || empty($request->input('chi_tiets'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Giỏ hàng trống. Vui lòng thêm ít nhất một sản phẩm/dịch vụ',
+            ], 422);
+        }
+
         $validated = $request->validate([
             'khach_hang_id' => 'nullable|integer',
             'chi_nhanh_id' => 'required|integer',
-            'nguoi_thu_id' => 'required|integer',
+            'nguoi_thu_id' => 'nullable|integer',
             'chi_tiets' => 'required|array|min:1',
             'chi_tiets.*.dich_vu_id' => 'nullable|integer',
             'chi_tiets.*.san_pham_id' => 'nullable|integer',
@@ -79,9 +87,36 @@ class POSController extends Controller
             // Other
             'nguoi_ban' => 'nullable|string',
             'ghi_chu' => 'nullable|string',
+        ], [
+            'chi_tiets.required' => 'Giỏ hàng không được để trống',
+            'chi_tiets.min' => 'Vui lòng thêm ít nhất một sản phẩm/dịch vụ',
+            'chi_tiets.*.so_luong.required' => 'Số lượng không được để trống',
+            'chi_tiets.*.don_gia.required' => 'Đơn giá không được để trống',
+            'chi_nhanh_id.required' => 'Vui lòng chọn chi nhánh',
         ]);
 
         try {
+            // Auto-assign nguoi_thu_id and ca_lam_viec_id from current open shift
+            $currentShift = \App\Models\Spa\CaLamViec::where('chi_nhanh_id', $validated['chi_nhanh_id'])
+                ->where('trang_thai', 'dang_mo')
+                ->first();
+
+            if ($currentShift) {
+                $validated['ca_lam_viec_id'] = $currentShift->id;
+                // Use nguoi_thu from shift if not provided in request
+                if (empty($validated['nguoi_thu_id'])) {
+                    $validated['nguoi_thu_id'] = $currentShift->nguoi_thu_id;
+                }
+            } else {
+                // If no open shift, must have nguoi_thu_id in request
+                if (empty($validated['nguoi_thu_id'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Chưa mở ca làm việc hoặc không tìm thấy người thu',
+                    ], 400);
+                }
+            }
+
             $invoice = $this->service->createInvoice($validated);
             return response()->json([
                 'success' => true,
