@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Button, message, Tag, Modal, Select, Tooltip, Empty, Radio, Space, Popconfirm } from 'antd';
+import { Card, Table, Button, message, Tag, Modal, Select, Tooltip, Empty, Radio, Space, Popconfirm, Row, Col } from 'antd';
 import { UserAddOutlined, EditOutlined, KeyOutlined, InfoCircleOutlined, TeamOutlined, DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -309,25 +309,26 @@ const ProjectPermissionsPage: React.FC<ProjectPermissionsPageProps> = ({ project
             {/* Roles Information */}
             <Card title="Thông tin các Role" className="mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {roles.map((role) => (
-                        <Card
-                            key={role.id}
-                            size="small"
-                            className="border-l-4"
-                            style={{ borderLeftColor: getRolePriorityColor(role.priority) }}
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="font-bold text-lg">{role.display_name}</h3>
-                                <Tag color={getRolePriorityColor(role.priority)}>
-                                    {role.priority}
-                                </Tag>
-                            </div>
-                            <p className="text-xs text-gray-600 mb-2">{role.description}</p>
-                            <div className="text-xs">
-                                <span className="font-medium">Name:</span> {role.name}
-                            </div>
-                        </Card>
-                    ))}
+                    <Row>
+                        {roles.map((role) => (
+                            <Col span={12}>
+                                <Card
+                                    key={role.id}
+                                    size="small"
+                                    className="border-l-4"
+                                    style={{ borderLeftColor: getRolePriorityColor(role.priority) }}
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="font-bold text-lg"> <Tag color={getRolePriorityColor(role.priority)}>
+                                            {role.priority}
+                                        </Tag> {role.display_name}</h3>
+                                    </div>
+                                    <p className="text-xs text-gray-600 mb-2"><b>{role.name}:</b> <em>{role.description}</em></p>
+
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
                 </div>
             </Card>
 
