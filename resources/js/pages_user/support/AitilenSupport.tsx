@@ -642,8 +642,7 @@ const AitilenSupport: React.FC = () => {
                 <Modal
                     title={
                         <Space size={4}>
-                            <PlusOutlined />
-                            <span style={{ fontSize: '16px' }}>Tạo yêu cầu hỗ trợ mới</span>
+                            <span style={{ fontSize: '18px', color: '#0966bb' }}><PlusOutlined /> Tạo yêu cầu hỗ trợ mới</span>
                         </Space>
                     }
                     open={createModalVisible}
@@ -663,7 +662,7 @@ const AitilenSupport: React.FC = () => {
                         <Row gutter={[16, 0]}>
                             <Col xs={24} sm={12}>
                                 <Form.Item
-                                    label="Danh mục"
+                                    label={<b>Danh mục</b>}
                                     name="task_category_id"
                                     rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                                 >
@@ -680,7 +679,7 @@ const AitilenSupport: React.FC = () => {
 
                             <Col xs={24} sm={12}>
                                 <Form.Item
-                                    label="Hợp đồng"
+                                    label={<b>Hợp đồng</b>}
                                     name="contract_id"
                                     rules={[{ required: true, message: 'Vui lòng chọn hợp đồng!' }]}
                                 >
@@ -697,7 +696,7 @@ const AitilenSupport: React.FC = () => {
 
                             <Col span={24}>
                                 <Form.Item
-                                    label="Tiêu đề"
+                                    label={<b>Tiêu đề</b>}
                                     name="name"
                                     rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
                                 >
@@ -706,7 +705,7 @@ const AitilenSupport: React.FC = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    label="Mô tả chi tiết"
+                                    label={<b>Mô tả chi tiết</b>}
                                     name="description"
                                 >
                                     <TextArea
@@ -717,13 +716,18 @@ const AitilenSupport: React.FC = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    label="Tệp đính kèm (Video, hình ảnh liên quan)"
+                                    label={<div>
+                                        <b>Tệp đính kèm (Video, hình ảnh liên quan)</b>
+                                        <br />
+                                        (<em>Tính năng này đang <b>tạm khóa</b>, vui lòng gửi vào nhóm zalo của phòng</em>)
+                                    </div>}
                                     name="attachments"
                                 >
                                     <Upload
                                         listType="picture"
                                         maxCount={5}
                                         beforeUpload={() => false}
+                                        disabled={true}
                                     >
                                         <Button icon={<PaperClipOutlined />}>
                                             Chọn tệp (tùy chọn)

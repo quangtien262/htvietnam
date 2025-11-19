@@ -520,13 +520,26 @@ class AitilenController extends Controller
         return $this->sendSuccessResponse([], 'Tạo dữ liệu tháng thành công!');
     }
 
+    //  [
+    // "month" => "11"
+    // "year" => "2025"
+    // "apm" => []
+    // "is_replace_all_contract" => false
+    // ]
     public function createInvoiceMonth(Request $request)
     {
+
         // Lấy tất cả hợp đồng đang active làm base
         $contracts = Contract::where('is_active', 1)
             ->where('contract_status_id', 1)
-            ->where('is_recycle_bin', '!=', 1)
-            ->get();
+            ->where('is_recycle_bin', '!=', 1);
+
+        // check filter apartment
+        if(!empty($request->apm)){
+            $contracts = $contracts->whereIn('apartment_id', $request->apm);
+        }
+
+        $contracts = $contracts->get();
 
         $isReplace = !empty($request->is_replace_all_contract) && $request->is_replace_all_contract == 1;
 
@@ -747,14 +760,14 @@ class AitilenController extends Controller
             } elseif ($service->service_per == 'KWH' || $service->service_per == 'KWh') {
                 // dd($aitilenSer);
                 // Tính điện (nếu có dữ liệu điện nước)
-                if($aitilenSer->code == 'DIEN') {
+                if ($aitilenSer->code == 'DIEN') {
                     if ($dienNuocData && $dienNuocData->dien_end && $dienNuocData->dien_start) {
                         $soDien = $dienNuocData->dien_end - $dienNuocData->dien_start;
                         $priceCurrentServiceTotal = $service->service_price * $soDien;
 
                         $start = $dienNuocData->dien_start;
                         $end = $dienNuocData->dien_end;
-                        $note = 'Giá ' . $service->service_price . '/KWH, ' . ' ('.$dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end .' = '. $soDien.')';
+                        $note = 'Giá ' . $service->service_price . '/KWH, ' . ' (' . $dienNuocData->dien_start . ' - ' . $dienNuocData->dien_end . ' = ' . $soDien . ')';
                     } else {
                         // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
                         $priceCurrentServiceTotal = 0;
@@ -764,14 +777,14 @@ class AitilenController extends Controller
                 }
 
                 // WC
-                if($aitilenSer->code == 'WC') {
+                if ($aitilenSer->code == 'WC') {
                     if ($dienNuocData && $dienNuocData->nonglanh_end && $dienNuocData->nonglanh_start) {
                         $soDien = $dienNuocData->nonglanh_end - $dienNuocData->nonglanh_start;
                         $priceCurrentServiceTotal = $service->service_price * $soDien;
 
                         $start = $dienNuocData->nonglanh_start;
                         $end = $dienNuocData->nonglanh_end;
-                        $note = 'Giá ' . $service->service_price . '/KWH,'. ' ('.$dienNuocData->nonglanh_start . ' -> ' . $dienNuocData->nonglanh_end .' = ' . $soDien .')';
+                        $note = 'Giá ' . $service->service_price . '/KWH,' . ' (' . $dienNuocData->nonglanh_start . ' -> ' . $dienNuocData->nonglanh_end . ' = ' . $soDien . ')';
                     } else {
                         // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
                         $priceCurrentServiceTotal = 0;
@@ -781,14 +794,14 @@ class AitilenController extends Controller
                 }
 
                 // MAY BOM
-                if($aitilenSer->code == 'MAYBOM') {
+                if ($aitilenSer->code == 'MAYBOM') {
                     if ($dienNuocData && $dienNuocData->maybom_end && $dienNuocData->maybom_start) {
                         $soDien = $dienNuocData->maybom_end - $dienNuocData->maybom_start;
                         $priceCurrentServiceTotal = $service->service_price * $soDien;
 
                         $start = $dienNuocData->maybom_start;
                         $end = $dienNuocData->maybom_end;
-                        $note = 'Giá ' . $service->service_price . '/KWH,'. ' ('.$dienNuocData->maybom_start . ' -> ' . $dienNuocData->maybom_end .' = ' . $soDien .')';
+                        $note = 'Giá ' . $service->service_price . '/KWH,' . ' (' . $dienNuocData->maybom_start . ' -> ' . $dienNuocData->maybom_end . ' = ' . $soDien . ')';
                     } else {
                         // Nếu chưa có dữ liệu điện, để 0 hoặc giá trị mặc định
                         $priceCurrentServiceTotal = 0;
@@ -803,7 +816,7 @@ class AitilenController extends Controller
                     $priceCurrentServiceTotal = $service->service_price * $soNuoc;
                     $start = $dienNuocData->nuoc_start;
                     $end = $dienNuocData->nuoc_end;
-                    $note = 'Giá ' . $service->service_price . '/M3, Tổng số nước sử dụng'. $soNuoc . ' ('.$dienNuocData->nuoc_start . ' - ' . $dienNuocData->nuoc_end .')';
+                    $note = 'Giá ' . $service->service_price . '/M3, Tổng số nước sử dụng' . $soNuoc . ' (' . $dienNuocData->nuoc_start . ' - ' . $dienNuocData->nuoc_end . ')';
                 } else {
                     // Nếu chưa có dữ liệu nước, để 0 hoặc giá trị mặc định
                     $priceCurrentServiceTotal = 0;

@@ -290,6 +290,16 @@ const AitilenProfile: React.FC = () => {
                                         >
                                             Chỉnh sửa
                                         </Button>
+
+                                        <Button
+                                            type="primary"
+                                            size="small"
+                                            icon={<LockOutlined />}
+                                            onClick={() => setPasswordModalVisible(true)}
+                                        >
+                                            Đổi mật khẩu
+                                        </Button>
+
                                     </Space>
                                 </div>
 
@@ -374,18 +384,6 @@ const AitilenProfile: React.FC = () => {
                             </Descriptions.Item>
                             <Descriptions.Item label="Ngày tạo tài khoản">
                                 {dayjs(userProfile.created_at).format('DD/MM/YYYY HH:mm')}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Thao tác">
-                                <Space>
-                                    <Button
-                                        type="primary"
-                                        size="small"
-                                        icon={<LockOutlined />}
-                                        onClick={() => setPasswordModalVisible(true)}
-                                    >
-                                        Đổi mật khẩu
-                                    </Button>
-                                </Space>
                             </Descriptions.Item>
                         </Descriptions>
                     </Card>

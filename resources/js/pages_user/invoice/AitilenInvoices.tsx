@@ -19,40 +19,14 @@ import {
     SolutionOutlined, AppstoreOutlined
 } from '@ant-design/icons';
 import API_USER from "../../common/api_user";
+import { HTBankingQR } from "../../function/generateQR";
+import { numberFormat } from "../../function/common";
 
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 const { MonthPicker } = DatePicker;
-
-// Interface definitions
-// interface InvoiceItem {
-//     id: string;
-//     service_name: string;
-//     quantity: number;
-//     unit_price: number;
-//     total_amount: number;
-//     description?: string;
-// }
-
-// interface Invoice {
-//     id: string;
-//     month: number;
-//     year: number;
-//     room_name: string;
-//     total_amount: number;
-//     paid_amount: number;
-//     remaining_amount: number;
-//     due_date: string;
-//     payment_date?: string;
-//     status: 'pending' | 'paid' | 'overdue';
-//     items: InvoiceItem[];
-//     created_at: string;
-// }
 
 const AitilenInvoices: React.FC = () => {
     // get params
-    const { id } = useParams();
-    const [searchParams] = useSearchParams();
 
     // state ....
     const [loading, setLoading] = useState(false);
@@ -63,99 +37,7 @@ const AitilenInvoices: React.FC = () => {
     const [detailModalVisible, setDetailModalVisible] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
-
-    // Mock data - sẽ thay thế bằng API thực tế
-    const mockCurrentInvoice = {
-        id: "INV-2025-11",
-        month: 11,
-        year: 2025,
-        room_name: "Phòng 101 - Tòa A",
-        total_amount: 2500000,
-        paid_amount: 0,
-        remaining_amount: 2500000,
-        due_date: "2025-11-15",
-        status: 'pending',
-        created_at: "2025-11-01",
-        items: [
-            {
-                id: "1",
-                service_name: "Tiền phòng",
-                quantity: 1,
-                unit_price: 1500000,
-                total_amount: 1500000,
-                description: "Tiền thuê phòng tháng 11/2025"
-            },
-            {
-                id: "2",
-                service_name: "Tiền điện",
-                quantity: 150,
-                unit_price: 3500,
-                total_amount: 525000,
-                description: "150 số điện x 3,500đ"
-            },
-            {
-                id: "3",
-                service_name: "Tiền nước",
-                quantity: 25,
-                unit_price: 15000,
-                total_amount: 375000,
-                description: "25 khối nước x 15,000đ"
-            },
-            {
-                id: "4",
-                service_name: "Phí quản lý",
-                quantity: 1,
-                unit_price: 100000,
-                total_amount: 100000,
-                description: "Phí quản lý chung cư"
-            }
-        ]
-    };
-
-    const mockInvoiceHistory = [
-        {
-            id: "INV-2025-10",
-            month: 10,
-            year: 2025,
-            room_name: "Phòng 101 - Tòa A",
-            total_amount: 2300000,
-            paid_amount: 2300000,
-            remaining_amount: 0,
-            due_date: "2025-10-15",
-            payment_date: "2025-10-12",
-            status: 'paid',
-            created_at: "2025-10-01",
-            items: []
-        },
-        {
-            id: "INV-2025-09",
-            month: 9,
-            year: 2025,
-            room_name: "Phòng 101 - Tòa A",
-            total_amount: 2400000,
-            paid_amount: 2400000,
-            remaining_amount: 0,
-            due_date: "2025-09-15",
-            payment_date: "2025-09-14",
-            status: 'paid',
-            created_at: "2025-09-01",
-            items: []
-        },
-        {
-            id: "INV-2025-08",
-            month: 8,
-            year: 2025,
-            room_name: "Phòng 101 - Tòa A",
-            total_amount: 2600000,
-            paid_amount: 2600000,
-            remaining_amount: 0,
-            due_date: "2025-08-15",
-            payment_date: "2025-08-18",
-            status: 'overdue',
-            created_at: "2025-08-01",
-            items: []
-        }
-    ];
+    const [token, setToken] = useState('');
 
     // Functions
     const fetchCurrentInvoice = async () => {
@@ -163,9 +45,11 @@ const AitilenInvoices: React.FC = () => {
         try {
             // Thay thế bằng API call thực tế
             const response = await axios.post(API_USER.aitilen_invoiceIndexApi);
-            console.log('Thông tin hóa đơn:', response);
+            console.log('Thông tin hóa đơn:', response.data.data.currentInvoice);
             setCurrentInvoice(response.data.data.currentInvoice);
             setInvoiceHistory(response.data.data.invoices);
+            // Lưu token CSRF
+            setToken(response.data.data.csrf_token);
         } catch (error) {
             console.error('Không tải được thông tin hóa đơn');
         } finally {
@@ -173,47 +57,33 @@ const AitilenInvoices: React.FC = () => {
         }
     };
 
-    const fetchInvoiceHistory = async () => {
-        setLoading(true);
-        try {
-            // Thay thế bằng API call thực tế
-            // const response = await axios.post(API.getInvoiceHistory);
-            setInvoiceHistory(mockInvoiceHistory);
-        } catch (error) {
-            console.error('Error fetching invoice history:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
         fetchCurrentInvoice();
-        fetchInvoiceHistory();
     }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'paid': return 'success';
-            case 'pending': return 'warning';
-            case 'overdue': return 'error';
+            case '1': return 'success';
+            case '2': return 'error';
+            case '3': return 'warning';
             default: return 'default';
         }
     };
 
     const getStatusText = (status: string) => {
         switch (status) {
-            case 'paid': return 'Đã thanh toán';
-            case 'pending': return 'Chờ thanh toán';
-            case 'overdue': return 'Quá hạn';
+            case '1': return 'Đã thanh toán';
+            case '2': return 'chưa thanh toán';
+            case '3': return 'Còn công nợ';
             default: return 'Không xác định';
         }
     };
 
     const getStatusIcon = (status: string) => {
         switch (status) {
-            case 'paid': return <CheckCircleOutlined />;
-            case 'pending': return <ClockCircleOutlined />;
-            case 'overdue': return <ExclamationCircleOutlined />;
+            case '1': return <CheckCircleOutlined />;
+            case '2': return <ClockCircleOutlined />;
+            case '3': return <ExclamationCircleOutlined />;
             default: return <InfoCircleOutlined />;
         }
     };
@@ -237,7 +107,7 @@ const AitilenInvoices: React.FC = () => {
 
     // Render mobile-friendly invoice items
     const renderMobileInvoiceItems = (items: any) => {
-        if(!items || items.length === 0) {
+        if (!items || items.length === 0) {
             return <Empty description="Không có mục hóa đơn" />;
         }
         return items.map((item: any) => (
@@ -245,27 +115,15 @@ const AitilenInvoices: React.FC = () => {
                 <Row gutter={[8, 4]}>
                     <Col span={24}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text strong style={{ fontSize: '14px' }}>{item.service_name}</Text>
+                            <Text strong style={{ fontSize: '14px' }}>{item.name}</Text>
                             <Text strong style={{ color: '#f5222d', fontSize: '14px' }}>
-                                {formatCurrency(item.total_amount)}
+                                {formatCurrency(item.price_total)}
                             </Text>
                         </div>
                     </Col>
-                    {item.description && (
-                        <Col span={24}>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                                {item.description}
-                            </Text>
-                        </Col>
-                    )}
-                    <Col span={12}>
+                    <Col span={24}>
                         <Text style={{ fontSize: '12px' }}>
-                            Số lượng: {item.quantity}
-                        </Text>
-                    </Col>
-                    <Col span={12}>
-                        <Text style={{ fontSize: '12px' }}>
-                            Đơn giá: {formatCurrency(item.unit_price)}
+                            {item.note}
                         </Text>
                     </Col>
                 </Row>
@@ -307,8 +165,8 @@ const AitilenInvoices: React.FC = () => {
                             <Text strong style={{ fontSize: '14px' }}>
                                 {String(invoice.month).padStart(2, '0')}/{invoice.year}
                             </Text>
-                            <Tag color={getStatusColor(invoice.status)} style={{ fontSize: '11px' }}>
-                                {getStatusText(invoice.status)}
+                            <Tag color={getStatusColor(invoice.aitilen_invoice_status_id)} style={{ fontSize: '11px' }}>
+                                {getStatusText(invoice.aitilen_invoice_status_id)}
                             </Tag>
                         </div>
                     </Col>
@@ -318,7 +176,7 @@ const AitilenInvoices: React.FC = () => {
                     <Col span={12}>
                         <Text style={{ fontSize: '12px' }}>
                             Tổng tiền: <Text strong style={{ color: '#f5222d' }}>
-                                {formatCurrency(invoice.total_amount)}
+                                {formatCurrency(invoice.total)}
                             </Text>
                         </Text>
                     </Col>
@@ -345,14 +203,14 @@ const AitilenInvoices: React.FC = () => {
             title: 'Kỳ hóa đơn',
             dataIndex: 'month',
             key: 'month',
-            render: (month: number, record: any) => (
-                <Text strong>{String(month).padStart(2, '0')}/{record.year}</Text>
+            render: (_: any, record: any) => (
+                <Text strong>{String(record.month).padStart(2, '0')}/{record.year}</Text>
             ),
         },
         {
             title: 'Tổng tiền',
-            dataIndex: 'total_amount',
-            key: 'total_amount',
+            dataIndex: 'total',
+            key: 'total',
             render: (amount: number) => (
                 <Text strong style={{ color: '#1890ff' }}>
                     {formatCurrency(amount)}
@@ -361,8 +219,8 @@ const AitilenInvoices: React.FC = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
+            dataIndex: 'aitilen_invoice_status_id',
+            key: 'aitilen_invoice_status_id',
             render: (status: string) => (
                 <Badge
                     status={getStatusColor(status) as any}
@@ -460,304 +318,478 @@ const AitilenInvoices: React.FC = () => {
                 </div>
 
                 {/* Tabs */}
-                <Tabs activeKey={activeTab} onChange={setActiveTab} size="small">
-                    <TabPane
-                        tab={
-                            <span style={{ fontSize: '14px' }}>
-                                <CalendarOutlined />
-                                Hóa đơn hiện tại
-                            </span>
-                        }
-                        key="current"
-                    >
-                        {/* Current Invoice */}
-                        {currentInvoice && currentInvoice.id ? (
-                            <Row gutter={[8, 16]}>
-                                {/* Thông tin tổng quan */}
-                                <Col span={24}>
-                                    <Card size="small">
-                                        <Row gutter={[8, 12]}>
-                                            <Col xs={12} sm={12} md={6}>
-                                                <Statistic
-                                                    title="Kỳ hóa đơn"
-                                                    value={`${String(currentInvoice?.month || 0).padStart(2, '0')}/${currentInvoice?.year || 0}`}
-                                                    prefix={<CalendarOutlined />}
-                                                />
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    size="small"
+                    items={[
+                        {
+                            key: 'current',
+                            label: (
+                                <span style={{ fontSize: '14px' }}>
+                                    <CalendarOutlined />
+                                    Hóa đơn hiện tại
+                                </span>
+                            ),
+                            children: (
+                                <>
+                                    {/* Current Invoice */}
+                                    {currentInvoice && currentInvoice.id ? (
+                                        <Row gutter={[8, 16]}>
+                                            {/* Thông tin tổng quan */}
+                                            <Col span={24}>
+                                                <Card size="small">
+                                                    <Row gutter={[8, 12]}>
+                                                        <Col xs={12} sm={12} md={8}>
+                                                            <Statistic
+                                                                title="Tổng tiền"
+                                                                value={currentInvoice?.total || 0}
+                                                                formatter={(value) => formatCurrency(Number(value))}
+                                                                prefix={<DollarOutlined />}
+                                                                valueStyle={{ color: '#1890ff' }}
+                                                            />
+                                                        </Col>
+                                                        <Col xs={24} sm={12} md={8}>
+                                                            <Statistic
+                                                                title="Hạn thanh toán"
+                                                                value={currentInvoice?.ngay_hen_dong_tien ? dayjs(currentInvoice.ngay_hen_dong_tien).format('DD/MM/YYYY') : '-'}
+                                                                prefix={<ClockCircleOutlined />}
+                                                                valueStyle={{ color: currentInvoice?.ngay_hen_dong_tien && dayjs().isAfter(currentInvoice.ngay_hen_dong_tien) ? '#ff4d4f' : '#52c41a' }}
+                                                            />
+                                                        </Col>
+                                                        <Col xs={24} sm={12} md={8}>
+                                                            <div style={{ textAlign: 'center' }}>
+                                                                <div style={{ marginBottom: '8px' }}>
+                                                                    <Text strong>Trạng thái</Text>
+                                                                </div>
+                                                                <Tag
+                                                                    color={getStatusColor(currentInvoice?.aitilen_invoice_status_id || '4')}
+                                                                    icon={getStatusIcon(currentInvoice?.aitilen_invoice_status_id || '4')}
+                                                                    style={{ fontSize: '14px', padding: '4px 12px' }}
+                                                                >
+                                                                    {getStatusText(currentInvoice?.aitilen_invoice_status_id || '4')}
+                                                                </Tag>
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
                                             </Col>
-                                            <Col xs={12} sm={12} md={6}>
-                                                <Statistic
-                                                    title="Tổng tiền"
-                                                    value={currentInvoice?.total_amount || 0}
-                                                    formatter={(value) => formatCurrency(Number(value))}
-                                                    prefix={<DollarOutlined />}
-                                                    valueStyle={{ color: '#1890ff' }}
-                                                />
-                                            </Col>
-                                            <Col xs={24} sm={12} md={6}>
-                                                <Statistic
-                                                    title="Hạn thanh toán"
-                                                    value={currentInvoice?.due_date ? dayjs(currentInvoice.due_date).format('DD/MM/YYYY') : '-'}
-                                                    prefix={<ClockCircleOutlined />}
-                                                    valueStyle={{ color: currentInvoice?.due_date && dayjs().isAfter(currentInvoice.due_date) ? '#ff4d4f' : '#52c41a' }}
-                                                />
-                                            </Col>
-                                            <Col xs={24} sm={12} md={6}>
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <div style={{ marginBottom: '8px' }}>
-                                                        <Text strong>Trạng thái</Text>
+
+                                            {/* Chi tiết hóa đơn */}
+                                            <Col span={24}>
+                                                <Card
+                                                    title={
+                                                        <Space>
+                                                            <DiffOutlined />
+                                                            <span>Chi tiết hóa đơn</span>
+                                                        </Space>
+                                                    }
+                                                    // extra={
+                                                    //     <Space>
+                                                    //         <Button
+                                                    //             type="primary"
+                                                    //             icon={<PayCircleOutlined />}
+                                                    //             onClick={() => showPaymentModal(currentInvoice)}
+                                                    //             disabled={currentInvoice?.aitilen_invoice_status_id === '1'}
+                                                    //         >
+                                                    //             Thanh toán
+                                                    //         </Button>
+                                                    //     </Space>
+                                                    // }
+                                                >
+                                                    {/* Alert nếu quá hạn */}
+                                                    {currentInvoice?.status === 'overdue' && (
+                                                        <Alert
+                                                            message="Hóa đơn đã quá hạn thanh toán"
+                                                            description="Vui lòng thanh toán sớm để tránh bị cắt dịch vụ."
+                                                            type="error"
+                                                            showIcon
+                                                            style={{ marginBottom: '16px' }}
+                                                        />
+                                                    )}
+
+                                                    {/* Bảng chi tiết các khoản phí dịch vụ - Desktop */}
+                                                    <Row>
+                                                        <Col xs={24} md={12}>
+                                                            <HTBankingQR
+                                                                bankCode="TPB"
+                                                                accountNumber="00299941001"
+                                                                accountName="LUU QUANG TIEN"
+                                                                amount={currentInvoice.total}
+                                                                description="2013017"
+                                                                csrf_token={token}
+                                                            />
+                                                        </Col>
+                                                        <Col xs={24} md={12}>
+                                                            <Card size="small" style={{ marginTop: 8, background: '#f0f9ff', width: '100%'  }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                    <Text strong style={{ fontSize: '14px' }}>Kỳ hóa đơn:</Text>
+                                                                    <Text strong style={{ fontSize: '15px', color: '#1890ff' }}> {`${String(currentInvoice?.month || 0).padStart(2, '0')}/${currentInvoice?.year || 0}`}</Text>
+                                                                </div>
+                                                            </Card>
+
+                                                            <Card size="small" style={{ marginTop: 8, background: '#f0f9ff', width: '100%' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                    <Text strong style={{ fontSize: '14px' }}>Tiền phòng:</Text>
+                                                                    <Text strong style={{ fontSize: '15px', color: '#1890ff' }}> {currentInvoice?.tien_phong ? numberFormat(currentInvoice.tien_phong) : ''}</Text>
+                                                                </div>
+                                                            </Card>
+
+                                                            {currentInvoice?.tien_coc ? (
+                                                                <Card size="small" style={{ marginTop: 8, background: '#f0f9ff', width: '100%' }}>
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <Text strong style={{ fontSize: '14px' }}>Tiền cọc:</Text>
+                                                                        <Text strong style={{ fontSize: '15px', color: '#1890ff' }}> {currentInvoice?.tien_coc ? numberFormat(currentInvoice.tien_coc) : ''}</Text>
+                                                                    </div>
+                                                                </Card>
+                                                            ) : null}
+
+
+
+                                                            {currentInvoice?.tra_coc ? (
+                                                                <Card size="small" style={{ marginTop: 8, background: '#f0f9ff', width: '100%' }}>
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <Text strong style={{ fontSize: '14px' }}>Tiền cọc:</Text>
+                                                                        <Text strong style={{ fontSize: '15px', color: '#1890ff' }}> {currentInvoice?.tra_coc ? numberFormat(currentInvoice.tra_coc) : ''}</Text>
+                                                                    </div>
+                                                                </Card>
+                                                            ) : null}
+                                                        </Col>
+                                                    </Row>
+
+                                                    <div className="d-none d-md-block">
+                                                        <br />
+                                                        <Table
+                                                            dataSource={currentInvoice?.services || []}
+                                                            rowKey="id"
+                                                            pagination={false}
+                                                            size="small"
+                                                            columns={[
+                                                                {
+                                                                    title: <b style={{ color: '#c93f07' }}>DỊCH VỤ</b>,
+                                                                    dataIndex: 'name',
+                                                                    key: 'name',
+                                                                    render: (text: string, record: any) => (
+                                                                        <div>
+                                                                            <Text strong>{text}</Text>
+                                                                            {record.note && (
+                                                                                <div>
+                                                                                    <Text type="secondary" style={{ fontSize: '12px' }}>
+                                                                                        {record.note}
+                                                                                    </Text>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    title: <b style={{ color: '#c93f07' }}>THÀNH TIỀN</b>,
+                                                                    dataIndex: 'price_total',
+                                                                    key: 'price_total',
+                                                                    align: 'right',
+                                                                    width: 150,
+                                                                    render: (amount: number) => (
+                                                                        <Text strong style={{ color: '#1890ff' }}>
+                                                                            {formatCurrency(amount)}
+                                                                        </Text>
+                                                                    ),
+                                                                },
+                                                            ]}
+                                                            summary={(data) => (
+                                                                <Table.Summary fixed>
+                                                                    <Table.Summary.Row>
+                                                                        <Table.Summary.Cell index={0} colSpan={1}>
+                                                                            <Text strong className="_red" style={{ fontSize: '18px' }}>Tổng cộng</Text>
+                                                                        </Table.Summary.Cell>
+                                                                        <Table.Summary.Cell index={1} align="right">
+                                                                            <Text className="_red" strong style={{ fontSize: '18px' }}>
+                                                                                {formatCurrency(currentInvoice?.total || 0)}
+                                                                            </Text>
+                                                                        </Table.Summary.Cell>
+                                                                    </Table.Summary.Row>
+                                                                </Table.Summary>
+                                                            )}
+                                                        />
                                                     </div>
-                                                    <Tag
-                                                        color={getStatusColor(currentInvoice?.status || 'pending')}
-                                                        icon={getStatusIcon(currentInvoice?.status || 'pending')}
-                                                        style={{ fontSize: '14px', padding: '4px 12px' }}
-                                                    >
-                                                        {getStatusText(currentInvoice?.status || 'pending')}
-                                                    </Tag>
-                                                </div>
+
+                                                    {/* Mobile Cards */}
+                                                    <div className="d-block d-md-none">
+                                                        <br />
+                                                        <Text strong style={{ fontSize: '14px', marginBottom: 8, display: 'block' }}>
+                                                            Chi tiết các khoản phí dịch vụ:
+                                                        </Text>
+                                                        {renderMobileInvoiceItems(currentInvoice?.services || [])}
+
+                                                        {/* Mobile Total */}
+                                                        <Card size="small" style={{ marginTop: 8, background: '#f0f9ff' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <Text strong style={{ fontSize: '16px' }}>Tổng cộng:</Text>
+                                                                <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
+                                                                    {formatCurrency(currentInvoice?.total || 0)}
+                                                                </Text>
+                                                            </div>
+                                                        </Card>
+                                                    </div>
+                                                </Card>
                                             </Col>
                                         </Row>
-                                    </Card>
-                                </Col>
-
-                                {/* Chi tiết hóa đơn */}
-                                <Col span={24}>
-                                    <Card
-                                        title={
-                                            <Space>
-                                                <DiffOutlined />
-                                                <span>Chi tiết hóa đơn</span>
-                                            </Space>
-                                        }
-                                        extra={
-                                            <Space>
-                                                <Button
-                                                    type="primary"
-                                                    icon={<PayCircleOutlined />}
-                                                    onClick={() => showPaymentModal(currentInvoice)}
-                                                    disabled={currentInvoice?.status === 'paid'}
-                                                >
-                                                    Thanh toán
-                                                </Button>
-                                            </Space>
-                                        }
-                                    >
-                                        {/* Alert nếu quá hạn */}
-                                        {currentInvoice?.status === 'overdue' && (
-                                            <Alert
-                                                message="Hóa đơn đã quá hạn thanh toán"
-                                                description="Vui lòng thanh toán sớm để tránh bị cắt dịch vụ."
-                                                type="error"
-                                                showIcon
-                                                style={{ marginBottom: '16px' }}
+                                    ) : (
+                                        <Empty description="Chưa có hóa đơn tháng hiện tại" />
+                                    )}
+                                </>
+                            )
+                        },
+                        {
+                            key: 'history',
+                            label: (
+                                <span style={{ fontSize: '14px' }}>
+                                    <HistoryOutlined />
+                                    Lịch sử hóa đơn
+                                </span>
+                            ),
+                            children: (
+                                <>
+                                    {/* Invoice History */}
+                                    <Card size="small">
+                                        <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            <Title level={5} style={{ margin: 0, fontSize: '16px' }}>
+                                                Lịch sử thanh toán
+                                            </Title>
+                                            <MonthPicker
+                                                placeholder="Chọn tháng"
+                                                value={selectedMonth}
+                                                onChange={(date) => setSelectedMonth(date || dayjs())}
+                                                style={{ width: '100%', maxWidth: 200 }}
+                                                size="small"
                                             />
-                                        )}
+                                        </div>
 
-                                        {/* Bảng chi tiết các khoản phí - Desktop */}
+                                        {/* Desktop Table */}
                                         <div className="d-none d-md-block">
                                             <Table
-                                                dataSource={currentInvoice?.items || []}
+                                                dataSource={invoiceHistory}
+                                                columns={historyColumns}
                                                 rowKey="id"
-                                                pagination={false}
+                                                loading={loading}
                                                 size="small"
-                                            columns={[
-                                                {
-                                                    title: 'Dịch vụ',
-                                                    dataIndex: 'service_name',
-                                                    key: 'service_name',
-                                                    render: (text: string, record: any) => (
-                                                        <div>
-                                                            <Text strong>{text}</Text>
-                                                            {record.description && (
-                                                                <div>
-                                                                    <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                                        {record.description}
-                                                                    </Text>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ),
-                                                },
-                                                {
-                                                    title: 'Số lượng',
-                                                    dataIndex: 'quantity',
-                                                    key: 'quantity',
-                                                    align: 'center',
-                                                    width: 100,
-                                                },
-                                                {
-                                                    title: 'Đơn giá',
-                                                    dataIndex: 'unit_price',
-                                                    key: 'unit_price',
-                                                    align: 'right',
-                                                    width: 120,
-                                                    render: (price: number) => formatCurrency(price),
-                                                },
-                                                {
-                                                    title: 'Thành tiền',
-                                                    dataIndex: 'total_amount',
-                                                    key: 'total_amount',
-                                                    align: 'right',
-                                                    width: 150,
-                                                    render: (amount: number) => (
-                                                        <Text strong style={{ color: '#1890ff' }}>
-                                                            {formatCurrency(amount)}
-                                                        </Text>
-                                                    ),
-                                                },
-                                            ]}
-                                            summary={(data) => (
-                                                <Table.Summary fixed>
-                                                    <Table.Summary.Row>
-                                                        <Table.Summary.Cell index={0} colSpan={3}>
-                                                            <Text strong>Tổng cộng</Text>
-                                                        </Table.Summary.Cell>
-                                                        <Table.Summary.Cell index={1} align="right">
-                                                            <Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
-                                                                {formatCurrency(currentInvoice?.total_amount || 0)}
-                                                            </Text>
-                                                        </Table.Summary.Cell>
-                                                    </Table.Summary.Row>
-                                                </Table.Summary>
-                                            )}
-                                        />
+                                                scroll={{ x: 'max-content' }}
+                                                pagination={{
+                                                    pageSize: 5,
+                                                    showSizeChanger: false,
+                                                    simple: true,
+                                                    showTotal: (total) => `Tổng ${total} hóa đơn`,
+                                                }}
+                                            />
                                         </div>
 
                                         {/* Mobile Cards */}
                                         <div className="d-block d-md-none">
-                                            <Text strong style={{ fontSize: '14px', marginBottom: 8, display: 'block' }}>
-                                                Chi tiết các khoản phí:
-                                            </Text>
-                                            {renderMobileInvoiceItems(currentInvoice?.items || [])}
-
-                                            {/* Mobile Total */}
-                                            <Card size="small" style={{ marginTop: 8, background: '#f0f9ff' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Text strong style={{ fontSize: '16px' }}>Tổng cộng:</Text>
-                                                    <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-                                                        {formatCurrency(currentInvoice?.total_amount || 0)}
-                                                    </Text>
-                                                </div>
-                                            </Card>
+                                            {renderMobileInvoiceHistory(invoiceHistory)}
                                         </div>
                                     </Card>
-                                </Col>
-                            </Row>
-                        ) : (
-                            <Empty description="Chưa có hóa đơn tháng hiện tại" />
-                        )}
-                    </TabPane>
-
-                    <TabPane
-                        tab={
-                            <span style={{ fontSize: '14px' }}>
-                                <HistoryOutlined />
-                                Lịch sử hóa đơn
-                            </span>
+                                </>
+                            )
                         }
-                        key="history"
-                    >
-                        {/* Invoice History */}
-                        <Card size="small">
-                            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                <Title level={5} style={{ margin: 0, fontSize: '16px' }}>
-                                    Lịch sử thanh toán
-                                </Title>
-                                <MonthPicker
-                                    placeholder="Chọn tháng"
-                                    value={selectedMonth}
-                                    onChange={(date) => setSelectedMonth(date || dayjs())}
-                                    style={{ width: '100%', maxWidth: 200 }}
-                                    size="small"
-                                />
-                            </div>
-
-                            {/* Desktop Table */}
-                            <div className="d-none d-md-block">
-                                <Table
-                                    dataSource={invoiceHistory}
-                                    columns={historyColumns}
-                                    rowKey="id"
-                                    loading={loading}
-                                    size="small"
-                                    scroll={{ x: 'max-content' }}
-                                    pagination={{
-                                        pageSize: 5,
-                                        showSizeChanger: false,
-                                        simple: true,
-                                        showTotal: (total) => `Tổng ${total} hóa đơn`,
-                                    }}
-                                />
-                            </div>
-
-                            {/* Mobile Cards */}
-                            <div className="d-block d-md-none">
-                                {renderMobileInvoiceHistory(invoiceHistory)}
-                            </div>
-                        </Card>
-                    </TabPane>
-                </Tabs>
+                    ]}
+                />
 
                 {/* Modal chi tiết hóa đơn */}
                 <Modal
                     title={
                         <Space size={4}>
                             <FileProtectOutlined />
-                            <span style={{ fontSize: '16px' }}>Chi tiết hóa đơn {selectedInvoice?.id}</span>
+                            <span style={{ fontSize: '16px' }}>Chi tiết hóa đơn</span>
                         </Space>
                     }
                     open={detailModalVisible}
                     onCancel={() => setDetailModalVisible(false)}
-                    footer={[
-                        <Button key="close" onClick={() => setDetailModalVisible(false)} block>
-                            Đóng
-                        </Button>
-                    ]}
-                    width="90%"
-                    style={{ maxWidth: 800 }}
+                    footer={null}
+                    width="95%"
+                    style={{ maxWidth: 900, top: 20 }}
                 >
                     {selectedInvoice && (
                         <div>
+                            {/* Thông tin tổng quan */}
+                            <Card size="small" style={{ marginBottom: 16 }}>
+                                <Row gutter={[8, 12]}>
+                                    <Col xs={12} sm={12} md={6}>
+                                        <Statistic
+                                            title="Kỳ hóa đơn"
+                                            value={`${String(selectedInvoice?.month || 0).padStart(2, '0')}/${selectedInvoice?.year || 0}`}
+                                            prefix={<CalendarOutlined />}
+                                        />
+                                    </Col>
+                                    <Col xs={12} sm={12} md={6}>
+                                        <Statistic
+                                            title="Tổng tiền"
+                                            value={selectedInvoice?.total || 0}
+                                            formatter={(value) => formatCurrency(Number(value))}
+                                            prefix={<DollarOutlined />}
+                                            valueStyle={{ color: '#1890ff' }}
+                                        />
+                                    </Col>
+                                    <Col xs={12} sm={12} md={6}>
+                                        <Statistic
+                                            title="Hạn thanh toán"
+                                            value={selectedInvoice?.due_date ? dayjs(selectedInvoice.due_date).format('DD/MM/YYYY') : '-'}
+                                            prefix={<ClockCircleOutlined />}
+                                            valueStyle={{ color: selectedInvoice?.due_date && dayjs().isAfter(selectedInvoice.due_date) ? '#ff4d4f' : '#52c41a' }}
+                                        />
+                                    </Col>
+                                    <Col xs={12} sm={12} md={6}>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ marginBottom: '8px' }}>
+                                                <Text strong>Trạng thái</Text>
+                                            </div>
+                                            <Tag
+                                                color={getStatusColor(selectedInvoice?.status || 'pending')}
+                                                icon={getStatusIcon(selectedInvoice?.status || 'pending')}
+                                                style={{ fontSize: '14px', padding: '4px 12px' }}
+                                            >
+                                                {getStatusText(selectedInvoice?.status || 'pending')}
+                                            </Tag>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </Card>
+
+                            {/* Alert nếu quá hạn */}
+                            {selectedInvoice?.status === 'overdue' && (
+                                <Alert
+                                    message="Hóa đơn đã quá hạn thanh toán"
+                                    description="Vui lòng thanh toán sớm để tránh bị cắt dịch vụ."
+                                    type="error"
+                                    showIcon
+                                    style={{ marginBottom: '16px' }}
+                                />
+                            )}
+
+                            {/* Chi tiết các khoản phí */}
+                            <Card
+                                title={
+                                    <Space>
+                                        <DiffOutlined />
+                                        <span>Chi tiết các khoản phí</span>
+                                    </Space>
+                                }
+                                size="small"
+                                style={{ marginBottom: 16 }}
+                            >
+                                {/* Bảng chi tiết - Desktop */}
+                                <div className="d-none d-md-block">
+                                    <Table
+                                        dataSource={selectedInvoice?.items || []}
+                                        rowKey="id"
+                                        pagination={false}
+                                        size="small"
+                                        columns={[
+                                            {
+                                                title: 'Dịch vụ',
+                                                dataIndex: 'service_name',
+                                                key: 'service_name',
+                                                render: (text: string, record: any) => (
+                                                    <div>
+                                                        <Text strong>{text}</Text>
+                                                        {record.description && (
+                                                            <div>
+                                                                <Text type="secondary" style={{ fontSize: '12px' }}>
+                                                                    {record.description}
+                                                                </Text>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ),
+                                            },
+                                            {
+                                                title: 'Số lượng',
+                                                dataIndex: 'quantity',
+                                                key: 'quantity',
+                                                align: 'center',
+                                                width: 100,
+                                            },
+                                            {
+                                                title: 'Đơn giá',
+                                                dataIndex: 'unit_price',
+                                                key: 'unit_price',
+                                                align: 'right',
+                                                width: 120,
+                                                render: (price: number) => formatCurrency(price),
+                                            },
+                                            {
+                                                title: 'Thành tiền',
+                                                dataIndex: 'total_amount',
+                                                key: 'total_amount',
+                                                align: 'right',
+                                                width: 150,
+                                                render: (amount: number) => (
+                                                    <Text strong style={{ color: '#1890ff' }}>
+                                                        {formatCurrency(amount)}
+                                                    </Text>
+                                                ),
+                                            },
+                                        ]}
+                                        summary={(data) => (
+                                            <Table.Summary fixed>
+                                                <Table.Summary.Row>
+                                                    <Table.Summary.Cell index={0} colSpan={3}>
+                                                        <Text strong>Tổng cộng</Text>
+                                                    </Table.Summary.Cell>
+                                                    <Table.Summary.Cell index={1} align="right">
+                                                        <Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
+                                                            {formatCurrency(selectedInvoice?.total || 0)}
+                                                        </Text>
+                                                    </Table.Summary.Cell>
+                                                </Table.Summary.Row>
+                                            </Table.Summary>
+                                        )}
+                                    />
+                                </div>
+
+                                {/* Mobile Cards */}
+                                <div className="d-block d-md-none">
+                                    {renderMobileInvoiceItems(selectedInvoice?.items || [])}
+
+                                    {/* Mobile Total */}
+                                    <Card size="small" style={{ marginTop: 8, background: '#f0f9ff' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Text strong style={{ fontSize: '16px' }}>Tổng cộng:</Text>
+                                            <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
+                                                {formatCurrency(selectedInvoice?.total || 0)}
+                                            </Text>
+                                        </div>
+                                    </Card>
+                                </div>
+                            </Card>
+
+                            {/* Thông tin bổ sung */}
                             <Descriptions
                                 bordered
-                                column={{ xs: 1, sm: 1, md: 2 }}
+                                column={{ xs: 1, sm: 2 }}
                                 size="small"
                                 labelStyle={{ fontSize: '13px', fontWeight: 'bold' }}
                                 contentStyle={{ fontSize: '13px' }}
+                                style={{ marginBottom: 16 }}
                             >
                                 <Descriptions.Item label="Mã hóa đơn">
                                     {selectedInvoice.id}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Kỳ hóa đơn">
-                                    {String(selectedInvoice.month).padStart(2, '0')}/{selectedInvoice.year}
-                                </Descriptions.Item>
                                 <Descriptions.Item label="Phòng">
                                     {selectedInvoice.room_name}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Trạng thái">
-                                    <Badge
-                                        status={getStatusColor(selectedInvoice.status) as any}
-                                        text={getStatusText(selectedInvoice.status)}
-                                    />
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Tổng tiền">
-                                    <Text strong style={{ color: '#1890ff', fontSize: '16px' }}>
-                                        {formatCurrency(selectedInvoice.total_amount)}
-                                    </Text>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Hạn thanh toán">
-                                    {dayjs(selectedInvoice.due_date).format('DD/MM/YYYY')}
-                                </Descriptions.Item>
                                 {selectedInvoice.payment_date && (
-                                    <Descriptions.Item label="Ngày thanh toán">
-                                        {dayjs(selectedInvoice.payment_date).format('DD/MM/YYYY')}
+                                    <Descriptions.Item label="Ngày thanh toán" span={2}>
+                                        <Text strong style={{ color: '#52c41a' }}>
+                                            {dayjs(selectedInvoice.payment_date).format('DD/MM/YYYY HH:mm')}
+                                        </Text>
                                     </Descriptions.Item>
                                 )}
                             </Descriptions>
 
-                            <div style={{ marginTop: '24px', textAlign: 'right' }}>
+                            {/* Buttons */}
+                            <div style={{ textAlign: 'right' }}>
                                 <Space>
-                                    <Button icon={<DownloadOutlined />}>
-                                        Tải PDF
+                                    <Button onClick={() => setDetailModalVisible(false)}>
+                                        Đóng
                                     </Button>
                                     <Button icon={<PrinterOutlined />}>
                                         In hóa đơn
@@ -804,8 +836,7 @@ const AitilenInvoices: React.FC = () => {
                                 message={`Thanh toán hóa đơn tháng ${String(selectedInvoice.month).padStart(2, '0')}/${selectedInvoice.year}`}
                                 description={
                                     <div>
-                                        <div>Số tiền: <Text strong style={{ color: '#1890ff' }}>{formatCurrency(selectedInvoice.total_amount)}</Text></div>
-                                        <div>Phòng: <Text strong>{selectedInvoice.room_name}</Text></div>
+                                        <div>Số tiền: <Text strong style={{ color: '#1890ff' }}>{formatCurrency(selectedInvoice.total)}</Text></div>
                                     </div>
                                 }
                                 type="info"
@@ -820,7 +851,7 @@ const AitilenInvoices: React.FC = () => {
                                         hoverable
                                         size="small"
                                         style={{ textAlign: 'center', minHeight: '100px' }}
-                                        onClick={() => {/* Handle online payment */}}
+                                        onClick={() => {/* Handle online payment */ }}
                                     >
                                         <CreditCardOutlined style={{ fontSize: '28px', color: '#1890ff' }} />
                                         <div style={{ marginTop: 6 }}>
@@ -838,7 +869,7 @@ const AitilenInvoices: React.FC = () => {
                                         hoverable
                                         size="small"
                                         style={{ textAlign: 'center', minHeight: '100px' }}
-                                        onClick={() => {/* Handle bank transfer */}}
+                                        onClick={() => {/* Handle bank transfer */ }}
                                     >
                                         <BankOutlined style={{ fontSize: '28px', color: '#52c41a' }} />
                                         <div style={{ marginTop: 6 }}>

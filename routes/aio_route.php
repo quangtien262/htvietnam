@@ -220,15 +220,15 @@ Route::group(['prefix' => 'contract'], function () {
 });
 
 // customer: api
-Route::group(['prefix' => 'customer'], function () {
-    Route::post('index-api', [CustomerController::class, 'indexApi'])->name('customer.index');
-    Route::post('search', [CustomerController::class, 'search'])->name('customer.search');
-    Route::post('detail', [CustomerController::class, 'detail'])->name('customer.detail');
-    Route::post('update', [CustomerController::class, 'update'])->name('customer.update');
-    Route::post('fast-edit', [CustomerController::class, 'fastEdit'])->name('customer.fastEdit');
-    Route::post('edit', [CustomerController::class, 'createOrUpdate'])->name('customer.edit');
-    Route::post('add', [CustomerController::class, 'createOrUpdate'])->name('customer.add');
-});
+
+Route::post('customer/index-api', [CustomerController::class, 'indexApi'])->name('customer.index');
+Route::post('customer/search', [CustomerController::class, 'search'])->name('customer.search');
+Route::post('customer/detail', [CustomerController::class, 'detail'])->name('customer.detail');
+Route::post('customer/update', [CustomerController::class, 'update'])->name('customer.update');
+Route::post('customer/fast-edit', [CustomerController::class, 'fastEdit'])->name('customer.fastEdit');
+Route::post('customer/edit', [CustomerController::class, 'createOrUpdate'])->name('customer.edit');
+Route::post('customer/add', [CustomerController::class, 'createOrUpdate'])->name('customer.add');
+
 
 Route::group(['prefix' => 'meeting'], function () {
     Route::post('index-api', [MeetingController::class, 'fetchIndexData'])->name('meeting.fetchIndexData');

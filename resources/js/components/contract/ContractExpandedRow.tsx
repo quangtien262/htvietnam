@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Button, Dropdown, Space, Image, MenuProps, Tag } from 'antd';
 import {
     DownOutlined,
@@ -14,6 +14,7 @@ import {
     ClockCircleOutlined,
 } from '@ant-design/icons';
 import { numberFormat } from '../../common/function';
+import CustomerDetailModal from '../CustomerDetailModal';
 
 interface ContractExpandedRowProps {
     record: any;
@@ -30,6 +31,9 @@ const ContractExpandedRow: React.FC<ContractExpandedRowProps> = ({
     onActive,
     onLogin,
 }) => {
+    const [customerDetailModalVisible, setCustomerDetailModalVisible] = useState(false);
+    const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
+
     const items: MenuProps['items'] = [
         {
             label: <a onClick={() => onEdit(record)}>Cập nhật</a>,
@@ -84,7 +88,15 @@ const ContractExpandedRow: React.FC<ContractExpandedRowProps> = ({
                         </li>
                         <li>
                             <b><UserOutlined /> Khách hàng: </b>
-                            {record.ho_ten}
+                            <a
+                                style={{ cursor: 'pointer', color: '#1890ff', textDecoration: 'underline' }}
+                                onClick={() => {
+                                    setSelectedCustomerId(record.user_id);
+                                    setCustomerDetailModalVisible(true);
+                                }}
+                            >
+                                {record.ho_ten}
+                            </a>
                             <span>  </span>
                             <button className="btn-default" onClick={() => onLogin(record)}>
                                 {' '}
@@ -174,6 +186,17 @@ const ContractExpandedRow: React.FC<ContractExpandedRowProps> = ({
                     </table>
                 </Col>
             </Row>
+
+            {/* Customer Detail Modal */}
+            <CustomerDetailModal
+                visible={customerDetailModalVisible}
+                customerId={selectedCustomerId}
+                onClose={() => setCustomerDetailModalVisible(false)}
+                onLogin={(customer: any) => {
+                    setCustomerDetailModalVisible(false);
+                    onLogin({ ...record, ...customer });
+                }}
+            />
         </>
     );
 };

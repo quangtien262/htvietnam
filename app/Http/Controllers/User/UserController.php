@@ -152,9 +152,8 @@ public function index()
     function changePassword(Request $request)
     {
         $user = Auth::guard('web')->user();
-
         $userInfo = User::find($user->id);
-        $userInfo->password = bcrypt($request->password);
+        $userInfo->password = bcrypt($request->new_password);
         $userInfo->save();
         $this->sendSuccessResponse($userInfo, 'Cập nhật mật khẩu thành công');
     }

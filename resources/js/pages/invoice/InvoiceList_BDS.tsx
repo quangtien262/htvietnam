@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { cloneDeep, create, set } from 'lodash';
 import ContractFormModal from "../../components/contract/ContractFormModal";
+import CustomerDetailModal from "../../components/CustomerDetailModal";
 
 import {
     Button, List,
@@ -109,6 +110,7 @@ const InvoiceList_BDS: React.FC = () => {
     // modal create data month
     const [isOpenModalCreateDataMonth, setIsOpenModalCreateDataMonth] = useState(false);
     const [month, setMonth] = useState<any>(null);
+    const [apm, setApm] = useState(null);
 
     // Active
     const [monthActive, setMonthActive] = useState<any>(null);
@@ -134,6 +136,10 @@ const InvoiceList_BDS: React.FC = () => {
     const [contractSoNgayThue, setContractSoNgayThue] = useState(30);
     const [contractNoteApplyAll, setContractNoteApplyAll] = useState(false);
     const dataService_thangMay = { id: '7', price_default: 50000, per_default: 'Người', price_total: 50000, note: '' };
+
+    // Customer Detail Modal
+    const [customerDetailModalVisible, setCustomerDetailModalVisible] = useState(false);
+    const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
 
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -294,15 +300,32 @@ const InvoiceList_BDS: React.FC = () => {
         {
             title: 'Phòng',
             dataIndex: 'room_name',
-            key: 'id',
-            render: (text: any, record: any) => {
+            key: 'room_name',
+            sorter: (a: any, b: any) => {
+                const roomA = props.room && props.room[a.room_id] ? props.room[a.room_id].name : '';
+                const roomB = props.room && props.room[b.room_id] ? props.room[b.room_id].name : '';
+                return roomA.localeCompare(roomB);
+            },
+            render: (text: string, record: any) => {
                 return <>
                     <Tag color="blue">{props.room[record.room_id] ? props.room[record.room_id].name : ''}</Tag>
-                    {record.ten_khach_hang ? <Tag color="green">{record.ten_khach_hang}</Tag> : ''}
+                    {record.ten_khach_hang ? (
+                        <a
+                            style={{ cursor: 'pointer', textDecoration: 'none' }}
+                            onClick={() => {
+                                setSelectedCustomerId(record.user_id);
+                                setCustomerDetailModalVisible(true);
+                            }}
+                        >
+                            <Tag color="green">{record.ten_khach_hang}</Tag>
+                        </a>
+                    ) : ''}
                     {record.contract_code ? <p>Mã Hđồng: <a style={{ cursor: 'pointer', color: '#1890ff' }} onClick={() => { handleOpenContractForm(record.contract_id); setContractIdAction(record.contract_id); }}>{record.contract_code}</a></p> : ''}
                 </>;
             }
         },
+
+        // Trạng thái
         {
             title: 'Trạng thái',
             dataIndex: 'ma_khach_hang',
@@ -359,15 +382,20 @@ const InvoiceList_BDS: React.FC = () => {
                 </>;
             }
         },
+
+        // Dịch vụ
         {
             title: <>
                 <span>Dịch vụ</span>
                 <span> | </span>
                 <a onClick={() => fetchStatistics()}> <RiseOutlined /> Xem thống kê</a>
             </>,
-            dataIndex: 'dich_vu',
-            key: 'dich_vu',
-            render: (text: any, record: any) => {
+            dataIndex: 'total',
+            key: 'total',
+            sorter: (a: any, b: any) => {
+                return (a.total || 0) - (b.total || 0);
+            },
+            render: (text: number, record: any) => {
                 return <>
                     <Tag color="red">Tổng: {numberFormat(record.total)}</Tag>
                     <Tag color="purple">tiền phòng: {numberFormat(record.tien_phong)} </Tag>
@@ -502,7 +530,18 @@ const InvoiceList_BDS: React.FC = () => {
                     <ul className="ul-info">
                         <li><b><FileTextOutlined /> Mã hóa đơn:</b> {record.code}</li>
                         <li><b><FlagOutlined /> Kỳ hóa đơn:</b> {record.month}/{record.year}</li>
-                        <li><b><UserOutlined /> Khách hàng:</b> {record.ten_khach_hang}</li>
+                        <li>
+                            <b><UserOutlined /> Khách hàng:</b>{' '}
+                            <a
+                                style={{ cursor: 'pointer', color: '#1890ff', textDecoration: 'underline' }}
+                                onClick={() => {
+                                    setSelectedCustomerId(record.user_id);
+                                    setCustomerDetailModalVisible(true);
+                                }}
+                            >
+                                {record.ten_khach_hang}
+                            </a>
+                        </li>
                         <li><b><UserOutlined /> Hợp Đồng:</b> {record.hop_dong}</li>
                         <li><b><CloudOutlined /> Phòng:</b> {props.room && props.room[record.room_id] ? props.room[record.room_id].name : ''}</li>
                         <li><b><MehOutlined /> Số người ở:</b> {record.so_nguoi}</li>
@@ -568,6 +607,7 @@ const InvoiceList_BDS: React.FC = () => {
         axios.post(API.aitilen_createInvoiceMonth, {
             month: month.format('MM'),
             year: month.format('YYYY'),
+            apm: apm,
             is_replace_all_contract: isReplaceAllContract,
         }).then((res) => {
             if (res.data.status_code === 200) {
@@ -1683,16 +1723,43 @@ const InvoiceList_BDS: React.FC = () => {
                 cancelText="Hủy"
                 maskClosable={true}
                 onCancel={() => { setIsOpenModalCreateDataMonth(false); }}>
-                <p><b>Chọn tháng cần tạo:</b> <DatePicker value={month} picker="month" onChange={(date) => setMonth(date)} /></p>
+
+                {/* Chọn tháng cần tạo */}
+
+                <p><b>Chọn tháng cần tạo dữ liệu:</b></p>
+                <DatePicker value={month} picker="month" onChange={(date) => setMonth(date)} />
+
+
+                {/* Chọn tòa nhà */}
+                <br /><br />
+                <p><b>Chọn tòa nhà:</b></p>
+                <Select
+                    showSearch
+                    allowClear={true}
+                    onChange={(value) => {
+                        setApm(value);
+                    }}
+                    value={apm}
+                    mode="multiple"
+                    style={{ width: "100%" }}
+                    placeholder="Bỏ trống để chọn tất cả tòa nhà"
+                    optionFilterProp="children"
+                    options={optionEntries(props.apm)}
+                    filterOption={filterSelectOption}
+                />
+
+                {/* replace */}
+                <br /><br />
                 <Checkbox checked={isReplaceAllContract}
                     onChange={(e) => setIsReplaceAllContract(e.target.checked)}
                 >
                     <b className="_red">Ghi đè tất cả hợp đồng trước đó</b>(Nếu không chọn, chỉ tạo mới những hợp đồng chưa có hóa đơn trong tháng đã chọn)
                 </Checkbox>
+                <em><b>Không chọn</b> thì sẽ bỏ qua hóa đơn nếu đã tạo sẵn trước đó</em>
 
                 <p> </p>
 
-                <p><b>LƯU Ý QUAN TRỌNG:</b></p>
+                <p><b className="_red">LƯU Ý QUAN TRỌNG:</b></p>
                 <ul>
                     <li><em>Data sẽ được tạo mới theo tháng đã chọn dựa công thức trong hợp đồng (Trạng thái phải là đang hoạt động) kết hợp với số điện/nước của tháng trước đó</em></li>
                     <li><em>Cần review lại dữ liệu trước/sau khi tạo mới xem hóa đơn đã đúng chưa, có bị trùng không. </em></li>
@@ -1913,6 +1980,13 @@ const InvoiceList_BDS: React.FC = () => {
                 showFormDataDetail={showContractFormDataDetail}
                 addSub={addSubContract}
                 initialsFormatData={initialsFormatContractData}
+            />
+
+            {/* Customer Detail Modal */}
+            <CustomerDetailModal
+                visible={customerDetailModalVisible}
+                customerId={selectedCustomerId}
+                onClose={() => setCustomerDetailModalVisible(false)}
             />
 
         </div>
