@@ -24,9 +24,8 @@ import {
     Descriptions,
     notification,
     Divider,
-    Badge, Tabs,
     Col, Image,
-    Breadcrumb, Radio, List, Upload
+    Breadcrumb, Radio, List, Upload, Card, Statistic, Tabs
 } from "antd";
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
@@ -44,13 +43,260 @@ import {
     UploadOutlined, CaretRightOutlined,
     StopOutlined,
     CheckOutlined,
-    BarsOutlined
+    BarsOutlined,
+    UserOutlined,
+    PhoneOutlined,
+    MailOutlined,
+    HomeOutlined,
+    FileTextOutlined,
+    DollarOutlined,
+    CalendarOutlined,
+    IdcardOutlined
 } from "@ant-design/icons";
 
 import "../../../css/form.css";
 import { inArray, parseJson, numberFormat } from "../../function/common";
 import { khachHangInfo } from "../../components/comp_khach_hang";
 import { routeSales } from "../../function/config_route";
+
+// Component riêng cho expanded row để tránh lỗi hooks
+const CustomerExpandedRow: React.FC<{
+    record: any;
+    index: number;
+    onEdit: (record: any, index: number) => void;
+    onLogin: (record: any) => void;
+    onStop: (id: number) => void;
+    onDelete: (id: number) => void;
+}> = ({ record, index, onEdit, onLogin, onStop, onDelete }) => {
+    const [customerData, setCustomerData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        // Load customer detail data
+        setLoading(true);
+        axios.post(API.customerDetail, { id: record.id })
+            .then((response) => {
+                if (response.data.status_code === 200) {
+                    setCustomerData(response.data.data);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                setLoading(false);
+            });
+    }, [record.id]);
+
+    if (loading) {
+        return <div style={{ padding: '16px', textAlign: 'center' }}>Đang tải...</div>;
+    }
+
+    if (!customerData) {
+        return <div style={{ padding: '16px' }}>Không có dữ liệu</div>;
+    }
+
+    const khachHang = customerData.khachHang;
+    const hoaDon = customerData.hoaDon || [];
+
+    const invoiceColumns = [
+        {
+            title: 'Kỳ hóa đơn',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 100,
+            render: (text: string, record: any) => <>{record.month}/{record.year}</>
+        },
+        {
+            title: 'Tổng tiền',
+            dataIndex: 'total',
+            key: 'total',
+            width: 120,
+            render: (value: number) => <Typography.Text strong>{numberFormat(value)}</Typography.Text>
+        },
+        {
+            title: 'Đã thanh toán',
+            dataIndex: 'da_thanh_toan',
+            key: 'da_thanh_toan',
+            width: 120,
+            render: (value: number) => <Typography.Text type="success">{numberFormat(value)}</Typography.Text>
+        },
+        {
+            title: 'Còn nợ',
+            dataIndex: 'cong_no',
+            key: 'cong_no',
+            width: 120,
+            render: (value: number) => <Typography.Text type="danger">{numberFormat(value)}</Typography.Text>
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'aitilen_invoice_status_id',
+            key: 'aitilen_invoice_status_id',
+            width: 100,
+            render: (text: string) => (<div>
+                {text === '1' ? <Tag color="green">Đã thanh toán</Tag>: text === '2' ? <Tag color="red">Chưa thanh toán</Tag> : <Tag color="orange">Còn công nợ</Tag>}
+            </div>)
+        },
+    ];
+
+    return (
+        <div style={{ padding: '16px', backgroundColor: '#f5f5f5' }}>
+            <Tabs
+                defaultActiveKey="info"
+                items={[
+                    {
+                        key: 'info',
+                        label: (
+                            <span>
+                                <UserOutlined />
+                                Thông tin khách hàng
+                            </span>
+                        ),
+                        children: (
+                            <Row gutter={[16, 16]}>
+                                {/* Thông tin cơ bản */}
+                                <Col xs={24} md={12}>
+                                    <Card title="Thông tin cơ bản" size="small">
+                                        <Descriptions column={1} size="small">
+                                            <Descriptions.Item label={<><IdcardOutlined /> Mã KH</>}>
+                                                {khachHang?.code}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label={<><UserOutlined /> Họ tên</>}>
+                                                <Typography.Text strong>{khachHang?.name}</Typography.Text>
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label={<><PhoneOutlined /> Điện thoại</>}>
+                                                {khachHang?.phone}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                                                {khachHang?.email || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="Giới tính">
+                                                {khachHang?.gioi_tinh_id === 1 ? 'Nam' : khachHang?.gioi_tinh_id === 2 ? 'Nữ' : '-'}
+                                            </Descriptions.Item>
+                                        </Descriptions>
+                                    </Card>
+                                </Col>
+
+                                {/* Thông tin tài chính */}
+                                <Col xs={24} md={12}>
+                                    <Card title="Thông tin CCCD" size="small">
+                                        <Descriptions column={1} size="small">
+                                            <Descriptions.Item label="CCCD">
+                                                {khachHang?.cccd || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="Ngày sinh">
+                                                {khachHang?.ngay_sinh || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="Nơi cấp">
+                                                {khachHang?.noi_cap || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="HKTT">
+                                                {khachHang?.hktt || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label={<><HomeOutlined /> Mã số thuế</>}>
+                                                {khachHang?.ma_so_thue || '-'}
+                                            </Descriptions.Item>
+                                        </Descriptions>
+                                    </Card>
+                                </Col>
+
+                                {/* Thông tin bổ sung */}
+                                {(khachHang?.cong_ty || khachHang?.mst || khachHang?.note) && (
+                                    <Col xs={24}>
+                                        <Card title="Thông tin bổ sung" size="small">
+                                            <Descriptions column={{ xs: 1, sm: 2 }} size="small">
+                                                {khachHang?.cong_ty && (
+                                                    <Descriptions.Item label="Công ty">
+                                                        {khachHang.cong_ty}
+                                                    </Descriptions.Item>
+                                                )}
+                                                {khachHang?.mst && (
+                                                    <Descriptions.Item label="MST">
+                                                        {khachHang.mst}
+                                                    </Descriptions.Item>
+                                                )}
+                                                {khachHang?.note && (
+                                                    <Descriptions.Item label="Ghi chú" span={2}>
+                                                        {khachHang.note}
+                                                    </Descriptions.Item>
+                                                )}
+                                            </Descriptions>
+                                        </Card>
+                                    </Col>
+                                )}
+                            </Row>
+                        )
+                    },
+                    {
+                        key: 'invoice',
+                        label: (
+                            <span>
+                                <FileTextOutlined />
+                                Lịch sử hóa đơn ({hoaDon.length})
+                            </span>
+                        ),
+                        children: (
+                            <Card size="small">
+                                <Table
+                                    columns={invoiceColumns}
+                                    dataSource={hoaDon}
+                                    rowKey="id"
+                                    size="small"
+                                    pagination={{ pageSize: 5 }}
+                                    scroll={{ x: 800 }}
+                                    expandable={{
+                                        expandedRowRender: (invoiceRecord: any) => (
+                                            <div style={{ padding: '8px', backgroundColor: '#fafafa' }}>
+                                                <Typography.Text strong>Chi tiết dịch vụ:</Typography.Text>
+                                                <List
+                                                    size="small"
+                                                    dataSource={invoiceRecord.services || []}
+                                                    renderItem={(service: any) => (
+                                                        <List.Item>
+                                                            <List.Item.Meta
+                                                                title={service.name}
+                                                                description={service.note}
+                                                            />
+                                                            <div style={{ textAlign: 'right' }}>
+                                                                <div><Typography.Text type="secondary">Đơn giá: {numberFormat(service.price_default)}/{service.per_default}</Typography.Text></div>
+                                                                <div><Typography.Text strong>{numberFormat(service.price_total)}</Typography.Text></div>
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
+                                                    style={{ marginTop: 8 }}
+                                                />
+                                            </div>
+                                        ),
+                                    }}
+                                />
+                            </Card>
+                        )
+                    }
+                ]}
+            />
+
+            <Divider />
+
+            <Row justify="center">
+                <Space>
+                    <Button className="_success" onClick={() => onEdit(record, index)}>
+                        <CheckOutlined />
+                        Cập nhật
+                    </Button>
+                    <Button className="btn-default" onClick={() => onLogin(record)}>
+                        <LoginOutlined />
+                        Login
+                    </Button>
+                    <Button onClick={() => onStop(record.id)}>
+                        <StopOutlined /> Ngừng hoạt động
+                    </Button>
+                    <Button danger onClick={() => onDelete(record.id)}>
+                        <DeleteOutlined /> Xóa
+                    </Button>
+                </Space>
+            </Row>
+        </div>
+    );
+};
 
 const CustomerList: React.FC = () => {
     // get params
@@ -79,7 +325,6 @@ const CustomerList: React.FC = () => {
     const [isModalHoatDongOpen, setIsModalHoatDongOpen] = useState(false);
     const [isModalXoaOpen, setIsModalXoaOpen] = useState(false);
     const [isModalEdit, setIsModalEdit] = useState(false);
-
     const [loadingLichSuMuaHang, setLoadingLichSuMuaHang] = useState(false);
     const [lichSuMuaHang, setLichSuMuaHang] = useState([]);
     const [goiDV, setGoiDV] = useState([]);
@@ -255,76 +500,6 @@ const CustomerList: React.FC = () => {
             );
     }
 
-
-    function getLichSuMuaHang(id) {
-        if (lichSuMuaHang[id]) {
-            return;
-        }
-        setLoadingLichSuMuaHang(true);
-        axios.post(route("customer.lichSuMuaHang", [id]))
-            .then((response) => {
-                if (response.data.status_code === 200) {
-                    const lichSuMuaHang_tmp = cloneDeep(lichSuMuaHang);
-                    lichSuMuaHang_tmp[id] = response.data.data;
-                    setLichSuMuaHang(lichSuMuaHang_tmp);
-                    setLoadingLichSuMuaHang(false);
-                } else {
-                    message.error("Không lấy được thông tin dịch vụ");
-                    setLoadingLichSuMuaHang(false);
-                }
-            })
-            .catch((error) => {
-                message.error("Cập nhật thất bại");
-            }
-            );
-    }
-
-    function getGoiDichVu(id) {
-        if (goiDV[id]) {
-            return;
-        }
-        setLoadingLichSuMuaHang(true);
-        axios.post(route("customer.goiDichVu"), { users_id: id })
-            .then((response) => {
-                if (response.data.status_code === 200) {
-                    const goiDV_tmp = cloneDeep(goiDV);
-                    goiDV_tmp[id] = response.data.data;
-                    setGoiDV(goiDV_tmp);
-                    setLoadingLichSuMuaHang(false);
-                } else {
-                    message.error("Không lấy được thông tin dịch vụ");
-                    setLoadingLichSuMuaHang(false);
-                }
-            })
-            .catch((error) => {
-                message.error("Cập nhật thất bại");
-            }
-            );
-    }
-
-    function getCardGT(id) {
-        if (cardGT[id]) {
-            return;
-        }
-        setLoadingLichSuMuaHang(true);
-        axios.post(route("customer.cardGT"), { users_id: id })
-            .then((response) => {
-                if (response.data.status_code === 200) {
-                    const cardGT_tmp = cloneDeep(cardGT);
-                    cardGT_tmp[id] = response.data.data;
-                    setCardGT(cardGT_tmp);
-                    setLoadingLichSuMuaHang(false);
-                } else {
-                    message.error("Không lấy được thông tin thẻ giá trị");
-                    setLoadingLichSuMuaHang(false);
-                }
-            })
-            .catch((error) => {
-                message.error("Thất bại");
-            }
-            );
-    }
-
     function editCustomer(item, index) {
         setIsModalEdit(true);
         setIdAction(item.id);
@@ -368,49 +543,17 @@ const CustomerList: React.FC = () => {
             });
     }
 
-    const expandedRowRender = (record, index) => {
-        if (!khachHangData[record.id]) {
-            axios.post(API.customerDetail, { id: record.id })
-                .then((response) => {
-                    console.log('response', response.data.data);
-                    if (response.status === 200) {
-                        // set khach hang
-                        let khachHangData_tmp = cloneDeep(khachHangData);
-                        khachHangData_tmp[record.id] = response.data.data;
-
-                        console.log('khachHangData_tmp', khachHangData_tmp);
-
-                        setKhachHangData(khachHangData_tmp);
-                    }
-
-                })
-                .catch((error) => {
-                    message.error("Lỗi tải hóa đơn chi tiết");
-                }
-                );
-        }
-
-        return <Col>
-            <Row colSpan={24}>
-                {khachHangData[record.id] ? khachHangInfo(khachHangData[record.id]) : ''}
-            </Row>
-            <Row colSpan={24}>
-                <Divider orientation="left">
-                    <Space>
-                        <Button className="_success" onClick={() => editCustomer(record, index)}>
-                            <CheckOutlined />
-                            Cập nhật
-                        </Button>
-                        <Button className="btn-default" onClick={() => loginCustomer(record)}>
-                            <LoginOutlined />
-                            Login
-                        </Button>
-                        <Button onClick={() => { setIsModalHoatDongOpen(true); setPidAction(record.id); }}><StopOutlined /> Ngừng hoạt động</Button>
-                        <Button onClick={() => { setIsModalXoaOpen(true); setPidAction(record.id); }}><DeleteOutlined /> Xóa</Button>
-                    </Space>
-                </Divider>
-            </Row>
-        </Col>
+    const expandedRowRender = (record: any, index: number) => {
+        return (
+            <CustomerExpandedRow
+                record={record}
+                index={index}
+                onEdit={editCustomer}
+                onLogin={loginCustomer}
+                onStop={(id) => { setIsModalHoatDongOpen(true); setPidAction(id); }}
+                onDelete={(id) => { setIsModalXoaOpen(true); setPidAction(id); }}
+            />
+        );
     };
 
     const handleCancel = () => {

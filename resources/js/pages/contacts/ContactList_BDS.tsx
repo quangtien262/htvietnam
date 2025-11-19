@@ -252,9 +252,14 @@ const ContactList_BDS: React.FC = () => {
     const columns = [
         {
             title: 'Khách hàng',
-            dataIndex: 'khach_hang',
-            key: 'id',
-            render: (text: any, record: any) => {
+            dataIndex: 'ho_ten',
+            key: 'ho_ten',
+            sorter: (a: any, b: any) => {
+                const nameA = a.ho_ten || '';
+                const nameB = b.ho_ten || '';
+                return nameA.localeCompare(nameB);
+            },
+            render: (text: string, record: any) => {
                 return <>
                     <b>{record.ho_ten ? <span>{record.ho_ten}</span> : ''}</b>
                     <br />
@@ -329,9 +334,12 @@ const ContactList_BDS: React.FC = () => {
                 <span> | </span>
                 <a onClick={() => fetchStatistics()}> <RiseOutlined /> Xem thống kê</a>
             </>,
-            dataIndex: 'dich_vu',
-            key: 'dich_vu',
-            render: (text: any, record: any) => {
+            dataIndex: 'gia_thue',
+            key: 'gia_thue',
+            sorter: (a: any, b: any) => {
+                return (a.gia_thue || 0) - (b.gia_thue || 0);
+            },
+            render: (text: number, record: any) => {
                 // chuẩn hóa services: có thể là mảng hoặc JSON string
                 const services: any[] = Array.isArray(record.services)
                     ? record.services

@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import { useSearchParams } from "react-router-dom";
 
 import { Layout, Menu, theme } from 'antd';
-import { FileProtectOutlined, BookOutlined, IssuesCloseOutlined, IdcardFilled, HomeFilled } from '@ant-design/icons';
+import {
+    FileProtectOutlined, BookOutlined,UserOutlined,
+    IssuesCloseOutlined, IdcardFilled, HomeFilled, LogoutOutlined
+} from '@ant-design/icons';
 
 import API from '../common/api';
 import ROUTE_ROUTE from "../common/route_user";
@@ -35,12 +38,12 @@ const items = [
     },
     {
         key: '4',
-        icon: <IdcardFilled />,
+        icon: <UserOutlined />,
         label: <Link to={ROUTE_ROUTE.profile}>Tài khoản</Link>,
     },
     {
         key: '5',
-        icon: <IdcardFilled />,
+        icon: <LogoutOutlined />,
         label: <a href={ROUTE_ROUTE.logoutUser}>Thoát</a>,
     },
 ]
@@ -77,10 +80,10 @@ const LayoutUser: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Sider>
             <Layout>
                 <Header style={{ padding: 0, background: colorBgContainer }} />
-                <Content style={{ margin: '24px 16px 0' }}>
+                <Content style={{ margin: '24px 0px' }}>
                     <div
                         style={{
-                            padding: 24,
+                            padding: 0,
                             minHeight: 360,
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,

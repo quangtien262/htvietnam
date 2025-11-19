@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
 // css
-import '../css/admin.css';
+import '../css/user.css';
 
 import ROUTE from "./common/route_user";
 

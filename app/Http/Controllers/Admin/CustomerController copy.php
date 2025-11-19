@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
-use App\Models\Admin\AitilenInvoice;
 use App\Models\Admin\HoaDon;
 use Illuminate\Support\Facades\DB;
 
@@ -49,29 +48,8 @@ class CustomerController extends Controller
 
     public function detail(Request $request)
     {
-        $khachHangId = $request->id;
-        $khachHang = User::select(
-                'users.*',
-                'chi_nhanh.name as chi_nhanh',
-                'customer_group.name as customer_group',
-                'customer_status.name as customer_status',
-                'user_source.name as user_source',
-            )
-            ->leftJoin('customer_group', 'customer_group.id', 'users.customer_group_id')
-            ->leftJoin('customer_status', 'customer_status.id', 'users.customer_status_id')
-            ->leftJoin('user_source', 'user_source.id', 'users.user_source_id')
-            ->leftJoin('chi_nhanh', 'chi_nhanh.id', 'users.chi_nhanh_id')
-            ->find($khachHangId)->toArray();
-
-        //  lich su mua hang: chỉ nhưng đơn hàng mua, ko bao gồm sử dụng
-        $hoaDon = AitilenInvoice::where('user_id', $khachHangId)->get()->toArray();
-
-        $data = [
-            'khachHang' => $khachHang,
-            'hoaDon' => $hoaDon,
-        ];
-        // dd($data);
-        return $this->sendSuccessResponse($data);
+        $khachHangData = UserService::khachHangInfo($request->id);
+        return $this->sendSuccessResponse($khachHangData);
     }
 
     public function createOrUpdate(Request $rq)

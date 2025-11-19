@@ -40,7 +40,9 @@ class AitilenUserController extends Controller
 
     public function profile(Request $request)
     {
-        $user = User::find(Auth::guard('web'));
+        // dd(Auth::guard('web')->user());
+        $u = Auth::guard('web')->user();
+        $user = User::find($u->id);
         $result = [
             'user' => $user,
         ];
@@ -230,9 +232,11 @@ class AitilenUserController extends Controller
         if(!empty($invoices[0])) {
             $currentInvoice = $invoices[0];
         }
+        $token = csrf_token();
         $result = [
             'invoices' => $invoices,
             'currentInvoice' => $currentInvoice,
+            'csrf_token' => $token,
         ];
         return $this->sendSuccessResponse($result);
     }
