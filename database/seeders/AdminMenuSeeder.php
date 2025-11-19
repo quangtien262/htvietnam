@@ -146,7 +146,15 @@ class AdminMenuSeeder extends Seeder
             ]
         );
 
+        $setting = DB::table('admin_menu')->insertGetId(
+            [
+                'name' => 'spa',
+                'display_name' => 'SPA - THẨM MỸ VIỆN',
+                'icon' => 'SettingFilled',
 
+                'sort_order' => $order++
+            ]
+        );
 
 
         $setting = DB::table('admin_menu')->insertGetId(
