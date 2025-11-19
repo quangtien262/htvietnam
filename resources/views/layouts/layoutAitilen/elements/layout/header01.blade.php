@@ -28,7 +28,7 @@
             <ul class="nav top-bar-nav nav-right nav-small  nav-">
                 @if (auth()->guard('admin_users')->check())
                     <li class="html header-social-icons ml-0">
-                        <a href="/aio?p=home">
+                        <a href="{{ route('dashboard', ['p' => 'home']) }}">
                         <b>Chào {{ auth()->guard('admin_users')->user()->name }}</b> - Truy cập Admin</a>
                     </li>
                 @endif
@@ -41,7 +41,7 @@
                                     <img src="{{ $lang->icon }}" alt="{{ $lang->name }}" style="height:20px;">
                                 </a>
                         @endforeach
-                
+
                     </div>
                 </li>
             </ul>
