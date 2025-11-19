@@ -751,22 +751,26 @@ const ProjectDetail: React.FC = () => {
                                                     padding: '8px 0',
                                                 }}
                                             >
+
+                                                <div
+                                                    style={{
+                                                        fontSize: 14,
+                                                        fontWeight: 500,
+                                                        color: '#262626',
+                                                        lineHeight: 1.5,
+                                                    }}
+                                                >
+                                                    {record.tieu_de}
+                                                </div>
+
+                                                {/* người thực hiện */}
                                                 <div style={{
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     gap: 12,
-                                                    marginBottom: 6,
+                                                    marginBottom: 1,
+                                                    marginTop: 6,
                                                 }}>
-                                                    <Tag
-                                                        color={record.uu_tien?.color}
-                                                        style={{
-                                                            margin: 0,
-                                                            fontWeight: 500,
-                                                            fontSize: 11,
-                                                        }}
-                                                    >
-                                                        {record.ma_nhiem_vu}
-                                                    </Tag>
                                                     {record.nguoi_thuc_hien && (
                                                         <Tooltip title={record.nguoi_thuc_hien.name}>
                                                             <Avatar
@@ -780,16 +784,6 @@ const ProjectDetail: React.FC = () => {
                                                             </Avatar>
                                                         </Tooltip>
                                                     )}
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        fontSize: 14,
-                                                        fontWeight: 500,
-                                                        color: '#262626',
-                                                        lineHeight: 1.5,
-                                                    }}
-                                                >
-                                                    {record.tieu_de}
                                                 </div>
                                             </div>
                                         ),
@@ -823,7 +817,6 @@ const ProjectDetail: React.FC = () => {
                                                 color={priority?.color}
                                                 style={{
                                                     fontSize: 13,
-                                                    padding: '4px 12px',
                                                     borderRadius: 16,
                                                     fontWeight: 500,
                                                 }}
@@ -1026,7 +1019,6 @@ const ProjectDetail: React.FC = () => {
                                                                                         transition: 'all 0.2s ease',
                                                                                         transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
                                                                                     }}
-                                                                                    bodyStyle={{ padding: 12 }}
                                                                                 >
                                                                                     {/* Task Code & Priority */}
                                                                                     <div>
@@ -1472,7 +1464,7 @@ const ProjectDetail: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div>
             <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Space>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
