@@ -51,19 +51,12 @@ class POSController extends Controller
         // Log request data for debugging
         Log::info('POS Invoice Request:', $request->all());
 
-        // Validate chi_tiets first
-        if (!$request->has('chi_tiets') || empty($request->input('chi_tiets'))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Giỏ hàng trống. Vui lòng thêm ít nhất một sản phẩm/dịch vụ',
-            ], 422);
-        }
-
         $validated = $request->validate([
             'khach_hang_id' => 'nullable|integer',
             'chi_nhanh_id' => 'required|integer',
             'nguoi_thu_id' => 'nullable|integer',
-            'chi_tiets' => 'required|array|min:1',
+            // chi_tiets is nullable to support gift-card-only purchases
+            'chi_tiets' => 'nullable|array',
             'chi_tiets.*.dich_vu_id' => 'nullable|integer',
             'chi_tiets.*.san_pham_id' => 'nullable|integer',
             'chi_tiets.*.ktv_id' => 'nullable|integer',
@@ -88,12 +81,23 @@ class POSController extends Controller
             'nguoi_ban' => 'nullable|string',
             'ghi_chu' => 'nullable|string',
         ], [
-            'chi_tiets.required' => 'Giỏ hàng không được để trống',
-            'chi_tiets.min' => 'Vui lòng thêm ít nhất một sản phẩm/dịch vụ',
             'chi_tiets.*.so_luong.required' => 'Số lượng không được để trống',
             'chi_tiets.*.don_gia.required' => 'Đơn giá không được để trống',
             'chi_nhanh_id.required' => 'Vui lòng chọn chi nhánh',
         ]);
+
+        // Ensure chi_tiets is an array even if not provided
+        if (!isset($validated['chi_tiets'])) {
+            $validated['chi_tiets'] = [];
+        }
+
+        // Validate: If chi_tiets is empty, must have customer (for gift card purchase)
+        if (empty($validated['chi_tiets']) && empty($validated['khach_hang_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng chọn khách hàng để mua thẻ giá trị',
+            ], 422);
+        }
 
         try {
             // Auto-assign nguoi_thu_id and ca_lam_viec_id from current open shift

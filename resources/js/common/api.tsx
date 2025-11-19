@@ -426,6 +426,13 @@ export const API = {
     spaServiceCategoryUpdate: (id: number) => `/spa/service-categories/${id}`,
     spaServiceCategoryDelete: (id: number) => `/spa/service-categories/${id}`,
 
+    // Kỹ năng (Skills)
+    spaSkillList: '/spa/skills',
+    spaSkillDetail: (id: number) => `/spa/skills/${id}`,
+    spaSkillCreate: '/spa/skills',
+    spaSkillUpdate: (id: number) => `/spa/skills/${id}`,
+    spaSkillDelete: (id: number) => `/spa/skills/${id}`,
+
     // Gói dịch vụ (Service Packages)
     spaServicePackageList: '/spa/service-packages',
     spaServicePackageDetail: (id: number) => `/spa/service-packages/${id}`,
@@ -534,6 +541,26 @@ export const API = {
     spaCustomerPackageUse: '/spa/customer-packages/use',
     spaCustomerPackagePurchase: '/spa/customer-packages/purchase',
     spaCustomerPackageHistory: '/spa/customer-packages/history',
+
+    // Khách hàng (Customers)
+    spaCustomerList: '/spa/customers',
+    spaCustomerDetail: (id: number) => `/spa/customers/${id}`,
+    spaCustomerCreate: '/spa/customers',
+    spaCustomerUpdate: (id: number) => `/spa/customers/${id}`,
+    spaCustomerDelete: (id: number) => `/spa/customers/${id}`,
+    spaCustomerStatistics: (id: number) => `/spa/customers/${id}/statistics`,
+    spaCustomerSegment: '/spa/customers/segment',
+
+    // Hạng thành viên (Membership Tiers)
+    spaMembershipTierList: '/spa/membership-tiers',
+    spaMembershipTierDetail: (id: number) => `/spa/membership-tiers/${id}`,
+    spaMembershipTierCreate: '/spa/membership-tiers',
+    spaMembershipTierUpdate: (id: number) => `/spa/membership-tiers/${id}`,
+    spaMembershipTierDelete: (id: number) => `/spa/membership-tiers/${id}`,
+
+    // Thành viên (Memberships)
+    spaMembershipRenew: (id: number) => `/spa/memberships/${id}/renew`,
+    spaMembershipUpgrade: (id: number) => `/spa/memberships/${id}/upgrade`,
 
     // Cấu hình (Settings)
     spaSettingGet: '/spa/settings/get',

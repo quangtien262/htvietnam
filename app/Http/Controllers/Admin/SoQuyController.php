@@ -185,6 +185,7 @@ class SoQuyController extends Controller
      */
     public function apiAdd(Request $request)
     {
+        dd($request->all());
         try {
             DB::beginTransaction();
 
@@ -195,16 +196,16 @@ class SoQuyController extends Controller
             $soQuy->code = $code;
             $soQuy->name = $request->name;
             $soQuy->so_tien = $request->so_tien;
-            $soQuy->so_quy_type_id = $request->so_quy_type_id;
+            $soQuy->so_quy_type_id = $request->so_quy_type_id; // 1: thu; 2: chi
             $soQuy->loai_thu_id = $request->loai_thu_id;
             $soQuy->loai_chi_id = $request->loai_chi_id;
             $soQuy->apartment_id = $request->apartment_id;
             $soQuy->room_id = $request->room_id;
             $soQuy->khach_hang_id = $request->khach_hang_id;
-            $soQuy->nguoi_nhan_id = $request->nguoi_nhan_id;
-            $soQuy->nguoi_nhan_name = $request->nguoi_nhan_name;
-            $soQuy->nguoi_nhan_phone = $request->nguoi_nhan_phone;
-            $soQuy->nguoi_nhan_code = $request->nguoi_nhan_code;
+            // $soQuy->nguoi_nhan_id = $request->nguoi_nhan_id;
+            // $soQuy->nguoi_nhan_name = $request->nguoi_nhan_name;
+            // $soQuy->nguoi_nhan_phone = $request->nguoi_nhan_phone;
+            // $soQuy->nguoi_nhan_code = $request->nguoi_nhan_code;
             $soQuy->thoi_gian = $request->thoi_gian ?? now();
             $soQuy->note = $request->note;
             $soQuy->so_quy_status_id = $request->so_quy_status_id ?? 1;

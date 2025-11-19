@@ -36,6 +36,7 @@ import {
 import axios from 'axios';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
+import { API_SPA } from '../../common/api_spa';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;

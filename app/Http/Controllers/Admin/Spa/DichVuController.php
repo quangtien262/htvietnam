@@ -167,7 +167,7 @@ class DichVuController extends Controller
                     'sp.ma_san_pham',
                     'sp.ten_san_pham',
                     'sp.don_vi_tinh as don_vi_goc',
-                    'sp.gia_von as gia_von_goc'
+                    'sp.gia_nhap as gia_von_goc'
                 )
                 ->get()
                 ->toArray();

@@ -40,7 +40,7 @@
                 $table->integer('cong_no_phai_tra')->default(0)->nullable(); //số tiền, TongTienThu
                 $table->integer('so_quy_status_id')->default(1)->nullable(); //mệnh GIá
 
-                $table->integer('so_quy_type_id')->nullable(); //thu/chi
+                $table->integer('so_quy_type_id')->nullable(); //1: thu/ 2:chi
                 $table->integer('loai_thu_id')->nullable();
                 $table->integer('loai_chi_id')->nullable();
 

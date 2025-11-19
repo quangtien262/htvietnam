@@ -84,11 +84,22 @@ Route::prefix('analytics')->name('analytics.')->group(function () {
     Route::post('/export-report', [AnalyticsController::class, 'exportReport'])->name('export_report');
 });
 
+// Reports
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::post('/revenue', [\App\Http\Controllers\Admin\Spa\SpaReportController::class, 'getRevenueReport'])->name('revenue');
+    Route::post('/transactions', [\App\Http\Controllers\Admin\Spa\SpaReportController::class, 'getTransactionsReport'])->name('transactions');
+    Route::post('/staff', [\App\Http\Controllers\Admin\Spa\SpaReportController::class, 'getStaffReport'])->name('staff');
+    Route::post('/inventory', [\App\Http\Controllers\Admin\Spa\SpaReportController::class, 'getInventoryReport'])->name('inventory');
+    Route::post('/export', [\App\Http\Controllers\Admin\Spa\SpaReportController::class, 'exportReport'])->name('export');
+});
+
 // Services Management (CRUD)
 Route::apiResource('services', \App\Http\Controllers\Admin\Spa\DichVuController::class);
 Route::post('service-categories/list', [\App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class, 'list'])->name('service_categories.list');
 Route::apiResource('service-categories', \App\Http\Controllers\Admin\Spa\DanhMucDichVuController::class);
+Route::apiResource('skills', \App\Http\Controllers\Admin\Spa\KyNangController::class);
 Route::apiResource('service-packages', \App\Http\Controllers\Admin\Spa\GoiDichVuController::class);
+Route::get('schedules', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'getSchedules'])->name('schedules.index');
 Route::get('schedules/list', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'getSchedules'])->name('schedules.list');
 Route::post('schedules', [\App\Http\Controllers\Admin\Spa\GoiDichVuController::class, 'createSchedule'])->name('schedules.create');
 Route::apiResource('treatment-packages', \App\Http\Controllers\Admin\Spa\LieuTrinhController::class);

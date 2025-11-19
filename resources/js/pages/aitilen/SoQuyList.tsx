@@ -89,6 +89,7 @@ const SoQuyList: React.FC = () => {
     const [currentPhieuType, setCurrentPhieuType] = useState<number>(1); // 1=Thu, 2=Chi
 
     const [searchParams, setSearchParams] = useState<SearchParams>({});
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     useEffect(() => {
         loadMasterData();
@@ -292,6 +293,231 @@ const SoQuyList: React.FC = () => {
         setPagination(prev => ({ ...prev, current: 1 }));
     };
 
+    const handleBulkDelete = () => {
+        if (selectedRowKeys.length === 0) {
+            message.warning('Vui lòng chọn ít nhất một phiếu để xóa');
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Xác nhận xóa',
+            content: `Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} phiếu đã chọn?`,
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: async () => {
+                try {
+                    const res = await axios.post(API.soQuyDelete, { ids: selectedRowKeys });
+                    if (res?.data?.status_code === 200) {
+                        message.success('Xóa thành công');
+                        setSelectedRowKeys([]);
+                        fetchData();
+                    } else {
+                        message.error(res?.data?.message || 'Xóa thất bại');
+                    }
+                } catch (error) {
+                    console.error('Error deleting:', error);
+                    message.error('Có lỗi xảy ra');
+                }
+            },
+        });
+    };
+
+    const expandedRowRender = (record: SoQuy) => {
+        const labelStyle = {
+            color: '#8c8c8c',
+            fontSize: 12,
+            marginBottom: 4,
+            fontWeight: 500
+        };
+        const valueStyle = {
+            color: '#262626',
+            fontSize: 14,
+            fontWeight: 400
+        };
+        const cardStyle = {
+            background: 'white',
+            padding: '12px 16px',
+            borderRadius: 6,
+            border: '1px solid #f0f0f0'
+        };
+
+        return (
+            <div style={{ padding: '20px 24px', background: '#fafafa', borderRadius: 8 }}>
+                {/* Phần 1: Thông tin chính */}
+                <div style={{ marginBottom: 16 }}>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: '#262626' }}>
+                        📋 Thông tin phiếu
+                    </h4>
+                    <Row gutter={[12, 12]}>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Mã phiếu</div>
+                                <div style={valueStyle}>
+                                    <Tag color="blue" style={{ fontSize: 13 }}>{record.code}</Tag>
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Loại phiếu</div>
+                                <div style={valueStyle}>
+                                    <Tag color={record.so_quy_type_id === 1 ? 'green' : 'red'} style={{ fontSize: 13 }}>
+                                        {record.so_quy_type_name}
+                                    </Tag>
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Số tiền</div>
+                                <div style={{
+                                    fontSize: 18,
+                                    fontWeight: 'bold',
+                                    color: record.so_quy_type_id === 1 ? '#52c41a' : '#ff4d4f'
+                                }}>
+                                    {numberFormat(record.so_tien)} ₫
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Loại {record.so_quy_type_id === 1 ? 'thu' : 'chi'}</div>
+                                <div style={valueStyle}>
+                                    {record.loai_thu_name || record.loai_chi_name || '-'}
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Thời gian</div>
+                                <div style={valueStyle}>
+                                    {dayjs(record.thoi_gian).format('DD/MM/YYYY HH:mm')}
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Trạng thái</div>
+                                <div style={valueStyle}>
+                                    <Tag color="blue" style={{ fontSize: 13 }}>{record.so_quy_status_name}</Tag>
+                                </div>
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* Phần 2: Thông tin liên quan */}
+                <div style={{ marginBottom: 16 }}>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: '#262626' }}>
+                        🏢 Thông tin địa điểm & người liên quan
+                    </h4>
+                    <Row gutter={[12, 12]}>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Tòa nhà</div>
+                                <div style={valueStyle}>{record.apartment_name || '-'}</div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Phòng</div>
+                                <div style={valueStyle}>{record.room_name || '-'}</div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Khách hàng</div>
+                                <div style={valueStyle}>{record.khach_hang_name || '-'}</div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Người nhận/nộp</div>
+                                <div style={valueStyle}>{record.nguoi_nhan_name || '-'}</div>
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Số điện thoại</div>
+                                <div style={valueStyle}>{record.nguoi_nhan_phone || '-'}</div>
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* Phần 3: Chứng từ */}
+                {(record.ma_chung_tu || record.loai_chung_tu) && (
+                    <div style={{ marginBottom: 16 }}>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: '#262626' }}>
+                            📄 Thông tin chứng từ
+                        </h4>
+                        <Row gutter={[12, 12]}>
+                            {record.ma_chung_tu && (
+                                <Col span={12}>
+                                    <div style={cardStyle}>
+                                        <div style={labelStyle}>Mã chứng từ</div>
+                                        <div style={valueStyle}>{record.ma_chung_tu}</div>
+                                    </div>
+                                </Col>
+                            )}
+                            {record.loai_chung_tu && (
+                                <Col span={12}>
+                                    <div style={cardStyle}>
+                                        <div style={labelStyle}>Loại chứng từ</div>
+                                        <div style={valueStyle}>{record.loai_chung_tu}</div>
+                                    </div>
+                                </Col>
+                            )}
+                        </Row>
+                    </div>
+                )}
+
+                {/* Phần 4: Nội dung */}
+                <div>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: '#262626' }}>
+                        📝 Nội dung ghi chú
+                    </h4>
+                    <div style={{
+                        background: 'white',
+                        padding: '12px 16px',
+                        borderRadius: 6,
+                        border: '1px solid #f0f0f0',
+                        minHeight: 60,
+                        fontSize: 14,
+                        lineHeight: '1.6',
+                        color: record.note ? '#262626' : '#bfbfbf',
+                        fontStyle: record.note ? 'normal' : 'italic'
+                    }}>
+                        {record.note || 'Không có ghi chú'}
+                    </div>
+                </div>
+
+                {/* Thông tin meta */}
+                <div style={{
+                    marginTop: 16,
+                    paddingTop: 12,
+                    borderTop: '1px solid #f0f0f0',
+                    fontSize: 12,
+                    color: '#8c8c8c'
+                }}>
+                    Ngày tạo: {dayjs(record.created_at).format('DD/MM/YYYY HH:mm:ss')}
+                </div>
+            </div>
+        );
+    };
+
+    const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+        setSelectedRowKeys(newSelectedRowKeys);
+    };
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: onSelectChange,
+    };
+
+    const hasSelected = selectedRowKeys.length > 0;
+
     const columns: ColumnsType<SoQuy> = [
         {
             title: 'Mã phiếu',
@@ -356,19 +582,6 @@ const SoQuyList: React.FC = () => {
             key: 'thoi_gian',
             width: 110,
             render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
-        },
-        {
-            title: 'Chứng từ',
-            dataIndex: 'ma_chung_tu',
-            key: 'ma_chung_tu',
-            width: 120,
-            render: (text: string) => text || '-',
-        },
-        {
-            title: 'Nội dung',
-            dataIndex: 'note',
-            key: 'note',
-            ellipsis: true,
         },
         {
             title: 'Trạng thái',
@@ -455,68 +668,126 @@ const SoQuyList: React.FC = () => {
                 </Col>
             </Row>
 
-            {/* Search & Filters */}
-            <Card title={<><SearchOutlined /> Tìm kiếm</>} style={{ marginBottom: 16 }}>
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={6}>
-                        <Input
-                            placeholder="Tìm theo mã, nội dung..."
-                            value={searchParams.keyword}
-                            onChange={(e) => setSearchParams({ ...searchParams, keyword: e.target.value })}
-                            onPressEnter={handleSearch}
-                        />
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Select
-                            placeholder="Loại sổ quỹ"
-                            allowClear
-                            style={{ width: '100%' }}
-                            value={searchParams.so_quy_type_id}
-                            onChange={(value) => setSearchParams({ ...searchParams, so_quy_type_id: value })}
-                        >
-                            {soQuyTypes.map(type => (
-                                <Option key={type.id} value={type.id}>{type.name}</Option>
-                            ))}
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Select
-                            placeholder="Tòa nhà"
-                            allowClear
-                            style={{ width: '100%' }}
-                            value={searchParams.apartment_id}
-                            onChange={(value) => setSearchParams({ ...searchParams, apartment_id: value })}
-                        >
-                            {apartmentList.map(apt => (
-                                <Option key={apt.id} value={apt.id}>{apt.name}</Option>
-                            ))}
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Space>
-                            <Button
-                                type="primary"
-                                icon={<SearchOutlined />}
-                                onClick={handleSearch}
-                            >
-                                Tìm kiếm
-                            </Button>
-                            <Button
-                                icon={<ReloadOutlined />}
-                                onClick={handleReset}
-                            >
-                                Làm mới
-                            </Button>
+            {/* Main Content with Left Sidebar */}
+            <Row gutter={16}>
+                {/* Left Sidebar - Search & Filters */}
+                <Col xs={24} lg={6}>
+                    <Card
+                        title={<><SearchOutlined /> Bộ lọc tìm kiếm</>}
+                        size="small"
+                        style={{ marginBottom: 16 }}
+                    >
+                        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Từ khóa</label>
+                                <Input
+                                    placeholder="Mã, nội dung..."
+                                    value={searchParams.keyword}
+                                    onChange={(e) => setSearchParams({ ...searchParams, keyword: e.target.value })}
+                                    onPressEnter={handleSearch}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Loại sổ quỹ</label>
+                                <Select
+                                    placeholder="Chọn loại"
+                                    allowClear
+                                    style={{ width: '100%' }}
+                                    value={searchParams.so_quy_type_id}
+                                    onChange={(value) => setSearchParams({ ...searchParams, so_quy_type_id: value })}
+                                >
+                                    {soQuyTypes.map(type => (
+                                        <Option key={type.id} value={type.id}>{type.name}</Option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Loại thu</label>
+                                <Select
+                                    placeholder="Chọn loại thu"
+                                    allowClear
+                                    style={{ width: '100%' }}
+                                    value={searchParams.loai_thu_id}
+                                    onChange={(value) => setSearchParams({ ...searchParams, loai_thu_id: value })}
+                                    disabled={searchParams.so_quy_type_id === 2}
+                                >
+                                    {loaiThuList.map(item => (
+                                        <Option key={item.id} value={item.id}>{item.name}</Option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Loại chi</label>
+                                <Select
+                                    placeholder="Chọn loại chi"
+                                    allowClear
+                                    style={{ width: '100%' }}
+                                    value={searchParams.loai_chi_id}
+                                    onChange={(value) => setSearchParams({ ...searchParams, loai_chi_id: value })}
+                                    disabled={searchParams.so_quy_type_id === 1}
+                                >
+                                    {loaiChiList.map(item => (
+                                        <Option key={item.id} value={item.id}>{item.name}</Option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Tòa nhà</label>
+                                <Select
+                                    placeholder="Chọn tòa nhà"
+                                    allowClear
+                                    style={{ width: '100%' }}
+                                    value={searchParams.apartment_id}
+                                    onChange={(value) => setSearchParams({ ...searchParams, apartment_id: value })}
+                                >
+                                    {apartmentList.map(apt => (
+                                        <Option key={apt.id} value={apt.id}>{apt.name}</Option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            <Space style={{ width: '100%' }} direction="vertical">
+                                <Button
+                                    type="primary"
+                                    icon={<SearchOutlined />}
+                                    onClick={handleSearch}
+                                    block
+                                >
+                                    Tìm kiếm
+                                </Button>
+                                <Button
+                                    icon={<ReloadOutlined />}
+                                    onClick={handleReset}
+                                    block
+                                >
+                                    Làm mới
+                                </Button>
+                            </Space>
                         </Space>
-                    </Col>
-                </Row>
-            </Card>
+                    </Card>
+                </Col>
+
+                {/* Right Content - Table */}
+                <Col xs={24} lg={18}>
 
             {/* Table */}
             <Card
                 title={<><FileTextOutlined /> Danh sách sổ quỹ</>}
                 extra={
                     <Space>
+                        {hasSelected && (
+                            <Button
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={handleBulkDelete}
+                            >
+                                Xóa ({selectedRowKeys.length})
+                            </Button>
+                        )}
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -541,6 +812,31 @@ const SoQuyList: React.FC = () => {
                     dataSource={dataSource}
                     rowKey="id"
                     loading={loading}
+                    rowSelection={rowSelection}
+                    expandable={{
+                        expandedRowRender,
+                        // expandIcon: ({ expanded, onExpand, record }) => (
+                        //     expanded ? (
+                        //         <Button
+                        //             type="link"
+                        //             size="small"
+                        //             icon={<EyeOutlined />}
+                        //             onClick={(e) => onExpand(record, e)}
+                        //         >
+                        //             Thu gọn
+                        //         </Button>
+                        //     ) : (
+                        //         <Button
+                        //             type="link"
+                        //             size="small"
+                        //             icon={<EyeOutlined />}
+                        //             onClick={(e) => onExpand(record, e)}
+                        //         >
+                        //             Chi tiết
+                        //         </Button>
+                        //     )
+                        // ),
+                    }}
                     pagination={{
                         ...pagination,
                         showSizeChanger: true,
@@ -552,6 +848,8 @@ const SoQuyList: React.FC = () => {
                     scroll={{ x: 1500 }}
                 />
             </Card>
+                </Col>
+            </Row>
 
             {/* Add/Edit Modal - Phiếu Thu */}
             <Modal
@@ -684,36 +982,6 @@ const SoQuyList: React.FC = () => {
                                         <Option key={room.id} value={room.id}>{room.name}</Option>
                                     ))}
                                 </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    {/* Người nhận/nộp */}
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="nguoi_nhan_id"
-                                label={currentPhieuType === 1 ? "Người nộp" : "Người nhận"}
-                                rules={[{ required: true, message: 'Vui lòng chọn người ' + (currentPhieuType === 1 ? 'nộp' : 'nhận') }]}
-                            >
-                                <Select
-                                    showSearch
-                                    placeholder={currentPhieuType === 1 ? "Chọn người nộp tiền" : "Chọn người nhận tiền"}
-                                    filterOption={(input, option) =>
-                                        String(option?.label || '').toLowerCase().includes(input.toLowerCase())
-                                    }
-                                >
-                                    {adminUsersList.map(user => (
-                                        <Option key={user.id} value={user.id} label={user.name}>
-                                            {user.name} {user.phone ? `(${user.phone})` : ''}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item name="nguoi_nhan_phone" label="Số điện thoại">
-                                <Input placeholder="Nhập số điện thoại" />
                             </Form.Item>
                         </Col>
                     </Row>

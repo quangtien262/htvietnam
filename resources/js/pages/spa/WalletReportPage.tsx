@@ -4,6 +4,7 @@ import { DollarOutlined, ArrowUpOutlined, ArrowDownOutlined, GiftOutlined, FileE
 import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 import * as XLSX from 'xlsx';
+import API from '../../common/api';
 
 const { RangePicker } = DatePicker;
 
@@ -80,25 +81,25 @@ const WalletReportPage: React.FC = () => {
             };
 
             // Fetch stats
-            const statsRes = await axios.get('/aio/api/spa/wallet/reports/stats', { params });
+            const statsRes = await axios.get(API.spaWalletReportsStats, { params });
             if (statsRes.data.success) {
                 setStats(statsRes.data.data);
             }
 
             // Fetch top customers
-            const topRes = await axios.get('/aio/api/spa/wallet/reports/top-customers', { params });
+            const topRes = await axios.get(API.spaWalletReportsTopCustomers, { params });
             if (topRes.data.success) {
                 setTopCustomers(topRes.data.data);
             }
 
             // Fetch gift card revenue
-            const giftRes = await axios.get('/aio/api/spa/wallet/reports/gift-card-revenue', { params });
+            const giftRes = await axios.get(API.spaWalletReportsGiftCardRevenue, { params });
             if (giftRes.data.success) {
                 setGiftCardRevenue(giftRes.data.data);
             }
 
             // Fetch transactions
-            const txRes = await axios.get('/aio/api/spa/wallet/reports/transactions', { params });
+            const txRes = await axios.get(API.spaWalletReportsTransactions, { params });
             if (txRes.data.success) {
                 setTransactions(txRes.data.data);
             }

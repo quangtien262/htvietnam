@@ -12,6 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import API_SPA from '../../common/api_spa';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;

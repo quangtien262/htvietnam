@@ -185,7 +185,7 @@ const ServiceList: React.FC = () => {
 
     const loadSkills = async () => {
         try {
-            const response = await axios.get('/aio/api/spa/skills');
+            const response = await axios.get(API.spaSkillList);
             console.log('Skills response:', response.data);
             if (response.data && response.data.status_code === 200) {
                 const skillsData = response.data.data || [];
@@ -230,7 +230,7 @@ const ServiceList: React.FC = () => {
         // Load full service details including materials
         try {
             const response = await axios.get(API.spaServiceDetail(record.id));
-            const serviceData = response.data;
+            const serviceData = response.data.data || response.data;
 
             form.setFieldsValue({
                 ...serviceData,
@@ -462,7 +462,7 @@ const ServiceList: React.FC = () => {
             align: 'right',
             render: (value: number) => (
                 <span style={{ fontWeight: 500, color: '#52c41a' }}>
-                    <DollarOutlined /> {(value || 0).toLocaleString()} VNĐ
+                    <DollarOutlined /> {Math.floor(value || 0).toLocaleString('vi-VN')}₫
                 </span>
             ),
             sorter: (a, b) => (a.gia || 0) - (b.gia || 0),
@@ -899,14 +899,14 @@ const ServiceList: React.FC = () => {
                                                                 {products.map(p => (
                                                                     <Option key={p.id} value={p.id} label={`${p.ma_san_pham} - ${p.ten_san_pham}`}>
                                                                         <div>
-                                                                            <strong>{p.ma_san_pham}</strong> - {p.ten_san_pham}
-                                                                            <br />
-                                                                            <small style={{ color: '#666' }}>
+                                                                            <strong>{p.ma_san_pham}</strong><span> - {p.ten_san_pham} </span>
+                                                                            {/* <br /> */}
+                                                                            {/* <small style={{ color: '#666' }}>
                                                                                 ĐV gốc: {p.don_vi_tinh}
                                                                                 {p.don_vi_quy_doi && p.don_vi_quy_doi.length > 0 && (
                                                                                     <span> | Quy đổi: {p.don_vi_quy_doi.map((dv: any) => `${dv.don_vi} (1:${dv.ty_le})`).join(', ')}</span>
                                                                                 )}
-                                                                            </small>
+                                                                            </small> */}
                                                                         </div>
                                                                     </Option>
                                                                 ))}

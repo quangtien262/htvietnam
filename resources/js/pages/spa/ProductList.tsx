@@ -938,7 +938,7 @@ const ProductList: React.FC = () => {
                             icon={<AppstoreOutlined />}
                             onClick={() => setViewMode('grid')}
                         />
-                        <Button
+                        <Button type="primary"
                             icon={<PlusOutlined />}
                             onClick={handleBulkAdd}
                         >

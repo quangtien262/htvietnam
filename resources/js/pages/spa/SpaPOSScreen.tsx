@@ -1290,6 +1290,13 @@ const SpaPOSScreen: React.FC = () => {
             const giftCardItems = cart.filter(item => item.type === 'gift_card');
             const regularItems = cart.filter(item => item.type !== 'gift_card');
 
+            // Validate: Must select customer if cart contains gift cards
+            if (giftCardItems.length > 0 && !selectedCustomer) {
+                message.error('Vui lòng chọn khách hàng để mua thẻ giá trị');
+                setLoading(false);
+                return;
+            }
+
             const invoiceData = {
                 khach_hang_id: selectedCustomer?.value,
                 chi_nhanh_id: currentShift.chi_nhanh_id,
@@ -1551,42 +1558,82 @@ const SpaPOSScreen: React.FC = () => {
                                     ) : filteredServices.length === 0 ? (
                                         <Empty description="Không tìm thấy dịch vụ" />
                                     ) : (
-                                        <Row gutter={[8, 8]}>
+                                        <Row gutter={[12, 12]}>
                                             {filteredServices.map(service => (
                                                 <Col span={8} key={service.id}>
                                                     <Card
                                                         hoverable
-                                                        size="small"
                                                         onClick={() => addToCart(service, 'service')}
-                                                        style={{ cursor: 'pointer' }}
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            borderRadius: '8px',
+                                                            transition: 'all 0.3s ease',
+                                                            height: '100%'
+                                                        }}
+                                                        bodyStyle={{ padding: '12px' }}
                                                     >
-                                                        <Card.Meta
-                                                            title={
-                                                                <div style={{ fontSize: '13px' }}>
-                                                                    {service.ten_dich_vu}
-                                                                    {service.danh_muc_ten && (
-                                                                        <Tag color="blue" style={{ marginLeft: 8, fontSize: '11px' }}>
-                                                                            {service.danh_muc_ten}
-                                                                        </Tag>
-                                                                    )}
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                            <div style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: 500,
+                                                                color: '#262626',
+                                                                lineHeight: '1.4',
+                                                                minHeight: '40px',
+                                                                display: '-webkit-box',
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: 'vertical',
+                                                                overflow: 'hidden'
+                                                            }}>
+                                                                {service.ten_dich_vu}
+                                                            </div>
+
+                                                            {service.danh_muc_ten && (
+                                                                <Tag color="blue" style={{ width: 'fit-content', fontSize: '11px', margin: 0 }}>
+                                                                    {service.danh_muc_ten}
+                                                                </Tag>
+                                                            )}
+
+                                                            <div style={{
+                                                                fontSize: '11px',
+                                                                color: '#8c8c8c',
+                                                                fontFamily: 'monospace'
+                                                            }}>
+                                                                #{service.ma_dich_vu}
+                                                            </div>
+
+                                                            <div style={{
+                                                                marginTop: '4px',
+                                                                paddingTop: '8px',
+                                                                borderTop: '1px solid #f0f0f0'
+                                                            }}>
+                                                                <div style={{
+                                                                    fontSize: '16px',
+                                                                    fontWeight: 600,
+                                                                    color: '#1890ff'
+                                                                }}>
+                                                                    {new Intl.NumberFormat('vi-VN').format(service.gia_ban)}₫
                                                                 </div>
-                                                            }
-                                                            description={
-                                                                <div>
-                                                                    <div style={{ fontSize: '12px', color: '#888' }}>
-                                                                        {service.ma_dich_vu}
+                                                                {service.gia_thanh_vien && service.gia_thanh_vien !== service.gia_ban && (
+                                                                    <div style={{
+                                                                        fontSize: '12px',
+                                                                        color: '#52c41a',
+                                                                        marginTop: '2px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px'
+                                                                    }}>
+                                                                        <span style={{
+                                                                            background: '#f6ffed',
+                                                                            padding: '1px 6px',
+                                                                            borderRadius: '4px',
+                                                                            border: '1px solid #b7eb8f'
+                                                                        }}>
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(service.gia_thanh_vien)}₫
+                                                                        </span>
                                                                     </div>
-                                                                    <div style={{ fontWeight: 'bold', color: '#1890ff', marginTop: 4 }}>
-                                                                        {new Intl.NumberFormat('vi-VN').format(service.gia_ban)} đ
-                                                                    </div>
-                                                                    {service.gia_thanh_vien && (
-                                                                        <div style={{ fontSize: '12px', color: '#52c41a' }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(service.gia_thanh_vien)} đ
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            }
-                                                        />
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </Card>
                                                 </Col>
                                             ))}
@@ -1631,42 +1678,82 @@ const SpaPOSScreen: React.FC = () => {
                                     ) : filteredProducts.length === 0 ? (
                                         <Empty description="Không tìm thấy sản phẩm" />
                                     ) : (
-                                        <Row gutter={[8, 8]}>
+                                        <Row gutter={[12, 12]}>
                                             {filteredProducts.map(product => (
                                                 <Col span={8} key={product.id}>
                                                     <Card
                                                         hoverable
-                                                        size="small"
                                                         onClick={() => addToCart(product, 'product')}
-                                                        style={{ cursor: 'pointer' }}
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            borderRadius: '8px',
+                                                            transition: 'all 0.3s ease',
+                                                            height: '100%'
+                                                        }}
+                                                        bodyStyle={{ padding: '12px' }}
                                                     >
-                                                        <Card.Meta
-                                                            title={
-                                                                <div style={{ fontSize: '13px' }}>
-                                                                    {product.ten_san_pham}
-                                                                    {product.danh_muc_ten && (
-                                                                        <Tag color="green" style={{ marginLeft: 8, fontSize: '11px' }}>
-                                                                            {product.danh_muc_ten}
-                                                                        </Tag>
-                                                                    )}
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                            <div style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: 500,
+                                                                color: '#262626',
+                                                                lineHeight: '1.4',
+                                                                minHeight: '40px',
+                                                                display: '-webkit-box',
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: 'vertical',
+                                                                overflow: 'hidden'
+                                                            }}>
+                                                                {product.ten_san_pham}
+                                                            </div>
+
+                                                            {product.danh_muc_ten && (
+                                                                <Tag color="green" style={{ width: 'fit-content', fontSize: '11px', margin: 0 }}>
+                                                                    {product.danh_muc_ten}
+                                                                </Tag>
+                                                            )}
+
+                                                            <div style={{
+                                                                fontSize: '11px',
+                                                                color: '#8c8c8c',
+                                                                fontFamily: 'monospace'
+                                                            }}>
+                                                                #{product.ma_san_pham}
+                                                            </div>
+
+                                                            <div style={{
+                                                                marginTop: '4px',
+                                                                paddingTop: '8px',
+                                                                borderTop: '1px solid #f0f0f0'
+                                                            }}>
+                                                                <div style={{
+                                                                    fontSize: '16px',
+                                                                    fontWeight: 600,
+                                                                    color: '#1890ff'
+                                                                }}>
+                                                                    {new Intl.NumberFormat('vi-VN').format(product.gia_ban)}₫
                                                                 </div>
-                                                            }
-                                                            description={
-                                                                <div>
-                                                                    <div style={{ fontSize: '12px', color: '#888' }}>
-                                                                        {product.ma_san_pham}
+                                                                {product.gia_thanh_vien && product.gia_thanh_vien !== product.gia_ban && (
+                                                                    <div style={{
+                                                                        fontSize: '12px',
+                                                                        color: '#52c41a',
+                                                                        marginTop: '2px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px'
+                                                                    }}>
+                                                                        <span style={{
+                                                                            background: '#f6ffed',
+                                                                            padding: '1px 6px',
+                                                                            borderRadius: '4px',
+                                                                            border: '1px solid #b7eb8f'
+                                                                        }}>
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(product.gia_thanh_vien)}₫
+                                                                        </span>
                                                                     </div>
-                                                                    <div style={{ fontWeight: 'bold', color: '#1890ff', marginTop: 4 }}>
-                                                                        {new Intl.NumberFormat('vi-VN').format(product.gia_ban)} đ
-                                                                    </div>
-                                                                    {product.gia_thanh_vien && (
-                                                                        <div style={{ fontSize: '12px', color: '#52c41a' }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(product.gia_thanh_vien)} đ
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            }
-                                                        />
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </Card>
                                                 </Col>
                                             ))}
@@ -1696,12 +1783,11 @@ const SpaPOSScreen: React.FC = () => {
                                     ) : filteredServicePackages.length === 0 ? (
                                         <Empty description="Không tìm thấy gói dịch vụ" />
                                     ) : (
-                                        <Row gutter={[8, 8]}>
+                                        <Row gutter={[12, 12]}>
                                             {filteredServicePackages.map(pkg => (
                                                 <Col span={8} key={pkg.id}>
                                                     <Card
                                                         hoverable
-                                                        size="small"
                                                         onClick={() => addToCart({
                                                             id: pkg.id,
                                                             ten_dich_vu: pkg.ten_goi,
@@ -1709,38 +1795,89 @@ const SpaPOSScreen: React.FC = () => {
                                                             gia_ban: pkg.gia_ban,
                                                             gia_thanh_vien: pkg.gia_thanh_vien
                                                         }, 'package' as any)}
-                                                        style={{ cursor: 'pointer' }}
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            borderRadius: '8px',
+                                                            transition: 'all 0.3s ease',
+                                                            height: '100%',
+                                                            borderColor: '#d3adf7'
+                                                        }}
+                                                        bodyStyle={{ padding: '12px' }}
                                                     >
-                                                        <Card.Meta
-                                                            title={
-                                                                <div style={{ fontSize: '13px' }}>
-                                                                    {pkg.ten_goi}
-                                                                    <Tag color="purple" style={{ marginLeft: 8, fontSize: '11px' }}>
-                                                                        Gói DV
-                                                                    </Tag>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                            <div style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: 500,
+                                                                color: '#262626',
+                                                                lineHeight: '1.4',
+                                                                minHeight: '40px',
+                                                                display: '-webkit-box',
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: 'vertical',
+                                                                overflow: 'hidden'
+                                                            }}>
+                                                                {pkg.ten_goi}
+                                                            </div>
+
+                                                            <Tag color="purple" style={{ width: 'fit-content', fontSize: '11px', margin: 0 }}>
+                                                                Gói DV
+                                                            </Tag>
+
+                                                            <div style={{
+                                                                fontSize: '11px',
+                                                                color: '#8c8c8c',
+                                                                fontFamily: 'monospace'
+                                                            }}>
+                                                                #{pkg.ma_goi}
+                                                            </div>
+
+                                                            {pkg.so_buoi > 0 && (
+                                                                <div style={{
+                                                                    fontSize: '12px',
+                                                                    color: '#722ed1',
+                                                                    background: '#f9f0ff',
+                                                                    padding: '2px 8px',
+                                                                    borderRadius: '4px',
+                                                                    width: 'fit-content',
+                                                                    border: '1px solid #d3adf7'
+                                                                }}>
+                                                                    📅 {pkg.so_buoi} buổi
                                                                 </div>
-                                                            }
-                                                            description={
-                                                                <div>
-                                                                    <div style={{ fontSize: '12px', color: '#888' }}>
-                                                                        {pkg.ma_goi}
-                                                                    </div>
-                                                                    <div style={{ fontWeight: 'bold', color: '#1890ff', marginTop: 4 }}>
-                                                                        {new Intl.NumberFormat('vi-VN').format(pkg.gia_ban)} đ
-                                                                    </div>
-                                                                    {pkg.gia_thanh_vien && (
-                                                                        <div style={{ fontSize: '12px', color: '#52c41a' }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(pkg.gia_thanh_vien)} đ
-                                                                        </div>
-                                                                    )}
-                                                                    {pkg.so_buoi > 0 && (
-                                                                        <div style={{ fontSize: '12px', color: '#666', marginTop: 2 }}>
-                                                                            {pkg.so_buoi} buổi
-                                                                        </div>
-                                                                    )}
+                                                            )}
+
+                                                            <div style={{
+                                                                marginTop: '4px',
+                                                                paddingTop: '8px',
+                                                                borderTop: '1px solid #f0f0f0'
+                                                            }}>
+                                                                <div style={{
+                                                                    fontSize: '16px',
+                                                                    fontWeight: 600,
+                                                                    color: '#722ed1'
+                                                                }}>
+                                                                    {new Intl.NumberFormat('vi-VN').format(pkg.gia_ban)}₫
                                                                 </div>
-                                                            }
-                                                        />
+                                                                {pkg.gia_thanh_vien && pkg.gia_thanh_vien !== pkg.gia_ban && (
+                                                                    <div style={{
+                                                                        fontSize: '12px',
+                                                                        color: '#52c41a',
+                                                                        marginTop: '2px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px'
+                                                                    }}>
+                                                                        <span style={{
+                                                                            background: '#f6ffed',
+                                                                            padding: '1px 6px',
+                                                                            borderRadius: '4px',
+                                                                            border: '1px solid #b7eb8f'
+                                                                        }}>
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(pkg.gia_thanh_vien)}₫
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </Card>
                                                 </Col>
                                             ))}
@@ -1770,7 +1907,7 @@ const SpaPOSScreen: React.FC = () => {
                                     ) : filteredGiftCards.length === 0 ? (
                                         <Empty description="Không tìm thấy thẻ giá trị" />
                                     ) : (
-                                        <Row gutter={[8, 8]}>
+                                        <Row gutter={[12, 12]}>
                                             {filteredGiftCards.map(card => {
                                                 const bonusAmount = card.menh_gia * (card.ti_le_thuong / 100);
                                                 const totalDeposit = card.menh_gia + bonusAmount;
@@ -1779,48 +1916,86 @@ const SpaPOSScreen: React.FC = () => {
                                                     <Col span={8} key={card.id}>
                                                         <Card
                                                             hoverable
-                                                            size="small"
                                                             onClick={() => addGiftCardToCart(card)}
                                                             style={{
                                                                 cursor: 'pointer',
-                                                                borderColor: card.ti_le_thuong > 0 ? '#faad14' : undefined
+                                                                borderRadius: '8px',
+                                                                transition: 'all 0.3s ease',
+                                                                height: '100%',
+                                                                borderColor: card.ti_le_thuong > 0 ? '#faad14' : '#ffd591',
+                                                                background: card.ti_le_thuong > 0 ? '#fffbf0' : '#fff'
                                                             }}
+                                                            bodyStyle={{ padding: '12px' }}
                                                         >
-                                                            <Card.Meta
-                                                                title={
-                                                                    <div style={{ fontSize: '13px' }}>
-                                                                        {card.ten_the}
-                                                                        <Tag color="gold" style={{ marginLeft: 8, fontSize: '11px' }}>
-                                                                            {card.ma_the}
-                                                                        </Tag>
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                                <div style={{
+                                                                    fontSize: '14px',
+                                                                    fontWeight: 500,
+                                                                    color: '#262626',
+                                                                    lineHeight: '1.4',
+                                                                    minHeight: '40px',
+                                                                    display: '-webkit-box',
+                                                                    WebkitLineClamp: 2,
+                                                                    WebkitBoxOrient: 'vertical',
+                                                                    overflow: 'hidden'
+                                                                }}>
+                                                                    {card.ten_the}
+                                                                </div>
+
+                                                                <Tag color="gold" style={{ width: 'fit-content', fontSize: '11px', margin: 0 }}>
+                                                                    Thẻ Giá Trị
+                                                                </Tag>
+
+                                                                <div style={{
+                                                                    fontSize: '11px',
+                                                                    color: '#8c8c8c',
+                                                                    fontFamily: 'monospace'
+                                                                }}>
+                                                                    #{card.ma_the}
+                                                                </div>
+
+                                                                <div style={{
+                                                                    marginTop: '4px',
+                                                                    paddingTop: '8px',
+                                                                    borderTop: '1px solid #f0f0f0'
+                                                                }}>
+                                                                    <div style={{
+                                                                        fontSize: '16px',
+                                                                        fontWeight: 600,
+                                                                        color: '#faad14'
+                                                                    }}>
+                                                                        {formatCurrency(card.gia_ban)}
                                                                     </div>
-                                                                }
-                                                                description={
-                                                                    <div>
-                                                                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1890ff' }}>
-                                                                            Giá: {formatCurrency(card.gia_ban)}
+
+                                                                    {card.ti_le_thuong > 0 && (
+                                                                        <div style={{
+                                                                            fontSize: '12px',
+                                                                            marginTop: '4px',
+                                                                            background: '#f6ffed',
+                                                                            padding: '4px 8px',
+                                                                            borderRadius: '4px',
+                                                                            border: '1px solid #b7eb8f'
+                                                                        }}>
+                                                                            <span style={{ color: '#52c41a', fontWeight: 500 }}>
+                                                                                🎁 +{card.ti_le_thuong}% Khuyến mãi
+                                                                            </span>
+                                                                            <div style={{ color: '#52c41a', marginTop: '2px' }}>
+                                                                                → Nạp: {formatCurrency(totalDeposit)}
+                                                                            </div>
                                                                         </div>
-                                                                        {card.ti_le_thuong > 0 && (
-                                                                            <div style={{ fontSize: '12px', color: '#52c41a', marginTop: 4 }}>
-                                                                                <Tag color="green" style={{ fontSize: '11px' }}>
-                                                                                    +{card.ti_le_thuong}% KM
-                                                                                </Tag>
-                                                                                Nạp: {formatCurrency(totalDeposit)}
-                                                                            </div>
-                                                                        )}
-                                                                        {!card.ti_le_thuong && (
-                                                                            <div style={{ fontSize: '12px', color: '#888', marginTop: 4 }}>
-                                                                                Nạp: {formatCurrency(card.menh_gia)}
-                                                                            </div>
-                                                                        )}
-                                                                        {card.ma_code && (
-                                                                            <div style={{ fontSize: '11px', color: '#666', marginTop: 4 }}>
-                                                                                Code: {card.ma_code}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                }
-                                                            />
+                                                                    )}
+
+                                                                    {!card.ti_le_thuong && (
+                                                                        <div style={{
+                                                                            fontSize: '12px',
+                                                                            color: '#8c8c8c',
+                                                                            marginTop: '4px'
+                                                                        }}>
+                                                                            Nạp: {formatCurrency(card.menh_gia)}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                         </Card>
                                                     </Col>
                                                 );

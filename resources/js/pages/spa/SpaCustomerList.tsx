@@ -3,7 +3,7 @@ import { Table, Button, Space, Tag, Input, DatePicker, Modal, Form, Select, mess
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { API } from '../../common/api';
+import API from '../../common/api';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -85,10 +85,10 @@ const SpaCustomerList: React.FC = () => {
 
             console.log('API Response:', response.data);
 
-            if (response.data.success) {
-                // Backend trả về: { success: true, data: {pagination data} }
+            if (response.data.success || response.data.status_code === 200) {
+                // Backend có thể trả về: { success: true, data: {pagination data} } hoặc { status_code: 200, data: {...} }
                 const customerData = response.data.data;
-                const customersData = customerData.data || [];
+                const customersData = customerData.data || customerData || [];
 
                 // Fetch wallet for each customer
                 const customersWithWallet = await Promise.all(
@@ -108,8 +108,8 @@ const SpaCustomerList: React.FC = () => {
                 setCustomers(customersWithWallet);
                 setPagination({
                     ...pagination,
-                    total: customerData.total || 0,
-                    current: customerData.current_page || 1,
+                    total: customerData.total || customersWithWallet.length,
+                    current: customerData.current_page || pagination.current,
                 });
             }
         } catch (error) {

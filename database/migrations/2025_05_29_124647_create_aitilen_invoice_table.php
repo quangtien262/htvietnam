@@ -51,7 +51,7 @@ return new class extends Migration
             $table->integer('total')->default(0)->nullable();
 
 
-            $table->integer('dat_thanh_toan')->default(0)->nullable();
+            $table->integer('da_thanh_toan')->default(0)->nullable();
             $table->integer('cong_no')->default(0)->nullable();
 
             $table->integer('thu_ho')->default(0)->nullable();

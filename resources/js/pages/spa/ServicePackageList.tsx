@@ -11,6 +11,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { API } from '../../common/api';
+import { API_SPA } from '../../common/api_spa';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -113,7 +114,7 @@ const ServicePackageList: React.FC = () => {
 
     const loadSchedules = async () => {
         try {
-            const response = await axios.get(API.spaSchedulesList);
+            const response = await axios.get(API_SPA.spaSchedules);
             if (response.data && response.data.status_code === 200) {
                 const schedulesData = response.data.data || [];
                 setSchedules(schedulesData);
@@ -566,9 +567,9 @@ const ServicePackageList: React.FC = () => {
                                                             >
                                                                 <div>
                                                                     <div><strong>{service.ma_dich_vu}</strong> - {service.ten_dich_vu}</div>
-                                                                    <div style={{ fontSize: 12, color: '#666' }}>
+                                                                    {/* <div style={{ fontSize: 12, color: '#666' }}>
                                                                         Giá: {(service.gia_ban || service.gia || 0).toLocaleString()}đ
-                                                                    </div>
+                                                                    </div> */}
                                                                 </div>
                                                             </Option>
                                                         ))}

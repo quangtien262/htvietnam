@@ -104,27 +104,52 @@ const AnalyticsDashboard: React.FC = () => {
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            const response = await axios.post(API_SPA.spaAnalyticsDashboard, {
-                start_date: dateRange[0].format('YYYY-MM-DD'),
-                end_date: dateRange[1].format('YYYY-MM-DD'),
-                compare_type: compareType,
-                branch_id: branchId,
-                view_mode: viewMode,
+            const response = await axios.get(API_SPA.spaAnalyticsDashboard, {
+                params: {
+                    start_date: dateRange[0].format('YYYY-MM-DD'),
+                    end_date: dateRange[1].format('YYYY-MM-DD'),
+                    compare_type: compareType,
+                    branch_id: branchId,
+                    view_mode: viewMode,
+                }
             });
 
-            if (response.data.success) {
-                const data = response.data.data;
-                setStats(data.stats || {});
+            console.log('Analytics Response:', response.data);
+
+            if (response.data.success || response.data.status_code === 200) {
+                const data = response.data.data || response.data;
+                console.log('Analytics Data:', data);
+                
+                setStats(data.stats || {
+                    totalRevenue: 0,
+                    revenueGrowth: 0,
+                    totalCustomers: 0,
+                    customerGrowth: 0,
+                    totalBookings: 0,
+                    bookingGrowth: 0,
+                    avgOrderValue: 0,
+                    avgOrderGrowth: 0,
+                });
                 setRevenueData(data.revenue_chart || []);
                 setCategoryData(data.category_chart || []);
                 setStaffPerformance(data.staff_performance || []);
                 setServiceRanking(data.service_ranking || []);
                 setCustomerSegments(data.customer_segments || []);
                 setHourlyData(data.hourly_data || []);
+                
+                console.log('Revenue Data:', data.revenue_chart);
+                console.log('Category Data:', data.category_chart);
+            } else {
+                message.warning('Không có dữ liệu trong khoảng thời gian này');
             }
-        } catch (error) {
-            message.error('Không thể tải dữ liệu thống kê');
-            console.error(error);
+        } catch (error: any) {
+            console.error('Analytics Error:', error);
+            if (error.response) {
+                console.error('Error Response:', error.response.data);
+                message.error(error.response.data.message || 'Không thể tải dữ liệu thống kê');
+            } else {
+                message.error('Không thể tải dữ liệu thống kê');
+            }
         } finally {
             setLoading(false);
         }
@@ -574,7 +599,14 @@ const AnalyticsDashboard: React.FC = () => {
                 style={{ marginBottom: 24 }}
                 loading={loading}
             >
-                <Line {...revenueChartConfig} height={350} />
+                {revenueData && revenueData.length > 0 ? (
+                    <Line {...revenueChartConfig} height={350} />
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '60px 0', color: '#999' }}>
+                        <CalendarOutlined style={{ fontSize: 48, marginBottom: 16 }} />
+                        <div>Không có dữ liệu doanh thu trong khoảng thời gian đã chọn</div>
+                    </div>
+                )}
             </Card>
 
             {/* Category & Service Charts */}
@@ -584,7 +616,13 @@ const AnalyticsDashboard: React.FC = () => {
                         title="Doanh thu theo danh mục"
                         loading={loading}
                     >
-                        <Pie {...categoryChartConfig} height={300} />
+                        {categoryData && categoryData.length > 0 ? (
+                            <Pie {...categoryChartConfig} height={300} />
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px 0', color: '#999' }}>
+                                Không có dữ liệu
+                            </div>
+                        )}
                     </Card>
                 </Col>
                 <Col xs={24} md={12}>
@@ -592,7 +630,13 @@ const AnalyticsDashboard: React.FC = () => {
                         title="Top 10 dịch vụ bán chạy"
                         loading={loading}
                     >
-                        <Column {...serviceRankingConfig} height={300} />
+                        {serviceRanking && serviceRanking.length > 0 ? (
+                            <Column {...serviceRankingConfig} height={300} />
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px 0', color: '#999' }}>
+                                Không có dữ liệu
+                            </div>
+                        )}
                     </Card>
                 </Col>
             </Row>

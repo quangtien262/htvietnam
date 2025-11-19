@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { API } from '../../common/api';
+import API from '../../common/api';
 
 const SpaBookingCalendar: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -133,6 +133,11 @@ const SpaBookingCalendar: React.FC = () => {
         try {
             const values = await form.validateFields();
 
+            // Format dich_vus as array of objects with dich_vu_id
+            const dich_vus = values.dich_vu_ids.map((id: number) => ({
+                dich_vu_id: id
+            }));
+
             // Format data for API
             const bookingData = {
                 khach_hang_id: values.khach_hang_id,
@@ -140,7 +145,7 @@ const SpaBookingCalendar: React.FC = () => {
                 nguon_booking: 'web',
                 ngay_hen: selectedDate.format('YYYY-MM-DD'),
                 gio_hen: values.gio_hen.format('HH:mm:ss'),
-                dich_vu_ids: values.dich_vu_ids,
+                dich_vus: dich_vus, // Backend expects array of {dich_vu_id: number}
                 ktv_id: values.ktv_id,
                 phong_id: values.phong_id,
                 ghi_chu_khach: values.ghi_chu_khach,
@@ -194,7 +199,7 @@ const SpaBookingCalendar: React.FC = () => {
                     setIsModalVisible(false);
                     form.resetFields();
                 }}
-                width={600}
+                width={700}
             >
                 <Form form={form} layout="vertical">
                     <Form.Item
@@ -218,13 +223,26 @@ const SpaBookingCalendar: React.FC = () => {
                         </Select>
                     </Form.Item>
 
-                    <Form.Item
-                        name="gio_hen"
-                        label="Giờ hẹn"
-                        rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}
-                    >
-                        <TimePicker format="HH:mm" style={{ width: '100%' }} />
-                    </Form.Item>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                        <Form.Item
+                            name="gio_hen"
+                            label="Giờ hẹn"
+                            rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}
+                            style={{ flex: 1 }}
+                        >
+                            <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                        </Form.Item>
+
+                        <Form.Item name="ktv_id" label="Kỹ thuật viên" style={{ flex: 1 }}>
+                            <Select placeholder="Chọn KTV" allowClear>
+                                {ktvs.map(ktv => (
+                                    <Select.Option key={ktv.id} value={ktv.id}>
+                                        {ktv.admin_user?.name || ktv.ho_ten || `KTV ${ktv.id}`}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </div>
 
                     <Form.Item
                         name="dich_vu_ids"
@@ -234,36 +252,28 @@ const SpaBookingCalendar: React.FC = () => {
                         <Select mode="multiple" placeholder="Chọn dịch vụ">
                             {services.map(service => (
                                 <Select.Option key={service.id} value={service.id}>
-                                    {service.ten_dich_vu} - {new Intl.NumberFormat('vi-VN').format(service.gia_ban)}đ
+                                    {service.ten_dich_vu} - {new Intl.NumberFormat('vi-VN').format(service.gia_ban)}₫
                                     {service.thoi_gian_thuc_hien && ` (${service.thoi_gian_thuc_hien} phút)`}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
 
-                    <Form.Item name="ktv_id" label="Kỹ thuật viên">
-                        <Select placeholder="Chọn KTV" allowClear>
-                            {ktvs.map(ktv => (
-                                <Select.Option key={ktv.id} value={ktv.id}>
-                                    {ktv.admin_user?.name || ktv.ho_ten || `KTV ${ktv.id}`}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                        <Form.Item name="phong_id" label="Phòng" style={{ flex: 1 }}>
+                            <Select placeholder="Chọn phòng" allowClear>
+                                {rooms.map(room => (
+                                    <Select.Option key={room.id} value={room.id}>
+                                        {room.ten_phong} ({room.loai_phong})
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
 
-                    <Form.Item name="phong_id" label="Phòng">
-                        <Select placeholder="Chọn phòng" allowClear>
-                            {rooms.map(room => (
-                                <Select.Option key={room.id} value={room.id}>
-                                    {room.ten_phong} ({room.loai_phong})
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-
-                    <Form.Item name="ghi_chu_khach" label="Ghi chú">
-                        <Input.TextArea rows={3} placeholder="Ghi chú từ khách hàng..." />
-                    </Form.Item>
+                        <Form.Item name="ghi_chu_khach" label="Ghi chú" style={{ flex: 1 }}>
+                            <Input placeholder="Ghi chú từ khách hàng..." />
+                        </Form.Item>
+                    </div>
                 </Form>
             </Modal>
         </div>

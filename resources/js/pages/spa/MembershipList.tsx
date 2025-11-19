@@ -13,7 +13,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Color } from 'antd/es/color-picker';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { API } from '../../common/api';
+import API from '../../common/api';
 
 const { TextArea } = Input;
 const { Option } = Select;

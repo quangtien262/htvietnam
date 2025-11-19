@@ -205,12 +205,8 @@ class StatusSeeder extends Seeder
 
         DB::table('so_quy_type')->truncate();
         DB::table('so_quy_type')->insert([
-            ['name' => 'Khách thanh toán hóa đơn', 'color' => ''],
-            ['name' => 'Khách trả hàng', 'color' => ''],
-            ['name' => 'Chi tiền mua hàng cho NCC', 'color' => ''],
-            ['name' => 'thu tiền trả lại hàng cho NCC', 'color' => ''],
-            ['name' => 'Thu chuyển/rút', 'color' => ''],
-            ['name' => 'Chi chuyển/rút', 'color' => ''],
+            ['name' => 'Phiếu thu', 'color' => ''],
+            ['name' => 'Phiếu chi', 'color' => ''],
         ]);
 
         DB::table('nhom_nguoi_nhan')->truncate();
