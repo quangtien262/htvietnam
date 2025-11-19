@@ -67,7 +67,7 @@ const MyTasks: React.FC = () => {
 
     // Filters
     const [filters, setFilters] = useState<Filters>({
-        sort_by: 'ngay_ket_thuc',
+        sort_by: 'ngay_ket_thuc_du_kien',
         sort_order: 'asc',
     });
 
@@ -173,7 +173,7 @@ const MyTasks: React.FC = () => {
 
     const handleReset = () => {
         setFilters({
-            sort_by: 'ngay_ket_thuc',
+            sort_by: 'ngay_ket_thuc_du_kien',
             sort_order: 'asc',
         });
         setPagination({ ...pagination, current: 1 });
