@@ -137,6 +137,15 @@ export const taskApi = {
     },
 
     /**
+     * Get all tasks across all projects with optional filters
+     * @param params - Filter parameters (assigned_user_id, project_id, status_id, priority_id, search, etc.)
+     * @returns Promise with paginated task list
+     */
+    getAllTasks: (params?: any) => {
+        return axios.get(`${API_BASE}/tasks/all-tasks`, { params });
+    },
+
+    /**
      * Get all tasks assigned to current user across all projects
      * @param params - Filter parameters (project_id, status_id, priority_id, search, etc.)
      * @returns Promise with paginated task list for current user

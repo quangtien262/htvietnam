@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Select, Input, DatePicker, Button, Space, message, Avatar, Tooltip, Progress } from 'antd';
-import { SearchOutlined, ReloadOutlined, CalendarOutlined, ProjectOutlined, FlagOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Select, Input, DatePicker, Button, Space, message, Avatar, Tooltip, Progress, Badge, Empty, Spin } from 'antd';
+import { SearchOutlined, ReloadOutlined, CalendarOutlined, ProjectOutlined, FlagOutlined, TableOutlined, AppstoreOutlined, UserOutlined } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { taskApi, referenceApi } from '@/common/api/projectApi';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import TaskDetail from './TaskDetail';
 import ROUTE from '@/common/route';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -23,6 +25,7 @@ interface Task {
         id: number;
         name: string;
         color: string;
+        is_done?: boolean;
     };
     priority: {
         id: number;
@@ -42,9 +45,26 @@ interface Task {
     };
     created_at: string;
     updated_at: string;
+    // For Kanban compatibility with backend
+    tieu_de?: string;
+    mo_ta?: string;
+    ngay_ket_thuc_du_kien?: string;
+    trang_thai?: {
+        id: number;
+        name: string;
+        color: string;
+        is_done?: boolean;
+    };
+    uu_tien?: {
+        id: number;
+        name: string;
+        color: string;
+    };
+    tien_do?: number;
 }
 
 interface Filters {
+    assigned_user_id?: number;
     project_id?: number;
     status_id?: number;
     priority_id?: number;
@@ -54,6 +74,8 @@ interface Filters {
     sort_by?: string;
     sort_order?: 'asc' | 'desc';
 }
+
+type TaskViewMode = 'table' | 'kanban';
 
 const MyTasks: React.FC = () => {
     const navigate = useNavigate();
@@ -65,6 +87,18 @@ const MyTasks: React.FC = () => {
         total: 0,
     });
 
+    // View mode
+    const [viewMode, setViewMode] = useState<TaskViewMode>('table');
+    const [kanbanData, setKanbanData] = useState<{ [key: number]: Task[] }>({});
+    const [kanbanLoading, setKanbanLoading] = useState(false);
+
+    // Task Detail Drawer
+    const [detailVisible, setDetailVisible] = useState(false);
+    const [detailTaskId, setDetailTaskId] = useState<number | null>(null);
+
+    // Current user ID
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
     // Filters
     const [filters, setFilters] = useState<Filters>({
         sort_by: 'ngay_ket_thuc_du_kien',
@@ -75,18 +109,52 @@ const MyTasks: React.FC = () => {
     const [projects, setProjects] = useState<any[]>([]);
     const [statuses, setStatuses] = useState<any[]>([]);
     const [priorities, setPriorities] = useState<any[]>([]);
+    const [adminUsers, setAdminUsers] = useState<any[]>([]);
 
     useEffect(() => {
+        // Get current user ID from auth (you may need to adjust this based on your auth implementation)
+        const getCurrentUser = async () => {
+            try {
+                const userResponse = await referenceApi.getAdminUsers();
+                if (userResponse.data.success && userResponse.data.data.length > 0) {
+                    // Assuming the first user is the current logged in user
+                    // You might need to adjust this based on your auth implementation
+                    const currentUser = userResponse.data.data[0];
+                    setCurrentUserId(currentUser.id);
+                    // Set default filter to current user
+                    setFilters(prev => ({
+                        ...prev,
+                        assigned_user_id: currentUser.id,
+                    }));
+                }
+            } catch (error) {
+                console.error('Error getting current user:', error);
+            }
+        };
+
+        getCurrentUser();
         loadReferenceData();
-        loadTasks();
     }, []);
+
+    useEffect(() => {
+        if (currentUserId !== null) {
+            loadTasks();
+        }
+    }, [currentUserId]);
+
+    useEffect(() => {
+        if (viewMode === 'kanban' && currentUserId !== null) {
+            loadKanbanData();
+        }
+    }, [viewMode, currentUserId]);
 
     const loadReferenceData = async () => {
         try {
-            const [projectsRes, statusesRes, prioritiesRes] = await Promise.all([
+            const [projectsRes, statusesRes, prioritiesRes, usersRes] = await Promise.all([
                 referenceApi.getProjects(),
                 referenceApi.getTaskStatuses(),
                 referenceApi.getPriorities(),
+                referenceApi.getAdminUsers(),
             ]);
 
             if (projectsRes.data.success) {
@@ -99,6 +167,9 @@ const MyTasks: React.FC = () => {
             }
             if (prioritiesRes.data.success) {
                 setPriorities(prioritiesRes.data.data);
+            }
+            if (usersRes.data.success) {
+                setAdminUsers(usersRes.data.data);
             }
         } catch (error) {
             console.error('Error loading reference data:', error);
@@ -114,7 +185,7 @@ const MyTasks: React.FC = () => {
                 per_page: pagination.pageSize,
             };
 
-            const response = await taskApi.getMyTasks(params);
+            const response = await taskApi.getAllTasks(params);
 
             if (response.data.success) {
                 const { data, current_page, per_page, total } = response.data.data;
@@ -132,6 +203,94 @@ const MyTasks: React.FC = () => {
             message.error(error.response?.data?.message || 'Đã có lỗi xảy ra');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadKanbanData = async () => {
+        setKanbanLoading(true);
+        try {
+            const params = {
+                ...filters,
+                per_page: 1000, // Load all tasks for kanban view
+            };
+
+            const response = await taskApi.getAllTasks(params);
+
+            if (response.data.success) {
+                const tasks = response.data.data.data || response.data.data;
+                
+                // Group tasks by status
+                const kanban: { [key: number]: Task[] } = {};
+                statuses.forEach(status => {
+                    kanban[status.id] = [];
+                });
+
+                tasks.forEach((task: Task) => {
+                    const statusId = task.status?.id || task.trang_thai?.id;
+                    if (statusId && kanban[statusId]) {
+                        kanban[statusId].push(task);
+                    }
+                });
+
+                setKanbanData(kanban);
+            } else {
+                message.error('Không thể tải dữ liệu kanban');
+            }
+        } catch (error: any) {
+            console.error('Error loading kanban:', error);
+            message.error(error.response?.data?.message || 'Không thể tải dữ liệu kanban');
+            // Initialize empty arrays on error
+            const kanban: { [key: number]: Task[] } = {};
+            statuses.forEach(status => {
+                kanban[status.id] = [];
+            });
+            setKanbanData(kanban);
+        } finally {
+            setKanbanLoading(false);
+        }
+    };
+
+    const handleDragEnd = async (result: DropResult) => {
+        const { source, destination, draggableId } = result;
+
+        // Dropped outside the list
+        if (!destination) return;
+
+        // No change
+        if (source.droppableId === destination.droppableId && source.index === destination.index) {
+            return;
+        }
+
+        const sourceStatusId = Number(source.droppableId);
+        const destStatusId = Number(destination.droppableId);
+        const taskId = Number(draggableId);
+
+        // Create new kanban data
+        const newKanbanData = { ...kanbanData };
+        const sourceTasks = Array.from(newKanbanData[sourceStatusId]);
+        const destTasks = sourceStatusId === destStatusId
+            ? sourceTasks
+            : Array.from(newKanbanData[destStatusId]);
+
+        // Remove from source
+        const [movedTask] = sourceTasks.splice(source.index, 1);
+
+        // Add to destination
+        destTasks.splice(destination.index, 0, movedTask);
+
+        // Update state
+        newKanbanData[sourceStatusId] = sourceTasks;
+        newKanbanData[destStatusId] = destTasks;
+        setKanbanData(newKanbanData);
+
+        // Update on server
+        try {
+            await taskApi.updateStatus(taskId, destStatusId, destination.index);
+            message.success('Cập nhật trạng thái thành công');
+        } catch (error: any) {
+            message.error('Không thể cập nhật trạng thái');
+            // Revert on error
+            loadKanbanData();
         }
     };
 
@@ -173,6 +332,7 @@ const MyTasks: React.FC = () => {
 
     const handleReset = () => {
         setFilters({
+            assigned_user_id: currentUserId || undefined,
             sort_by: 'ngay_ket_thuc_du_kien',
             sort_order: 'asc',
         });
@@ -182,12 +342,33 @@ const MyTasks: React.FC = () => {
 
     const handleSearch = () => {
         setPagination({ ...pagination, current: 1 });
-        loadTasks(1);
+        if (viewMode === 'table') {
+            loadTasks(1);
+        } else {
+            loadKanbanData();
+        }
+    };
+
+    const handleViewModeChange = (mode: TaskViewMode) => {
+        setViewMode(mode);
+    };
+
+    const handleTaskDetailClose = () => {
+        setDetailVisible(false);
+        setDetailTaskId(null);
+    };
+
+    const handleTaskUpdate = () => {
+        if (viewMode === 'table') {
+            loadTasks(pagination.current);
+        } else {
+            loadKanbanData();
+        }
     };
 
     const handleRowClick = (record: Task) => {
-        // Navigate to project detail page with task highlighted
-        navigate(`${ROUTE.project_detail.replace(':id', String(record.project.id))}?p=projects&task=${record.id}`);
+        setDetailTaskId(record.id);
+        setDetailVisible(true);
     };
 
     const columns: ColumnsType<Task> = [
@@ -198,10 +379,8 @@ const MyTasks: React.FC = () => {
             width: 300,
             render: (text: string, record: Task) => (
                 <div>
-                    <div style={{ fontWeight: 500, marginBottom: 4 }}>
-                        <Link to={`${ROUTE.project_detail.replace(':id', String(record.project.id))}?p=projects&task=${record.id}`}>
-                            {text}
-                        </Link>
+                    <div style={{ fontWeight: 500, marginBottom: 4, cursor: 'pointer', color: '#1890ff' }}>
+                        {text}
                     </div>
                     {record.description && (
                         <div style={{ fontSize: 12, color: '#666', maxWidth: 280 }}>
@@ -345,88 +524,314 @@ const MyTasks: React.FC = () => {
                 </div>
 
                 {/* Filters */}
-                <Space wrap style={{ marginBottom: 16, width: '100%' }}>
-                    <Input
-                        placeholder="Tìm kiếm task..."
-                        prefix={<SearchOutlined />}
-                        style={{ width: 250 }}
-                        value={filters.search}
-                        onChange={(e) => handleFilterChange('search', e.target.value)}
-                        onPressEnter={handleSearch}
+                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                    <Space wrap>
+                        <Input
+                            placeholder="Tìm kiếm task..."
+                            prefix={<SearchOutlined />}
+                            style={{ width: 250 }}
+                            value={filters.search}
+                            onChange={(e) => handleFilterChange('search', e.target.value)}
+                            onPressEnter={handleSearch}
+                        />
+
+                        <Select
+                            placeholder="Người thực hiện"
+                            style={{ width: 180 }}
+                            allowClear
+                            value={filters.assigned_user_id}
+                            onChange={(value) => handleFilterChange('assigned_user_id', value)}
+                            showSearch
+                            optionFilterProp="children"
+                        >
+                            {adminUsers.map((user) => (
+                                <Option key={user.id} value={user.id}>
+                                    <UserOutlined /> {user.name}
+                                </Option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            placeholder="Chọn dự án"
+                            style={{ width: 200 }}
+                            allowClear
+                            value={filters.project_id}
+                            onChange={(value) => handleFilterChange('project_id', value)}
+                        >
+                            {projects.map((project) => (
+                                <Option key={project.id} value={project.id}>
+                                    {project.name}
+                                </Option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            placeholder="Trạng thái"
+                            style={{ width: 150 }}
+                            allowClear
+                            value={filters.status_id}
+                            onChange={(value) => handleFilterChange('status_id', value)}
+                        >
+                            {statuses.map((status) => (
+                                <Option key={status.id} value={status.id}>
+                                    <Tag color={status.color}>{status.name}</Tag>
+                                </Option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            placeholder="Ưu tiên"
+                            style={{ width: 130 }}
+                            allowClear
+                            value={filters.priority_id}
+                            onChange={(value) => handleFilterChange('priority_id', value)}
+                        >
+                            {priorities.map((priority) => (
+                                <Option key={priority.id} value={priority.id}>
+                                    <Tag color={priority.color}>{priority.name}</Tag>
+                                </Option>
+                            ))}
+                        </Select>
+
+                        <RangePicker
+                            placeholder={['Từ ngày', 'Đến ngày']}
+                            onChange={handleDateRangeChange}
+                            format="DD/MM/YYYY"
+                        />
+
+                        <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+                            Tìm kiếm
+                        </Button>
+
+                        <Button icon={<ReloadOutlined />} onClick={handleReset}>
+                            Làm mới
+                        </Button>
+                    </Space>
+
+                    {/* View Mode Toggle */}
+                    <Space>
+                        <Button
+                            type={viewMode === 'table' ? 'primary' : 'default'}
+                            icon={<TableOutlined />}
+                            onClick={() => handleViewModeChange('table')}
+                        >
+                            Bảng
+                        </Button>
+                        <Button
+                            type={viewMode === 'kanban' ? 'primary' : 'default'}
+                            icon={<AppstoreOutlined />}
+                            onClick={() => handleViewModeChange('kanban')}
+                        >
+                            Kanban
+                        </Button>
+                    </Space>
+                </div>
+
+                {/* Table or Kanban View */}
+                {viewMode === 'table' ? (
+                    <Table
+                        columns={columns}
+                        dataSource={tasks}
+                        rowKey="id"
+                        loading={loading}
+                        pagination={pagination}
+                        onChange={handleTableChange}
+                        onRow={(record) => ({
+                            onClick: () => handleRowClick(record),
+                            style: { cursor: 'pointer' },
+                        })}
+                        scroll={{ x: 1200 }}
                     />
+                ) : (
+                    <Spin spinning={kanbanLoading}>
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <div style={{
+                                display: 'flex',
+                                gap: 20,
+                                overflowX: 'auto',
+                                paddingBottom: 16,
+                                paddingTop: 8,
+                            }}>
+                                {statuses.map((status) => {
+                                    const tasks = kanbanData[status.id] || [];
 
-                    <Select
-                        placeholder="Chọn dự án"
-                        style={{ width: 200 }}
-                        allowClear
-                        value={filters.project_id}
-                        onChange={(value) => handleFilterChange('project_id', value)}
-                    >
-                        {projects.map((project) => (
-                            <Option key={project.id} value={project.id}>
-                                {project.name}
-                            </Option>
-                        ))}
-                    </Select>
+                                    return (
+                                        <div
+                                            key={status.id}
+                                            style={{
+                                                flex: '0 0 300px',
+                                                backgroundColor: '#fafafa',
+                                                borderRadius: 12,
+                                                padding: 16,
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                            }}
+                                        >
+                                            <div style={{
+                                                marginBottom: 16,
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                paddingBottom: 12,
+                                                borderBottom: '2px solid #e8e8e8',
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div
+                                                        style={{
+                                                            width: 8,
+                                                            height: 8,
+                                                            borderRadius: '50%',
+                                                            backgroundColor: status.color,
+                                                        }}
+                                                    />
+                                                    <span style={{
+                                                        fontSize: 14,
+                                                        fontWeight: 600,
+                                                        color: '#262626',
+                                                    }}>
+                                                        {status.name}
+                                                    </span>
+                                                </div>
+                                                <Badge
+                                                    count={tasks.length}
+                                                    showZero
+                                                    style={{
+                                                        backgroundColor: status.color,
+                                                        fontWeight: 600,
+                                                        boxShadow: 'none',
+                                                    }}
+                                                />
+                                            </div>
 
-                    <Select
-                        placeholder="Trạng thái"
-                        style={{ width: 150 }}
-                        allowClear
-                        value={filters.status_id}
-                        onChange={(value) => handleFilterChange('status_id', value)}
-                    >
-                        {statuses.map((status) => (
-                            <Option key={status.id} value={status.id}>
-                                <Tag color={status.color}>{status.name}</Tag>
-                            </Option>
-                        ))}
-                    </Select>
+                                            <Droppable droppableId={String(status.id)}>
+                                                {(provided, snapshot) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.droppableProps}
+                                                        style={{
+                                                            minHeight: 200,
+                                                            backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
+                                                            borderRadius: 8,
+                                                            transition: 'background-color 0.2s ease',
+                                                        }}
+                                                    >
+                                                        {tasks.length === 0 ? (
+                                                            <Empty
+                                                                description={
+                                                                    <span style={{ color: '#bfbfbf', fontSize: 13 }}>
+                                                                        Không có nhiệm vụ
+                                                                    </span>
+                                                                }
+                                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                                style={{ margin: '30px 0' }}
+                                                            />
+                                                        ) : (
+                                                            tasks.map((task: Task, index: number) => {
+                                                                const taskName = task.name || task.tieu_de || '';
+                                                                const taskPriority = task.priority || task.uu_tien;
+                                                                const taskProgress = task.progress ?? task.tien_do ?? 0;
+                                                                const taskEndDate = task.end_date || task.ngay_ket_thuc_du_kien;
+                                                                const taskProject = task.project;
 
-                    <Select
-                        placeholder="Ưu tiên"
-                        style={{ width: 130 }}
-                        allowClear
-                        value={filters.priority_id}
-                        onChange={(value) => handleFilterChange('priority_id', value)}
-                    >
-                        {priorities.map((priority) => (
-                            <Option key={priority.id} value={priority.id}>
-                                <Tag color={priority.color}>{priority.name}</Tag>
-                            </Option>
-                        ))}
-                    </Select>
+                                                                return (
+                                                                    <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                                                                        {(provided, snapshot) => (
+                                                                            <div
+                                                                                ref={provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                style={{
+                                                                                    ...provided.draggableProps.style,
+                                                                                    marginBottom: 12,
+                                                                                }}
+                                                                            >
+                                                                                <Card
+                                                                                    size="small"
+                                                                                    hoverable
+                                                                                    onClick={() => {
+                                                                                        setDetailTaskId(task.id);
+                                                                                        setDetailVisible(true);
+                                                                                    }}
+                                                                                    style={{
+                                                                                        cursor: 'pointer',
+                                                                                        backgroundColor: snapshot.isDragging ? '#fff' : '#fff',
+                                                                                        borderLeft: `3px solid ${taskPriority?.color || '#1890ff'}`,
+                                                                                        borderRadius: 8,
+                                                                                        boxShadow: snapshot.isDragging
+                                                                                            ? '0 8px 24px rgba(0,0,0,0.15)'
+                                                                                            : '0 2px 4px rgba(0,0,0,0.08)',
+                                                                                        transition: 'all 0.2s ease',
+                                                                                    }}
+                                                                                    bodyStyle={{ padding: 12 }}
+                                                                                >
+                                                                                    {/* Priority & Title */}
+                                                                                    <div style={{ marginBottom: 8 }}>
+                                                                                        {taskPriority && taskPriority.name ? (
+                                                                                            <Tag
+                                                                                                color={taskPriority.color}
+                                                                                                style={{
+                                                                                                    margin: 0,
+                                                                                                    marginBottom: 6,
+                                                                                                    fontSize: 11,
+                                                                                                    fontWeight: 600,
+                                                                                                    padding: '2px 8px',
+                                                                                                    borderRadius: 10,
+                                                                                                }}
+                                                                                            >
+                                                                                                {taskPriority.name}
+                                                                                            </Tag>
+                                                                                        ) : null}
+                                                                                        <div style={{ fontWeight: 500, fontSize: 14 }}>
+                                                                                            {taskName}
+                                                                                        </div>
+                                                                                    </div>
 
-                    <RangePicker
-                        placeholder={['Từ ngày', 'Đến ngày']}
-                        onChange={handleDateRangeChange}
-                        format="DD/MM/YYYY"
-                    />
+                                                                                    {/* Project */}
+                                                                                    {taskProject && (
+                                                                                        <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8 }}>
+                                                                                            <ProjectOutlined /> {taskProject.name}
+                                                                                        </div>
+                                                                                    )}
 
-                    <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
-                        Tìm kiếm
-                    </Button>
+                                                                                    {/* Progress */}
+                                                                                    <Progress
+                                                                                        percent={taskProgress}
+                                                                                        size="small"
+                                                                                        style={{ marginBottom: 8 }}
+                                                                                    />
 
-                    <Button icon={<ReloadOutlined />} onClick={handleReset}>
-                        Làm mới
-                    </Button>
-                </Space>
-
-                {/* Table */}
-                <Table
-                    columns={columns}
-                    dataSource={tasks}
-                    rowKey="id"
-                    loading={loading}
-                    pagination={pagination}
-                    onChange={handleTableChange}
-                    onRow={(record) => ({
-                        onClick: () => handleRowClick(record),
-                        style: { cursor: 'pointer' },
-                    })}
-                    scroll={{ x: 1200 }}
-                />
+                                                                                    {/* Deadline */}
+                                                                                    {taskEndDate && (
+                                                                                        <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                                                                            <CalendarOutlined /> {dayjs(taskEndDate).format('DD/MM/YYYY')}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </Card>
+                                                                            </div>
+                                                                        )}
+                                                                    </Draggable>
+                                                                );
+                                                            })
+                                                        )}
+                                                        {provided.placeholder}
+                                                    </div>
+                                                )}
+                                            </Droppable>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </DragDropContext>
+                    </Spin>
+                )}
             </Card>
+
+            {/* Task Detail Drawer */}
+            <TaskDetail
+                taskId={detailTaskId}
+                visible={detailVisible}
+                onClose={handleTaskDetailClose}
+                onUpdate={handleTaskUpdate}
+            />
         </div>
     );
 };

@@ -35,6 +35,7 @@ Route::prefix('projects')->name('projects.')->group(function () {
 Route::prefix('tasks')->name('tasks.')->group(function () {
     // View tasks
     Route::get('/', [TaskController::class, 'index'])->name('index');
+    Route::get('/all-tasks', [TaskController::class, 'getAllTasks'])->name('all_tasks');
     Route::get('/my-tasks', [TaskController::class, 'getMyTasks'])->name('my_tasks');
     Route::get('/kanban/{projectId}', [TaskController::class, 'kanban'])->name('kanban');
     Route::get('/gantt/{projectId}', [TaskController::class, 'gantt'])->name('gantt');
