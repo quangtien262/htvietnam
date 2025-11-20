@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Modal, Form, Select, Input, InputNumber, Space, message, Tag } from 'antd';
+import { Card, Table, Button, Modal, Form, Select, Input, InputNumber, Space, message, Tag, DatePicker } from 'antd';
 import { PlusOutlined, PhoneOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -42,8 +42,8 @@ const CuocGoiPage: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/telesale/cuoc-goi');
-      setData(res.data);
+      const res = await axios.get('/aio/api/api/telesale/cuoc-goi');
+      setData(res.data.data || res.data);
     } catch (error) {
       message.error('Lỗi tải dữ liệu');
     } finally {
@@ -63,11 +63,16 @@ const CuocGoiPage: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await axios.post('/api/telesale/cuoc-goi/store', {
+      const payload = {
         ...values,
         thoi_gian_bat_dau: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         thoi_gian_ket_thuc: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      });
+      };
+      // Convert ngay_hen_goi_lai dayjs to string if exists
+      if (values.ngay_hen_goi_lai) {
+        payload.ngay_hen_goi_lai = dayjs(values.ngay_hen_goi_lai).format('YYYY-MM-DD HH:mm:ss');
+      }
+      await axios.post('/aio/api/api/telesale/cuoc-goi/store', payload);
       message.success('Ghi nhận cuộc gọi thành công');
       setModalVisible(false);
       fetchData();
@@ -150,7 +155,12 @@ const CuocGoiPage: React.FC = () => {
             <TextArea rows={2} />
           </Form.Item>
           <Form.Item name="ngay_hen_goi_lai" label="Ngày hẹn gọi lại (nếu có)">
-            <Input type="datetime-local" />
+            <DatePicker
+              showTime
+              format="DD/MM/YYYY HH:mm"
+              placeholder="Chọn ngày giờ"
+              style={{ width: '100%' }}
+            />
           </Form.Item>
         </Form>
       </Modal>

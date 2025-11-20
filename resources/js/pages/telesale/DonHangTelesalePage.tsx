@@ -49,8 +49,8 @@ const DonHangTelesalePage: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/telesale/don-hang');
-      setData(res.data);
+      const res = await axios.get('/aio/api/api/telesale/don-hang');
+      setData(res.data.data || res.data);
     } catch (error) {
       message.error('Lỗi tải dữ liệu');
     } finally {
@@ -74,7 +74,7 @@ const DonHangTelesalePage: React.FC = () => {
       const values = await form.validateFields();
       const payload = { ...values, chi_tiets: chiTiets };
 
-      await axios.post('/api/telesale/don-hang/store', payload);
+      await axios.post('/aio/api/api/telesale/don-hang/store', payload);
       message.success('Tạo đơn hàng thành công');
       setModalVisible(false);
       fetchData();
@@ -85,7 +85,7 @@ const DonHangTelesalePage: React.FC = () => {
 
   const handleUpdateStatus = async (id: number, trangThai: string) => {
     try {
-      await axios.post(`/api/telesale/don-hang/update-status/${id}`, { trang_thai: trangThai });
+      await axios.post(`/aio/api/api/telesale/don-hang/update-status/${id}`, { trang_thai: trangThai });
       message.success('Cập nhật trạng thái thành công');
       fetchData();
     } catch (error) {

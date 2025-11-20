@@ -56,8 +56,8 @@ const DataKhachHangPage: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/telesale/data-khach-hang');
-      setData(res.data);
+      const res = await axios.get('/aio/api/api/telesale/data-khach-hang');
+      setData(res.data.data || res.data);
     } catch (error) {
       message.error('Lỗi tải dữ liệu');
     } finally {
@@ -85,10 +85,10 @@ const DataKhachHangPage: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (editingId) {
-        await axios.post(`/api/telesale/data-khach-hang/update/${editingId}`, values);
+        await axios.post(`/aio/api/api/telesale/data-khach-hang/update/${editingId}`, values);
         message.success('Cập nhật thành công');
       } else {
-        await axios.post('/api/telesale/data-khach-hang/store', values);
+        await axios.post('/aio/api/api/telesale/data-khach-hang/store', values);
         message.success('Tạo mới thành công');
       }
       setModalVisible(false);
@@ -100,7 +100,7 @@ const DataKhachHangPage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.post(`/api/telesale/data-khach-hang/delete/${id}`);
+      await axios.post(`/aio/api/api/telesale/data-khach-hang/delete/${id}`);
       message.success('Xóa thành công');
       fetchData();
     } catch (error) {
@@ -111,7 +111,7 @@ const DataKhachHangPage: React.FC = () => {
   const handlePhanBo = async () => {
     try {
       const values = await phanBoForm.validateFields();
-      await axios.post('/api/telesale/data-khach-hang/phan-bo', {
+      await axios.post('/aio/api/api/telesale/data-khach-hang/phan-bo', {
         data_ids: selectedIds,
         nhan_vien_telesale_id: values.nhan_vien_telesale_id,
       });

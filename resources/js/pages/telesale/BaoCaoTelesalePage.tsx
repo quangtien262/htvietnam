@@ -21,8 +21,8 @@ const BaoCaoTelesalePage: React.FC = () => {
   const fetchCuocGoiData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/telesale/cuoc-goi/bao-cao');
-      setCuocGoiData(res.data);
+      const res = await axios.get('/aio/api/api/telesale/cuoc-goi/bao-cao');
+      setCuocGoiData(res.data.data || res.data);
     } catch (error) {
       message.error('Lỗi tải báo cáo cuộc gọi');
     } finally {
@@ -33,10 +33,10 @@ const BaoCaoTelesalePage: React.FC = () => {
   const fetchDonHangData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/telesale/don-hang/bao-cao', {
+      const res = await axios.get('/aio/api/api/telesale/don-hang/bao-cao', {
         params: { thang, nam },
       });
-      setDonHangData(res.data);
+      setDonHangData(res.data.data || res.data);
     } catch (error) {
       message.error('Lỗi tải báo cáo đơn hàng');
     } finally {
