@@ -119,7 +119,7 @@ const AnalyticsDashboard: React.FC = () => {
             if (response.data.success || response.data.status_code === 200) {
                 const data = response.data.data || response.data;
                 console.log('Analytics Data:', data);
-                
+
                 setStats(data.stats || {
                     totalRevenue: 0,
                     revenueGrowth: 0,
@@ -136,7 +136,7 @@ const AnalyticsDashboard: React.FC = () => {
                 setServiceRanking(data.service_ranking || []);
                 setCustomerSegments(data.customer_segments || []);
                 setHourlyData(data.hourly_data || []);
-                
+
                 console.log('Revenue Data:', data.revenue_chart);
                 console.log('Category Data:', data.category_chart);
             } else {

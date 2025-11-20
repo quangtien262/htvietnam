@@ -32,7 +32,7 @@ class SpaReportController extends Controller
         $query = HoaDon::whereBetween('created_at', [$startDate, $endDate])
             ->where('is_draft', 0)
             ->where('is_recycle_bin', 0);
-        
+
         if ($branchId) {
             $query->where('chi_nhanh_id', $branchId);
         }
