@@ -294,8 +294,11 @@ const ServiceList: React.FC = () => {
                 return;
             }
 
+            // Remove trang_thai field (not in database schema)
+            const { trang_thai, ...restValues } = values;
+
             const payload = {
-                ...values,
+                ...restValues,
                 hinh_anh: imageUrl,
             };
 
