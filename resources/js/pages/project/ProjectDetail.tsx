@@ -70,6 +70,14 @@ const ProjectDetail: React.FC = () => {
     // Active tab state - to preserve tab after reload
     const [activeTabKey, setActiveTabKey] = useState<string>('tasks');
 
+    // Task filters
+    const [taskFilters, setTaskFilters] = useState<{
+        search?: string;
+        assigned_user_id?: number;
+        supporter_id?: number;
+        priority_id?: number;
+    }>({});
+
     // Handle window resize for responsive view mode
     useEffect(() => {
         const handleResize = () => {
@@ -134,6 +142,53 @@ const ProjectDetail: React.FC = () => {
         }
     };
 
+    // Filter tasks based on taskFilters
+    const getFilteredTasks = (tasks: Task[] | undefined): Task[] => {
+        if (!tasks) return [];
+
+        return tasks.filter(task => {
+            // Search filter - tìm trong tiêu đề và mô tả
+            if (taskFilters.search) {
+                const searchLower = taskFilters.search.toLowerCase();
+                const matchTitle = task.tieu_de?.toLowerCase().includes(searchLower);
+                const matchDesc = task.mo_ta?.toLowerCase().includes(searchLower);
+                if (!matchTitle && !matchDesc) return false;
+            }
+
+            // Assigned user filter
+            if (taskFilters.assigned_user_id) {
+                if (task.nguoi_thuc_hien?.id !== taskFilters.assigned_user_id) return false;
+            }
+
+            // Supporter filter
+            if (taskFilters.supporter_id) {
+                const hasSupporter = task.supporters?.some(
+                    (supporter: any) => supporter.id === taskFilters.supporter_id
+                );
+                if (!hasSupporter) return false;
+            }
+
+            // Priority filter
+            if (taskFilters.priority_id) {
+                if (task.uu_tien?.id !== taskFilters.priority_id) return false;
+            }
+
+            return true;
+        });
+    };
+
+    // Filter kanban data based on taskFilters
+    const getFilteredKanbanData = (): { [key: number]: Task[] } => {
+        const filtered: { [key: number]: Task[] } = {};
+
+        Object.keys(kanbanData).forEach(statusId => {
+            const statusIdNum = Number(statusId);
+            filtered[statusIdNum] = getFilteredTasks(kanbanData[statusIdNum]);
+        });
+
+        return filtered;
+    };
+
     const loadProject = async () => {
         if (!id) return;
 
@@ -156,6 +211,15 @@ const ProjectDetail: React.FC = () => {
             message.error(error.response?.data?.message || 'Không thể tải thông tin dự án');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Reload tasks based on current view mode
+    const handleTaskUpdate = async () => {
+        if (taskViewMode === 'kanban') {
+            await loadKanbanData();
+        } else {
+            await loadProject();
         }
     };
 
@@ -725,11 +789,69 @@ const ProjectDetail: React.FC = () => {
                         </Space>
                     }
                 >
+                    {/* Task Filters */}
+                    <div style={{ marginBottom: 16 }}>
+                        <Space wrap style={{ width: '100%' }}>
+                            <Input.Search
+                                placeholder="Tìm kiếm nhiệm vụ..."
+                                style={{ width: isMobile ? '100%' : 250 }}
+                                allowClear
+                                value={taskFilters.search}
+                                onChange={(e) => setTaskFilters({ ...taskFilters, search: e.target.value })}
+                            />
+                            <Select
+                                placeholder="Người thực hiện"
+                                style={{ width: isMobile ? '100%' : 180 }}
+                                allowClear
+                                value={taskFilters.assigned_user_id}
+                                onChange={(value) => setTaskFilters({ ...taskFilters, assigned_user_id: value })}
+                                showSearch
+                                optionFilterProp="children"
+                            >
+                                {projectMembers.map((member) => (
+                                    <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
+                                        {member.admin_user?.name || member.admin_user_id}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            <Select
+                                placeholder="Người hỗ trợ"
+                                style={{ width: isMobile ? '100%' : 180 }}
+                                allowClear
+                                value={taskFilters.supporter_id}
+                                onChange={(value) => setTaskFilters({ ...taskFilters, supporter_id: value })}
+                                showSearch
+                                optionFilterProp="children"
+                            >
+                                {projectMembers.map((member) => (
+                                    <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
+                                        {member.admin_user?.name || member.admin_user_id}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            <Select
+                                placeholder="Độ ưu tiên"
+                                style={{ width: isMobile ? '100%' : 150 }}
+                                allowClear
+                                value={taskFilters.priority_id}
+                                onChange={(value) => setTaskFilters({ ...taskFilters, priority_id: value })}
+                            >
+                                {priorities.map((priority) => (
+                                    <Select.Option key={priority.id} value={priority.id}>
+                                        <Tag color={priority.color} style={{ margin: 0 }}>
+                                            {priority.name}
+                                        </Tag>
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Space>
+                    </div>
+
                     {taskViewMode === 'table' ? (
                         // Table View - Modern Design
                         project.tasks && project.tasks.length > 0 ? (
                             <Table
-                                dataSource={project.tasks}
+                                dataSource={getFilteredTasks(project.tasks)}
                                 rowKey="id"
                                 pagination={{
                                     pageSize: 10,
@@ -898,7 +1020,8 @@ const ProjectDetail: React.FC = () => {
                                     paddingTop: 8,
                                 }}>
                                     {taskStatuses.map((status) => {
-                                        const tasks = kanbanData[status.id] || [];
+                                        const filteredKanban = getFilteredKanbanData();
+                                        const tasks = filteredKanban[status.id] || [];
 
                                         return (
                                             <div
@@ -1506,7 +1629,7 @@ const ProjectDetail: React.FC = () => {
                     setDetailVisible(false);
                     setDetailTaskId(null);
                 }}
-                onUpdate={loadProject}
+                onUpdate={handleTaskUpdate}
             />
 
             {/* Add Task Modal */}

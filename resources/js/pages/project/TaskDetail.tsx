@@ -289,8 +289,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                     });
                 }
 
-                // Note: Không gọi onUpdate() để tránh reload toàn bộ danh sách tasks
-                // Task state đã được update trực tiếp ở trên
+                // Notify parent to reload task list
+                onUpdate?.();
             }
         } catch (error: any) {
             console.error('[TaskDetail] Quick edit ERROR:', error);
@@ -424,6 +424,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 checklistForm.resetFields();
                 setAddingChecklist(false);
                 loadTask();
+                onUpdate?.();
             }
         } catch (error: any) {
             console.error('❌ Checklist update error:', error);
@@ -464,6 +465,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 message.success('Cập nhật checklist thành công');
                 setEditingChecklist(null);
                 loadTask();
+                onUpdate?.();
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
@@ -489,6 +491,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
 
             if (response.data.success) {
                 loadTask();
+                onUpdate?.();
             }
         } catch (error: any) {
             message.error('Có lỗi xảy ra');
@@ -517,6 +520,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             if (response.data.success) {
                 message.success('Xóa thành công');
                 loadTask();
+                onUpdate?.();
             }
         } catch (error: any) {
             message.error('Có lỗi xảy ra');
@@ -602,6 +606,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             } else {
                 await loadTask();
             }
+
+            onUpdate?.();
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Có lỗi xảy ra');
         } finally {
@@ -1773,6 +1779,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                                         await taskApi.updateSupporters(task!.id, supporterIds);
                                         message.success('Cập nhật người hỗ trợ thành công');
                                         loadTask();
+                                        onUpdate?.();
                                     } catch (error) {
                                         message.error('Cập nhật người hỗ trợ thất bại');
                                     }
