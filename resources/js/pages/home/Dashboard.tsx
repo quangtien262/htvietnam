@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.newsManagement}?p=web`}>
+                            <Link to={item.link}>
                                 <DribbbleSquareOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -71,7 +71,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.dashboard_aitilen}?p=bds`}>
+                            <Link to={item.link}>
                                 <HomeOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.documentsExplorer}?p=docs`}>
+                            <Link to={item.link}>
                                 <CopyOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -135,7 +135,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.hrBaoCao}?p=hr`}>
+                            <Link to={item.link}>
                                 <IdcardFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -165,7 +165,9 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            {/* <Link to={`${ROUTE.purchaseReportManagement}?p=purchases`}> */}
+
+                            <Link to={item.link}>
                                 <SlidersFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -197,7 +199,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to="/">
+                            <Link to={item.link}>
                                 <PieChartFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -228,7 +230,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.project_dashboard}?p=projects`}>
+                            <Link to={item.link}>
                                 <CalendarFilled /> {item.display_name}
                             </Link>
                             {/* <Link to={`${ROUTE.dashboardProject}?p=pro`}>
@@ -262,7 +264,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.purchaseReportManagement}?p=purchase`}>
+                            <Link to={item.link}>
                                 <HddFilled /> QUẢN LÝ MUA HÀNG / TÀI SẢN
                             </Link>
                         </div>
@@ -293,7 +295,7 @@ const Dashboard: React.FC = () => {
                 <Card variant="borderless" className='item-dashboard'>
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.erpDashboard}?p=erp`}>
+                            <Link to={item.link}>
                                 <AccountBookOutlined /> {item.display_name}
                             </Link>
                         </div>
@@ -325,7 +327,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.salesBaoCao}?p=sales`}>
+                            <Link to={item.link}>
                                 <ShopFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -356,7 +358,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.telesaleBaoCao}?p=telesale`}>
+                            <Link to={item.link}>
                                 <ShopFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -388,7 +390,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.spa_analytics}?p=spa`}>
+                            <Link to={item.link}>
                                 <ShopFilled /> {item.display_name}
                             </Link>
                         </div>
@@ -419,7 +421,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="ant-statistic css-dev-only-do-not-override-1xg9z9n">
                         <div className="ant-statistic-title">
-                            <Link to={`${ROUTE.businessCoHoi}?p=business`}>
+                            <Link to={item.link}>
                                 <ShopFilled /> {item.display_name}
                             </Link>
                         </div>

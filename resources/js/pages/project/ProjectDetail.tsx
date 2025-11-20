@@ -768,16 +768,20 @@ const ProjectDetail: React.FC = () => {
                                 menu={{
                                     items: [
                                         {
-                                            key: 'add-single',
-                                            label: 'Thêm nhiệm vụ',
-                                            icon: <PlusOutlined />,
-                                            onClick: handleOpenAddTaskModal,
-                                        },
-                                        {
                                             key: 'add-multiple',
                                             label: 'Thêm nhanh nhiều nhiệm vụ',
                                             icon: <PlusOutlined />,
                                             onClick: () => setQuickAddModalVisible(true),
+                                        },
+                                        {
+                                            key: 'hr',
+                                            label: <hr />,
+                                        },
+                                        {
+                                            key: 'add-single',
+                                            label: 'Thêm nhiệm vụ',
+                                            icon: <PlusOutlined />,
+                                            onClick: handleOpenAddTaskModal,
                                         },
                                     ],
                                 }}
@@ -1644,6 +1648,7 @@ const ProjectDetail: React.FC = () => {
                 okText="Tạo"
                 cancelText="Hủy"
                 width={700}
+                maskClosable={false}
             >
                 <Form
                     form={addTaskForm}
@@ -1659,6 +1664,24 @@ const ProjectDetail: React.FC = () => {
                         rules={[{ required: true, message: 'Vui lòng nhập tiêu đề nhiệm vụ' }]}
                     >
                         <Input placeholder="Nhập tiêu đề nhiệm vụ" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Người thực hiện"
+                        name="nguoi_thuc_hien_id"
+                    >
+                        <Select
+                            placeholder="Chọn người thực hiện"
+                            allowClear
+                            showSearch
+                            optionFilterProp="children"
+                        >
+                            {projectMembers.map(member => (
+                                <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
+                                    {member.admin_user?.name} ({member.admin_user?.email})
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
 
                     <Form.Item
@@ -1719,24 +1742,6 @@ const ProjectDetail: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-
-                    <Form.Item
-                        label="Người thực hiện111"
-                        name="nguoi_thuc_hien_id"
-                    >
-                        <Select
-                            placeholder="Chọn người thực hiện"
-                            allowClear
-                            showSearch
-                            optionFilterProp="children"
-                        >
-                            {projectMembers.map(member => (
-                                <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
-                                    {member.admin_user?.name} ({member.admin_user?.email})
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
                 </Form>
             </Modal>
 
@@ -1808,6 +1813,12 @@ const ProjectDetail: React.FC = () => {
             <Modal
                 title="Thêm nhanh nhiệm vụ"
                 open={quickAddModalVisible}
+                onOk={handleQuickAddTasks}
+                okText="Tạo tất cả"
+                cancelText="Hủy"
+                confirmLoading={quickAddLoading}
+                width={'95%'}
+                maskClosable={false}
                 onCancel={() => {
                     setQuickAddModalVisible(false);
                     setQuickAddTasks([
@@ -1820,11 +1831,6 @@ const ProjectDetail: React.FC = () => {
                     setApplyAllAssignee(false);
                     setApplyAllPriority(false);
                 }}
-                onOk={handleQuickAddTasks}
-                okText="Tạo tất cả"
-                cancelText="Hủy"
-                confirmLoading={quickAddLoading}
-                width={1000}
             >
                 <Table
                     dataSource={quickAddTasks.map((task, index) => ({ ...task, key: index }))}
