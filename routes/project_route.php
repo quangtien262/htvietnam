@@ -115,6 +115,28 @@ Route::get('/admin-users', function () {
     ]);
 });
 
+// Get current authenticated user
+Route::get('/current-user', function () {
+    $user = auth('admin_users')->user();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized',
+        ], 401);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ],
+    ]);
+});
+
 // RBAC - Role & Permission Management
 Route::prefix('rbac')->name('rbac.')->group(function () {
     Route::get('roles', [PermissionController::class, 'getRoles'])->name('roles');

@@ -380,6 +380,11 @@ export const notificationApi = {
 // ============================================
 
 export const referenceApi = {
+    // Get current authenticated user
+    getCurrentUser: () => {
+        return axios.get(`${API_BASE}/current-user`);
+    },
+
     // Get project statuses
     getProjectStatuses: () => {
         return axios.get(`${API_BASE}/project-statuses`);

@@ -112,14 +112,12 @@ const MyTasks: React.FC = () => {
     const [adminUsers, setAdminUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        // Get current user ID from auth (you may need to adjust this based on your auth implementation)
+        // Get current user ID from auth
         const getCurrentUser = async () => {
             try {
-                const userResponse = await referenceApi.getAdminUsers();
-                if (userResponse.data.success && userResponse.data.data.length > 0) {
-                    // Assuming the first user is the current logged in user
-                    // You might need to adjust this based on your auth implementation
-                    const currentUser = userResponse.data.data[0];
+                const userResponse = await referenceApi.getCurrentUser();
+                if (userResponse.data.success && userResponse.data.data) {
+                    const currentUser = userResponse.data.data;
                     setCurrentUserId(currentUser.id);
                     // Set default filter to current user
                     setFilters(prev => ({
@@ -218,7 +216,7 @@ const MyTasks: React.FC = () => {
 
             if (response.data.success) {
                 const tasks = response.data.data.data || response.data.data;
-                
+
                 // Group tasks by status
                 const kanban: { [key: number]: Task[] } = {};
                 statuses.forEach(status => {
