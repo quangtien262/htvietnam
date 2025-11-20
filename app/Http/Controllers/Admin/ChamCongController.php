@@ -128,9 +128,11 @@ class ChamCongController extends Controller
      */
     public function getByDateRange(Request $request)
     {
-        $userId = $request->user_id;
+        $userId = $request->user_id ?? auth('admin_users')->id();
         $from = $request->from;
         $to = $request->to;
+        $thang = $request->thang ?? now()->month;
+        $nam = $request->nam ?? now()->year;
 
         $chamCongs = ChamCong::active()
             ->with('nhanVien')
@@ -139,9 +141,14 @@ class ChamCongController extends Controller
             ->orderBy('ngay_cham_cong')
             ->get();
 
+        $tongHop = ChamCongService::getTongHopThang($userId, $thang, $nam);
+
         return response()->json([
             'message' => 'success',
-            'data' => $chamCongs,
+            'data' => [
+                'chamCongs' => $chamCongs,
+                'tongHop' => $tongHop,
+            ],
         ]);
     }
 

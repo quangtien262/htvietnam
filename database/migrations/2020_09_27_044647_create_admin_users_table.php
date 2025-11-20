@@ -17,7 +17,6 @@ return new class extends Migration
     {
         Schema::create('admin_users', function (Blueprint $table) {
             $table->id();
-
             $table->string('password')->nullable()->comment('Mật khẩu');
             $table->string('name')->nullable()->comment('Họ và tên');
             $table->string('code')->nullable()->comment('Mã nhân viên');

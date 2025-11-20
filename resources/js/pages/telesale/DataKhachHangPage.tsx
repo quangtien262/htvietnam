@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Modal, Form, Input, Select, Tag, Space, message, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, UserAddOutlined } from '@ant-design/icons';
+import { Card, Table, Button, Modal, Form, Input, Select, Tag, Space, message, Upload, DatePicker, InputNumber } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, UserAddOutlined, DownloadOutlined, PhoneOutlined } from '@ant-design/icons';
+import type { UploadProps } from 'antd';
+import dayjs from 'dayjs';
 import axios from 'axios';
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 interface DataKhachHang {
   id: number;
@@ -19,6 +22,19 @@ interface DataKhachHang {
   ten_nhan_vien?: string;
   tags?: string[];
 }
+
+interface NhanVien {
+  id: number;
+  name: string;
+}
+
+const KET_QUA_MAP = {
+  thanh_cong: { text: 'Thành công', color: 'green' },
+  khong_nghe_may: { text: 'Không nghe máy', color: 'orange' },
+  tu_choi: { text: 'Từ chối', color: 'red' },
+  hen_goi_lai: { text: 'Hẹn gọi lại', color: 'blue' },
+  sai_so: { text: 'Sai số', color: 'default' },
+};
 
 const NGUON_DATA_MAP = {
   mua_data: 'Mua data',
@@ -48,10 +64,15 @@ const DataKhachHangPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [phanBoVisible, setPhanBoVisible] = useState(false);
+  const [cuocGoiVisible, setCuocGoiVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedKhachHang, setSelectedKhachHang] = useState<DataKhachHang | null>(null);
   const [form] = Form.useForm();
   const [phanBoForm] = Form.useForm();
+  const [cuocGoiForm] = Form.useForm();
+  const [uploading, setUploading] = useState(false);
+  const [nhanViens, setNhanViens] = useState<NhanVien[]>([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -65,8 +86,18 @@ const DataKhachHangPage: React.FC = () => {
     }
   };
 
+  const fetchNhanViens = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/admin/users');
+      setNhanViens(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách nhân viên');
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchNhanViens();
   }, []);
 
   const handleCreate = () => {
@@ -124,6 +155,88 @@ const DataKhachHangPage: React.FC = () => {
     }
   };
 
+  const handleOpenCuocGoi = (record: DataKhachHang) => {
+    setSelectedKhachHang(record);
+    cuocGoiForm.resetFields();
+    cuocGoiForm.setFieldsValue({
+      data_khach_hang_id: record.id,
+    });
+    setCuocGoiVisible(true);
+  };
+
+  const handleSubmitCuocGoi = async () => {
+    try {
+      const values = await cuocGoiForm.validateFields();
+      const payload = {
+        ...values,
+        thoi_gian_bat_dau: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        thoi_gian_ket_thuc: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      };
+      // Convert ngay_hen_goi_lai dayjs to string if exists
+      if (values.ngay_hen_goi_lai) {
+        payload.ngay_hen_goi_lai = dayjs(values.ngay_hen_goi_lai).format('YYYY-MM-DD HH:mm:ss');
+      }
+      await axios.post('/aio/api/api/telesale/cuoc-goi/store', payload);
+      message.success('Ghi nhận cuộc gọi thành công');
+      setCuocGoiVisible(false);
+      fetchData();
+    } catch (error) {
+      message.error('Lỗi lưu dữ liệu');
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    window.open('/aio/api/api/telesale/data-khach-hang/template', '_blank');
+  };
+
+  const uploadProps: UploadProps = {
+    name: 'file',
+    accept: '.xlsx,.xls,.csv',
+    showUploadList: false,
+    beforeUpload: (file) => {
+      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                      file.type === 'application/vnd.ms-excel' ||
+                      file.type === 'text/csv';
+      if (!isExcel) {
+        message.error('Chỉ chấp nhận file Excel (.xlsx, .xls) hoặc CSV!');
+        return false;
+      }
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (!isLt10M) {
+        message.error('File phải nhỏ hơn 10MB!');
+        return false;
+      }
+      return true;
+    },
+    customRequest: async ({ file, onSuccess, onError }) => {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file as File);
+
+      try {
+        const res = await axios.post('/aio/api/api/telesale/data-khach-hang/import', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        message.success(res.data.message || 'Import thành công!');
+        if (res.data.errors && res.data.errors.length > 0) {
+          console.warn('Import errors:', res.data.errors);
+          Modal.warning({
+            title: 'Có một số lỗi khi import',
+            content: res.data.errors.slice(0, 5).join('\n'),
+          });
+        }
+        onSuccess?.(res.data);
+        fetchData();
+      } catch (error: any) {
+        const errMsg = error.response?.data?.message || 'Lỗi import file';
+        message.error(errMsg);
+        onError?.(error);
+      } finally {
+        setUploading(false);
+      }
+    },
+  };
+
   const columns = [
     { title: 'Mã data', dataIndex: 'ma_data', key: 'ma_data', width: 100 },
     { title: 'Tên khách hàng', dataIndex: 'ten_khach_hang', key: 'ten_khach_hang' },
@@ -157,9 +270,10 @@ const DataKhachHangPage: React.FC = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      width: 100,
+      width: 150,
       render: (_: any, record: DataKhachHang) => (
         <Space>
+          <Button size="small" icon={<PhoneOutlined />} onClick={() => handleOpenCuocGoi(record)} title="Ghi nhận cuộc gọi" />
           <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
           <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
         </Space>
@@ -173,7 +287,14 @@ const DataKhachHangPage: React.FC = () => {
         title="Quản lý Data Khách hàng Telesale"
         extra={
           <Space>
-            <Button icon={<UploadOutlined />}>Import Excel</Button>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>
+              Tải mẫu Excel
+            </Button>
+            <Upload {...uploadProps}>
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                Import Excel
+              </Button>
+            </Upload>
             <Button
               icon={<UserAddOutlined />}
               disabled={selectedIds.length === 0}
@@ -244,6 +365,60 @@ const DataKhachHangPage: React.FC = () => {
       </Modal>
 
       <Modal
+        title={`Ghi nhận Cuộc gọi - ${selectedKhachHang?.ten_khach_hang || ''}`}
+        open={cuocGoiVisible}
+        onOk={handleSubmitCuocGoi}
+        onCancel={() => setCuocGoiVisible(false)}
+        width={700}
+      >
+        <Form form={cuocGoiForm} layout="vertical">
+          <Form.Item name="data_khach_hang_id" hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Khách hàng">
+            <Input value={`${selectedKhachHang?.ten_khach_hang} - ${selectedKhachHang?.sdt}`} disabled />
+          </Form.Item>
+          <Form.Item name="nhan_vien_telesale_id" label="NV Telesale" rules={[{ required: true }]}>
+            <Select
+              placeholder="Chọn nhân viên"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={nhanViens.map(nv => ({
+                value: nv.id,
+                label: nv.name,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="thoi_luong" label="Thời lượng (giây)">
+            <InputNumber style={{ width: '100%' }} min={0} />
+          </Form.Item>
+          <Form.Item name="ket_qua" label="Kết quả" rules={[{ required: true }]}>
+            <Select>
+              {Object.entries(KET_QUA_MAP).map(([key, val]) => (
+                <Option key={key} value={key}>{val.text}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="noi_dung_cuoc_goi" label="Nội dung cuộc gọi">
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="ghi_chu" label="Ghi chú">
+            <TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="ngay_hen_goi_lai" label="Ngày hẹn gọi lại (nếu có)">
+            <DatePicker
+              showTime
+              format="DD/MM/YYYY HH:mm"
+              placeholder="Chọn ngày giờ"
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
         title="Phân bổ Data cho Telesale"
         open={phanBoVisible}
         onOk={handlePhanBo}
@@ -251,11 +426,17 @@ const DataKhachHangPage: React.FC = () => {
       >
         <Form form={phanBoForm} layout="vertical">
           <Form.Item name="nhan_vien_telesale_id" label="Nhân viên Telesale" rules={[{ required: true }]}>
-            <Select placeholder="Chọn nhân viên">
-              {/* TODO: Load from API */}
-              <Option value={1}>Nhân viên 1</Option>
-              <Option value={2}>Nhân viên 2</Option>
-            </Select>
+            <Select
+              placeholder="Chọn nhân viên"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={nhanViens.map(nv => ({
+                value: nv.id,
+                label: nv.name,
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>

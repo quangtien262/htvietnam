@@ -25,6 +25,19 @@ interface CuocGoi {
   file_ghi_am?: string;
 }
 
+interface DataKhachHang {
+  id: number;
+  ma_data: string;
+  ten_khach_hang: string;
+  sdt: string;
+  email?: string;
+}
+
+interface NhanVien {
+  id: number;
+  name: string;
+}
+
 const KET_QUA_MAP = {
   thanh_cong: { text: 'Thành công', color: 'green' },
   khong_nghe_may: { text: 'Không nghe máy', color: 'orange' },
@@ -38,6 +51,8 @@ const CuocGoiPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [khachHangs, setKhachHangs] = useState<DataKhachHang[]>([]);
+  const [nhanViens, setNhanViens] = useState<NhanVien[]>([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -51,8 +66,28 @@ const CuocGoiPage: React.FC = () => {
     }
   };
 
+  const fetchKhachHangs = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/telesale/data-khach-hang');
+      setKhachHangs(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách khách hàng');
+    }
+  };
+
+  const fetchNhanViens = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/admin/users');
+      setNhanViens(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách nhân viên');
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchKhachHangs();
+    fetchNhanViens();
   }, []);
 
   const handleCreate = () => {
@@ -128,15 +163,30 @@ const CuocGoiPage: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item name="data_khach_hang_id" label="Khách hàng" rules={[{ required: true }]}>
-            <Select placeholder="Chọn khách hàng" showSearch>
-              {/* TODO: Load from API */}
-              <Option value={1}>Nguyễn Văn A - 0901234567</Option>
-            </Select>
+            <Select
+              placeholder="Chọn khách hàng"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={khachHangs.map(kh => ({
+                value: kh.id,
+                label: `${kh.ten_khach_hang} - ${kh.sdt}`,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="nhan_vien_telesale_id" label="NV Telesale" rules={[{ required: true }]}>
-            <Select placeholder="Chọn nhân viên">
-              <Option value={1}>Nhân viên 1</Option>
-            </Select>
+            <Select
+              placeholder="Chọn nhân viên"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={nhanViens.map(nv => ({
+                value: nv.id,
+                label: nv.name,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="thoi_luong" label="Thời lượng (giây)">
             <InputNumber style={{ width: '100%' }} min={0} />

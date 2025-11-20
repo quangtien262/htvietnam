@@ -170,6 +170,7 @@ Route::post('/api/telesale/data-khach-hang/update/{id}', [DataKhachHangControlle
 Route::post('/api/telesale/data-khach-hang/delete/{id}', [DataKhachHangController::class, 'destroy']);
 Route::post('/api/telesale/data-khach-hang/phan-bo', [DataKhachHangController::class, 'phanBo']);
 Route::post('/api/telesale/data-khach-hang/import', [DataKhachHangController::class, 'import']);
+Route::get('/api/telesale/data-khach-hang/template', [DataKhachHangController::class, 'downloadTemplate']);
 
 // Cuộc gọi
 Route::get('/api/telesale/cuoc-goi', [CuocGoiController::class, 'index']);
@@ -181,6 +182,17 @@ Route::get('/api/telesale/don-hang', [DonHangTelesaleController::class, 'index']
 Route::post('/api/telesale/don-hang/store', [DonHangTelesaleController::class, 'store']);
 Route::post('/api/telesale/don-hang/update-status/{id}', [DonHangTelesaleController::class, 'updateStatus']);
 Route::get('/api/telesale/don-hang/bao-cao', [DonHangTelesaleController::class, 'baoCao']);
+
+// Common API for Telesale
+Route::get('/api/admin/users', function () {
+    return response()->json([
+        'message' => 'success',
+        'data' => \App\Models\AdminUser::where('admin_user_status_id', 1)
+            ->select('id', 'name', 'email', 'phone', 'code')
+            ->orderBy('name')
+            ->get(),
+    ]);
+});
 
 // ============================
 // MODULE QUẢN LÝ TÀI LIỆU

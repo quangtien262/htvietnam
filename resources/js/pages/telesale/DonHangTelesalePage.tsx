@@ -29,6 +29,25 @@ interface ChiTiet {
   thanh_tien: number;
 }
 
+interface DataKhachHang {
+  id: number;
+  ma_data: string;
+  ten_khach_hang: string;
+  sdt: string;
+}
+
+interface CuocGoi {
+  id: number;
+  ma_cuoc_goi: string;
+  ten_khach_hang?: string;
+  data_khach_hang_id: number;
+}
+
+interface NhanVien {
+  id: number;
+  name: string;
+}
+
 const TRANG_THAI_MAP = {
   moi: { text: 'Mới', color: 'blue' },
   da_xac_nhan: { text: 'Đã xác nhận', color: 'cyan' },
@@ -45,6 +64,9 @@ const DonHangTelesalePage: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form] = Form.useForm();
   const [chiTiets, setChiTiets] = useState<ChiTiet[]>([]);
+  const [khachHangs, setKhachHangs] = useState<DataKhachHang[]>([]);
+  const [cuocGois, setCuocGois] = useState<CuocGoi[]>([]);
+  const [nhanViens, setNhanViens] = useState<NhanVien[]>([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -58,8 +80,38 @@ const DonHangTelesalePage: React.FC = () => {
     }
   };
 
+  const fetchKhachHangs = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/telesale/data-khach-hang');
+      setKhachHangs(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách khách hàng');
+    }
+  };
+
+  const fetchCuocGois = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/telesale/cuoc-goi');
+      setCuocGois(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách cuộc gọi');
+    }
+  };
+
+  const fetchNhanViens = async () => {
+    try {
+      const res = await axios.get('/aio/api/api/admin/users');
+      setNhanViens(res.data.data || res.data);
+    } catch (error) {
+      message.error('Lỗi tải danh sách nhân viên');
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchKhachHangs();
+    fetchCuocGois();
+    fetchNhanViens();
   }, []);
 
   const handleCreate = () => {
@@ -165,19 +217,44 @@ const DonHangTelesalePage: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item name="cuoc_goi_id" label="Cuộc gọi liên quan">
-            <Select placeholder="Chọn cuộc gọi">
-              <Option value={1}>CG00001 - Nguyễn Văn A</Option>
-            </Select>
+            <Select
+              placeholder="Chọn cuộc gọi"
+              showSearch
+              allowClear
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={cuocGois.map(cg => ({
+                value: cg.id,
+                label: `${cg.ma_cuoc_goi} - ${cg.ten_khach_hang || 'Khách hàng'}`,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="data_khach_hang_id" label="Khách hàng" rules={[{ required: true }]}>
-            <Select placeholder="Chọn khách hàng">
-              <Option value={1}>Nguyễn Văn A - 0901234567</Option>
-            </Select>
+            <Select
+              placeholder="Chọn khách hàng"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={khachHangs.map(kh => ({
+                value: kh.id,
+                label: `${kh.ten_khach_hang} - ${kh.sdt}`,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="nhan_vien_telesale_id" label="NV Telesale" rules={[{ required: true }]}>
-            <Select>
-              <Option value={1}>Nhân viên 1</Option>
-            </Select>
+            <Select
+              placeholder="Chọn nhân viên"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={nhanViens.map(nv => ({
+                value: nv.id,
+                label: nv.name,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="ten_nguoi_nhan" label="Tên người nhận" rules={[{ required: true }]}>
             <Input />

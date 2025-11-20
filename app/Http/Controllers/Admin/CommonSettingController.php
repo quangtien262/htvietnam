@@ -152,13 +152,13 @@ class CommonSettingController extends Controller
 
             // Thêm các trường nếu tồn tại trong bảng
             if (Schema::hasColumn($tableName, 'color')) {
-                $data['color'] = $request->color;
+                $data['color'] = $request->color ?? '#1890ff'; // Giá trị mặc định nếu không có
             }
             if (Schema::hasColumn($tableName, 'icon')) {
-                $data['icon'] = $request->icon;
+                $data['icon'] = $request->icon ?? null;
             }
             if (Schema::hasColumn($tableName, 'note')) {
-                $data['note'] = $request->note;
+                $data['note'] = $request->note ?? null;
             }
             if (Schema::hasColumn($tableName, 'is_default')) {
                 $data['is_default'] = $request->is_default ?? 0;
@@ -220,13 +220,13 @@ class CommonSettingController extends Controller
 
             // Cập nhật các trường nếu tồn tại
             if (Schema::hasColumn($tableName, 'color')) {
-                $data['color'] = $request->color;
+                $data['color'] = $request->color ?? '#1890ff'; // Giá trị mặc định nếu không có
             }
             if (Schema::hasColumn($tableName, 'icon')) {
-                $data['icon'] = $request->icon;
+                $data['icon'] = $request->icon ?? null;
             }
             if (Schema::hasColumn($tableName, 'note')) {
-                $data['note'] = $request->note;
+                $data['note'] = $request->note ?? null;
             }
             if (Schema::hasColumn($tableName, 'is_default')) {
                 $data['is_default'] = $request->is_default ?? 0;

@@ -56,8 +56,14 @@ export default function ChamCongPage() {
 
     const loadData = () => {
         setLoading(true);
-        axios.get('/aio/api/hr/cham-cong/list', {
-            params: { thang, nam }
+        const startOfMonth = dayjs(`${nam}-${thang.toString().padStart(2, '0')}-01`);
+        const endOfMonth = startOfMonth.endOf('month');
+
+        axios.post('/aio/api/api/hr/cham-cong/by-date-range', {
+            from: startOfMonth.format('YYYY-MM-DD'),
+            to: endOfMonth.format('YYYY-MM-DD'),
+            thang,
+            nam
         })
         .then((res: any) => {
             if (res.data.message === 'success') {
@@ -138,7 +144,7 @@ export default function ChamCongPage() {
         };
 
         setLoading(true);
-        axios.post('/aio/api/hr/cham-cong/store', data)
+        axios.post('/aio/api/api/hr/cham-cong/store', data)
             .then((res: any) => {
                 if (res.data.message === 'success') {
                     message.success('Chấm công thành công');
