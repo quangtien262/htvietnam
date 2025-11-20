@@ -347,9 +347,17 @@ const ServiceList: React.FC = () => {
 
     const handleStatusToggle = async (record: Service) => {
         try {
-            const newStatus = !record.is_active;
+            // Determine current active status
+            const currentIsActive = record.is_active !== undefined
+                ? record.is_active
+                : record.trang_thai === 'hoat_dong';
+
+            const newStatus = !currentIsActive;
+            const newTrangThai = newStatus ? 'hoat_dong' : 'ngung_hoat_dong';
+
             const response = await axios.put(API.spaServiceUpdate(record.id), {
                 is_active: newStatus,
+                trang_thai: newTrangThai,
             });
 
             if (response.data && response.data.status_code === 200) {
@@ -528,14 +536,21 @@ const ServiceList: React.FC = () => {
             dataIndex: 'trang_thai',
             key: 'trang_thai',
             width: 120,
-            render: (status: string, record: Service) => (
-                <Switch
-                    checked={status === 'hoat_dong'}
-                    onChange={() => handleStatusToggle(record)}
-                    checkedChildren="Hoạt động"
-                    unCheckedChildren="Ngừng"
-                />
-            ),
+            render: (status: string, record: Service) => {
+                // Use is_active if available, fallback to trang_thai
+                const isActive = record.is_active !== undefined
+                    ? record.is_active
+                    : status === 'hoat_dong';
+
+                return (
+                    <Switch
+                        checked={isActive}
+                        onChange={() => handleStatusToggle(record)}
+                        checkedChildren="Hoạt động"
+                        unCheckedChildren="Ngừng"
+                    />
+                );
+            },
         },
         {
             title: 'Thao tác',

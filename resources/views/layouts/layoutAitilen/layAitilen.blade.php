@@ -98,48 +98,6 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
-        <script>
-            // Auto open lightboxes
-        jQuery(document).ready(function($) {
-
-
-            /* global flatsomeVars */
-            'use strict'
-            var cookieId = 'lightbox_enter-id-here'
-            var cookieValue = 'opened_1'
-            var timer = parseInt('3000')
-
-            // Auto open lightbox
-
-            // Run lightbox if no cookie is set
-            if (cookie(cookieId) !== cookieValue) {
-
-                // Ensure closing off canvas
-                setTimeout(function() {
-                    if (jQuery.fn.magnificPopup) jQuery.magnificPopup.close()
-                }, timer - 350)
-
-                // Open lightbox
-                setTimeout(function() {
-                    $.loadMagnificPopup().then(function() {
-                        $.magnificPopup.open({
-                            midClick: true,
-                            removalDelay: 300,
-                            // closeBtnInside: flatsomeVars.lightbox.close_btn_inside,
-                            // closeMarkup: flatsomeVars.lightbox.close_markup,
-                            items: {
-                                src: '#enter-id-here',
-                                type: 'inline'
-                            }
-                        })
-                    })
-                }, timer)
-
-                // Set cookie
-                cookie(cookieId, cookieValue, 365)
-            }
-        })
-        </script>
 
         {{-- btn bottom ở đây --}}
 

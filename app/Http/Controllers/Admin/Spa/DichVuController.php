@@ -114,6 +114,11 @@ class DichVuController extends Controller
         }
         if ($request->has('is_active')) {
             $updateData['is_active'] = $request->is_active;
+            $updateData['trang_thai'] = $request->is_active ? 'hoat_dong' : 'ngung_hoat_dong';
+        }
+        if ($request->has('trang_thai')) {
+            $updateData['trang_thai'] = $request->trang_thai;
+            $updateData['is_active'] = $request->trang_thai === 'hoat_dong';
         }
 
         $updateData['updated_at'] = now();
