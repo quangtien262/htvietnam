@@ -97,4 +97,140 @@ class AnalyticsController extends Controller
             ], 500);
         }
     }
+
+    public function services(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getServiceAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function customers(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getCustomerAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function schedule(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getScheduleAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function staff(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getStaffAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function inventory(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getInventoryAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function packages(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getPackageAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function feedback(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getFeedbackAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function growth(Request $request)
+    {
+        try {
+            $service = new AnalyticsService();
+            $data = $service->getGrowthAnalytics($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

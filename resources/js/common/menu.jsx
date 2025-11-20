@@ -555,21 +555,9 @@ export const MENU = {
     // SPA
     spa: [
         {
-            label: <Link className='normal' to={`${ROUTE.spa_dashboard}?p=spa`}>Dashboard</Link>,
+            label: <Link className='normal' to={`${ROUTE.spa_analytics}?p=spa`}>Dashboard</Link>,
             icon: <DashboardOutlined />,
             key: (key++).toString(),
-            children: [
-                {
-                    label: <Link to={`${ROUTE.spa_analytics}?p=spa`}>Thống kê</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.spa_reports}?p=spa`}>Báo cáo</Link>,
-                    key: (key++).toString(),
-                    icon: <FileTextOutlined />,
-                },
-            ],
         },
         {
             label: <Link className='normal' to={`${ROUTE.spa_pos}?p=spa`}>Thu ngân</Link>,

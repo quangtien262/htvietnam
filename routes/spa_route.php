@@ -80,6 +80,14 @@ Route::prefix('pos')->name('pos.')->group(function () {
 Route::prefix('analytics')->name('analytics.')->group(function () {
     Route::get('/dashboard', [AnalyticsController::class, 'dashboard'])->name('dashboard');
     Route::get('/revenue', [AnalyticsController::class, 'revenue'])->name('revenue');
+    Route::get('/services', [AnalyticsController::class, 'services'])->name('services');
+    Route::get('/customers', [AnalyticsController::class, 'customers'])->name('customers');
+    Route::get('/schedule', [AnalyticsController::class, 'schedule'])->name('schedule');
+    Route::get('/staff', [AnalyticsController::class, 'staff'])->name('staff');
+    Route::get('/inventory', [AnalyticsController::class, 'inventory'])->name('inventory');
+    Route::get('/packages', [AnalyticsController::class, 'packages'])->name('packages');
+    Route::get('/feedback', [AnalyticsController::class, 'feedback'])->name('feedback');
+    Route::get('/growth', [AnalyticsController::class, 'growth'])->name('growth');
     Route::get('/customer-segmentation', [AnalyticsController::class, 'customerSegmentation'])->name('customer_segmentation');
     Route::post('/export-report', [AnalyticsController::class, 'exportReport'])->name('export_report');
 });

@@ -119,7 +119,7 @@ import SpaBookingCalendar from './pages/spa/SpaBookingCalendar';
 import SpaPOSScreen from './pages/spa/SpaPOSScreen';
 import InvoiceList from './pages/spa/InvoiceList';
 import SpaCustomerList from './pages/spa/SpaCustomerList';
-import SpaAnalyticsDashboard from './pages/spa/SpaAnalyticsDashboard';
+import SpaAnalytics from './pages/spa/analytics/SpaAnalytics';
 import ServiceList from './pages/spa/ServiceList';
 import SpaProductList from './pages/spa/ProductList';
 import TreatmentPackageList from './pages/spa/TreatmentPackageList';
@@ -281,7 +281,7 @@ const App: React.FC = () => (
                 <Route path={ROUTE.spa_pos} element={<SpaPOSScreen />} />
                 <Route path={ROUTE.spa_invoices} element={<InvoiceList />} />
                 <Route path={ROUTE.spa_customers} element={<SpaCustomerList />} />
-                <Route path={ROUTE.spa_analytics} element={<SpaAnalyticsDashboard />} />
+                <Route path={ROUTE.spa_analytics} element={<SpaAnalytics />} />
                 <Route path={ROUTE.spa_services} element={<ServiceList />} />
                 <Route path={ROUTE.spa_products} element={<SpaProductList />} />
                 <Route path={ROUTE.spa_treatment_packages} element={<TreatmentPackageList />} />

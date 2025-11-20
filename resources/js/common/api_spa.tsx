@@ -46,6 +46,15 @@ export const API_SPA = {
 
     // Analytics (Thống kê & Báo cáo)
     spaAnalyticsDashboard: BASE_API_URL + 'analytics/dashboard',
+    spaAnalyticsRevenue: BASE_API_URL + 'analytics/revenue',
+    spaAnalyticsServices: BASE_API_URL + 'analytics/services',
+    spaAnalyticsCustomers: BASE_API_URL + 'analytics/customers',
+    spaAnalyticsSchedule: BASE_API_URL + 'analytics/schedule',
+    spaAnalyticsStaff: BASE_API_URL + 'analytics/staff',
+    spaAnalyticsInventory: BASE_API_URL + 'analytics/inventory',
+    spaAnalyticsPackages: BASE_API_URL + 'analytics/packages',
+    spaAnalyticsFeedback: BASE_API_URL + 'analytics/feedback',
+    spaAnalyticsGrowth: BASE_API_URL + 'analytics/growth',
     spaAnalyticsExport: BASE_API_URL + 'analytics/export',
 
     // Customers
