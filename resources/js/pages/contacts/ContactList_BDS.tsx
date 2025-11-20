@@ -270,9 +270,15 @@ const ContactList_BDS: React.FC = () => {
             }
         },
         {
-            title: 'Trạng thái',
+            title: 'Phòng',
             dataIndex: 'ma_khach_hang',
             key: 'ma_khach_hang',
+            sorter: (a: any, b: any) => {
+                const propsData = props as any;
+                const roomNameA = propsData.room && propsData.room[a.room_id] ? propsData.room[a.room_id].name : '';
+                const roomNameB = propsData.room && propsData.room[b.room_id] ? propsData.room[b.room_id].name : '';
+                return roomNameA.localeCompare(roomNameB, 'vi', { numeric: true, sensitivity: 'base' });
+            },
             render: (text: any, record: any) => {
                 return <>
                     {props.room[record.room_id] ? <Tag color="blue">{props.room[record.room_id].name}</Tag> : ''}
