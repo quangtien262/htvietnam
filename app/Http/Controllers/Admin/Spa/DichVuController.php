@@ -155,7 +155,13 @@ class DichVuController extends Controller
 
     public function show($id)
     {
-        $service = DB::table('spa_dich_vu')->where('id', $id)->first();
+        $service = DB::table('spa_dich_vu')
+            ->where('id', $id)
+            ->select(
+                'spa_dich_vu.*',
+                'spa_dich_vu.gia_ban as gia'
+            )
+            ->first();
 
         // Load materials with product info
         if ($service) {

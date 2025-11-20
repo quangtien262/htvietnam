@@ -232,22 +232,48 @@ const ServiceList: React.FC = () => {
             const response = await axios.get(API.spaServiceDetail(record.id));
             const serviceData = response.data.data || response.data;
 
+            console.log('Service detail loaded:', serviceData);
+
+            // Set form values with proper number conversion
             form.setFieldsValue({
-                ...serviceData,
+                ma_dich_vu: serviceData.ma_dich_vu,
+                ten_dich_vu: serviceData.ten_dich_vu,
+                danh_muc_id: serviceData.danh_muc_id,
+                gia: Number(serviceData.gia || serviceData.gia_ban) || 0,
+                thoi_gian_thuc_hien: Number(serviceData.thoi_gian_thuc_hien) || 0,
+                trang_thai: serviceData.trang_thai || 'hoat_dong',
+                mo_ta: serviceData.mo_ta,
                 yeu_cau_ky_nang: serviceData.yeu_cau_ky_nang || [],
-                nguyen_lieu: serviceData.nguyen_lieu || [],
+                nguyen_lieu: (serviceData.nguyen_lieu || []).map((nl: any) => ({
+                    san_pham_id: nl.san_pham_id,
+                    so_luong: Number(nl.so_luong) || 0,
+                    don_vi: nl.don_vi,
+                    gia_von: Number(nl.gia_von) || 0,
+                    ty_le_quy_doi: Number(nl.ty_le_quy_doi) || 1,
+                    don_vi_quy_doi_id: nl.don_vi_quy_doi_id,
+                    thanh_tien: Number(nl.thanh_tien) || 0,
+                })),
             });
             setImageUrl(serviceData.hinh_anh || '');
         } catch (error) {
             console.error('Failed to load service details:', error);
+
+            // Fallback to record data
             form.setFieldsValue({
-                ...record,
+                ma_dich_vu: record.ma_dich_vu,
+                ten_dich_vu: record.ten_dich_vu,
+                danh_muc_id: record.danh_muc_id,
+                gia: Number(record.gia || record.gia_ban) || 0,
+                thoi_gian_thuc_hien: Number(record.thoi_gian_thuc_hien) || 0,
+                trang_thai: record.trang_thai || 'hoat_dong',
+                mo_ta: record.mo_ta,
                 yeu_cau_ky_nang: record.yeu_cau_ky_nang || [],
                 nguyen_lieu: [],
             });
             setImageUrl(record.hinh_anh || '');
         }
 
+        // Open modal AFTER setting form values
         setModalVisible(true);
     };
 
@@ -732,6 +758,7 @@ const ServiceList: React.FC = () => {
                 okText={selectedService ? 'Cập nhật' : 'Tạo mới'}
                 cancelText="Hủy"
                 confirmLoading={uploading}
+                maskClosable={false}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
