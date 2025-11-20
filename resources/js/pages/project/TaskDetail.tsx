@@ -168,6 +168,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     };
 
     const loadProjectMembers = async () => {
+        if (!projectId) return;
+
         try {
             const response = await projectApi.getById(projectId);
             if (response.data.success) {
@@ -198,11 +200,30 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                     ngay_bat_dau: taskData.ngay_bat_dau ? dayjs(taskData.ngay_bat_dau) : null,
                     ngay_ket_thuc_du_kien: taskData.ngay_ket_thuc_du_kien ? dayjs(taskData.ngay_ket_thuc_du_kien) : null,
                 });
+
+                // Load project members if not loaded yet and task has project_id
+                if (projectMembers.length === 0 && taskData.project_id) {
+                    loadProjectMembersFromTaskProject(taskData.project_id);
+                }
             }
         } catch (error: any) {
             message.error('Không thể tải thông tin nhiệm vụ');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadProjectMembersFromTaskProject = async (taskProjectId: number) => {
+        try {
+            const response = await projectApi.getById(taskProjectId);
+            if (response.data.success) {
+                const members = response.data.data.members || [];
+                console.log('👥 Project Members loaded from task project:', members);
+                console.log('👥 Total members:', members.length);
+                setProjectMembers(members);
+            }
+        } catch (error) {
+            console.error('Error loading project members from task project:', error);
         }
     };
 
