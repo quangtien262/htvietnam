@@ -115,11 +115,11 @@ const NotificationDropdown: React.FC = () => {
             if (item.notifiable_type.includes('Task')) {
                 // Navigate to project detail with task modal open
                 if (item.data?.project_id) {
-                    navigate(`/project/detail/${item.data.project_id}?p=projects&task=${item.notifiable_id}`);
+                    navigate(`/project/${item.data.project_id}?p=projects&task=${item.notifiable_id}`);
                 }
             } else if (item.notifiable_type.includes('Project')) {
                 // Navigate to project detail
-                navigate(`/project/detail/${item.notifiable_id}?p=projects`);
+                navigate(`/project/${item.notifiable_id}?p=projects`);
             }
         }
     };
