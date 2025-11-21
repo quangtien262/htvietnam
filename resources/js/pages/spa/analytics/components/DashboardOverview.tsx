@@ -105,10 +105,18 @@ const DashboardOverview: React.FC = () => {
         colorField: 'type',
         radius: 0.8,
         label: {
-            type: 'outer',
-            content: '{name} {percentage}',
+            text: 'type',
+            style: {
+                fontWeight: 'bold',
+            },
         },
-        interactions: [{ type: 'element-active' }],
+        legend: {
+            color: {
+                title: false,
+                position: 'right',
+                rowPadding: 5,
+            },
+        },
     };
 
     const appointmentColumns = [

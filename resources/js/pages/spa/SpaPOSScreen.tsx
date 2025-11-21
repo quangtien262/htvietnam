@@ -11,6 +11,14 @@ import { safeSetItem, logStorageInfo, getLocalStorageSizeFormatted } from '../..
 const { Search } = Input;
 const { TabPane } = Tabs;
 
+interface StaffCommission {
+    staff_id: number;
+    staff_name: string;
+    commission_value: number; // Giá trị chiết khấu (tiền hoặc %)
+    commission_unit: 'percent' | 'cash'; // percent: %, cash: tiền mặt
+    commission_type: 'sale' | 'service'; // sale: NV tư vấn, service: NV làm dịch vụ
+}
+
 interface CartItem {
     key: string;
     type: 'service' | 'product' | 'package' | 'gift_card';
@@ -22,6 +30,8 @@ interface CartItem {
     ktv_name?: string;
     su_dung_goi?: number; // ID của customer package nếu dùng từ gói
     customer_package_name?: string; // Tên gói để hiển thị
+    sale_commissions?: StaffCommission[]; // Hoa hồng NV tư vấn
+    service_commissions?: StaffCommission[]; // Hoa hồng NV làm dịch vụ
 }
 
 interface Order {
@@ -91,6 +101,12 @@ const SpaPOSScreen: React.FC = () => {
     // Multiple orders state
     const [orders, setOrders] = useState<Order[]>(loadOrdersFromStorage());
     const [activeOrderId, setActiveOrderId] = useState<string>(loadActiveOrderIdFromStorage());
+
+    // Commission modal states
+    const [commissionModalVisible, setCommissionModalVisible] = useState(false);
+    const [currentCommissionItem, setCurrentCommissionItem] = useState<CartItem | null>(null);
+    const [commissionType, setCommissionType] = useState<'sale' | 'service'>('sale');
+    const [tempCommissions, setTempCommissions] = useState<StaffCommission[]>([]);
 
     // Get current active order
     const currentOrder = orders.find(o => o.id === activeOrderId) || orders[0];
@@ -1454,6 +1470,7 @@ const SpaPOSScreen: React.FC = () => {
             title: 'Tên',
             dataIndex: 'name',
             key: 'name',
+            width: '25%',
             render: (name: string, record: CartItem) => (
                 <div>
                     <div>{name}</div>
@@ -1469,6 +1486,7 @@ const SpaPOSScreen: React.FC = () => {
             title: 'Giá',
             dataIndex: 'price',
             key: 'price',
+            width: '12%',
             render: (price: number, record: CartItem) => (
                 <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
                     {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(price) + ' đ'}
@@ -1479,6 +1497,7 @@ const SpaPOSScreen: React.FC = () => {
             title: 'SL',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: '8%',
             render: (qty: number, record: CartItem) => (
                 <InputNumber
                     min={1}
@@ -1490,8 +1509,45 @@ const SpaPOSScreen: React.FC = () => {
             ),
         },
         {
+            title: 'NV Tư vấn',
+            key: 'sale_commission',
+            width: '15%',
+            render: (_: any, record: CartItem) => {
+                if (record.type === 'gift_card' || record.su_dung_goi) return null;
+                const count = record.sale_commissions?.length || 0;
+                return (
+                    <Button
+                        size="small"
+                        onClick={() => openCommissionModal(record, 'sale')}
+                        icon={<UserOutlined />}
+                    >
+                        {count > 0 ? `${count} NV` : 'Chọn NV'}
+                    </Button>
+                );
+            },
+        },
+        {
+            title: 'NV Làm dịch vụ',
+            key: 'service_commission',
+            width: '15%',
+            render: (_: any, record: CartItem) => {
+                if (record.type !== 'service' || record.su_dung_goi) return null;
+                const count = record.service_commissions?.length || 0;
+                return (
+                    <Button
+                        size="small"
+                        onClick={() => openCommissionModal(record, 'service')}
+                        icon={<UserOutlined />}
+                    >
+                        {count > 0 ? `${count} NV` : 'Chọn NV'}
+                    </Button>
+                );
+            },
+        },
+        {
             title: 'Thành tiền',
             key: 'total',
+            width: '12%',
             render: (_: any, record: CartItem) => (
                 <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
                     {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(record.price * record.quantity) + ' đ'}
@@ -1501,6 +1557,7 @@ const SpaPOSScreen: React.FC = () => {
         {
             title: '',
             key: 'action',
+            width: '8%',
             render: (_: any, record: CartItem) => (
                 <Button
                     type="text"
@@ -1514,6 +1571,61 @@ const SpaPOSScreen: React.FC = () => {
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    // Commission modal functions
+    const openCommissionModal = (item: CartItem, type: 'sale' | 'service') => {
+        setCurrentCommissionItem(item);
+        setCommissionType(type);
+        const existingCommissions = type === 'sale' ? (item.sale_commissions || []) : (item.service_commissions || []);
+        setTempCommissions([...existingCommissions]);
+        setCommissionModalVisible(true);
+    };
+
+    const addCommissionRow = () => {
+        setTempCommissions([...tempCommissions, {
+            staff_id: 0,
+            staff_name: '',
+            commission_value: 0,
+            commission_unit: 'percent',
+            commission_type: commissionType
+        }]);
+    };
+
+    const updateCommissionRow = (index: number, field: keyof StaffCommission, value: any) => {
+        const newCommissions = [...tempCommissions];
+        if (field === 'staff_id') {
+            const selectedStaff = staff.find((s: any) => s.id === value);
+            newCommissions[index].staff_id = value;
+            newCommissions[index].staff_name = selectedStaff?.name || selectedStaff?.ten_nhan_vien || selectedStaff?.ho_ten || '';
+        } else if (field === 'commission_value') {
+            newCommissions[index].commission_value = value;
+        } else if (field === 'commission_unit') {
+            newCommissions[index].commission_unit = value;
+        }
+        setTempCommissions(newCommissions);
+    };
+
+    const removeCommissionRow = (index: number) => {
+        setTempCommissions(tempCommissions.filter((_, i) => i !== index));
+    };
+
+    const saveCommissions = () => {
+        if (!currentCommissionItem) return;
+
+        setCart(prev => prev.map(item => {
+            if (item.key === currentCommissionItem.key) {
+                if (commissionType === 'sale') {
+                    return { ...item, sale_commissions: tempCommissions };
+                } else {
+                    return { ...item, service_commissions: tempCommissions };
+                }
+            }
+            return item;
+        }));
+
+        setCommissionModalVisible(false);
+        message.success('Đã lưu thông tin hoa hồng');
     };
 
     return (
@@ -2977,6 +3089,130 @@ const SpaPOSScreen: React.FC = () => {
                         )}
                     </div>
                 )}
+            </Modal>
+
+            {/* Commission Modal */}
+            <Modal
+                title={
+                    <Space>
+                        <UserOutlined />
+                        {commissionType === 'sale' ? 'Chọn NV Tư vấn bán hàng' : 'Chọn NV Làm dịch vụ'}
+                    </Space>
+                }
+                open={commissionModalVisible}
+                onCancel={() => setCommissionModalVisible(false)}
+                onOk={saveCommissions}
+                width={700}
+                okText="Lưu"
+                cancelText="Hủy"
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <strong>Sản phẩm:</strong> {currentCommissionItem?.name}
+                </div>
+
+                <Table
+                    dataSource={tempCommissions}
+                    pagination={false}
+                    size="small"
+                    rowKey={(record, index) => `commission-${index}`}
+                    columns={[
+                        {
+                            title: 'STT',
+                            key: 'index',
+                            width: 60,
+                            render: (_: any, __: any, index: number) => index + 1,
+                        },
+                        {
+                            title: 'Nhân viên *',
+                            key: 'staff_id',
+                            render: (_: any, record: StaffCommission, index: number) => (
+                                <Select
+                                    placeholder="Chọn nhân viên"
+                                    style={{ width: '100%' }}
+                                    value={record.staff_id || undefined}
+                                    onChange={(value) => updateCommissionRow(index, 'staff_id', value)}
+                                    showSearch
+                                    filterOption={filterSelectOption}
+                                >
+                                    {staff.map((s: any) => (
+                                        <Select.Option key={s.id} value={s.id}>
+                                            {s.name || s.ten_nhan_vien || s.ho_ten}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            ),
+                        },
+                        {
+                            title: 'Loại CK',
+                            key: 'commission_unit',
+                            width: 120,
+                            render: (_: any, record: StaffCommission, index: number) => (
+                                <Select
+                                    style={{ width: '100%' }}
+                                    value={record.commission_unit}
+                                    onChange={(value) => updateCommissionRow(index, 'commission_unit', value)}
+                                >
+                                    <Select.Option value="percent">%</Select.Option>
+                                    <Select.Option value="cash">Tiền</Select.Option>
+                                </Select>
+                            ),
+                        },
+                        {
+                            title: 'Giá trị CK',
+                            key: 'commission_value',
+                            width: 150,
+                            render: (_: any, record: StaffCommission, index: number) => (
+                                <InputNumber
+                                    min={0}
+                                    max={record.commission_unit === 'percent' ? 100 : undefined}
+                                    style={{ width: '100%' }}
+                                    value={record.commission_value}
+                                    onChange={(value) => updateCommissionRow(index, 'commission_value', value || 0)}
+                                    formatter={(value) =>
+                                        record.commission_unit === 'percent'
+                                            ? `${value}%`
+                                            : new Intl.NumberFormat('vi-VN').format(Number(value))
+                                    }
+                                    parser={(value) => {
+                                        if (record.commission_unit === 'percent') {
+                                            return value?.replace('%', '') as any;
+                                        }
+                                        return value?.replace(/\D/g, '') as any;
+                                    }}
+                                    placeholder={record.commission_unit === 'percent' ? '0%' : '0 đ'}
+                                />
+                            ),
+                        },
+                        {
+                            title: 'Thao tác',
+                            key: 'action',
+                            width: 80,
+                            render: (_: any, __: any, index: number) => (
+                                <Button
+                                    type="text"
+                                    danger
+                                    size="small"
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => removeCommissionRow(index)}
+                                />
+                            ),
+                        },
+                    ]}
+                />
+
+                <Button
+                    type="dashed"
+                    block
+                    icon={<PlusOutlined />}
+                    onClick={addCommissionRow}
+                    style={{ marginTop: 16 }}
+                >
+                    Thêm nhân viên
+                </Button>
+
+                <div style={{ marginTop: 16, fontSize: 12, color: '#999' }}>
+                    <InfoCircleOutlined /> Bạn có thể chọn nhiều nhân viên và phân chia chiết khấu cho từng người
+                </div>
             </Modal>
         </div>
     );
