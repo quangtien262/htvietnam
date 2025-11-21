@@ -451,7 +451,9 @@ const Dashboard: React.FC = () => {
         <Row gutter={[24, 24]}>
             {
                 datas && datas.length > 0 && datas.map((item: any, index: number) => {
-                    return showDataDashboard(item);
+                    return <React.Fragment key={item.id || index}>
+                        {showDataDashboard(item)}
+                    </React.Fragment>;
                 })
             }
         </Row>

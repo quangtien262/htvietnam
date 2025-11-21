@@ -2,14 +2,13 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "node --max-old-space-size=4096 --optimize-for-size --max-old-space-size=4096 --gc-interval=100 node_modules/vite/bin/vite.js build --mode production",
+        "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite --host",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
-        "types": "tsc --noEmit",
-        "clean": "rm -rf node_modules/.vite && rm -rf public/build"
+        "types": "tsc --noEmit"
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx": "7.27.1",
