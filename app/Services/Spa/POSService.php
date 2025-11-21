@@ -6,6 +6,7 @@ use App\Models\Spa\HoaDon;
 use App\Models\Spa\HoaDonChiTiet;
 use App\Models\Spa\SanPham;
 use App\Models\Admin\CongNo;
+use App\Models\Admin\SoQuy;
 use App\Services\TblService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -115,6 +116,8 @@ class POSService
                     'don_gia' => $donGia,
                     'thanh_tien' => $thanhTien,
                     'ghi_chu' => $chiTiet['ghi_chu'] ?? null,
+                    'sale_commissions' => $chiTiet['sale_commissions'] ?? null,
+                    'service_commissions' => $chiTiet['service_commissions'] ?? null,
                 ]);
             }
 
@@ -148,10 +151,20 @@ class POSService
             // Process payment if provided
             if (!empty($data['thanh_toan']) && $data['thanh_toan'] === true) {
                 $this->processPayment($hoaDon->id, $data);
+
+                // Lưu vào sổ quỹ với số tiền thực tế khách thanh toán
+                if ($totalPaid > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($totalPaid, $hoaDon);
+                }
             } elseif ($remaining > 0.01) {
                 // Create debt record (công nợ) - ngày hạn có thể null
                 $dueDate = $data['ngay_han_thanh_toan'] ?? null;
                 $this->createDebtRecord($hoaDon, $remaining, $totalPaid, $dueDate);
+
+                // Lưu vào sổ quỹ với số tiền thực tế khách thanh toán (nếu có thanh toán 1 phần)
+                if ($totalPaid > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($totalPaid, $hoaDon);
+                }
             }
 
             return $hoaDon->load('chiTiets.dichVu', 'chiTiets.sanPham', 'chiTiets.ktv');

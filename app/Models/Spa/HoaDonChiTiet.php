@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class HoaDonChiTiet extends Model
 {
     protected $table = 'spa_hoa_don_chi_tiet';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'hoa_don_id',
@@ -18,6 +18,8 @@ class HoaDonChiTiet extends Model
         'don_gia',
         'thanh_tien',
         'ghi_chu',
+        'sale_commissions',
+        'service_commissions',
     ];
 
     protected $casts = [
@@ -28,6 +30,8 @@ class HoaDonChiTiet extends Model
         'so_luong' => 'integer',
         'don_gia' => 'decimal:0',
         'thanh_tien' => 'decimal:0',
+        'sale_commissions' => 'array',
+        'service_commissions' => 'array',
     ];
 
     // Relationships

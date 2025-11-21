@@ -486,22 +486,22 @@ export const API = {
     spaInventoryImportCsv: '/spa/inventory/import-csv',
     spaInventoryTransactions: (productId: number) => `/spa/inventory/${productId}/transactions`,
 
-    // POS - Bán hàng
-    spaPOSInvoiceList: '/spa/pos/invoices',
-    spaPOSCreateInvoice: '/spa/pos/invoices',
-    spaPOSGetInvoice: (id: number) => `/spa/pos/invoices/${id}`,
-    spaPOSProcessPayment: (id: number) => `/spa/pos/invoices/${id}/payment`,
-    spaPOSCancelInvoice: (id: number) => `/spa/pos/invoices/${id}/cancel`,
-    spaPOSTodaySales: '/spa/pos/today-sales',
+    // POS (Point of Sale)
+    spaPOSInvoiceList: '/aio/api/spa/pos/invoices',
+    spaPOSCreateInvoice: '/aio/api/spa/pos/invoices',
+    spaPOSGetInvoice: (id: number) => `/aio/api/spa/pos/invoices/${id}`,
+    spaPOSProcessPayment: (id: number) => `/aio/api/spa/pos/invoices/${id}/payment`,
+    spaPOSCancelInvoice: (id: number) => `/aio/api/spa/pos/invoices/${id}/cancel`,
+    spaPOSTodaySales: '/aio/api/spa/pos/today-sales',
 
     // Hóa đơn (Invoices Management)
-    spaInvoiceList: '/spa/invoices',
-    spaInvoiceDetail: (id: number) => `/spa/invoices/${id}`,
-    spaInvoiceUpdate: (id: number) => `/spa/invoices/${id}`,
-    spaInvoiceDelete: (id: number) => `/spa/invoices/${id}`,
-    spaInvoicePrint: (id: number) => `/spa/invoices/${id}/print`,
-    spaInvoiceExport: '/spa/invoices/export',
-    spaInvoicePayDebt: (id: number) => `/spa/invoices/${id}/pay-debt`,
+    spaInvoiceList: '/aio/api/spa/invoices',
+    spaInvoiceDetail: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoiceUpdate: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoiceDelete: (id: number) => `/aio/api/spa/invoices/${id}`,
+    spaInvoicePrint: (id: number) => `/aio/api/spa/invoices/${id}/print`,
+    spaInvoiceExport: '/aio/api/spa/invoices/export',
+    spaInvoicePayDebt: (id: number) => `/aio/api/spa/invoices/${id}/pay-debt`,
 
     // Thẻ giá trị (Gift Cards)
     spaGiftCardList: '/spa/gift-cards',

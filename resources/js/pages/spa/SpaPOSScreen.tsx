@@ -108,6 +108,9 @@ const SpaPOSScreen: React.FC = () => {
     const [commissionType, setCommissionType] = useState<'sale' | 'service'>('sale');
     const [tempCommissions, setTempCommissions] = useState<StaffCommission[]>([]);
 
+    // Expanded rows for cart table (mặc định expand tất cả)
+    const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+
     // Get current active order
     const currentOrder = orders.find(o => o.id === activeOrderId) || orders[0];
 
@@ -265,6 +268,12 @@ const SpaPOSScreen: React.FC = () => {
             setCustomerPackages([]);
         }
     }, [selectedCustomer]);
+
+    // Auto expand all cart rows
+    useEffect(() => {
+        const keys = cart.map(item => item.key);
+        setExpandedRowKeys(keys);
+    }, [cart]);
 
     // Save orders to localStorage whenever they change
     useEffect(() => {
@@ -1324,6 +1333,8 @@ const SpaPOSScreen: React.FC = () => {
                     so_luong: item.quantity,
                     don_gia: item.price,
                     su_dung_goi: item.su_dung_goi || null, // ID của customer package nếu sử dụng từ gói
+                    sale_commissions: item.sale_commissions || [],
+                    service_commissions: item.service_commissions || [],
                 })),
                 thanh_toan: remaining < 0.01, // Đã thanh toán đủ
                 thanh_toan_vi: walletAmount,
@@ -1470,12 +1481,11 @@ const SpaPOSScreen: React.FC = () => {
             title: 'Tên',
             dataIndex: 'name',
             key: 'name',
-            width: '25%',
             render: (name: string, record: CartItem) => (
                 <div>
-                    <div>{name}</div>
+                    <div style={{ fontWeight: 500 }}>{name}</div>
                     {record.su_dung_goi && (
-                        <div style={{ fontSize: '11px', color: '#52c41a', marginTop: 2 }}>
+                        <div style={{ fontSize: '11px', color: '#52c41a', marginTop: 4 }}>
                             <GiftOutlined /> {record.customer_package_name}
                         </div>
                     )}
@@ -1486,7 +1496,7 @@ const SpaPOSScreen: React.FC = () => {
             title: 'Giá',
             dataIndex: 'price',
             key: 'price',
-            width: '12%',
+            width: 140,
             render: (price: number, record: CartItem) => (
                 <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
                     {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(price) + ' đ'}
@@ -1497,57 +1507,21 @@ const SpaPOSScreen: React.FC = () => {
             title: 'SL',
             dataIndex: 'quantity',
             key: 'quantity',
-            width: '8%',
+            width: 80,
             render: (qty: number, record: CartItem) => (
                 <InputNumber
                     min={1}
                     value={qty}
                     onChange={(value) => updateQuantity(record.key, value || 1)}
                     style={{ width: 60 }}
-                    disabled={!!record.su_dung_goi} // Disable quantity change for package items
+                    disabled={!!record.su_dung_goi}
                 />
             ),
         },
         {
-            title: 'NV Tư vấn',
-            key: 'sale_commission',
-            width: '15%',
-            render: (_: any, record: CartItem) => {
-                if (record.type === 'gift_card' || record.su_dung_goi) return null;
-                const count = record.sale_commissions?.length || 0;
-                return (
-                    <Button
-                        size="small"
-                        onClick={() => openCommissionModal(record, 'sale')}
-                        icon={<UserOutlined />}
-                    >
-                        {count > 0 ? `${count} NV` : 'Chọn NV'}
-                    </Button>
-                );
-            },
-        },
-        {
-            title: 'NV Làm dịch vụ',
-            key: 'service_commission',
-            width: '15%',
-            render: (_: any, record: CartItem) => {
-                if (record.type !== 'service' || record.su_dung_goi) return null;
-                const count = record.service_commissions?.length || 0;
-                return (
-                    <Button
-                        size="small"
-                        onClick={() => openCommissionModal(record, 'service')}
-                        icon={<UserOutlined />}
-                    >
-                        {count > 0 ? `${count} NV` : 'Chọn NV'}
-                    </Button>
-                );
-            },
-        },
-        {
             title: 'Thành tiền',
             key: 'total',
-            width: '12%',
+            width: 140,
             render: (_: any, record: CartItem) => (
                 <span style={record.su_dung_goi ? { color: '#52c41a', fontWeight: 'bold' } : {}}>
                     {record.su_dung_goi ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(record.price * record.quantity) + ' đ'}
@@ -1557,7 +1531,7 @@ const SpaPOSScreen: React.FC = () => {
         {
             title: '',
             key: 'action',
-            width: '8%',
+            width: 50,
             render: (_: any, record: CartItem) => (
                 <Button
                     type="text"
@@ -1571,6 +1545,145 @@ const SpaPOSScreen: React.FC = () => {
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    // Expanded row render for commission buttons
+    const expandedRowRender = (record: CartItem) => {
+        const saleComms = record.sale_commissions || [];
+        const serviceComms = record.service_commissions || [];
+        const showSaleComm = record.type !== 'gift_card' && !record.su_dung_goi;
+        const showServiceComm = record.type === 'service' && !record.su_dung_goi;
+
+        if (!showSaleComm && !showServiceComm) {
+            return null;
+        }
+
+        const formatCommissionValue = (comm: StaffCommission) => {
+            if (comm.commission_unit === 'percent') {
+                return `${comm.commission_value}%`;
+            }
+            return new Intl.NumberFormat('vi-VN').format(comm.commission_value) + 'đ';
+        };
+
+        return (
+            <div style={{ padding: '8px 0' }}>
+                {showSaleComm && (
+                    <div style={{ marginBottom: showServiceComm ? 12 : 0 }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 8
+                        }}>
+                            <div style={{ flex: 1 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 6
+                                }}>
+                                    <UserOutlined style={{ color: '#1890ff' }} />
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#262626' }}>NV Tư vấn:</span>
+                                </div>
+                                {saleComms.length > 0 ? (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 6,
+                                        paddingLeft: 24
+                                    }}>
+                                        {saleComms.map((comm, idx) => (
+                                            <Tag
+                                                key={idx}
+                                                color="blue"
+                                                style={{ margin: 0, fontSize: 12 }}
+                                            >
+                                                {comm.staff_name} ({formatCommissionValue(comm)})
+                                            </Tag>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        paddingLeft: 24,
+                                        fontSize: 12,
+                                        color: '#bfbfbf',
+                                        fontStyle: 'italic'
+                                    }}>
+                                        Chưa chọn nhân viên
+                                    </div>
+                                )}
+                            </div>
+                            <Button
+                                size="small"
+                                type={saleComms.length > 0 ? 'primary' : 'default'}
+                                ghost
+                                onClick={() => openCommissionModal(record, 'sale')}
+                                icon={<UserOutlined />}
+                            >
+                                {saleComms.length > 0 ? 'Sửa' : 'Chọn'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {showServiceComm && (
+                    <div>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 8
+                        }}>
+                            <div style={{ flex: 1 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 6
+                                }}>
+                                    <UserOutlined style={{ color: '#52c41a' }} />
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#262626' }}>NV Làm dịch vụ:</span>
+                                </div>
+                                {serviceComms.length > 0 ? (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 6,
+                                        paddingLeft: 24
+                                    }}>
+                                        {serviceComms.map((comm, idx) => (
+                                            <Tag
+                                                key={idx}
+                                                color="green"
+                                                style={{ margin: 0, fontSize: 12 }}
+                                            >
+                                                {comm.staff_name} ({formatCommissionValue(comm)})
+                                            </Tag>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        paddingLeft: 24,
+                                        fontSize: 12,
+                                        color: '#bfbfbf',
+                                        fontStyle: 'italic'
+                                    }}>
+                                        Chưa chọn nhân viên
+                                    </div>
+                                )}
+                            </div>
+                            <Button
+                                size="small"
+                                type='primary'
+                                ghost
+                                onClick={() => openCommissionModal(record, 'service')}
+                                icon={<UserOutlined />}
+                            >
+                                {serviceComms.length > 0 ? 'Sửa' : 'Chọn'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     // Commission modal functions
@@ -1595,9 +1708,9 @@ const SpaPOSScreen: React.FC = () => {
     const updateCommissionRow = (index: number, field: keyof StaffCommission, value: any) => {
         const newCommissions = [...tempCommissions];
         if (field === 'staff_id') {
-            const selectedStaff = staff.find((s: any) => s.id === value);
+            const selectedStaff = staff.find((s: any) => s.value === value);
             newCommissions[index].staff_id = value;
-            newCommissions[index].staff_name = selectedStaff?.name || selectedStaff?.ten_nhan_vien || selectedStaff?.ho_ten || '';
+            newCommissions[index].staff_name = selectedStaff?.label || '';
         } else if (field === 'commission_value') {
             newCommissions[index].commission_value = value;
         } else if (field === 'commission_unit') {
@@ -2344,6 +2457,12 @@ const SpaPOSScreen: React.FC = () => {
                                             columns={cartColumns}
                                             pagination={false}
                                             size="small"
+                                            expandable={{
+                                                expandedRowRender,
+                                                expandedRowKeys: expandedRowKeys,
+                                                onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
+                                                expandIcon: () => null, // Ẩn icon expand mặc định
+                                            }}
                                         />
 
                                         <Divider />
@@ -3133,13 +3252,8 @@ const SpaPOSScreen: React.FC = () => {
                                     onChange={(value) => updateCommissionRow(index, 'staff_id', value)}
                                     showSearch
                                     filterOption={filterSelectOption}
-                                >
-                                    {staff.map((s: any) => (
-                                        <Select.Option key={s.id} value={s.id}>
-                                            {s.name || s.ten_nhan_vien || s.ho_ten}
-                                        </Select.Option>
-                                    ))}
-                                </Select>
+                                    options={staff}
+                                />
                             ),
                         },
                         {

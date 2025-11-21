@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Spa;
 use App\Http\Controllers\Controller;
 use App\Models\Spa\HoaDon;
 use App\Models\Admin\CongNo;
+use App\Models\Admin\SoQuy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -212,8 +213,12 @@ class HoaDonController extends Controller
             $congNo->so_tien_da_thanh_toan += $soTienThanhToan;
             $congNo->so_tien_no -= $soTienThanhToan;
 
+            // Update invoice payment amounts (cộng dồn tiền mặt - giả sử thanh toán bằng tiền mặt)
+            // TODO: Có thể thêm field phuong_thuc_thanh_toan vào request nếu cần
+            $invoice->thanh_toan_tien_mat = ($invoice->thanh_toan_tien_mat ?? 0) + $soTienThanhToan;
+
             // Check if debt is fully paid
-            if ($congNo->so_tien_no <= 0) {
+            if ($congNo->so_tien_no <= 0.01) {
                 $congNo->so_tien_no = 0;
                 $congNo->cong_no_status_id = 1; // Status: Paid
                 $congNo->setAttribute('ngay_tat_toan', Carbon::now());
@@ -228,6 +233,9 @@ class HoaDonController extends Controller
                     'payment_amount' => $soTienThanhToan,
                 ]);
             } else {
+                // Still has debt, just save the updated payment amount
+                $invoice->save();
+
                 Log::info('Partial debt payment', [
                     'invoice_id' => $invoice->id,
                     'ma_hoa_don' => $invoice->ma_hoa_don,
@@ -237,6 +245,9 @@ class HoaDonController extends Controller
             }
 
             $congNo->save();
+
+            // Lưu vào sổ quỹ khi khách thanh toán công nợ
+            SoQuy::saveSoQuy_hoaDonSPA($soTienThanhToan, $invoice);
 
             DB::commit();
 

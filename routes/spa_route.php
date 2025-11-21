@@ -308,18 +308,18 @@ Route::get('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::cl
 Route::put('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'update'])->name('api.spa.origins.update');
 Route::delete('origins/{id}', [\App\Http\Controllers\Admin\Spa\XuatXuController::class, 'destroy'])->name('api.spa.origins.destroy');
 
-// POS
-Route::post('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'createInvoice'])->name('api.spa.pos.create-invoice');
-Route::get('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'index'])->name('api.spa.pos.invoices');
+// POS - Moved to aio_route.php
+// Route::post('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'createInvoice'])->name('api.spa.pos.create-invoice');
+// Route::get('pos/invoices', [\App\Http\Controllers\Admin\Spa\POSController::class, 'index'])->name('api.spa.pos.invoices');
 
-// Invoices (Hóa đơn)
-Route::get('invoices', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'index'])->name('api.spa.invoices.index');
-Route::get('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'show'])->name('api.spa.invoices.show');
-Route::put('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'update'])->name('api.spa.invoices.update');
-Route::delete('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'destroy'])->name('api.spa.invoices.destroy');
-Route::get('invoices/{id}/print', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'print'])->name('api.spa.invoices.print');
-Route::post('invoices/export', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'export'])->name('api.spa.invoices.export');
-Route::post('invoices/{id}/pay-debt', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'payDebt'])->name('api.spa.invoices.pay-debt');
+// Invoices (Hóa đơn) - Moved to aio_route.php
+// Route::get('invoices', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'index'])->name('api.spa.invoices.index');
+// Route::get('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'show'])->name('api.spa.invoices.show');
+// Route::put('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'update'])->name('api.spa.invoices.update');
+// Route::delete('invoices/{id}', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'destroy'])->name('api.spa.invoices.destroy');
+// Route::get('invoices/{id}/print', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'print'])->name('api.spa.invoices.print');
+// Route::post('invoices/export', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'export'])->name('api.spa.invoices.export');
+// Route::post('invoices/{id}/pay-debt', [\App\Http\Controllers\Admin\Spa\HoaDonController::class, 'payDebt'])->name('api.spa.invoices.pay-debt');
 
 // Gift Cards (Thẻ Giá Trị)
 Route::get('gift-cards', [\App\Http\Controllers\Admin\Spa\TheGiaTriController::class, 'index'])->name('api.spa.gift-cards.index');

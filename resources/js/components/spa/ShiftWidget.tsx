@@ -284,198 +284,80 @@ const ShiftWidget: React.FC<ShiftWidgetProps> = ({ onShiftChange, chiNhanhId, st
                 size="small"
                 style={{
                     marginBottom: 16,
-                    background: 'linear-gradient(135deg, #8b9dc3 0%, #9e8fb2 100%)',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     border: 'none',
-                    boxShadow: '0 2px 8px 0 rgba(139, 157, 195, 0.15)'
                 }}
-                bodyStyle={{ padding: '16px' }}
+                bodyStyle={{ padding: '12px' }}
             >
-                {/* Header */}
+                {/* Compact Header với Actions */}
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: 16,
-                    paddingBottom: 12,
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
+                    gap: 8
                 }}>
-                    <Space>
+                    {/* Left: Shift Info */}
+                    <Space size={8}>
                         <div style={{
                             background: 'rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            padding: '6px 12px',
-                            backdropFilter: 'blur(10px)'
+                            borderRadius: '6px',
+                            padding: '4px 10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6
                         }}>
-                            <ClockCircleOutlined style={{ color: '#fff', fontSize: 16, marginRight: 6 }} />
-                            <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
+                            <ClockCircleOutlined style={{ color: '#fff', fontSize: 14 }} />
+                            <span style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>
                                 {currentShift.ma_ca}
                             </span>
                         </div>
-                        <Tag
-                            color="success"
-                            style={{
-                                borderRadius: 12,
-                                padding: '2px 10px',
-                                border: 'none',
-                                background: 'rgba(135, 208, 104, 0.85)',
+                        <div style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: 12 }}>
+                            {dayjs(currentShift.thoi_gian_bat_dau).format('HH:mm')}
+                        </div>
+                    </Space>
+
+                    {/* Right: Revenue & Actions */}
+                    <Space size={6}>
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.7)' }}>
+                                {currentShift.doanh_thu_realtime?.so_hoa_don || 0} đơn
+                            </div>
+                            <div style={{
+                                fontSize: 16,
+                                fontWeight: 700,
                                 color: '#fff',
+                                lineHeight: 1
+                            }}>
+                                {formatCurrency(currentShift.doanh_thu_realtime?.tong_doanh_thu || 0)}₫
+                            </div>
+                        </div>
+                        <Button
+                            size="small"
+                            icon={<FileTextOutlined />}
+                            onClick={() => setDetailModalVisible(true)}
+                            style={{
+                                borderRadius: 6,
+                                background: 'rgba(255, 255, 255, 0.2)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                color: '#fff',
+                                backdropFilter: 'blur(10px)'
+                            }}
+                        />
+                        <Button
+                            size="small"
+                            danger
+                            type="primary"
+                            icon={<CheckCircleOutlined />}
+                            onClick={() => setCloseModalVisible(true)}
+                            style={{
+                                borderRadius: 6,
                                 fontWeight: 500
                             }}
                         >
-                            Đang mở
-                        </Tag>
+                            Đóng ca
+                        </Button>
                     </Space>
-                    <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 12 }}>
-                        {dayjs(currentShift.thoi_gian_bat_dau).format('HH:mm')}
-                    </div>
                 </div>
-
-                {/* Info Section */}
-                <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    {/* Cashier Info */}
-                    <div style={{
-                        background: 'rgba(255, 255, 255, 0.15)',
-                        borderRadius: 8,
-                        padding: '10px 12px',
-                        backdropFilter: 'blur(10px)'
-                    }}>
-                        <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 11, marginBottom: 4 }}>
-                            THU NGÂN
-                        </div>
-                        <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
-                            <UserOutlined style={{ marginRight: 6 }} />
-                            {currentShift.nhan_vien_mo_ca?.name || 'N/A'}
-                        </div>
-                    </div>
-
-                    {/* Revenue Section */}
-                    <div style={{
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        borderRadius: 12,
-                        padding: '16px',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <Row gutter={16}>
-                            <Col span={14}>
-                                <div style={{ marginBottom: 8 }}>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 4 }}>
-                                        DOANH THU CA
-                                    </div>
-                                    <div style={{
-                                        fontSize: 24,
-                                        fontWeight: 700,
-                                        color: '#73d13d',
-                                        lineHeight: 1.2
-                                    }}>
-                                        {formatCurrency(currentShift.doanh_thu_realtime?.tong_doanh_thu || 0)}
-                                        <span style={{ fontSize: 14, marginLeft: 4 }}>₫</span>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col span={10} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderLeft: '1px solid #f0f0f0'
-                            }}>
-                                <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 4 }}>
-                                        SỐ ĐơN
-                                    </div>
-                                    <div style={{
-                                        fontSize: 28,
-                                        fontWeight: 700,
-                                        color: '#40a9ff',
-                                        lineHeight: 1
-                                    }}>
-                                        {currentShift.doanh_thu_realtime?.so_hoa_don || 0}
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-                        {/* Revenue Breakdown */}
-                        <div style={{
-                            marginTop: 12,
-                            paddingTop: 12,
-                            borderTop: '1px solid #f0f0f0'
-                        }}>
-                            <Row gutter={[8, 8]}>
-                                <Col span={6}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Tiền mặt</div>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
-                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_tien_mat || 0)}
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>C.Khoản</div>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
-                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_chuyen_khoan || 0)}
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Thẻ</div>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
-                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_the || 0)}
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 10, color: '#8c8c8c' }}>Ví</div>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#595959' }}>
-                                            {formatCurrency(currentShift.doanh_thu_realtime?.doanh_thu_vi || 0)}
-                                        </div>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <Row gutter={8}>
-                        <Col span={12}>
-                            <Button
-                                block
-                                icon={<FileTextOutlined />}
-                                onClick={() => setDetailModalVisible(true)}
-                                style={{
-                                    borderRadius: 8,
-                                    height: 36,
-                                    background: 'rgba(255, 255, 255, 0.25)',
-                                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                                    color: '#fff',
-                                    fontWeight: 500,
-                                    backdropFilter: 'blur(10px)'
-                                }}
-                            >
-                                Chi tiết
-                            </Button>
-                        </Col>
-                        <Col span={12}>
-                            <Button
-                                block
-                                danger
-                                type="primary"
-                                icon={<CheckCircleOutlined />}
-                                onClick={() => setCloseModalVisible(true)}
-                                style={{
-                                    borderRadius: 8,
-                                    height: 36,
-                                    fontWeight: 500,
-                                    boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
-                                }}
-                            >
-                                Đóng ca
-                            </Button>
-                        </Col>
-                    </Row>
-                </Space>
             </Card>
 
             {/* Chi tiết ca */}

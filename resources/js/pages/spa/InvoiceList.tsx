@@ -13,6 +13,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { API } from '../../common/api';
+import { numberFormat } from '../../common/function';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -80,6 +81,20 @@ interface InvoiceDetail extends Invoice {
         don_gia: number;
         thanh_tien: number;
         ghi_chu?: string;
+        sale_commissions?: Array<{
+            staff_id: number;
+            staff_name: string;
+            commission_value: number;
+            commission_unit: 'percent' | 'cash';
+            commission_type: 'sale' | 'service';
+        }>;
+        service_commissions?: Array<{
+            staff_id: number;
+            staff_name: string;
+            commission_value: number;
+            commission_unit: 'percent' | 'cash';
+            commission_type: 'sale' | 'service';
+        }>;
     }>;
     hoa_hongs?: Array<{
         id: number;
@@ -104,7 +119,7 @@ const InvoiceList: React.FC = () => {
 
     // Debt payment modal
     const [payDebtModalVisible, setPayDebtModalVisible] = useState(false);
-    const [debtInvoice, setDebtInvoice] = useState<Invoice | null>(null);
+    const [debtInvoice, setDebtInvoice] = useState<InvoiceDetail | null>(null);
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -523,7 +538,7 @@ const InvoiceList: React.FC = () => {
             const response = await axios.get(API.spaInvoiceDetail(invoice.id));
             if (response.data.status_code === 200) {
                 const fullInvoice = response.data.data;
-                setDebtInvoice(invoice);
+                setDebtInvoice(fullInvoice); // Set full invoice with cong_no
                 // Set default payment amount = remaining debt
                 const debtAmount = fullInvoice.cong_no?.so_tien_no || 0;
                 setPaymentAmount(debtAmount);
@@ -537,10 +552,15 @@ const InvoiceList: React.FC = () => {
     };
 
     const handlePayDebt = async () => {
-        if (!debtInvoice) return;
+        if (!debtInvoice || !debtInvoice.cong_no) return;
 
         if (paymentAmount <= 0) {
             message.error('Số tiền thanh toán phải lớn hơn 0');
+            return;
+        }
+
+        if (paymentAmount > debtInvoice.cong_no.so_tien_no) {
+            message.error(`Số tiền thanh toán không được vượt quá số tiền nợ (${numberFormat(debtInvoice.cong_no.so_tien_no)} ₫)`);
             return;
         }
 
@@ -660,7 +680,7 @@ const InvoiceList: React.FC = () => {
             align: 'right',
             render: (value) => (
                 <strong style={{ color: '#52c41a' }}>
-                    {value.toLocaleString()} ₫
+                    {numberFormat(value)} ₫
                 </strong>
             ),
             sorter: (a, b) => a.tong_tien - b.tong_tien,
@@ -673,7 +693,7 @@ const InvoiceList: React.FC = () => {
             align: 'right',
             render: (value) => value > 0 ? (
                 <span style={{ color: '#ff4d4f' }}>
-                    -{value.toLocaleString()} ₫
+                    -{numberFormat(value)} ₫
                 </span>
             ) : '-',
         },
@@ -685,7 +705,7 @@ const InvoiceList: React.FC = () => {
             align: 'right',
             render: (value) => (
                 <strong style={{ color: '#1890ff', fontSize: 15 }}>
-                    {value.toLocaleString()} ₫
+                    {numberFormat(value)} ₫
                 </strong>
             ),
             sorter: (a, b) => a.tong_thanh_toan - b.tong_thanh_toan,
@@ -885,6 +905,16 @@ const InvoiceList: React.FC = () => {
                 width={700}
                 extra={
                     <Space>
+                        {selectedInvoice?.trang_thai === 'con_cong_no' && (
+                            <Button
+                                type="primary"
+                                danger
+                                icon={<CreditCardOutlined />}
+                                onClick={() => handleOpenPayDebt(selectedInvoice)}
+                            >
+                                Trả nợ
+                            </Button>
+                        )}
                         <Button
                             icon={<PrinterOutlined />}
                             onClick={() => selectedInvoice && handlePrint(selectedInvoice)}
@@ -930,10 +960,32 @@ const InvoiceList: React.FC = () => {
                                     dataIndex: 'ten',
                                     render: (_, record) => (
                                         <div>
-                                            {record.dich_vu?.ten_dich_vu || record.san_pham?.ten_san_pham}
+                                            <div>{record.dich_vu?.ten_dich_vu || record.san_pham?.ten_san_pham}</div>
                                             {record.ktv && (
                                                 <div style={{ fontSize: 12, color: '#999' }}>
                                                     KTV: {record.ktv.admin_user?.name}
+                                                </div>
+                                            )}
+                                            {/* NV Tư vấn */}
+                                            {record.sale_commissions && record.sale_commissions.length > 0 && (
+                                                <div style={{ marginTop: 4 }}>
+                                                    <div style={{ fontSize: 11, color: '#1890ff', fontWeight: 500 }}>NV Tư vấn:</div>
+                                                    {record.sale_commissions.map((comm, idx) => (
+                                                        <Tag key={idx} color="blue" style={{ marginTop: 2, fontSize: 11 }}>
+                                                            {comm.staff_name} ({comm.commission_unit === 'percent' ? `${comm.commission_value}%` : `${numberFormat(comm.commission_value)}đ`})
+                                                        </Tag>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {/* NV Làm dịch vụ */}
+                                            {record.service_commissions && record.service_commissions.length > 0 && (
+                                                <div style={{ marginTop: 4 }}>
+                                                    <div style={{ fontSize: 11, color: '#52c41a', fontWeight: 500 }}>NV Làm DV:</div>
+                                                    {record.service_commissions.map((comm, idx) => (
+                                                        <Tag key={idx} color="green" style={{ marginTop: 2, fontSize: 11 }}>
+                                                            {comm.staff_name} ({comm.commission_unit === 'percent' ? `${comm.commission_value}%` : `${numberFormat(comm.commission_value)}đ`})
+                                                        </Tag>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
@@ -950,7 +1002,7 @@ const InvoiceList: React.FC = () => {
                                     dataIndex: 'don_gia',
                                     width: 100,
                                     align: 'right',
-                                    render: (value) => `${value.toLocaleString()} ₫`,
+                                    render: (value) => `${numberFormat(value)} ₫`,
                                 },
                                 {
                                     title: 'Thành tiền',
@@ -959,7 +1011,7 @@ const InvoiceList: React.FC = () => {
                                     align: 'right',
                                     render: (value) => (
                                         <strong style={{ color: '#52c41a' }}>
-                                            {value.toLocaleString()} ₫
+                                            {numberFormat(value)} ₫
                                         </strong>
                                     ),
                                 },
@@ -969,37 +1021,37 @@ const InvoiceList: React.FC = () => {
                         <Divider>Thông tin thanh toán</Divider>
                         <Descriptions bordered column={1}>
                             <Descriptions.Item label="Tổng tiền dịch vụ">
-                                {selectedInvoice.tong_tien_dich_vu.toLocaleString()} ₫
+                                {numberFormat(selectedInvoice.tong_tien_dich_vu)} ₫
                             </Descriptions.Item>
                             <Descriptions.Item label="Tổng tiền sản phẩm">
-                                {selectedInvoice.tong_tien_san_pham.toLocaleString()} ₫
+                                {numberFormat(selectedInvoice.tong_tien_san_pham)} ₫
                             </Descriptions.Item>
                             <Descriptions.Item label="Tổng cộng">
-                                <strong>{selectedInvoice.tong_tien.toLocaleString()} ₫</strong>
+                                <strong>{numberFormat(selectedInvoice.tong_tien)} ₫</strong>
                             </Descriptions.Item>
                             {selectedInvoice.giam_gia > 0 && (
                                 <Descriptions.Item label="Giảm giá">
                                     <span style={{ color: '#ff4d4f' }}>
-                                        -{selectedInvoice.giam_gia.toLocaleString()} ₫
+                                        -{numberFormat(selectedInvoice.giam_gia)} ₫
                                     </span>
                                 </Descriptions.Item>
                             )}
                             {selectedInvoice.tien_tip > 0 && (
                                 <Descriptions.Item label="Tiền tip">
                                     <span style={{ color: '#52c41a' }}>
-                                        +{selectedInvoice.tien_tip.toLocaleString()} ₫
+                                        +{numberFormat(selectedInvoice.tien_tip)} ₫
                                     </span>
                                 </Descriptions.Item>
                             )}
                             <Descriptions.Item label="Tổng thanh toán">
                                 <strong style={{ color: '#1890ff', fontSize: 18 }}>
-                                    {selectedInvoice.tong_thanh_toan.toLocaleString()} ₫
+                                    {numberFormat(selectedInvoice.tong_thanh_toan)} ₫
                                 </strong>
                             </Descriptions.Item>
                             {selectedInvoice.phuong_thuc_thanh_toan && (
                                 <Descriptions.Item label="Phương thức thanh toán">
                                     {Object.entries(selectedInvoice.phuong_thuc_thanh_toan).map(([key, value]: [string, any]) => (
-                                        <Tag key={key}>{key}: {value.toLocaleString()} ₫</Tag>
+                                        <Tag key={key}>{key}: {numberFormat(value)} ₫</Tag>
                                     ))}
                                 </Descriptions.Item>
                             )}
@@ -1071,7 +1123,7 @@ const InvoiceList: React.FC = () => {
                 confirmLoading={paymentLoading}
                 width={600}
             >
-                {debtInvoice && (
+                {debtInvoice && debtInvoice.cong_no && (
                     <Space direction="vertical" style={{ width: '100%' }} size="large">
                         <Card size="small" style={{ background: '#fff7e6', borderColor: '#ffa940' }}>
                             <Space direction="vertical" style={{ width: '100%' }}>
@@ -1081,10 +1133,27 @@ const InvoiceList: React.FC = () => {
                                 <div>
                                     <strong>Khách hàng:</strong> {debtInvoice.khach_hang?.name || debtInvoice.khach_hang?.ho_ten || 'Khách lẻ'}
                                 </div>
-                                <div>
-                                    <strong>Tổng hóa đơn:</strong>{' '}
-                                    <span style={{ color: '#1890ff', fontSize: 16, fontWeight: 'bold' }}>
-                                        {debtInvoice.tong_thanh_toan.toLocaleString()} ₫
+                            </Space>
+                        </Card>
+
+                        <Card size="small" style={{ background: '#e6f7ff', borderColor: '#91d5ff' }}>
+                            <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Tổng hóa đơn:</span>
+                                    <span style={{ fontSize: 15, fontWeight: 'bold' }}>
+                                        {numberFormat(debtInvoice.tong_thanh_toan)} ₫
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Đã thanh toán:</span>
+                                    <span style={{ color: '#52c41a', fontSize: 15, fontWeight: 'bold' }}>
+                                        {numberFormat(debtInvoice.cong_no.so_tien_da_thanh_toan)} ₫
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px dashed #d9d9d9' }}>
+                                    <span style={{ fontWeight: 'bold' }}>Còn nợ:</span>
+                                    <span style={{ color: '#ff4d4f', fontSize: 16, fontWeight: 'bold' }}>
+                                        {numberFormat(debtInvoice.cong_no.so_tien_no)} ₫
                                     </span>
                                 </div>
                             </Space>
@@ -1103,21 +1172,27 @@ const InvoiceList: React.FC = () => {
                                 addonAfter="₫"
                                 placeholder="Nhập số tiền thanh toán"
                                 min={0}
+                                max={debtInvoice.cong_no.so_tien_no}
                                 style={{ width: '100%', fontSize: 16 }}
                             />
                             <div style={{ marginTop: 8, fontSize: 13, color: '#666' }}>
-                                Nhập số tiền khách hàng thanh toán cho công nợ này
+                                Nhập số tiền thanh toán (tối đa: {numberFormat(debtInvoice.cong_no.so_tien_no)} ₫)
                             </div>
                         </div>
 
-                        <Card size="small" style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
-                            <div style={{ fontSize: 13, color: '#52c41a' }}>
-                                <CheckCircleOutlined style={{ marginRight: 8 }} />
-                                {paymentAmount >= debtInvoice.tong_thanh_toan
-                                    ? 'Thanh toán đủ - Hóa đơn sẽ được đóng và công nợ sẽ được xóa'
-                                    : 'Thanh toán một phần - Công nợ sẽ được cập nhật số tiền còn lại'}
-                            </div>
-                        </Card>
+                        {paymentAmount > 0 && (
+                            <Card size="small" style={{ 
+                                background: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#f6ffed' : '#fffbe6', 
+                                borderColor: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#b7eb8f' : '#ffe58f' 
+                            }}>
+                                <div style={{ fontSize: 13, color: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#52c41a' : '#faad14' }}>
+                                    <CheckCircleOutlined style={{ marginRight: 8 }} />
+                                    {paymentAmount >= debtInvoice.cong_no.so_tien_no
+                                        ? 'Thanh toán đủ - Hóa đơn sẽ chuyển sang trạng thái "Đã thanh toán"'
+                                        : `Thanh toán một phần - Còn lại: ${numberFormat(debtInvoice.cong_no.so_tien_no - paymentAmount)} ₫`}
+                                </div>
+                            </Card>
+                        )}
                     </Space>
                 )}
             </Modal>

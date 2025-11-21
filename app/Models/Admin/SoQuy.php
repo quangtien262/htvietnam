@@ -134,29 +134,46 @@ class SoQuy extends Model
         return $soQuy;
     }
 
-    static function saveSoQuy_hoaDon($soTien, $hoaDon)
+    static function saveSoQuy_hoaDonSPA($soTien, $hoaDon)
     {
         $nowDB = date('Y-m-d H:i:s');
-        $soQuy = new SoQuy();
+
+        // Tìm sổ quỹ hiện có cho hóa đơn này
+        $checkExisting = SoQuy::where('loai_chung_tu', 'spa_hoa_don')
+            ->where('chung_tu_id', $hoaDon->id)
+            ->where('so_quy_type_id', 1) // 1: thu
+            ->first();
+
+        if ($checkExisting) {
+            // Nếu đã có, cộng dồn số tiền
+            $soQuy = $checkExisting;
+            $soQuy->so_tien += $soTien; // Cộng dồn
+        } else {
+            // Tạo mới
+            $soQuy = new SoQuy();
+            $soQuy->so_tien = $soTien;
+        }
+
         $soQuy->name = 'Khách thanh toán công nợ (Hóa đơn bán lẻ)';
-        $soQuy->loai_chung_tu = 'hoa_don';
+        $soQuy->loai_chung_tu = 'spa_hoa_don';
         $soQuy->chung_tu_id = $hoaDon->id;
-        $soQuy->ma_chung_tu = $hoaDon->code;
-        $soQuy->chi_nhanh_id = $hoaDon->chi_nhanh_id;
-
+        $soQuy->ma_chung_tu = $hoaDon->ma_hoa_don;
         $soQuy->khach_hang_id = $hoaDon->khach_hang_id;
-
-        $soQuy->nhan_vien_id = $hoaDon->nhan_vien_id;
-        $soQuy->so_tien = $soTien;
+        $soQuy->tong_tien_hoa_don = $hoaDon->tong_thanh_toan;
         $soQuy->so_quy_status_id = 1;
         $soQuy->so_quy_type_id = config('constant.so_quy_type.khach_tt_hdon');
         $soQuy->thoi_gian = $nowDB;
-
-        $soQuy->nhom_nguoi_nhan_id = config('constant.nhom_nguoi_nhan.cty'); // 1 là khách hàng
+        $soQuy->nhom_nguoi_nhan_id = config('constant.nhom_nguoi_nhan.cty');
+        $soQuy->is_recycle_bin = 0;
+        $soQuy->so_quy_type_id = 1; // 1: thu
 
         $soQuy->save();
-        $soQuy->code = 'SQ' . TblService::formatNumberByLength($soQuy->id, 5);
-        $soQuy->save();
+
+        if (empty($soQuy->code)) {
+            $soQuy->code = 'SQ' . TblService::formatNumberByLength($soQuy->id, 5);
+            $soQuy->save();
+        }
+
         return $soQuy;
     }
 
@@ -179,6 +196,7 @@ class SoQuy extends Model
         $soQuy->khach_hang_id = $invoice->user_id;
         $soQuy->nhan_vien_id = $invoice->create_by;
         $soQuy->so_tien = $invoice->total;
+        $soQuy->tong_tien_hoa_don = $invoice->total;
         $soQuy->so_quy_status_id = $invoice->aitilen_invoice_status_id;
         $soQuy->so_quy_type_id = config('constant.so_quy_type.khach_tt_hdon');
         $soQuy->thoi_gian = $nowDB;
