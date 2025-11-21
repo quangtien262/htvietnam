@@ -13,19 +13,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('block03', function (Blueprint $table) {
+        Schema::create('project_setting_add_task_express', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('icon')->nullable();
-            $table->integer('page_setting_id')->default(0)->nullable();
-            $table->integer('menu_id')->default(0)->nullable();
-            $table->integer('active')->default(1)->nullable();
-            $table->string('images')->nullable();
-
+            $table->string('name')->nullable(); // Tên mẫu task
+            $table->text('tasks')->nullable(); // JSON array chứa các task [{name: '', description: ''}]
+            $table->integer('is_active')->default(1)->nullable(); // 1: active, 0: inactive
+            $table->integer('updated_by')->nullable();
             MigrateService::createBaseColumn($table);
         });
-
-
     }
 
     /**
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('block03');
+        Schema::dropIfExists('project_setting_add_task_express');
     }
 };

@@ -26,16 +26,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $order_col = 1;
-        $about=  MigrateService::createTable02('about','Giới thiệu',
-        ['is_multiple_language' => 1, 'table_data' => 'about_data','parent_id' => 0,'is_edit'=>0]);
 
-        MigrateService::createColumn02($about->id, 'name', 'Tên', 'TEXT', 'text', $order_col++, 
-        ['edit'=>0, 'show_in_list'=>1]);
-        MigrateService::createColumn02($about->id, 'image', 'Hình ảnh', 'TEXT', 'image', $order_col++);
-
-        MigrateService::baseColumn($about);
-        
 
     }
 

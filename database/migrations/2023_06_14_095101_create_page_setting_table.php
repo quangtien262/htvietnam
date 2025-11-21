@@ -35,38 +35,6 @@ return new class extends Migration
             MigrateService::createBaseColumn($table);
         });
 
-        $order = 0;
-        $landingpage = MigrateService::createTable02(
-            'page_setting',
-            'Cài đặt page',
-            [
-                'is_edit' => 1,
-                'is_multiple_language' => 1,
-                'table_data' => 'page_setting_data',
-            ]
-        );
-        MigrateService::createColumn02($landingpage->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02(
-            $landingpage->id,
-            'name',
-            'Tiêu đề',
-            'TEXT',
-            'text',
-            $order++,
-            ['show_in_list' => 0]
-        );
-        MigrateService::createColumn02(
-            $landingpage->id,
-            'images',
-            'Hình ảnh',
-            'TEXT',
-            'images_crop',
-            $order++,
-            ['show_in_list' => 1]
-        );
-        MigrateService::createColumn02($landingpage->id, 'menu_id', 'Danh mục', 'TEXT', 'text', $order++);
-
-        MigrateService::baseColumn($landingpage);
     }
 
     /**

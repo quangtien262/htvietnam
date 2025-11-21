@@ -806,6 +806,11 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <UnorderedListOutlined />,
                 },
+                {
+                    label: <Link to={`${ROUTE.project_task_templates}?p=projects`}>Trạng thái task</Link>,
+                    key: (key++).toString(),
+                    icon: <UnorderedListOutlined />,
+                },
             ],
         },
         {

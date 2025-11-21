@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge, Checkbox, Dropdown, Popconfirm } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined, CalendarOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined, CalendarOutlined, SettingOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { projectApi, taskApi, referenceApi, meetingApi } from '../../common/api/projectApi';
-import { Project, ActivityLog, Task, ProjectChecklist } from '../../types/project';
 import ROUTE from '../../common/route';
+import { Project, ActivityLog, Task, ProjectChecklist } from '../../types/project';
 import TaskDetail from './TaskDetail';
 import ProjectAttachments from '../../components/project/ProjectAttachments';
 import ProjectDetailDashboard from './ProjectDetailDashboard';
@@ -66,6 +66,16 @@ const ProjectDetail: React.FC = () => {
     const [applyAllAssignee, setApplyAllAssignee] = useState(true);
     const [applyAllPriority, setApplyAllPriority] = useState(true);
     const [quickAddLoading, setQuickAddLoading] = useState(false);
+
+    // Template Modal states
+    const [templateModalVisible, setTemplateModalVisible] = useState(false);
+    const [templateType, setTemplateType] = useState<'apartment' | 'room' | 'custom' | null>(null);
+    const [apartments, setApartments] = useState<any[]>([]);
+    const [rooms, setRooms] = useState<any[]>([]);
+    const [customTemplates, setCustomTemplates] = useState<any[]>([]);
+    const [selectedApartment, setSelectedApartment] = useState<number | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+    const [templateLoading, setTemplateLoading] = useState(false);
 
     // Active tab state - to preserve tab after reload
     const [activeTabKey, setActiveTabKey] = useState<string>('tasks');
@@ -518,6 +528,118 @@ const ProjectDetail: React.FC = () => {
     const removeQuickAddTaskRow = (index: number) => {
         if (quickAddTasks.length > 1) {
             setQuickAddTasks(quickAddTasks.filter((_, i) => i !== index));
+        }
+    };
+
+    // Template functions
+    const openTemplateModal = () => {
+        setTemplateModalVisible(true);
+    };
+
+    const closeTemplateModal = () => {
+        setTemplateModalVisible(false);
+        setTemplateType(null);
+        setSelectedApartment(null);
+        setSelectedTemplate(null);
+        setRooms([]);
+    };
+
+    const handleTemplateTypeSelect = async (type: 'apartment' | 'room' | 'custom') => {
+        setTemplateType(type);
+        setTemplateLoading(true);
+
+        try {
+            if (type === 'apartment') {
+                const response = await fetch('/project/api/task-templates/apartments');
+                const data = await response.json();
+                if (data.success) {
+                    setApartments(data.data);
+                }
+            } else if (type === 'room') {
+                // Load apartments for room selection
+                const response = await fetch('/project/api/task-templates/apartments');
+                const data = await response.json();
+                if (data.success) {
+                    setApartments(data.data);
+                }
+            } else if (type === 'custom') {
+                const response = await fetch('/project/api/task-templates/custom-templates');
+                const data = await response.json();
+                if (data.success) {
+                    setCustomTemplates(data.data);
+                }
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu mẫu');
+        } finally {
+            setTemplateLoading(false);
+        }
+    };
+
+    const handleApartmentSelect = async (apartmentId: number) => {
+        setSelectedApartment(apartmentId);
+        setTemplateLoading(true);
+
+        try {
+            const response = await fetch(`/project/api/task-templates/rooms/${apartmentId}`);
+            const data = await response.json();
+            if (data.success) {
+                setRooms(data.data);
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải danh sách phòng');
+        } finally {
+            setTemplateLoading(false);
+        }
+    };
+
+    const applyTemplate = () => {
+        let newTasks: any[] = [];
+
+        if (templateType === 'apartment' && apartments.length > 0) {
+            // Apply all apartments
+            newTasks = apartments.map(apt => ({
+                tieu_de: apt.name,
+                trang_thai_id: applyAllStatus ? quickAddTasks[0]?.trang_thai_id : null,
+                nguoi_thuc_hien_id: applyAllAssignee ? quickAddTasks[0]?.nguoi_thuc_hien_id : null,
+                uu_tien_id: applyAllPriority ? quickAddTasks[0]?.uu_tien_id : null,
+                mo_ta: `Mã: ${apt.code || ''}`
+            }));
+        } else if (templateType === 'room' && selectedApartment && rooms.length > 0) {
+            // Apply rooms of selected apartment
+            newTasks = rooms.map(room => ({
+                tieu_de: room.name,
+                trang_thai_id: applyAllStatus ? quickAddTasks[0]?.trang_thai_id : null,
+                nguoi_thuc_hien_id: applyAllAssignee ? quickAddTasks[0]?.nguoi_thuc_hien_id : null,
+                uu_tien_id: applyAllPriority ? quickAddTasks[0]?.uu_tien_id : null,
+                mo_ta: `Mã: ${room.code || ''}`
+            }));
+        } else if (templateType === 'custom' && selectedTemplate) {
+            // Apply custom template
+            const template = customTemplates.find(t => t.id === selectedTemplate);
+            if (template && template.tasks) {
+                try {
+                    const tasks = typeof template.tasks === 'string' ? JSON.parse(template.tasks) : template.tasks;
+                    newTasks = tasks.map((task: any) => ({
+                        tieu_de: task.name || task.tieu_de || '',
+                        trang_thai_id: applyAllStatus ? quickAddTasks[0]?.trang_thai_id : null,
+                        nguoi_thuc_hien_id: applyAllAssignee ? quickAddTasks[0]?.nguoi_thuc_hien_id : null,
+                        uu_tien_id: applyAllPriority ? quickAddTasks[0]?.uu_tien_id : null,
+                        mo_ta: task.description || task.mo_ta || ''
+                    }));
+                } catch (e) {
+                    message.error('Lỗi khi phân tích mẫu tùy chỉnh');
+                    return;
+                }
+            }
+        }
+
+        if (newTasks.length > 0) {
+            setQuickAddTasks(newTasks);
+            closeTemplateModal();
+            message.success(`Đã áp dụng mẫu với ${newTasks.length} nhiệm vụ`);
+        } else {
+            message.warning('Không có dữ liệu để áp dụng');
         }
     };
 
@@ -1022,6 +1144,7 @@ const ProjectDetail: React.FC = () => {
                                     overflowX: 'auto',
                                     paddingBottom: 16,
                                     paddingTop: 8,
+                                    alignItems: 'flex-start',
                                 }}>
                                     {taskStatuses.map((status) => {
                                         const filteredKanban = getFilteredKanbanData();
@@ -1036,7 +1159,9 @@ const ProjectDetail: React.FC = () => {
                                                     borderRadius: 12,
                                                     padding: 0,
                                                     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                                                    // border: '1px solid #f0f0f0',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    minHeight: '70vh',
                                                 }}
                                             >
                                                 <div style={{
@@ -1089,11 +1214,14 @@ const ProjectDetail: React.FC = () => {
                                                             ref={provided.innerRef}
                                                             {...provided.droppableProps}
                                                             style={{
-                                                                minHeight: 200,
+                                                                minHeight: '60vh',
+                                                                height: '100%',
+                                                                flex: 1,
                                                                 backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
                                                                 borderRadius: 8,
-                                                                // padding: 4,
+                                                                padding: '8px 12px',
                                                                 transition: 'background-color 0.2s ease',
+                                                                overflow: 'auto',
                                                             }}
                                                         >
                                                             {tasks.length === 0 ? (
@@ -1979,15 +2107,121 @@ const ProjectDetail: React.FC = () => {
                     />
                 </Table>
                 <div style={{ marginTop: 16, textAlign: 'center' }}>
-                    <Button
-                        type="dashed"
-                        icon={<PlusOutlined />}
-                        onClick={addQuickAddTaskRow}
-                        block
-                    >
-                        Thêm dòng mới
-                    </Button>
+                    <Space>
+                        <Button
+                            type="dashed"
+                            icon={<PlusOutlined />}
+                            onClick={addQuickAddTaskRow}
+                            style={{ flex: 1 }}
+                        >
+                            Thêm dòng mới
+                        </Button>
+                        <Button
+                            type="primary"
+                            ghost
+                            icon={<AppstoreOutlined />}
+                            onClick={openTemplateModal}
+                            style={{ flex: 1 }}
+                        >
+                            Mẫu có sẵn
+                        </Button>
+                    </Space>
                 </div>
+            </Modal>
+
+            {/* Template Selection Modal */}
+            <Modal
+                title="Chọn mẫu nhiệm vụ"
+                open={templateModalVisible}
+                onCancel={closeTemplateModal}
+                onOk={applyTemplate}
+                okText="Áp dụng"
+                cancelText="Hủy"
+                width={600}
+                confirmLoading={templateLoading}
+            >
+                <Space direction="vertical" style={{ width: '100%' }} size="large">
+                    <div>
+                        <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn loại mẫu:</p>
+                        <Radio.Group
+                            value={templateType}
+                            onChange={(e) => handleTemplateTypeSelect(e.target.value)}
+                            style={{ width: '100%' }}
+                        >
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <Radio value="apartment">Tất cả tòa nhà</Radio>
+                                <Radio value="room">Phòng trong nhà</Radio>
+                                <Radio value="custom">Mẫu tự chọn</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </div>
+
+                    {templateType === 'room' && (
+                        <div>
+                            <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn tòa nhà:</p>
+                            <Select
+                                placeholder="Chọn tòa nhà"
+                                style={{ width: '100%' }}
+                                value={selectedApartment}
+                                onChange={handleApartmentSelect}
+                                loading={templateLoading}
+                            >
+                                {apartments.map(apt => (
+                                    <Select.Option key={apt.id} value={apt.id}>
+                                        {apt.name} {apt.code ? `(${apt.code})` : ''}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {rooms.length > 0 && (
+                                <p style={{ marginTop: 8, color: '#52c41a' }}>
+                                    Sẽ tạo {rooms.length} nhiệm vụ từ các phòng
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {templateType === 'apartment' && apartments.length > 0 && (
+                        <p style={{ color: '#52c41a' }}>
+                            Sẽ tạo {apartments.length} nhiệm vụ từ các tòa nhà
+                        </p>
+                    )}
+
+                    {templateType === 'custom' && (
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <p style={{ margin: 0, fontWeight: 500 }}>Chọn mẫu:</p>
+                                <Button
+                                    type="link"
+                                    icon={<SettingOutlined />}
+                                    onClick={() => {
+                                        window.open(ROUTE.project_task_templates + '?p=projects', '_blank');
+                                    }}
+                                    size="small"
+                                >
+                                    Quản lý mẫu
+                                </Button>
+                            </div>
+                            <Select
+                                placeholder="Chọn mẫu"
+                                style={{ width: '100%' }}
+                                value={selectedTemplate}
+                                onChange={setSelectedTemplate}
+                                loading={templateLoading}
+                            >
+                                {customTemplates.map(template => (
+                                    <Select.Option key={template.id} value={template.id}>
+                                        {template.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {customTemplates.length === 0 && !templateLoading && (
+                                <p style={{ marginTop: 8, color: '#ff4d4f', fontSize: 12 }}>
+                                    Chưa có mẫu nào. Vui lòng tạo mẫu mới bằng cách click "Quản lý mẫu"
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </Space>
             </Modal>
 
             {/* Add to Meeting Modal */}

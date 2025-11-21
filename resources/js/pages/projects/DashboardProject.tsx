@@ -35,6 +35,8 @@ import { routeSales } from "../../function/config_route";
 import { history } from "../../function/report";
 import type { GetProp, MenuProps } from 'antd';
 
+import ProfitReport from "./components/ProfitReport";
+
 // import TotalReport from "./TotalReport";
 // import TienPhongReport from "./TienPhongReport";
 // import DichVuReport from "./DichVuReport";
@@ -49,7 +51,7 @@ const DashboardProject: React.FC = () => {
         {
             key: (key++).toString(),
             label: 'Lợi nhuận thực tế',
-            children: '123',
+            children: <ProfitReport />,
         },
 
 

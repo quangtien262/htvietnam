@@ -124,6 +124,11 @@ Route::group(['prefix' => 'pj'], function () {
     Route::post('{parentName}/delete-config/{currentTable}', [ProController::class, 'deleteConfig'])->name('project.deleteConfig');
 });
 
+// Project Setting - Task Templates
+Route::group(['prefix' => 'project-setting'], function () {
+    Route::get('task-templates', [DataController::class, 'index'])->name('project_setting.task_templates');
+});
+
 // invoice: api
 Route::group(['prefix' => 'invoice'], function () {
     // Route::post('index-api/bds', [InvoiceController::class, 'indexApi'])->name('invoice.indexApi');

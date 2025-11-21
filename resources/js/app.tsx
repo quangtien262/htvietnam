@@ -164,6 +164,7 @@ import DailyReportStats from './pages/project/DailyReportStats';
 import TeamDailyReport from './pages/project/TeamDailyReport';
 import MyTasks from './pages/project/MyTasks';
 import MeetingList_PM from './pages/project/MeetingList';
+import TaskTemplateManagement from './pages/project/TaskTemplateManagement';
 
 
 
@@ -319,6 +320,7 @@ const App: React.FC = () => (
                 <Route path={ROUTE.project_tasks} element={<TaskList_PM />} />
                 <Route path={ROUTE.project_permissions} element={<ProjectPermissionsPage />} />
                 <Route path={ROUTE.project_guide} element={<UserGuide />} />
+                <Route path={ROUTE.project_task_templates} element={<TaskTemplateManagement />} />
 
                 {/* My Tasks */}
                 <Route path={ROUTE.project_my_tasks} element={<MyTasks />} />

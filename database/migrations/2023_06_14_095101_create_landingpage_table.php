@@ -59,30 +59,6 @@ return new class extends Migration
 
         });
 
-        $order = 0;
-        $user = Table::where('name', 'admin_users')->first();
-        $landingpage = MigrateService::createTable02('landingpage', 'Cài đặt page', ['is_edit' => 0]);
-        MigrateService::createColumn02($landingpage->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($landingpage->id, 'name', 'Tiêu đề', 'TEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'sub_title', 'Nội dung', 'TEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description01', 'Nội dung', 'LONGTEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description02', 'Nội dung', 'LONGTEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description03', 'Nội dung', 'LONGTEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description04', 'Nội dung', 'LONGTEXT', 'text', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description_json01', 'Nội dung', 'LONGTEXT', 'json', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description_json02', 'Nội dung', 'LONGTEXT', 'json', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description_json03', 'Nội dung', 'LONGTEXT', 'json', $order++);
-        MigrateService::createColumn02($landingpage->id, 'description_json04', 'Nội dung', 'LONGTEXT', 'json', $order++);
-        MigrateService::createColumn02($landingpage->id, 'images', 'Nội dung', 'TEXT', 'images_crop', $order++);
-        MigrateService::createColumn02($landingpage->id, 'image01', 'Nội dung', 'LONGTEXT', 'image_crop', $order++);
-        MigrateService::createColumn02($landingpage->id, 'image02', 'Nội dung', 'LONGTEXT', 'image_crop', $order++);
-        MigrateService::createColumn02($landingpage->id, 'image03', 'Nội dung', 'LONGTEXT', 'image_crop', $order++);
-        MigrateService::createColumn02($landingpage->id, 'image04', 'Nội dung', 'LONGTEXT', 'image_crop', $order++);
-        MigrateService::createColumn02($landingpage->id, 'is_show_btn_register', 'Hiển thị nút đăng ký', 'INT', 'number', $order++);
-        MigrateService::createColumn02($landingpage->id, 'is_show_hotline', 'Hiển thị hotline', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($landingpage->id, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order++, ['select_table_id' => $user->id, 'edit' => 0]);
-        MigrateService::createColumn02($landingpage->id, 'created_at', 'Ngày tạo', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
-        MigrateService::createColumn02($landingpage->id, 'updated_at', 'Ngày sửa', 'DATETIME', config('constant.config_table.type_edit.date'), $order++, ['edit' => 0]);
     }
 
     /**

@@ -180,6 +180,9 @@ export const ROUTE = {
     daily_report_history: `${baseRoute}project/daily-report/history/`,
     daily_report_stats: `${baseRoute}project/daily-report/stats/`,
     daily_report_team: `${baseRoute}project/daily-report/team/`,
+
+    // Task Templates - Quản lý mẫu nhiệm vụ
+    project_task_templates: `${baseRoute}project/templates/`,
 };
 
 export default ROUTE;

@@ -11,6 +11,7 @@ use App\Services\Project\PermissionService;
 use App\Services\Project\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -912,6 +913,77 @@ class TaskController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Xóa người hỗ trợ thành công',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all active apartments for task templates
+     */
+    public function getApartments()
+    {
+        try {
+            $apartments = DB::table('apartment')
+                ->where('is_recycle_bin', 0)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $apartments,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all rooms in an apartment for task templates
+     */
+    public function getRooms($apartmentId)
+    {
+        try {
+            $rooms = DB::table('room')
+                ->where('is_recycle_bin', 0)
+                ->where('apartment_id', $apartmentId)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $rooms,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get custom task templates
+     */
+    public function getCustomTemplates()
+    {
+        try {
+            $templates = \App\Models\Admin\ProjectSettingAddTaskExpress::active()
+                ->orderBy('sort_order')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $templates,
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -197,5 +197,20 @@ Route::prefix('notifications')->name('notifications.')->group(function () {
 Route::prefix('tasks/{taskId}/supporters')->name('tasks.supporters.')->group(function () {
     Route::post('/', [TaskController::class, 'addSupporters'])->name('add');
     Route::put('/', [TaskController::class, 'updateSupporters'])->name('update');
-    Route::delete('/{userId}', [TaskController::class, 'removeSup porter'])->name('remove');
+    Route::delete('/{userId}', [TaskController::class, 'removeSupporter'])->name('remove');
+});
+
+// Quick Add Task Templates Routes
+Route::prefix('task-templates')->name('task_templates.')->group(function () {
+    Route::get('/apartments', [TaskController::class, 'getApartments'])->name('apartments');
+    Route::get('/rooms/{apartmentId}', [TaskController::class, 'getRooms'])->name('rooms');
+    Route::get('/custom-templates', [TaskController::class, 'getCustomTemplates'])->name('custom_templates');
+});
+
+// Task Template Management Routes
+Route::prefix('templates')->name('templates.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Project\TaskTemplateController::class, 'index'])->name('index');
+    Route::post('/', [App\Http\Controllers\Project\TaskTemplateController::class, 'store'])->name('store');
+    Route::put('/{id}', [App\Http\Controllers\Project\TaskTemplateController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Project\TaskTemplateController::class, 'destroy'])->name('destroy');
 });

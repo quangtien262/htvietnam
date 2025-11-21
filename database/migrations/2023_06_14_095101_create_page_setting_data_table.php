@@ -27,15 +27,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $order = 0;
-        $pageSetting = MigrateService::createTable02('page_setting_data', 'Cài đặt page', ['is_edit' => 0]);
-        MigrateService::createColumn02($pageSetting->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($pageSetting->id, 'name_data', 'Tiêu đề', 'TEXT', 'text', $order++);
-        MigrateService::createColumn02($pageSetting->id, 'menu_id', 'Danh mục', 'TEXT', 'text', $order++);
-        MigrateService::createColumn02($pageSetting->id, 'description', 'Mô tả ngắn', 'longtext', 'textarea', $order++);
-        MigrateService::createColumn02($pageSetting->id, 'content', 'Nội dung', 'LONGTEXT', 'tiny', $order++);
-        
-        MigrateService::baseColumn($pageSetting);
     }
 
     /**
