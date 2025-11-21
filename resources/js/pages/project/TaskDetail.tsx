@@ -51,9 +51,13 @@ import {
     ClockCircleOutlined,
     FieldTimeOutlined,
     CalendarOutlined,
+    AppstoreOutlined,
+    SettingOutlined,
 } from '@ant-design/icons';
 import { taskApi, referenceApi, projectApi, meetingApi } from '../../common/api/projectApi';
 import { Task, TaskStatusType, PriorityType, TaskChecklist, TaskComment as TaskCommentType, ProjectMember } from '../../types/project';
+import ROUTE from '../../common/route';
+import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -97,6 +101,16 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
     ]);
     const [applyAllChecklistAssignee, setApplyAllChecklistAssignee] = useState(false);
     const [checklistLoading, setChecklistLoading] = useState(false);
+
+    // Checklist Template states
+    const [checklistTemplateModalVisible, setChecklistTemplateModalVisible] = useState(false);
+    const [checklistTemplateType, setChecklistTemplateType] = useState<'apartment' | 'room' | 'custom' | null>(null);
+    const [checklistApartments, setChecklistApartments] = useState<any[]>([]);
+    const [checklistRooms, setChecklistRooms] = useState<any[]>([]);
+    const [checklistCustomTemplates, setChecklistCustomTemplates] = useState<any[]>([]);
+    const [checklistSelectedApartment, setChecklistSelectedApartment] = useState<number | null>(null);
+    const [checklistSelectedTemplate, setChecklistSelectedTemplate] = useState<number | null>(null);
+    const [checklistTemplateLoading, setChecklistTemplateLoading] = useState(false);
 
     // Comments
     const [replyTo, setReplyTo] = useState<number | null>(null);
@@ -644,6 +658,96 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             { noi_dung: '', assigned_to: null, mo_ta: '' },
         ]);
         setApplyAllChecklistAssignee(false);
+    };
+
+    // Checklist Template functions
+    const openChecklistTemplateModal = () => {
+        setChecklistTemplateModalVisible(true);
+    };
+
+    const closeChecklistTemplateModal = () => {
+        setChecklistTemplateModalVisible(false);
+        setChecklistTemplateType(null);
+        setChecklistSelectedApartment(null);
+        setChecklistSelectedTemplate(null);
+        setChecklistRooms([]);
+    };
+
+    const handleChecklistTemplateTypeSelect = async (type: 'apartment' | 'room' | 'custom') => {
+        setChecklistTemplateType(type);
+        setChecklistTemplateLoading(true);
+
+        try {
+            if (type === 'apartment') {
+                const response = await axios.get('/project/api/task-templates/apartments');
+                setChecklistApartments(response.data.data || []);
+            } else if (type === 'custom') {
+                const response = await axios.get('/project/api/task-templates/custom-templates');
+                setChecklistCustomTemplates(response.data.data || []);
+            } else if (type === 'room') {
+                const response = await axios.get('/project/api/task-templates/apartments');
+                setChecklistApartments(response.data.data || []);
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu mẫu');
+        } finally {
+            setChecklistTemplateLoading(false);
+        }
+    };
+
+    const handleChecklistApartmentSelect = async (apartmentId: number) => {
+        setChecklistSelectedApartment(apartmentId);
+        setChecklistTemplateLoading(true);
+
+        try {
+            const response = await axios.get(`/project/api/task-templates/rooms/${apartmentId}`);
+            setChecklistRooms(response.data.data || []);
+        } catch (error) {
+            message.error('Lỗi khi tải danh sách phòng');
+        } finally {
+            setChecklistTemplateLoading(false);
+        }
+    };
+
+    const applyChecklistTemplate = () => {
+        let newChecklists: any[] = [];
+
+        if (checklistTemplateType === 'apartment' && checklistApartments.length > 0) {
+            newChecklists = checklistApartments.map(apt => ({
+                noi_dung: apt.name,
+                assigned_to: null,
+                mo_ta: `Checklist cho tòa nhà ${apt.name}`,
+            }));
+        } else if (checklistTemplateType === 'room' && checklistSelectedApartment && checklistRooms.length > 0) {
+            newChecklists = checklistRooms.map(room => ({
+                noi_dung: room.name,
+                assigned_to: null,
+                mo_ta: `Checklist cho phòng ${room.name}`,
+            }));
+        } else if (checklistTemplateType === 'custom' && checklistSelectedTemplate) {
+            const template = checklistCustomTemplates.find(t => t.id === checklistSelectedTemplate);
+            if (template && template.tasks) {
+                try {
+                    const tasks = typeof template.tasks === 'string' ? JSON.parse(template.tasks) : template.tasks;
+                    newChecklists = tasks.map((task: any) => ({
+                        noi_dung: task.name || '',
+                        assigned_to: null,
+                        mo_ta: task.description || '',
+                    }));
+                } catch (e) {
+                    message.error('Lỗi khi parse dữ liệu mẫu');
+                    return;
+                }
+            }
+        }
+
+        if (newChecklists.length > 0) {
+            setQuickAddChecklists(newChecklists);
+            closeChecklistTemplateModal();
+            message.success(`Đã áp dụng ${newChecklists.length} checklist từ mẫu`);
+        } else {
+            message.warning('Không có dữ liệu để áp dụng');
+        }
     };
 
     // Comment functions
@@ -1204,14 +1308,25 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                 />
             </Table>
             <div style={{ marginTop: 16, textAlign: 'center' }}>
-                <Button
-                    type="dashed"
-                    icon={<PlusOutlined />}
-                    onClick={addQuickAddChecklistRow}
-                    block
-                >
-                    Thêm dòng mới
-                </Button>
+                <Space>
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={addQuickAddChecklistRow}
+                        style={{ flex: 1 }}
+                    >
+                        Thêm dòng mới
+                    </Button>
+                    <Button
+                        type="primary"
+                        ghost
+                        icon={<AppstoreOutlined />}
+                        onClick={openChecklistTemplateModal}
+                        style={{ flex: 1 }}
+                    >
+                        Mẫu có sẵn
+                    </Button>
+                </Space>
             </div>
         </Modal>
     );
@@ -1925,6 +2040,101 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
             </Drawer>
 
             {renderQuickAddChecklistModal()}
+
+            {/* Checklist Template Selection Modal */}
+            <Modal
+                title="Chọn mẫu checklist"
+                open={checklistTemplateModalVisible}
+                onCancel={closeChecklistTemplateModal}
+                onOk={applyChecklistTemplate}
+                okText="Áp dụng"
+                cancelText="Hủy"
+                width={600}
+                confirmLoading={checklistTemplateLoading}
+            >
+                <Space direction="vertical" style={{ width: '100%' }} size="large">
+                    <div>
+                        <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn loại mẫu:</p>
+                        <Radio.Group
+                            value={checklistTemplateType}
+                            onChange={(e) => handleChecklistTemplateTypeSelect(e.target.value)}
+                            style={{ width: '100%' }}
+                        >
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <Radio value="apartment">Tất cả tòa nhà</Radio>
+                                <Radio value="room">Phòng trong nhà</Radio>
+                                <Radio value="custom">Mẫu tự chọn</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </div>
+
+                    {checklistTemplateType === 'room' && (
+                        <div>
+                            <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn tòa nhà:</p>
+                            <Select
+                                placeholder="Chọn tòa nhà"
+                                style={{ width: '100%' }}
+                                value={checklistSelectedApartment}
+                                onChange={handleChecklistApartmentSelect}
+                                loading={checklistTemplateLoading}
+                            >
+                                {checklistApartments.map(apt => (
+                                    <Select.Option key={apt.id} value={apt.id}>
+                                        {apt.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {checklistRooms.length > 0 && (
+                                <p style={{ marginTop: 8, color: '#52c41a' }}>
+                                    Sẽ tạo {checklistRooms.length} checklist từ các phòng
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {checklistTemplateType === 'apartment' && checklistApartments.length > 0 && (
+                        <p style={{ color: '#52c41a' }}>
+                            Sẽ tạo {checklistApartments.length} checklist từ các tòa nhà
+                        </p>
+                    )}
+
+                    {checklistTemplateType === 'custom' && (
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <p style={{ margin: 0, fontWeight: 500 }}>Chọn mẫu:</p>
+                                <Button
+                                    type="link"
+                                    icon={<SettingOutlined />}
+                                    onClick={() => {
+                                        window.open('/w-aio' + ROUTE.project_task_templates + '?p=projects', '_blank');
+                                    }}
+                                    size="small"
+                                >
+                                    Quản lý mẫu
+                                </Button>
+                            </div>
+                            <Select
+                                placeholder="Chọn mẫu"
+                                style={{ width: '100%' }}
+                                value={checklistSelectedTemplate}
+                                onChange={setChecklistSelectedTemplate}
+                                loading={checklistTemplateLoading}
+                            >
+                                {checklistCustomTemplates.map(template => (
+                                    <Select.Option key={template.id} value={template.id}>
+                                        {template.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {checklistCustomTemplates.length === 0 && !checklistTemplateLoading && (
+                                <p style={{ marginTop: 8, color: '#ff4d4f', fontSize: 12 }}>
+                                    Chưa có mẫu nào. Vui lòng tạo mẫu mới bằng cách click "Quản lý mẫu"
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </Space>
+            </Modal>
 
             {/* Add to Meeting Modal */}
             <Modal

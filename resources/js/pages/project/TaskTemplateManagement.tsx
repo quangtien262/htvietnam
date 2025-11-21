@@ -63,14 +63,14 @@ const TaskTemplateManagement: React.FC = () => {
 
     const handleEdit = (record: Template) => {
         setEditingTemplate(record);
-        
+
         // Parse tasks from JSON to array of TaskRow
         let parsedTasks: TaskRow[] = [];
         try {
-            const tasks = typeof record.tasks === 'string' 
+            const tasks = typeof record.tasks === 'string'
                 ? JSON.parse(record.tasks)
                 : record.tasks;
-            
+
             if (Array.isArray(tasks)) {
                 parsedTasks = tasks.map((task, index) => ({
                     key: index + 1,
@@ -86,13 +86,13 @@ const TaskTemplateManagement: React.FC = () => {
                 { key: 3, name: '', description: '' },
             ];
         }
-        
+
         setTaskRows(parsedTasks.length > 0 ? parsedTasks : [
             { key: 1, name: '', description: '' },
             { key: 2, name: '', description: '' },
             { key: 3, name: '', description: '' },
         ]);
-        
+
         form.setFieldsValue({
             name: record.name,
             sort_order: record.sort_order,
@@ -114,7 +114,7 @@ const TaskTemplateManagement: React.FC = () => {
     const handleSubmit = async (values: any) => {
         // Validate at least one task with name
         const validTasks = taskRows.filter(row => row.name && row.name.trim() !== '');
-        
+
         if (validTasks.length === 0) {
             message.error('Vui lòng nhập ít nhất một nhiệm vụ');
             return;
@@ -155,7 +155,7 @@ const TaskTemplateManagement: React.FC = () => {
     };
 
     const updateTaskRow = (key: number, field: 'name' | 'description', value: string) => {
-        setTaskRows(taskRows.map(row => 
+        setTaskRows(taskRows.map(row =>
             row.key === key ? { ...row, [field]: value } : row
         ));
     };

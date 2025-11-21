@@ -77,6 +77,27 @@ const ProjectDetail: React.FC = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
     const [templateLoading, setTemplateLoading] = useState(false);
 
+    // Project Checklist Modal states
+    const [projectChecklistModalVisible, setProjectChecklistModalVisible] = useState(false);
+    const [quickAddProjectChecklists, setQuickAddProjectChecklists] = useState<any[]>([
+        { noi_dung: '', assigned_to: null, mo_ta: '' },
+        { noi_dung: '', assigned_to: null, mo_ta: '' },
+        { noi_dung: '', assigned_to: null, mo_ta: '' },
+        { noi_dung: '', assigned_to: null, mo_ta: '' },
+    ]);
+    const [applyAllProjectChecklistAssignee, setApplyAllProjectChecklistAssignee] = useState(false);
+    const [projectChecklistLoading, setProjectChecklistLoading] = useState(false);
+
+    // Project Checklist Template states
+    const [projectChecklistTemplateModalVisible, setProjectChecklistTemplateModalVisible] = useState(false);
+    const [projectChecklistTemplateType, setProjectChecklistTemplateType] = useState<'apartment' | 'room' | 'custom' | null>(null);
+    const [projectChecklistApartments, setProjectChecklistApartments] = useState<any[]>([]);
+    const [projectChecklistRooms, setProjectChecklistRooms] = useState<any[]>([]);
+    const [projectChecklistCustomTemplates, setProjectChecklistCustomTemplates] = useState<any[]>([]);
+    const [projectChecklistSelectedApartment, setProjectChecklistSelectedApartment] = useState<number | null>(null);
+    const [projectChecklistSelectedTemplate, setProjectChecklistSelectedTemplate] = useState<number | null>(null);
+    const [projectChecklistTemplateLoading, setProjectChecklistTemplateLoading] = useState(false);
+
     // Active tab state - to preserve tab after reload
     const [activeTabKey, setActiveTabKey] = useState<string>('tasks');
 
@@ -643,6 +664,169 @@ const ProjectDetail: React.FC = () => {
         }
     };
 
+    // Project Checklist functions
+    const updateQuickAddProjectChecklist = (index: number, field: string, value: any) => {
+        const newChecklists = [...quickAddProjectChecklists];
+        newChecklists[index] = { ...newChecklists[index], [field]: value };
+
+        if (applyAllProjectChecklistAssignee && field === 'assigned_to') {
+            newChecklists.forEach((_, i) => {
+                newChecklists[i] = { ...newChecklists[i], assigned_to: value };
+            });
+        }
+
+        setQuickAddProjectChecklists(newChecklists);
+    };
+
+    const addQuickAddProjectChecklistRow = () => {
+        setQuickAddProjectChecklists([
+            ...quickAddProjectChecklists,
+            { noi_dung: '', assigned_to: null, mo_ta: '' }
+        ]);
+    };
+
+    const removeQuickAddProjectChecklistRow = (index: number) => {
+        if (quickAddProjectChecklists.length > 1) {
+            setQuickAddProjectChecklists(quickAddProjectChecklists.filter((_, i) => i !== index));
+        }
+    };
+
+    const handleQuickAddProjectChecklists = async () => {
+        const validChecklists = quickAddProjectChecklists.filter(item => item.noi_dung && item.noi_dung.trim() !== '');
+
+        if (validChecklists.length === 0) {
+            message.warning('Vui lòng nhập ít nhất một nội dung checklist');
+            return;
+        }
+
+        setProjectChecklistLoading(true);
+        try {
+            const existingChecklists = project?.checklists || [];
+            const newChecklists = validChecklists.map((item, index) => ({
+                noi_dung: item.noi_dung,
+                assigned_to: item.assigned_to,
+                mo_ta: item.mo_ta || '',
+                is_completed: false,
+                sort_order: existingChecklists.length + index,
+            }));
+
+            const updatedChecklists = [...existingChecklists, ...newChecklists];
+
+            const response = await projectApi.update(project!.id, { checklists: updatedChecklists });
+
+            if (response.data.success && response.data.data) {
+                setProject(response.data.data);
+                message.success(`Đã thêm ${validChecklists.length} checklist`);
+                setProjectChecklistModalVisible(false);
+                resetProjectChecklistForm();
+            }
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        } finally {
+            setProjectChecklistLoading(false);
+        }
+    };
+
+    const resetProjectChecklistForm = () => {
+        setQuickAddProjectChecklists([
+            { noi_dung: '', assigned_to: null, mo_ta: '' },
+            { noi_dung: '', assigned_to: null, mo_ta: '' },
+            { noi_dung: '', assigned_to: null, mo_ta: '' },
+            { noi_dung: '', assigned_to: null, mo_ta: '' },
+        ]);
+        setApplyAllProjectChecklistAssignee(false);
+    };
+
+    // Project Checklist Template functions
+    const openProjectChecklistTemplateModal = () => {
+        setProjectChecklistTemplateModalVisible(true);
+    };
+
+    const closeProjectChecklistTemplateModal = () => {
+        setProjectChecklistTemplateModalVisible(false);
+        setProjectChecklistTemplateType(null);
+        setProjectChecklistSelectedApartment(null);
+        setProjectChecklistSelectedTemplate(null);
+        setProjectChecklistRooms([]);
+    };
+
+    const handleProjectChecklistTemplateTypeSelect = async (type: 'apartment' | 'room' | 'custom') => {
+        setProjectChecklistTemplateType(type);
+        setProjectChecklistTemplateLoading(true);
+
+        try {
+            if (type === 'apartment') {
+                const response = await axios.get('/project/api/task-templates/apartments');
+                setProjectChecklistApartments(response.data.data || []);
+            } else if (type === 'custom') {
+                const response = await axios.get('/project/api/task-templates/custom-templates');
+                setProjectChecklistCustomTemplates(response.data.data || []);
+            } else if (type === 'room') {
+                const response = await axios.get('/project/api/task-templates/apartments');
+                setProjectChecklistApartments(response.data.data || []);
+            }
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu mẫu');
+        } finally {
+            setProjectChecklistTemplateLoading(false);
+        }
+    };
+
+    const handleProjectChecklistApartmentSelect = async (apartmentId: number) => {
+        setProjectChecklistSelectedApartment(apartmentId);
+        setProjectChecklistTemplateLoading(true);
+
+        try {
+            const response = await axios.get(`/project/api/task-templates/rooms/${apartmentId}`);
+            setProjectChecklistRooms(response.data.data || []);
+        } catch (error) {
+            message.error('Lỗi khi tải danh sách phòng');
+        } finally {
+            setProjectChecklistTemplateLoading(false);
+        }
+    };
+
+    const applyProjectChecklistTemplate = () => {
+        let newChecklists: any[] = [];
+
+        if (projectChecklistTemplateType === 'apartment' && projectChecklistApartments.length > 0) {
+            newChecklists = projectChecklistApartments.map(apt => ({
+                noi_dung: apt.name,
+                assigned_to: null,
+                mo_ta: `Checklist cho tòa nhà ${apt.name}`,
+            }));
+        } else if (projectChecklistTemplateType === 'room' && projectChecklistSelectedApartment && projectChecklistRooms.length > 0) {
+            newChecklists = projectChecklistRooms.map(room => ({
+                noi_dung: room.name,
+                assigned_to: null,
+                mo_ta: `Checklist cho phòng ${room.name}`,
+            }));
+        } else if (projectChecklistTemplateType === 'custom' && projectChecklistSelectedTemplate) {
+            const template = projectChecklistCustomTemplates.find(t => t.id === projectChecklistSelectedTemplate);
+            if (template && template.tasks) {
+                try {
+                    const tasks = typeof template.tasks === 'string' ? JSON.parse(template.tasks) : template.tasks;
+                    newChecklists = tasks.map((task: any) => ({
+                        noi_dung: task.name || '',
+                        assigned_to: null,
+                        mo_ta: task.description || '',
+                    }));
+                } catch (e) {
+                    message.error('Lỗi khi parse dữ liệu mẫu');
+                    return;
+                }
+            }
+        }
+
+        if (newChecklists.length > 0) {
+            setQuickAddProjectChecklists(newChecklists);
+            closeProjectChecklistTemplateModal();
+            message.success(`Đã áp dụng ${newChecklists.length} checklist từ mẫu`);
+        } else {
+            message.warning('Không có dữ liệu để áp dụng');
+        }
+    };
+
     const renderChecklistTab = () => {
         const checklists = project?.checklists || [];
 
@@ -697,43 +881,10 @@ const ProjectDetail: React.FC = () => {
             }
         };
 
-        const handleAddChecklist = async () => {
-            try {
-                const newChecklist = {
-                    noi_dung: 'Checklist mới',
-                    is_completed: false,
-                    assigned_to: null,
-                    mo_ta: '',
-                    sort_order: 0,
-                };
-
-                // Add new checklist at the beginning and update sort_order for existing ones
-                const updatedChecklists = [
-                    newChecklist,
-                    ...checklists.map((item, index) => ({
-                        ...item,
-                        sort_order: index + 1,
-                    })),
-                ];
-
-                const response = await projectApi.update(project!.id, {
-                    checklists: updatedChecklists
-                });
-
-                // Update project state without full reload
-                if (response.data.success && response.data.data) {
-                    setProject(response.data.data);
-                }
-                message.success('Thêm checklist thành công');
-            } catch (error) {
-                message.error('Thêm checklist thất bại');
-            }
-        };
-
         return (
             <Card
                 extra={
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddChecklist}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setProjectChecklistModalVisible(true)}>
                         Thêm checklist
                     </Button>
                 }
@@ -2194,7 +2345,7 @@ const ProjectDetail: React.FC = () => {
                                     type="link"
                                     icon={<SettingOutlined />}
                                     onClick={() => {
-                                        window.open(ROUTE.project_task_templates + '?p=projects', '_blank');
+                                        window.open('/w-aio' + ROUTE.project_task_templates + '?p=projects', '_blank');
                                     }}
                                     size="small"
                                 >
@@ -2269,6 +2420,222 @@ const ProjectDetail: React.FC = () => {
                         </p>
                     </div>
                 </Form>
+            </Modal>
+
+            {/* Project Checklist Modal */}
+            <Modal
+                title="Thêm nhanh checklist"
+                open={projectChecklistModalVisible}
+                onCancel={() => {
+                    setProjectChecklistModalVisible(false);
+                    resetProjectChecklistForm();
+                }}
+                onOk={handleQuickAddProjectChecklists}
+                okText="Tạo tất cả"
+                cancelText="Hủy"
+                confirmLoading={projectChecklistLoading}
+                width={1000}
+            >
+                <Table
+                    dataSource={quickAddProjectChecklists.map((item, index) => ({ ...item, key: index }))}
+                    pagination={false}
+                    bordered
+                    size="small"
+                    scroll={{ x: 'max-content' }}
+                >
+                    <Table.Column
+                        title="Nội dung"
+                        dataIndex="noi_dung"
+                        key="noi_dung"
+                        width={250}
+                        render={(text, record: any, index) => (
+                            <Input
+                                value={text}
+                                onChange={(e) => updateQuickAddProjectChecklist(index, 'noi_dung', e.target.value)}
+                                placeholder={`Nội dung checklist ${index + 1}`}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title={
+                            <div>
+                                <div>Người thực hiện</div>
+                                <Checkbox
+                                    checked={applyAllProjectChecklistAssignee}
+                                    onChange={(e) => setApplyAllProjectChecklistAssignee(e.target.checked)}
+                                >
+                                    <small>Áp dụng tất cả</small>
+                                </Checkbox>
+                            </div>
+                        }
+                        dataIndex="assigned_to"
+                        key="assigned_to"
+                        width={180}
+                        render={(value, record: any, index) => (
+                            <Select
+                                value={value}
+                                onChange={(val) => updateQuickAddProjectChecklist(index, 'assigned_to', val)}
+                                placeholder="Chọn người"
+                                allowClear
+                                style={{ width: '100%' }}
+                            >
+                                {projectMembers.map(member => (
+                                    <Select.Option key={member.admin_user_id} value={member.admin_user_id}>
+                                        {member.admin_user?.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    <Table.Column
+                        title="Mô tả"
+                        dataIndex="mo_ta"
+                        key="mo_ta"
+                        width={200}
+                        render={(text, record: any, index) => (
+                            <Input.TextArea
+                                value={text}
+                                onChange={(e) => updateQuickAddProjectChecklist(index, 'mo_ta', e.target.value)}
+                                placeholder="Mô tả ngắn"
+                                rows={1}
+                                autoSize={{ minRows: 1, maxRows: 3 }}
+                            />
+                        )}
+                    />
+                    <Table.Column
+                        title="Thao tác"
+                        key="action"
+                        width={80}
+                        fixed="right"
+                        render={(text, record: any, index) => (
+                            quickAddProjectChecklists.length > 1 && (
+                                <Button
+                                    type="text"
+                                    danger
+                                    size="small"
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => removeQuickAddProjectChecklistRow(index)}
+                                />
+                            )
+                        )}
+                    />
+                </Table>
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    <Space>
+                        <Button
+                            type="dashed"
+                            icon={<PlusOutlined />}
+                            onClick={addQuickAddProjectChecklistRow}
+                            style={{ flex: 1 }}
+                        >
+                            Thêm dòng mới
+                        </Button>
+                        <Button
+                            type="primary"
+                            ghost
+                            icon={<AppstoreOutlined />}
+                            onClick={openProjectChecklistTemplateModal}
+                            style={{ flex: 1 }}
+                        >
+                            Mẫu có sẵn
+                        </Button>
+                    </Space>
+                </div>
+            </Modal>
+
+            {/* Project Checklist Template Selection Modal */}
+            <Modal
+                title="Chọn mẫu checklist"
+                open={projectChecklistTemplateModalVisible}
+                onCancel={closeProjectChecklistTemplateModal}
+                onOk={applyProjectChecklistTemplate}
+                okText="Áp dụng"
+                cancelText="Hủy"
+                width={600}
+                confirmLoading={projectChecklistTemplateLoading}
+            >
+                <Space direction="vertical" style={{ width: '100%' }} size="large">
+                    <div>
+                        <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn loại mẫu:</p>
+                        <Radio.Group
+                            value={projectChecklistTemplateType}
+                            onChange={(e) => handleProjectChecklistTemplateTypeSelect(e.target.value)}
+                            style={{ width: '100%' }}
+                        >
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <Radio value="apartment">Tất cả tòa nhà</Radio>
+                                <Radio value="room">Phòng trong nhà</Radio>
+                                <Radio value="custom">Mẫu tự chọn</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </div>
+
+                    {projectChecklistTemplateType === 'room' && (
+                        <div>
+                            <p style={{ marginBottom: 8, fontWeight: 500 }}>Chọn tòa nhà:</p>
+                            <Select
+                                placeholder="Chọn tòa nhà"
+                                style={{ width: '100%' }}
+                                value={projectChecklistSelectedApartment}
+                                onChange={handleProjectChecklistApartmentSelect}
+                                loading={projectChecklistTemplateLoading}
+                            >
+                                {projectChecklistApartments.map(apt => (
+                                    <Select.Option key={apt.id} value={apt.id}>
+                                        {apt.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {projectChecklistRooms.length > 0 && (
+                                <p style={{ marginTop: 8, color: '#52c41a' }}>
+                                    Sẽ tạo {projectChecklistRooms.length} checklist từ các phòng
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {projectChecklistTemplateType === 'apartment' && projectChecklistApartments.length > 0 && (
+                        <p style={{ color: '#52c41a' }}>
+                            Sẽ tạo {projectChecklistApartments.length} checklist từ các tòa nhà
+                        </p>
+                    )}
+
+                    {projectChecklistTemplateType === 'custom' && (
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <p style={{ margin: 0, fontWeight: 500 }}>Chọn mẫu:</p>
+                                <Button
+                                    type="link"
+                                    icon={<SettingOutlined />}
+                                    onClick={() => {
+                                        window.open('/w-aio' + ROUTE.project_task_templates + '?p=projects', '_blank');
+                                    }}
+                                    size="small"
+                                >
+                                    Quản lý mẫu
+                                </Button>
+                            </div>
+                            <Select
+                                placeholder="Chọn mẫu"
+                                style={{ width: '100%' }}
+                                value={projectChecklistSelectedTemplate}
+                                onChange={setProjectChecklistSelectedTemplate}
+                                loading={projectChecklistTemplateLoading}
+                            >
+                                {projectChecklistCustomTemplates.map(template => (
+                                    <Select.Option key={template.id} value={template.id}>
+                                        {template.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {projectChecklistCustomTemplates.length === 0 && !projectChecklistTemplateLoading && (
+                                <p style={{ marginTop: 8, color: '#ff4d4f', fontSize: 12 }}>
+                                    Chưa có mẫu nào. Vui lòng tạo mẫu mới bằng cách click "Quản lý mẫu"
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </Space>
             </Modal>
         </div>
     );
