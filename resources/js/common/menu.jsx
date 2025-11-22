@@ -595,11 +595,11 @@ export const MENU = {
                     key: (key++).toString(),
                     icon: <GiftOutlined />,
                 },
-                {
-                    label: <Link to={`${ROUTE.spa_wallet_reports}?p=spa`}>📊 Báo cáo Ví</Link>,
-                    key: (key++).toString(),
-                    icon: <BarChartOutlined />,
-                },
+                // {
+                //     label: <Link to={`${ROUTE.spa_wallet_reports}?p=spa`}>📊 Báo cáo Ví</Link>,
+                //     key: (key++).toString(),
+                //     icon: <BarChartOutlined />,
+                // },
             ],
         },
         // Sản phẩm
@@ -620,6 +620,11 @@ export const MENU = {
                 },
                 {
                     label: <Link to={`${ROUTE.spa_service_packages}?p=spa`}>Gói dịch vụ</Link>,
+                    key: (key++).toString(),
+                    icon: <GiftOutlined />,
+                },
+                {
+                    label: <Link to={`${ROUTE.spa_gift_cards}?p=spa`}>🎁 Thẻ Giá Trị & Ví</Link>,
                     key: (key++).toString(),
                     icon: <GiftOutlined />,
                 },

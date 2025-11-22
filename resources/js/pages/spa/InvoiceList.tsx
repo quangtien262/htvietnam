@@ -1181,9 +1181,9 @@ const InvoiceList: React.FC = () => {
                         </div>
 
                         {paymentAmount > 0 && (
-                            <Card size="small" style={{ 
-                                background: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#f6ffed' : '#fffbe6', 
-                                borderColor: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#b7eb8f' : '#ffe58f' 
+                            <Card size="small" style={{
+                                background: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#f6ffed' : '#fffbe6',
+                                borderColor: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#b7eb8f' : '#ffe58f'
                             }}>
                                 <div style={{ fontSize: 13, color: paymentAmount >= debtInvoice.cong_no.so_tien_no ? '#52c41a' : '#faad14' }}>
                                     <CheckCircleOutlined style={{ marginRight: 8 }} />

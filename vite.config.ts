@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  base: process.env.APP_ENV === 'production' ? '/build/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './resources/js')
@@ -31,12 +32,14 @@ export default defineConfig({
     },
   },
   server: {
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 5173,
-    strictPort: true,
+    strictPort: false,
     hmr: {
-      overlay: false,
       host: 'localhost'
+    },
+    watch: {
+      usePolling: true
     }
   },
 });

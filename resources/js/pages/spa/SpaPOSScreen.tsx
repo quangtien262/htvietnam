@@ -2475,7 +2475,7 @@ const SpaPOSScreen: React.FC = () => {
 
                                             <Space direction="vertical" style={{ width: '100%' }} size="small">
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span>Giảm giá:</span>
+                                                    <span>Chiết khấu:</span>
                                                     <InputNumber
                                                         value={order.discount}
                                                         onChange={(value) => setDiscount(value || 0)}
@@ -2532,7 +2532,7 @@ const SpaPOSScreen: React.FC = () => {
                                                 </div>
 
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span>Tiền tip:</span>
+                                                    <span>Tiền Tip, Ngày lễ (TT riêng):</span>
                                                     <InputNumber
                                                         value={order.tip}
                                                         onChange={(value) => setTip(value || 0)}
