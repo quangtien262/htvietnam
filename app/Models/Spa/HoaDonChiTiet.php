@@ -20,6 +20,8 @@ class HoaDonChiTiet extends Model
         'ghi_chu',
         'sale_commissions',
         'service_commissions',
+        'chiet_khau_don_hang',
+        'chiet_khau_don_hang_type',
     ];
 
     protected $casts = [
@@ -32,6 +34,7 @@ class HoaDonChiTiet extends Model
         'thanh_tien' => 'decimal:0',
         'sale_commissions' => 'array',
         'service_commissions' => 'array',
+        'chiet_khau_don_hang' => 'decimal:0',
     ];
 
     // Relationships

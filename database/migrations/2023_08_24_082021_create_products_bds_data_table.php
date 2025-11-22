@@ -35,69 +35,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $order = 1;
-        $productData = MigrateService::createTable02('products_bds_data', 'Sản phẩm', ['is_edit' => 0]);
-        MigrateService::createColumn02(
-            $productData->id,
-            'name_data',
-            'Tiêu đề',
-            'VARCHAR',
-            'text',
-            $order++,
-            ['col' => 24, 'require' => 1]
-        );
-        MigrateService::createColumn02(
-            $productData->id,
-            'description',
-            'Mô tả ngắn',
-            'TEXT',
-            'textarea',
-            $order++,
-            ['show_in_list' => 1, 'col' => 24]
-        );
-
-        MigrateService::createColumn02(
-            $productData->id,
-            'meta_title',
-            '[SEO] Tiêu đề',
-            'TEXT',
-            'text',
-            $order++,
-            ['col' => 24, 'require' => 0]
-        );
-
-
-        MigrateService::createColumn02(
-            $productData->id,
-            'content',
-            'Ứng dụng',
-            'LONGTEXT',
-            'tiny',
-            $order++,
-            ['show_in_list' => 0, 'col' => 24]
-        );
-        MigrateService::createColumn02(
-            $productData->id,
-            'content02',
-            'Mô tả sản phẩm',
-            'LONGTEXT',
-            'tiny',
-            $order++,
-            ['show_in_list' => 0, 'col' => 24]
-        );
-        MigrateService::createColumn02(
-            $productData->id,
-            'content03',
-            'Thông số kỹ thuật',
-            'LONGTEXT',
-            'tiny',
-            $order++,
-            ['show_in_list' => 0, 'col' => 24]
-        );
-
-        MigrateService::columnSEO($productData, $order++);
-
-        MigrateService::baseColumn($productData, 100, true);
 
     }
 

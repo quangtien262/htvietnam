@@ -79,7 +79,6 @@ Route::group(['prefix' => 'task'], function () {
     Route::post('list/search', [SubProController::class, 'searchTaskList'])->name('aio.task.list.search');
     Route::post('add', [SubProController::class, 'store'])->name('aio.task.add');
     Route::post('add-express', [SubProController::class, 'addExpress'])->name('aio.task.addTaskExpress');
-    Route::post('list/search', [SubProController::class, 'searchTaskList'])->name('aio.task.list.search');
     Route::post('kanban/search', [SubProController::class, 'searchTaskKanban'])->name('aio.task.kanban.search');
 
     // add/edit status, priority
@@ -92,7 +91,7 @@ Route::group(['prefix' => 'task'], function () {
 Route::group(['prefix' => 'tasks'], function () {
     Route::get('dashboard', [SubProController::class, 'dashboard'])->name('aio.task.dashboard');
 
-    Route::get('{parentName}/list', [SubProController::class, 'index'])->name('aio.task.list');
+    Route::get('{parentName}/list', [SubProController::class, 'index'])->name('aio.task.view');
     Route::post('{parentName}/sort-order', [SubProController::class, 'sortOrder'])->name('project.sortOrder');
     // Route::post('{parentName}/sort-order', [SubProController::class, 'sortOrder'])->name('aio.task.sortOrder');
 });
@@ -117,7 +116,7 @@ Route::group(['prefix' => 'project'], function () {
 });
 
 Route::group(['prefix' => 'pj'], function () {
-    Route::get('{parentName}/list', [ProController::class, 'index'])->name('project.list');
+    Route::get('{parentName}/list', [ProController::class, 'index'])->name('project.view');
     Route::post('{parentName}/add-express', [ProController::class, 'addExpress'])->name('project.addExpress');
 
 

@@ -28,42 +28,6 @@ return new class extends Migration
             $table->string('lucky_id')->nullable();
         });
 
-        Table::create([
-            'name' => 'bed',
-            'display_name' => 'Phòng/Giường',
-            'sort_order' => 0,
-            'type_show' => config('constant.type_show.basic'),
-            'count_item_of_page' => 30,
-            'is_edit' => 1,
-            'form_data_type' => 1,
-            'have_delete' => 1,
-            'have_add_new' => 1,
-            'parent_id' => 0,
-            'is_show_btn_edit' => 1,
-            'tab_table_id' => 0,
-            'tab_table_name' => '',
-            'table_data' => '',
-            'is_label' => 0,
-        ]);
-        $tbl = Table::where('name', 'bed')->first();
-        $tableId = $tbl->id;
-        $order_col = 1;
-        MigrateService::createColumn02($tableId, 'name', 'Tên Phòng/Giường', 'VARCHAR', 'text', $order_col++, 
-        ['require' => 1, 'is_view_detail' => 1, 'add2search' => 1, 'show_in_list' => 1, 'col'=>12]);
-
-
-        MigrateService::createColumn02($tableId, 'sort_order', 'Số thứ tự giường', 'INT', 'number', $order_col++, 
-        ['show_in_list' => 1, 'col'=>12]);
-        MigrateService::createColumn02($tableId, 'so_giuong', 'Số giường trong phòng', 'INT', 'number', $order_col++, 
-        ['show_in_list' => 1, 'col'=>12]);
-        MigrateService::createColumn02($tableId, 'note', 'Ghi chú', 'TEXT', 'textarea', $order_col++, 
-        ['show_in_list' => 1, 'col'=>24]);
-
-        MigrateService::createColumn02($tableId, 'id', 'id', 'INT', 'number', $order_col++, ['edit' => 0]);
-        MigrateService::createColumn02($tableId, 'create_by', 'Tạo bởi', 'INT', config('constant.config_table.type_edit.select'), $order_col++, ['edit' => 0]);
-        
-        MigrateService::createColumn02($tableId, 'created_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order_col++, ['edit' => 0]);
-        MigrateService::createColumn02($tableId, 'updated_at', 'Ngày tạo', 'INT', config('constant.config_table.type_edit.date'), $order_col++, ['edit' => 0]);
     }
 
     /**

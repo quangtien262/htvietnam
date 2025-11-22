@@ -58,6 +58,20 @@ class WalletService
                 $wallet->da_nap_hom_nay += $amount;
                 $wallet->save();
 
+                // Extend wallet expiry if gift card has han_su_dung
+                if ($theGiaTriId) {
+                    $theGiaTri = \App\Models\Spa\TheGiaTri::find($theGiaTriId);
+                    if ($theGiaTri && $theGiaTri->han_su_dung > 0) {
+                        $customer = \App\Models\User::find($khachHangId);
+                        if ($customer) {
+                            $currentExpiry = $customer->han_su_dung_vi ? \Carbon\Carbon::parse($customer->han_su_dung_vi) : now();
+                            $newExpiry = $currentExpiry->addDays($theGiaTri->han_su_dung);
+                            $customer->han_su_dung_vi = $newExpiry;
+                            $customer->save();
+                        }
+                    }
+                }
+
                 // Create transaction log
                 $giaoDich = GiaoDichVi::create([
                     'khach_hang_id' => $khachHangId,

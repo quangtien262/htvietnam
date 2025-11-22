@@ -402,11 +402,17 @@ const GiftCardManagement: React.FC = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Ngày hết hạn thẻ"
-                                name="ngay_het_han"
-                                tooltip="Để trống nếu thẻ không có hạn"
+                                label="Hạn sử dụng"
+                                name="han_su_dung"
+                                tooltip="Số ngày cộng thêm vào hạn sử dụng ví của khách hàng"
+                                initialValue={0}
                             >
-                                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    addonAfter="ngày"
+                                    placeholder="Ví dụ: 30, 60, 90..."
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={12}>

@@ -28,15 +28,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $order = 1;
-        $data =  MigrateService::createTable02('link_footer_data', 'Liên kết Footer');
-
-        MigrateService::baseColumn($data, 100, true);
-
-        MigrateService::createColumn02($data->id, 'name_data', 'Tiêu đề', 'TEXT', 'text', $order++,
-        ['show_in_list' => 1, 'is_view_detail' => 1]);
-        MigrateService::createColumn02($data->id, 'description', 'Mô tả', 'TEXT', 'text', $order++, ['show_in_list' => 1]);
-        MigrateService::createColumn02($data->id, 'content', 'Nội dung', 'TEXT', 'text', $order++, ['show_in_list' => 1]);
 
 
     }

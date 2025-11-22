@@ -18,7 +18,7 @@ class TheGiaTri extends Model
         'menh_gia',
         'gia_ban',
         'ti_le_thuong',
-        'ngay_het_han',
+        'han_su_dung',
         'trang_thai',
         'mo_ta',
         'ma_code',
@@ -31,7 +31,7 @@ class TheGiaTri extends Model
         'menh_gia' => 'decimal:2',
         'gia_ban' => 'decimal:2',
         'ti_le_thuong' => 'decimal:2',
-        'ngay_het_han' => 'date',
+        'han_su_dung' => 'integer',
         'code_het_han' => 'date',
         'so_luong_code' => 'integer',
         'so_luong_da_dung' => 'integer',
@@ -62,22 +62,11 @@ class TheGiaTri extends Model
     }
 
     /**
-     * Scope: Not expired
-     */
-    public function scopeNotExpired($query)
-    {
-        return $query->where(function ($q) {
-            $q->whereNull('ngay_het_han')
-              ->orWhere('ngay_het_han', '>=', now());
-        });
-    }
-
-    /**
      * Scope: Available for purchase
      */
     public function scopeAvailable($query)
     {
-        return $query->active()->notExpired();
+        return $query->active();
     }
 
     /**
@@ -91,17 +80,6 @@ class TheGiaTri extends Model
     }
 
     /**
-     * Check if card is expired
-     */
-    public function getIsExpiredAttribute(): bool
-    {
-        if (!$this->ngay_het_han) {
-            return false;
-        }
-        return $this->ngay_het_han->isPast();
-    }
-
-    /**
      * Check if promo code is valid
      */
     public function isCodeValid(): bool
@@ -111,7 +89,7 @@ class TheGiaTri extends Model
         }
 
         // Check if code is expired
-        if ($this->code_het_han && $this->code_het_han->isPast()) {
+        if ($this->code_het_han && $this->code_het_han < now()) {
             return false;
         }
 

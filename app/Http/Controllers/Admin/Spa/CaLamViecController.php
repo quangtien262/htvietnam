@@ -222,12 +222,13 @@ class CaLamViecController extends Controller
                 COUNT(*) as so_hoa_don,
                 COALESCE(SUM(COALESCE(thanh_toan_tien_mat, 0)), 0) as doanh_thu_tien_mat,
                 COALESCE(SUM(COALESCE(thanh_toan_chuyen_khoan, 0)), 0) as doanh_thu_chuyen_khoan,
-                COALESCE(SUM(COALESCE(thanh_toan_the, 0)), 0) as doanh_thu_the,
+                COALESCE(SUM(COALESCE(thanh_toan_the, 0) - COALESCE(phi_ca_the, 0)), 0) as doanh_thu_the,
                 COALESCE(SUM(COALESCE(thanh_toan_vi, 0)), 0) as doanh_thu_vi,
+                COALESCE(SUM(COALESCE(phi_ca_the, 0)), 0) as tong_phi_ca_the,
                 COALESCE(SUM(
                     COALESCE(thanh_toan_tien_mat, 0) +
                     COALESCE(thanh_toan_chuyen_khoan, 0) +
-                    COALESCE(thanh_toan_the, 0) +
+                    COALESCE(thanh_toan_the, 0) - COALESCE(phi_ca_the, 0) +
                     COALESCE(thanh_toan_vi, 0)
                 ), 0) as tong_doanh_thu
             ')
@@ -245,6 +246,7 @@ class CaLamViecController extends Controller
             'doanh_thu_chuyen_khoan' => $stats->doanh_thu_chuyen_khoan ?? 0,
             'doanh_thu_the' => $stats->doanh_thu_the ?? 0,
             'doanh_thu_vi' => $stats->doanh_thu_vi ?? 0,
+            'tong_phi_ca_the' => $stats->tong_phi_ca_the ?? 0,
             'tong_doanh_thu' => $stats->tong_doanh_thu ?? 0,
         ];
     }

@@ -42,6 +42,11 @@ interface Invoice {
     tien_tip: number;
     tong_thanh_toan: number;
     phuong_thuc_thanh_toan?: any;
+    thanh_toan_tien_mat: number;
+    thanh_toan_chuyen_khoan: number;
+    thanh_toan_the: number;
+    thanh_toan_vi: number;
+    phi_ca_the: number;
     trang_thai: string;
     nguoi_ban?: string;
     ghi_chu?: string;
@@ -80,6 +85,8 @@ interface InvoiceDetail extends Invoice {
         so_luong: number;
         don_gia: number;
         thanh_tien: number;
+        chiet_khau_don_hang?: number;
+        chiet_khau_don_hang_type?: 'percent' | 'cash';
         ghi_chu?: string;
         sale_commissions?: Array<{
             staff_id: number;
@@ -966,6 +973,17 @@ const InvoiceList: React.FC = () => {
                                                     KTV: {record.ktv.admin_user?.name}
                                                 </div>
                                             )}
+                                            {/* Chiết khấu sản phẩm */}
+                                            {record.chiet_khau_don_hang && record.chiet_khau_don_hang > 0 && (
+                                                <div style={{ marginTop: 4 }}>
+                                                    <Tag color="orange" style={{ fontSize: 11 }}>
+                                                        CK: {record.chiet_khau_don_hang_type === 'percent'
+                                                            ? `${record.chiet_khau_don_hang}%`
+                                                            : `${numberFormat(record.chiet_khau_don_hang)}₫`
+                                                        }
+                                                    </Tag>
+                                                </div>
+                                            )}
                                             {/* NV Tư vấn */}
                                             {record.sale_commissions && record.sale_commissions.length > 0 && (
                                                 <div style={{ marginTop: 4 }}>
@@ -1048,11 +1066,52 @@ const InvoiceList: React.FC = () => {
                                     {numberFormat(selectedInvoice.tong_thanh_toan)} ₫
                                 </strong>
                             </Descriptions.Item>
-                            {selectedInvoice.phuong_thuc_thanh_toan && (
-                                <Descriptions.Item label="Phương thức thanh toán">
-                                    {Object.entries(selectedInvoice.phuong_thuc_thanh_toan).map(([key, value]: [string, any]) => (
-                                        <Tag key={key}>{key}: {numberFormat(value)} ₫</Tag>
-                                    ))}
+                        </Descriptions>
+
+                        <Divider>Phương thức thanh toán</Divider>
+                        <Descriptions bordered column={1}>
+                            {selectedInvoice.thanh_toan_tien_mat > 0 && (
+                                <Descriptions.Item label="💵 Tiền mặt">
+                                    <strong style={{ color: '#52c41a' }}>
+                                        {numberFormat(selectedInvoice.thanh_toan_tien_mat)} ₫
+                                    </strong>
+                                </Descriptions.Item>
+                            )}
+                            {selectedInvoice.thanh_toan_chuyen_khoan > 0 && (
+                                <Descriptions.Item label="🏦 Chuyển khoản">
+                                    <strong style={{ color: '#52c41a' }}>
+                                        {numberFormat(selectedInvoice.thanh_toan_chuyen_khoan)} ₫
+                                    </strong>
+                                </Descriptions.Item>
+                            )}
+                            {selectedInvoice.thanh_toan_the > 0 && (
+                                <>
+                                    <Descriptions.Item label="💳 Quẹt thẻ">
+                                        <strong style={{ color: '#52c41a' }}>
+                                            {numberFormat(selectedInvoice.thanh_toan_the)} ₫
+                                        </strong>
+                                    </Descriptions.Item>
+                                    {selectedInvoice.phi_ca_the > 0 && (
+                                        <Descriptions.Item label="📊 Phí cà thẻ">
+                                            <span style={{ color: '#ff4d4f' }}>
+                                                -{numberFormat(selectedInvoice.phi_ca_the)} ₫
+                                            </span>
+                                        </Descriptions.Item>
+                                    )}
+                                    {selectedInvoice.phi_ca_the > 0 && (
+                                        <Descriptions.Item label="✅ Thực nhận từ thẻ">
+                                            <strong style={{ color: '#1890ff' }}>
+                                                {numberFormat(selectedInvoice.thanh_toan_the - selectedInvoice.phi_ca_the)} ₫
+                                            </strong>
+                                        </Descriptions.Item>
+                                    )}
+                                </>
+                            )}
+                            {selectedInvoice.thanh_toan_vi > 0 && (
+                                <Descriptions.Item label="👛 Ví điện tử">
+                                    <strong style={{ color: '#52c41a' }}>
+                                        {numberFormat(selectedInvoice.thanh_toan_vi)} ₫
+                                    </strong>
                                 </Descriptions.Item>
                             )}
                         </Descriptions>

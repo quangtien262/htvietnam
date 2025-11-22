@@ -28,14 +28,6 @@ return new class extends Migration
 
         });
 
-        $order_col = 1;
-        $config = ['search_position' => 1];
-        $tbl = MigrateService::createTable02( 'product_dich_vu_trong_goi', 'Dịch vụ áp dụng',  $config);
-        
-        MigrateService::createColumn02($tbl->id, 'name', 'Tên', 'VARCHAR', 'text', $order_col++,['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 1]);
-        MigrateService::createColumn02($tbl->id, 'product_id', 'Thẻ', 'INT', 'number', $order_col++,[]);
-        MigrateService::createColumn02($tbl->id, 'id_dich_vu_ap_dung', 'DV Áp dụng', 'INT', 'number', $order_col++,[]);
-        MigrateService::baseColumn($tbl);
 
     }
 

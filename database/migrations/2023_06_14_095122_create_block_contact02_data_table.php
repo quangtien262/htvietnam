@@ -25,47 +25,6 @@ return new class extends Migration
             MigrateService::createBaseColumn($table);
         });
 
-        $order = 1;
-        $parent = Table::where('name', 'block')->first();
-        $data = MigrateService::createTable02(
-            'block_contact02_data',
-            'block_data',
-            ['is_edit' => 0, 'parent_id' => $parent->id ]
-        );
-
-        MigrateService::createColumn02(
-            $data->id,
-            'name_data',
-            'Tiêu đề',
-            'VARCHAR',
-            'text',
-            $order++,
-            ['show_in_list' => 1, 'edit' => 0]
-        );
-        MigrateService::createColumn02(
-            $data->id,
-            'description',
-            'Mô tả ngắn',
-            'TEXT',
-            'textarea',
-            $order++,
-            ['show_in_list' => 1, 'col' => 24]
-        );
-        MigrateService::createColumn02(
-            $data->id,
-            'content',
-            'Nội dung',
-            'LONGTEXT',
-            'textarea',
-            $order++,
-            ['show_in_list' => 0, 'col' => 24, 'edit' => 0]
-        );
-
-        MigrateService::createColumn02($data->id, 'id', 'id', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'sort_order', 'sort_order', 'INT', 'number', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'create_by', 'Tạo bởi', 'INT', 'select', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'created_at', 'Ngày tạo', 'INT', 'datetime', $order++, ['edit' => 0]);
-        MigrateService::createColumn02($data->id, 'updated_at', 'Ngày cập nhật', 'INT', 'datetime', $order++, ['edit' => 0]);
     }
 
     /**

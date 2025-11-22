@@ -239,31 +239,29 @@ export const MENU = {
             icon: <DashboardOutlined />,
         },
         {
-            label: "Giao dịch",
+            label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ (Thu/Chi)</Link>,
             key: (key++).toString(),
-            icon: <FileTextOutlined />,
-            children: [
-                {
-                    label: <Link to={`${ROUTE.aitilen_soQuy}?p=erp`}>Sổ quỹ (Thu/Chi)</Link>,
-                    key: (key++).toString(),
-                    icon: <DollarOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.bankTransaction}?p=erp`}>Giao dịch ngân hàng</Link>,
-                    key: (key++).toString(),
-                    icon: <ShopOutlined />,
-                },
-                {
-                    label: <Link to={`${ROUTE.invoiceManagement}?p=erp`}>Hóa đơn</Link>,
-                    key: (key++).toString(),
-                    icon: <FileDoneOutlined />,
-                },
-            ],
+            icon: <DollarOutlined />,
         },
         {
             label: <Link to={`${ROUTE.congNoManagement}?p=erp`}>Công nợ</Link>,
             key: (key++).toString(),
             icon: <TagsOutlined />,
+        },
+        {
+            label: "Giao dịch",
+            key: (key++).toString(),
+            icon: <FileTextOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.spa_invoices}?p=erp`}>Hóa đơn</Link>,
+            key: (key++).toString(),
+            icon: <FileDoneOutlined />,
+        },
+        {
+            label: <Link to={`${ROUTE.bankTransaction}?p=erp`}>Giao dịch ngân hàng</Link>,
+            key: (key++).toString(),
+            icon: <ShopOutlined />,
         },
         {
             label: "Cài đặt",

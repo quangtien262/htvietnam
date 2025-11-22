@@ -57,6 +57,7 @@ class User extends Authenticatable
         'trang_thai',
         'tong_chi_tieu',
         'points',
+        'han_su_dung_vi',
         'lan_mua_cuoi',
         'ngay_sinh',
         'gioi_tinh_id',

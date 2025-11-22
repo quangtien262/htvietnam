@@ -23,19 +23,13 @@ return new class extends Migration
             $table->integer('gia_nhap_quy_doi')->nullable(); // giá bán sau khi quy đổi
             $table->integer('gia_ban_quy_doi')->nullable(); // giá bán sau khi quy đổi
             $table->string('ten_don_vi')->nullable();
-            
+
             MigrateService::createBaseColumn($table);
 
         });
-        $order_col = 1;
-        $tbl = MigrateService::createTable02('don_vi_quy_doi', 'Đơn vị chuyển đổi', ['is_edit' => 0]);
-        
-        MigrateService::createColumn02($tbl->id, 'name', 'Tỷ lệ chuyển đổi', 'INT', 'number', $order_col++,
-        ['require' => 1,'is_view_detail' => 1,'add2search' => 1,'show_in_list' => 0]);
 
-        MigrateService::baseColumn($tbl);
-     
-       
+
+
     }
 
     /**

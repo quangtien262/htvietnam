@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Table, Button, InputNumber, Select, Space, Divider, Statistic, message, Modal, Form, Input, Tabs, Badge, Tag, Empty, Checkbox, Tooltip, DatePicker, Alert } from 'antd';
-import { PlusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined, GiftOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusOutlined, DeleteOutlined, DollarOutlined, UserOutlined, SearchOutlined, FilterOutlined, CloseOutlined, ExclamationCircleOutlined, UserAddOutlined, InfoCircleOutlined, GiftOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import dayjs from 'dayjs';
 import { API } from '../../common/api';
 import API_SPA from '../../common/api_spa';
 import ShiftWidget from '../../components/spa/ShiftWidget';
@@ -30,6 +31,9 @@ interface CartItem {
     ktv_name?: string;
     su_dung_goi?: number; // ID của customer package nếu dùng từ gói
     customer_package_name?: string; // Tên gói để hiển thị
+    // Chiết khấu sản phẩm/dịch vụ
+    chiet_khau_don_hang?: number; // Giá trị chiết khấu
+    chiet_khau_don_hang_type?: 'percent' | 'cash'; // Loại: % hoặc tiền
     sale_commissions?: StaffCommission[]; // Hoa hồng NV tư vấn
     service_commissions?: StaffCommission[]; // Hoa hồng NV làm dịch vụ
 }
@@ -171,11 +175,16 @@ const SpaPOSScreen: React.FC = () => {
     const [useCash, setUseCash] = useState(false);
     const [useTransfer, setUseTransfer] = useState(false);
     const [useCard, setUseCard] = useState(false);
+    const [cardFeePercent, setCardFeePercent] = useState(2); // Mặc định 2%
+    const [cardFeeAmount, setCardFeeAmount] = useState(0);
 
     // Debt (công nợ) state
     const [showDebtForm, setShowDebtForm] = useState(false);
     const [debtAmount, setDebtAmount] = useState(0);
     const [debtDueDate, setDebtDueDate] = useState<any>(null);
+
+    // Sale date
+    const [saleDate, setSaleDate] = useState<any>(null);
 
     // New states for product/service listing
     const [services, setServices] = useState<ServiceProduct[]>([]);
@@ -433,9 +442,22 @@ const SpaPOSScreen: React.FC = () => {
             if (!useWallet) setWalletAmount(0);
             if (!useCash) setCashAmount(0);
             if (!useTransfer) setTransferAmount(0);
-            if (!useCard) setCardAmount(0);
+            if (!useCard) {
+                setCardAmount(0);
+                setCardFeeAmount(0);
+            }
         }
     }, [useWallet, useCash, useTransfer, useCard]);
+
+    // Calculate card fee when card amount or fee percent changes
+    useEffect(() => {
+        if (useCard && cardAmount > 0) {
+            const feeAmount = Math.round(cardAmount * cardFeePercent / 100);
+            setCardFeeAmount(feeAmount);
+        } else {
+            setCardFeeAmount(0);
+        }
+    }, [cardAmount, cardFeePercent, useCard]);
 
     // Check if payment is insufficient (công nợ)
     useEffect(() => {
@@ -777,9 +799,9 @@ const SpaPOSScreen: React.FC = () => {
 
     const addToCart = (item: ServiceProduct, type: 'service' | 'product' | 'package') => {
         const name = type === 'service' ? item.ten_dich_vu :
-                     type === 'product' ? item.ten_san_pham :
-                     type === 'package' ? item.ten_dich_vu : // Package uses ten_dich_vu (same field as ten_goi)
-                     'Unknown';
+            type === 'product' ? item.ten_san_pham :
+                type === 'package' ? item.ten_dich_vu : // Package uses ten_dich_vu (same field as ten_goi)
+                    'Unknown';
         const price = selectedCustomer && item.gia_thanh_vien ? item.gia_thanh_vien : item.gia_ban;
 
         // Check if customer has an active package for this service
@@ -899,7 +921,19 @@ const SpaPOSScreen: React.FC = () => {
     };
 
     const calculateSubtotal = () => {
-        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        return cart.reduce((sum, item) => {
+            const itemTotal = item.price * item.quantity;
+            // Trừ chiết khấu sản phẩm nếu có
+            let itemDiscount = 0;
+            if (item.chiet_khau_don_hang && item.chiet_khau_don_hang > 0) {
+                if (item.chiet_khau_don_hang_type === 'percent') {
+                    itemDiscount = itemTotal * item.chiet_khau_don_hang / 100;
+                } else {
+                    itemDiscount = item.chiet_khau_don_hang;
+                }
+            }
+            return sum + (itemTotal - itemDiscount);
+        }, 0);
     };
 
     const calculateTotal = () => {
@@ -937,6 +971,7 @@ const SpaPOSScreen: React.FC = () => {
         setShowDebtForm(false);
         setDebtAmount(0);
         setDebtDueDate(null);
+        setSaleDate(dayjs()); // Mặc định là ngày hiện tại
 
         setPaymentModalVisible(true);
     };
@@ -1326,6 +1361,7 @@ const SpaPOSScreen: React.FC = () => {
                 khach_hang_id: selectedCustomer?.value,
                 chi_nhanh_id: currentShift.chi_nhanh_id,
                 nguoi_thu_id: currentShift.nguoi_thu_id,
+                ngay_ban: saleDate ? saleDate.format('YYYY-MM-DD HH:mm:ss') : dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 chi_tiets: regularItems.map(item => ({
                     dich_vu_id: item.type === 'service' ? item.id : null,
                     san_pham_id: item.type === 'product' ? item.id : null,
@@ -1335,12 +1371,15 @@ const SpaPOSScreen: React.FC = () => {
                     su_dung_goi: item.su_dung_goi || null, // ID của customer package nếu sử dụng từ gói
                     sale_commissions: item.sale_commissions || [],
                     service_commissions: item.service_commissions || [],
+                    chiet_khau_don_hang: item.chiet_khau_don_hang || 0,
+                    chiet_khau_don_hang_type: item.chiet_khau_don_hang_type || 'percent',
                 })),
                 thanh_toan: remaining < 0.01, // Đã thanh toán đủ
                 thanh_toan_vi: walletAmount,
                 thanh_toan_tien_mat: cashAmount,
                 thanh_toan_chuyen_khoan: transferAmount,
                 thanh_toan_the: cardAmount,
+                phi_ca_the: cardFeeAmount, // Phí cà thẻ
                 giam_gia: discount,
                 diem_su_dung: pointsUsed,
                 tien_tip: tip,
@@ -1349,6 +1388,12 @@ const SpaPOSScreen: React.FC = () => {
                 cong_no: remaining > 0.01 ? remaining : 0,
                 ngay_han_thanh_toan: remaining > 0.01 ? debtDueDate?.format('YYYY-MM-DD') : null,
             };
+
+            console.log('🔍 Invoice Data Being Sent:', {
+                thanh_toan_the: cardAmount,
+                phi_ca_the: cardFeeAmount,
+                cardFeePercent: cardFeePercent,
+            });
 
             // Create invoice
             const response = await axios.post(API_SPA.spaPOSCreateInvoice, invoiceData);
@@ -1439,6 +1484,8 @@ const SpaPOSScreen: React.FC = () => {
                 setCashAmount(0);
                 setTransferAmount(0);
                 setCardAmount(0);
+                setCardFeePercent(2);
+                setCardFeeAmount(0);
                 setUseWallet(false);
                 setUseCash(false);
                 setUseTransfer(false);
@@ -1446,6 +1493,7 @@ const SpaPOSScreen: React.FC = () => {
                 setShowDebtForm(false);
                 setDebtAmount(0);
                 setDebtDueDate(null);
+                setSaleDate(null);
                 setAppliedVoucher(null);
                 setVoucherDiscount(0);
 
@@ -1553,8 +1601,9 @@ const SpaPOSScreen: React.FC = () => {
         const serviceComms = record.service_commissions || [];
         const showSaleComm = record.type !== 'gift_card' && !record.su_dung_goi;
         const showServiceComm = record.type === 'service' && !record.su_dung_goi;
+        const showDiscount = record.type !== 'gift_card' && !record.su_dung_goi;
 
-        if (!showSaleComm && !showServiceComm) {
+        if (!showSaleComm && !showServiceComm && !showDiscount) {
             return null;
         }
 
@@ -1565,8 +1614,82 @@ const SpaPOSScreen: React.FC = () => {
             return new Intl.NumberFormat('vi-VN').format(comm.commission_value) + 'đ';
         };
 
+        const calculateDiscountAmount = () => {
+            if (!record.chiet_khau_don_hang || record.chiet_khau_don_hang === 0) return 0;
+            if (record.chiet_khau_don_hang_type === 'percent') {
+                return Math.round(record.price * record.quantity * record.chiet_khau_don_hang / 100);
+            }
+            return record.chiet_khau_don_hang;
+        };
+
+        const updateItemDiscount = (value: number, type: 'percent' | 'cash') => {
+            const updatedCart = cart.map(item => {
+                if (item.key === record.key) {
+                    return {
+                        ...item,
+                        chiet_khau_don_hang: value,
+                        chiet_khau_don_hang_type: type
+                    };
+                }
+                return item;
+            });
+            setCart(updatedCart);
+        };
+
         return (
             <div style={{ padding: '8px 0' }}>
+                {/* Chiết khấu sản phẩm/dịch vụ */}
+                {showDiscount && (
+                    <div style={{
+                        marginBottom: 16,
+                        padding: 12,
+                        background: '#fafafa',
+                        borderRadius: 6,
+                        border: '1px dashed #d9d9d9'
+                    }}>
+
+                        <div style={{ paddingLeft: 24 }}>
+                            <Space size="small" wrap>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 8
+                                }}>
+                                    <DollarOutlined style={{ color: '#fa8c16' }} />
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#262626' }}>Chiết khấu sản phẩm:</span>
+                                </div>
+                                <Select
+                                    size="large"
+                                    value={record.chiet_khau_don_hang_type || 'percent'}
+                                    onChange={(type) => updateItemDiscount(record.chiet_khau_don_hang || 0, type)}
+                                    style={{ width: 80 }}
+                                >
+                                    <Select.Option value="percent">%</Select.Option>
+                                    <Select.Option value="cash">₫</Select.Option>
+                                </Select>
+                                <InputNumber
+                                    size="small"
+                                    value={record.chiet_khau_don_hang || 0}
+                                    onChange={(value) => updateItemDiscount(value || 0, record.chiet_khau_don_hang_type || 'percent')}
+                                    min={0}
+                                    max={record.chiet_khau_don_hang_type === 'percent' ? 100 : record.price * record.quantity}
+                                    style={{ width: 120 }}
+                                    formatter={value => record.chiet_khau_don_hang_type === 'percent'
+                                        ? `${value}`
+                                        : `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                />
+                                {calculateDiscountAmount() > 0 && (
+                                    <Tag color="orange" style={{ margin: 0 }}>
+                                        Giảm: {new Intl.NumberFormat('vi-VN').format(calculateDiscountAmount())}₫
+                                    </Tag>
+                                )}
+                            </Space>
+                        </div>
+                    </div>
+                )}
+
                 {showSaleComm && (
                     <div style={{ marginBottom: showServiceComm ? 12 : 0 }}>
                         <div style={{
@@ -1614,7 +1737,7 @@ const SpaPOSScreen: React.FC = () => {
                             </div>
                             <Button
                                 size="small"
-                                type={saleComms.length > 0 ? 'primary' : 'default'}
+                                type='primary'
                                 ghost
                                 onClick={() => openCommissionModal(record, 'sale')}
                                 icon={<UserOutlined />}
@@ -2290,6 +2413,7 @@ const SpaPOSScreen: React.FC = () => {
                                     <Space direction="vertical" style={{ width: '100%' }} size="middle">
                                         <Space.Compact style={{ width: '100%' }}>
                                             <Select
+                                                size="large"
                                                 placeholder="Chọn khách hàng"
                                                 style={{ flex: 1 }}
                                                 value={order.customer?.value}
@@ -2316,14 +2440,14 @@ const SpaPOSScreen: React.FC = () => {
                                                 ))}
                                             </Select>
                                             <Tooltip title="Thêm khách hàng mới">
-                                                <Button
+                                                <Button size="large"
                                                     type="primary"
                                                     icon={<UserAddOutlined />}
                                                     onClick={() => setAddCustomerModalVisible(true)}
                                                 />
                                             </Tooltip>
                                             <Tooltip title="Xem thông tin khách hàng">
-                                                <Button
+                                                <Button size="large"
                                                     type="default"
                                                     icon={<InfoCircleOutlined />}
                                                     onClick={handleViewCustomer}
@@ -2349,13 +2473,16 @@ const SpaPOSScreen: React.FC = () => {
                                                                 {formatCurrency(customerWallet?.so_du || 0)}
                                                             </span>
                                                         )}
+
+                                                        {customerWallet && (
+                                                            <div style={{ fontSize: '12px', color: '#000' }}>
+                                                                <b>Đã sử dụng:</b><span> {formatCurrency(customerWallet.tong_tieu || 0)}</span>
+                                                                <b> / </b>
+                                                                <b>Tổng nạp:</b><span> {formatCurrency(customerWallet.tong_nap || 0)}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    {customerWallet && (
-                                                        <div style={{ fontSize: '11px', color: '#666' }}>
-                                                            <div>Tổng nạp: {formatCurrency(customerWallet.tong_nap || 0)}</div>
-                                                            <div>Đã tiêu: {formatCurrency(customerWallet.tong_tieu || 0)}</div>
-                                                        </div>
-                                                    )}
+
 
                                                     {/* Package Info */}
                                                     {loadingPackages ? (
@@ -2461,7 +2588,15 @@ const SpaPOSScreen: React.FC = () => {
                                                 expandedRowRender,
                                                 expandedRowKeys: expandedRowKeys,
                                                 onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
-                                                expandIcon: () => null, // Ẩn icon expand mặc định
+                                                expandIcon: ({ expanded, onExpand, record }) => (
+                                                    <Button
+                                                        type="text"
+                                                        size="small"
+                                                        icon={expanded ? <MinusOutlined /> : <PlusOutlined />}
+                                                        onClick={(e) => onExpand(record, e)}
+                                                        style={{ padding: '0 4px' }}
+                                                    />
+                                                ),
                                             }}
                                         />
 
@@ -2601,6 +2736,7 @@ const SpaPOSScreen: React.FC = () => {
                     setShowDebtForm(false);
                     setDebtAmount(0);
                     setDebtDueDate(null);
+                    setSaleDate(null);
                 }}
                 width={750}
                 okText="Xác nhận thanh toán"
@@ -2616,6 +2752,8 @@ const SpaPOSScreen: React.FC = () => {
                 }}
             >
                 <Space direction="vertical" style={{ width: '100%' }} size="large">
+
+
                     {/* Total Amount Card */}
                     <Card
                         style={{
@@ -2633,6 +2771,24 @@ const SpaPOSScreen: React.FC = () => {
                                 {formatCurrency(calculateTotal())}
                             </div>
                         </div>
+                    </Card>
+
+                    {/* Sale Date Picker */}
+                    <Card size="small" style={{ borderRadius: '8px' }}>
+                        <Space direction="vertical" style={{ width: '100%' }} size="small">
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
+                                📅 Ngày bán
+                            </div>
+                            <DatePicker
+                                showTime
+                                format="DD/MM/YYYY HH:mm:ss"
+                                value={saleDate}
+                                onChange={(date) => setSaleDate(date)}
+                                style={{ width: '100%' }}
+                                size="large"
+                                placeholder="Chọn ngày bán"
+                            />
+                        </Space>
                     </Card>
 
                     {/* Payment Methods */}
@@ -2792,18 +2948,48 @@ const SpaPOSScreen: React.FC = () => {
                                         </span>
                                     </Checkbox>
                                     {useCard && (
-                                        <div style={{ paddingLeft: '24px' }}>
-                                            <InputNumber
-                                                style={{ width: '100%' }}
-                                                size="large"
-                                                value={cardAmount}
-                                                onChange={(value) => setCardAmount(value || 0)}
-                                                min={0}
-                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
-                                                addonBefore="₫"
-                                            />
-                                        </div>
+                                        <Space direction="vertical" style={{ width: '100%', paddingLeft: '24px' }} size="small">
+                                            <div>
+                                                <div style={{ marginBottom: 4, fontSize: 13, color: '#666' }}>Số tiền quẹt thẻ:</div>
+                                                <InputNumber
+                                                    style={{ width: '100%' }}
+                                                    size="large"
+                                                    value={cardAmount}
+                                                    onChange={(value) => setCardAmount(value || 0)}
+                                                    min={0}
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                                                    addonBefore="₫"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div style={{ marginBottom: 4, fontSize: 13, color: '#666' }}>Phí cà thẻ (%):</div>
+                                                <InputNumber
+                                                    style={{ width: '100%' }}
+                                                    size="large"
+                                                    value={cardFeePercent}
+                                                    onChange={(value) => setCardFeePercent(value || 0)}
+                                                    min={0}
+                                                    max={100}
+                                                    step={0.1}
+                                                    formatter={value => `${value}%`}
+                                                    parser={value => Number(value!.replace('%', ''))}
+                                                />
+                                            </div>
+                                            {cardFeeAmount > 0 && (
+                                                <Alert
+                                                    message={
+                                                        <div>
+                                                            <div style={{ fontSize: 12 }}>Phí cà thẻ: <strong style={{ color: '#ff4d4f' }}>{cardFeeAmount.toLocaleString()} ₫</strong></div>
+                                                            <div style={{ fontSize: 13, marginTop: 4 }}>Thực nhận: <strong style={{ color: '#52c41a' }}>{(cardAmount - cardFeeAmount).toLocaleString()} ₫</strong></div>
+                                                        </div>
+                                                    }
+                                                    type="info"
+                                                    showIcon
+                                                    style={{ marginTop: 8 }}
+                                                />
+                                            )}
+                                        </Space>
                                     )}
                                 </Space>
                             </Card>

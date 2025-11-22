@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('tong_tien_san_pham', 15, 2)->default(0);
             $table->decimal('tong_tien', 15, 2)->default(0)->comment('tong_tien_dich_vu + tong_tien_san_pham');
             $table->decimal('giam_gia', 15, 2)->default(0);
+            $table->decimal('phi_ca_the', 15, 2)->default(0);
             $table->string('ma_voucher', 50)->nullable();
             $table->integer('diem_su_dung')->default(0);
             $table->decimal('tien_giam_tu_diem', 15, 2)->default(0)->comment('Money discount from loyalty points');
@@ -49,6 +50,7 @@ return new class extends Migration
             $table->integer('so_luong')->default(1);
             $table->decimal('don_gia', 15, 2)->default(0);
             $table->decimal('thanh_tien', 15, 2)->default(0);
+            $table->decimal('chiet_khau_don_hang', 15, 2)->default(0)->comment('Chiết khấu sản phẩm');
             $table->unsignedBigInteger('ktv_id')->nullable()->comment('For service only');
             $table->decimal('giam_gia_dong', 15, 2)->default(0);
             $table->text('ghi_chu')->nullable();

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('menh_gia', 15, 2)->comment('Mệnh giá thẻ (số tiền nạp vào ví)');
             $table->decimal('gia_ban', 15, 2)->comment('Giá bán thẻ');
             $table->decimal('ti_le_thuong', 5, 2)->default(0)->comment('Tỷ lệ thưởng % (VD: 10 = +10%)');
-            $table->date('ngay_het_han')->nullable()->comment('Ngày hết hạn thẻ');
+            $table->integer('han_su_dung')->default(0)->comment('Hạn sử dụng (số ngày cộng thêm vào ví)');
             $table->enum('trang_thai', ['active', 'inactive'])->default('active')->comment('Trạng thái thẻ');
             $table->text('mo_ta')->nullable()->comment('Mô tả thẻ');
 
@@ -34,7 +34,6 @@ return new class extends Migration
             // Indexes
             $table->index('trang_thai');
             $table->index('ma_code');
-            $table->index('ngay_het_han');
         });
     }
 

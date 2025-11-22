@@ -55,6 +55,7 @@ class POSController extends Controller
             'khach_hang_id' => 'nullable|integer',
             'chi_nhanh_id' => 'required|integer',
             'nguoi_thu_id' => 'nullable|integer',
+            'ngay_ban' => 'nullable|date_format:Y-m-d H:i:s',
             // chi_tiets is nullable to support gift-card-only purchases
             'chi_tiets' => 'nullable|array',
             'chi_tiets.*.dich_vu_id' => 'nullable|integer',
@@ -75,6 +76,8 @@ class POSController extends Controller
             'chi_tiets.*.service_commissions.*.commission_value' => 'required|numeric|min:0',
             'chi_tiets.*.service_commissions.*.commission_unit' => 'required|in:percent,cash',
             'chi_tiets.*.service_commissions.*.commission_type' => 'required|in:sale,service',
+            'chi_tiets.*.chiet_khau_don_hang' => 'nullable|numeric|min:0',
+            'chi_tiets.*.chiet_khau_don_hang_type' => 'nullable|in:percent,cash',
             'thanh_toan' => 'nullable|boolean',
             'phuong_thuc_thanh_toan' => 'nullable|array',
             // Payment methods
@@ -82,6 +85,7 @@ class POSController extends Controller
             'thanh_toan_tien_mat' => 'nullable|numeric|min:0',
             'thanh_toan_chuyen_khoan' => 'nullable|numeric|min:0',
             'thanh_toan_the' => 'nullable|numeric|min:0',
+            'phi_ca_the' => 'nullable|numeric|min:0',
             // Discounts and tips
             'giam_gia' => 'nullable|numeric|min:0',
             'diem_su_dung' => 'nullable|integer|min:0',

@@ -98,6 +98,9 @@ return new class extends Migration
             $table->integer('diem_tich_luy')->default(0)->nullable();
             $table->integer('points')->default(0)->nullable()->comment('Alias for diem_tich_luy');
 
+            // Wallet expiry
+            $table->date('han_su_dung_vi')->nullable()->comment('Hạn sử dụng tiền trong ví');
+
             // Activity tracking
             $table->dateTime('lan_mua_cuoi')->nullable()->comment('SPA: lần mua cuối');
 

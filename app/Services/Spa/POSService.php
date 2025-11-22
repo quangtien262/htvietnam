@@ -57,12 +57,24 @@ class POSService
     public function createInvoice($data)
     {
         return DB::transaction(function() use ($data) {
+            // Log payment data để debug
+            Log::info('🔍 CREATE INVOICE - Payment Data Received', [
+                'thanh_toan_tien_mat' => $data['thanh_toan_tien_mat'] ?? 'NOT SET',
+                'thanh_toan_chuyen_khoan' => $data['thanh_toan_chuyen_khoan'] ?? 'NOT SET',
+                'thanh_toan_the' => $data['thanh_toan_the'] ?? 'NOT SET',
+                'thanh_toan_vi' => $data['thanh_toan_vi'] ?? 'NOT SET',
+                'phi_ca_the' => $data['phi_ca_the'] ?? 'NOT SET',
+            ]);
+
             // Generate invoice code
             $lastInvoice = HoaDon::orderBy('id', 'desc')->first();
             $nextNumber = $lastInvoice ? (int)substr($lastInvoice->ma_hoa_don, 2) + 1 : 1;
             $data['ma_hoa_don'] = 'HD' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT);
 
-            $data['ngay_ban'] = now();
+            // Set ngay_ban if not provided
+            if (empty($data['ngay_ban'])) {
+                $data['ngay_ban'] = now();
+            }
             $data['trang_thai'] = 'cho_thanh_toan';
 
             // Ensure chi_nhanh_id is set
@@ -71,6 +83,12 @@ class POSService
             }
 
             $hoaDon = HoaDon::create($data);
+
+            Log::info('✅ INVOICE CREATED', [
+                'hoa_don_id' => $hoaDon->id,
+                'phi_ca_the_after_create' => $hoaDon->phi_ca_the,
+                'thanh_toan_the_after_create' => $hoaDon->thanh_toan_the,
+            ]);
 
             // Add invoice details
             foreach ($data['chi_tiets'] as $chiTiet) {
@@ -107,6 +125,18 @@ class POSService
 
                 $thanhTien = $donGia * ($chiTiet['so_luong'] ?? 1);
 
+                // Calculate discount if exists
+                $discountAmount = 0;
+                if (!empty($chiTiet['chiet_khau_don_hang'])) {
+                    $discountType = $chiTiet['chiet_khau_don_hang_type'] ?? 'percent';
+                    if ($discountType === 'percent') {
+                        $discountAmount = $thanhTien * $chiTiet['chiet_khau_don_hang'] / 100;
+                    } else {
+                        $discountAmount = $chiTiet['chiet_khau_don_hang'];
+                    }
+                }
+                $thanhTienAfterDiscount = $thanhTien - $discountAmount;
+
                 HoaDonChiTiet::create([
                     'hoa_don_id' => $hoaDon->id,
                     'dich_vu_id' => $chiTiet['dich_vu_id'] ?? null,
@@ -114,10 +144,12 @@ class POSService
                     'ktv_id' => $chiTiet['ktv_id'] ?? null,
                     'so_luong' => $chiTiet['so_luong'] ?? 1,
                     'don_gia' => $donGia,
-                    'thanh_tien' => $thanhTien,
+                    'thanh_tien' => $thanhTienAfterDiscount,
                     'ghi_chu' => $chiTiet['ghi_chu'] ?? null,
                     'sale_commissions' => $chiTiet['sale_commissions'] ?? null,
                     'service_commissions' => $chiTiet['service_commissions'] ?? null,
+                    'chiet_khau_don_hang' => $chiTiet['chiet_khau_don_hang'] ?? 0,
+                    'chiet_khau_don_hang_type' => $chiTiet['chiet_khau_don_hang_type'] ?? 'percent',
                 ]);
             }
 
@@ -129,20 +161,50 @@ class POSService
             $hoaDon->thanh_toan_chuyen_khoan = $data['thanh_toan_chuyen_khoan'] ?? 0;
             $hoaDon->thanh_toan_the = $data['thanh_toan_the'] ?? 0;
             $hoaDon->thanh_toan_vi = $data['thanh_toan_vi'] ?? 0;
+            $hoaDon->phi_ca_the = $data['phi_ca_the'] ?? 0; // Phí cà thẻ (công ty chịu)
+
+            Log::info('💾 BEFORE SAVE', [
+                'hoa_don_id' => $hoaDon->id,
+                'phi_ca_the_value' => $hoaDon->phi_ca_the,
+                'thanh_toan_the_value' => $hoaDon->thanh_toan_the,
+                'is_dirty' => $hoaDon->isDirty(),
+                'dirty_attributes' => $hoaDon->getDirty(),
+            ]);
+
             $hoaDon->save();
 
+            Log::info('💾 AFTER SAVE', [
+                'hoa_don_id' => $hoaDon->id,
+                'phi_ca_the_saved' => $hoaDon->phi_ca_the,
+                'thanh_toan_the_saved' => $hoaDon->thanh_toan_the,
+            ]);
+
             // Calculate total paid from payment methods
-            $totalPaid = ($data['thanh_toan_vi'] ?? 0)
+            // Lưu ý: Phí cà thẻ là chi phí công ty, KHÔNG ảnh hưởng đến việc khách đã thanh toán đủ chưa
+            // Khách trả 1,000,000 bằng thẻ = khách đã trả đủ 1,000,000
+            // Việc công ty chỉ nhận được 980,000 (do phí 20,000) là vấn đề nội bộ
+            $totalPaidByCustomer = ($data['thanh_toan_vi'] ?? 0)
                 + ($data['thanh_toan_tien_mat'] ?? 0)
                 + ($data['thanh_toan_chuyen_khoan'] ?? 0)
-                + ($data['thanh_toan_the'] ?? 0);
+                + ($data['thanh_toan_the'] ?? 0); // Số tiền KHÁCH THANH TOÁN (chưa trừ phí)
 
-            $remaining = $hoaDon->tong_thanh_toan - $totalPaid;
+            // Số tiền thực tế công ty nhận được (sau khi trừ phí cà thẻ)
+            $cardActualAmount = ($data['thanh_toan_the'] ?? 0) - ($data['phi_ca_the'] ?? 0);
+            $totalActualReceived = ($data['thanh_toan_vi'] ?? 0)
+                + ($data['thanh_toan_tien_mat'] ?? 0)
+                + ($data['thanh_toan_chuyen_khoan'] ?? 0)
+                + $cardActualAmount;
+
+            $remaining = $hoaDon->tong_thanh_toan - $totalPaidByCustomer;
 
             Log::info('Invoice payment check', [
                 'hoa_don_id' => $hoaDon->id,
                 'tong_thanh_toan' => $hoaDon->tong_thanh_toan,
-                'total_paid' => $totalPaid,
+                'thanh_toan_the' => $data['thanh_toan_the'] ?? 0,
+                'phi_ca_the' => $data['phi_ca_the'] ?? 0,
+                'total_paid_by_customer' => $totalPaidByCustomer,
+                'card_actual_amount' => $cardActualAmount,
+                'total_actual_received' => $totalActualReceived,
                 'remaining' => $remaining,
                 'has_ngay_han' => !empty($data['ngay_han_thanh_toan']),
                 'ngay_han' => $data['ngay_han_thanh_toan'] ?? null,
@@ -152,18 +214,18 @@ class POSService
             if (!empty($data['thanh_toan']) && $data['thanh_toan'] === true) {
                 $this->processPayment($hoaDon->id, $data);
 
-                // Lưu vào sổ quỹ với số tiền thực tế khách thanh toán
-                if ($totalPaid > 0) {
-                    SoQuy::saveSoQuy_hoaDonSPA($totalPaid, $hoaDon);
+                // Lưu vào sổ quỹ với số tiền THỰC TẾ công ty nhận được (đã trừ phí)
+                if ($totalActualReceived > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($totalActualReceived, $hoaDon);
                 }
             } elseif ($remaining > 0.01) {
                 // Create debt record (công nợ) - ngày hạn có thể null
                 $dueDate = $data['ngay_han_thanh_toan'] ?? null;
-                $this->createDebtRecord($hoaDon, $remaining, $totalPaid, $dueDate);
+                $this->createDebtRecord($hoaDon, $remaining, $totalPaidByCustomer, $dueDate);
 
-                // Lưu vào sổ quỹ với số tiền thực tế khách thanh toán (nếu có thanh toán 1 phần)
-                if ($totalPaid > 0) {
-                    SoQuy::saveSoQuy_hoaDonSPA($totalPaid, $hoaDon);
+                // Lưu vào sổ quỹ với số tiền THỰC TẾ công ty nhận được (nếu có thanh toán 1 phần)
+                if ($totalActualReceived > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($totalActualReceived, $hoaDon);
                 }
             }
 
@@ -194,14 +256,16 @@ class POSService
             $hoaDon->thanh_toan_chuyen_khoan = $paymentData['thanh_toan_chuyen_khoan'] ?? 0;
             $hoaDon->thanh_toan_the = $paymentData['thanh_toan_the'] ?? 0;
             $hoaDon->thanh_toan_vi = $paymentData['thanh_toan_vi'] ?? 0;
+            $hoaDon->phi_ca_the = $paymentData['phi_ca_the'] ?? 0; // Phí cà thẻ
 
-            // Calculate total paid
-            $totalPaid = $hoaDon->thanh_toan_tien_mat + $hoaDon->thanh_toan_chuyen_khoan + $hoaDon->thanh_toan_the + $hoaDon->thanh_toan_vi;
+            // Calculate total paid BY CUSTOMER (không trừ phí cà thẻ)
+            // Phí cà thẻ là chi phí công ty, không ảnh hưởng việc khách đã trả đủ chưa
+            $totalPaidByCustomer = $hoaDon->thanh_toan_tien_mat + $hoaDon->thanh_toan_chuyen_khoan + $hoaDon->thanh_toan_the + $hoaDon->thanh_toan_vi;
 
             // Determine status based on payment
-            if ($totalPaid >= $hoaDon->tong_thanh_toan) {
+            if ($totalPaidByCustomer >= $hoaDon->tong_thanh_toan) {
                 $hoaDon->trang_thai = 'da_thanh_toan';
-            } elseif ($totalPaid > 0) {
+            } elseif ($totalPaidByCustomer > 0) {
                 $hoaDon->trang_thai = 'con_cong_no';
             } else {
                 $hoaDon->trang_thai = 'cho_thanh_toan';

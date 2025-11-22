@@ -25,37 +25,8 @@ return new class extends Migration
 
             MigrateService::createBaseColumn($table);
 
-            $order_col = 1;
-            $tbl = MigrateService::createTable02('task_priority', 'Độ ưu tiên', ['is_edit' => 1]);
 
-            MigrateService::createColumn02($tbl->id, 'id', 'id', 'INT', 'number', $order_col++);
-            MigrateService::createColumn02(
-                $tbl->id,
-                'name',
-                'Tên',
-                'VARCHAR',
-                'text',
-                $order_col++,
-                ['require' => 1, 'is_view_detail' => 1, 'add2search' => 1, 'show_in_list' => 1]
-            );
-            MigrateService::createColumn02(
-                $tbl->id,
-                'color',
-                'Màu sắc',
-                'VARCHAR',
-                'text',
-                $order_col++,
-                ['require' => 0, 'is_view_detail' => 1, 'add2search' => 1, 'show_in_list' => 1]
-            );
 
-            $confirm = Table::where('name', 'confirm')->first();
-            MigrateService::createColumn02($tbl->id, 'is_active', 'Active', 'select', 'icon', $order_col++, 
-            ['show_in_list' => 1, 'edit' => 1, 'select_table_id' => $confirm->id]);
-            MigrateService::createColumn02($tbl->id, 'is_default', 'Tìm kiếm mặc định', 'select', 'icon', $order_col++, 
-            ['show_in_list' => 1, 'edit' => 1, 'select_table_id' => $confirm->id]);
-
-            MigrateService::baseColumn($tbl);
-            
         });
     }
 
