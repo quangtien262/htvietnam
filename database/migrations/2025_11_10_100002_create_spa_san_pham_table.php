@@ -39,7 +39,7 @@ return new class extends Migration
             $table->text('mo_ta_chi_tiet')->nullable();
             $table->decimal('gia_nhap', 15, 2)->default(0);
             $table->decimal('gia_ban', 15, 2)->default(0);
-            $table->decimal('gia_thanh_vien', 15, 2)->default(0);
+            $table->decimal('price_member', 15, 2)->nullable()->comment('Giá dành cho thành viên');
             $table->string('don_vi_tinh', 50)->default('cái');
             $table->integer('ton_kho')->default(0);
             $table->integer('ton_kho_canh_bao')->default(10)->comment('Alert when stock < x');

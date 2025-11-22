@@ -103,7 +103,13 @@ class POSService
                     $dichVu = \App\Models\Spa\DichVu::find($chiTiet['dich_vu_id']);
                     if ($dichVu) {
                         $khachHang = !empty($data['khach_hang_id']) ? \App\Models\User::find($data['khach_hang_id']) : null;
-                        $donGia = $dichVu->gia_ban;
+
+                        // Use member price if customer is member and member price exists
+                        if ($khachHang && $khachHang->is_member && !empty($dichVu->price_member)) {
+                            $donGia = $dichVu->price_member;
+                        } else {
+                            $donGia = $dichVu->gia_ban;
+                        }
                     } else {
                         // Fallback: use a default price if service not found
                         $donGia = $chiTiet['don_gia'] ?? 0;
@@ -113,7 +119,13 @@ class POSService
                     $sanPham = SanPham::find($chiTiet['san_pham_id']);
                     if ($sanPham) {
                         $khachHang = !empty($data['khach_hang_id']) ? \App\Models\User::find($data['khach_hang_id']) : null;
-                        $donGia = $sanPham->gia_ban;
+
+                        // Use member price if customer is member and member price exists
+                        if ($khachHang && $khachHang->is_member && !empty($sanPham->price_member)) {
+                            $donGia = $sanPham->price_member;
+                        } else {
+                            $donGia = $sanPham->gia_ban;
+                        }
 
                         // Update stock
                         $sanPham->updateStock($chiTiet['so_luong'], 'decrease');
@@ -218,7 +230,7 @@ class POSService
                 // = Tổng tiền - Tiền ví (vì tiền ví không qua sổ quỹ)
                 $walletAmount = $data['thanh_toan_vi'] ?? 0;
                 $soTienVaoSoQuy = $totalActualReceived - $walletAmount;
-                
+
                 Log::info('💰 SỔ QUỸ - Tính toán tiền vào sổ quỹ', [
                     'total_actual_received' => $totalActualReceived,
                     'wallet_amount' => $walletAmount,
@@ -231,7 +243,7 @@ class POSService
                         'card_actual' => $cardActualAmount,
                     ],
                 ]);
-                
+
                 // Chỉ lưu sổ quỹ nếu có tiền THỰC TẾ nhận được (không tính ví)
                 if ($soTienVaoSoQuy > 0) {
                     SoQuy::saveSoQuy_hoaDonSPA($soTienVaoSoQuy, $hoaDon);
@@ -245,13 +257,13 @@ class POSService
                 // = Tiền thực nhận - Tiền ví
                 $walletAmount = $data['thanh_toan_vi'] ?? 0;
                 $soTienVaoSoQuy = $totalActualReceived - $walletAmount;
-                
+
                 Log::info('💰 SỔ QUỸ - Thanh toán 1 phần có công nợ', [
                     'total_actual_received' => $totalActualReceived,
                     'wallet_amount' => $walletAmount,
                     'so_tien_vao_so_quy' => $soTienVaoSoQuy,
                 ]);
-                
+
                 // Chỉ lưu sổ quỹ nếu có tiền THỰC TẾ nhận được (không tính ví)
                 if ($soTienVaoSoQuy > 0) {
                     SoQuy::saveSoQuy_hoaDonSPA($soTienVaoSoQuy, $hoaDon);

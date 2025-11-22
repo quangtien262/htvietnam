@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('ma_goi')->unique(); // Mã gói - GOI000<ID>
             $table->unsignedBigInteger('nhom_hang_id')->nullable(); // Nhóm hàng
             $table->decimal('gia_ban', 15, 2)->default(0); // Giá bán
+            $table->decimal('price_member', 15, 2)->nullable()->comment('Giá dành cho thành viên');
             $table->integer('so_luong')->default(0); // Số lượng
             $table->integer('han_su_dung')->default(0)->comment('Hạn sử dụng (số ngày từ ngày mua)'); // Hạn sử dụng
             $table->unsignedBigInteger('lich_trinh_su_dung_id')->nullable(); // Lịch trình sử dụng

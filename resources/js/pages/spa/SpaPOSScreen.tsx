@@ -31,6 +31,11 @@ interface CartItem {
     ktv_name?: string;
     su_dung_goi?: number; // ID của customer package nếu dùng từ gói
     customer_package_name?: string; // Tên gói để hiển thị
+    // Giá gốc để tính toán lại khi khách hàng thay đổi
+    gia_ban?: number;
+    price_member?: number;
+    // VAT
+    vat?: number; // % VAT (0-100)
     // Chiết khấu sản phẩm/dịch vụ
     chiet_khau_don_hang?: number; // Giá trị chiết khấu
     chiet_khau_don_hang_type?: 'percent' | 'cash'; // Loại: % hoặc tiền
@@ -55,7 +60,7 @@ interface ServiceProduct {
     ten_dich_vu?: string;
     ten_san_pham?: string;
     gia_ban: number;
-    gia_thanh_vien?: number;
+    price_member?: number;
     danh_muc_id?: number;
     danh_muc_ten?: string;
     trang_thai?: string;
@@ -276,13 +281,16 @@ const SpaPOSScreen: React.FC = () => {
             setCustomerWallet(null);
             setCustomerPackages([]);
         }
+
+        // Cập nhật lại giá của tất cả items trong cart khi khách hàng thay đổi
+        updateCartPrices();
     }, [selectedCustomer]);
 
-    // Auto expand all cart rows
-    useEffect(() => {
-        const keys = cart.map(item => item.key);
-        setExpandedRowKeys(keys);
-    }, [cart]);
+    // Auto expand all cart rows - REMOVED, now manual control
+    // useEffect(() => {
+    //     const keys = cart.map(item => item.key);
+    //     setExpandedRowKeys(keys);
+    // }, [cart]);
 
     // Save orders to localStorage whenever they change
     useEffect(() => {
@@ -530,6 +538,11 @@ const SpaPOSScreen: React.FC = () => {
 
             // Handle pagination response - response.data.data is pagination object
             const serviceData = response.data.data?.data || response.data.data || [];
+            console.log('=== Services loaded, checking price_member ===');
+            if (serviceData.length > 0) {
+                console.log('First service sample:', serviceData[0]);
+                console.log('First service price_member:', serviceData[0].price_member);
+            }
             setServices(Array.isArray(serviceData) ? serviceData : []);
             setFilteredServices(Array.isArray(serviceData) ? serviceData : []);
         } catch (error) {
@@ -554,6 +567,11 @@ const SpaPOSScreen: React.FC = () => {
             // Handle pagination response - response.data.data is pagination object
             const productData = response.data.data?.data || response.data.data || [];
             console.log('Extracted product data:', productData);
+            console.log('=== Products loaded, checking price_member ===');
+            if (productData.length > 0) {
+                console.log('First product sample:', productData[0]);
+                console.log('First product price_member:', productData[0].price_member);
+            }
 
             setProducts(Array.isArray(productData) ? productData : []);
             setFilteredProducts(Array.isArray(productData) ? productData : []);
@@ -797,12 +815,63 @@ const SpaPOSScreen: React.FC = () => {
         ));
     };
 
-    const addToCart = (item: ServiceProduct, type: 'service' | 'product' | 'package') => {
+    // Cập nhật lại giá của tất cả items trong cart dựa trên is_member của khách hàng
+    const updateCartPrices = () => {
+        const currentCart = cart;
+        if (currentCart.length === 0) return;
+
+        console.log('=== updateCartPrices DEBUG ===');
+        console.log('selectedCustomer:', selectedCustomer);
+        console.log('selectedCustomer.is_member:', selectedCustomer?.is_member);
+        console.log('Current cart items:', currentCart.length);
+
+        const updatedCart = currentCart.map((cartItem) => {
+            // Skip items sử dụng từ gói (giá = 0)
+            if (cartItem.su_dung_goi) return cartItem;
+
+            // Skip gift cards
+            if (cartItem.type === 'gift_card') return cartItem;
+
+            // Tính giá mới: chỉ áp dụng price_member khi is_member = 1
+            const newPrice = selectedCustomer && selectedCustomer.is_member == 1 && cartItem.price_member
+                ? cartItem.price_member
+                : (cartItem.gia_ban || cartItem.price);
+
+            console.log(`Item ${cartItem.name}:`, {
+                gia_ban: cartItem.gia_ban,
+                price_member: cartItem.price_member,
+                oldPrice: cartItem.price,
+                newPrice: newPrice,
+                is_member: selectedCustomer?.is_member
+            });
+
+            return {
+                ...cartItem,
+                price: newPrice
+            };
+        });
+
+        // Update cart with new prices
+        setCart(updatedCart);
+        console.log('============================');
+    };    const addToCart = (item: ServiceProduct, type: 'service' | 'product' | 'package') => {
         const name = type === 'service' ? item.ten_dich_vu :
             type === 'product' ? item.ten_san_pham :
                 type === 'package' ? item.ten_dich_vu : // Package uses ten_dich_vu (same field as ten_goi)
                     'Unknown';
-        const price = selectedCustomer && item.gia_thanh_vien ? item.gia_thanh_vien : item.gia_ban;
+
+        // Chỉ áp dụng giá thành viên khi khách hàng có is_member = 1
+        console.log('=== addToCart DEBUG ===');
+        console.log('Item:', item);
+        console.log('Item price_member:', item.price_member);
+        console.log('Item gia_ban:', item.gia_ban);
+        console.log('selectedCustomer:', selectedCustomer);
+        console.log('selectedCustomer.is_member:', selectedCustomer?.is_member);
+
+        const price = selectedCustomer && selectedCustomer.is_member == 1 && item.price_member ? item.price_member : item.gia_ban;
+
+        console.log('Calculated price:', price);
+        console.log('=====================');
 
         // Check if customer has an active package for this service
         if (type === 'service' && selectedCustomer && customerPackages.length > 0) {
@@ -866,6 +935,8 @@ const SpaPOSScreen: React.FC = () => {
                             name: name || 'Unknown',
                             price: price,
                             quantity: 1,
+                            gia_ban: item.gia_ban,
+                            price_member: item.price_member,
                         };
                         setCart([...cart, newItem]);
                         message.success(`Đã thêm ${name} vào giỏ hàng`);
@@ -883,6 +954,8 @@ const SpaPOSScreen: React.FC = () => {
             name: name || 'Unknown',
             price: price,
             quantity: 1,
+            gia_ban: item.gia_ban,
+            price_member: item.price_member,
         };
         setCart([...cart, newItem]);
         message.success(`Đã thêm ${name} vào giỏ hàng`);
@@ -932,7 +1005,13 @@ const SpaPOSScreen: React.FC = () => {
                     itemDiscount = item.chiet_khau_don_hang;
                 }
             }
-            return sum + (itemTotal - itemDiscount);
+            // Cộng VAT nếu có
+            let itemVAT = 0;
+            if (item.vat && item.vat > 0) {
+                const afterDiscount = itemTotal - itemDiscount;
+                itemVAT = afterDiscount * item.vat / 100;
+            }
+            return sum + (itemTotal - itemDiscount + itemVAT);
         }, 0);
     };
 
@@ -982,11 +1061,14 @@ const SpaPOSScreen: React.FC = () => {
         console.log('selectedCustomer:', selectedCustomer);
 
         try {
-            console.log('Validating form...');
-            const values = await promoCodeForm.validateFields();
-            console.log('Form values:', values);
-            const maCode = values.promo_code.toUpperCase();
-            console.log('Ma code:', maCode);
+            console.log('Getting form value...');
+            const maCode = promoCodeForm.getFieldValue('promo_code');
+            if (!maCode || !maCode.trim()) {
+                message.error('Vui lòng nhập mã Voucher/Thẻ tặng');
+                return;
+            }
+            const finalCode = maCode.toUpperCase().trim();
+            console.log('Ma code:', finalCode);
 
             // Try voucher first
             try {
@@ -995,7 +1077,7 @@ const SpaPOSScreen: React.FC = () => {
                 console.log('Calling voucher verify API...');
 
                 const voucherResponse = await axios.post(API_SPA.spaVoucherVerify, {
-                    ma_voucher: maCode,
+                    ma_voucher: finalCode,
                     gia_tri_don_hang: totalAmount
                 });
 
@@ -1011,7 +1093,6 @@ const SpaPOSScreen: React.FC = () => {
                     setVoucherDiscount(voucher.so_tien_giam);
                     message.success(`Áp dụng voucher thành công! Giảm ${formatCurrency(voucher.so_tien_giam)}`);
                     promoCodeForm.resetFields();
-                    setPromoCodeModalVisible(false);
                     return;
                 } else if (voucherResponse.data.success === false) {
                     // Backend returned error with HTTP 200 but success=false
@@ -1045,13 +1126,13 @@ const SpaPOSScreen: React.FC = () => {
                     // If voucher not found (404), try gift card
                     if (status === 404) {
                         console.log('Voucher not found (404), trying gift card...');
-                        
+
                         // Gift card requires customer selection
                         if (!selectedCustomer) {
                             message.error('Thẻ tặng yêu cầu chọn khách hàng. Vui lòng chọn khách hàng trước.');
                             return;
                         }
-                        
+
                         try {
                             const response = await axios.post(API_SPA.spaWalletApplyCode, {
                                 khach_hang_id: selectedCustomer.value,
@@ -1063,7 +1144,6 @@ const SpaPOSScreen: React.FC = () => {
                             if (response.data.success) {
                                 message.success(response.data.message);
                                 promoCodeForm.resetFields();
-                                setPromoCodeModalVisible(false);
                                 await fetchCustomerWallet(selectedCustomer.value);
                                 return;
                             }
@@ -1604,8 +1684,9 @@ const SpaPOSScreen: React.FC = () => {
         const showSaleComm = record.type !== 'gift_card' && !record.su_dung_goi;
         const showServiceComm = record.type === 'service' && !record.su_dung_goi;
         const showDiscount = record.type !== 'gift_card' && !record.su_dung_goi;
+        const showVAT = record.type !== 'gift_card' && !record.su_dung_goi;
 
-        if (!showSaleComm && !showServiceComm && !showDiscount) {
+        if (!showSaleComm && !showServiceComm && !showDiscount && !showVAT) {
             return null;
         }
 
@@ -1624,6 +1705,12 @@ const SpaPOSScreen: React.FC = () => {
             return record.chiet_khau_don_hang;
         };
 
+        const calculateVATAmount = () => {
+            if (!record.vat || record.vat === 0) return 0;
+            const subtotal = record.price * record.quantity - calculateDiscountAmount();
+            return Math.round(subtotal * record.vat / 100);
+        };
+
         const updateItemDiscount = (value: number, type: 'percent' | 'cash') => {
             const updatedCart = cart.map(item => {
                 if (item.key === record.key) {
@@ -1632,6 +1719,16 @@ const SpaPOSScreen: React.FC = () => {
                         chiet_khau_don_hang: value,
                         chiet_khau_don_hang_type: type
                     };
+                }
+                return item;
+            });
+            setCart(updatedCart);
+        };
+
+        const updateItemVAT = (value: number | null) => {
+            const updatedCart = cart.map(item => {
+                if (item.key === record.key) {
+                    return { ...item, vat: value || 0 };
                 }
                 return item;
             });
@@ -1685,6 +1782,45 @@ const SpaPOSScreen: React.FC = () => {
                                 {calculateDiscountAmount() > 0 && (
                                     <Tag color="orange" style={{ margin: 0 }}>
                                         Giảm: {new Intl.NumberFormat('vi-VN').format(calculateDiscountAmount())}₫
+                                    </Tag>
+                                )}
+                            </Space>
+                        </div>
+                    </div>
+                )}
+
+                {/* VAT */}
+                {showVAT && (
+                    <div style={{
+                        marginBottom: 16,
+                        padding: 12,
+                        background: '#f0f5ff',
+                        borderRadius: 6,
+                        border: '1px dashed #91d5ff'
+                    }}>
+                        <div style={{ paddingLeft: 24 }}>
+                            <Space size="small" wrap>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 8
+                                }}>
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#262626' }}>VAT (%):</span>
+                                </div>
+                                <InputNumber
+                                    size="small"
+                                    value={record.vat || 0}
+                                    onChange={updateItemVAT}
+                                    style={{ width: 100 }}
+                                    min={0}
+                                    max={100}
+                                    precision={2}
+                                    placeholder="0-100%"
+                                />
+                                {calculateVATAmount() > 0 && (
+                                    <Tag color="blue" style={{ margin: 0 }}>
+                                        VAT: {new Intl.NumberFormat('vi-VN').format(calculateVATAmount())}₫
                                     </Tag>
                                 )}
                             </Space>
@@ -1963,7 +2099,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                 }}>
                                                                     {new Intl.NumberFormat('vi-VN').format(service.gia_ban)}₫
                                                                 </div>
-                                                                {service.gia_thanh_vien && service.gia_thanh_vien !== service.gia_ban && (
+                                                                {service.price_member && service.price_member !== service.gia_ban && (
                                                                     <div style={{
                                                                         fontSize: '12px',
                                                                         color: '#52c41a',
@@ -1978,7 +2114,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                             borderRadius: '4px',
                                                                             border: '1px solid #b7eb8f'
                                                                         }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(service.gia_thanh_vien)}₫
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(service.price_member)}₫
                                                                         </span>
                                                                     </div>
                                                                 )}
@@ -2083,7 +2219,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                 }}>
                                                                     {new Intl.NumberFormat('vi-VN').format(product.gia_ban)}₫
                                                                 </div>
-                                                                {product.gia_thanh_vien && product.gia_thanh_vien !== product.gia_ban && (
+                                                                {product.price_member && product.price_member !== product.gia_ban && (
                                                                     <div style={{
                                                                         fontSize: '12px',
                                                                         color: '#52c41a',
@@ -2098,7 +2234,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                             borderRadius: '4px',
                                                                             border: '1px solid #b7eb8f'
                                                                         }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(product.gia_thanh_vien)}₫
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(product.price_member)}₫
                                                                         </span>
                                                                     </div>
                                                                 )}
@@ -2143,7 +2279,7 @@ const SpaPOSScreen: React.FC = () => {
                                                             ten_dich_vu: pkg.ten_goi,
                                                             ma_dich_vu: pkg.ma_goi,
                                                             gia_ban: pkg.gia_ban,
-                                                            gia_thanh_vien: pkg.gia_thanh_vien
+                                                            price_member: pkg.price_member
                                                         }, 'package' as any)}
                                                         style={{
                                                             cursor: 'pointer',
@@ -2207,7 +2343,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                 }}>
                                                                     {new Intl.NumberFormat('vi-VN').format(pkg.gia_ban)}₫
                                                                 </div>
-                                                                {pkg.gia_thanh_vien && pkg.gia_thanh_vien !== pkg.gia_ban && (
+                                                                {pkg.price_member && pkg.price_member !== pkg.gia_ban && (
                                                                     <div style={{
                                                                         fontSize: '12px',
                                                                         color: '#52c41a',
@@ -2222,7 +2358,7 @@ const SpaPOSScreen: React.FC = () => {
                                                                             borderRadius: '4px',
                                                                             border: '1px solid #b7eb8f'
                                                                         }}>
-                                                                            TV: {new Intl.NumberFormat('vi-VN').format(pkg.gia_thanh_vien)}₫
+                                                                            TV: {new Intl.NumberFormat('vi-VN').format(pkg.price_member)}₫
                                                                         </span>
                                                                     </div>
                                                                 )}
@@ -2429,6 +2565,8 @@ const SpaPOSScreen: React.FC = () => {
                                                         message.info('Đã xóa các dịch vụ sử dụng từ gói của khách hàng trước');
                                                     }
 
+                                                    console.log('Selected customer from list:', user);
+                                                    console.log('Customer is_member:', user?.is_member);
                                                     setSelectedCustomer(user || null);
                                                 }}
                                                 showSearch
@@ -2438,6 +2576,7 @@ const SpaPOSScreen: React.FC = () => {
                                                 {customers.map(user => (
                                                     <Select.Option key={user.value} value={user.value}>
                                                         {user.code} - {user.label} {user.phone ? `- ${user.phone}` : ''}
+                                                        {user.is_member === 1 && <Tag color="gold" style={{ marginLeft: 8 }}>TV</Tag>}
                                                     </Select.Option>
                                                 ))}
                                             </Select>
@@ -2461,7 +2600,12 @@ const SpaPOSScreen: React.FC = () => {
                                         {order.customer && (
                                             <Card size="small" style={{ background: '#f0f5ff', borderColor: '#1890ff' }}>
                                                 <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    {order.customer.is_member && (
+                                                        <div style={{ marginBottom: 8 }}>
+                                                            <Badge.Ribbon text="THÀNH VIÊN" color="gold" />
+                                                        </div>
+                                                    )}
+                                                    <div className='post-item02'>
                                                         <span style={{ fontSize: '13px' }}>
                                                             <DollarOutlined style={{ marginRight: 4 }} />
                                                             Số dư ví:
@@ -2563,9 +2707,9 @@ const SpaPOSScreen: React.FC = () => {
                                                                                 ✓ Còn lại: {pkg.so_luong_con_lai}/{pkg.so_luong_tong} lần
                                                                             </div>
                                                                             {pkg.ngay_het_han && (
-                                                                                <div style={{ 
-                                                                                    color: expiryWarning ? '#fa8c16' : '#8c8c8c', 
-                                                                                    fontSize: '10px', 
+                                                                                <div style={{
+                                                                                    color: expiryWarning ? '#fa8c16' : '#8c8c8c',
+                                                                                    fontSize: '10px',
                                                                                     marginTop: 2,
                                                                                     fontWeight: expiryWarning ? 'bold' : 'normal'
                                                                                 }}>
@@ -2621,53 +2765,24 @@ const SpaPOSScreen: React.FC = () => {
                                             </Card>
                                         )}
 
-                                        {/* Voucher Section - Moved outside customer card */}
-                                        <Card size="small" style={{ marginBottom: 12 }}>
-                                            <Space direction="vertical" style={{ width: '100%' }} size="small">
-                                                {appliedVoucher && (
-                                                    <div style={{
-                                                        padding: '8px 12px',
-                                                        background: '#f6ffed',
-                                                        border: '1px solid #b7eb8f',
-                                                        borderRadius: 4,
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center'
-                                                    }}>
-                                                        <div>
-                                                            <Tag color="green">{appliedVoucher.ma_voucher}</Tag>
-                                                            <span style={{ fontSize: '12px', color: '#52c41a' }}>
-                                                                {appliedVoucher.ten_voucher}
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                            <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
-                                                                -{formatCurrency(voucherDiscount)}
-                                                            </span>
-                                                            <Button
-                                                                type="text"
-                                                                size="small"
-                                                                danger
-                                                                icon={<CloseOutlined />}
-                                                                onClick={() => {
-                                                                    setAppliedVoucher(null);
-                                                                    setVoucherDiscount(0);
-                                                                    message.info('Đã hủy voucher');
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                <Button
-                                                    type="dashed"
-                                                    block
-                                                    icon={<GiftOutlined />}
-                                                    onClick={() => setPromoCodeModalVisible(true)}
-                                                >
-                                                    {appliedVoucher ? 'Thay đổi mã Voucher/Thẻ tặng' : 'Nhập mã Voucher/Thẻ tặng'}
-                                                </Button>
-                                            </Space>
-                                        </Card>
+                                        {/* Nút bật/tắt expand all items */}
+                                        <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    if (expandedRowKeys.length === order.cart.length) {
+                                                        // Đang expand all -> collapse all
+                                                        setExpandedRowKeys([]);
+                                                    } else {
+                                                        // Collapse hoặc một phần -> expand all
+                                                        const allKeys = order.cart.map(item => item.key);
+                                                        setExpandedRowKeys(allKeys);
+                                                    }
+                                                }}
+                                            >
+                                                {expandedRowKeys.length === order.cart.length ? 'Thu gọn tất cả' : 'Mở rộng tất cả'}
+                                            </Button>
+                                        </div>
 
                                         <Table className='table-card'
                                             dataSource={order.cart}
@@ -2694,12 +2809,84 @@ const SpaPOSScreen: React.FC = () => {
 
                                         <div>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                                <span>Tạm tính:</span>
-                                                <strong>{formatCurrency(calculateSubtotal())}</strong>
+                                                <b className='_red'>TỔNG TẠM TÍNH:</b>
+                                                <strong  className='_red'>{formatCurrency(calculateSubtotal())}</strong>
                                             </div>
 
                                             <Space direction="vertical" style={{ width: '100%' }} size="small">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                {/* Voucher / Thẻ tặng */}
+                                                <div style={{
+                                                    padding: '12px',
+                                                    background: '#fffbe6',
+                                                    borderRadius: 6,
+                                                    border: '1px solid #ffe58f'
+                                                }}>
+                                                    <div style={{ marginBottom: 8, fontWeight: 500, color: '#262626' }}>
+                                                        Mã Voucher / Thẻ tặng:
+                                                    </div>
+                                                    {appliedVoucher ? (
+                                                        <div style={{
+                                                            padding: '8px 12px',
+                                                            background: '#f6ffed',
+                                                            border: '1px solid #b7eb8f',
+                                                            borderRadius: 4,
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center'
+                                                        }}>
+                                                            <div>
+                                                                <Tag color="green">{appliedVoucher.ma_voucher}</Tag>
+                                                                <span style={{ fontSize: '12px', color: '#52c41a' }}>
+                                                                    {appliedVoucher.ten_voucher}
+                                                                </span>
+                                                            </div>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                                <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
+                                                                    -{formatCurrency(voucherDiscount)}
+                                                                </span>
+                                                                <Button
+                                                                    type="text"
+                                                                    size="small"
+                                                                    danger
+                                                                    icon={<CloseOutlined />}
+                                                                    onClick={() => {
+                                                                        setAppliedVoucher(null);
+                                                                        setVoucherDiscount(0);
+                                                                        message.info('Đã hủy voucher');
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <Form form={promoCodeForm}>
+                                                                <Space.Compact style={{ width: '100%' }}>
+                                                                    <Form.Item
+                                                                        name="promo_code"
+                                                                        style={{ marginBottom: 0, flex: 1 }}
+                                                                    >
+                                                                        <Input
+                                                                            placeholder="VD: VOUCHER0001, NEWCUSTOMER"
+                                                                            style={{ textTransform: 'uppercase' }}
+                                                                        />
+                                                                    </Form.Item>
+                                                                    <Button
+                                                                        type="primary"
+                                                                        icon={<GiftOutlined />}
+                                                                        onClick={handleApplyPromoCode}
+                                                                    >
+                                                                        Áp dụng
+                                                                    </Button>
+                                                                </Space.Compact>
+                                                            </Form>
+                                                            <div style={{ fontSize: '11px', color: '#8c8c8c', marginTop: 4 }}>
+                                                                💡 Voucher: giảm giá đơn hàng | Thẻ tặng: nạp ví (cần chọn KH)
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className='post-item02'>
                                                     <span>Chiết khấu:</span>
                                                     <InputNumber
                                                         value={order.discount}
@@ -2710,7 +2897,7 @@ const SpaPOSScreen: React.FC = () => {
                                                     />
                                                 </div>
 
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div className='post-item02'>
                                                     <span>Dùng điểm ({order.customer?.points ?? 0}):</span>
                                                     <InputNumber
                                                         value={order.pointsUsed}
@@ -2721,7 +2908,7 @@ const SpaPOSScreen: React.FC = () => {
                                                     />
                                                 </div>
 
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div className='post-item02'>
                                                     <span>Tiền Tip, Ngày lễ (TT riêng):</span>
                                                     <InputNumber
                                                         value={order.tip}
@@ -3063,7 +3250,7 @@ const SpaPOSScreen: React.FC = () => {
                         bodyStyle={{ padding: '20px' }}
                     >
                         <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className='post-item02'>
                                 <span style={{ fontSize: '15px', fontWeight: 500 }}>📊 Tổng đã thanh toán:</span>
                                 <span style={{
                                     fontSize: '22px',
@@ -3132,45 +3319,6 @@ const SpaPOSScreen: React.FC = () => {
                         </>
                     )}
                 </Space>
-            </Modal>
-
-            {/* Promo Code Modal */}
-            <Modal
-                title="Nhập mã Voucher / Thẻ tặng"
-                visible={promoCodeModalVisible}
-                onOk={handleApplyPromoCode}
-                onCancel={() => {
-                    setPromoCodeModalVisible(false);
-                    promoCodeForm.resetFields();
-                }}
-                okText="Áp dụng"
-                cancelText="Hủy"
-            >
-                <Form form={promoCodeForm} layout="vertical">
-                    <Form.Item
-                        name="promo_code"
-                        label="Mã Voucher hoặc Thẻ tặng"
-                        rules={[{ required: true, message: 'Vui lòng nhập mã' }]}
-                    >
-                        <Input
-                            placeholder="VD: VOUCHER0001, NEWCUSTOMER, SALE50"
-                            autoFocus
-                            style={{ textTransform: 'uppercase' }}
-                        />
-                    </Form.Item>
-                    <Alert
-                        message="Hỗ trợ 2 loại mã"
-                        description={
-                            <div>
-                                <div>• <strong>Voucher:</strong> Giảm giá trực tiếp trên hóa đơn (không cần chọn khách hàng)</div>
-                                <div>• <strong>Thẻ tặng:</strong> Nạp tiền vào ví khách hàng (yêu cầu chọn khách hàng trước)</div>
-                            </div>
-                        }
-                        type="info"
-                        showIcon
-                        style={{ fontSize: '12px' }}
-                    />
-                </Form>
             </Modal>
 
             {/* Add Customer Modal */}
@@ -3429,7 +3577,7 @@ const SpaPOSScreen: React.FC = () => {
                                                 }
                                             }}
                                         >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div className='post-item02'>
                                                 <div>
                                                     <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{dv.ten_dich_vu}</div>
                                                     <div style={{ fontSize: '12px', color: canUsePackage ? '#52c41a' : '#999' }}>

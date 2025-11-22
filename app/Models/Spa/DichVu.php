@@ -20,7 +20,7 @@ class DichVu extends Model
         'hinh_anh',
         'thoi_gian_thuc_hien',
         'gia_ban',
-        'gia_thanh_vien',
+        'price_member',
         'gia_von',
         'yeu_cau_ktv',
         'yeu_cau_phong',
@@ -35,7 +35,7 @@ class DichVu extends Model
         'danh_muc_id' => 'integer',
         'thoi_gian_thuc_hien' => 'integer',
         'gia_ban' => 'decimal:0',
-        'gia_thanh_vien' => 'decimal:0',
+        'price_member' => 'decimal:0',
         'gia_von' => 'decimal:0',
         'loi_ich' => Json::class,
         'quy_trinh' => Json::class,
@@ -98,7 +98,7 @@ class DichVu extends Model
     public function getDiscountPercentAttribute()
     {
         if ($this->gia_ban > 0) {
-            return round((($this->gia_ban - $this->gia_thanh_vien) / $this->gia_ban) * 100, 0);
+            return round((($this->gia_ban - $this->price_member) / $this->gia_ban) * 100, 0);
         }
         return 0;
     }

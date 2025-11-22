@@ -61,6 +61,7 @@ class User extends Authenticatable
         'lan_mua_cuoi',
         'ngay_sinh',
         'gioi_tinh_id',
+        'is_member',
     ];
 
     /**
@@ -83,6 +84,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_member' => 'boolean',
         ];
     }
 

@@ -20,7 +20,6 @@ class LieuTrinh extends Model
         'tan_suat',
         'mo_ta',
         'gia_ban',
-        'gia_thanh_vien',
         'dich_vu_bao_gom',
         'san_pham_kem_theo',
         'hieu_qua_mong_doi',
@@ -31,7 +30,6 @@ class LieuTrinh extends Model
         'dich_vu_id' => 'integer',
         'so_buoi' => 'integer',
         'gia_ban' => 'decimal:0',
-        'gia_thanh_vien' => 'decimal:0',
         'dich_vu_bao_gom' => Json::class,
         'san_pham_kem_theo' => Json::class,
         'hieu_qua_mong_doi' => Json::class,
@@ -71,7 +69,7 @@ class LieuTrinh extends Model
     public function getDiscountPercentAttribute()
     {
         if ($this->gia_ban > 0) {
-            return round((($this->gia_ban - $this->gia_thanh_vien) / $this->gia_ban) * 100, 0);
+            return round((($this->gia_ban - $this->price_member) / $this->gia_ban) * 100, 0);
         }
         return 0;
     }

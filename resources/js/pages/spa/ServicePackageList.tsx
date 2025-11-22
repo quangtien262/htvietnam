@@ -524,6 +524,22 @@ const ServicePackageList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
+                                name="price_member"
+                                label="Giá thành viên"
+                                tooltip="Giá dành cho khách hàng đã là thành viên (đã mua thẻ giá trị hoặc gói dịch vụ khác)"
+                            >
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                                    addonAfter="VNĐ"
+                                    placeholder="Để trống nếu không áp dụng"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
                                 name="han_su_dung"
                                 label="Hạn sử dụng"
                                 tooltip="Số ngày khách hàng được sử dụng gói kể từ ngày mua (0 = không giới hạn)"
@@ -627,7 +643,7 @@ const ServicePackageList: React.FC = () => {
                                                 </Form.Item>
                                             )}
                                         />
-                                        <Table.Column
+                                        {/* <Table.Column
                                             title="Số lần"
                                             key="so_luong"
                                             width="20%"
@@ -643,7 +659,7 @@ const ServicePackageList: React.FC = () => {
                                                     />
                                                 </Form.Item>
                                             )}
-                                        />
+                                        /> */}
                                         <Table.Column
                                             title=""
                                             key="action"
@@ -717,7 +733,7 @@ const ServicePackageList: React.FC = () => {
                         <div style={{ padding: '0 24px' }}>
                             {/* Price & Quantity */}
                             <Row gutter={16} style={{ marginBottom: 16 }}>
-                                <Col span={12}>
+                                <Col span={8}>
                                     <Card size="small">
                                         <Statistic
                                             title="Giá bán"
@@ -727,7 +743,20 @@ const ServicePackageList: React.FC = () => {
                                         />
                                     </Card>
                                 </Col>
-                                <Col span={12}>
+                                <Col span={8}>
+                                    <Card size="small">
+                                        <Statistic
+                                            title="Giá thành viên"
+                                            value={selectedPackage.price_member || 0}
+                                            suffix="VNĐ"
+                                            valueStyle={{ color: '#faad14', fontSize: 18 }}
+                                        />
+                                        {!selectedPackage.price_member && (
+                                            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Chưa áp dụng</div>
+                                        )}
+                                    </Card>
+                                </Col>
+                                <Col span={8}>
                                     <Card size="small">
                                         <Statistic
                                             title="Số lượng"

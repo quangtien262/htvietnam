@@ -174,6 +174,18 @@ class CustomerPackageController extends Controller
                 'updated_at' => now(),
             ]);
 
+            // Activate member status when purchasing package
+            $customer = \App\Models\User::find($request->khach_hang_id);
+            if ($customer && !$customer->is_member) {
+                $customer->is_member = true;
+                $customer->save();
+                \Illuminate\Support\Facades\Log::info('Customer activated as member', [
+                    'customer_id' => $request->khach_hang_id,
+                    'reason' => 'package_purchase',
+                    'package_id' => $goiDichVu->id
+                ]);
+            }
+
             DB::commit();
 
             return $this->sendSuccessResponse([

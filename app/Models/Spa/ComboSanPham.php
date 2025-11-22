@@ -20,7 +20,7 @@ class ComboSanPham extends Model
         'mo_ta',
         'hinh_anh',
         'gia_ban',
-        'gia_thanh_vien',
+        'price_member',
         'tiet_kiem',
         'ngay_bat_dau',
         'ngay_ket_thuc',
@@ -31,7 +31,7 @@ class ComboSanPham extends Model
         'san_pham_chinh_id' => 'integer',
         'san_pham_kem_theo' => Json::class,
         'gia_ban' => 'decimal:0',
-        'gia_thanh_vien' => 'decimal:0',
+        'price_member' => 'decimal:0',
         'tiet_kiem' => 'decimal:0',
         'ngay_bat_dau' => 'date',
         'ngay_ket_thuc' => 'date',
@@ -59,7 +59,7 @@ class ComboSanPham extends Model
 
     public function getIsActiveAttribute()
     {
-        return $this->trang_thai === 'active' 
+        return $this->trang_thai === 'active'
             && $this->ngay_bat_dau <= now()
             && $this->ngay_ket_thuc >= now();
     }

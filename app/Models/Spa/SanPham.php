@@ -21,7 +21,7 @@ class SanPham extends Model
         'hinh_anh',
         'don_vi_tinh',
         'gia_ban',
-        'gia_thanh_vien',
+        'price_member',
         'gia_von',
         'ton_kho',
         'ton_kho_canh_bao',
@@ -37,7 +37,7 @@ class SanPham extends Model
         'danh_muc_id' => 'integer',
         'thuong_hieu_id' => 'integer',
         'gia_ban' => 'decimal:0',
-        'gia_thanh_vien' => 'decimal:0',
+        'price_member' => 'decimal:0',
         'gia_von' => 'decimal:0',
         'ton_kho' => 'integer',
         'ton_kho_canh_bao' => 'integer',
@@ -134,7 +134,7 @@ class SanPham extends Model
     public function getDiscountPercentAttribute()
     {
         if ($this->gia_ban > 0) {
-            return round((($this->gia_ban - $this->gia_thanh_vien) / $this->gia_ban) * 100, 0);
+            return round((($this->gia_ban - $this->price_member) / $this->gia_ban) * 100, 0);
         }
         return 0;
     }

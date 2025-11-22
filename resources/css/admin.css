@@ -1382,6 +1382,7 @@ ul.ul-info li {
     border: 1px #0162ff solid;
     padding: 3px 15px;
 }
+
 .btn-warning {
     background-color: #faad14;
     color: #ffffff;
@@ -1398,7 +1399,16 @@ ul.ul-info li {
     padding: 10px 8px !important;
     background-color: #f0f0f0 !important;
 }
+
 .table-card table tr td {
     border-bottom: 1px #a6a4a4 dashed !important;
+}
 
+.post-item02 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px #ccc dashed;
+    padding-bottom: 10px;
+    font-weight: bold;
 }

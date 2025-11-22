@@ -13,6 +13,7 @@ class GoiDichVu extends Model
         'ten_goi',
         'nhom_hang_id',
         'gia_ban',
+        'price_member',
         'so_luong',
         'han_su_dung',
         'lich_trinh_su_dung_id',
@@ -23,6 +24,7 @@ class GoiDichVu extends Model
 
     protected $casts = [
         'gia_ban' => 'decimal:2',
+        'price_member' => 'decimal:2',
         'so_luong' => 'integer',
         'han_su_dung' => 'integer',
         'is_active' => 'boolean',

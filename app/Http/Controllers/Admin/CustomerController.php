@@ -192,7 +192,8 @@ class CustomerController extends Controller
                 'code as code',
                 'phone',
                 'email',
-                'diem_tich_luy as points'
+                'diem_tich_luy as points',
+                'is_member'
             )
                 ->orderBy('name', 'asc')
                 ->get();

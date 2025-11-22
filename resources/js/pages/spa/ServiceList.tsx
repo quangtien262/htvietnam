@@ -240,6 +240,7 @@ const ServiceList: React.FC = () => {
                 ten_dich_vu: serviceData.ten_dich_vu,
                 danh_muc_id: serviceData.danh_muc_id,
                 gia: Number(serviceData.gia || serviceData.gia_ban) || 0,
+                price_member: serviceData.price_member ? Number(serviceData.price_member) : undefined,
                 thoi_gian_thuc_hien: Number(serviceData.thoi_gian_thuc_hien) || 0,
                 trang_thai: serviceData.trang_thai || 'hoat_dong',
                 mo_ta: serviceData.mo_ta,
@@ -264,6 +265,7 @@ const ServiceList: React.FC = () => {
                 ten_dich_vu: record.ten_dich_vu,
                 danh_muc_id: record.danh_muc_id,
                 gia: Number(record.gia || record.gia_ban) || 0,
+                price_member: record.price_member ? Number(record.price_member) : undefined,
                 thoi_gian_thuc_hien: Number(record.thoi_gian_thuc_hien) || 0,
                 trang_thai: record.trang_thai || 'hoat_dong',
                 mo_ta: record.mo_ta,
@@ -844,6 +846,22 @@ const ServiceList: React.FC = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
+                                name="price_member"
+                                label="Giá thành viên"
+                                tooltip="Giá dành cho khách hàng đã mua thẻ giá trị hoặc gói dịch vụ"
+                            >
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={(value) => value!.replace(/\$\s?|(,*)/g, '') as any}
+                                    suffix="VNĐ"
+                                    placeholder="Để trống nếu không áp dụng"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
                                 name="thoi_gian_thuc_hien"
                                 label="Thời gian thực hiện (phút)"
                                 rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}
@@ -1186,7 +1204,7 @@ const ServiceList: React.FC = () => {
                         <div style={{ padding: '0 24px' }}>
                             {/* Price & Performance Cards */}
                             <Row gutter={16} style={{ marginBottom: 16 }}>
-                                <Col span={12}>
+                                <Col span={8}>
                                     <Card size="small">
                                         <Statistic
                                             title="Giá dịch vụ"
@@ -1196,7 +1214,20 @@ const ServiceList: React.FC = () => {
                                         />
                                     </Card>
                                 </Col>
-                                <Col span={12}>
+                                <Col span={8}>
+                                    <Card size="small">
+                                        <Statistic
+                                            title="Giá thành viên"
+                                            value={selectedService.price_member ?? 0}
+                                            suffix="VNĐ"
+                                            valueStyle={{ color: '#faad14', fontSize: 18 }}
+                                        />
+                                        {!selectedService.price_member && (
+                                            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Chưa áp dụng</div>
+                                        )}
+                                    </Card>
+                                </Col>
+                                <Col span={8}>
                                     <Card size="small">
                                         <Statistic
                                             title="Thời gian"

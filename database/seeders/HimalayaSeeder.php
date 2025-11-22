@@ -237,15 +237,6 @@ class HimalayaSeeder extends Seeder
             ['name' => 'Apple', 'code' => 'NCC00003'],
         ]);
 
-        // nhân viên
-        $nv = MigrateService::createLabel('label_nhan_vien', 'Nhân sự', $sortOrder = $sortOrder++);
-        MigrateService::setParent($nv->id, 'admin_users', $sortOrder++);
-        MigrateService::setParent($nv->id, 'chi_nhanh', $sortOrder++);
-        MigrateService::setParent($nv->id, 'permission_group', $sortOrder++);
-
-        $nv = MigrateService::createLabel('label_task', 'Công việc', $sortOrder = $sortOrder++);
-        MigrateService::setParent($nv->id, 'tasks', $sortOrder++);
-
         // nhom sp
         DB::table('product_group')->truncate();
         DB::table('product_group')->insert([

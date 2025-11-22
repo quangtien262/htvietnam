@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('icon')->default('CaretRightOutlined')->nullable();
             $table->integer('is_active')->default(1)->nullable();
             $table->integer('width')->default(280)->nullable();
+            $table->integer('sort_order')->default(280)->nullable();
 
             // search mặc định, khi show ở kanban thì sẽ load những task có trạng thái này  nhiều hơn
             $table->integer('is_default')->default(1)->nullable();

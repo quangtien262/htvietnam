@@ -67,6 +67,13 @@ class WalletService
                             $currentExpiry = $customer->han_su_dung_vi ? \Carbon\Carbon::parse($customer->han_su_dung_vi) : now();
                             $newExpiry = $currentExpiry->addDays($theGiaTri->han_su_dung);
                             $customer->han_su_dung_vi = $newExpiry;
+
+                            // Activate member status when purchasing gift card
+                            if (!$customer->is_member) {
+                                $customer->is_member = true;
+                                Log::info('Customer activated as member', ['customer_id' => $khachHangId, 'reason' => 'gift_card_purchase']);
+                            }
+
                             $customer->save();
                         }
                     }

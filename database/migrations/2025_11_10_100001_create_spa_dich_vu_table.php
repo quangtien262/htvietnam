@@ -29,7 +29,7 @@ return new class extends Migration
             $table->text('huong_dan_thuc_hien')->nullable();
             $table->integer('thoi_gian_thuc_hien')->default(60)->comment('minutes');
             $table->decimal('gia_ban', 15, 2)->default(0);
-            $table->decimal('gia_thanh_vien', 15, 2)->default(0);
+            $table->decimal('price_member', 15, 2)->nullable()->comment('Giá dành cho thành viên');
             $table->integer('diem_thuong')->default(0);
             $table->json('hinh_anh_ids')->nullable();
             $table->json('san_pham_su_dung_ids')->nullable()->comment('Products used in service');

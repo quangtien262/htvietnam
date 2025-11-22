@@ -99,10 +99,10 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ invoice }) => {
                     <Text strong>{(invoice.tong_thanh_toan || 0).toLocaleString()} VNĐ</Text>
                 </div>
 
-                {invoice.giam_gia_thanh_vien > 0 && (
+                {invoice.price_member > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                         <Text>Giảm giá thành viên:</Text>
-                        <Text type="danger">-{invoice.giam_gia_thanh_vien.toLocaleString()} VNĐ</Text>
+                        <Text type="danger">-{invoice.price_member.toLocaleString()} VNĐ</Text>
                     </div>
                 )}
 

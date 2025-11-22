@@ -97,6 +97,7 @@ return new class extends Migration
             // Points & rewards
             $table->integer('diem_tich_luy')->default(0)->nullable();
             $table->integer('points')->default(0)->nullable()->comment('Alias for diem_tich_luy');
+            $table->boolean('is_member')->default(false)->comment('Thành viên (đã mua thẻ giá trị hoặc gói dịch vụ)');
 
             // Wallet expiry
             $table->date('han_su_dung_vi')->nullable()->comment('Hạn sử dụng tiền trong ví');

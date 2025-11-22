@@ -65,7 +65,8 @@ class DichVuController extends Controller
             'ten_dich_vu' => $request->ten_dich_vu,
             'danh_muc_id' => $request->danh_muc_id,
             'gia_ban' => $request->gia ?? 0,
-            'thoi_gian_thuc_hien' => $request->thoi_luong ?? 60,
+            'price_member' => $request->price_member,
+            'thoi_gian_thuc_hien' => $request->thoi_gian_thuc_hien ?? 60,
             'mo_ta' => $request->mo_ta,
             'is_active' => true,
             'created_at' => now(),
@@ -106,8 +107,14 @@ class DichVuController extends Controller
         if ($request->has('gia')) {
             $updateData['gia_ban'] = $request->gia;
         }
+        if ($request->has('price_member')) {
+            $updateData['price_member'] = $request->price_member;
+        }
         if ($request->has('thoi_luong')) {
             $updateData['thoi_gian_thuc_hien'] = $request->thoi_luong;
+        }
+        if ($request->has('thoi_gian_thuc_hien')) {
+            $updateData['thoi_gian_thuc_hien'] = $request->thoi_gian_thuc_hien;
         }
         if ($request->has('mo_ta')) {
             $updateData['mo_ta'] = $request->mo_ta;

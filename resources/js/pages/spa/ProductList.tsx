@@ -1216,6 +1216,21 @@ const ProductList: React.FC = () => {
                         </Col>
                         <Col span={8}>
                             <Form.Item
+                                name="price_member"
+                                label="Giá thành viên"
+                                tooltip="Giá dành cho khách hàng đã mua thẻ giá trị hoặc gói dịch vụ"
+                            >
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={(value) => value!.replace(/\$\s?|(,*)/g, '') as any}
+                                    placeholder="Để trống nếu không áp dụng"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item
                                 name="ton_kho"
                                 label="Tồn kho"
                                 rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
@@ -1521,35 +1536,49 @@ const ProductList: React.FC = () => {
 
                         {/* Price Cards */}
                         <Row gutter={16} style={{ marginBottom: 16 }}>
-                            <Col span={8}>
+                            <Col span={6}>
                                 <Card size="small">
                                     <Statistic
                                         title="Giá nhập"
                                         value={selectedProduct.gia_nhap ?? 0}
                                         precision={0}
-                                        valueStyle={{ color: '#1890ff', fontSize: 18 }}
+                                        valueStyle={{ color: '#1890ff', fontSize: 16 }}
                                         suffix="đ"
                                     />
                                 </Card>
                             </Col>
-                            <Col span={8}>
+                            <Col span={6}>
                                 <Card size="small">
                                     <Statistic
                                         title="Giá bán"
                                         value={selectedProduct.gia_ban ?? 0}
                                         precision={0}
-                                        valueStyle={{ color: '#52c41a', fontSize: 18 }}
+                                        valueStyle={{ color: '#52c41a', fontSize: 16 }}
                                         suffix="đ"
                                     />
                                 </Card>
                             </Col>
-                            <Col span={8}>
+                            <Col span={6}>
+                                <Card size="small">
+                                    <Statistic
+                                        title="Giá thành viên"
+                                        value={selectedProduct.price_member ?? 0}
+                                        precision={0}
+                                        valueStyle={{ color: '#faad14', fontSize: 16 }}
+                                        suffix="đ"
+                                    />
+                                    {!selectedProduct.price_member && (
+                                        <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>Chưa áp dụng</div>
+                                    )}
+                                </Card>
+                            </Col>
+                            <Col span={6}>
                                 <Card size="small">
                                     <Statistic
                                         title="Lợi nhuận"
                                         value={calculateProfit(selectedProduct) ?? 0}
                                         precision={0}
-                                        valueStyle={{ color: '#faad14', fontSize: 18 }}
+                                        valueStyle={{ color: '#f5222d', fontSize: 16 }}
                                         suffix="đ"
                                         prefix={
                                             <Tooltip title={`Tỷ suất: ${calculateProfitMargin(selectedProduct).toFixed(1)}%`}>
