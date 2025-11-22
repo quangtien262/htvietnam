@@ -151,8 +151,11 @@ class CustomerPackageController extends Controller
                 ->pluck('dich_vu_id')
                 ->toArray();
 
-            // Calculate expiry date (default: 6 months from purchase)
-            $ngayHetHan = now()->addMonths(6);
+            // Calculate expiry date based on han_su_dung
+            $ngayHetHan = null;
+            if (isset($goiDichVu->han_su_dung) && $goiDichVu->han_su_dung > 0) {
+                $ngayHetHan = now()->addDays($goiDichVu->han_su_dung);
+            }
 
             // Insert customer package
             $customerPackageId = DB::table('spa_customer_packages')->insertGetId([

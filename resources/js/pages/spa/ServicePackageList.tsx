@@ -23,6 +23,7 @@ interface ServicePackage {
     nhom_hang_id?: number;
     gia_ban: number;
     so_luong: number;
+    han_su_dung?: number;
     lich_trinh_su_dung_id?: number;
     lich_trinh_ten?: string;
     lich_trinh_color?: string;
@@ -256,6 +257,20 @@ const ServicePackageList: React.FC = () => {
             key: 'so_luong',
             width: 100,
             align: 'center',
+        },
+        {
+            title: 'Hạn sử dụng',
+            dataIndex: 'han_su_dung',
+            key: 'han_su_dung',
+            width: 120,
+            align: 'center',
+            render: (value) => (
+                value > 0 ? (
+                    <Tag color="orange">{value} ngày</Tag>
+                ) : (
+                    <Tag color="green">Không giới hạn</Tag>
+                )
+            ),
         },
         {
             title: 'Lịch trình',
@@ -504,6 +519,21 @@ const ServicePackageList: React.FC = () => {
                                     formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                     parser={value => value!.replace(/\$\s?|(,*)/g, '')}
                                     addonAfter="VNĐ"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="han_su_dung"
+                                label="Hạn sử dụng"
+                                tooltip="Số ngày khách hàng được sử dụng gói kể từ ngày mua (0 = không giới hạn)"
+                                initialValue={0}
+                            >
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    addonAfter="ngày"
+                                    placeholder="0 = không giới hạn"
                                 />
                             </Form.Item>
                         </Col>

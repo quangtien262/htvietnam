@@ -10,9 +10,11 @@ class GoiDichVu extends Model
 
     protected $fillable = [
         'ma_goi',
+        'ten_goi',
         'nhom_hang_id',
         'gia_ban',
         'so_luong',
+        'han_su_dung',
         'lich_trinh_su_dung_id',
         'mo_ta',
         'hinh_anh',
@@ -22,6 +24,7 @@ class GoiDichVu extends Model
     protected $casts = [
         'gia_ban' => 'decimal:2',
         'so_luong' => 'integer',
+        'han_su_dung' => 'integer',
         'is_active' => 'boolean',
     ];
 

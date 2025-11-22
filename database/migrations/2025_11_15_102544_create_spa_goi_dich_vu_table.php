@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('nhom_hang_id')->nullable(); // Nhóm hàng
             $table->decimal('gia_ban', 15, 2)->default(0); // Giá bán
             $table->integer('so_luong')->default(0); // Số lượng
+            $table->integer('han_su_dung')->default(0)->comment('Hạn sử dụng (số ngày từ ngày mua)'); // Hạn sử dụng
             $table->unsignedBigInteger('lich_trinh_su_dung_id')->nullable(); // Lịch trình sử dụng
             $table->text('mo_ta')->nullable(); // Mô tả
             $table->string('hinh_anh')->nullable(); // Hình ảnh

@@ -981,11 +981,6 @@ const SpaPOSScreen: React.FC = () => {
         console.log('=== handleApplyPromoCode START ===');
         console.log('selectedCustomer:', selectedCustomer);
 
-        if (!selectedCustomer) {
-            message.error('Vui lòng chọn khách hàng trước');
-            return;
-        }
-
         try {
             console.log('Validating form...');
             const values = await promoCodeForm.validateFields();
@@ -1050,6 +1045,13 @@ const SpaPOSScreen: React.FC = () => {
                     // If voucher not found (404), try gift card
                     if (status === 404) {
                         console.log('Voucher not found (404), trying gift card...');
+                        
+                        // Gift card requires customer selection
+                        if (!selectedCustomer) {
+                            message.error('Thẻ tặng yêu cầu chọn khách hàng. Vui lòng chọn khách hàng trước.');
+                            return;
+                        }
+                        
                         try {
                             const response = await axios.post(API_SPA.spaWalletApplyCode, {
                                 khach_hang_id: selectedCustomer.value,
@@ -2494,90 +2496,178 @@ const SpaPOSScreen: React.FC = () => {
                                                         <div style={{ borderTop: '1px dashed #d9d9d9', paddingTop: 8, marginTop: 8 }}>
                                                             <div style={{ fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>
                                                                 <GiftOutlined style={{ marginRight: 4, color: '#52c41a' }} />
-                                                                <span style={{ color: '#52c41a' }}>Gói dịch vụ đã mua ({customerPackages.length})</span>
+                                                                <span style={{ color: '#52c41a' }}>Gói dịch vụ đã mua ({customerPackages.filter((pkg: any) => {
+                                                                    // Filter out expired packages
+                                                                    if (pkg.ngay_het_han) {
+                                                                        const expiryDate = new Date(pkg.ngay_het_han);
+                                                                        const today = new Date();
+                                                                        today.setHours(0, 0, 0, 0);
+                                                                        return expiryDate >= today && pkg.so_luong_con_lai > 0;
+                                                                    }
+                                                                    return pkg.so_luong_con_lai > 0;
+                                                                }).length})</span>
                                                             </div>
-                                                            {customerPackages.map((pkg: any) => (
-                                                                <div
-                                                                    key={pkg.id}
-                                                                    style={{
-                                                                        fontSize: '11px',
-                                                                        padding: '8px',
-                                                                        background: '#f6ffed',
-                                                                        borderRadius: 4,
-                                                                        marginBottom: 6,
-                                                                        border: '1px solid #b7eb8f',
-                                                                        cursor: 'pointer',
-                                                                        transition: 'all 0.2s'
-                                                                    }}
-                                                                    onClick={() => {
-                                                                        setSelectedPackageForService(pkg);
-                                                                        setPackageServiceModalVisible(true);
-                                                                    }}
-                                                                    onMouseEnter={(e) => {
-                                                                        e.currentTarget.style.background = '#d9f7be';
-                                                                        e.currentTarget.style.borderColor = '#52c41a';
-                                                                    }}
-                                                                    onMouseLeave={(e) => {
-                                                                        e.currentTarget.style.background = '#f6ffed';
-                                                                        e.currentTarget.style.borderColor = '#b7eb8f';
-                                                                    }}
-                                                                >
-                                                                    <div style={{ fontWeight: 'bold', color: '#52c41a', marginBottom: 4 }}>
-                                                                        🎁 {pkg.ten_goi}
-                                                                    </div>
-                                                                    <div style={{ color: '#389e0d', fontWeight: 'bold' }}>
-                                                                        ✓ Còn lại: {pkg.so_luong_con_lai}/{pkg.so_luong_tong} lần
-                                                                    </div>
-                                                                    {pkg.ngay_het_han && (
-                                                                        <div style={{ color: '#8c8c8c', fontSize: '10px', marginTop: 2 }}>
-                                                                            HSD: {new Date(pkg.ngay_het_han).toLocaleDateString('vi-VN')}
-                                                                        </div>
-                                                                    )}
-                                                                    {pkg.dich_vu_list && pkg.dich_vu_list.length > 0 && (
-                                                                        <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #d9f7be' }}>
-                                                                            <div style={{ color: '#595959', marginBottom: 4, fontWeight: 'bold' }}>
-                                                                                Dịch vụ khả dụng:
+                                                            {customerPackages
+                                                                .filter((pkg: any) => {
+                                                                    // Filter out expired packages
+                                                                    if (pkg.ngay_het_han) {
+                                                                        const expiryDate = new Date(pkg.ngay_het_han);
+                                                                        const today = new Date();
+                                                                        today.setHours(0, 0, 0, 0);
+                                                                        return expiryDate >= today && pkg.so_luong_con_lai > 0;
+                                                                    }
+                                                                    return pkg.so_luong_con_lai > 0;
+                                                                })
+                                                                .map((pkg: any) => {
+                                                                    // Calculate expiry status
+                                                                    let expiryWarning = false;
+                                                                    let daysLeft = null;
+                                                                    if (pkg.ngay_het_han) {
+                                                                        const expiryDate = new Date(pkg.ngay_het_han);
+                                                                        const today = new Date();
+                                                                        today.setHours(0, 0, 0, 0);
+                                                                        daysLeft = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                                                                        expiryWarning = daysLeft <= 7; // Warning if expiring within 7 days
+                                                                    }
+
+                                                                    return (
+                                                                        <div
+                                                                            key={pkg.id}
+                                                                            style={{
+                                                                                fontSize: '11px',
+                                                                                padding: '8px',
+                                                                                background: expiryWarning ? '#fff7e6' : '#f6ffed',
+                                                                                borderRadius: 4,
+                                                                                marginBottom: 6,
+                                                                                border: expiryWarning ? '1px solid #ffa940' : '1px solid #b7eb8f',
+                                                                                cursor: 'pointer',
+                                                                                transition: 'all 0.2s'
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                setSelectedPackageForService(pkg);
+                                                                                setPackageServiceModalVisible(true);
+                                                                            }}
+                                                                            onMouseEnter={(e) => {
+                                                                                e.currentTarget.style.background = expiryWarning ? '#ffe7ba' : '#d9f7be';
+                                                                                e.currentTarget.style.borderColor = expiryWarning ? '#fa8c16' : '#52c41a';
+                                                                            }}
+                                                                            onMouseLeave={(e) => {
+                                                                                e.currentTarget.style.background = expiryWarning ? '#fff7e6' : '#f6ffed';
+                                                                                e.currentTarget.style.borderColor = expiryWarning ? '#ffa940' : '#b7eb8f';
+                                                                            }}
+                                                                        >
+                                                                            <div style={{ fontWeight: 'bold', color: expiryWarning ? '#fa8c16' : '#52c41a', marginBottom: 4 }}>
+                                                                                🎁 {pkg.ten_goi}
                                                                             </div>
-                                                                            {pkg.dich_vu_list.slice(0, 3).map((dv: any, index: number) => (
-                                                                                <div key={index} style={{ color: '#595959', fontSize: '10px', paddingLeft: 8 }}>
-                                                                                    • {dv.ten_dich_vu}
-                                                                                </div>
-                                                                            ))}
-                                                                            {pkg.dich_vu_list.length > 3 && (
-                                                                                <div style={{ color: '#8c8c8c', fontSize: '10px', paddingLeft: 8, fontStyle: 'italic' }}>
-                                                                                    ... và {pkg.dich_vu_list.length - 3} dịch vụ khác
+                                                                            <div style={{ color: '#389e0d', fontWeight: 'bold' }}>
+                                                                                ✓ Còn lại: {pkg.so_luong_con_lai}/{pkg.so_luong_tong} lần
+                                                                            </div>
+                                                                            {pkg.ngay_het_han && (
+                                                                                <div style={{ 
+                                                                                    color: expiryWarning ? '#fa8c16' : '#8c8c8c', 
+                                                                                    fontSize: '10px', 
+                                                                                    marginTop: 2,
+                                                                                    fontWeight: expiryWarning ? 'bold' : 'normal'
+                                                                                }}>
+                                                                                    {expiryWarning && '⚠️ '}
+                                                                                    HSD: {new Date(pkg.ngay_het_han).toLocaleDateString('vi-VN')}
+                                                                                    {daysLeft !== null && daysLeft <= 7 && (
+                                                                                        <span style={{ marginLeft: 4 }}>
+                                                                                            (Còn {daysLeft} ngày)
+                                                                                        </span>
+                                                                                    )}
                                                                                 </div>
                                                                             )}
+                                                                            {!pkg.ngay_het_han && (
+                                                                                <div style={{ color: '#52c41a', fontSize: '10px', marginTop: 2 }}>
+                                                                                    ✨ Không giới hạn thời gian
+                                                                                </div>
+                                                                            )}
+                                                                            {pkg.dich_vu_list && pkg.dich_vu_list.length > 0 && (
+                                                                                <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #d9f7be' }}>
+                                                                                    <div style={{ color: '#595959', marginBottom: 4, fontWeight: 'bold' }}>
+                                                                                        Dịch vụ khả dụng:
+                                                                                    </div>
+                                                                                    {pkg.dich_vu_list.slice(0, 3).map((dv: any, index: number) => (
+                                                                                        <div key={index} style={{ color: '#595959', fontSize: '10px', paddingLeft: 8 }}>
+                                                                                            • {dv.ten_dich_vu}
+                                                                                        </div>
+                                                                                    ))}
+                                                                                    {pkg.dich_vu_list.length > 3 && (
+                                                                                        <div style={{ color: '#8c8c8c', fontSize: '10px', paddingLeft: 8, fontStyle: 'italic' }}>
+                                                                                            ... và {pkg.dich_vu_list.length - 3} dịch vụ khác
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                            <div style={{
+                                                                                marginTop: 6,
+                                                                                padding: '4px 6px',
+                                                                                background: '#e6f7ff',
+                                                                                borderRadius: 3,
+                                                                                fontSize: '10px',
+                                                                                color: '#0050b3',
+                                                                                textAlign: 'center',
+                                                                                fontWeight: 'bold'
+                                                                            }}>
+                                                                                👆 Click để chọn dịch vụ sử dụng
+                                                                            </div>
                                                                         </div>
-                                                                    )}
-                                                                    <div style={{
-                                                                        marginTop: 6,
-                                                                        padding: '4px 6px',
-                                                                        background: '#e6f7ff',
-                                                                        borderRadius: 3,
-                                                                        fontSize: '10px',
-                                                                        color: '#0050b3',
-                                                                        textAlign: 'center',
-                                                                        fontWeight: 'bold'
-                                                                    }}>
-                                                                        👆 Click để chọn dịch vụ sử dụng
-                                                                    </div>
-                                                                </div>
-                                                            ))}
+                                                                    );
+                                                                })}
                                                         </div>
                                                     ) : null}
-
-                                                    <Button
-                                                        type="link"
-                                                        size="small"
-                                                        style={{ padding: 0, height: 'auto' }}
-                                                        onClick={() => setPromoCodeModalVisible(true)}
-                                                    >
-                                                        Nhập mã thẻ tặng
-                                                    </Button>
                                                 </Space>
                                             </Card>
                                         )}
+
+                                        {/* Voucher Section - Moved outside customer card */}
+                                        <Card size="small" style={{ marginBottom: 12 }}>
+                                            <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                                {appliedVoucher && (
+                                                    <div style={{
+                                                        padding: '8px 12px',
+                                                        background: '#f6ffed',
+                                                        border: '1px solid #b7eb8f',
+                                                        borderRadius: 4,
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <div>
+                                                            <Tag color="green">{appliedVoucher.ma_voucher}</Tag>
+                                                            <span style={{ fontSize: '12px', color: '#52c41a' }}>
+                                                                {appliedVoucher.ten_voucher}
+                                                            </span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
+                                                                -{formatCurrency(voucherDiscount)}
+                                                            </span>
+                                                            <Button
+                                                                type="text"
+                                                                size="small"
+                                                                danger
+                                                                icon={<CloseOutlined />}
+                                                                onClick={() => {
+                                                                    setAppliedVoucher(null);
+                                                                    setVoucherDiscount(0);
+                                                                    message.info('Đã hủy voucher');
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <Button
+                                                    type="dashed"
+                                                    block
+                                                    icon={<GiftOutlined />}
+                                                    onClick={() => setPromoCodeModalVisible(true)}
+                                                >
+                                                    {appliedVoucher ? 'Thay đổi mã Voucher/Thẻ tặng' : 'Nhập mã Voucher/Thẻ tặng'}
+                                                </Button>
+                                            </Space>
+                                        </Card>
 
                                         <Table className='table-card'
                                             dataSource={order.cart}
@@ -2619,41 +2709,6 @@ const SpaPOSScreen: React.FC = () => {
                                                         style={{ width: 150 }}
                                                     />
                                                 </div>
-
-                                                {appliedVoucher && (
-                                                    <div style={{
-                                                        padding: '8px 12px',
-                                                        background: '#f6ffed',
-                                                        border: '1px solid #b7eb8f',
-                                                        borderRadius: 4,
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center'
-                                                    }}>
-                                                        <div>
-                                                            <Tag color="green">{appliedVoucher.ma_voucher}</Tag>
-                                                            <span style={{ fontSize: '12px', color: '#52c41a' }}>
-                                                                {appliedVoucher.ten_voucher}
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                            <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
-                                                                -{formatCurrency(voucherDiscount)}
-                                                            </span>
-                                                            <Button
-                                                                type="text"
-                                                                size="small"
-                                                                danger
-                                                                icon={<CloseOutlined />}
-                                                                onClick={() => {
-                                                                    setAppliedVoucher(null);
-                                                                    setVoucherDiscount(0);
-                                                                    message.info('Đã hủy voucher');
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                )}
 
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <span>Dùng điểm ({order.customer?.points ?? 0}):</span>
@@ -3107,8 +3162,8 @@ const SpaPOSScreen: React.FC = () => {
                         message="Hỗ trợ 2 loại mã"
                         description={
                             <div>
-                                <div>• <strong>Voucher:</strong> Giảm giá trực tiếp trên hóa đơn</div>
-                                <div>• <strong>Thẻ tặng:</strong> Nạp tiền vào ví khách hàng</div>
+                                <div>• <strong>Voucher:</strong> Giảm giá trực tiếp trên hóa đơn (không cần chọn khách hàng)</div>
+                                <div>• <strong>Thẻ tặng:</strong> Nạp tiền vào ví khách hàng (yêu cầu chọn khách hàng trước)</div>
                             </div>
                         }
                         type="info"

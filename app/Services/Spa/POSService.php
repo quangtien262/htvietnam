@@ -214,18 +214,47 @@ class POSService
             if (!empty($data['thanh_toan']) && $data['thanh_toan'] === true) {
                 $this->processPayment($hoaDon->id, $data);
 
-                // Lưu vào sổ quỹ với số tiền THỰC TẾ công ty nhận được (đã trừ phí)
-                if ($totalActualReceived > 0) {
-                    SoQuy::saveSoQuy_hoaDonSPA($totalActualReceived, $hoaDon);
+                // Tính số tiền THỰC TẾ công ty nhận được qua sổ quỹ
+                // = Tổng tiền - Tiền ví (vì tiền ví không qua sổ quỹ)
+                $walletAmount = $data['thanh_toan_vi'] ?? 0;
+                $soTienVaoSoQuy = $totalActualReceived - $walletAmount;
+                
+                Log::info('💰 SỔ QUỸ - Tính toán tiền vào sổ quỹ', [
+                    'total_actual_received' => $totalActualReceived,
+                    'wallet_amount' => $walletAmount,
+                    'so_tien_vao_so_quy' => $soTienVaoSoQuy,
+                    'breakdown' => [
+                        'tien_mat' => $data['thanh_toan_tien_mat'] ?? 0,
+                        'chuyen_khoan' => $data['thanh_toan_chuyen_khoan'] ?? 0,
+                        'the' => $data['thanh_toan_the'] ?? 0,
+                        'phi_ca_the' => $data['phi_ca_the'] ?? 0,
+                        'card_actual' => $cardActualAmount,
+                    ],
+                ]);
+                
+                // Chỉ lưu sổ quỹ nếu có tiền THỰC TẾ nhận được (không tính ví)
+                if ($soTienVaoSoQuy > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($soTienVaoSoQuy, $hoaDon);
                 }
             } elseif ($remaining > 0.01) {
                 // Create debt record (công nợ) - ngày hạn có thể null
                 $dueDate = $data['ngay_han_thanh_toan'] ?? null;
                 $this->createDebtRecord($hoaDon, $remaining, $totalPaidByCustomer, $dueDate);
 
-                // Lưu vào sổ quỹ với số tiền THỰC TẾ công ty nhận được (nếu có thanh toán 1 phần)
-                if ($totalActualReceived > 0) {
-                    SoQuy::saveSoQuy_hoaDonSPA($totalActualReceived, $hoaDon);
+                // Tính số tiền THỰC TẾ công ty nhận được qua sổ quỹ (nếu thanh toán 1 phần)
+                // = Tiền thực nhận - Tiền ví
+                $walletAmount = $data['thanh_toan_vi'] ?? 0;
+                $soTienVaoSoQuy = $totalActualReceived - $walletAmount;
+                
+                Log::info('💰 SỔ QUỸ - Thanh toán 1 phần có công nợ', [
+                    'total_actual_received' => $totalActualReceived,
+                    'wallet_amount' => $walletAmount,
+                    'so_tien_vao_so_quy' => $soTienVaoSoQuy,
+                ]);
+                
+                // Chỉ lưu sổ quỹ nếu có tiền THỰC TẾ nhận được (không tính ví)
+                if ($soTienVaoSoQuy > 0) {
+                    SoQuy::saveSoQuy_hoaDonSPA($soTienVaoSoQuy, $hoaDon);
                 }
             }
 

@@ -53,6 +53,8 @@ return new class extends Migration
             $table->decimal('chiet_khau_don_hang', 15, 2)->default(0)->comment('Chiết khấu sản phẩm');
             $table->unsignedBigInteger('ktv_id')->nullable()->comment('For service only');
             $table->decimal('giam_gia_dong', 15, 2)->default(0);
+            $table->string('chiet_khau_don_hang_type')->nullable(false)->comment('percent, cash');
+
             $table->text('ghi_chu')->nullable();
             $table->timestamps();
 
