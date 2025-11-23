@@ -239,13 +239,15 @@ const DienNuoc: React.FC = () => {
 
             if (response.data.status_code === 200) {
                 message.success("Đã lưu dữ liệu thành công");
-                location.reload();
+                setIsOpenFormEdit(false);
+                search(searchData);
             } else {
                 message.error("Đã lưu dữ liệu thất bại");
             }
             setLoadingTable(false);
         }).catch((error) => {
             message.error("Lưu dữ liệu thất bại");
+            setLoadingTable(false);
         });
 
     }
@@ -256,7 +258,6 @@ const DienNuoc: React.FC = () => {
         if (pagination.page) searchData_tmp.page = pagination.page;
         if (pagination.pageSize) searchData_tmp.pageSize = pagination.pageSize;
         setSearchData(searchData_tmp);
-        console.log('searchData_tmp', searchData_tmp);
 
         // Gọi search với dữ liệu mới để cập nhật kết quả
         search(searchData_tmp);
@@ -280,7 +281,7 @@ const DienNuoc: React.FC = () => {
                         item[field] = value;
                     }
                 });
-                setDataSource(data_tmp);
+                search(searchData);
             } else {
                 message.error("Đã cập nhật dữ liệu thất bại1");
             }
@@ -416,10 +417,12 @@ const DienNuoc: React.FC = () => {
         if (values.end_date) {
             values.end_date = values.end_date.format('YYYY-MM');
         }
-        if (!values.month) {
+        // Format date picker to month and year
+        if (values.date) {
+            values.month = values.date.month() + 1;
+            values.year = values.date.year();
+        } else if (!values.month || !values.year) {
             values.month = (searchData as any).month;
-        }
-        if (!values.year) {
             values.year = (searchData as any).year;
         }
         if (!values.room && (searchData as any).room) {
@@ -551,13 +554,15 @@ const DienNuoc: React.FC = () => {
 
             if (response.data.status_code === 200) {
                 message.success("Đã tạo dữ liệu thành công");
-                location.reload();
+                setIsModalDataThang(false);
+                search(searchData);
             } else {
                 message.error("Đã tạo dữ liệu thất bại");
             }
             setLoadingTable(false);
         }).catch((error) => {
             message.error("Tạo dữ liệu thất bại");
+            setLoadingTable(false);
         });
     }
 
@@ -576,100 +581,84 @@ const DienNuoc: React.FC = () => {
                         onFinish={inFinishSearch}
                         initialValues={initialsFormSearch()}
                     >
-                        {/* <div className="form-item02">
+                        <Row gutter={[16, 16]}>
+                            {/* Tòa nhà */}
+                            <Col xs={24} md={12}>
+                                <div style={{ marginBottom: 8 }}>
+                                    <span>Chọn Tòa nhà </span>
+                                    <Popconfirm
+                                        title="Tìm kiếm nâng cao"
+                                        okText="Đóng"
+                                        showCancel={false}
+                                        icon={null}
+                                        description={<>
+                                            <Form.Item
+                                                name="room"
+                                            >
+                                                <Select
+                                                    showSearch
+                                                    addonBefore="Phòng"
+                                                    allowClear={true}
+                                                    style={{ width: "100%" }}
+                                                    placeholder="Chọn phòng"
+                                                    optionFilterProp="children"
+                                                    options={optionEntries(props.room)}
+                                                    onChange={() => formSearch.submit()}
+                                                    filterOption={(input, option) =>
+                                                        (option?.label ?? "")
+                                                            .toLowerCase()
+                                                            .includes(input.toLowerCase())
+                                                    }
+                                                />
+                                            </Form.Item>
 
-                                    </div> */}
-                        <List
-                            className="list-search"
-                            dataSource={[
-                                {
-                                    title: <div>
-                                        <span>Chọn Tòa nhà </span>
-
-                                        <Popconfirm
-                                            title="Tìm kiếm nâng cao"
-                                            okText="Đóng"
-                                            showCancel={false}
-                                            icon={null}
-                                            description={<>
-                                                <Form.Item
-                                                    name="room"
-                                                >
-                                                    <Select
-                                                        showSearch
-                                                        addonBefore="Phòng"
-                                                        allowClear={true}
-                                                        style={{ width: "100%" }}
-                                                        placeholder="Chọn phòng"
-                                                        optionFilterProp="children"
-                                                        options={optionEntries(props.room)}
-                                                        onChange={() => formSearch.submit()}
-                                                        filterOption={(input, option) =>
-                                                            (option?.label ?? "")
-                                                                .toLowerCase()
-                                                                .includes(input.toLowerCase())
-                                                        }
-                                                    />
-                                                </Form.Item>
-
-                                                {/* month */}
-
-
-                                                <Form.Item
-                                                    name="month"
-                                                >
-                                                    <InputNumber addonBefore="Tháng" onBlur={() => formSearch.submit()} />
-                                                </Form.Item>
-
-                                                {/* year */}
-                                                <Form.Item
-                                                    name="year"
-                                                >
-                                                    <InputNumber addonBefore="Năm" onBlur={() => formSearch.submit()} />
-                                                </Form.Item>
-
-                                                <Checkbox value={isRecycleBin} onChange={() => {
-                                                    setIsRecycleBin(!isRecycleBin);
-                                                    formSearch.submit();
-                                                }}>Chỉ tìm trong thùng rác</Checkbox>
-
-                                            </>}
-                                            onConfirm={() => {
-                                                formSearch.setFieldsValue({ apm: [] });
+                                            <Checkbox value={isRecycleBin} onChange={() => {
+                                                setIsRecycleBin(!isRecycleBin);
                                                 formSearch.submit();
-                                            }}
-                                        >
-                                            <a className="_right"><FileSearchOutlined /> Nâng cao</a>
-                                        </Popconfirm>
-                                    </div>,
-                                    description: <Form.Item name="apm">
-                                        <Select
-                                            showSearch
-                                            allowClear={true}
-                                            onChange={() => formSearch.submit()}
-                                            mode="multiple"
-                                            style={{ width: "100%" }}
-                                            placeholder="Chọn tòa nhà"
-                                            optionFilterProp="children"
-                                            options={optionEntries(props.apm)}
-                                            filterOption={(input, option) =>
-                                                (option?.label ?? "")
-                                                    .toLowerCase()
-                                                    .includes(input.toLowerCase())
-                                            }
-                                        />
-                                    </Form.Item>,
-                                },
-                            ]}
-                            renderItem={(item, index) => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        title={item.title}
-                                        description={item.description}
+                                            }}>Chỉ tìm trong thùng rác</Checkbox>
+                                        </>}
+                                        onConfirm={() => {
+                                            formSearch.setFieldsValue({ apm: [] });
+                                            formSearch.submit();
+                                        }}
+                                    >
+                                        <a className="_right"><FileSearchOutlined /> Nâng cao</a>
+                                    </Popconfirm>
+                                </div>
+                                <Form.Item name="apm" style={{ marginBottom: 0 }}>
+                                    <Select
+                                        showSearch
+                                        allowClear={true}
+                                        onChange={() => formSearch.submit()}
+                                        mode="multiple"
+                                        style={{ width: "100%" }}
+                                        placeholder="Chọn tòa nhà"
+                                        optionFilterProp="children"
+                                        options={optionEntries(props.apm)}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "")
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
                                     />
-                                </List.Item>
-                            )}
-                        />
+                                </Form.Item>
+                            </Col>
+
+                            {/* Tháng/Năm */}
+                            <Col xs={24} md={12}>
+                                <div style={{ marginBottom: 8 }}>Chọn Tháng/Năm</div>
+                                <Form.Item name="date" style={{ marginBottom: 0 }}>
+                                    <DatePicker
+                                        picker="month"
+                                        placeholder="Chọn tháng/năm"
+                                        style={{ width: "100%" }}
+                                        format="MM/YYYY"
+                                        onChange={() => formSearch.submit()}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
                     </Form>
                 </Col>
 

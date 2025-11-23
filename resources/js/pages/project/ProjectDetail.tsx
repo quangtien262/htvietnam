@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge, Checkbox, Dropdown, Popconfirm } from 'antd';
+import { Card, Tabs, Descriptions, Tag, Button, Space, Progress, Statistic, Row, Col, Timeline, Avatar, Empty, Spin, message, Table, Tooltip, Modal, Form, Input, Select, DatePicker, Radio, Badge, Checkbox, Dropdown, Popconfirm, Popover } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, TeamOutlined, CheckCircleOutlined, ClockCircleOutlined, EyeOutlined, PlusOutlined, TableOutlined, AppstoreOutlined, FileOutlined, DashboardOutlined, DeleteOutlined, CheckSquareOutlined, DownOutlined, CalendarOutlined, SettingOutlined } from '@ant-design/icons';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -108,6 +108,13 @@ const ProjectDetail: React.FC = () => {
         supporter_id?: number;
         priority_id?: number;
     }>({});
+
+    // Quick edit assignee state
+    const [editingAssignee, setEditingAssignee] = useState<{
+        visible: boolean;
+        taskId: number | null;
+    }>({ visible: false, taskId: null });
+    const [assigneeLoading, setAssigneeLoading] = useState(false);
 
     // Handle window resize for responsive view mode
     useEffect(() => {
@@ -436,6 +443,29 @@ const ProjectDetail: React.FC = () => {
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Không thể xóa thành viên');
+        }
+    };
+
+    // Quick edit assignee handler
+    const handleUpdateAssignee = async (taskId: number, nguoi_thuc_hien_id: number | null) => {
+        try {
+            setAssigneeLoading(true);
+            await taskApi.update(taskId, { nguoi_thuc_hien_id });
+            message.success('Cập nhật người thực hiện thành công');
+
+            // Reload data based on current view mode
+            if (taskViewMode === 'kanban') {
+                loadKanbanData();
+            } else {
+                loadProject();
+            }
+
+            // Close popover
+            setEditingAssignee({ visible: false, taskId: null });
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể cập nhật người thực hiện');
+        } finally {
+            setAssigneeLoading(false);
         }
     };
 
@@ -1165,7 +1195,7 @@ const ProjectDetail: React.FC = () => {
                                                             fontSize: 11,
                                                         }}
                                                     >
-                                                         {icon[record.uu_tien?.icon]} {record.uu_tien?.name}
+                                                        {icon[record.uu_tien?.icon]} {record.uu_tien?.name}
                                                     </Tag>
                                                     <b>{record.tieu_de}</b>
                                                     <b>{record.mo_ta}</b>
@@ -1173,17 +1203,55 @@ const ProjectDetail: React.FC = () => {
 
 
                                                 {record.nguoi_thuc_hien && (
-                                                    <Tooltip title={record.nguoi_thuc_hien.name}>
-                                                        <Avatar
-                                                            size="small"
-                                                            style={{
-                                                                backgroundColor: '#23793b',
-                                                                fontSize: 12,
-                                                            }}
-                                                        >
-                                                            {record.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                        </Avatar>
-                                                    </Tooltip>
+                                                    <Popover
+                                                        open={editingAssignee.visible && editingAssignee.taskId === record.id}
+                                                        onOpenChange={(visible) => {
+                                                            if (!visible) {
+                                                                setEditingAssignee({ visible: false, taskId: null });
+                                                            }
+                                                        }}
+                                                        content={
+                                                            <div style={{ width: 200 }}>
+                                                                <div style={{ marginBottom: 8, fontWeight: 500 }}>Chọn người thực hiện:</div>
+                                                                <Select
+                                                                    style={{ width: '100%' }}
+                                                                    value={record.nguoi_thuc_hien_id}
+                                                                    onChange={(value) => handleUpdateAssignee(record.id, value)}
+                                                                    loading={assigneeLoading}
+                                                                    placeholder="Chọn người thực hiện"
+                                                                    allowClear
+                                                                    showSearch
+                                                                    filterOption={(input, option: any) =>
+                                                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                                    }
+                                                                    options={[
+                                                                        ...(projectMembers || []).map((member: any) => {
+                                                                            return {
+                                                                                value: member.admin_user_id,
+                                                                                label: member.admin_user?.name,
+                                                                            }
+                                                                        }),
+                                                                    ]}
+                                                                />
+                                                            </div>
+                                                        }
+                                                        title="Sửa người thực hiện"
+                                                        trigger="click"
+                                                    >
+                                                        <Tooltip placement="bottom" title={`${record.nguoi_thuc_hien.name}`}>
+                                                            <Avatar
+                                                                size="small"
+                                                                style={{
+                                                                    backgroundColor: '#23793b',
+                                                                    fontSize: 12,
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                                onClick={() => setEditingAssignee({ visible: true, taskId: record.id })}
+                                                            >
+                                                                {record.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                            </Avatar>
+                                                        </Tooltip>
+                                                    </Popover>
                                                 )}
                                             </div>
                                         ),
@@ -1431,7 +1499,7 @@ const ProjectDetail: React.FC = () => {
                                                                                                     borderRadius: 10,
                                                                                                 }}
                                                                                             >
-                                                                                                 {icon[task.uu_tien?.icon]} {task.uu_tien.name}
+                                                                                                {icon[task.uu_tien?.icon]} {task.uu_tien.name}
                                                                                             </Tag>
                                                                                         ) : null}
 
@@ -1475,18 +1543,57 @@ const ProjectDetail: React.FC = () => {
                                                                                         borderTop: '1px solid #f0f0f0',
                                                                                     }}>
                                                                                         {task.nguoi_thuc_hien ? (
-                                                                                            <Tooltip title={task.nguoi_thuc_hien.name}>
-                                                                                                <Avatar
-                                                                                                    size={28}
-                                                                                                    style={{
-                                                                                                        backgroundColor: '#23793b',
-                                                                                                        fontSize: 12,
-                                                                                                        fontWeight: 600,
-                                                                                                    }}
-                                                                                                >
-                                                                                                    {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
-                                                                                                </Avatar>
-                                                                                            </Tooltip>
+                                                                                            <Popover
+                                                                                                open={editingAssignee.visible && editingAssignee.taskId === task.id}
+                                                                                                onOpenChange={(visible) => {
+                                                                                                    if (!visible) {
+                                                                                                        setEditingAssignee({ visible: false, taskId: null });
+                                                                                                    }
+                                                                                                }}
+                                                                                                content={
+                                                                                                    <div style={{ width: 200 }} onClick={(e) => e.stopPropagation()}>
+                                                                                                        <div style={{ marginBottom: 8, fontWeight: 500 }}>Chọn người thực hiện:</div>
+                                                                                                        <Select
+                                                                                                            style={{ width: '100%' }}
+                                                                                                            value={task.nguoi_thuc_hien_id}
+                                                                                                            onChange={(value) => handleUpdateAssignee(task.id, value)}
+                                                                                                            loading={assigneeLoading}
+                                                                                                            placeholder="Chọn người thực hiện"
+                                                                                                            allowClear
+                                                                                                            showSearch
+                                                                                                            filterOption={(input, option: any) =>
+                                                                                                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                                                                            }
+                                                                                                            options={[
+                                                                                                                ...(projectMembers || []).map((member: any) => ({
+                                                                                                                    value: member.admin_user_id,
+                                                                                                                    label: member.admin_user?.name,
+                                                                                                                })),
+                                                                                                            ]}
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                }
+                                                                                                title="Sửa người thực hiện"
+                                                                                                trigger="click"
+                                                                                            >
+                                                                                                <Tooltip placement="bottom" title={`${task.nguoi_thuc_hien.name} - Click để sửa`}>
+                                                                                                    <Avatar
+                                                                                                        size={28}
+                                                                                                        style={{
+                                                                                                            backgroundColor: '#23793b',
+                                                                                                            fontSize: 12,
+                                                                                                            fontWeight: 600,
+                                                                                                            cursor: 'pointer',
+                                                                                                        }}
+                                                                                                        onClick={(e) => {
+                                                                                                            e.stopPropagation();
+                                                                                                            setEditingAssignee({ visible: true, taskId: task.id });
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        {task.nguoi_thuc_hien.name?.charAt(0).toUpperCase()}
+                                                                                                    </Avatar>
+                                                                                                </Tooltip>
+                                                                                            </Popover>
                                                                                         ) : (
                                                                                             <div style={{ width: 28 }} />
                                                                                         )}
