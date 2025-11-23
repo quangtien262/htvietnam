@@ -88,7 +88,6 @@ class AuthController extends Controller
         return $this->sendErrorResponse('Tên đăng nhập hoặc mật khẩu không đúng');
     }
 
-//phamthid
     /**
      * Summary of requireChangePassword
      * @param Request $request: username, password_new, password_confirm
@@ -144,6 +143,9 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->phone = $request->phone;
         $user->password = bcrypt($request->password);
+        $user->save();
+        $code = 'KHA' . TblService::formatNumberByLength($user->id, 5);
+        $user->code = $code;
         $user->save();
         if (Auth::guard('web')->attempt($request->only('email', 'password'), true)) {
             try {
@@ -281,6 +283,10 @@ class AuthController extends Controller
             $user->hktt = $hktt;
             $user->save();
 
+            $code = 'KHA' . TblService::formatNumberByLength($user->id, 5);
+            $user->code = $code;
+            $user->save();
+
             Auth::guard('web')->login($user);
 
             return $this->sendSuccessResponse(['user' => $user], 'Đăng ký thành công bằng CCCD');
@@ -304,6 +310,10 @@ class AuthController extends Controller
             // user type: aitilen, htvietnam, spa, tmdt, step
             $user->user_type = env('USER_TYPE', 'Aitilen');
 
+            $user->save();
+
+            $code = 'KHA' . TblService::formatNumberByLength($user->id, 5);
+            $user->code = $code;
             $user->save();
 
             Auth::guard('web')->login($user);

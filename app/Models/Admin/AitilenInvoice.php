@@ -42,7 +42,7 @@ class AitilenInvoice extends Model
         } else {
             $data = $data->where('aitilen_invoice.is_draft', 0);
         }
-        $data = $data->orderBy('aitilen_invoice.created_at', 'asc');
+        // $data = $data->orderBy('aitilen_invoice.created_at', 'asc');
         return $data;
     }
 
@@ -93,7 +93,11 @@ class AitilenInvoice extends Model
                 $datas = $datas->orderBy('aitilen_invoice.total', 'desc');
             } elseif($dataFilter['sort_by'] == 'room') {
                 $datas = $datas->orderBy('room.name', 'asc');
+            } else {
+                $datas = $datas->orderBy('aitilen_invoice.id', 'desc');
             }
+        } else {
+            $datas = $datas->orderBy('aitilen_invoice.id', 'desc');
         }
 
         if (!empty($dataFilter['count'])) {

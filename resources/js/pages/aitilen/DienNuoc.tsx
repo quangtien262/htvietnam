@@ -587,7 +587,7 @@ const DienNuoc: React.FC = () => {
                                 <div style={{ marginBottom: 8 }}>
                                     <span>Chọn Tòa nhà </span>
                                     <Popconfirm
-                                        title="Tìm kiếm nâng cao"
+                                        title="Chọn phòng"
                                         okText="Đóng"
                                         showCancel={false}
                                         icon={null}
@@ -622,7 +622,7 @@ const DienNuoc: React.FC = () => {
                                             formSearch.submit();
                                         }}
                                     >
-                                        <a className="_right"><FileSearchOutlined /> Nâng cao</a>
+                                        <a className="_right"><FileSearchOutlined /> Chọn phòng</a>
                                     </Popconfirm>
                                 </div>
                                 <Form.Item name="apm" style={{ marginBottom: 0 }}>

@@ -83,7 +83,7 @@
                                                 Chào {{ auth()->guard('web')->user()->name }}
                                             </p>
                                             <p>
-                                                <a href="{{ route('user.index') }}" class="tai-khoan logout">
+                                                <a href="/user/" class="tai-khoan logout">
                                                     <i class="fa-solid fa-address-card"></i>
                                                     Trang cá nhân
                                                 </a>

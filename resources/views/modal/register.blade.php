@@ -46,7 +46,8 @@
 
                     </div>
 
-                    <div class="row">
+                    {{-- Tạm ẩn phần chọn phương thức nhập liệu vì tính năng CCCD đang lỗi --}}
+                    <div class="row" style="display:none;">
                         <div class="col-md-12">
                             <p class="title02">Chọn cách nhập liệu:
                             </p>
@@ -54,14 +55,14 @@
                         <div class="col-md-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="input_method" id="input_method_image"
-                                    value="camera" checked>
+                                    value="camera">
                                 <label class="form-check-label" for="input_method_image">
                                     Chọn từ ảnh CCCD
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="input_method"
-                                    id="input_method_manual" value="manual">
+                                    id="input_method_manual" value="manual" checked>
                                 <label class="form-check-label" for="input_method_manual">
                                     Nhập liệu thủ công
                                 </label>
@@ -70,6 +71,7 @@
                     </div>
                 </div>
 
+                {{-- Tạm ẩn block upload ảnh CCCD vì tính năng đang lỗi --}}
                 <div id="cccd_block" class="row" style="display:none">
                     {{-- Ảnh CCCD --}}
                     <div class="col-md-12">
@@ -89,7 +91,7 @@
                     </div>
                 </div>
 
-                <div id="nhapThuCong" class="row" style="display:none">
+                <div id="nhapThuCong" class="row">
 
                     {{-- Thông tin cá nhân --}}
                     <div class="col-md-12">
@@ -326,7 +328,7 @@
                         console.log('====================================');
                         if (res && res.status_code === 200) {
                             showSuccess(res.message || 'Đăng ký thành công');
-                            window.location.reload();
+                            window.location.href = '/user/';
                         } else {
                             if (res && res.errors) {
                                 const msgs = [];

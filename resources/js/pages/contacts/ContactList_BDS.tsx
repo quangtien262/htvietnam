@@ -637,10 +637,21 @@ const ContactList_BDS: React.FC = () => {
 
 
     function initialsFormatData() {
+        const today = dayjs();
+        const currentYear = today.year();
+        const targetDate = dayjs(`${currentYear}-08-31`);
+
+        // Nếu đã qua 31/08 năm nay, lấy 31/08 năm sau, chưa qua thì lấy 31/08 năm nay
+        const endDate = today.isAfter(targetDate)
+            ? dayjs(`${currentYear + 1}-08-31`)
+            : targetDate;
+
         let result: any = {
             so_nguoi: 1,
             ngay_hen_dong_tien: 5,
             so_ngay_thue: daysInMonth_default,
+            start_date: today, // Ngày bắt đầu = ngày hiện tại
+            end_date: endDate, // Ngày kết thúc = 31/08
         };
         return result;
     }

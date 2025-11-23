@@ -57,10 +57,10 @@ const ProjectDetail: React.FC = () => {
     // Quick Add Tasks Modal
     const [quickAddModalVisible, setQuickAddModalVisible] = useState(false);
     const [quickAddTasks, setQuickAddTasks] = useState<any[]>([
-        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
     ]);
     const [applyAllStatus, setApplyAllStatus] = useState(true);
     const [applyAllAssignee, setApplyAllAssignee] = useState(true);
@@ -524,10 +524,10 @@ const ProjectDetail: React.FC = () => {
             setQuickAddModalVisible(false);
             // Reset form
             setQuickAddTasks([
-                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
             ]);
             setApplyAllStatus(false);
             setApplyAllAssignee(false);
@@ -572,7 +572,7 @@ const ProjectDetail: React.FC = () => {
     const addQuickAddTaskRow = () => {
         setQuickAddTasks([
             ...quickAddTasks,
-            { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' }
+            { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' }
         ]);
     };
 
@@ -1363,7 +1363,7 @@ const ProjectDetail: React.FC = () => {
                                     overflowX: 'auto',
                                     paddingBottom: 16,
                                     paddingTop: 8,
-                                    alignItems: 'flex-start',
+                                    alignItems: 'stretch',
                                 }}>
                                     {taskStatuses.map((status) => {
                                         const filteredKanban = getFilteredKanbanData();
@@ -1433,14 +1433,13 @@ const ProjectDetail: React.FC = () => {
                                                             ref={provided.innerRef}
                                                             {...provided.droppableProps}
                                                             style={{
-                                                                minHeight: '60vh',
-                                                                height: '100%',
                                                                 flex: 1,
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
                                                                 backgroundColor: snapshot.isDraggingOver ? '#e6f4ff' : 'transparent',
                                                                 borderRadius: 8,
                                                                 padding: '8px 12px',
                                                                 transition: 'background-color 0.2s ease',
-                                                                overflow: 'auto',
                                                             }}
                                                         >
                                                             {tasks.length === 0 ? (
@@ -2208,10 +2207,10 @@ const ProjectDetail: React.FC = () => {
                 onCancel={() => {
                     setQuickAddModalVisible(false);
                     setQuickAddTasks([
-                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
-                        { tieu_de: '', trang_thai_id: null, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
+                        { tieu_de: '', trang_thai_id: 1, nguoi_thuc_hien_id: null, uu_tien_id: null, mo_ta: '' },
                     ]);
                     setApplyAllStatus(false);
                     setApplyAllAssignee(false);

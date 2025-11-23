@@ -1814,7 +1814,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, projectId, visible, onC
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                             <span style={{ flex: 1 }}>{task?.tieu_de}</span>
                             {renderQuickEditPopover('tieu_de', 'Tiêu đề', task?.tieu_de, () => (
-                                <Input placeholder="Nhập tiêu đề" />
+                                <Input.TextArea rows={2} placeholder="Nhập tiêu đề" autoSize={{ minRows: 2, maxRows: 4 }} />
                             ))}
                         </div>
                     </Descriptions.Item>
