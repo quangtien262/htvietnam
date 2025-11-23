@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Tag, Input, DatePicker, Modal, Form, Select, message, Drawer } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Tag, Input, DatePicker, Modal, Form, Select, message, Drawer, Tabs } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined, PhoneOutlined, MailOutlined, ShoppingOutlined, GiftOutlined, HistoryOutlined, DollarCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import API from '../../common/api';
@@ -51,6 +51,61 @@ interface WalletTransaction {
     created_at: string;
 }
 
+interface PurchaseHistory {
+    id: number;
+    ma_hoa_don: string;
+    ngay_ban: string;
+    tong_tien: number;
+    trang_thai: string;
+    chi_tiet: any[];
+}
+
+interface ServiceHistory {
+    id: number;
+    ma_hoa_don: string;
+    ten_item: string;
+    loai: 'dich_vu' | 'san_pham';
+    so_luong: number;
+    don_gia: number;
+    thanh_tien: number;
+    ngay_su_dung: string;
+    nhan_vien?: string;
+    ghi_chu?: string;
+}
+
+interface ServicePackageHistory {
+    id: number;
+    ma_goi: string;
+    ten_goi: string;
+    gia_mua: number;
+    so_luong_tong: number;
+    so_luong_da_dung: number;
+    so_luong_con_lai: number;
+    ngay_mua: string;
+    ngay_het_han?: string;
+    trang_thai: string;
+}
+
+interface PackageUsageHistory {
+    id: number;
+    ten_goi: string;
+    ten_dich_vu: string;
+    ngay_su_dung: string;
+    nhan_vien: string;
+    ghi_chu?: string;
+}
+
+interface DebtHistory {
+    id: number;
+    ma_cong_no: string;
+    so_tien: number;
+    so_tien_da_tra: number;
+    so_tien_con_lai: number;
+    ngay_tao: string;
+    han_thanh_toan?: string;
+    trang_thai: string;
+}
+
 const SpaCustomerList: React.FC = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(false);
@@ -67,6 +122,18 @@ const SpaCustomerList: React.FC = () => {
     const [promoCodeModalVisible, setPromoCodeModalVisible] = useState(false);
     const [selectedCustomerForPromo, setSelectedCustomerForPromo] = useState<Customer | null>(null);
     const [promoCodeForm] = Form.useForm();
+
+    // New states for history tabs
+    const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistory[]>([]);
+    const [serviceHistory, setServiceHistory] = useState<ServiceHistory[]>([]);
+    const [servicePackageHistory, setServicePackageHistory] = useState<ServicePackageHistory[]>([]);
+    const [packageUsageHistory, setPackageUsageHistory] = useState<PackageUsageHistory[]>([]);
+    const [debtHistory, setDebtHistory] = useState<DebtHistory[]>([]);
+    const [loadingPurchase, setLoadingPurchase] = useState(false);
+    const [loadingService, setLoadingService] = useState(false);
+    const [loadingServicePackage, setLoadingServicePackage] = useState(false);
+    const [loadingPackageUsage, setLoadingPackageUsage] = useState(false);
+    const [loadingDebt, setLoadingDebt] = useState(false);
 
     useEffect(() => {
         fetchCustomers();
@@ -94,7 +161,7 @@ const SpaCustomerList: React.FC = () => {
                 const customersWithWallet = await Promise.all(
                     customersData.map(async (customer: Customer) => {
                         try {
-                            const walletRes = await axios.get(`/aio/api/spa/wallet/${customer.id}`);
+                            const walletRes = await axios.get(`/spa/wallet/${customer.id}`);
                             if (walletRes.data.success) {
                                 return { ...customer, wallet: walletRes.data.data };
                             }
@@ -123,7 +190,7 @@ const SpaCustomerList: React.FC = () => {
     const fetchWalletHistory = async (customerId: number) => {
         setLoadingWalletHistory(true);
         try {
-            const response = await axios.get(`/aio/api/spa/wallet/${customerId}/history`);
+            const response = await axios.get(`/spa/wallet/${customerId}/history`);
             if (response.data.success) {
                 setWalletTransactions(response.data.data || []);
             }
@@ -151,7 +218,7 @@ const SpaCustomerList: React.FC = () => {
             const values = await promoCodeForm.validateFields();
             if (!selectedCustomerForPromo) return;
 
-            const response = await axios.post('/aio/api/spa/wallet/apply-code', {
+            const response = await axios.post('/spa/wallet/apply-code', {
                 khach_hang_id: selectedCustomerForPromo.id,
                 ma_code: values.promo_code.toUpperCase(),
             });
@@ -164,6 +231,86 @@ const SpaCustomerList: React.FC = () => {
             }
         } catch (error: any) {
             message.error(error.response?.data?.message || 'Lỗi khi áp dụng mã thẻ');
+        }
+    };
+
+    // Fetch purchase history
+    const fetchPurchaseHistory = async (customerId: number) => {
+        setLoadingPurchase(true);
+        try {
+            const response = await axios.get(`/spa/customers/${customerId}/purchase-history`);
+            if (response.data.success) {
+                setPurchaseHistory(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching purchase history:', error);
+            message.error('Lỗi khi tải lịch sử mua hàng');
+        } finally {
+            setLoadingPurchase(false);
+        }
+    };
+
+    // Fetch service history (both services and products)
+    const fetchServiceHistory = async (customerId: number) => {
+        setLoadingService(true);
+        try {
+            const response = await axios.get(`/spa/customers/${customerId}/services`);
+            if (response.data.success) {
+                setServiceHistory(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching service history:', error);
+            message.error('Lỗi khi tải lịch sử dịch vụ & sản phẩm');
+        } finally {
+            setLoadingService(false);
+        }
+    };
+
+    // Fetch service package history
+    const fetchServicePackageHistory = async (customerId: number) => {
+        setLoadingServicePackage(true);
+        try {
+            const response = await axios.get(`/spa/customers/${customerId}/service-packages`);
+            if (response.data.success) {
+                setServicePackageHistory(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching service package history:', error);
+            message.error('Lỗi khi tải lịch sử gói dịch vụ');
+        } finally {
+            setLoadingServicePackage(false);
+        }
+    };
+
+    // Fetch package usage history
+    const fetchPackageUsageHistory = async (customerId: number) => {
+        setLoadingPackageUsage(true);
+        try {
+            const response = await axios.get(`/spa/customers/${customerId}/package-usage`);
+            if (response.data.success) {
+                setPackageUsageHistory(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching package usage:', error);
+            message.error('Lỗi khi tải lịch sử sử dụng gói');
+        } finally {
+            setLoadingPackageUsage(false);
+        }
+    };
+
+    // Fetch debt history
+    const fetchDebtHistory = async (customerId: number) => {
+        setLoadingDebt(true);
+        try {
+            const response = await axios.get(`/spa/customers/${customerId}/debts`);
+            if (response.data.success) {
+                setDebtHistory(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching debt history:', error);
+            message.error('Lỗi khi tải lịch sử công nợ');
+        } finally {
+            setLoadingDebt(false);
         }
     };
 
@@ -184,11 +331,23 @@ const SpaCustomerList: React.FC = () => {
     const showDetailDrawer = (customer: Customer) => {
         setSelectedCustomer(customer);
         setIsDetailDrawerVisible(true);
+        // Load all history data
+        fetchPurchaseHistory(customer.id);
+        fetchServiceHistory(customer.id);
+        fetchServicePackageHistory(customer.id);
+        fetchPackageUsageHistory(customer.id);
+        fetchDebtHistory(customer.id);
     };
 
     const closeDetailDrawer = () => {
         setIsDetailDrawerVisible(false);
         setSelectedCustomer(null);
+        // Clear history data
+        setPurchaseHistory([]);
+        setServiceHistory([]);
+        setServicePackageHistory([]);
+        setPackageUsageHistory([]);
+        setDebtHistory([]);
     };
 
     const showModal = (customer?: Customer) => {
@@ -563,7 +722,7 @@ const SpaCustomerList: React.FC = () => {
                     </div>
                 }
                 placement="right"
-                width={680}
+                width={1200}
                 onClose={closeDetailDrawer}
                 open={isDetailDrawerVisible}
                 styles={{
@@ -575,7 +734,7 @@ const SpaCustomerList: React.FC = () => {
                         {/* Header Stats Cards */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            gridTemplateColumns: 'repeat(4, 1fr)',
                             gap: '12px',
                             marginBottom: '24px'
                         }}>
@@ -587,7 +746,7 @@ const SpaCustomerList: React.FC = () => {
                                 boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
                             }}>
                                 <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Tổng chi tiêu</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
                                     {(selectedCustomer.tong_chi_tieu || 0).toLocaleString('vi-VN')} đ
                                 </div>
                             </div>
@@ -599,7 +758,7 @@ const SpaCustomerList: React.FC = () => {
                                 boxShadow: '0 4px 12px rgba(245, 87, 108, 0.3)'
                             }}>
                                 <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>Điểm tích lũy</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
                                     {selectedCustomer.diem_tich_luy || selectedCustomer.points || 0} điểm
                                 </div>
                             </div>
@@ -611,7 +770,7 @@ const SpaCustomerList: React.FC = () => {
                                 boxShadow: '0 4px 12px rgba(56, 239, 125, 0.3)'
                             }}>
                                 <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>💰 Số dư ví</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
                                     {(selectedCustomer.wallet?.so_du || 0).toLocaleString('vi-VN')} đ
                                 </div>
                             </div>
@@ -629,7 +788,9 @@ const SpaCustomerList: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Thông tin cơ bản */}
+                        {/* Tabs */}
+                        <Tabs defaultActiveKey="info" type="card">
+                            <Tabs.TabPane tab={<span><EyeOutlined /> Thông tin cơ bản</span>} key="info">
                         <div style={{
                             marginBottom: '20px',
                             padding: '20px',
@@ -867,6 +1028,317 @@ const SpaCustomerList: React.FC = () => {
                                 Ngày tạo: {selectedCustomer.created_at ? dayjs(selectedCustomer.created_at).format('DD/MM/YYYY HH:mm') : 'N/A'}
                             </div>
                         </div>
+                            </Tabs.TabPane>
+
+                            {/* Tab Lịch sử mua hàng */}
+                            <Tabs.TabPane tab={<span><ShoppingOutlined /> Lịch sử mua hàng</span>} key="purchase">
+                                <Table
+                                    dataSource={purchaseHistory}
+                                    loading={loadingPurchase}
+                                    pagination={{ pageSize: 10 }}
+                                    rowKey="id"
+                                    size="small"
+                                    columns={[
+                                        {
+                                            title: 'Mã hóa đơn',
+                                            dataIndex: 'ma_hoa_don',
+                                            key: 'ma_hoa_don',
+                                            width: 150,
+                                        },
+                                        {
+                                            title: 'Ngày mua',
+                                            dataIndex: 'ngay_ban',
+                                            key: 'ngay_ban',
+                                            width: 150,
+                                            render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+                                        },
+                                        {
+                                            title: 'Tổng tiền',
+                                            dataIndex: 'tong_tien',
+                                            key: 'tong_tien',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#52c41a' }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Trạng thái',
+                                            dataIndex: 'trang_thai',
+                                            key: 'trang_thai',
+                                            width: 120,
+                                            render: (status: string) => (
+                                                <Tag color={status === 'hoan_thanh' ? 'success' : status === 'huy' ? 'error' : 'processing'}>
+                                                    {status === 'hoan_thanh' ? 'Hoàn thành' : status === 'huy' ? 'Đã hủy' : 'Chờ xử lý'}
+                                                </Tag>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Chi tiết',
+                                            key: 'action',
+                                            width: 100,
+                                            render: (_: any, record: any) => (
+                                                <Button type="link" size="small" onClick={() => message.info('Chi tiết hóa đơn: ' + record.ma_hoa_don)}>
+                                                    Xem
+                                                </Button>
+                                            ),
+                                        },
+                                    ]}
+                                />
+                            </Tabs.TabPane>
+
+                            {/* Tab Sản phẩm & Dịch vụ */}
+                            <Tabs.TabPane tab={<span><GiftOutlined /> Sản phẩm & Dịch vụ</span>} key="service">
+                                <Table
+                                    dataSource={serviceHistory}
+                                    loading={loadingService}
+                                    pagination={{ pageSize: 10 }}
+                                    rowKey="id"
+                                    size="small"
+                                    columns={[
+                                        {
+                                            title: 'Mã hóa đơn',
+                                            dataIndex: 'ma_hoa_don',
+                                            key: 'ma_hoa_don',
+                                            width: 130,
+                                        },
+                                        {
+                                            title: 'Loại',
+                                            dataIndex: 'loai',
+                                            key: 'loai',
+                                            width: 100,
+                                            render: (loai: string) => (
+                                                <Tag color={loai === 'dich_vu' ? 'blue' : 'green'}>
+                                                    {loai === 'dich_vu' ? 'Dịch vụ' : 'Sản phẩm'}
+                                                </Tag>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Tên',
+                                            dataIndex: 'ten_item',
+                                            key: 'ten_item',
+                                        },
+                                        {
+                                            title: 'Số lượng',
+                                            dataIndex: 'so_luong',
+                                            key: 'so_luong',
+                                            width: 100,
+                                            align: 'center',
+                                        },
+                                        {
+                                            title: 'Đơn giá',
+                                            dataIndex: 'don_gia',
+                                            key: 'don_gia',
+                                            width: 130,
+                                            render: (val: number) => <span>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Thành tiền',
+                                            dataIndex: 'thanh_tien',
+                                            key: 'thanh_tien',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#52c41a' }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Ngày mua',
+                                            dataIndex: 'ngay_su_dung',
+                                            key: 'ngay_su_dung',
+                                            width: 130,
+                                            render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+                                        },
+                                        {
+                                            title: 'Nhân viên',
+                                            dataIndex: 'nhan_vien',
+                                            key: 'nhan_vien',
+                                            width: 130,
+                                        },
+                                    ]}
+                                />
+                            </Tabs.TabPane>
+
+                            {/* Tab Gói dịch vụ */}
+                            <Tabs.TabPane tab={<span><GiftOutlined /> Gói dịch vụ</span>} key="service_package">
+                                <Table
+                                    dataSource={servicePackageHistory}
+                                    loading={loadingServicePackage}
+                                    pagination={{ pageSize: 10 }}
+                                    rowKey="id"
+                                    size="small"
+                                    columns={[
+                                        {
+                                            title: 'Mã gói',
+                                            dataIndex: 'ma_goi',
+                                            key: 'ma_goi',
+                                            width: 120,
+                                        },
+                                        {
+                                            title: 'Tên gói',
+                                            dataIndex: 'ten_goi',
+                                            key: 'ten_goi',
+                                        },
+                                        {
+                                            title: 'Giá mua',
+                                            dataIndex: 'gia_mua',
+                                            key: 'gia_mua',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600 }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Tổng lượt',
+                                            dataIndex: 'so_luong_tong',
+                                            key: 'so_luong_tong',
+                                            width: 100,
+                                            align: 'center',
+                                        },
+                                        {
+                                            title: 'Đã dùng',
+                                            dataIndex: 'so_luong_da_dung',
+                                            key: 'so_luong_da_dung',
+                                            width: 100,
+                                            align: 'center',
+                                        },
+                                        {
+                                            title: 'Còn lại',
+                                            dataIndex: 'so_luong_con_lai',
+                                            key: 'so_luong_con_lai',
+                                            width: 100,
+                                            align: 'center',
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#1890ff' }}>{val}</span>,
+                                        },
+                                        {
+                                            title: 'Ngày mua',
+                                            dataIndex: 'ngay_mua',
+                                            key: 'ngay_mua',
+                                            width: 120,
+                                            render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+                                        },
+                                        {
+                                            title: 'Hạn sử dụng',
+                                            dataIndex: 'ngay_het_han',
+                                            key: 'ngay_het_han',
+                                            width: 120,
+                                            render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'Không giới hạn',
+                                        },
+                                        {
+                                            title: 'Trạng thái',
+                                            dataIndex: 'trang_thai',
+                                            key: 'trang_thai',
+                                            width: 120,
+                                            render: (status: string) => (
+                                                <Tag color={status === 'dang_dung' ? 'success' : status === 'het_han' ? 'error' : 'warning'}>
+                                                    {status === 'dang_dung' ? 'Đang dùng' : status === 'het_han' ? 'Hết hạn' : 'Đã hết'}
+                                                </Tag>
+                                            ),
+                                        },
+                                    ]}
+                                />
+                            </Tabs.TabPane>
+
+                            {/* Tab Lịch sử sử dụng gói */}
+                            <Tabs.TabPane tab={<span><HistoryOutlined /> Lịch sử sử dụng gói</span>} key="package_usage">
+                                <Table
+                                    dataSource={packageUsageHistory}
+                                    loading={loadingPackageUsage}
+                                    pagination={{ pageSize: 10 }}
+                                    rowKey="id"
+                                    size="small"
+                                    columns={[
+                                        {
+                                            title: 'Tên gói',
+                                            dataIndex: 'ten_goi',
+                                            key: 'ten_goi',
+                                            width: 200,
+                                        },
+                                        {
+                                            title: 'Dịch vụ sử dụng',
+                                            dataIndex: 'ten_dich_vu',
+                                            key: 'ten_dich_vu',
+                                        },
+                                        {
+                                            title: 'Ngày sử dụng',
+                                            dataIndex: 'ngay_su_dung',
+                                            key: 'ngay_su_dung',
+                                            width: 150,
+                                            render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+                                        },
+                                        {
+                                            title: 'Nhân viên',
+                                            dataIndex: 'nhan_vien',
+                                            key: 'nhan_vien',
+                                            width: 150,
+                                        },
+                                        {
+                                            title: 'Ghi chú',
+                                            dataIndex: 'ghi_chu',
+                                            key: 'ghi_chu',
+                                            ellipsis: true,
+                                        },
+                                    ]}
+                                />
+                            </Tabs.TabPane>
+
+                            {/* Tab Công nợ */}
+                            <Tabs.TabPane tab={<span><DollarCircleOutlined /> Công nợ</span>} key="debt">
+                                <Table
+                                    dataSource={debtHistory}
+                                    loading={loadingDebt}
+                                    pagination={{ pageSize: 10 }}
+                                    rowKey="id"
+                                    size="small"
+                                    columns={[
+                                        {
+                                            title: 'Mã công nợ',
+                                            dataIndex: 'ma_cong_no',
+                                            key: 'ma_cong_no',
+                                            width: 150,
+                                        },
+                                        {
+                                            title: 'Số tiền',
+                                            dataIndex: 'so_tien',
+                                            key: 'so_tien',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#ff4d4f' }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Đã trả',
+                                            dataIndex: 'so_tien_da_tra',
+                                            key: 'so_tien_da_tra',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#52c41a' }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Còn lại',
+                                            dataIndex: 'so_tien_con_lai',
+                                            key: 'so_tien_con_lai',
+                                            width: 130,
+                                            render: (val: number) => <span style={{ fontWeight: 600, color: '#faad14' }}>{val?.toLocaleString('vi-VN')} đ</span>,
+                                        },
+                                        {
+                                            title: 'Ngày tạo',
+                                            dataIndex: 'ngay_tao',
+                                            key: 'ngay_tao',
+                                            width: 120,
+                                            render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+                                        },
+                                        {
+                                            title: 'Hạn thanh toán',
+                                            dataIndex: 'han_thanh_toan',
+                                            key: 'han_thanh_toan',
+                                            width: 120,
+                                            render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
+                                        },
+                                        {
+                                            title: 'Trạng thái',
+                                            dataIndex: 'trang_thai',
+                                            key: 'trang_thai',
+                                            width: 120,
+                                            render: (status: string) => (
+                                                <Tag color={status === 'da_thanh_toan' ? 'success' : status === 'qua_han' ? 'error' : 'warning'}>
+                                                    {status === 'da_thanh_toan' ? 'Đã thanh toán' : status === 'qua_han' ? 'Quá hạn' : 'Chưa thanh toán'}
+                                                </Tag>
+                                            ),
+                                        },
+                                    ]}
+                                />
+                            </Tabs.TabPane>
+                        </Tabs>
                     </div>
                 )}
             </Drawer>

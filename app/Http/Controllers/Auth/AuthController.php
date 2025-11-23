@@ -51,20 +51,71 @@ class AuthController extends Controller
 
     public function postLogin_api(Request $request)
     {
-        //Authentication passed...
+
 
         // if (Auth::guard('admin_users')->attempt($request->only('username', 'password'), $request->filled('remember'))) {
         if (Auth::guard('admin_users')->attempt($request->only('username', 'password'), true)) {
-            //save table 2 session
+            // save table 2 session
             // $tables = TblService::getAdminMenu(0);
             return $this->sendSuccessResponse(['role' => 'admin'], 'You are Logged in as admin!');
         }
 
+        // check user existence
+        //Authentication passed...
+        $user = User::where('username', $request->username)->first();
+
+        // sai tên đăng nhập
+        if (empty($user)) {
+            return $this->sendErrorResponse('Tên đăng nhập hoặc mật khẩu không đúng');
+        }
+
+        // trường hợp require_changepw thì yêu cầu đổi mật khẩu mới luôn
+        if ($user->require_changepw == 1) {
+            return $this->sendSuccessResponse(['change_pw' => true, 'role' => 'user', 'username' => $user->username]);
+            // Auth::guard('web')->login($customer);
+        }
+
+        // check pw correctness
+        if ($user->password != bcrypt($request->password)) {
+            // return $this->sendErrorResponse('Mật khẩu đăng nhập không đúng');
+        }
+
+        // LOGIN AS USER
         if (Auth::guard('web')->attempt($request->only('username', 'password'), true)) {
             return $this->sendSuccessResponse(['role' => 'user'], 'You are Logged in as user!');
         }
 
-        return back()->with('error', 'Tên đăng nhập hoặc mật khẩu không đúng');
+        return $this->sendErrorResponse('Tên đăng nhập hoặc mật khẩu không đúng');
+    }
+
+//phamthid
+    /**
+     * Summary of requireChangePassword
+     * @param Request $request: username, password_new, password_confirm
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function requireChangePassword(Request $request)
+    {
+        $user = User::where('username', $request->username_changepw)->first();
+
+        if (empty($user)) {
+            return $this->sendErrorResponse('Không tìm thấy người dùng');
+        }
+
+        // check passwords match
+        if ($request->password_new !== $request->password_confirm) {
+            return $this->sendErrorResponse('Mật khẩu mới và xác nhận mật khẩu không khớp');
+        }
+
+        // update password
+        $user->password = bcrypt($request->password_new);
+        $user->require_changepw = 0;
+        $user->save();
+
+        // login user
+        Auth::guard('web')->login($user);
+
+        return $this->sendSuccessResponse(['role' => 'user'], 'Đã đổi mật khẩu thành công, đang chuyển hướng...');
     }
 
     /**
@@ -116,13 +167,13 @@ class AuthController extends Controller
             ->orWhere('phone', $request->phone)
             ->first();
         if ($existUser) {
-            return $this->sendErrorResponse('Số điện thoại đã được đăng ký', []);
+            return $this->sendErrorResponse('Số điện thoại đã được đăng ký');
         }
 
         // Trường hợp đăng ký bằng ảnh CCCD
         if ($request->input_method === 'camera') {
             if (!$request->hasFile('cccd_front') || !$request->hasFile('cccd_back')) {
-                return $this->sendErrorResponse('Vui lòng upload đủ 2 mặt ảnh CCCD', []);
+                return $this->sendErrorResponse('Vui lòng upload đủ 2 mặt ảnh CCCD');
             }
 
             // Lưu file ảnh
@@ -133,7 +184,7 @@ class AuthController extends Controller
             $backFull  = 'files/' . $backPath;
 
             if (!file_exists($frontFull) || !file_exists($backFull)) {
-                return $this->sendErrorResponse('File ảnh CCCD không tìm thấy trên server', []);
+                return $this->sendErrorResponse('File ảnh CCCD không tìm thấy trên server');
             }
 
             $frontReal = realpath($frontFull);
@@ -145,7 +196,7 @@ class AuthController extends Controller
             // Kiểm tra Tesseract có cài trên hệ thống
             exec('tesseract --version', $tOut, $tRet);
             if ($tRet !== 0) {
-                return $this->sendErrorResponse('Tesseract OCR chưa được cài hoặc không khả dụng trên server', []);
+                return $this->sendErrorResponse('Tesseract OCR chưa được cài hoặc không khả dụng trên server');
             }
 
             // Đọc thông tin từ ảnh CCCD bằng Tesseract OCR
@@ -260,7 +311,7 @@ class AuthController extends Controller
             return $this->sendSuccessResponse(['user' => $user], 'Đăng ký thành công');
         }
 
-        return $this->sendErrorResponse('Vui lòng chọn phương thức đăng ký hợp lệ', []);
+        return $this->sendErrorResponse('Vui lòng chọn phương thức đăng ký hợp lệ');
     }
 
     public function logoutUser()
@@ -281,7 +332,8 @@ class AuthController extends Controller
 
 
 
-    public function loginExpress(Request $request) {
+    public function loginExpress(Request $request)
+    {
         if (empty($request->id)) {
             return $this->sendErrorResponse('empty');
         }

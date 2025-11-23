@@ -62,6 +62,7 @@ class User extends Authenticatable
         'ngay_sinh',
         'gioi_tinh_id',
         'is_member',
+        'require_changepw',
     ];
 
     /**

@@ -50,6 +50,13 @@ Route::prefix('customers')->name('customers.')->group(function () {
     Route::delete('/{id}', [KhachHangController::class, 'destroy'])->name('destroy');
     Route::get('/{id}/statistics', [KhachHangController::class, 'statistics'])->name('statistics');
     Route::post('/segment', [KhachHangController::class, 'segment'])->name('segment');
+
+    // Customer history endpoints
+    Route::get('/{id}/purchase-history', [KhachHangController::class, 'purchaseHistory'])->name('purchase-history');
+    Route::get('/{id}/services', [KhachHangController::class, 'serviceHistory'])->name('services');
+    Route::get('/{id}/service-packages', [KhachHangController::class, 'servicePackageHistory'])->name('service-packages');
+    Route::get('/{id}/package-usage', [KhachHangController::class, 'packageUsageHistory'])->name('package-usage');
+    Route::get('/{id}/debts', [KhachHangController::class, 'debtHistory'])->name('debts');
 });
 
 // Booking Management

@@ -26,6 +26,9 @@ Route::post('api/register', [AuthController::class, 'postRegister_api'])->name('
 Route::get('account/logout/user', [AuthController::class, 'logoutUser'])->name('logout');
 Route::get('account/logout/aio', [AuthController::class, 'logoutAIO'])->name('logoutAIO');
 
+// trường hợp require change password
+Route::post('account/require-change-password', [AuthController::class, 'requireChangePassword'])->name('requireChangePassword');
+
 Route::get('get-token/{type}', [PagesController::class, 'getToken'])->name('get_token');
 
 Route::get('lang/change', [LangController::class, 'change'])->name('changeLang');
