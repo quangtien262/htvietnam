@@ -871,6 +871,7 @@ const InvoiceList_BDS: React.FC = () => {
             so_nguoi: 1,
             ngay_hen_dong_tien: dayjs().date(5),
             so_ngay_thue: daysInMonth_default,
+            aitilen_invoice_status_id: '2', // Chưa thanh toán
         };
         return result;
     }
@@ -1443,7 +1444,7 @@ const InvoiceList_BDS: React.FC = () => {
                 >
                     <Row gutter={24}>
 
-                        <Col span={6}>
+                        <Col span={12}>
                             <Form.Item
                                 name="contract_id"
                                 label="Hợp đồng"
@@ -1479,7 +1480,7 @@ const InvoiceList_BDS: React.FC = () => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+                        <Col span={6}>
                             <Form.Item
                                 name="aitilen_invoice_status_id"
                                 label="Trạng thái"

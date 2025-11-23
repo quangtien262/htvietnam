@@ -116,6 +116,13 @@ const ProjectDetail: React.FC = () => {
     }>({ visible: false, taskId: null });
     const [assigneeLoading, setAssigneeLoading] = useState(false);
 
+    // Quick edit status state
+    const [editingStatus, setEditingStatus] = useState<{
+        visible: boolean;
+        taskId: number | null;
+    }>({ visible: false, taskId: null });
+    const [statusLoading, setStatusLoading] = useState(false);
+
     // Handle window resize for responsive view mode
     useEffect(() => {
         const handleResize = () => {
@@ -469,7 +476,24 @@ const ProjectDetail: React.FC = () => {
         }
     };
 
-    const handleAddToMeeting = async () => {
+    // Quick edit status handler
+    const handleUpdateTaskStatus = async (taskId: number, trang_thai_id: number) => {
+        try {
+            setStatusLoading(true);
+            await taskApi.update(taskId, { trang_thai_id });
+            message.success('Cập nhật trạng thái thành công');
+
+            // Reload kanban data
+            loadKanbanData();
+
+            // Close popover
+            setEditingStatus({ visible: false, taskId: null });
+        } catch (error: any) {
+            message.error(error.response?.data?.message || 'Không thể cập nhật trạng thái');
+        } finally {
+            setStatusLoading(false);
+        }
+    };    const handleAddToMeeting = async () => {
         if (!project) return;
 
         try {
@@ -1541,7 +1565,60 @@ const ProjectDetail: React.FC = () => {
                                                                                         paddingTop: 8,
                                                                                         borderTop: '1px solid #f0f0f0',
                                                                                     }}>
-                                                                                        {task.nguoi_thuc_hien ? (
+                                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                                            {/* Status Icon */}
+                                                                                            {task.trang_thai && (
+                                                                                                <Popover
+                                                                                                    open={editingStatus.visible && editingStatus.taskId === task.id}
+                                                                                                    onOpenChange={(visible) => {
+                                                                                                        if (!visible) {
+                                                                                                            setEditingStatus({ visible: false, taskId: null });
+                                                                                                        }
+                                                                                                    }}
+                                                                                                    content={(
+                                                                                                        <div style={{ width: 200 }} onClick={(e) => e.stopPropagation()}>
+                                                                                                            <div style={{ marginBottom: 8, fontWeight: 500 }}>Chọn trạng thái:</div>
+                                                                                                            <Select
+                                                                                                                style={{ width: '100%' }}
+                                                                                                                value={task.trang_thai_id}
+                                                                                                                onChange={(value) => handleUpdateTaskStatus(task.id, value)}
+                                                                                                                loading={statusLoading}
+                                                                                                                placeholder="Chọn trạng thái"
+                                                                                                            >
+                                                                                                                {taskStatuses.map(status => (
+                                                                                                                    <Select.Option key={status.id} value={status.id}>
+                                                                                                                        <Tag color={status.color}>{status.name}</Tag>
+                                                                                                                    </Select.Option>
+                                                                                                                ))}
+                                                                                                            </Select>
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                    title="Sửa trạng thái"
+                                                                                                    trigger="click"
+                                                                                                >
+                                                                                                    <Tooltip placement="bottom" title={`${task.trang_thai.name} - Click để sửa`}>
+                                                                                                        <Tag
+                                                                                                            color={task.trang_thai.color}
+                                                                                                            style={{
+                                                                                                                cursor: 'pointer',
+                                                                                                                fontSize: 10,
+                                                                                                                padding: '2px 6px',
+                                                                                                                borderRadius: 4,
+                                                                                                                margin: 0,
+                                                                                                            }}
+                                                                                                            onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                setEditingStatus({ visible: true, taskId: task.id });
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            {icon[task.trang_thai?.icon]}
+                                                                                                        </Tag>
+                                                                                                    </Tooltip>
+                                                                                                </Popover>
+                                                                                            )}
+
+                                                                                            {/* Assignee Avatar */}
+                                                                                            {task.nguoi_thuc_hien ? (
                                                                                             <Popover
                                                                                                 open={editingAssignee.visible && editingAssignee.taskId === task.id}
                                                                                                 onOpenChange={(visible) => {
@@ -1593,9 +1670,10 @@ const ProjectDetail: React.FC = () => {
                                                                                                     </Avatar>
                                                                                                 </Tooltip>
                                                                                             </Popover>
-                                                                                        ) : (
-                                                                                            <div style={{ width: 28 }} />
-                                                                                        )}
+                                                                                            ) : (
+                                                                                                <div style={{ width: 28 }} />
+                                                                                            )}
+                                                                                        </div>
 
                                                                                         {task.ngay_ket_thuc_du_kien && (
                                                                                             <div style={{
