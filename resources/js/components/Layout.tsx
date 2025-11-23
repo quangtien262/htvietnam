@@ -155,7 +155,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 top: '64px',
                 zIndex: 999,
             }}>
-                <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+                <div style={{margin: '0 auto' }}>
                     {isMobile ? (
                         <div style={{ padding: '12px 24px' }}>
                             <Button
